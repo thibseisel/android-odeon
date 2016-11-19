@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/albumArt"
+        app:layout_widthPercent="100%"
+        android:contentDescription="@string/album_art"
+        android:scaleType="centerCrop"
+        app:layout_aspectRatio="100%"
+        tools:src="@drawable/ic_audiotrack_24dp"/>
+
+    <RelativeLayout
+        android:id="@+id/band"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:layout_below="@id/albumArt"
+        android:background="#ff4c4c4c"
+        android:padding="16dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/favorite"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="#ffffffff"
+            android:textSize="14sp"
+            tools:text="Scream Aim Fire"/>
+
+        <TextView
+            android:id="@+id/artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@+id/favorite"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="#b3ffffff"
+            android:textSize="14sp"
+            tools:text="Bullet For My Valentine"/>
+
+        <CheckBox
+            android:id="@+id/favorite"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:button="@drawable/favorite_state_list"/>
+
+    </RelativeLayout>
+
+</android.support.percent.PercentRelativeLayout>

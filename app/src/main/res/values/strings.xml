@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">MyMusic</string>
+    <string name="album_art">Album art</string>
+    <string name="drawer_opened">Drawer opened</string>
+    <string name="drawer_closed">Drawer closed</string>
+    <string name="action_home">Home</string>
+    <string name="action_albums">Albums</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_artists">Artists</string>
+    <string name="play_all_shuffled">Play all shuffled</string>
+    <string name="song_count">"%d songs"</string>
+    <string name="action_search">Search</string>
+    <string name="external_storage_rationale">External storage permission is required to read tracks stored on device.</string>
+    <string name="empty_songs">No songs.</string>
+    <string name="ok">OK</string>
+</resources>

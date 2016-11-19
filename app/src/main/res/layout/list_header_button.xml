@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:gravity="center_vertical"
+    android:minHeight="72dp"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    tools:ignore="UseCompoundDrawables">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="16dp"
+        android:scaleType="centerInside"
+        android:contentDescription="@null"
+        android:tint="?colorAccent"
+        app:srcCompat="@drawable/ic_shuffle_24dp"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/play_all_shuffled"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.Button"
+        android:textColor="?colorAccent"/>
+
+</LinearLayout>

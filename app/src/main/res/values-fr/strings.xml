@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyMusic</string>
+    <string name="action_albums">Albums</string>
+    <string name="action_artists">Artistes</string>
+    <string name="action_home">Accueil</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="album_art">Pochette d\'album</string>
+    <string name="drawer_closed">Tiroir ouvert</string>
+    <string name="drawer_opened">Tiroir fermé</string>
+    <string name="play_all_shuffled">Tout lire en mode aléatoire</string>
+    <string name="song_count">"%d chansons"</string>
+    <string name="action_search">Rechercher</string>
+    <string name="external_storage_rationale">La permission d\'accès au stockage externe est nécessaire pour lire les chansons stockées sur l\'appareil.</string>
+    <string name="empty_songs">Aucune chanson.</string>
+    <string name="ok">OK</string>
+</resources>

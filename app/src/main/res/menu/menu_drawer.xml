@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_home"
+            android:icon="@drawable/ic_queue_music_24dp"
+            android:title="@string/action_home"/>
+
+        <item
+            android:id="@+id/action_albums"
+            android:icon="@drawable/ic_album_24dp"
+            android:title="@string/action_albums"/>
+
+        <item
+            android:id="@+id/action_artists"
+            android:title="@string/action_artists"/>
+
+    </group>
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@drawable/ic_settings_24dp"
+            android:title="@string/action_settings"/>
+    </group>
+</menu>

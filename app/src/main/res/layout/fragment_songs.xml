@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fragment_songs"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             xmlns:tools="http://schemas.android.com/tools">
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fastScrollEnabled="true"
+        android:divider="@null"
+        android:headerDividersEnabled="true"
+        android:footerDividersEnabled="true"
+        tools:listitem="@layout/song_list_item"
+        tools:listheader="@layout/list_header_button"
+        tools:listfooter="@layout/list_footer"/>
+
+    <ViewStub
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/empty_with_image"/>
+
+</FrameLayout>
