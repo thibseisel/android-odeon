@@ -3,7 +3,7 @@ package fr.nihilus.mymusic.ui;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
@@ -13,9 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,17 +24,15 @@ import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
 
-public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class SongListFragment extends ListFragment {
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SONGS = "MediaItems";
     private static final String KEY_SCROLL = "ScrollY";
 
-    private ListView mListView;
-    private SongAdapter mAdapter;
     private ArrayList<MediaItem> mItems = new ArrayList<>();
     private TextView mFooterText;
-    private View mEmptyView;
+    private TextView mEmptyTextView;
 
     private final SubscriptionCallback mCallback = new MediaBrowserCompat.SubscriptionCallback() {
         @Override
@@ -46,34 +41,28 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
             mItems.clear();
             mItems.addAll(items);
             updateSongCount();
-            mAdapter.notifyDataSetChanged();
-
-            final boolean isEmpty = items.size() == 0;
-            setListShown(!isEmpty);
-            showEmptyView(isEmpty);
-        }
-
-        @Override
-        public void onError(@NonNull String parentId) {
-            Log.e(TAG, "onError: error while loading " + parentId);
+            getListAdapter().notifyDataSetChanged();
         }
     };
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_songs, container, false);
-        mListView = (ListView) rootView.findViewById(android.R.id.list);
-        ViewCompat.setNestedScrollingEnabled(mListView, true);
-        mListView.setOnItemClickListener(this);
+        View root = inflater.inflate(R.layout.fragment_songs, container, false);
+        mEmptyTextView = (TextView) root.findViewById(R.id.empty_text);
+        return root;
+    }
 
-        mEmptyView = rootView.findViewById(android.R.id.empty);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
 
         setupListHeader(inflater);
         setupListFooter(inflater);
 
-        return rootView;
+        ViewCompat.setNestedScrollingEnabled(getListView(), true);
     }
 
     @Override
@@ -82,14 +71,16 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         if (savedInstanceState != null) {
             mItems = savedInstanceState.getParcelableArrayList(KEY_SONGS);
-            mListView.setScrollY(savedInstanceState.getInt(KEY_SCROLL));
+            //getListView().setScrollY(savedInstanceState.getInt(KEY_SCROLL));
             Log.d(TAG, "onActivityCreated: state restored.");
         }
 
-        Log.d(TAG, "onActivityCreated: item count: " + mItems.size());
+        setListAdapter(new SongAdapter(getContext(), mItems));
+    }
 
-        mAdapter = new SongAdapter(getContext(), mItems);
-        mListView.setAdapter(mAdapter);
+    @Override
+    public SongAdapter getListAdapter() {
+        return ((SongAdapter) super.getListAdapter());
     }
 
     @Override
@@ -97,6 +88,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         super.onStart();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
                 .subscribe(MediaIDHelper.MEDIA_ID_ALL_MUSIC, mCallback);
+        getActivity().setTitle(R.string.all_music);
     }
 
     @Override
@@ -107,20 +99,21 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     private void setupListHeader(final LayoutInflater inflater) {
-        View listHeader = inflater.inflate(R.layout.list_header_button, mListView, false);
-        mListView.addHeaderView(listHeader);
-        mListView.setHeaderDividersEnabled(true);
+        View listHeader = inflater.inflate(R.layout.list_header_button, getListView(), false);
+        getListView().addHeaderView(listHeader);
+        getListView().setHeaderDividersEnabled(true);
         listHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // TODO Tout jouer en aléatoire
                 Toast.makeText(getContext(), R.string.play_all_shuffled, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void setupListFooter(final LayoutInflater inflater) {
-        mFooterText = (TextView) inflater.inflate(R.layout.list_footer, mListView, false);
-        mListView.addFooterView(mFooterText);
+        mFooterText = (TextView) inflater.inflate(R.layout.list_footer, getListView(), false);
+        getListView().addFooterView(mFooterText);
         updateSongCount();
     }
 
@@ -128,33 +121,26 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         mFooterText.setText(getString(R.string.song_count, mItems.size()));
     }
 
-    void setListShown(boolean isShown) {
-        mListView.setVisibility(isShown ? View.VISIBLE : View.GONE);
-    }
-
-    void showEmptyView(boolean isShown) {
-        if (mEmptyView instanceof ViewStub && isShown) {
-            mEmptyView = ((ViewStub) mEmptyView).inflate();
-            ((ImageView) mEmptyView.findViewById(R.id.empty_image)).setImageResource(R.drawable.sad_panda);
-            ((TextView) mEmptyView.findViewById(R.id.empty_text)).setText(R.string.empty_songs);
-        }
-        mEmptyView.setVisibility(isShown ? View.VISIBLE : View.GONE);
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(KEY_SONGS, mItems);
-        outState.putInt(KEY_SCROLL, mListView.getScrollY());
+        outState.putInt(KEY_SCROLL, getListView().getScrollY());
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        MediaItem clickedItem = mAdapter.getItem(position);
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        MediaItem clickedItem = getListAdapter().getItem(position);
         MediaControllerCompat controller = getActivity().getSupportMediaController();
-        if (controller != null) {
+        if (controller != null && clickedItem.isPlayable()) {
             Log.d(TAG, "onItemClick: playing song at position " + position);
             controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
+            setSelection(position);
         }
+    }
+
+    @Override
+    public void setEmptyText(CharSequence text) {
+        mEmptyTextView.setText(text);
     }
 }

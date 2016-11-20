@@ -1,17 +1,14 @@
 package fr.nihilus.mymusic;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -27,6 +24,7 @@ public class HomeActivity extends AppCompatActivity
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+    private NavigationView mNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +35,15 @@ public class HomeActivity extends AppCompatActivity
         setupNavigationDrawer();
 
         if (savedInstanceState == null) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(this).setMessage(R.string.external_storage_rationale)
                         .setNeutralButton(R.string.ok, null).create().show();
-            }
-            PermissionUtil.requestExternalStoragePermission(this);
+            }*/
 
+            PermissionUtil.requestExternalStoragePermission(this);
             if (PermissionUtil.hasExternalStoragePermission(this)) {
+                mNavigationView.setCheckedItem(R.id.action_home);
                 swapFragment(new SongListFragment());
             }
         }
@@ -59,8 +58,8 @@ public class HomeActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.navDrawer);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.navDrawer);
+        mNavigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -92,6 +91,7 @@ public class HomeActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
+            mNavigationView.setCheckedItem(R.id.action_home);
             swapFragment(new SongListFragment());
         }
     }

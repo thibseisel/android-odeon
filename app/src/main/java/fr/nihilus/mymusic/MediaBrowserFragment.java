@@ -12,7 +12,12 @@ import android.support.v4.media.MediaBrowserCompat.ConnectionCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
+
+import java.lang.ref.WeakReference;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import fr.nihilus.mymusic.playback.MusicService;
 
@@ -27,6 +32,7 @@ public class MediaBrowserFragment extends Fragment {
     private static final String TAG = "RetainedConnFragment";
 
     private MediaBrowserCompat mMediaBrowser;
+    private Queue<Pair<String, WeakReference<SubscriptionCallback>>> mQueue = new LinkedList<>();
 
     private final ConnectionCallback mConnectionCallback = new ConnectionCallback() {
 
@@ -37,6 +43,7 @@ public class MediaBrowserFragment extends Fragment {
                 MediaSessionCompat.Token token = mMediaBrowser.getSessionToken();
                 MediaControllerCompat controller = new MediaControllerCompat(getContext(), token);
                 getActivity().setSupportMediaController(controller);
+                onMediaBrowserConnected();
             } catch (RemoteException e) {
                 Log.e(TAG, "onMediaBrowserConnected: Failed to create MediaController.", e);
             }
@@ -87,6 +94,13 @@ public class MediaBrowserFragment extends Fragment {
     }
 
     public void subscribe(@NonNull String mediaId, @NonNull SubscriptionCallback callback) {
+        if (!isConnected()) {
+            // Met la requête en file d'attente, pour quand le MediaBrowser sera connecté
+            Log.w(TAG, "subscribe: waiting for the MediaBrowser to connect. Delaying request...");
+            mQueue.add(new Pair<>(mediaId, new WeakReference<>(callback)));
+            return;
+        }
+
         Log.d(TAG, "subscribe() called");
         mMediaBrowser.subscribe(mediaId, callback);
     }
@@ -94,6 +108,18 @@ public class MediaBrowserFragment extends Fragment {
     public void unsubscribe(@NonNull String mediaId) {
         if (mMediaBrowser != null) {
             mMediaBrowser.unsubscribe(mediaId);
+        }
+    }
+
+    private void onMediaBrowserConnected() {
+        Pair<String, WeakReference<SubscriptionCallback>> pair;
+        while ((pair = mQueue.poll()) != null) {
+            final SubscriptionCallback callback = pair.second.get();
+            if (callback != null) {
+                // L'élément qui veut souscrire est encore en vie
+                Log.d(TAG, "onMediaBrowserConnected: subscribing for " + pair.first);
+                mMediaBrowser.subscribe(pair.first, callback);
+            }
         }
     }
 }

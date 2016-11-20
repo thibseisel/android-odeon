@@ -3,17 +3,18 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
-                android:background="?selectableItemBackground"
+                android:background="?attr/selectableItemBackground"
                 android:paddingEnd="16dp"
                 android:paddingStart="16dp">
 
-    <ImageView
-        android:id="@+id/albumArt"
+    <TextView
+        android:id="@+id/trackNo"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:gravity="center"
         android:layout_centerVertical="true"
-        tools:src="@drawable/dummy_album_art"
-        android:contentDescription="@string/album_art"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        tools:text="12"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +24,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -34,7 +35,7 @@
             tools:text="Two-line item"/>
 
         <TextView
-            android:id="@+id/subtitle"
+            android:id="@+id/duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

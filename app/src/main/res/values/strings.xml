@@ -13,4 +13,6 @@
     <string name="external_storage_rationale">External storage permission is required to read tracks stored on device.</string>
     <string name="empty_songs">No songs.</string>
     <string name="ok">OK</string>
+    <string name="all_music">All music</string>
+    <string name="favorites">Favorites</string>
 </resources>

@@ -14,4 +14,5 @@
     <string name="external_storage_rationale">La permission d\'accès au stockage externe est nécessaire pour lire les chansons stockées sur l\'appareil.</string>
     <string name="empty_songs">Aucune chanson.</string>
     <string name="ok">OK</string>
+    <string name="all_music">Toute ma musique</string>
 </resources>

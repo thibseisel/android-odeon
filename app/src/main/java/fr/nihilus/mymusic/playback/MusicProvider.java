@@ -5,11 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.BaseColumns;
 import android.provider.MediaStore;
+import android.provider.MediaStore.Audio.AlbumColumns;
+import android.provider.MediaStore.Audio.Albums;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaMetadataCompat;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -23,14 +28,19 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_AR
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_NUM_TRACKS;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_YEAR;
 
 class MusicProvider implements MediaStore.Audio.AudioColumns {
 
+    private static final String[] ALBUM_PROJECTION = {BaseColumns._ID, AlbumColumns.ALBUM,
+            AlbumColumns.ALBUM_KEY, AlbumColumns.ARTIST,
+            AlbumColumns.LAST_YEAR, AlbumColumns.NUMBER_OF_SONGS};
     private static final int NON_INITIALIZED = 0, INITIALIZING = 1, INITIALIZED = 2;
     private static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String TAG = "MusicProvider";
-    private static final String[] PROJECTIONS = new String[]{_ID, TITLE, ARTIST, ALBUM, DURATION, ALBUM_ID};
+    private static final String[] PROJECTIONS = {_ID, TITLE, ARTIST, ALBUM, DURATION, ALBUM_ID};
     private static final String CUSTOM_METADATA_FILE_URI = "__FILE_URI__";
     private final ConcurrentMap<String, MediaMetadataCompat> mMusicListById;
     private volatile int mCurrentState = NON_INITIALIZED;
@@ -119,8 +129,60 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
                 ? mMusicListById.get(musicId) : null;
     }
 
-    List<MediaMetadataCompat> retrieveAlbums(@NonNull Context context) {
-        throw new UnsupportedOperationException("Not yet implemented");
+    void retrieveAlbumsAsync(@NonNull final Context context,
+                             @NonNull final ValueCallback<List<MediaItem>> callback) {
+        new AsyncTask<Void, Void, List<MediaItem>>() {
+
+            @Override
+            protected List<MediaItem> doInBackground(Void... voids) {
+                return retrieveAlbums(context);
+            }
+
+            @Override
+            protected void onPostExecute(List<MediaItem> mediaItems) {
+                callback.onReady(mediaItems);
+            }
+        };
+    }
+
+    List<MediaItem> retrieveAlbums(@NonNull Context context) {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            return Collections.emptyList();
+        }
+
+        Cursor cursor = context.getContentResolver()
+                .query(Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
+                        null, null, Albums.DEFAULT_SORT_ORDER);
+
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
+
+        List<MediaItem> albumList = new ArrayList<>();
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+
+        final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+        final int colTitle = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM);
+        final int colKey = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM_KEY);
+        final int colArtist = cursor.getColumnIndexOrThrow(AlbumColumns.ARTIST);
+        final int colAlbumArt = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM_ART);
+        final int colYear = cursor.getColumnIndexOrThrow(AlbumColumns.LAST_YEAR);
+        final int colSongCount = cursor.getColumnIndexOrThrow(AlbumColumns.NUMBER_OF_SONGS);
+
+        while (cursor.moveToNext()) {
+            final String mediaId = cursor.getString(colId);
+
+            builder.putString(METADATA_KEY_MEDIA_ID, mediaId)
+                    .putString(METADATA_KEY_TITLE, cursor.getString(colTitle))
+                    .putString(METADATA_KEY_ARTIST, cursor.getString(colArtist))
+                    .putString(METADATA_KEY_ALBUM_ART_URI, cursor.getString(colAlbumArt))
+                    .putLong(METADATA_KEY_NUM_TRACKS, cursor.getLong(colSongCount))
+                    .putLong(METADATA_KEY_YEAR, cursor.getLong(colYear));
+            final MediaMetadataCompat metadata = builder.build();
+            albumList.add(new MediaItem(metadata.getDescription(), MediaItem.FLAG_BROWSABLE));
+        }
+        cursor.close();
+        return albumList;
     }
 
     boolean isInitialized() {
@@ -136,5 +198,9 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
     interface Callback {
         void onMusicCatalogReady(boolean success);
+    }
+
+    interface ValueCallback<T> {
+        void onReady(T value);
     }
 }

@@ -165,17 +165,13 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                                   final Result<List<MediaItem>> result) {
         List<MediaItem> mediaItems = new ArrayList<>();
 
-        Log.d(TAG, "loadChildrenImpl");
-
         if (MEDIA_ID_ROOT.equals(parentMediaId)) {
             Log.d(TAG, "loadChildrenImpl: loading ROOT");
             mediaItems.add(new MediaItem(new MediaDescriptionCompat.Builder()
                     .setTitle("All tracks")
                     .setMediaId(MEDIA_ID_ALL_MUSIC)
                     .build(), MediaItem.FLAG_BROWSABLE));
-        }
-
-        if (MEDIA_ID_ALL_MUSIC.equals(parentMediaId)) {
+        } else if (MEDIA_ID_ALL_MUSIC.equals(parentMediaId)) {
             Log.d(TAG, "loadChildrenImpl: loading ALL_MUSIC");
             for (MediaMetadataCompat track : mMusicProvider.getAllMusic()) {
                 String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getDescription()

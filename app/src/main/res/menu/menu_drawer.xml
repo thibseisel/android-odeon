@@ -4,7 +4,7 @@
         <item
             android:id="@+id/action_home"
             android:icon="@drawable/ic_queue_music_24dp"
-            android:title="@string/action_home"/>
+            android:title="@string/all_music"/>
 
         <item
             android:id="@+id/action_albums"
@@ -14,6 +14,11 @@
         <item
             android:id="@+id/action_artists"
             android:title="@string/action_artists"/>
+
+        <item
+            android:id="@+id/action_favorite"
+            android:title="@string/favorites"
+            android:icon="@drawable/ic_star_24dp"/>
 
     </group>
     <group android:checkableBehavior="none">

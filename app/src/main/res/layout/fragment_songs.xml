@@ -5,22 +5,42 @@
              android:layout_height="match_parent"
              xmlns:tools="http://schemas.android.com/tools">
 
-    <ListView
-        android:id="@android:id/list"
+    <LinearLayout
+        android:id="@id/listfragment_progress_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fastScrollEnabled="true"
-        android:divider="@null"
-        android:headerDividersEnabled="true"
-        android:footerDividersEnabled="true"
-        tools:listitem="@layout/song_list_item"
-        tools:listheader="@layout/list_header_button"
-        tools:listfooter="@layout/list_footer"/>
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone">
 
-    <ViewStub
-        android:id="@android:id/empty"
+        <ProgressBar
+            android:id="@android:id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleLarge"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@id/listfragment_list_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout="@layout/empty_with_image"/>
+        android:layout_height="match_parent">
+
+        <include
+            android:id="@id/listfragment_empty"
+            layout="@layout/empty_with_image"/>
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fastScrollEnabled="true"
+            android:divider="@null"
+            android:drawSelectorOnTop="false"
+            android:headerDividersEnabled="true"
+            android:footerDividersEnabled="true"
+            tools:listitem="@layout/song_list_item"
+            tools:listheader="@layout/list_header_button"
+            tools:listfooter="@layout/list_footer"/>
+    </FrameLayout>
 
 </FrameLayout>
