@@ -51,6 +51,7 @@ public class MediaUsageProvider extends ContentProvider implements MediaUsageCon
 
         final SQLiteDatabase db = mHelper.getReadableDatabase();
         final Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        //noinspection ConstantConditions
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
 
         return cursor;

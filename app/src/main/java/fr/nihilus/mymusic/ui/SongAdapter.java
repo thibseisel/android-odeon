@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +20,6 @@ import java.util.List;
 
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
-import fr.nihilus.mymusic.widget.AlphabetIndexer;
 
 class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
 
@@ -29,16 +27,14 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
 
     private final Context mContext;
     private final LayoutInflater mInflater;
-    private final SectionIndexer mIndexer;
     private List<MediaBrowserCompat.MediaItem> mSongs;
     private final Drawable mDummyAlbumArt;
 
-    SongAdapter(@NonNull Context ctx, @NonNull List<MediaBrowserCompat.MediaItem> songs) {
+    SongAdapter(@NonNull Context ctx, List<MediaBrowserCompat.MediaItem> songs) {
         mContext = ctx;
         mInflater = LayoutInflater.from(ctx);
-        mSongs = songs;
-        mIndexer = new AlphabetIndexer(mSongs);
         mDummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.dummy_album_art);
+        mSongs = songs;
     }
 
     @Override
@@ -98,9 +94,9 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
     }*/
 
     private static class ViewHolder {
-        TextView title;
-        TextView subtitle;
-        ImageView albumArt;
+        final TextView title;
+        final TextView subtitle;
+        final ImageView albumArt;
 
         ViewHolder(View root) {
             title = (TextView) root.findViewById(R.id.title);

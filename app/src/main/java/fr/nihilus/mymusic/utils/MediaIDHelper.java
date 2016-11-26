@@ -26,10 +26,11 @@ import java.util.Arrays;
 public class MediaIDHelper {
 
     // Media IDs used on browseable items of MediaBrowser
-    public static final String MEDIA_ID_ROOT = "__ROOT__";
-    public static final String MEDIA_ID_MUSICS_BY_GENRE = "__BY_GENRE__";
-    public static final String MEDIA_ID_MUSICS_BY_SEARCH = "__BY_SEARCH__";
-    public static final String MEDIA_ID_ALL_MUSIC = "__ALL_MUSIC__";
+    public static final String MEDIA_ID_ROOT = "ROOT";
+    public static final String MEDIA_ID_MUSICS_GENRE = "BY_GENRE";
+    public static final String MEDIA_ID_ALL_MUSIC = "ALL_MUSIC";
+    public static final String MEDIA_ID_ALBUMS = "BY_ALBUMS";
+    public static final String MEDIA_ID_ARTISTS = "BY_ARTISTS";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';
@@ -102,9 +103,8 @@ public class MediaIDHelper {
      *
      * @param mediaID that contains a category and categoryValue.
      */
-    public static
     @NonNull
-    String[] getHierarchy(@NonNull String mediaID) {
+    public static String[] getHierarchy(@NonNull String mediaID) {
         int pos = mediaID.indexOf(LEAF_SEPARATOR);
         if (pos >= 0) {
             mediaID = mediaID.substring(0, pos);

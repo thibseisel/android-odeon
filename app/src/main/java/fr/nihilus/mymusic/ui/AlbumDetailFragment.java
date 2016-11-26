@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.view.ViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,14 +24,13 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
 
 
 public class AlbumDetailFragment extends Fragment {
 
-    public static final String KEY_PICKED_ALBUM = "picked_album";
+    private static final String KEY_PICKED_ALBUM = "picked_album";
 
     private static final String TAG = "AlbumDetailFragment";
     private static final String KEY_TRACKS = "tracks";
@@ -73,10 +73,16 @@ public class AlbumDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_album_detail, container, false);
-        mListView = (ListView) root.findViewById(android.R.id.list);
-        mAlbumArt = (ImageView) root.findViewById(R.id.albumArt);
-        return root;
+        return inflater.inflate(R.layout.fragment_album_detail, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mListView = (ListView) view.findViewById(android.R.id.list);
+        mAlbumArt = (ImageView) view.findViewById(R.id.albumArt);
+
+        ViewCompat.setTransitionName(mAlbumArt, "albumArt");
     }
 
     @Override
@@ -101,16 +107,16 @@ public class AlbumDetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(mAlbum.getMediaId(), mSubscriptionCallback);
+        /*MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .subscribe(mAlbum.getMediaId(), mSubscriptionCallback);*/
         getActivity().setTitle(mAlbum.getDescription().getTitle());
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(mAlbum.getMediaId());
+        /*MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .unsubscribe(mAlbum.getMediaId());*/
     }
 
     /**
@@ -164,9 +170,9 @@ public class AlbumDetailFragment extends Fragment {
 
     private static class AlbumTrackHolder {
 
-        TextView trackNumber;
-        TextView title;
-        TextView duration;
+        final TextView trackNumber;
+        final TextView title;
+        final TextView duration;
 
         AlbumTrackHolder(View rootView) {
             trackNumber = (TextView) rootView.findViewById(R.id.trackNo);

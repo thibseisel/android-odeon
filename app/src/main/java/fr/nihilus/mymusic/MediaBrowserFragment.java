@@ -29,7 +29,7 @@ import fr.nihilus.mymusic.playback.MusicService;
  */
 public class MediaBrowserFragment extends Fragment {
 
-    private static final String TAG = "RetainedConnFragment";
+    private static final String TAG = "MediaBrowserFragment";
 
     private MediaBrowserCompat mMediaBrowser;
     private Queue<Pair<String, WeakReference<SubscriptionCallback>>> mQueue = new LinkedList<>();
@@ -39,7 +39,7 @@ public class MediaBrowserFragment extends Fragment {
         @Override
         public void onConnected() {
             try {
-                Log.d(TAG, "onConnected() called");
+                Log.d(TAG, "MediaBrowser is now connected.");
                 MediaSessionCompat.Token token = mMediaBrowser.getSessionToken();
                 MediaControllerCompat controller = new MediaControllerCompat(getContext(), token);
                 getActivity().setSupportMediaController(controller);
@@ -51,13 +51,13 @@ public class MediaBrowserFragment extends Fragment {
 
         @Override
         public void onConnectionSuspended() {
-            Log.d(TAG, "onConnectionSuspended() called");
+            Log.w(TAG, "MediaBrowser connection has been suspended.");
             mMediaBrowser = null;
         }
 
         @Override
         public void onConnectionFailed() {
-            Log.e(TAG, "onConnectionFailed() called");
+            Log.e(TAG, "Connection to MediaBrowser has failed.");
             super.onConnectionFailed();
         }
     };
@@ -76,7 +76,6 @@ public class MediaBrowserFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "onCreate: creating and starting MediaBrowser...");
         mMediaBrowser = new MediaBrowserCompat(getContext(), new ComponentName(getContext(),
                 MusicService.class), mConnectionCallback, null);
         mMediaBrowser.connect();
@@ -84,12 +83,12 @@ public class MediaBrowserFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy() called");
+        Log.d(TAG, "Disconnecting from MediaBrowser.");
         mMediaBrowser.disconnect();
         super.onDestroy();
     }
 
-    public boolean isConnected() {
+    private boolean isConnected() {
         return mMediaBrowser != null && mMediaBrowser.isConnected();
     }
 
@@ -101,7 +100,7 @@ public class MediaBrowserFragment extends Fragment {
             return;
         }
 
-        Log.d(TAG, "subscribe() called");
+        Log.d(TAG, "subscribe: subscribing for " + mediaId);
         mMediaBrowser.subscribe(mediaId, callback);
     }
 

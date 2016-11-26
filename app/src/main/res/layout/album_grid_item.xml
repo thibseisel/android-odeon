@@ -11,12 +11,11 @@
         android:id="@+id/albumArt"
         app:layout_widthPercent="100%"
         android:contentDescription="@string/album_art"
-        android:scaleType="centerCrop"
+        android:scaleType="fitCenter"
         app:layout_aspectRatio="100%"
         tools:src="@drawable/ic_audiotrack_24dp"/>
 
     <RelativeLayout
-        android:id="@+id/band"
         android:layout_width="match_parent"
         android:layout_height="68dp"
         android:layout_below="@id/albumArt"
@@ -28,7 +27,6 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/favorite"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -41,22 +39,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_toStartOf="@+id/favorite"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="#b3ffffff"
             android:textSize="14sp"
             tools:text="Bullet For My Valentine"/>
-
-        <CheckBox
-            android:id="@+id/favorite"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
-            android:button="@drawable/favorite_state_list"/>
 
     </RelativeLayout>
 

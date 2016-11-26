@@ -12,11 +12,9 @@
             android:title="@string/action_albums"/>
 
         <item
-            android:id="@+id/action_artists"
             android:title="@string/action_artists"/>
 
         <item
-            android:id="@+id/action_favorite"
             android:title="@string/favorites"
             android:icon="@drawable/ic_star_24dp"/>
 

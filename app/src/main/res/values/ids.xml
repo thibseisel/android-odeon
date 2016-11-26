@@ -1,6 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item type="id" name="listfragment_empty">0x00ff0001</item>
-    <item type="id" name="listfragment_progress_container">0x00ff0002</item>
-    <item type="id" name="listfragment_list_container">0x00ff0003</item>
 </resources>

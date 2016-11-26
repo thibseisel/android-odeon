@@ -9,11 +9,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -29,8 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fr.nihilus.mymusic.HomeActivity;
+import fr.nihilus.mymusic.playback.MusicProvider.Callback;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
 
+import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ALBUMS;
 import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ALL_MUSIC;
 import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
@@ -61,7 +63,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     private Playback mPlayback;
     private boolean mServiceStarted;
     private int mCurrentIndexQueue;
-    private DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
+    private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaNotificationManager mMediaNotificationManager;
 
     @Override
@@ -81,6 +83,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mSession = new MediaSessionCompat(this, MusicService.class.getSimpleName(),
                 mediaButtonReceiver, null);
         setSessionToken(mSession.getSessionToken());
+        mSession.setCallback(new MediaSessionCallback());
 
         // Utile uniquement pour l'API < 21
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
@@ -143,7 +146,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             Log.d(TAG, "onLoadChildren: must load music library before returning children.");
             result.detach();
 
-            mMusicProvider.retrieveMetadataAsync(this, new MusicProvider.Callback() {
+            mMusicProvider.retrieveMetadataAsync(this, new MusicProvider.MusicReadyCallback() {
                 @Override
                 public void onMusicCatalogReady(boolean success) {
                     if (success) {
@@ -163,16 +166,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     private void loadChildrenImpl(final String parentMediaId,
                                   final Result<List<MediaItem>> result) {
+        Log.d(TAG, "loadChildrenImpl: loading " + parentMediaId);
         List<MediaItem> mediaItems = new ArrayList<>();
 
-        if (MEDIA_ID_ROOT.equals(parentMediaId)) {
-            Log.d(TAG, "loadChildrenImpl: loading ROOT");
-            mediaItems.add(new MediaItem(new MediaDescriptionCompat.Builder()
-                    .setTitle("All tracks")
-                    .setMediaId(MEDIA_ID_ALL_MUSIC)
-                    .build(), MediaItem.FLAG_BROWSABLE));
-        } else if (MEDIA_ID_ALL_MUSIC.equals(parentMediaId)) {
-            Log.d(TAG, "loadChildrenImpl: loading ALL_MUSIC");
+        if (MEDIA_ID_ALL_MUSIC.equals(parentMediaId)) {
             for (MediaMetadataCompat track : mMusicProvider.getAllMusic()) {
                 String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getDescription()
                         .getMediaId(), MEDIA_ID_ALL_MUSIC, MEDIA_ID_ALL_MUSIC);
@@ -183,17 +180,34 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 mediaItems.add(item);
             }
 
+            // FIXME : le tri est trop long
             Collections.sort(mediaItems, new Comparator<MediaItem>() {
                 @Override
                 public int compare(MediaItem one, MediaItem another) {
-                    String oneTitle = one.getDescription().getTitle().toString();
-                    String anotherTitle = another.getDescription().getTitle().toString();
-                    return oneTitle.compareTo(anotherTitle);
+                    CharSequence oneTitle = one.getDescription().getTitle();
+                    CharSequence anotherTitle = another.getDescription().getTitle();
+                    if (oneTitle != null && anotherTitle != null) {
+                        return MediaStore.Audio.keyFor(oneTitle.toString())
+                                .compareTo(MediaStore.Audio.keyFor(anotherTitle.toString()));
+                    }
+                    return 0;
                 }
             });
+            result.sendResult(mediaItems);
+        } else if (MEDIA_ID_ALBUMS.equals(parentMediaId)) {
+            // FIXME Rotation d'écran provoque deuxième appel à detach
+            // TODO Refonte de loadChildren
+            result.detach();
+            mMusicProvider.retrieveAlbumsAsync(this, new Callback<List<MediaItem>>() {
+                @Override
+                public void onReady(List<MediaItem> albums) {
+                    result.sendResult(albums);
+                }
+            });
+        } else {
+            Log.d(TAG, "loadChildrenImpl: MediaId not implemented.");
+            result.sendResult(mediaItems);
         }
-
-        result.sendResult(mediaItems);
     }
 
     @Override
@@ -226,7 +240,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     /**
      * Demande la mise en pause de la lecture en cours.
      */
-    void handlePauseRequest() {
+    private void handlePauseRequest() {
         Log.d(TAG, "handlePauseRequest: mState=" + mPlayback.getState());
         mPlayback.pause();
         // Reset the delayed stop handler.
@@ -239,7 +253,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      *
      * @param withError message d'erreur optionnel, ou null s'il n'y a pas d'erreur
      */
-    void handleStopRequest(@Nullable String withError) {
+    private void handleStopRequest(@Nullable String withError) {
         Log.d(TAG, "handleStopRequest: mState=" + mPlayback.getState()
                 + " error=" + withError);
         mPlayback.stop(true);
@@ -327,7 +341,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         // TODO Actions : random and repeat
     }
 
-    void handlePlayRequest() {
+    private void handlePlayRequest() {
         Log.d(TAG, "handlePlayRequest: mState=" + mPlayback.getState());
 
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -402,7 +416,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }*/
     }
 
-    void handlePreviousRequest() {
+    private void handlePreviousRequest() {
         mCurrentIndexQueue--;
 
         if (mPlayingQueue != null && mCurrentIndexQueue < 0) {
@@ -426,7 +440,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }
     }
 
-    void handleNextRequest() {
+    private void handleNextRequest() {
         mCurrentIndexQueue++;
 
         if (mPlayingQueue != null && mCurrentIndexQueue >= mPlayingQueue.size()) {
@@ -570,28 +584,28 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      * Un BroadcastReceiver qui notifie le service lorsqu'un bouton média est pressé, par exemple
      * le bouton d'un casque filaire ou Bluetooth.
      */
-    public class RemoteControlReceiver extends BroadcastReceiver {
+    public static class RemoteControlReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
             if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
                 KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
                 switch (event.getKeyCode()) {
                     case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        handlePlayRequest();
+                        // handlePlay
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        handlePauseRequest();
+                        // handlePause
                         break;
                     case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        handleNextRequest();
+                        // handleNext
                         break;
                     case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        handlePreviousRequest();
+                        // handlePrevious
                         break;
                 }
             }
-
         }
     }
 }

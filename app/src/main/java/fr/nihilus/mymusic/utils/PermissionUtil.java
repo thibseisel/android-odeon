@@ -8,9 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-/**
- * Created by Thib on 12/11/2016.
- */
 public class PermissionUtil {
 
     public static final String EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;

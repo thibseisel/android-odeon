@@ -115,7 +115,7 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public void swapFragment(Fragment newFrag) {
+    private void swapFragment(Fragment newFrag) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, newFrag)
                 .commit();

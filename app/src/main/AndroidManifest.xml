@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
+    xmlns:tools="http://schemas.android.com/tools"
     package="fr.nihilus.mymusic"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:name=".MyApplication"
@@ -13,7 +13,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -24,10 +25,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Le service de Playback musical est lié à un autre processus. -->
         <service
             android:name=".playback.MusicService"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"
+            android:process=":musicplayer">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>

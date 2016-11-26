@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        Thib {
+            keyAlias 'Thib'
+            keyPassword 'MaitreJedi'
+            storeFile file('C:/Users/Thib/Documents/Android/keystore/android.jks')
+            storePassword 'MaitreJedi'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
     defaultConfig {
@@ -11,6 +19,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true;
+        signingConfig signingConfigs.Thib
     }
     buildTypes {
         release {
@@ -18,6 +27,8 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    productFlavors {
     }
 }
 

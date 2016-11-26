@@ -5,12 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.Albums;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.util.Log;
 
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import fr.nihilus.mymusic.utils.MediaIDHelper;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM;
@@ -28,9 +31,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_AR
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_NUM_TRACKS;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
-import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_YEAR;
 
 class MusicProvider implements MediaStore.Audio.AudioColumns {
 
@@ -41,7 +42,6 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
     private static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String TAG = "MusicProvider";
     private static final String[] PROJECTIONS = {_ID, TITLE, ARTIST, ALBUM, DURATION, ALBUM_ID};
-    private static final String CUSTOM_METADATA_FILE_URI = "__FILE_URI__";
     private final ConcurrentMap<String, MediaMetadataCompat> mMusicListById;
     private volatile int mCurrentState = NON_INITIALIZED;
 
@@ -49,7 +49,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         mMusicListById = new ConcurrentHashMap<>();
     }
 
-    void retrieveMetadataAsync(@NonNull final Context context, final Callback callback) {
+    void retrieveMetadataAsync(@NonNull final Context context, final MusicReadyCallback callback) {
         Log.d(TAG, "retrieveMetadataAsync");
         if (mCurrentState == INITIALIZED) {
             Log.d(TAG, "retrieveMetadataAsync: music library already loaded.");
@@ -130,7 +130,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
     }
 
     void retrieveAlbumsAsync(@NonNull final Context context,
-                             @NonNull final ValueCallback<List<MediaItem>> callback) {
+                             @NonNull final Callback<List<MediaItem>> callback) {
         new AsyncTask<Void, Void, List<MediaItem>>() {
 
             @Override
@@ -142,11 +142,12 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
             protected void onPostExecute(List<MediaItem> mediaItems) {
                 callback.onReady(mediaItems);
             }
-        };
+        }.execute();
     }
 
-    List<MediaItem> retrieveAlbums(@NonNull Context context) {
+    private List<MediaItem> retrieveAlbums(@NonNull Context context) {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "retrieveAlbums: missing External Storage permission.");
             return Collections.emptyList();
         }
 
@@ -159,28 +160,33 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         }
 
         List<MediaItem> albumList = new ArrayList<>();
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
 
         final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
         final int colTitle = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM);
         final int colKey = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM_KEY);
         final int colArtist = cursor.getColumnIndexOrThrow(AlbumColumns.ARTIST);
-        final int colAlbumArt = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM_ART);
         final int colYear = cursor.getColumnIndexOrThrow(AlbumColumns.LAST_YEAR);
         final int colSongCount = cursor.getColumnIndexOrThrow(AlbumColumns.NUMBER_OF_SONGS);
 
         while (cursor.moveToNext()) {
-            final String mediaId = cursor.getString(colId);
+            final long albumId = cursor.getLong(colId);
+            final String mediaId = MediaIDHelper.createMediaID(String.valueOf(albumId), MediaIDHelper.MEDIA_ID_ALBUMS);
+            final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
 
-            builder.putString(METADATA_KEY_MEDIA_ID, mediaId)
-                    .putString(METADATA_KEY_TITLE, cursor.getString(colTitle))
-                    .putString(METADATA_KEY_ARTIST, cursor.getString(colArtist))
-                    .putString(METADATA_KEY_ALBUM_ART_URI, cursor.getString(colAlbumArt))
-                    .putLong(METADATA_KEY_NUM_TRACKS, cursor.getLong(colSongCount))
-                    .putLong(METADATA_KEY_YEAR, cursor.getLong(colYear));
-            final MediaMetadataCompat metadata = builder.build();
-            albumList.add(new MediaItem(metadata.getDescription(), MediaItem.FLAG_BROWSABLE));
+            builder.setMediaId(mediaId)
+                    .setTitle(cursor.getString(colTitle))
+                    .setSubtitle(cursor.getString(colArtist)) // artiste
+                    .setIconUri(artUri);
+            Bundle extras = new Bundle();
+            extras.putString(AlbumColumns.ALBUM_KEY, cursor.getString(colKey));
+            extras.putInt(AlbumColumns.NUMBER_OF_SONGS, cursor.getInt(colSongCount));
+            extras.putInt(AlbumColumns.LAST_YEAR, cursor.getInt(colYear));
+            builder.setExtras(extras);
+
+            albumList.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE));
         }
+
         cursor.close();
         return albumList;
     }
@@ -196,11 +202,11 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         return mMusicListById.values();
     }
 
-    interface Callback {
+    interface MusicReadyCallback {
         void onMusicCatalogReady(boolean success);
     }
 
-    interface ValueCallback<T> {
+    interface Callback<T> {
         void onReady(T value);
     }
 }
