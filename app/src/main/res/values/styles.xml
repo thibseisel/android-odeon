@@ -3,9 +3,10 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-        <!--<item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>-->
+
+        <item name="colorPrimary">@color/mtrl_blue_500</item>
+        <item name="colorPrimaryDark">@color/mtrl_blue_700</item>
+        <item name="colorAccent">@color/mtrl_amber_a400</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -22,7 +23,7 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
 
 </resources>

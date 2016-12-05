@@ -25,6 +25,7 @@
 
                 <category android:name="android.intent.category.APP_MUSIC"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
 
             <meta-data

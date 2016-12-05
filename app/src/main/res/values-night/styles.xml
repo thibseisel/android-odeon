@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
+        <item name="colorPrimary">@color/mtrl_grey_900</item>
+        <item name="colorPrimaryDark">@android:color/background_dark</item>
+        <item name="colorAccent">@color/mtrl_teal_a400</item>
+    </style>
+
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
 </resources>

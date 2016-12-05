@@ -2,6 +2,7 @@ package fr.nihilus.mymusic;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -56,9 +57,13 @@ public class HomeActivity extends AppCompatActivity
             if (PermissionUtil.hasExternalStoragePermission(this)) {
                 mNavigationView.setCheckedItem(R.id.action_all);
                 swapFragment(new SongListFragment());
+                loadDailySong();
             }
         }
 
+    }
+
+    private void loadDailySong() {
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
                 .subscribe(MediaIDHelper.MEDIA_ID_DAILY, mSubscriptionCallback);
     }
@@ -110,6 +115,10 @@ public class HomeActivity extends AppCompatActivity
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
             mNavigationView.setCheckedItem(R.id.action_all);
             swapFragment(new SongListFragment());
+
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                loadDailySong();
+            }
         }
     }
 

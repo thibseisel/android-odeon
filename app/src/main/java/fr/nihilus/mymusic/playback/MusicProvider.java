@@ -90,7 +90,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
-            mCurrentState = INITIALIZED;
+            mCurrentState = NON_INITIALIZED;
             return;
         }
 

@@ -2,6 +2,12 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
+        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
+        <item name="colorPrimary">@color/mtrl_blue_500</item>
+        <item name="colorPrimaryDark">@color/mtrl_blue_700</item>
+        <item name="colorAccent">@color/mtrl_amber_a400</item>
+
         <!-- Enable window content transition -->
         <item name="android:windowContentTransitions">true</item>
 
