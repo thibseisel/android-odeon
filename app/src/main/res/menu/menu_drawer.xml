@@ -1,28 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/action_home"
-            android:icon="@drawable/ic_queue_music_24dp"
-            android:title="@string/all_music"/>
 
-        <item
-            android:id="@+id/action_albums"
-            android:icon="@drawable/ic_album_24dp"
-            android:title="@string/action_albums"/>
+    <item
+        android:id="@+id/category_library"
+        android:title="@string/music_library">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/action_all"
+                    android:icon="@drawable/ic_library_music_24dp"
+                    android:title="@string/all_music"/>
 
-        <item
-            android:title="@string/action_artists"/>
+                <item
+                    android:id="@+id/action_albums"
+                    android:icon="@drawable/ic_album_24dp"
+                    android:title="@string/action_albums"/>
 
-        <item
-            android:title="@string/favorites"
-            android:icon="@drawable/ic_star_24dp"/>
+                <item
+                    android:id="@+id/action_artists"
+                    android:icon="@drawable/ic_person_24dp"
+                    android:title="@string/action_artists"/>
 
-    </group>
+                <item
+                    android:id="@+id/action_playlist"
+                    android:icon="@drawable/ic_playlist_24dp"
+                    android:title="@string/action_playlists"/>
+
+                <item
+                    android:id="@+id/action_favorites"
+                    android:icon="@drawable/ic_star_24dp"
+                    android:title="@string/favorites"/>
+            </group>
+        </menu>
+    </item>
     <group android:checkableBehavior="none">
         <item
             android:id="@+id/action_settings"
             android:icon="@drawable/ic_settings_24dp"
             android:title="@string/action_settings"/>
+
+        <item
+            android:id="@+id/action_about"
+            android:icon="@drawable/ic_info_outline_24dp"
+            android:title="@string/action_about"/>
     </group>
 </menu>

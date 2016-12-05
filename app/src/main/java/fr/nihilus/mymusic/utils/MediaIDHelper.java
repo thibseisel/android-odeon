@@ -20,17 +20,29 @@ import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 
-/**
- * Utility class to help on queue related tasks.
- */
 public class MediaIDHelper {
 
-    // Media IDs used on browseable items of MediaBrowser
     public static final String MEDIA_ID_ROOT = "ROOT";
-    public static final String MEDIA_ID_MUSICS_GENRE = "BY_GENRE";
-    public static final String MEDIA_ID_ALL_MUSIC = "ALL_MUSIC";
-    public static final String MEDIA_ID_ALBUMS = "BY_ALBUMS";
-    public static final String MEDIA_ID_ARTISTS = "BY_ARTISTS";
+    /**
+     * La chanson du jour est tirée au sort parmi tous les titres de la bibliothèque musicale.
+     */
+    public static final String MEDIA_ID_DAILY = "SONG_OF_THE_DAY";
+    /**
+     * Classement des titres par genre musical, tel que "Rock".
+     */
+    public static final String MEDIA_ID_GENRES = "GENRES";
+    /**
+     * La totalité des titres de la bibliothèque musicale.
+     */
+    public static final String MEDIA_ID_MUSIC = "MUSIC";
+    /**
+     * Classement des titres par albums.
+     */
+    public static final String MEDIA_ID_ALBUMS = "ALBUMS";
+    /**
+     * Classement des titres par artistes.
+     */
+    public static final String MEDIA_ID_ARTISTS = "ARTISTS";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';
@@ -56,7 +68,7 @@ public class MediaIDHelper {
         if (categories != null) {
             for (int i = 0; i < categories.length; i++) {
                 if (!isValidCategory(categories[i])) {
-                    throw new IllegalArgumentException("Invalid category: " + categories[0]);
+                    throw new IllegalArgumentException("Invalid category: " + categories[i]);
                 }
                 sb.append(categories[i]);
                 if (i < categories.length - 1) {

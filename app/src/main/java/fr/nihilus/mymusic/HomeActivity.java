@@ -1,22 +1,33 @@
 package fr.nihilus.mymusic;
 
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.List;
 
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.SongListFragment;
+import fr.nihilus.mymusic.utils.MediaIDHelper;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
 public class HomeActivity extends AppCompatActivity
@@ -43,10 +54,13 @@ public class HomeActivity extends AppCompatActivity
 
             PermissionUtil.requestExternalStoragePermission(this);
             if (PermissionUtil.hasExternalStoragePermission(this)) {
-                mNavigationView.setCheckedItem(R.id.action_home);
+                mNavigationView.setCheckedItem(R.id.action_all);
                 swapFragment(new SongListFragment());
             }
         }
+
+        MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                .subscribe(MediaIDHelper.MEDIA_ID_DAILY, mSubscriptionCallback);
     }
 
     private void setupNavigationDrawer() {
@@ -84,14 +98,17 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
-            mNavigationView.setCheckedItem(R.id.action_home);
+            mNavigationView.setCheckedItem(R.id.action_all);
             swapFragment(new SongListFragment());
         }
     }
@@ -102,7 +119,7 @@ public class HomeActivity extends AppCompatActivity
             return true;
         }
         switch (item.getItemId()) {
-            case R.id.action_home:
+            case R.id.action_all:
                 swapFragment(new SongListFragment());
                 return true;
             case R.id.action_albums:
@@ -120,4 +137,25 @@ public class HomeActivity extends AppCompatActivity
                 .replace(R.id.container, newFrag)
                 .commit();
     }
+
+    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+        @Override
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+            MediaItem daily = children.get(0);
+            Uri artUri = daily.getDescription().getIconUri();
+            CharSequence title = daily.getDescription().getTitle();
+            CharSequence subtitle = daily.getDescription().getSubtitle();
+
+            View header = mNavigationView.getHeaderView(0);
+            ((TextView) header.findViewById(R.id.title)).setText(title);
+            ((TextView) header.findViewById(R.id.subtitle)).setText(subtitle);
+
+            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
+            if (artUri != null) {
+                albumArtView.setImageURI(artUri);
+            } else {
+                albumArtView.setImageResource(R.drawable.dummy_album_art);
+            }
+        }
+    };
 }

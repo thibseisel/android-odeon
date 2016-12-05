@@ -10,7 +10,7 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.1"
     defaultConfig {
         applicationId "fr.nihilus.mymusic"
         minSdkVersion 19
@@ -46,4 +46,5 @@ dependencies {
     compile 'com.android.support:percent:25.0.1'
     testCompile 'junit:junit:4.12'
     compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support:palette-v7:25.0.1'
 }

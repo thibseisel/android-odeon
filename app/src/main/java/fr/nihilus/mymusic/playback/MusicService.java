@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -22,18 +21,16 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 import fr.nihilus.mymusic.HomeActivity;
-import fr.nihilus.mymusic.playback.MusicProvider.Callback;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
 
 import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ALBUMS;
-import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ALL_MUSIC;
+import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_DAILY;
+import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_MUSIC;
 import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 public class MusicService extends MediaBrowserServiceCompat implements Playback.Callback {
@@ -55,15 +52,18 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      * @see #onStartCommand(Intent, int, int)
      */
     public static final String CMD_PAUSE = "CMD_PAUSE";
+    public static final String CMD_PLAY = "CMD_PLAY";
+    public static final String CMD_NEXT = "CMD_NEXT";
+    public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
+    private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
     private List<QueueItem> mPlayingQueue;
     private Playback mPlayback;
     private boolean mServiceStarted;
     private int mCurrentIndexQueue;
-    private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaNotificationManager mMediaNotificationManager;
 
     @Override
@@ -107,10 +107,19 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             String action = intent.getAction();
             String command = intent.getStringExtra(CMD_NAME);
             if (ACTION_CMD.equals(action)) {
-                if (CMD_PAUSE.equals(command)) {
-                    if (mPlayback != null && mPlayback.isPlaying()) {
-                        handlePauseRequest();
-                    }
+                switch (command) {
+                    case CMD_PAUSE:
+                        if (mPlayback != null && mPlayback.isPlaying()) handlePauseRequest();
+                        break;
+                    case CMD_PLAY:
+                        handlePlayRequest();
+                        break;
+                    case CMD_NEXT:
+                        if (mPlayback != null) handleNextRequest();
+                        break;
+                    case CMD_PREVIOUS:
+                        if (mPlayback != null) handlePreviousRequest();
+                        break;
                 }
             }
         }
@@ -144,69 +153,23 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                                @NonNull final Result<List<MediaItem>> result) {
         if (!mMusicProvider.isInitialized()) {
             Log.d(TAG, "onLoadChildren: must load music library before returning children.");
-            result.detach();
-
-            mMusicProvider.retrieveMetadataAsync(this, new MusicProvider.MusicReadyCallback() {
-                @Override
-                public void onMusicCatalogReady(boolean success) {
-                    if (success) {
-                        loadChildrenImpl(parentId, result);
-                    } else {
-                        Log.e(TAG, "onMusicCatalogReady: No MediaMetadata to load.");
-                        updatePlaybackState("No MediaMetadata");
-                        result.sendResult(Collections.<MediaItem>emptyList());
-                    }
-                }
-            });
-        } else {
-            // Le catalogue est déjà chargé, on l'envoie immédiatement
-            loadChildrenImpl(parentId, result);
+            mMusicProvider.loadMetadata(this);
         }
-    }
 
-    private void loadChildrenImpl(final String parentMediaId,
-                                  final Result<List<MediaItem>> result) {
-        Log.d(TAG, "loadChildrenImpl: loading " + parentMediaId);
-        List<MediaItem> mediaItems = new ArrayList<>();
+        String[] hierarchy = MediaIDHelper.getHierarchy(parentId);
 
-        if (MEDIA_ID_ALL_MUSIC.equals(parentMediaId)) {
-            for (MediaMetadataCompat track : mMusicProvider.getAllMusic()) {
-                String hierarchyAwareMediaID = MediaIDHelper.createMediaID(track.getDescription()
-                        .getMediaId(), MEDIA_ID_ALL_MUSIC, MEDIA_ID_ALL_MUSIC);
-                MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track)
-                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
-                        .build();
-                MediaItem item = new MediaItem(trackCopy.getDescription(), MediaItem.FLAG_PLAYABLE);
-                mediaItems.add(item);
-            }
-
-            // FIXME : le tri est trop long
-            Collections.sort(mediaItems, new Comparator<MediaItem>() {
-                @Override
-                public int compare(MediaItem one, MediaItem another) {
-                    CharSequence oneTitle = one.getDescription().getTitle();
-                    CharSequence anotherTitle = another.getDescription().getTitle();
-                    if (oneTitle != null && anotherTitle != null) {
-                        return MediaStore.Audio.keyFor(oneTitle.toString())
-                                .compareTo(MediaStore.Audio.keyFor(anotherTitle.toString()));
-                    }
-                    return 0;
-                }
-            });
-            result.sendResult(mediaItems);
-        } else if (MEDIA_ID_ALBUMS.equals(parentMediaId)) {
-            // FIXME Rotation d'écran provoque deuxième appel à detach
-            // TODO Refonte de loadChildren
-            result.detach();
-            mMusicProvider.retrieveAlbumsAsync(this, new Callback<List<MediaItem>>() {
-                @Override
-                public void onReady(List<MediaItem> albums) {
-                    result.sendResult(albums);
-                }
-            });
+        if (MEDIA_ID_MUSIC.equals(parentId)) {
+            result.sendResult(mMusicProvider.getMusicItems());
+        } else if (MEDIA_ID_ALBUMS.equals(parentId)) {
+            result.sendResult(mMusicProvider.getAlbumItems(this));
+        /*} else if (MEDIA_ID_ALBUMS.equals(hierarchy[1])) {
+            result.sendResult(mMusicProvider.getAlbumTracks(parentId));*/
+        } else if (MEDIA_ID_DAILY.equals(parentId)) {
+            MediaItem daily = mMusicProvider.getRandomMusicItem();
+            result.sendResult(Collections.singletonList(daily));
         } else {
             Log.d(TAG, "loadChildrenImpl: MediaId not implemented.");
-            result.sendResult(mediaItems);
+            result.sendResult(Collections.<MediaItem>emptyList());
         }
     }
 
@@ -491,6 +454,41 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     /**
+     * Un BroadcastReceiver qui notifie le service lorsqu'un bouton média est pressé, par exemple
+     * le bouton d'un casque filaire ou Bluetooth.
+     */
+    public static class RemoteControlReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+                KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                Intent musicService = new Intent(context, MusicService.class);
+                musicService.setAction(ACTION_CMD);
+
+                switch (event.getKeyCode()) {
+                    case KeyEvent.KEYCODE_MEDIA_PLAY:
+                        musicService.putExtra(CMD_NAME, CMD_PLAY);
+                        context.startService(musicService);
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                        musicService.putExtra(CMD_NAME, CMD_PAUSE);
+                        context.startService(musicService);
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_NEXT:
+                        musicService.putExtra(CMD_NAME, CMD_NEXT);
+                        context.startService(musicService);
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                        musicService.putExtra(CMD_NAME, CMD_PREVIOUS);
+                        context.startService(musicService);
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
      * Callbacks envoyés au service par le MediaController pour transmettre les commandes.
      */
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
@@ -577,35 +575,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         @Override
         public void onCustomAction(String action, Bundle extras) {
 
-        }
-    }
-
-    /**
-     * Un BroadcastReceiver qui notifie le service lorsqu'un bouton média est pressé, par exemple
-     * le bouton d'un casque filaire ou Bluetooth.
-     */
-    public static class RemoteControlReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-                KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                switch (event.getKeyCode()) {
-                    case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        // handlePlay
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        // handlePause
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        // handleNext
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        // handlePrevious
-                        break;
-                }
-            }
         }
     }
 }

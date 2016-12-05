@@ -5,12 +5,12 @@ import android.support.v7.util.DiffUtil;
 
 import java.util.List;
 
-public class MediaItemDiffCallback extends DiffUtil.Callback {
+class MediaItemDiffCallback extends DiffUtil.Callback {
 
     private List<MediaItem> mOld;
     private List<MediaItem> mNew;
 
-    public MediaItemDiffCallback(List<MediaItem> oldList, List<MediaItem> newList) {
+    MediaItemDiffCallback(List<MediaItem> oldList, List<MediaItem> newList) {
         mOld = oldList;
         mNew = newList;
     }

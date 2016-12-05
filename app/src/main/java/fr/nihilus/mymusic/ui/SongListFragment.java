@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,20 +70,21 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         mListContainer = view.findViewById(R.id.list_container);
 
-        mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView = (ListView) view.findViewById(R.id.list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
         ViewCompat.setNestedScrollingEnabled(mListView, true);
 
-        // FIXME: ListView header considéré comme item à l'index 0
-        //setupListHeader(LayoutInflater.from(getContext()));
+        // TODO Ajouter un Button pour la lecture aléatoire
 
         mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
 
         if (savedInstanceState == null) {
             mListContainer.setVisibility(View.GONE);
             mProgressBar.show();
+        } else {
+            mListView.setSelectionFromTop(savedInstanceState.getInt(KEY_SCROLL), 0);
         }
     }
 
@@ -92,7 +92,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStart() {
         super.onStart();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaIDHelper.MEDIA_ID_ALL_MUSIC, mCallback);
+                .subscribe(MediaIDHelper.MEDIA_ID_MUSIC, mCallback);
         getActivity().setTitle(R.string.all_music);
     }
 
@@ -100,24 +100,13 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStop() {
         super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaIDHelper.MEDIA_ID_ALL_MUSIC);
-    }
-
-    private void setupListHeader(final LayoutInflater inflater) {
-        View listHeader = inflater.inflate(R.layout.list_header_button, mListView, false);
-        mListView.addHeaderView(listHeader);
-        listHeader.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO Tout jouer en aléatoire
-                Toast.makeText(getContext(), R.string.play_all_shuffled, Toast.LENGTH_SHORT).show();
-            }
-        });
+                .unsubscribe(MediaIDHelper.MEDIA_ID_MUSIC);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(KEY_SONGS, mSongs);
+        outState.putInt(KEY_SCROLL, mListView.getFirstVisiblePosition());
         super.onSaveInstanceState(outState);
     }
 

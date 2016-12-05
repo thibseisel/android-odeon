@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="prefs_entries_night_mode">
+        <item>Par défaut</item>
+        <item>Automatique</item>
+        <item>Jamais</item>
+        <item>Toujours</item>
+    </string-array>
+</resources>

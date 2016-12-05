@@ -4,162 +4,200 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
-import android.provider.MediaStore.Audio.Albums;
+import android.provider.MediaStore.Audio.Media;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.util.LongSparseArray;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Random;
+import java.util.SortedSet;
 
 import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MetadataStore;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DISC_NUMBER;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER;
 
 class MusicProvider implements MediaStore.Audio.AudioColumns {
 
+    private static final String METADATA_TITLE_KEY = "title_key";
+
+    private static final String TAG = "MusicProvider";
     private static final String[] ALBUM_PROJECTION = {BaseColumns._ID, AlbumColumns.ALBUM,
             AlbumColumns.ALBUM_KEY, AlbumColumns.ARTIST,
             AlbumColumns.LAST_YEAR, AlbumColumns.NUMBER_OF_SONGS};
     private static final int NON_INITIALIZED = 0, INITIALIZING = 1, INITIALIZED = 2;
     private static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
-    private static final String TAG = "MusicProvider";
-    private static final String[] PROJECTIONS = {_ID, TITLE, ARTIST, ALBUM, DURATION, ALBUM_ID};
-    private final ConcurrentMap<String, MediaMetadataCompat> mMusicListById;
+    private static final String[] MEDIA_PROJECTION = {_ID, TITLE, ALBUM, ARTIST, DURATION, TRACK,
+            TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID};
+
     private volatile int mCurrentState = NON_INITIALIZED;
 
+    private final LongSparseArray<MediaMetadataCompat> mMusicById;
+    private final MetadataStore mMusicByAlbum;
+    private final List<MediaMetadataCompat> mMusicAlpha;
+    private final MetadataStore mMusicByArtist;
+
     MusicProvider() {
-        mMusicListById = new ConcurrentHashMap<>();
+        mMusicById = new LongSparseArray<>();
+        mMusicAlpha = new ArrayList<>();
+        mMusicByAlbum = new MetadataStore();
+        mMusicByArtist = new MetadataStore();
     }
 
-    void retrieveMetadataAsync(@NonNull final Context context, final MusicReadyCallback callback) {
-        Log.d(TAG, "retrieveMetadataAsync");
-        if (mCurrentState == INITIALIZED) {
-            Log.d(TAG, "retrieveMetadataAsync: music library already loaded.");
-            callback.onMusicCatalogReady(true);
+    /**
+     * Get the metadata of a music from the music library.
+     *
+     * @param musicId id of the searched music
+     */
+    MediaMetadataCompat getMusic(String musicId) {
+        long id = Long.parseLong(musicId);
+        return mMusicById.get(id, null);
+    }
+
+    boolean isInitialized() {
+        return mCurrentState == INITIALIZED;
+    }
+
+    /**
+     * Retrieve all songs metadata from the storage.
+     * You must call this method before querying song-related MediaItems.
+     */
+    @SuppressWarnings("WrongConstant")
+    void loadMetadata(Context context) {
+        if (!isInitialized()) {
+            mCurrentState = INITIALIZING;
+        }
+
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            mCurrentState = INITIALIZED;
             return;
         }
 
-        new AsyncTask<Void, Void, Integer>() {
-            @Override
-            protected Integer doInBackground(Void... voids) {
-                retrieveMetadata(context);
-                return mCurrentState;
-            }
+        final Cursor cursor = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI,
+                MEDIA_PROJECTION, IS_MUSIC + "=1", null, Media.DEFAULT_SORT_ORDER);
 
-            @Override
-            protected void onPostExecute(Integer state) {
-                if (callback != null) {
-                    Log.d(TAG, "onPostExecute: finished preparing music library.");
-                    callback.onMusicCatalogReady(state == INITIALIZED);
-                }
-            }
-        }.execute();
-    }
-
-    private synchronized void retrieveMetadata(@NonNull Context context) {
-        if (mCurrentState == NON_INITIALIZED) {
-            mCurrentState = INITIALIZING;
-
-            if (!PermissionUtil.hasExternalStoragePermission(context)) {
-                Log.w(TAG, "retrieveMetadata: trying to access external storage without permission.");
-                return;
-            }
-
-            final Cursor cursor = context.getContentResolver().query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, PROJECTIONS,
-                    MediaStore.Audio.Media.IS_MUSIC + "=1", null,
-                    MediaStore.Audio.Media.TITLE_KEY);
-
-            if (cursor == null) {
-                Log.w(TAG, "retrieveMetadata: cursor with media metadata is null.");
-                return;
-            }
-
-            final int colID = cursor.getColumnIndexOrThrow(_ID);
-            final int colTitle = cursor.getColumnIndexOrThrow(TITLE);
-            final int colArtist = cursor.getColumnIndexOrThrow(ARTIST);
-            final int colAlbum = cursor.getColumnIndexOrThrow(ALBUM);
-            final int colDuration = cursor.getColumnIndexOrThrow(DURATION);
-            final int colAlbumId = cursor.getColumnIndexOrThrow(ALBUM_ID);
-
-            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-            while (cursor.moveToNext()) {
-                final String mediaID = cursor.getString(colID);
-                final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, cursor.getLong(colAlbumId));
-
-                Uri fileUri = ContentUris.withAppendedId(
-                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cursor.getLong(colID));
-
-                //noinspection WrongConstant
-                builder.putString(METADATA_KEY_MEDIA_ID, mediaID)
-                        .putString(METADATA_KEY_TITLE, cursor.getString(colTitle))
-                        .putString(METADATA_KEY_ARTIST, cursor.getString(colArtist))
-                        .putString(METADATA_KEY_ALBUM, cursor.getString(colAlbum))
-                        .putLong(METADATA_KEY_DURATION, cursor.getLong(colDuration))
-                        .putString(METADATA_KEY_ALBUM_ART_URI, artUri.toString());
-
-                final MediaMetadataCompat metadata = builder.build();
-                mMusicListById.put(mediaID, metadata);
-            }
-            cursor.close();
-            mCurrentState = INITIALIZED;
+        if (cursor == null) {
+            Log.w(TAG, "loadMetadata: no media found. Cursor is empty.");
+            return;
         }
+
+        final int colId = cursor.getColumnIndexOrThrow(_ID);
+        final int colTitle = cursor.getColumnIndexOrThrow(TITLE);
+        final int colAlbum = cursor.getColumnIndexOrThrow(ALBUM);
+        final int colArtist = cursor.getColumnIndexOrThrow(ARTIST);
+        final int colDuration = cursor.getColumnIndexOrThrow(DURATION);
+        final int colTrackNo = cursor.getColumnIndexOrThrow(TRACK);
+        final int colTitleKey = cursor.getColumnIndexOrThrow(TITLE_KEY);
+        //final int colAlbumKey = cursor.getColumnIndexOrThrow(ALBUM_KEY);
+        final int colAlbumId = cursor.getColumnIndexOrThrow(ALBUM_ID);
+        final int colArtistId = cursor.getColumnIndexOrThrow(ARTIST_ID);
+
+        mMusicById.clear();
+        mMusicByAlbum.clear();
+        mMusicByArtist.clear();
+
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+
+        while (cursor.moveToNext()) {
+            long musicId = cursor.getLong(colId);
+            Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, cursor.getLong(colAlbumId));
+            long trackNo = cursor.getLong(colTrackNo);
+
+            builder.putString(METADATA_KEY_MEDIA_ID, String.valueOf(musicId))
+                    .putString(METADATA_KEY_TITLE, cursor.getString(colTitle))
+                    .putString(METADATA_KEY_ALBUM, cursor.getString(colAlbum))
+                    .putString(METADATA_KEY_ARTIST, cursor.getString(colArtist))
+                    .putLong(METADATA_KEY_DURATION, cursor.getLong(colDuration))
+                    .putLong(METADATA_KEY_TRACK_NUMBER, trackNo % 100)
+                    .putLong(METADATA_KEY_DISC_NUMBER, trackNo / 100)
+                    .putString(METADATA_KEY_ALBUM_ART_URI, artUri.toString())
+                    .putString(METADATA_TITLE_KEY, cursor.getString(colTitleKey));
+
+            final MediaMetadataCompat metadata = builder.build();
+            mMusicById.put(musicId, metadata);
+            mMusicAlpha.add(metadata);
+            mMusicByAlbum.put(cursor.getLong(colAlbumId), metadata);
+            mMusicByArtist.put(cursor.getLong(colArtistId), metadata);
+        }
+        cursor.close();
+        mCurrentState = INITIALIZED;
     }
 
-    MediaMetadataCompat getMusic(String musicId) {
-        return mMusicListById.containsKey(musicId)
-                ? mMusicListById.get(musicId) : null;
-    }
+    /**
+     * Retrieve the whole music library as a list of items suitable for display.
+     *
+     * @return list of all songs, alphabetically sorted
+     */
+    @SuppressWarnings("WrongConstant")
+    List<MediaItem> getMusicItems() {
+        if (!isInitialized()) {
+            Log.w(TAG, "getMusicItems: music library is not initialized yet.");
+            return Collections.emptyList();
+        }
 
-    void retrieveAlbumsAsync(@NonNull final Context context,
-                             @NonNull final Callback<List<MediaItem>> callback) {
-        new AsyncTask<Void, Void, List<MediaItem>>() {
+        List<MediaItem> result = new ArrayList<>();
 
-            @Override
-            protected List<MediaItem> doInBackground(Void... voids) {
-                return retrieveAlbums(context);
+        final MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+        for (MediaMetadataCompat meta : mMusicAlpha) {
+            String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
+            String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
+            /*Bundle extras = new Bundle();
+            extras.putString(METADATA_TITLE_KEY, meta.getString(METADATA_TITLE_KEY));*/
+
+            builder.setMediaId(MediaIDHelper.createMediaID(musicId, MediaIDHelper.MEDIA_ID_MUSIC))
+                    .setTitle(meta.getString(METADATA_KEY_TITLE))
+                    .setSubtitle(meta.getString(METADATA_KEY_ARTIST));
+            //.setExtras(extras);
+            if (albumArtUri != null) {
+                builder.setIconUri(Uri.parse(albumArtUri));
             }
 
-            @Override
-            protected void onPostExecute(List<MediaItem> mediaItems) {
-                callback.onReady(mediaItems);
-            }
-        }.execute();
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
+        }
+        return result;
     }
 
-    private List<MediaItem> retrieveAlbums(@NonNull Context context) {
+    /**
+     * Retrieve all albums as a list of items suitable for display.
+     *
+     * @return list of all albums, alphabetically sorted
+     */
+    List<MediaItem> getAlbumItems(@NonNull Context context) {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
-            Log.w(TAG, "retrieveAlbums: missing External Storage permission.");
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
         Cursor cursor = context.getContentResolver()
-                .query(Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
-                        null, null, Albums.DEFAULT_SORT_ORDER);
+                .query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
+                        null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 
         if (cursor == null) {
             return Collections.emptyList();
         }
 
-        List<MediaItem> albumList = new ArrayList<>();
+        List<MediaItem> result = new ArrayList<>();
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
 
         final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
@@ -171,7 +209,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
         while (cursor.moveToNext()) {
             final long albumId = cursor.getLong(colId);
-            final String mediaId = MediaIDHelper.createMediaID(String.valueOf(albumId), MediaIDHelper.MEDIA_ID_ALBUMS);
+            final String mediaId = MediaIDHelper.MEDIA_ID_ALBUMS + "/" + String.valueOf(albumId);
             final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
 
             builder.setMediaId(mediaId)
@@ -184,29 +222,101 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
             extras.putInt(AlbumColumns.LAST_YEAR, cursor.getInt(colYear));
             builder.setExtras(extras);
 
-            albumList.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE));
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE | MediaItem.FLAG_PLAYABLE));
         }
 
         cursor.close();
-        return albumList;
+        return result;
     }
 
-    boolean isInitialized() {
-        return mCurrentState == INITIALIZED;
-    }
-
-    Collection<MediaMetadataCompat> getAllMusic() {
-        if (mCurrentState != INITIALIZED) {
+    /**
+     * Retrieve all tracks released in a particular album as a list of items suitable for display.
+     *
+     * @param albumMediaId mediaId the album from which get the list of song
+     * @return list of songs released in this album
+     */
+    List<MediaItem> getAlbumTracks(String albumMediaId) {
+        if (!isInitialized()) {
+            Log.w(TAG, "getAlbumTracks: music library is not initialized yet.");
             return Collections.emptyList();
         }
-        return mMusicListById.values();
+
+        long albumId = Long.parseLong(albumMediaId.split("/")[1]);
+        SortedSet<MediaMetadataCompat> tracks = mMusicByAlbum.get(albumId);
+
+        if (tracks == null) {
+            Log.w(TAG, "getAlbumTracks: no album with mediaId=" + albumMediaId);
+            return Collections.emptyList();
+        }
+
+        List<MediaItem> result = new ArrayList<>();
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+
+        for (MediaMetadataCompat meta : tracks) {
+            long trackId = Long.parseLong(meta.getString(METADATA_KEY_MEDIA_ID));
+            String mediaId = albumMediaId + "|" + trackId;
+            long duration = meta.getLong(METADATA_KEY_DURATION);
+            Bundle extras = new Bundle();
+            extras.putLong(METADATA_KEY_DISC_NUMBER, meta.getLong(METADATA_KEY_DISC_NUMBER));
+            extras.putLong(METADATA_KEY_TRACK_NUMBER, meta.getLong(METADATA_KEY_TRACK_NUMBER));
+
+            builder.setMediaId(mediaId)
+                    .setTitle(meta.getString(METADATA_KEY_TITLE))
+                    .setSubtitle(DateUtils.formatElapsedTime(duration / 1000))
+                    .setExtras(extras);
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
+        }
+        return result;
     }
 
-    interface MusicReadyCallback {
-        void onMusicCatalogReady(boolean success);
+    LongSparseArray<MediaMetadataCompat> getAllMusic() {
+        return mMusicById;
     }
 
-    interface Callback<T> {
-        void onReady(T value);
+    List<MediaItem> getArtistItems() {
+        throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+    /**
+     * @return a random song from the music library as a MediaItem.
+     */
+    MediaItem getRandomMusicItem() {
+        if (!isInitialized()) {
+            Log.w(TAG, "getRandomMusicItem: music library not initialized yet.");
+            return null;
+        }
+
+        Random rand = new Random();
+        int index = rand.nextInt(mMusicById.size());
+        MediaMetadataCompat meta = mMusicById.valueAt(index);
+
+        String mediaId = MediaIDHelper.MEDIA_ID_DAILY + "|" + meta.getString(METADATA_KEY_MEDIA_ID);
+        String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
+
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder()
+                .setMediaId(mediaId)
+                .setTitle(meta.getString(METADATA_KEY_TITLE))
+                .setSubtitle(meta.getString(METADATA_KEY_ARTIST));
+        if (albumArtUri != null) {
+            builder.setIconUri(Uri.parse(albumArtUri));
+        }
+
+        return new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE);
+    }
+
+
+    private static final Comparator<MediaItem> SORT_BY_KEY = new Comparator<MediaItem>() {
+        @SuppressWarnings("ConstantConditions")
+        @Override
+        public int compare(@NonNull MediaItem one, @NonNull MediaItem another) {
+            try {
+                String oneKey = one.getDescription().getExtras().getString(METADATA_TITLE_KEY);
+                String anotherKey = another.getDescription().getExtras().getString(METADATA_TITLE_KEY);
+                return oneKey.compareTo(anotherKey);
+            } catch (NullPointerException e) {
+                Log.e(TAG, "compare: song has no TITLE_KEY.", e);
+                return 0;
+            }
+        }
+    };
 }

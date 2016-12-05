@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyMusic</string>
+    <string name="app_name">Nihilus Music</string>
     <string name="action_albums">Albums</string>
     <string name="action_artists">Artistes</string>
     <string name="action_settings">Paramètres</string>
@@ -13,4 +13,10 @@
     <string name="all_music">Toute ma musique</string>
     <string name="favorites">Favoris</string>
     <string name="empty_albums">Aucun album</string>
+    <string name="action_about">A propos</string>
+    <string name="music_library">Bibliothèque musicale</string>
+    <string name="night_mode">Mode nuit</string>
+    <string name="prefs_category_appearance">Apparence</string>
+    <string name="search_music_hint">Chercher dans ma bibliothèque</string>
+    <string name="playback_service_label">Service du Lecteur Musical</string>
 </resources>

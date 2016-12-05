@@ -84,7 +84,9 @@ public class MediaBrowserFragment extends Fragment {
     @Override
     public void onDestroy() {
         Log.d(TAG, "Disconnecting from MediaBrowser.");
-        mMediaBrowser.disconnect();
+        if (mMediaBrowser != null) {
+            mMediaBrowser.disconnect();
+        }
         super.onDestroy();
     }
 
@@ -93,6 +95,7 @@ public class MediaBrowserFragment extends Fragment {
     }
 
     public void subscribe(@NonNull String mediaId, @NonNull SubscriptionCallback callback) {
+        Log.d(TAG, "subscribe: subscribing for " + mediaId);
         if (!isConnected()) {
             // Met la requête en file d'attente, pour quand le MediaBrowser sera connecté
             Log.w(TAG, "subscribe: waiting for the MediaBrowser to connect. Delaying request...");
@@ -100,7 +103,6 @@ public class MediaBrowserFragment extends Fragment {
             return;
         }
 
-        Log.d(TAG, "subscribe: subscribing for " + mediaId);
         mMediaBrowser.subscribe(mediaId, callback);
     }
 

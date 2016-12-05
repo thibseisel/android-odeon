@@ -21,7 +21,7 @@
         android:scrollbarStyle="insideOverlay"
         android:scrollbars="vertical"
         app:layoutManager="android.support.v7.widget.GridLayoutManager"
-        app:spanCount="2"/>
+        app:spanCount="@integer/album_grid_span_count"/>
 
     <!-- Empty View -->
     <LinearLayout

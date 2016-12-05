@@ -177,7 +177,7 @@ public class AlbumDetailFragment extends Fragment {
         AlbumTrackHolder(View rootView) {
             trackNumber = (TextView) rootView.findViewById(R.id.trackNo);
             title = (TextView) rootView.findViewById(R.id.title);
-            duration = (TextView) rootView.findViewById(R.id.duration);
+            duration = (TextView) rootView.findViewById(R.id.info);
         }
     }
 }

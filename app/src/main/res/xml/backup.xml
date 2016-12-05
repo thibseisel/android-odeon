@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Par défaut, Android enregistre tous les fichiers liés à l'application, sauf le cache. -->
+</full-backup-content>
