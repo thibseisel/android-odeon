@@ -294,7 +294,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
     private void fetchAlbumArtAsync(final Uri artUri, final NotificationCompat.Builder builder) {
         Drawable placeholder = ContextCompat.getDrawable(mService, R.drawable.dummy_album_art);
-        Glide.with(mService)
+        Glide.with(mService.getApplicationContext())
                 .load(artUri).asBitmap()
                 .error(placeholder)
                 .into(new SimpleTarget<Bitmap>() {

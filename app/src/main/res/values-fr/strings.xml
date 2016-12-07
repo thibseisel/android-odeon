@@ -19,4 +19,5 @@
     <string name="prefs_category_appearance">Apparence</string>
     <string name="search_music_hint">Chercher dans ma bibliothèque</string>
     <string name="playback_service_label">Service du Lecteur Musical</string>
+    <string name="action_playlists">Playlists</string>
 </resources>

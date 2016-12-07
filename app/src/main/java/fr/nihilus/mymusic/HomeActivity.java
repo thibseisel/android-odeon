@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -31,12 +32,35 @@ import fr.nihilus.mymusic.ui.SongListFragment;
 import fr.nihilus.mymusic.utils.MediaIDHelper;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
+@SuppressWarnings("ConstantConditions")
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
+    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+        @Override
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+            MediaItem daily = children.get(0);
+            Uri artUri = daily.getDescription().getIconUri();
+            CharSequence title = daily.getDescription().getTitle();
+            CharSequence subtitle = daily.getDescription().getSubtitle();
+
+            View header = mNavigationView.getHeaderView(0);
+            ((TextView) header.findViewById(R.id.title)).setText(title);
+            ((TextView) header.findViewById(R.id.subtitle)).setText(subtitle);
+
+            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
+            if (artUri != null) {
+                albumArtView.setImageURI(artUri);
+            } else {
+                albumArtView.setImageResource(R.drawable.dummy_album_art);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,20 +71,31 @@ public class HomeActivity extends AppCompatActivity
         setupNavigationDrawer();
 
         if (savedInstanceState == null) {
-            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                new AlertDialog.Builder(this).setMessage(R.string.external_storage_rationale)
-                        .setNeutralButton(R.string.ok, null).create().show();
-            }*/
-
             PermissionUtil.requestExternalStoragePermission(this);
             if (PermissionUtil.hasExternalStoragePermission(this)) {
-                mNavigationView.setCheckedItem(R.id.action_all);
-                swapFragment(new SongListFragment());
+                loadFirstFragment();
                 loadDailySong();
             }
         }
+    }
 
+    private void loadFirstFragment() {
+        Fragment firstFragment;
+        @IdRes int checkedItemId;
+        String callingAction = getIntent().getAction();
+
+        switch (callingAction) {
+            case ACTION_ALBUMS:
+                firstFragment = new AlbumGridFragment();
+                checkedItemId = R.id.action_albums;
+                break;
+            default:
+                firstFragment = new SongListFragment();
+                checkedItemId = R.id.action_all;
+                break;
+        }
+        mNavigationView.setCheckedItem(checkedItemId);
+        swapFragment(firstFragment);
     }
 
     private void loadDailySong() {
@@ -73,9 +108,7 @@ public class HomeActivity extends AppCompatActivity
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_opened, R.string.drawer_closed);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
-        //noinspection ConstantConditions
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
 
         mNavigationView = (NavigationView) findViewById(R.id.navDrawer);
         mNavigationView.setNavigationItemSelectedListener(this);
@@ -113,12 +146,8 @@ public class HomeActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
-            mNavigationView.setCheckedItem(R.id.action_all);
-            swapFragment(new SongListFragment());
-
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadDailySong();
-            }
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) loadDailySong();
+            loadFirstFragment();
         }
     }
 
@@ -146,25 +175,4 @@ public class HomeActivity extends AppCompatActivity
                 .replace(R.id.container, newFrag)
                 .commit();
     }
-
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
-        @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
-            MediaItem daily = children.get(0);
-            Uri artUri = daily.getDescription().getIconUri();
-            CharSequence title = daily.getDescription().getTitle();
-            CharSequence subtitle = daily.getDescription().getSubtitle();
-
-            View header = mNavigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.title)).setText(title);
-            ((TextView) header.findViewById(R.id.subtitle)).setText(subtitle);
-
-            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
-            if (artUri != null) {
-                albumArtView.setImageURI(artUri);
-            } else {
-                albumArtView.setImageResource(R.drawable.dummy_album_art);
-            }
-        }
-    };
 }

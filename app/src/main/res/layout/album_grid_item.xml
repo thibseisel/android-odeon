@@ -12,14 +12,15 @@
         app:layout_widthPercent="100%"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
-        app:layout_aspectRatio="100%"
+        app:layout_aspectRatio="@fraction/album_art_ratio"
         tools:src="@drawable/ic_audiotrack_24dp"/>
 
     <RelativeLayout
+        android:id="@+id/band"
         android:layout_width="match_parent"
         android:layout_height="68dp"
         android:layout_below="@id/albumArt"
-        android:background="#ff4c4c4c"
+        android:background="@color/album_band_default"
         android:padding="16dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
@@ -30,7 +31,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textColor="#ffffffff"
             android:textSize="14sp"
             tools:text="Scream Aim Fire"/>
 
@@ -42,7 +42,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="#b3ffffff"
             android:textSize="14sp"
             tools:text="Bullet For My Valentine"/>
 

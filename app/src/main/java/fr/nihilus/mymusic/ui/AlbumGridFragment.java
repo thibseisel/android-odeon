@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,11 +112,12 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     }
 
     @Override
-    public void onAlbumSelected(MediaItem album, ImageView artView) {
+    public void onAlbumSelected(MediaItem album, AlbumsAdapter.AlbumHolder holder) {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(), artView, "albumArt");
+                getActivity(), holder.albumArt, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME);
         Intent albumDetailIntent = new Intent(getContext(), AlbumDetailActivity.class);
         albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album);
+        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors);
         startActivity(albumDetailIntent, options.toBundle());
     }
 

@@ -1,6 +1,5 @@
 package fr.nihilus.mymusic.ui;
 
-import android.content.Context;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v7.widget.RecyclerView;
@@ -17,18 +16,17 @@ import fr.nihilus.mymusic.utils.MediaIDHelper;
 
 class TrackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final LayoutInflater mInflater;
     private List<MediaItem> mTracks;
     private OnTrackSelectedListener mListener;
 
-    TrackAdapter(Context context, List<MediaItem> tracks) {
-        mInflater = LayoutInflater.from(context);
+    TrackAdapter(List<MediaItem> tracks) {
         mTracks = tracks;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = mInflater.inflate(R.layout.track_list_item, parent, false);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View v = inflater.inflate(R.layout.track_list_item, parent, false);
         return new TrackHolder(v);
     }
 

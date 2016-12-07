@@ -9,4 +9,6 @@
     <color name="mtrl_grey_900">#212121</color>
     <color name="mtrl_teal_a200">#64ffda</color>
     <color name="mtrl_teal_a400">#1de9b6</color>
+
+    <color name="album_band_default">#4c4c4c</color>
 </resources>

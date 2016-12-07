@@ -3,4 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <fraction name="album_art_ratio">100%</fraction>
+    <dimen name="mtrl_drawer_maxwidth">280dp</dimen>
+    <dimen name="mtrl_drawer_marginEnd">56dp</dimen>
 </resources>

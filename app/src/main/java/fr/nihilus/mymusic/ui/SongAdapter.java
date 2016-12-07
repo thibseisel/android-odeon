@@ -1,7 +1,9 @@
 package fr.nihilus.mymusic.ui;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
@@ -14,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -25,16 +29,18 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
 
     private static final String TAG = "SongAdapter";
 
-    private final Context mContext;
-    private final LayoutInflater mInflater;
+    private final BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
     private List<MediaBrowserCompat.MediaItem> mSongs;
-    private final Drawable mDummyAlbumArt;
 
-    SongAdapter(@NonNull Context ctx, List<MediaBrowserCompat.MediaItem> songs) {
-        mContext = ctx;
-        mInflater = LayoutInflater.from(ctx);
-        mDummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.dummy_album_art);
+    SongAdapter(@NonNull Context context, List<MediaBrowserCompat.MediaItem> songs) {
         mSongs = songs;
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.dummy_album_art);
+        mGlideRequest = Glide.with(context)
+                .fromUri()
+                .asBitmap()
+                .error(dummyAlbumArt)
+                .fitCenter()
+                .diskCacheStrategy(DiskCacheStrategy.RESULT);
     }
 
     @Override
@@ -60,7 +66,8 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
     public View getView(int pos, View convertView, ViewGroup parent) {
         final ViewHolder holder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.song_list_item, parent, false);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            convertView = inflater.inflate(R.layout.song_list_item, parent, false);
             holder = new ViewHolder(convertView);
             convertView.setTag(holder);
         } else {
@@ -70,10 +77,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
         MediaDescriptionCompat song = mSongs.get(pos).getDescription();
         holder.title.setText(song.getTitle());
         holder.subtitle.setText(song.getSubtitle());
-
-        Glide.with(mContext).load(song.getIconUri()).asBitmap()
-                .error(mDummyAlbumArt)
-                .into(holder.albumArt);
+        mGlideRequest.load(song.getIconUri()).into(holder.albumArt);
 
         return convertView;
     }

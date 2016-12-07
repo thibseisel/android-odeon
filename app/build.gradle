@@ -4,9 +4,6 @@ android {
     signingConfigs {
         Thib {
             keyAlias 'Thib'
-            keyPassword 'MaitreJedi'
-            storeFile file('C:/Users/Thib/Documents/Android/keystore/android.jks')
-            storePassword 'MaitreJedi'
         }
     }
     compileSdkVersion 25
@@ -44,7 +41,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'com.android.support:support-vector-drawable:25.0.1'
     compile 'com.android.support:percent:25.0.1'
-    testCompile 'junit:junit:4.12'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.android.support:palette-v7:25.0.1'
+    testCompile 'junit:junit:4.12'
 }

@@ -27,7 +27,6 @@
             android:listSelector="@android:color/transparent"
             android:saveEnabled="true"
             android:fastScrollEnabled="true"
-            tools:listheader="@layout/list_header_button"
             tools:listitem="@layout/song_list_item"/>
 
         <!-- EmptyView -->
