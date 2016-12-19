@@ -9,6 +9,13 @@
     <color name="mtrl_grey_900">#212121</color>
     <color name="mtrl_teal_a200">#64ffda</color>
     <color name="mtrl_teal_a400">#1de9b6</color>
+    <color name="mtrl_orange_500">#FF9800</color>
+    <color name="mtrl_orange_700">#F57C00</color>
+    <color name="mtrl_deeporange_500">#FF5722</color>
+    <color name="mtrl_deeporange_700">#E64A19</color>
+    <color name="mtrl_blue_a200">#448AFF</color>
+    <color name="mtrl_blue_a400">#2979FF</color>
 
+    <color name="mtrl_grey_100">#f5f5f5</color>
     <color name="album_band_default">#4c4c4c</color>
 </resources>

@@ -13,6 +13,4 @@ public class PaletteBitmap {
         this.palette = palette;
         this.bitmap = bitmap;
     }
-
-
 }

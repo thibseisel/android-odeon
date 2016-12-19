@@ -6,7 +6,7 @@
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
         <item name="colorPrimary">@color/mtrl_grey_900</item>
         <item name="colorPrimaryDark">@android:color/background_dark</item>
-        <item name="colorAccent">@color/mtrl_teal_a400</item>
+        <item name="colorAccent">@color/mtrl_blue_a200</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark"/>
@@ -15,6 +15,12 @@
 
     <style name="AppTheme.AppBarOverlay.Neutral">
         <item name="colorPrimary">@color/cardview_dark_background</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.Neutral">
+        <item name="colorPrimary">@color/cardview_dark_background</item>
+        <item name="colorAccent">@android:color/black</item>
+        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay.Neutral</item>
     </style>
 
 </resources>

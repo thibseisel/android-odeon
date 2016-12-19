@@ -19,12 +19,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.SortedSet;
 
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.MetadataStore;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
@@ -144,6 +144,21 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         mCurrentState = INITIALIZED;
     }
 
+    List<MediaMetadataCompat> getTracks(String albumMediaId) {
+        if (!isInitialized()) {
+            Log.w(TAG, "getTracks: music library is not initialized yet.");
+            return Collections.emptyList();
+        }
+
+        String categoryValue = MediaID.extractBrowseCategoryValueFromMediaID(albumMediaId);
+        List<MediaMetadataCompat> tracks = new ArrayList<>();
+        Set<MediaMetadataCompat> set = mMusicByAlbum.get(Long.parseLong(categoryValue));
+        if (set != null) {
+            tracks.addAll(set);
+        }
+        return tracks;
+    }
+
     /**
      * Retrieve the whole music library as a list of items suitable for display.
      *
@@ -162,13 +177,10 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         for (MediaMetadataCompat meta : mMusicAlpha) {
             String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
             String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
-            /*Bundle extras = new Bundle();
-            extras.putString(METADATA_TITLE_KEY, meta.getString(METADATA_TITLE_KEY));*/
 
-            builder.setMediaId(MediaIDHelper.createMediaID(musicId, MediaIDHelper.MEDIA_ID_MUSIC))
+            builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC, MediaID.ID_MUSIC))
                     .setTitle(meta.getString(METADATA_KEY_TITLE))
                     .setSubtitle(meta.getString(METADATA_KEY_ARTIST));
-            //.setExtras(extras);
             if (albumArtUri != null) {
                 builder.setIconUri(Uri.parse(albumArtUri));
             }
@@ -209,7 +221,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
         while (cursor.moveToNext()) {
             final long albumId = cursor.getLong(colId);
-            final String mediaId = MediaIDHelper.MEDIA_ID_ALBUMS + "/" + String.valueOf(albumId);
+            final String mediaId = MediaID.ID_ALBUMS + "/" + String.valueOf(albumId);
             final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
 
             builder.setMediaId(mediaId)
@@ -235,9 +247,9 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
      * @param albumMediaId mediaId the album from which get the list of song
      * @return list of songs released in this album
      */
-    List<MediaItem> getAlbumTracks(String albumMediaId) {
+    List<MediaItem> getTracksItems(String albumMediaId) {
         if (!isInitialized()) {
-            Log.w(TAG, "getAlbumTracks: music library is not initialized yet.");
+            Log.w(TAG, "getTracksItems: music library is not initialized yet.");
             return Collections.emptyList();
         }
 
@@ -245,7 +257,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         SortedSet<MediaMetadataCompat> tracks = mMusicByAlbum.get(albumId);
 
         if (tracks == null) {
-            Log.w(TAG, "getAlbumTracks: no album with mediaId=" + albumMediaId);
+            Log.w(TAG, "getTracksItems: no album with mediaId=" + albumMediaId);
             return Collections.emptyList();
         }
 
@@ -266,11 +278,12 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
                     .setExtras(extras);
             result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
         }
+        Log.d(TAG, "getTracksItems: loaded " + result.size() + " items");
         return result;
     }
 
-    LongSparseArray<MediaMetadataCompat> getAllMusic() {
-        return mMusicById;
+    List<MediaMetadataCompat> getAllMusic() {
+        return mMusicAlpha;
     }
 
     List<MediaItem> getArtistItems() {
@@ -290,7 +303,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         int index = rand.nextInt(mMusicById.size());
         MediaMetadataCompat meta = mMusicById.valueAt(index);
 
-        String mediaId = MediaIDHelper.MEDIA_ID_DAILY + "|" + meta.getString(METADATA_KEY_MEDIA_ID);
+        String mediaId = MediaID.ID_DAILY + "|" + meta.getString(METADATA_KEY_MEDIA_ID);
         String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
 
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder()
@@ -303,20 +316,4 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
         return new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE);
     }
-
-
-    private static final Comparator<MediaItem> SORT_BY_KEY = new Comparator<MediaItem>() {
-        @SuppressWarnings("ConstantConditions")
-        @Override
-        public int compare(@NonNull MediaItem one, @NonNull MediaItem another) {
-            try {
-                String oneKey = one.getDescription().getExtras().getString(METADATA_TITLE_KEY);
-                String anotherKey = another.getDescription().getExtras().getString(METADATA_TITLE_KEY);
-                return oneKey.compareTo(anotherKey);
-            } catch (NullPointerException e) {
-                Log.e(TAG, "compare: song has no TITLE_KEY.", e);
-                return 0;
-            }
-        }
-    };
 }

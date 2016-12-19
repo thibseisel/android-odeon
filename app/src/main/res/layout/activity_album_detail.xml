@@ -21,53 +21,95 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Headline"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|enterAlways">
+            app:layout_scrollFlags="scroll"
+            app:statusBarScrim="@android:color/transparent"
+            app:titleEnabled="false">
 
             <android.support.percent.PercentFrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.8"
-                android:fitsSystemWindows="true">
+                app:layout_collapseParallaxMultiplier="0.8">
 
                 <ImageView
                     android:id="@+id/albumArt"
                     android:contentDescription="@string/album_art"
-                    android:scaleType="centerCrop"
-                    app:layout_aspectRatio="100%"
-                    app:layout_widthPercent="100%"
                     android:fitsSystemWindows="true"
-                    app:srcCompat="@drawable/dummy_album_art"/>
+                    android:scaleType="centerCrop"
+                    app:layout_aspectRatio="@fraction/album_detail_ratio"
+                    app:layout_widthPercent="100%"
+                    app:srcCompat="@drawable/ic_album_24dp"/>
             </android.support.percent.PercentFrameLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:layout_collapseMode="pin"/>
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@android:id/list"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/track_list_item"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/band"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:theme="?actionBarTheme">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    tools:text="Title de l'album"/>
+
+                <TextView
+                    android:id="@+id/subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    tools:text="Nom de l'artiste de l'album"/>
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                tools:listitem="@layout/track_list_item"/>
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/action_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
+        android:tint="?colorControlNormal"
+        android:scaleType="fitCenter"
         app:layout_anchor="@id/appbarLayout"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_play_arrow_24dp"/>
+        app:srcCompat="@drawable/level_list_play_pause"/>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -2,6 +2,7 @@ package fr.nihilus.mymusic.palette;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.support.annotation.NonNull;
 import android.support.v7.graphics.Palette;
 
@@ -12,6 +13,7 @@ import com.bumptech.glide.load.resource.transcode.ResourceTranscoder;
 
 public class PaletteBitmapTranscoder implements ResourceTranscoder<Bitmap, PaletteBitmap> {
     private final BitmapPool bitmapPool;
+    private Rect mRegion;
 
     public PaletteBitmapTranscoder(@NonNull Context context) {
         this.bitmapPool = Glide.get(context).getBitmapPool();
@@ -20,9 +22,14 @@ public class PaletteBitmapTranscoder implements ResourceTranscoder<Bitmap, Palet
     @Override
     public Resource<PaletteBitmap> transcode(Resource<Bitmap> toTranscode) {
         Bitmap bitmap = toTranscode.get();
-        Palette palette = new Palette.Builder(bitmap).generate();
+        Palette palette = onGeneratePalette(bitmap);
         PaletteBitmap result = new PaletteBitmap(palette, bitmap);
         return new PaletteBitmapResource(result, bitmapPool);
+    }
+
+    @NonNull
+    protected Palette onGeneratePalette(Bitmap bitmap) {
+        return new Palette.Builder(bitmap).generate();
     }
 
     @Override

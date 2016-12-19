@@ -5,7 +5,7 @@
     <shortcut
         android:enabled="true"
         android:shortcutId="albums"
-        android:icon="@drawable/ic_album_24dp"
+        android:icon="@drawable/shortcut_albums"
         android:shortcutShortLabel="@string/action_albums">
 
         <intent

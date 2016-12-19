@@ -22,9 +22,11 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 
 public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener {
+
+    // FIXME Affiche parfois la ProgressBar indéfininiment
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SONGS = "MediaItems";
@@ -92,7 +94,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStart() {
         super.onStart();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaIDHelper.MEDIA_ID_MUSIC, mCallback);
+                .subscribe(MediaID.ID_MUSIC, mCallback);
         getActivity().setTitle(R.string.all_music);
     }
 
@@ -100,7 +102,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStop() {
         super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaIDHelper.MEDIA_ID_MUSIC);
+                .unsubscribe(MediaID.ID_MUSIC);
     }
 
     @Override
@@ -121,7 +123,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         MediaItem clickedItem = mAdapter.getItem(position);
-        MediaControllerCompat controller = getActivity().getSupportMediaController();
+        MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
         if (controller != null && clickedItem.isPlayable()) {
             Log.d(TAG, "onItemClick: playing song at position " + position);
             controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);

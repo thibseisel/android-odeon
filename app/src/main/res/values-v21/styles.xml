@@ -4,9 +4,9 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-        <item name="colorPrimary">@color/mtrl_blue_500</item>
-        <item name="colorPrimaryDark">@color/mtrl_blue_700</item>
-        <item name="colorAccent">@color/mtrl_amber_a400</item>
+        <item name="colorPrimary">@color/mtrl_orange_500</item>
+        <item name="colorPrimaryDark">@color/mtrl_orange_700</item>
+        <item name="colorAccent">@color/mtrl_blue_a400</item>
 
         <!-- Enable window content transition -->
         <item name="android:windowContentTransitions">true</item>
@@ -23,5 +23,13 @@
         <item name="windowActionBar">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.AppTheme.ProgressBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:minHeight">0dp</item>
+        <item name="android:progressDrawable">@drawable/my_seekbar_track</item>
+        <item name="android:thumb">@null</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
     </style>
 </resources>

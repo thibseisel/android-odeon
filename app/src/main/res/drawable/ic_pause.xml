@@ -1,10 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="24dp"
         android:height="24dp"
         android:tint="?colorControlNormal"
         android:viewportHeight="24.0"
         android:viewportWidth="24.0">
+
+    <!-- Le pathData a été redéfini pour être compatible avec ic_play_arrow -->
     <path
+        android:name="pause"
         android:fillColor="#ff000000"
-        android:pathData="M6,19h4L10,5L6,5v14zM14,5v14h4L18,5h-4z"/>
+        android:pathData="@string/path_pause"/>
+
 </vector>

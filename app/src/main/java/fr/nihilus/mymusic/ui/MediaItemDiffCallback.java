@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic.ui;
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v7.util.DiffUtil;
 
 import java.util.List;
@@ -34,6 +35,11 @@ class MediaItemDiffCallback extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return mOld.get(oldItemPosition).equals(mNew.get(newItemPosition));
+        MediaDescriptionCompat oldDesc = mOld.get(oldItemPosition).getDescription();
+        MediaDescriptionCompat newDesc = mNew.get(newItemPosition).getDescription();
+        boolean sameUri = oldDesc.getIconUri() == newDesc.getIconUri();
+        boolean sameTitle = oldDesc.getTitle() == newDesc.getTitle();
+        boolean sameSubtitle = oldDesc.getSubtitle() == newDesc.getSubtitle();
+        return sameUri && sameTitle && sameSubtitle;
     }
 }

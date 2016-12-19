@@ -26,12 +26,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import fr.nihilus.mymusic.HomeActivity;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.settings.Prefs;
+import fr.nihilus.mymusic.utils.MediaID;
 
-import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ALBUMS;
-import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_DAILY;
-import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_MUSIC;
-import static fr.nihilus.mymusic.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static fr.nihilus.mymusic.utils.MediaID.ID_ALBUMS;
+import static fr.nihilus.mymusic.utils.MediaID.ID_DAILY;
+import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
+import static fr.nihilus.mymusic.utils.MediaID.ID_ROOT;
 
 public class MusicService extends MediaBrowserServiceCompat implements Playback.Callback {
 
@@ -57,6 +59,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
+    public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.RANDOM";
+    public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
@@ -65,6 +69,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     private boolean mServiceStarted;
     private int mCurrentIndexQueue;
     private MediaNotificationManager mMediaNotificationManager;
+
+    private boolean mRandomEnabled;
 
     @Override
     public void onCreate() {
@@ -99,6 +105,9 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         updatePlaybackState(null);
 
         mMediaNotificationManager = new MediaNotificationManager(this);
+
+        // Lecture aléatoire active ?
+        mRandomEnabled = Prefs.isRandomPlayingEnabled(this);
     }
 
     @Override
@@ -145,7 +154,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             Log.w(TAG, "onGetRoot: IGNORING request from untrusted package " + clientPackageName);
             return null;
         }
-        return new BrowserRoot(MEDIA_ID_ROOT, null);
+        return new BrowserRoot(ID_ROOT, null);
     }
 
     @Override
@@ -156,20 +165,33 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             mMusicProvider.loadMetadata(this);
         }
 
-        String[] hierarchy = MediaIDHelper.getHierarchy(parentId);
+        Log.d(TAG, "onLoadChildren: parentId=" + parentId);
 
-        if (MEDIA_ID_MUSIC.equals(parentId)) {
-            result.sendResult(mMusicProvider.getMusicItems());
-        } else if (MEDIA_ID_ALBUMS.equals(parentId)) {
-            result.sendResult(mMusicProvider.getAlbumItems(this));
-        /*} else if (MEDIA_ID_ALBUMS.equals(hierarchy[1])) {
-            result.sendResult(mMusicProvider.getAlbumTracks(parentId));*/
-        } else if (MEDIA_ID_DAILY.equals(parentId)) {
-            MediaItem daily = mMusicProvider.getRandomMusicItem();
-            result.sendResult(Collections.singletonList(daily));
-        } else {
-            Log.d(TAG, "loadChildrenImpl: MediaId not implemented.");
-            result.sendResult(Collections.<MediaItem>emptyList());
+        String[] hierarchy = MediaID.getHierarchy(parentId);
+
+        switch (hierarchy[0]) {
+            case ID_MUSIC:
+                result.sendResult(mMusicProvider.getMusicItems());
+                break;
+            case ID_ALBUMS:
+                if (hierarchy.length > 1) {
+                    // Pistes de l'album
+                    Log.d(TAG, "onLoadChildren: loading tracks from album " + hierarchy[1]);
+                    result.sendResult(mMusicProvider.getTracksItems(parentId));
+                } else {
+                    // Tous les albums
+                    Log.d(TAG, "onLoadChildren: loading all albums");
+                    result.sendResult(mMusicProvider.getAlbumItems(this));
+                }
+                break;
+            case ID_DAILY:
+                MediaItem daily = mMusicProvider.getRandomMusicItem();
+                result.sendResult(Collections.singletonList(daily));
+                break;
+            default:
+                Log.d(TAG, "loadChildrenImpl: MediaId not implemented.");
+                result.sendResult(Collections.<MediaItem>emptyList());
+                break;
         }
     }
 
@@ -302,6 +324,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     private void setCustomActions(PlaybackStateCompat.Builder stateBuilder) {
         // TODO Actions : random and repeat
+        stateBuilder.addCustomAction(CUSTOM_ACTION_RANDOM, getString(R.string.action_random),
+                R.drawable.ic_shuffle_24dp);
     }
 
     private void handlePlayRequest() {
@@ -340,7 +364,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }
 
         QueueItem queueItem = mPlayingQueue.get(mCurrentIndexQueue);
-        String musicId = MediaIDHelper.extractMusicIDFromMediaID(queueItem.getDescription().getMediaId());
+        String musicId = MediaID.extractMusicIDFromMediaID(queueItem.getDescription().getMediaId());
         MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
         final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
         if (!musicId.equals(trackId)) {
@@ -495,7 +519,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         @Override
         public void onPlay() {
             Log.d(TAG, "onPlay");
-            if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
+            /*if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
                 // TODO Spécialiser en fonction de la dernière lecture
                 Log.d(TAG, "onPlay: generating random queue!");
                 mPlayingQueue = QueueHelper.getAllMusic(mMusicProvider);
@@ -503,7 +527,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 mSession.setQueueTitle("Random");
                 // On commence à lire du début
                 mCurrentIndexQueue = 0;
-            }
+            }*/
 
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
                 handlePlayRequest();
@@ -574,7 +598,13 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         @Override
         public void onCustomAction(String action, Bundle extras) {
-
+            if (CUSTOM_ACTION_RANDOM.equals(action)) {
+                if (extras != null) {
+                    mRandomEnabled = extras.getBoolean(EXTRA_RANDOM_ENABLED, false);
+                    Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
+                    Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
+                }
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 
 /**
  * A class that implements local media playback using {@link MediaPlayer}.
@@ -153,7 +153,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
             relaxResources(false); // Release everything exept MediaPlayer
 
             Uri source = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
-                    .appendEncodedPath(MediaIDHelper.extractMusicIDFromMediaID(mediaId))
+                    .appendEncodedPath(MediaID.extractMusicIDFromMediaID(mediaId))
                     .build();
 
             try {

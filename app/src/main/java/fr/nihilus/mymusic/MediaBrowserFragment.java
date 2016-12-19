@@ -33,6 +33,7 @@ public class MediaBrowserFragment extends Fragment {
 
     private MediaBrowserCompat mMediaBrowser;
     private Queue<Pair<String, WeakReference<SubscriptionCallback>>> mQueue = new LinkedList<>();
+    private Queue<WeakReference<ConnectedCallback>> mConnectionQueue = new LinkedList<>();
 
     private final ConnectionCallback mConnectionCallback = new ConnectionCallback() {
 
@@ -42,10 +43,11 @@ public class MediaBrowserFragment extends Fragment {
                 Log.d(TAG, "MediaBrowser is now connected.");
                 MediaSessionCompat.Token token = mMediaBrowser.getSessionToken();
                 MediaControllerCompat controller = new MediaControllerCompat(getContext(), token);
-                getActivity().setSupportMediaController(controller);
-                onMediaBrowserConnected();
+                MediaControllerCompat.setMediaController(getActivity(), controller);
+                notifyConnectedListeners();
+                subscribeAfterConnection();
             } catch (RemoteException e) {
-                Log.e(TAG, "onMediaBrowserConnected: Failed to create MediaController.", e);
+                Log.e(TAG, "subscribeAfterConnection: Failed to create MediaController.", e);
             }
         }
 
@@ -90,7 +92,7 @@ public class MediaBrowserFragment extends Fragment {
         super.onDestroy();
     }
 
-    private boolean isConnected() {
+    boolean isConnected() {
         return mMediaBrowser != null && mMediaBrowser.isConnected();
     }
 
@@ -112,15 +114,36 @@ public class MediaBrowserFragment extends Fragment {
         }
     }
 
-    private void onMediaBrowserConnected() {
+    public void doWhenConnected(ConnectedCallback callback) {
+        if (isConnected()) {
+            callback.onConnected();
+            return;
+        }
+        mConnectionQueue.add(new WeakReference<>(callback));
+    }
+
+    private void subscribeAfterConnection() {
         Pair<String, WeakReference<SubscriptionCallback>> pair;
         while ((pair = mQueue.poll()) != null) {
             final SubscriptionCallback callback = pair.second.get();
             if (callback != null) {
-                // L'élément qui veut souscrire est encore en vie
-                Log.d(TAG, "onMediaBrowserConnected: subscribing for " + pair.first);
+                Log.d(TAG, "subscribeAfterConnection: subscribing for " + pair.first);
                 mMediaBrowser.subscribe(pair.first, callback);
             }
         }
+    }
+
+    private void notifyConnectedListeners() {
+        WeakReference<ConnectedCallback> callbackRef;
+        while ((callbackRef = mConnectionQueue.poll()) != null) {
+            final ConnectedCallback callback = callbackRef.get();
+            if (callback != null) {
+                callback.onConnected();
+            }
+        }
+    }
+
+    public interface ConnectedCallback {
+        void onConnected();
     }
 }

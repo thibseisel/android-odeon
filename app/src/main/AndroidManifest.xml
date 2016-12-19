@@ -70,7 +70,8 @@
         <activity
             android:name=".ui.AlbumDetailActivity"
             android:parentActivityName=".HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar.Neutral">
         </activity>
         <activity
             android:name=".ui.SearchResultActivity"

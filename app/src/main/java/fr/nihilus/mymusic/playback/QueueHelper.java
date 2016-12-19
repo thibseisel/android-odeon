@@ -1,8 +1,8 @@
 package fr.nihilus.mymusic.playback;
 
+import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
-import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -11,24 +11,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 
 final class QueueHelper {
 
     private static final String TAG = "QueueHelper";
-
-    static List<QueueItem> getAllMusic(MusicProvider provider) {
-        LongSparseArray<MediaMetadataCompat> tracks = provider.getAllMusic();
-        ArrayList<QueueItem> queue = new ArrayList<>(tracks.size());
-        int index = 0;
-        for (int i = 0; i < tracks.size(); i++) {
-            final MediaMetadataCompat track = tracks.valueAt(i);
-            QueueItem item = new QueueItem(track.getDescription(), index++);
-            queue.add(item);
-        }
-        sortQueueAlpha(queue);
-        return queue;
-    }
 
     /**
      * Indique si l'index donné est bien compris dans la file.
@@ -62,12 +49,12 @@ final class QueueHelper {
         return -1;
     }
 
-    static List<QueueItem> convertToQueue(Collection<MediaMetadataCompat> tracks,
-                                          String... categories) {
+    private static List<QueueItem> convertToQueue(Collection<MediaMetadataCompat> tracks,
+                                                  String... categories) {
         List<QueueItem> queue = new ArrayList<>();
         int count = 0;
         for (MediaMetadataCompat track : tracks) {
-            String hierarchyAwareMediaID = MediaIDHelper
+            String hierarchyAwareMediaID = MediaID
                     .createMediaID(track.getDescription().getMediaId(), categories);
 
             MediaMetadataCompat trackCopy = new MediaMetadataCompat.Builder(track)
@@ -81,8 +68,9 @@ final class QueueHelper {
         return queue;
     }
 
+    @Nullable
     static List<QueueItem> getPlayingQueue(String mediaId, MusicProvider provider) {
-        String[] hierarchy = MediaIDHelper.getHierarchy(mediaId);
+        String[] hierarchy = MediaID.getHierarchy(mediaId);
 
         if (hierarchy.length != 2) {
             Log.e(TAG, "getPlayingQueue: could not build playing queue for this mediaId: " + mediaId);
@@ -94,14 +82,14 @@ final class QueueHelper {
         Log.d(TAG, "getPlayingQueue: creating playing queue for " + categoryType
                 + ", " + categoryValue);
 
-        Collection<MediaMetadataCompat> tracks = null;
-        if (categoryType.equals(MediaIDHelper.MEDIA_ID_MUSIC)) {
-            // FIXME Eviter d'avoir à copier depuis LongSparseArray
-            LongSparseArray<MediaMetadataCompat> allMusic = provider.getAllMusic();
-            tracks = new ArrayList<>(allMusic.size());
-            for (int i = 0; i < allMusic.size(); i++) {
-                tracks.add(allMusic.valueAt(i));
-            }
+        List<MediaMetadataCompat> tracks = null;
+        if (categoryType.equals(MediaID.ID_MUSIC)) {
+            // Toute la musique, ordre alphabétique
+            tracks = provider.getAllMusic();
+        } else if (categoryType.equals(MediaID.ID_ALBUMS)) {
+            // Album complet
+            tracks = provider.getTracks(categoryValue);
+            // TODO Différencier le cas où il y a un musicID
         }
         // TODO Gérer les autres cas (par albums, recherche...)
 
@@ -122,18 +110,7 @@ final class QueueHelper {
         Collections.sort(queue, new Comparator<QueueItem>() {
             @Override
             public int compare(QueueItem one, QueueItem another) {
-                return Long.compare(one.getQueueId(), another.getQueueId());
-            }
-        });
-    }
-
-    private static void sortQueueAlpha(List<QueueItem> queue) {
-        Collections.sort(queue, new Comparator<QueueItem>() {
-            @Override
-            public int compare(QueueItem one, QueueItem another) {
-                String oneTitle = one.getDescription().getTitle().toString();
-                String anotherTitle = another.getDescription().getTitle().toString();
-                return oneTitle.compareTo(anotherTitle);
+                return (int) (one.getQueueId() - another.getQueueId());
             }
         });
     }

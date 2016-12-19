@@ -33,16 +33,33 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="?actionBarSize"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+        <!-- Ombre de la bottomsheet -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:background="@drawable/shape_top_shadow"
+            app:layout_anchor="@+id/playerView"/>
+
+        <fr.nihilus.mymusic.view.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            app:behavior_peekHeight="@dimen/playerview_height"
+            app:layout_behavior="@string/bottom_sheet_behavior"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->
     <android.support.design.widget.NavigationView
         android:id="@+id/navDrawer"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
-        app:menu="@menu/menu_drawer"
-        style="@style/AppTheme.Drawer"/>
+        app:menu="@menu/menu_drawer"/>
 
 </android.support.v4.widget.DrawerLayout>

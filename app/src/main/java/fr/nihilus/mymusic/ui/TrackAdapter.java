@@ -1,7 +1,10 @@
 package fr.nihilus.mymusic.ui;
 
+import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,9 +15,11 @@ import android.widget.TextView;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 
-class TrackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
+
+    private static final String TAG = "TrackAdapter";
 
     private List<MediaItem> mTracks;
     private OnTrackSelectedListener mListener;
@@ -24,19 +29,24 @@ class TrackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TrackHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.track_list_item, parent, false);
         return new TrackHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        final TrackHolder trackHolder = (TrackHolder) holder;
+    public void onBindViewHolder(final TrackHolder holder, int position) {
         final MediaDescriptionCompat track = mTracks.get(position).getDescription();
-        trackHolder.title.setText(track.getTitle());
-        trackHolder.info.setText(track.getDescription());
-        // TODO Numéro de piste
+        final Bundle extras = track.getExtras();
+
+        holder.title.setText(track.getTitle());
+        holder.duration.setText(track.getSubtitle());
+
+        if (extras != null) {
+            long trackNumber = extras.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
+            holder.trackNo.setText(String.valueOf(trackNumber));
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,9 +62,16 @@ class TrackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public long getItemId(int position) {
         if (hasStableIds() && mTracks != null) {
             final String mediaId = mTracks.get(position).getMediaId();
-            return Long.parseLong(MediaIDHelper.extractMusicIDFromMediaID(mediaId));
+            return Long.parseLong(MediaID.extractMusicIDFromMediaID(mediaId));
         }
         return ListView.NO_ID;
+    }
+
+    void updateTracks(List<MediaItem> tracks) {
+        MediaItemDiffCallback callback = new MediaItemDiffCallback(mTracks, tracks);
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
+        mTracks = tracks;
+        result.dispatchUpdatesTo(this);
     }
 
     @Override
@@ -66,20 +83,20 @@ class TrackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         mListener = listener;
     }
 
-    private static class TrackHolder extends RecyclerView.ViewHolder {
+    interface OnTrackSelectedListener {
+        void onTrackSelected(MediaItem track);
+    }
+
+    static class TrackHolder extends RecyclerView.ViewHolder {
         final TextView trackNo;
         final TextView title;
-        final TextView info;
+        final TextView duration;
 
         TrackHolder(View itemView) {
             super(itemView);
             trackNo = (TextView) itemView.findViewById(R.id.trackNo);
             title = (TextView) itemView.findViewById(R.id.title);
-            info = (TextView) itemView.findViewById(R.id.info);
+            duration = (TextView) itemView.findViewById(R.id.duration);
         }
-    }
-
-    interface OnTrackSelectedListener {
-        void onTrackSelected(MediaItem track);
     }
 }

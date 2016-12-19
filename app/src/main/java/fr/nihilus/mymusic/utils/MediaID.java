@@ -20,29 +20,29 @@ import android.support.annotation.NonNull;
 
 import java.util.Arrays;
 
-public class MediaIDHelper {
+public final class MediaID {
 
-    public static final String MEDIA_ID_ROOT = "ROOT";
+    public static final String ID_ROOT = "ROOT";
     /**
      * La chanson du jour est tirée au sort parmi tous les titres de la bibliothèque musicale.
      */
-    public static final String MEDIA_ID_DAILY = "SONG_OF_THE_DAY";
+    public static final String ID_DAILY = "SONG_OF_THE_DAY";
     /**
      * Classement des titres par genre musical, tel que "Rock".
      */
-    public static final String MEDIA_ID_GENRES = "GENRES";
+    public static final String ID_GENRES = "GENRES";
     /**
      * La totalité des titres de la bibliothèque musicale.
      */
-    public static final String MEDIA_ID_MUSIC = "MUSIC";
+    public static final String ID_MUSIC = "MUSIC";
     /**
      * Classement des titres par albums.
      */
-    public static final String MEDIA_ID_ALBUMS = "ALBUMS";
+    public static final String ID_ALBUMS = "ALBUMS";
     /**
      * Classement des titres par artistes.
      */
-    public static final String MEDIA_ID_ARTISTS = "ARTISTS";
+    public static final String ID_ARTISTS = "ARTISTS";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';
@@ -142,7 +142,7 @@ public class MediaIDHelper {
             return createMediaID(null, hierarchy);
         }
         if (hierarchy.length <= 1) {
-            return MEDIA_ID_ROOT;
+            return ID_ROOT;
         }
         String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length - 1);
         return createMediaID(null, parentHierarchy);

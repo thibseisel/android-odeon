@@ -211,7 +211,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         if ((mPlaybackState.getActions()
                 & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
             notifBuilder.addAction(R.drawable.ic_skip_previous_white_24dp,
-                    "Previous", mPreviousIntent);
+                    mService.getString(R.string.action_previous), mPreviousIntent);
             // S'il y a un bouton "previous", alors "Play/Pause" est le second.
             // On garde ça en mémoire, parce que MediaStyle nécessite de préciser
             // l'index des boutons visibles dans le mode compact de la notification.
@@ -224,7 +224,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         if ((mPlaybackState.getActions()
                 & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
             notifBuilder.addAction(R.drawable.ic_skip_next_white_24dp,
-                    "Next", mNextIntent);
+                    mService.getString(R.string.action_next), mNextIntent);
         }
 
         MediaDescriptionCompat description = mMetadata.getDescription();
@@ -257,11 +257,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
         PendingIntent intent;
         if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             label = "Pause";
-            icon = R.drawable.ic_pause_24dp;
+            icon = R.drawable.notif_pause;
             intent = mPauseIntent;
         } else {
             label = "Play";
-            icon = R.drawable.ic_play_arrow_white_24dp;
+            icon = R.drawable.notif_play_arrow;
             intent = mPlayIntent;
         }
         builder.addAction(new NotificationCompat.Action(icon, label, intent));

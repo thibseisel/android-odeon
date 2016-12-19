@@ -13,7 +13,7 @@
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
         app:layout_aspectRatio="@fraction/album_art_ratio"
-        tools:src="@drawable/ic_audiotrack_24dp"/>
+        tools:src="@drawable/ic_album_24dp"/>
 
     <RelativeLayout
         android:id="@+id/band"

@@ -4,18 +4,22 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,40 +28,37 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.ImageViewTarget;
+
 import java.util.List;
 
+import fr.nihilus.mymusic.palette.PaletteBitmap;
+import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.SongListFragment;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
+import fr.nihilus.mymusic.view.PlayerView;
 
 @SuppressWarnings("ConstantConditions")
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
-
+    private static final String KEY_DAILY_SONG = "daily_song";
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
+    private PlayerView mPlayerView;
+    private MediaItem mDaily;
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
-            MediaItem daily = children.get(0);
-            Uri artUri = daily.getDescription().getIconUri();
-            CharSequence title = daily.getDescription().getTitle();
-            CharSequence subtitle = daily.getDescription().getSubtitle();
-
-            View header = mNavigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.title)).setText(title);
-            ((TextView) header.findViewById(R.id.subtitle)).setText(subtitle);
-
-            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
-            if (artUri != null) {
-                albumArtView.setImageURI(artUri);
-            } else {
-                albumArtView.setImageResource(R.drawable.dummy_album_art);
+            if (children.size() > 0) {
+                mDaily = children.get(0);
+                prepareHeaderView(mDaily);
             }
         }
     };
@@ -69,6 +70,7 @@ public class HomeActivity extends AppCompatActivity
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         setupNavigationDrawer();
+        setupPlayerView();
 
         if (savedInstanceState == null) {
             PermissionUtil.requestExternalStoragePermission(this);
@@ -76,7 +78,24 @@ public class HomeActivity extends AppCompatActivity
                 loadFirstFragment();
                 loadDailySong();
             }
+        } else {
+            mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
+            prepareHeaderView(mDaily);
         }
+    }
+
+    private void setupPlayerView() {
+        mPlayerView = (PlayerView) findViewById(R.id.playerView);
+
+        MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                .doWhenConnected(new MediaBrowserFragment.ConnectedCallback() {
+                    @Override
+                    public void onConnected() {
+                        MediaControllerCompat controller = MediaControllerCompat
+                                .getMediaController(HomeActivity.this);
+                        mPlayerView.attachMediaController(controller);
+                    }
+                });
     }
 
     private void loadFirstFragment() {
@@ -84,6 +103,7 @@ public class HomeActivity extends AppCompatActivity
         @IdRes int checkedItemId;
         String callingAction = getIntent().getAction();
 
+        // FIXME NullPointerException (callingAction.hashcode)
         switch (callingAction) {
             case ACTION_ALBUMS:
                 firstFragment = new AlbumGridFragment();
@@ -100,7 +120,7 @@ public class HomeActivity extends AppCompatActivity
 
     private void loadDailySong() {
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .subscribe(MediaIDHelper.MEDIA_ID_DAILY, mSubscriptionCallback);
+                .subscribe(MediaID.ID_DAILY, mSubscriptionCallback);
     }
 
     private void setupNavigationDrawer() {
@@ -124,6 +144,12 @@ public class HomeActivity extends AppCompatActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_DAILY_SONG, mDaily);
     }
 
     @Override
@@ -170,9 +196,64 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onDestroy() {
+        mPlayerView.attachMediaController(null);
+        super.onDestroy();
+    }
+
     private void swapFragment(Fragment newFrag) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, newFrag)
                 .commit();
+    }
+
+    private void prepareHeaderView(final MediaItem daily) {
+        Uri artUri = daily.getDescription().getIconUri();
+        CharSequence title = daily.getDescription().getTitle();
+        CharSequence subtitle = daily.getDescription().getSubtitle();
+
+        View header = mNavigationView.getHeaderView(0);
+        final View band = header.findViewById(R.id.band);
+        final TextView titleText = ((TextView) header.findViewById(R.id.title));
+        final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
+        ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
+
+        titleText.setText(title);
+        subtitleText.setText(subtitle);
+
+        final Drawable dummyAlbumArt = ContextCompat.getDrawable(HomeActivity.this,
+                R.drawable.dummy_album_art);
+
+        Glide.with(HomeActivity.this).fromUri()
+                .asBitmap()
+                .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
+                .centerCrop()
+                .load(artUri)
+                .error(dummyAlbumArt)
+                .centerCrop()
+                .into(new ImageViewTarget<PaletteBitmap>(albumArtView) {
+                    @Override
+                    protected void setResource(PaletteBitmap resource) {
+                        super.view.setImageBitmap(resource.bitmap);
+                        Palette.Swatch swatch = resource.palette.getDominantSwatch();
+                        if (swatch != null) {
+                            band.setBackgroundColor(swatch.getRgb());
+                            titleText.setTextColor(swatch.getBodyTextColor());
+                            subtitleText.setTextColor(swatch.getBodyTextColor());
+                        }
+                    }
+                });
+
+        header.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MediaControllerCompat controller = MediaControllerCompat
+                        .getMediaController(HomeActivity.this);
+                if (controller != null) {
+                    controller.getTransportControls().playFromMediaId(daily.getMediaId(), null);
+                }
+            }
+        });
     }
 }

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
 import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -30,6 +31,14 @@ public final class ViewUtils {
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
         return (hsv[1] < 0.5) && (hsv[2] > 0.5);
+    }
+
+    @ColorInt
+    public static int darker(@ColorInt int color, @FloatRange(from = 0.0, to = 1.0) float factor) {
+        float[] hsv = new float[3];
+        Color.colorToHSV(color, hsv);
+        hsv[2] *= factor;
+        return Color.HSVToColor(hsv);
     }
 
     /**

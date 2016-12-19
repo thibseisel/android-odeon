@@ -1,53 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentFrameLayout
+<android.support.percent.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:foreground="?selectableItemBackground">
 
-    <RelativeLayout
+    <ImageView
+        android:id="@+id/albumArt"
+        android:contentDescription="@string/album_art"
+        android:scaleType="centerCrop"
         app:layout_aspectRatio="177%"
-        app:layout_widthPercent="100%">
+        app:layout_widthPercent="100%"
+        tools:src="@drawable/dummy_album_art"/>
 
-        <ImageView
-            android:id="@+id/albumArt"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/album_art"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/dummy_album_art"/>
+    <LinearLayout
+        android:id="@+id/band"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/albumArt"
+        android:background="@color/album_band_default"
+        android:gravity="center"
+        android:minHeight="56dp"
+        android:orientation="vertical"
+        android:paddingBottom="8dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:gravity="center"
-            android:minHeight="56dp"
-            android:orientation="vertical"
-            android:paddingBottom="8dp"
-            android:paddingEnd="16dp"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp">
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:text="Chanson du jour"/>
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                tools:text="Chanson du jour"/>
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            tools:text="Nom de l'artiste, de l'album..."/>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/subtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.AppCompat"
-                tools:text="Nom de l'artiste, de l'album..."/>
-        </LinearLayout>
-    </RelativeLayout>
-
-</android.support.percent.PercentFrameLayout>
+</android.support.percent.PercentRelativeLayout>

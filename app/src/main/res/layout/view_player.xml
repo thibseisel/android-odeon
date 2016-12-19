@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/playerview_height"
+    android:background="?colorBackgroundFloating"
+    android:clickable="true"
+    app:elevation="4dp">
+
+    <ImageView
+        android:id="@+id/albumArt"
+        android:layout_width="@dimen/playerview_height"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/album_art"
+        tools:src="@drawable/dummy_album_art"/>
+
+    <fr.nihilus.mymusic.view.AutoUpdateSeekBar
+        android:id="@+id/seekbar"
+        style="@style/Widget.AppTheme.ProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/albumArt"
+        android:layout_toRightOf="@id/albumArt"
+        android:minHeight="0dp"
+        tools:progress="90"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@+id/albumArt"
+        android:layout_toLeftOf="@+id/btn_play_pause"
+        android:layout_toRightOf="@+id/albumArt"
+        android:layout_toStartOf="@+id/btn_play_pause"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            tools:text="Title de la chanson"/>
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="?android:attr/textColorTertiary"
+            tools:text="Informations sur la chanson, telles que l'album"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btn_play_pause"
+        android:layout_width="@dimen/playerview_height"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        android:tint="?colorControlNormal"
+        app:srcCompat="@drawable/level_list_play_pause"/>
+</RelativeLayout>

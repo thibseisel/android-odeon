@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic.ui;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.ColorInt;
@@ -29,7 +30,7 @@ import java.util.List;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.ViewUtils;
 
 class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
@@ -50,13 +51,13 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                 ContextCompat.getColor(context, android.R.color.white),
                 ContextCompat.getColor(context, android.R.color.white)
         };
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.dummy_album_art);
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp);
         mGlideRequest = Glide.with(context)
                 .fromUri()
                 .asBitmap()
-                .transcode(new PaletteBitmapTranscoder(context), PaletteBitmap.class)
-                .error(dummyAlbumArt)
+                .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
                 .fitCenter()
+                .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.RESULT);
     }
 
@@ -116,7 +117,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     public long getItemId(int position) {
         if (hasStableIds() && mAlbums != null) {
             final MediaItem item = mAlbums.get(position);
-            return Long.parseLong(MediaIDHelper.extractMusicIDFromMediaID(item.getMediaId()));
+            return Long.parseLong(MediaID.extractMusicIDFromMediaID(item.getMediaId()));
         }
         return RecyclerView.NO_ID;
     }
@@ -163,6 +164,22 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             colors[1] = accent;
             colors[2] = title;
             colors[3] = body;
+        }
+    }
+
+    private static class BottomPaletteTranscoder extends PaletteBitmapTranscoder {
+
+        BottomPaletteTranscoder(@NonNull Context context) {
+            super(context);
+        }
+
+        @NonNull
+        @Override
+        protected Palette onGeneratePalette(Bitmap bitmap) {
+            return Palette.from(bitmap)
+                    .setRegion(0, bitmap.getHeight() / 5, bitmap.getWidth(), bitmap.getHeight())
+                    .maximumColorCount(16)
+                    .generate();
         }
     }
 }

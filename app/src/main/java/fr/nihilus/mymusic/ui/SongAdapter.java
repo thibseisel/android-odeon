@@ -23,7 +23,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
+import fr.nihilus.mymusic.utils.MediaID;
 
 class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
 
@@ -57,7 +57,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
     public long getItemId(int pos) {
         if (hasStableIds() && mSongs != null) {
             String mediaId = mSongs.get(pos).getMediaId();
-            return Long.parseLong(MediaIDHelper.extractMusicIDFromMediaID(mediaId));
+            return Long.parseLong(MediaID.extractMusicIDFromMediaID(mediaId));
         }
         return ListView.NO_ID;
     }

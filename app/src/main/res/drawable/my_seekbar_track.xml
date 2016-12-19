@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@android:id/background"
+        android:gravity="center_vertical|fill_horizontal">
+        <!-- Le background est transparent -->
+        <shape
+            android:shape="rectangle"
+            android:tint="?colorControlNormal">
+            <size android:height="4dp"/>
+            <solid android:color="@android:color/transparent"/>
+        </shape>
+    </item>
+    <item
+        android:id="@android:id/secondaryProgress"
+        android:gravity="center_vertical|fill_horizontal">
+        <scale android:scaleWidth="100%">
+            <selector>
+                <item
+                    android:state_enabled="false"
+                    android:drawable="@android:color/transparent"/>
+                <item>
+                    <shape
+                        android:shape="rectangle"
+                        android:tint="?attr/colorControlActivated">
+                        <size android:height="4dp"/>
+                        <solid android:color="#7fffffff"/>
+                    </shape>
+                </item>
+            </selector>
+        </scale>
+    </item>
+    <item
+        android:id="@android:id/progress"
+        android:gravity="center_vertical|fill_horizontal">
+        <scale android:scaleWidth="100%">
+            <selector>
+                <item
+                    android:state_enabled="false"
+                    android:drawable="@android:color/transparent"/>
+                <item>
+                    <shape
+                        android:shape="rectangle"
+                        android:tint="?attr/colorControlActivated">
+                        <size android:height="4dp"/>
+                        <solid android:color="@android:color/white"/>
+                    </shape>
+                </item>
+            </selector>
+        </scale>
+    </item>
+</layer-list>

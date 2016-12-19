@@ -20,8 +20,8 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.utils.MediaIDHelper;
-import fr.nihilus.mymusic.widget.GridSpacerDecoration;
+import fr.nihilus.mymusic.utils.MediaID;
+import fr.nihilus.mymusic.view.GridSpacerDecoration;
 
 public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbumSelectedListener {
 
@@ -55,7 +55,7 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
         } else {
             mAlbums = new ArrayList<>();
             MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                    .subscribe(MediaIDHelper.MEDIA_ID_ALBUMS, mSubscriptionCallback);
+                    .subscribe(MediaID.ID_ALBUMS, mSubscriptionCallback);
         }
 
         mAdapter = new AlbumsAdapter(getContext(), mAlbums);
@@ -94,7 +94,7 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     public void onStop() {
         super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaIDHelper.MEDIA_ID_ALBUMS);
+                .unsubscribe(MediaID.ID_ALBUMS);
     }
 
     @Override

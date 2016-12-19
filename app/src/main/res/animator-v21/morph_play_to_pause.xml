@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:duration="500"
+        android:propertyName="pathData"
+        android:valueFrom="@string/path_play"
+        android:valueTo="@string/path_pause"
+        android:valueType="pathType"
+        android:interpolator="@android:interpolator/fast_out_linear_in"/>
+</set>
