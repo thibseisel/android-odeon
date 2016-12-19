@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.ui.albums;
 
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -16,6 +16,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
+import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
 
 class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
 
@@ -52,7 +53,8 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
             @Override
             public void onClick(View view) {
                 if (mListener != null) {
-                    mListener.onTrackSelected(mTracks.get(holder.getAdapterPosition()));
+                    int position = holder.getAdapterPosition();
+                    mListener.onTrackSelected(position, mTracks.get(position));
                 }
             }
         });
@@ -84,7 +86,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     }
 
     interface OnTrackSelectedListener {
-        void onTrackSelected(MediaItem track);
+        void onTrackSelected(int position, MediaItem track);
     }
 
     static class TrackHolder extends RecyclerView.ViewHolder {

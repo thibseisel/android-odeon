@@ -144,15 +144,14 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         mCurrentState = INITIALIZED;
     }
 
-    List<MediaMetadataCompat> getTracks(String albumMediaId) {
+    List<MediaMetadataCompat> getTracks(String albumId) {
         if (!isInitialized()) {
             Log.w(TAG, "getTracks: music library is not initialized yet.");
             return Collections.emptyList();
         }
 
-        String categoryValue = MediaID.extractBrowseCategoryValueFromMediaID(albumMediaId);
         List<MediaMetadataCompat> tracks = new ArrayList<>();
-        Set<MediaMetadataCompat> set = mMusicByAlbum.get(Long.parseLong(categoryValue));
+        Set<MediaMetadataCompat> set = mMusicByAlbum.get(Long.parseLong(albumId));
         if (set != null) {
             tracks.addAll(set);
         }
@@ -303,7 +302,8 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         int index = rand.nextInt(mMusicById.size());
         MediaMetadataCompat meta = mMusicById.valueAt(index);
 
-        String mediaId = MediaID.ID_DAILY + "|" + meta.getString(METADATA_KEY_MEDIA_ID);
+        String mediaId = MediaID.createMediaID(meta.getString(METADATA_KEY_MEDIA_ID),
+                MediaID.ID_DAILY, MediaID.ID_DAILY);
         String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
 
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder()

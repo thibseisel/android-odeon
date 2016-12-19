@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.ui.albums;
 
 import android.content.Intent;
 import android.os.Bundle;

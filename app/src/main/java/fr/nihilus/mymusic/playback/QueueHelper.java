@@ -90,6 +90,9 @@ final class QueueHelper {
             // Album complet
             tracks = provider.getTracks(categoryValue);
             // TODO Différencier le cas où il y a un musicID
+        } else if (categoryType.equals(MediaID.ID_DAILY)) {
+            MediaMetadataCompat daily = provider.getMusic(MediaID.extractMusicIDFromMediaID(mediaId));
+            tracks = Collections.singletonList(daily);
         }
         // TODO Gérer les autres cas (par albums, recherche...)
 
@@ -113,5 +116,10 @@ final class QueueHelper {
                 return (int) (one.getQueueId() - another.getQueueId());
             }
         });
+    }
+
+    static String getQueueTitle(String mediaId, MusicProvider provider) {
+        // TODO Récupérer le titre de l'album, de la playlist...
+        return "All Tracks";
     }
 }

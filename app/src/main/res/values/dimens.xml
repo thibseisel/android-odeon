@@ -8,4 +8,5 @@
     <dimen name="mtrl_drawer_marginEnd">56dp</dimen>
     <dimen name="playerview_height">56dp</dimen>
     <fraction name="album_detail_ratio">100%</fraction>
+    <dimen name="list_item_horizontal_padding">16dp</dimen>
 </resources>

@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.utils;
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -6,12 +6,12 @@ import android.support.v7.util.DiffUtil;
 
 import java.util.List;
 
-class MediaItemDiffCallback extends DiffUtil.Callback {
+public class MediaItemDiffCallback extends DiffUtil.Callback {
 
     private List<MediaItem> mOld;
     private List<MediaItem> mNew;
 
-    MediaItemDiffCallback(List<MediaItem> oldList, List<MediaItem> newList) {
+    public MediaItemDiffCallback(List<MediaItem> oldList, List<MediaItem> newList) {
         mOld = oldList;
         mNew = newList;
     }

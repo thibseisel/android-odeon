@@ -57,10 +57,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public static final String CMD_PLAY = "CMD_PLAY";
     public static final String CMD_NEXT = "CMD_NEXT";
     public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
-    private static final String TAG = "MusicService";
-    private static final long STOP_DELAY = 30000;
     public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.RANDOM";
     public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
+    private static final String TAG = "MusicService";
+    private static final long STOP_DELAY = 30000;
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
@@ -108,41 +108,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         // Lecture aléatoire active ?
         mRandomEnabled = Prefs.isRandomPlayingEnabled(this);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            String action = intent.getAction();
-            String command = intent.getStringExtra(CMD_NAME);
-            if (ACTION_CMD.equals(action)) {
-                switch (command) {
-                    case CMD_PAUSE:
-                        if (mPlayback != null && mPlayback.isPlaying()) handlePauseRequest();
-                        break;
-                    case CMD_PLAY:
-                        handlePlayRequest();
-                        break;
-                    case CMD_NEXT:
-                        if (mPlayback != null) handleNextRequest();
-                        break;
-                    case CMD_PREVIOUS:
-                        if (mPlayback != null) handlePreviousRequest();
-                        break;
-                }
-            }
-        }
-        return START_NOT_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        handleStopRequest(null);
-
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        mSession.release();
-
-        super.onDestroy();
     }
 
     @Nullable
@@ -193,6 +158,41 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 result.sendResult(Collections.<MediaItem>emptyList());
                 break;
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            String action = intent.getAction();
+            String command = intent.getStringExtra(CMD_NAME);
+            if (ACTION_CMD.equals(action)) {
+                switch (command) {
+                    case CMD_PAUSE:
+                        if (mPlayback != null && mPlayback.isPlaying()) handlePauseRequest();
+                        break;
+                    case CMD_PLAY:
+                        handlePlayRequest();
+                        break;
+                    case CMD_NEXT:
+                        if (mPlayback != null) handleNextRequest();
+                        break;
+                    case CMD_PREVIOUS:
+                        if (mPlayback != null) handlePreviousRequest();
+                        break;
+                }
+            }
+        }
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        handleStopRequest(null);
+
+        mDelayedStopHandler.removeCallbacksAndMessages(null);
+        mSession.release();
+
+        super.onDestroy();
     }
 
     @Override
@@ -535,15 +535,24 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }
 
         @Override
-        public void onPause() {
-            Log.d(TAG, "onPause: currentState=" + mPlayback.getState());
-            handlePauseRequest();
-        }
+        public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            Log.d(TAG, "onPlayFromMediaId:" + "mediaId = [" + mediaId + "]");
 
-        @Override
-        public void onStop() {
-            Log.d(TAG, "onStop: currentState=" + mPlayback.getState());
-            handleStopRequest(null);
+            mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
+            mSession.setQueue(mPlayingQueue);
+
+            String queueTitle = QueueHelper.getQueueTitle(mediaId, mMusicProvider);
+            mSession.setQueueTitle(queueTitle);
+
+            if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
+                mCurrentIndexQueue = QueueHelper
+                        .getMusicIndexOnQueue(mPlayingQueue, mediaId);
+                if (mCurrentIndexQueue < 0) {
+                    Log.w(TAG, "onPlayFromMediaId: can't find index on queue. Playing from start.");
+                    mCurrentIndexQueue = 0;
+                }
+                handlePlayRequest();
+            }
         }
 
         @Override
@@ -555,6 +564,12 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, queueId);
                 handlePlayRequest();
             }
+        }
+
+        @Override
+        public void onPause() {
+            Log.d(TAG, "onPause: currentState=" + mPlayback.getState());
+            handlePauseRequest();
         }
 
         @Override
@@ -570,30 +585,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }
 
         @Override
-        public void onSeekTo(long position) {
-            Log.d(TAG, "onSeekTo: " + position);
-            mPlayback.seekTo((int) position);
+        public void onStop() {
+            Log.d(TAG, "onStop: currentState=" + mPlayback.getState());
+            handleStopRequest(null);
         }
 
         @Override
-        public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            Log.d(TAG, "onPlayFromMediaId:" + "mediaId = [" + mediaId + "], " +
-                    "extras = [" + extras + "]");
-
-            mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
-            mSession.setQueue(mPlayingQueue);
-            mSession.setQueueTitle("All tracks");
-
-            if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
-                mCurrentIndexQueue = QueueHelper
-                        .getMusicIndexOnQueue(mPlayingQueue, mediaId);
-                if (mCurrentIndexQueue < 0) {
-                    Log.e(TAG, "onPlayFromMediaId: media ID " + mediaId +
-                            " not found in queue. Ignoring.");
-                } else {
-                    handlePlayRequest();
-                }
-            }
+        public void onSeekTo(long position) {
+            Log.d(TAG, "onSeekTo: " + position);
+            mPlayback.seekTo((int) position);
         }
 
         @Override

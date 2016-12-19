@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.ui.albums;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -31,6 +31,7 @@ import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.utils.MediaID;
+import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
 import fr.nihilus.mymusic.utils.ViewUtils;
 
 class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {

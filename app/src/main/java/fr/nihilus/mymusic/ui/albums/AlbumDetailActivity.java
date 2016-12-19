@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.ui.albums;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,6 +31,7 @@ import java.util.List;
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.ViewUtils;
+import fr.nihilus.mymusic.view.CurrentlyPlayingDecoration;
 
 @SuppressWarnings("ConstantConditions")
 public class AlbumDetailActivity extends AppCompatActivity
@@ -66,6 +67,7 @@ public class AlbumDetailActivity extends AppCompatActivity
     private TextView mAlbumTitle;
     private TextView mAlbumArtist;
     private RecyclerView mRecyclerView;
+    private CurrentlyPlayingDecoration mDecoration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,11 +114,12 @@ public class AlbumDetailActivity extends AppCompatActivity
         mRecyclerView = (RecyclerView) findViewById(android.R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
+        mDecoration = new CurrentlyPlayingDecoration(this);
+        mRecyclerView.addItemDecoration(mDecoration);
+
         mAdapter = new TrackAdapter(mTracks);
         mRecyclerView.setAdapter(mAdapter);
-        // TODO CurrentlyPlayingDecoration
         mAdapter.setOnTrackSelectedListener(this);
-
     }
 
     private void setupToolbar() {
@@ -127,6 +130,7 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     private void applyPaletteTheme(@ColorInt int[] colors) {
         @ColorInt int statusBarColor = ViewUtils.darker(colors[0], 0.8f);
+        mCollapsingToolbar.setStatusBarScrimColor(statusBarColor);
         findViewById(R.id.band).setBackgroundColor(colors[0]);
         mAlbumTitle.setTextColor(colors[2]);
         mAlbumArtist.setTextColor(colors[3]);
@@ -160,7 +164,9 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onTrackSelected(MediaItem track) {
+    public void onTrackSelected(int position, MediaItem track) {
+        mDecoration.setDecoratedItemPosition(position);
+        mRecyclerView.invalidateItemDecorations();
         playMediaItem(track);
     }
 

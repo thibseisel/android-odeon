@@ -68,7 +68,7 @@
         </receiver>
 
         <activity
-            android:name=".ui.AlbumDetailActivity"
+            android:name=".ui.albums.AlbumDetailActivity"
             android:parentActivityName=".HomeActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar.Neutral">

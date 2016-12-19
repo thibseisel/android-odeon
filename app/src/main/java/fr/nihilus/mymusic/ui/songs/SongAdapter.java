@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.ui;
+package fr.nihilus.mymusic.ui.songs;
 
 import android.content.Context;
 import android.graphics.Bitmap;
