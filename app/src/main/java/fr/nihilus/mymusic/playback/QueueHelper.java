@@ -83,16 +83,17 @@ final class QueueHelper {
                 + ", " + categoryValue);
 
         List<MediaMetadataCompat> tracks = null;
-        if (categoryType.equals(MediaID.ID_MUSIC)) {
-            // Toute la musique, ordre alphabétique
-            tracks = provider.getAllMusic();
-        } else if (categoryType.equals(MediaID.ID_ALBUMS)) {
-            // Album complet
-            tracks = provider.getTracks(categoryValue);
-            // TODO Différencier le cas où il y a un musicID
-        } else if (categoryType.equals(MediaID.ID_DAILY)) {
-            MediaMetadataCompat daily = provider.getMusic(MediaID.extractMusicIDFromMediaID(mediaId));
-            tracks = Collections.singletonList(daily);
+        switch (categoryType) {
+            case MediaID.ID_MUSIC:
+                tracks = provider.getAllMusic();
+                break;
+            case MediaID.ID_ALBUMS:
+                tracks = provider.getTracks(categoryValue);
+                break;
+            case MediaID.ID_DAILY:
+                MediaMetadataCompat daily = provider.getMusic(MediaID.extractMusicIDFromMediaID(mediaId));
+                tracks = Collections.singletonList(daily);
+                break;
         }
         // TODO Gérer les autres cas (par albums, recherche...)
 

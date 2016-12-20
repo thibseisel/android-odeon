@@ -11,7 +11,7 @@ import java.util.TreeSet;
 
 public class MetadataStore {
 
-    private LongSparseArray<SortedSet<MediaMetadataCompat>> mSparseArray;
+    private final LongSparseArray<SortedSet<MediaMetadataCompat>> mSparseArray;
 
     public MetadataStore() {
         mSparseArray = new LongSparseArray<>();
@@ -42,7 +42,7 @@ public class MetadataStore {
                     + one.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
             long anotherTrack = another.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER) * 100
                     + another.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
-            return Long.compare(oneTrack, anotherTrack);
+            return (int) (oneTrack - anotherTrack);
         }
     };
 }

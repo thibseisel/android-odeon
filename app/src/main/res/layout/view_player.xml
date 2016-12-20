@@ -6,34 +6,34 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/playerview_height"
     android:background="?colorBackgroundFloating"
-    android:clickable="true"
-    app:elevation="4dp">
+    android:clickable="true">
 
     <ImageView
         android:id="@+id/albumArt"
         android:layout_width="@dimen/playerview_height"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/playerview_height"
         android:layout_centerVertical="true"
         android:contentDescription="@string/album_art"
         tools:src="@drawable/dummy_album_art"/>
 
     <fr.nihilus.mymusic.view.AutoUpdateSeekBar
-        android:id="@+id/seekbar"
+        android:id="@+id/progress"
         style="@style/Widget.AppTheme.ProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignTop="@id/albumArt"
         android:layout_toEndOf="@id/albumArt"
         android:layout_toRightOf="@id/albumArt"
-        android:minHeight="0dp"
         tools:progress="90"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignWithParentIfMissing="true"
+        android:layout_height="match_parent"
+        android:layout_below="@id/progress"
         android:layout_centerVertical="true"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
+        android:gravity="center_vertical"
         android:layout_toEndOf="@+id/albumArt"
         android:layout_toLeftOf="@+id/btn_play_pause"
         android:layout_toRightOf="@+id/albumArt"
@@ -62,15 +62,14 @@
 
     <ImageView
         android:id="@+id/btn_play_pause"
-        android:layout_width="@dimen/playerview_height"
-        android:layout_height="match_parent"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_margin="8dp"
         android:background="?selectableItemBackgroundBorderless"
-        android:contentDescription="@null"
+        android:contentDescription="@string/play_or_pause"
         android:scaleType="fitCenter"
-        android:tint="?colorControlNormal"
         app:srcCompat="@drawable/level_list_play_pause"/>
 </RelativeLayout>

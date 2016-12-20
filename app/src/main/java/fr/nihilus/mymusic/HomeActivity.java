@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +47,8 @@ import fr.nihilus.mymusic.view.PlayerView;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = "HomeActivity";
+
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
     private static final String KEY_DAILY_SONG = "daily_song";
     private DrawerLayout mDrawerLayout;
@@ -53,6 +56,7 @@ public class HomeActivity extends AppCompatActivity
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;
     private MediaItem mDaily;
+
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
@@ -73,11 +77,10 @@ public class HomeActivity extends AppCompatActivity
         setupPlayerView();
 
         if (savedInstanceState == null) {
-            PermissionUtil.requestExternalStoragePermission(this);
             if (PermissionUtil.hasExternalStoragePermission(this)) {
                 loadFirstFragment();
                 loadDailySong();
-            }
+            } else PermissionUtil.requestExternalStoragePermission(this);
         } else {
             mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
             prepareHeaderView(mDaily);
@@ -91,6 +94,7 @@ public class HomeActivity extends AppCompatActivity
                 .doWhenConnected(new MediaBrowserFragment.ConnectedCallback() {
                     @Override
                     public void onConnected() {
+                        Log.d(TAG, "onConnected: associating MediaController to PlayerView");
                         MediaControllerCompat controller = MediaControllerCompat
                                 .getMediaController(HomeActivity.this);
                         mPlayerView.attachMediaController(controller);
@@ -103,7 +107,8 @@ public class HomeActivity extends AppCompatActivity
         @IdRes int checkedItemId;
         String callingAction = getIntent().getAction();
 
-        // FIXME NullPointerException (callingAction.hashcode)
+        Log.d(TAG, "loadFirstFragment: callingAction=" + callingAction);
+
         switch (callingAction) {
             case ACTION_ALBUMS:
                 firstFragment = new AlbumGridFragment();
@@ -114,6 +119,7 @@ public class HomeActivity extends AppCompatActivity
                 checkedItemId = R.id.action_all;
                 break;
         }
+
         mNavigationView.setCheckedItem(checkedItemId);
         swapFragment(firstFragment);
     }

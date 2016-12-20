@@ -18,7 +18,7 @@ public class AutoUpdateSeekBar extends AppCompatSeekBar {
     private OnUpdateListener mListener;
     private int mDelay;
 
-    private Runnable mPostUpdate = new Runnable() {
+    private final Runnable mPostUpdate = new Runnable() {
         @Override
         public void run() {
             if (mListener != null) {

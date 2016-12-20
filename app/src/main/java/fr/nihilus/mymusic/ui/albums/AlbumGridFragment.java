@@ -79,7 +79,6 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
         mRecyclerView.setAdapter(mAdapter);
 
         if (mAlbums.isEmpty()) {
-            Log.d(TAG, "onViewCreated: showing ProgressBar");
             showLoading(true);
         }
     }

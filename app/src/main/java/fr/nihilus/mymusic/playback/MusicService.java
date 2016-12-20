@@ -79,7 +79,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mMusicProvider = new MusicProvider();
         mPlayingQueue = new LinkedList<>();
 
-        mPlayback = new Playback(this, mMusicProvider);
+        mPlayback = new Playback(this);
         mPlayback.setState(PlaybackStateCompat.STATE_NONE);
         mPlayback.setCallback(this);
 
@@ -126,7 +126,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public void onLoadChildren(@NonNull final String parentId,
                                @NonNull final Result<List<MediaItem>> result) {
         if (!mMusicProvider.isInitialized()) {
-            Log.d(TAG, "onLoadChildren: must load music library before returning children.");
+            Log.v(TAG, "onLoadChildren: must load music library before returning children.");
             mMusicProvider.loadMetadata(this);
         }
 
@@ -140,7 +140,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 break;
             case ID_ALBUMS:
                 if (hierarchy.length > 1) {
-                    // Pistes de l'album
                     Log.d(TAG, "onLoadChildren: loading tracks from album " + hierarchy[1]);
                     result.sendResult(mMusicProvider.getTracksItems(parentId));
                 } else {
@@ -154,7 +153,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 result.sendResult(Collections.singletonList(daily));
                 break;
             default:
-                Log.d(TAG, "loadChildrenImpl: MediaId not implemented.");
+                Log.w(TAG, "loadChildrenImpl: MediaId not implemented.");
                 result.sendResult(Collections.<MediaItem>emptyList());
                 break;
         }

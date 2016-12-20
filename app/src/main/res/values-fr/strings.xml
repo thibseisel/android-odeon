@@ -21,4 +21,7 @@
     <string name="playback_service_label">Service du Lecteur Musical</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_random">Aléatoire</string>
+    <string name="action_next">Suivant</string>
+    <string name="action_previous">Précédent</string>
+    <string name="play_or_pause">Play ou pause</string>
 </resources>

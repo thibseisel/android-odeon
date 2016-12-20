@@ -8,8 +8,8 @@ import java.util.List;
 
 public class MediaItemDiffCallback extends DiffUtil.Callback {
 
-    private List<MediaItem> mOld;
-    private List<MediaItem> mNew;
+    private final List<MediaItem> mOld;
+    private final List<MediaItem> mNew;
 
     public MediaItemDiffCallback(List<MediaItem> oldList, List<MediaItem> newList) {
         mOld = oldList;

@@ -14,7 +14,7 @@ public class MediaUsageProvider extends ContentProvider implements MediaUsageCon
 
     private static final int USAGES = 10;
     private static final int USAGE_ID = 11;
-    private static UriMatcher sMatcher;
+    private static final UriMatcher sMatcher;
 
     static {
         sMatcher = new UriMatcher(UriMatcher.NO_MATCH);

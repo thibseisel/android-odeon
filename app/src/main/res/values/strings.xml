@@ -25,4 +25,5 @@
     <string name="action_random">Random</string>
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
+    <string name="play_or_pause">Play or pause</string>
 </resources>

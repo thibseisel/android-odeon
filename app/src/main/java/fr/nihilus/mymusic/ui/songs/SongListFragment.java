@@ -12,6 +12,9 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -45,6 +48,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
             mSongs.clear();
             mSongs.addAll(items);
             mAdapter.notifyDataSetChanged();
+
             mProgressBar.hide();
             mListContainer.setVisibility(View.VISIBLE);
         }
@@ -53,6 +57,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
             mSongs = savedInstanceState.getParcelableArrayList(KEY_SONGS);
@@ -77,8 +82,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         mListView.setOnItemClickListener(this);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
         ViewCompat.setNestedScrollingEnabled(mListView, true);
-
-        // TODO Ajouter un Button pour la lecture aléatoire
 
         mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
 
@@ -125,8 +128,21 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         MediaItem clickedItem = mAdapter.getItem(position);
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
         if (controller != null && clickedItem.isPlayable()) {
-            Log.d(TAG, "onItemClick: playing song at position " + position);
             controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_songlist, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.action_random == item.getItemId()) {
+            // TODO Play randomly
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -185,7 +185,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 if (mStarted) {
                     mController.registerCallback(mCallback);
                 }
-            } catch (RemoteException e) {
+            } catch (RemoteException | NullPointerException e) {
                 Log.e(TAG, "updateSessionToken: erreur à la création du MediaController.", e);
             }
         }

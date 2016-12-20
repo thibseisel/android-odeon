@@ -108,7 +108,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         mArtist = (TextView) findViewById(R.id.subtitle);
         mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
         mPlayPauseButton.setOnClickListener(this);
-        mProgress = (AutoUpdateSeekBar) findViewById(R.id.seekbar);
+        mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
     }

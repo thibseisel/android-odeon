@@ -33,7 +33,6 @@ import android.util.Log;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -72,26 +71,19 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
         }
     };
     private final AudioManager mAudioManager;
-    private final MusicProvider mMusicProvider;
     private int mState;
     private boolean mPlayOnFocusGain;
     private MediaPlayer mMediaPlayer;
     private volatile int mCurrentPosition;
     private volatile String mCurrentMediaId;
-    private List<MediaSessionCompat.QueueItem> mPlayingQueue;
     @AudioFocus
     private int mAudioFocus;
     private volatile boolean mAudioNoisyReceiverRegistered;
     private Callback mCallback;
 
-    Playback(MusicService service, MusicProvider provider) {
+    Playback(MusicService service) {
         mService = service;
         mAudioManager = (AudioManager) service.getSystemService(Context.AUDIO_SERVICE);
-        mMusicProvider = provider;
-    }
-
-    void start() {
-        // Pourquoi c'est vide ?
     }
 
     void stop(boolean notifyListeners) {

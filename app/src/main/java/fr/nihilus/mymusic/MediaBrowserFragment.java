@@ -32,8 +32,8 @@ public class MediaBrowserFragment extends Fragment {
     private static final String TAG = "MediaBrowserFragment";
 
     private MediaBrowserCompat mMediaBrowser;
-    private Queue<Pair<String, WeakReference<SubscriptionCallback>>> mQueue = new LinkedList<>();
-    private Queue<WeakReference<ConnectedCallback>> mConnectionQueue = new LinkedList<>();
+    private final Queue<Pair<String, WeakReference<SubscriptionCallback>>> mQueue = new LinkedList<>();
+    private final Queue<WeakReference<ConnectedCallback>> mConnectionQueue = new LinkedList<>();
 
     private final ConnectionCallback mConnectionCallback = new ConnectionCallback() {
 
@@ -44,10 +44,10 @@ public class MediaBrowserFragment extends Fragment {
                 MediaSessionCompat.Token token = mMediaBrowser.getSessionToken();
                 MediaControllerCompat controller = new MediaControllerCompat(getContext(), token);
                 MediaControllerCompat.setMediaController(getActivity(), controller);
-                notifyConnectedListeners();
                 subscribeAfterConnection();
+                notifyConnectedListeners();
             } catch (RemoteException e) {
-                Log.e(TAG, "subscribeAfterConnection: Failed to create MediaController.", e);
+                Log.e(TAG, "onConnected: Failed to create MediaController.", e);
             }
         }
 
@@ -60,16 +60,15 @@ public class MediaBrowserFragment extends Fragment {
         @Override
         public void onConnectionFailed() {
             Log.e(TAG, "Connection to MediaBrowser has failed.");
-            super.onConnectionFailed();
         }
     };
 
     public static MediaBrowserFragment getInstance(FragmentManager manager) {
         MediaBrowserFragment f = (MediaBrowserFragment) manager.findFragmentByTag(TAG);
         if (f == null) {
-            Log.v(TAG, "New instance of MediaBrowserFragment.");
             f = new MediaBrowserFragment();
-            manager.beginTransaction().add(f, TAG).commit();
+            Log.i(TAG, "New instance of MediaBrowserFragment.");
+            manager.beginTransaction().add(f, TAG).commitNow();
         }
         return f;
     }
@@ -110,15 +109,17 @@ public class MediaBrowserFragment extends Fragment {
 
     public void unsubscribe(@NonNull String mediaId) {
         if (mMediaBrowser != null) {
+            Log.d(TAG, "unsubscribe: successfully unsubscribing for " + mediaId);
             mMediaBrowser.unsubscribe(mediaId);
         }
     }
 
-    public void doWhenConnected(ConnectedCallback callback) {
+    public void doWhenConnected(@NonNull ConnectedCallback callback) {
         if (isConnected()) {
             callback.onConnected();
             return;
         }
+        Log.d(TAG, "doWhenConnected: waiting to be connected before callback");
         mConnectionQueue.add(new WeakReference<>(callback));
     }
 

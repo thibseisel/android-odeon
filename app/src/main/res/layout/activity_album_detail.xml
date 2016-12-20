@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:theme="@style/AppTheme.AppBarOverlay.Neutral">
+        android:theme="@style/AppTheme.AppBarOverlay.Neutral"
+        app:elevation="0dp">
 
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
@@ -106,8 +107,8 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
-        android:tint="?colorControlNormal"
         android:scaleType="fitCenter"
+        android:tint="?colorControlNormal"
         app:layout_anchor="@id/appbarLayout"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/level_list_play_pause"/>
