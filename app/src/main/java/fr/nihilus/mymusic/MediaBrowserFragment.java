@@ -139,6 +139,7 @@ public class MediaBrowserFragment extends Fragment {
         while ((callbackRef = mConnectionQueue.poll()) != null) {
             final ConnectedCallback callback = callbackRef.get();
             if (callback != null) {
+                Log.d(TAG, "notifyConnectedListeners: notifying " + callback.toString());
                 callback.onConnected();
             }
         }

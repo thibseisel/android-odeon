@@ -2,10 +2,8 @@ package fr.nihilus.mymusic.view;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.annotation.Dimension;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
@@ -20,14 +18,8 @@ public class GridSpacerDecoration extends RecyclerView.ItemDecoration {
     private final int mSpace;
 
     public GridSpacerDecoration(@NonNull Context context) {
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
         mSpace = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                DEFAULT_SPACING_DP, dm));
-    }
-
-    public GridSpacerDecoration(@NonNull DisplayMetrics metrics, @Dimension int spaceDp) {
-        mSpace = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                spaceDp, metrics));
+                DEFAULT_SPACING_DP, context.getResources().getDisplayMetrics()));
     }
 
     @Override
@@ -35,8 +27,6 @@ public class GridSpacerDecoration extends RecyclerView.ItemDecoration {
         outRect.left = mSpace;
         outRect.right = mSpace;
         outRect.bottom = mSpace;
-        if (parent.getChildAdapterPosition(view) == 0) {
-            outRect.top = mSpace;
-        }
+        outRect.top = mSpace;
     }
 }

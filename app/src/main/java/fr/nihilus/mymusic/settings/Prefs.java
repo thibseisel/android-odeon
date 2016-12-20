@@ -3,6 +3,7 @@ package fr.nihilus.mymusic.settings;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 
 import fr.nihilus.mymusic.R;
@@ -17,6 +18,7 @@ public final class Prefs {
     private static final String KEY_RANDOM_PLAYING = "random_playing_enabled";
     private static final String KEY_DAILY_SONG = "daily_song_id";
     private static final String KEY_DAILY_UPDATE = "last_daily_update";
+    private static final String KEY_LAST_PLAYED = "last_played";
 
     /**
      * Returns the night mode preference. Result of this method can be the following :
@@ -60,5 +62,17 @@ public final class Prefs {
     public static long getLastDailySongUpdate(@NonNull Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getLong(KEY_DAILY_UPDATE, -1L);
+    }
+
+    public static void setLastPlayedMediaId(@NonNull Context context, String mediaId) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString(KEY_LAST_PLAYED, mediaId)
+                .apply();
+    }
+
+    @Nullable
+    public static String getLastPlayedMediaId(@NonNull Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(KEY_LAST_PLAYED, null);
     }
 }

@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -49,13 +50,11 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
     private static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String[] MEDIA_PROJECTION = {_ID, TITLE, ALBUM, ARTIST, DURATION, TRACK,
             TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID};
-
-    private volatile int mCurrentState = NON_INITIALIZED;
-
     private final LongSparseArray<MediaMetadataCompat> mMusicById;
     private final MetadataStore mMusicByAlbum;
     private final List<MediaMetadataCompat> mMusicAlpha;
     private final MetadataStore mMusicByArtist;
+    private volatile int mCurrentState = NON_INITIALIZED;
 
     MusicProvider() {
         mMusicById = new LongSparseArray<>();
@@ -68,7 +67,9 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
      * Get the metadata of a music from the music library.
      *
      * @param musicId id of the searched music
+     * @return the associated music metadata, or null if no music is associated with this id
      */
+    @Nullable
     MediaMetadataCompat getMusic(String musicId) {
         long id = Long.parseLong(musicId);
         return mMusicById.get(id, null);
@@ -177,7 +178,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
             String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
             String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
 
-            builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC, MediaID.ID_MUSIC))
+            builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC))
                     .setTitle(meta.getString(METADATA_KEY_TITLE))
                     .setSubtitle(meta.getString(METADATA_KEY_ARTIST));
             if (albumArtUri != null) {

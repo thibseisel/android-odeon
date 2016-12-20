@@ -54,7 +54,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
             public void onClick(View view) {
                 if (mListener != null) {
                     int position = holder.getAdapterPosition();
-                    mListener.onTrackSelected(position, mTracks.get(position));
+                    mListener.onTrackSelected(mTracks.get(position));
                 }
             }
         });
@@ -86,7 +86,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     }
 
     interface OnTrackSelectedListener {
-        void onTrackSelected(int position, MediaItem track);
+        void onTrackSelected(MediaItem track);
     }
 
     static class TrackHolder extends RecyclerView.ViewHolder {

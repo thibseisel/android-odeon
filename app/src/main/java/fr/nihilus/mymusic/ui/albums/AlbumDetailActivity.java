@@ -12,7 +12,10 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaControllerCompat.Callback;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,9 +40,21 @@ import fr.nihilus.mymusic.view.CurrentlyPlayingDecoration;
 public class AlbumDetailActivity extends AppCompatActivity
         implements View.OnClickListener, TrackAdapter.OnTrackSelectedListener {
 
+    public static final String ALBUM_ART_TRANSITION_NAME = "albumArt";
+    public static final String ARG_PALETTE = "palette";
+    public static final String ARG_PICKED_ALBUM = "pickedAlbum";
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
-
+    private static final String TAG = "AlbumDetailActivity";
+    private static final String KEY_ITEMS = "tracks";
+    private TrackAdapter mAdapter;
+    private ArrayList<MediaItem> mTracks;
+    private MediaItem mPickedAlbum;
+    private CollapsingToolbarLayout mCollapsingToolbar;
+    private FloatingActionButton mFab;
+    private TextView mAlbumTitle;
+    private TextView mAlbumArtist;
+    private RecyclerView mRecyclerView;
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
@@ -50,24 +65,31 @@ public class AlbumDetailActivity extends AppCompatActivity
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     };
-
-    public static final String ALBUM_ART_TRANSITION_NAME = "albumArt";
-    public static final String ARG_PALETTE = "palette";
-    public static final String ARG_PICKED_ALBUM = "pickedAlbum";
-
-    private static final String TAG = "AlbumDetailActivity";
-    private static final String KEY_ITEMS = "tracks";
-
-    private TrackAdapter mAdapter;
-    private ArrayList<MediaItem> mTracks;
-
-    private MediaItem mPickedAlbum;
-    private CollapsingToolbarLayout mCollapsingToolbar;
-    private FloatingActionButton mFab;
-    private TextView mAlbumTitle;
-    private TextView mAlbumArtist;
-    private RecyclerView mRecyclerView;
     private CurrentlyPlayingDecoration mDecoration;
+
+    private boolean mIsPlaying;
+
+    private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            mIsPlaying = state.getState() == PlaybackStateCompat.STATE_PLAYING;
+            togglePlayPauseButton(mIsPlaying);
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            String mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+            for (int i = 0; i < mTracks.size(); i++) {
+                final MediaItem track = mTracks.get(i);
+                if (track.getMediaId().equals(mediaId)) {
+                    mDecoration.setDecoratedItemPosition(i);
+                    mRecyclerView.invalidateItemDecorations();
+                    break;
+                }
+            }
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +102,14 @@ public class AlbumDetailActivity extends AppCompatActivity
             throw new IllegalStateException("Calling activity must specify the album to display.");
         }
 
+        if (savedInstanceState != null) {
+            mTracks = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
+        } else {
+            mTracks = new ArrayList<>();
+            MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                    .subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
+        }
+
         // TODO Placer le bandeau dans le RecyclerView
         mAlbumTitle = (TextView) findViewById(R.id.title);
         mAlbumTitle.setText(mPickedAlbum.getDescription().getTitle());
@@ -90,9 +120,38 @@ public class AlbumDetailActivity extends AppCompatActivity
         mFab.setOnClickListener(this);
 
         setupToolbar();
-        @ColorInt int[] themeColors = callingActivity.getIntArrayExtra(ARG_PALETTE);
-        applyPaletteTheme(themeColors);
+        applyPaletteTheme(callingActivity.getIntArrayExtra(ARG_PALETTE));
+        setupAlbumArt();
+        setupTrackList();
 
+        MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                .doWhenConnected(new MediaBrowserFragment.ConnectedCallback() {
+                    @Override
+                    public void onConnected() {
+                        MediaControllerCompat controller = MediaControllerCompat
+                                .getMediaController(AlbumDetailActivity.this);
+                        if (controller != null) {
+                            controller.registerCallback(mControllerCallback);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        MediaControllerCompat controller = MediaControllerCompat.getMediaController(this);
+        if (controller != null) {
+            controller.unregisterCallback(mControllerCallback);
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(KEY_ITEMS, mTracks);
+    }
+
+    private void setupAlbumArt() {
         ImageView albumArtView = (ImageView) findViewById(R.id.albumArt);
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME);
         try {
@@ -102,15 +161,9 @@ public class AlbumDetailActivity extends AppCompatActivity
         } catch (IOException e) {
             Log.e(TAG, "onCreate: Failed to load bitmap.", e);
         }
+    }
 
-        if (savedInstanceState != null) {
-            mTracks = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
-        } else {
-            mTracks = new ArrayList<>();
-            MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                    .subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
-        }
-
+    private void setupTrackList() {
         mRecyclerView = (RecyclerView) findViewById(android.R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
@@ -154,19 +207,12 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(KEY_ITEMS, mTracks);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
     }
 
     @Override
-    public void onTrackSelected(int position, MediaItem track) {
-        mDecoration.setDecoratedItemPosition(position);
-        mRecyclerView.invalidateItemDecorations();
+    public void onTrackSelected(MediaItem track) {
         playMediaItem(track);
     }
 

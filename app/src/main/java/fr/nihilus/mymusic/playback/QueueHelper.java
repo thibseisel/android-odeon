@@ -72,15 +72,13 @@ final class QueueHelper {
     static List<QueueItem> getPlayingQueue(String mediaId, MusicProvider provider) {
         String[] hierarchy = MediaID.getHierarchy(mediaId);
 
-        if (hierarchy.length != 2) {
+        if (hierarchy.length < 1) {
             Log.e(TAG, "getPlayingQueue: could not build playing queue for this mediaId: " + mediaId);
             return null;
         }
 
         String categoryType = hierarchy[0];
-        String categoryValue = hierarchy[1];
-        Log.d(TAG, "getPlayingQueue: creating playing queue for " + categoryType
-                + ", " + categoryValue);
+        String musicId = MediaID.extractMusicIDFromMediaID(mediaId);
 
         List<MediaMetadataCompat> tracks = null;
         switch (categoryType) {
@@ -88,14 +86,18 @@ final class QueueHelper {
                 tracks = provider.getAllMusic();
                 break;
             case MediaID.ID_ALBUMS:
-                tracks = provider.getTracks(categoryValue);
+                String albumId = hierarchy[1];
+                tracks = provider.getTracks(albumId);
+                break;
+            case MediaID.ID_ARTISTS:
+                String artistId = hierarchy[1];
+                // TODO Artist albums
                 break;
             case MediaID.ID_DAILY:
-                MediaMetadataCompat daily = provider.getMusic(MediaID.extractMusicIDFromMediaID(mediaId));
+                MediaMetadataCompat daily = provider.getMusic(musicId);
                 tracks = Collections.singletonList(daily);
                 break;
         }
-        // TODO Gérer les autres cas (par albums, recherche...)
 
         if (tracks == null) {
             Log.e(TAG, "getPlayingQueue: unrecognized category type: "
@@ -103,7 +105,7 @@ final class QueueHelper {
             return null;
         }
 
-        return convertToQueue(tracks, hierarchy[0], hierarchy[1]);
+        return convertToQueue(tracks, hierarchy);
     }
 
     public static void shuffleQueue(List<QueueItem> queue) {
@@ -117,10 +119,5 @@ final class QueueHelper {
                 return (int) (one.getQueueId() - another.getQueueId());
             }
         });
-    }
-
-    static String getQueueTitle(String mediaId, MusicProvider provider) {
-        // TODO Récupérer le titre de l'album, de la playlist...
-        return "All Tracks";
     }
 }

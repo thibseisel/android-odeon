@@ -202,8 +202,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
             if (mCurrentIndexQueue >= mPlayingQueue.size()) {
                 mCurrentIndexQueue = 0;
+                handlePauseRequest();
+            } else {
+                handlePlayRequest();
             }
-            handlePlayRequest();
         } else {
             // S'il n'y a rien à jouer, on stoppe et libère les ressources
             handleStopRequest(null);
@@ -322,7 +324,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void setCustomActions(PlaybackStateCompat.Builder stateBuilder) {
-        // TODO Actions : random and repeat
+        // TODO Actions : repeat
         stateBuilder.addCustomAction(CUSTOM_ACTION_RANDOM, getString(R.string.action_random),
                 R.drawable.ic_shuffle_24dp);
     }
@@ -375,28 +377,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mSession.setMetadata(track);
 
         // Récupère l'image de l'album pour l'afficher sur l'écran de verrouillage
-        /*if(track.getDescription().getIconBitmap() == null
+        /*if (track.getDescription().getIconBitmap() == null
                 && track.getDescription().getIconUri() != null) {
-            Uri albumUri = track.getDescription().getIconUri();
-            Glide.with(this).loadFromMediaStore(albumUri)
-                    .asBitmap()
+            Uri albumArtUri = track.getDescription().getIconUri();
+            Glide.with(this).loadFromMediaStore(albumArtUri).asBitmap()
                     .thumbnail(0.4f)
-                    .listener(new RequestListener<Uri, Bitmap>() {
+                    .into(new SimpleTarget<Bitmap>() {
                         @Override
-                        public boolean onException(Exception e, Uri model, Target<Bitmap> target, boolean isFirstResource) {
-                            Log.w(TAG, "updateMetadata: failed to load albumArt.", e);
-                            return false;
-                        }
+                        public void onResourceReady(Bitmap resource, GlideAnimation anim) {
 
-                        @Override
-                        public boolean onResourceReady(Bitmap resource, Uri model, Target<Bitmap> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            MediaSessionCompat.QueueItem queueItem = mPlayingQueue.get(mCurrentIndexQueue);
-                            MediaMetadataCompat track = mMusicProvider.getMusic(trackId);
-                            track = new MediaMetadataCompat.Builder(track)
-                                    .putBitmap(METADATA_KEY_ALBUM_ART, resource)
-                                    .putBitmap(METADATA_KEY_DISPLAY_ICON, resource)
-                                    .build();
-                            return false;
                         }
                     });
         }*/
@@ -540,8 +529,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
             mSession.setQueue(mPlayingQueue);
 
-            String queueTitle = QueueHelper.getQueueTitle(mediaId, mMusicProvider);
-            mSession.setQueueTitle(queueTitle);
+            //mSession.setQueueTitle("All music");
 
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
                 mCurrentIndexQueue = QueueHelper
@@ -600,7 +588,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             if (CUSTOM_ACTION_RANDOM.equals(action)) {
                 if (extras != null) {
                     mRandomEnabled = extras.getBoolean(EXTRA_RANDOM_ENABLED, false);
-                    Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
+                    //Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                 }
             }

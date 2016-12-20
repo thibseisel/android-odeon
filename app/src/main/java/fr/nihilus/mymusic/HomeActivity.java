@@ -34,6 +34,7 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.List;
 
+import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.settings.SettingsActivity;
@@ -48,6 +49,8 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "HomeActivity";
+
+    public static final int REQUEST_SETTINGS = 42;
 
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
     private static final String KEY_DAILY_SONG = "daily_song";
@@ -64,6 +67,16 @@ public class HomeActivity extends AppCompatActivity
                 mDaily = children.get(0);
                 prepareHeaderView(mDaily);
             }
+        }
+    };
+
+    private ConnectedCallback mConnectionCallback = new ConnectedCallback() {
+        @Override
+        public void onConnected() {
+            Log.d(TAG, "onConnected: associating MediaController to PlayerView");
+            MediaControllerCompat controller = MediaControllerCompat
+                    .getMediaController(HomeActivity.this);
+            mPlayerView.attachMediaController(controller);
         }
     };
 
@@ -89,17 +102,8 @@ public class HomeActivity extends AppCompatActivity
 
     private void setupPlayerView() {
         mPlayerView = (PlayerView) findViewById(R.id.playerView);
-
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .doWhenConnected(new MediaBrowserFragment.ConnectedCallback() {
-                    @Override
-                    public void onConnected() {
-                        Log.d(TAG, "onConnected: associating MediaController to PlayerView");
-                        MediaControllerCompat controller = MediaControllerCompat
-                                .getMediaController(HomeActivity.this);
-                        mPlayerView.attachMediaController(controller);
-                    }
-                });
+                .doWhenConnected(mConnectionCallback);
     }
 
     private void loadFirstFragment() {
@@ -196,7 +200,8 @@ public class HomeActivity extends AppCompatActivity
                 swapFragment(new AlbumGridFragment());
                 return true;
             case R.id.action_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
+                Intent settingsActivity = new Intent(this, SettingsActivity.class);
+                startActivityForResult(settingsActivity, REQUEST_SETTINGS);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -206,6 +211,14 @@ public class HomeActivity extends AppCompatActivity
     protected void onDestroy() {
         mPlayerView.attachMediaController(null);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ((requestCode == REQUEST_SETTINGS) && (resultCode == RESULT_OK)) {
+            recreate();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void swapFragment(Fragment newFrag) {

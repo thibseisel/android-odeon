@@ -18,6 +18,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -33,6 +34,8 @@ import fr.nihilus.mymusic.view.AutoUpdateSeekBar.OnUpdateListener;
 
 @CoordinatorLayout.DefaultBehavior(BottomSheetBehavior.class)
 public class PlayerView extends RelativeLayout implements View.OnClickListener, OnUpdateListener {
+
+    private static final String TAG = "PlayerView";
 
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
@@ -74,6 +77,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             updateMetadata(metadata);
+            mProgress.setProgress(0);
         }
     };
 
@@ -114,6 +118,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
     }
 
     public void attachMediaController(@Nullable MediaControllerCompat controller) {
+        Log.d(TAG, "attachMediaController() called with: controller = [" + controller + "]");
         if (controller != null) {
             controller.registerCallback(mControllerCallback);
             updateMetadata(controller.getMetadata());
@@ -166,9 +171,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
 
     private void togglePlayPauseButton(boolean isPlaying) {
         mPlayPauseButton.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Animate AnimatedVectorDrawable in LevelListDrawable
             Animatable avd = (Animatable) mPlayPauseButton.getDrawable().getCurrent();
             avd.start();
         }

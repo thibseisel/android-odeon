@@ -11,7 +11,7 @@
         android:id="@+id/albumArt"
         app:layout_widthPercent="100%"
         android:contentDescription="@string/album_art"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         app:layout_aspectRatio="@fraction/album_art_ratio"
         tools:src="@drawable/ic_album_24dp"/>
 

@@ -25,11 +25,13 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.playback.MusicService;
 import fr.nihilus.mymusic.utils.MediaID;
 
-public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener {
+import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
+import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
 
-    // FIXME Affiche parfois la ProgressBar indéfininiment
+public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SONGS = "MediaItems";
@@ -97,7 +99,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStart() {
         super.onStart();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_MUSIC, mCallback);
+                .subscribe(ID_MUSIC, mCallback);
         getActivity().setTitle(R.string.all_music);
     }
 
@@ -105,7 +107,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStop() {
         super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaID.ID_MUSIC);
+                .unsubscribe(ID_MUSIC);
     }
 
     @Override
@@ -126,7 +128,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         MediaItem clickedItem = mAdapter.getItem(position);
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
+        MediaControllerCompat controller = getMediaController(getActivity());
         if (controller != null && clickedItem.isPlayable()) {
             controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
         }
@@ -140,7 +142,16 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (R.id.action_random == item.getItemId()) {
-            // TODO Play randomly
+            MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
+            if (controller != null) {
+                // Active le mode aléatoire et joue la totalité des chansons
+                Bundle extras = new Bundle();
+                extras.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
+                controller.getTransportControls()
+                        .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, extras);
+                controller.getTransportControls().playFromMediaId(
+                        MediaID.createMediaID(null, ID_MUSIC), null);
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);

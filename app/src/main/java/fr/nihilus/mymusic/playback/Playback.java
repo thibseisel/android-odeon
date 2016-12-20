@@ -70,6 +70,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
             }
         }
     };
+
     private final AudioManager mAudioManager;
     private int mState;
     private boolean mPlayOnFocusGain;
@@ -195,9 +196,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
             // If we do not have a current media player, simply update the current position.
             mCurrentPosition = position;
         } else {
-            if (mMediaPlayer.isPlaying()) {
-                mState = PlaybackStateCompat.STATE_BUFFERING;
-            }
             mMediaPlayer.seekTo(position);
             if (mCallback != null) {
                 mCallback.onPlaybackStatusChanged(mState);
