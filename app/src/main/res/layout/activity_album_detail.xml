@@ -109,10 +109,10 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         android:tint="?colorControlNormal"
         app:layout_anchor="@id/appbarLayout"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/level_list_play_pause"/>
+        app:srcCompat="@drawable/ic_play_arrow"/>
 
 </android.support.design.widget.CoordinatorLayout>

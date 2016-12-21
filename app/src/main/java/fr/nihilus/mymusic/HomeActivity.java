@@ -107,21 +107,17 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void loadFirstFragment() {
-        Fragment firstFragment;
-        @IdRes int checkedItemId;
+        Fragment firstFragment = new SongListFragment();
+        @IdRes int checkedItemId = R.id.action_all;
         String callingAction = getIntent().getAction();
 
-        Log.d(TAG, "loadFirstFragment: callingAction=" + callingAction);
-
-        switch (callingAction) {
-            case ACTION_ALBUMS:
-                firstFragment = new AlbumGridFragment();
-                checkedItemId = R.id.action_albums;
-                break;
-            default:
-                firstFragment = new SongListFragment();
-                checkedItemId = R.id.action_all;
-                break;
+        if (callingAction != null) {
+            switch (callingAction) {
+                case ACTION_ALBUMS:
+                    firstFragment = new AlbumGridFragment();
+                    checkedItemId = R.id.action_albums;
+                    break;
+            }
         }
 
         mNavigationView.setCheckedItem(checkedItemId);

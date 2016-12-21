@@ -2,8 +2,6 @@ package fr.nihilus.mymusic.ui.albums;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Animatable;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.Media;
 import android.support.annotation.ColorInt;
@@ -15,7 +13,6 @@ import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaControllerCompat.Callback;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +30,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.ViewUtils;
 import fr.nihilus.mymusic.view.CurrentlyPlayingDecoration;
 
@@ -44,8 +42,6 @@ public class AlbumDetailActivity extends AppCompatActivity
     public static final String ARG_PALETTE = "palette";
     public static final String ARG_PICKED_ALBUM = "pickedAlbum";
 
-    private static final int LEVEL_PLAYING = 1;
-    private static final int LEVEL_PAUSED = 0;
     private static final String TAG = "AlbumDetailActivity";
     private static final String KEY_ITEMS = "tracks";
 
@@ -58,7 +54,6 @@ public class AlbumDetailActivity extends AppCompatActivity
     private TextView mAlbumArtist;
     private RecyclerView mRecyclerView;
     private CurrentlyPlayingDecoration mDecoration;
-    private boolean mIsPlaying;
 
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
@@ -72,18 +67,15 @@ public class AlbumDetailActivity extends AppCompatActivity
     };
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            mIsPlaying = state.getState() == PlaybackStateCompat.STATE_PLAYING;
-            togglePlayPauseButton(mIsPlaying);
-        }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
-            String mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+            String musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+            Log.d(TAG, "onMetadataChanged: musicId is " + musicId);
             for (int i = 0; i < mTracks.size(); i++) {
-                final MediaItem track = mTracks.get(i);
-                if (track.getMediaId().equals(mediaId)) {
+                final String trackMediaId = mTracks.get(i).getMediaId();
+                Log.d(TAG, "onMetadataChanged: compating with " + trackMediaId);
+                if (MediaID.extractMusicIDFromMediaID(trackMediaId).equals(musicId)) {
                     mDecoration.setDecoratedItemPosition(i);
                     mRecyclerView.invalidateItemDecorations();
                     break;
@@ -122,9 +114,9 @@ public class AlbumDetailActivity extends AppCompatActivity
         mFab.setOnClickListener(this);
 
         setupToolbar();
-        applyPaletteTheme(callingActivity.getIntArrayExtra(ARG_PALETTE));
         setupAlbumArt();
         setupTrackList();
+        applyPaletteTheme(callingActivity.getIntArrayExtra(ARG_PALETTE));
 
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
                 .doWhenConnected(new MediaBrowserFragment.ConnectedCallback() {
@@ -133,6 +125,7 @@ public class AlbumDetailActivity extends AppCompatActivity
                         MediaControllerCompat controller = MediaControllerCompat
                                 .getMediaController(AlbumDetailActivity.this);
                         if (controller != null) {
+                            Log.d(TAG, "onConnected: register controller callback.");
                             controller.registerCallback(mControllerCallback);
                         }
                     }
@@ -183,12 +176,24 @@ public class AlbumDetailActivity extends AppCompatActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
+    /**
+     * Apply colors picked from the album art on the user interface.
+     * @param colors array of colors containing the following :
+     *               <ul>
+     *                   <li>[0] Primary Color</li>
+     *                   <li>[1] Accent Color</li>
+     *                   <li>[2] Title text color</li>
+     *                   <li>[3] Body text color</li>
+     *               </ul>
+     */
     private void applyPaletteTheme(@ColorInt int[] colors) {
         @ColorInt int statusBarColor = ViewUtils.darker(colors[0], 0.8f);
         mCollapsingToolbar.setStatusBarScrimColor(statusBarColor);
+        mCollapsingToolbar.setContentScrimColor(colors[0]);
         findViewById(R.id.band).setBackgroundColor(colors[0]);
         mAlbumTitle.setTextColor(colors[2]);
         mAlbumArtist.setTextColor(colors[3]);
+        mDecoration.setIconColor(colors[1]);
         if (ViewUtils.isColorBright(statusBarColor)) {
             ViewUtils.setLightStatusBar(mCollapsingToolbar, true);
         }
@@ -216,13 +221,5 @@ public class AlbumDetailActivity extends AppCompatActivity
     @Override
     public void onTrackSelected(MediaItem track) {
         playMediaItem(track);
-    }
-
-    private void togglePlayPauseButton(boolean isPlaying) {
-        mFab.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Animatable avd = (Animatable) mFab.getDrawable().getCurrent();
-            avd.start();
-        }
     }
 }
