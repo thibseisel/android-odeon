@@ -43,10 +43,12 @@ public class AlbumDetailActivity extends AppCompatActivity
     public static final String ALBUM_ART_TRANSITION_NAME = "albumArt";
     public static final String ARG_PALETTE = "palette";
     public static final String ARG_PICKED_ALBUM = "pickedAlbum";
+
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
     private static final String TAG = "AlbumDetailActivity";
     private static final String KEY_ITEMS = "tracks";
+
     private TrackAdapter mAdapter;
     private ArrayList<MediaItem> mTracks;
     private MediaItem mPickedAlbum;
@@ -55,6 +57,9 @@ public class AlbumDetailActivity extends AppCompatActivity
     private TextView mAlbumTitle;
     private TextView mAlbumArtist;
     private RecyclerView mRecyclerView;
+    private CurrentlyPlayingDecoration mDecoration;
+    private boolean mIsPlaying;
+
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
@@ -65,9 +70,6 @@ public class AlbumDetailActivity extends AppCompatActivity
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     };
-    private CurrentlyPlayingDecoration mDecoration;
-
-    private boolean mIsPlaying;
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override

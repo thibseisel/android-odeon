@@ -2,6 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
        android:innerRadius="2dp"
        android:shape="ring"
-       android:visible="false">
+       android:visible="true">
     <solid android:color="?colorControlActivated"/>
 </shape>

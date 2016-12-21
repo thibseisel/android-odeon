@@ -3,8 +3,10 @@ package fr.nihilus.mymusic.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,8 +15,8 @@ import fr.nihilus.mymusic.R;
 
 public class CurrentlyPlayingDecoration extends RecyclerView.ItemDecoration {
 
-    private final Drawable mIcon;
     private final int mPaddingStart;
+    private Drawable mIcon;
     private int mDecoratedPosition;
 
     public CurrentlyPlayingDecoration(@NonNull Context context) {
@@ -41,5 +43,10 @@ public class CurrentlyPlayingDecoration extends RecyclerView.ItemDecoration {
 
     public void setDecoratedItemPosition(@IntRange(from = -1) int position) {
         mDecoratedPosition = position;
+    }
+
+    public void setIconColor(@ColorInt int color) {
+        mIcon = DrawableCompat.wrap(mIcon);
+        DrawableCompat.setTint(mIcon, color);
     }
 }
