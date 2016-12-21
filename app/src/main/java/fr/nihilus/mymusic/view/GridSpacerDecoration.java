@@ -2,6 +2,7 @@ package fr.nihilus.mymusic.view;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -16,16 +17,22 @@ public class GridSpacerDecoration extends RecyclerView.ItemDecoration {
 
     private static final int DEFAULT_SPACING_DP = 1;
     private final int mSpace;
+    private final int mColumns;
 
-    public GridSpacerDecoration(@NonNull Context context) {
+    public GridSpacerDecoration(@NonNull Context context, @IntRange(from = 1) int columnCount) {
         mSpace = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 DEFAULT_SPACING_DP, context.getResources().getDisplayMetrics()));
+        mColumns = columnCount;
     }
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        outRect.left = mSpace;
-        outRect.right = mSpace;
+        final int childPosition = parent.getChildLayoutPosition(view);
+        boolean firstOfRow = (childPosition % mColumns) == 0;
+        boolean lastOfRow = (childPosition + 1) % mColumns == 0;
+
+        if (!firstOfRow) outRect.left = mSpace;
+        if (!lastOfRow) outRect.right = mSpace;
         outRect.bottom = mSpace;
         outRect.top = mSpace;
     }
