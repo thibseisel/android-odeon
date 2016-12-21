@@ -228,51 +228,53 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void prepareHeaderView(final MediaItem daily) {
-        Uri artUri = daily.getDescription().getIconUri();
-        CharSequence title = daily.getDescription().getTitle();
-        CharSequence subtitle = daily.getDescription().getSubtitle();
+        if (daily != null) {
+            Uri artUri = daily.getDescription().getIconUri();
+            CharSequence title = daily.getDescription().getTitle();
+            CharSequence subtitle = daily.getDescription().getSubtitle();
 
-        View header = mNavigationView.getHeaderView(0);
-        final View band = header.findViewById(R.id.band);
-        final TextView titleText = ((TextView) header.findViewById(R.id.title));
-        final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
-        ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
+            View header = mNavigationView.getHeaderView(0);
+            final View band = header.findViewById(R.id.band);
+            final TextView titleText = ((TextView) header.findViewById(R.id.title));
+            final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
+            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
 
-        titleText.setText(title);
-        subtitleText.setText(subtitle);
+            titleText.setText(title);
+            subtitleText.setText(subtitle);
 
-        final Drawable dummyAlbumArt = ContextCompat.getDrawable(HomeActivity.this,
-                R.drawable.dummy_album_art);
+            final Drawable dummyAlbumArt = ContextCompat.getDrawable(HomeActivity.this,
+                    R.drawable.dummy_album_art);
 
-        Glide.with(HomeActivity.this).fromUri()
-                .asBitmap()
-                .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
-                .centerCrop()
-                .load(artUri)
-                .error(dummyAlbumArt)
-                .centerCrop()
-                .into(new ImageViewTarget<PaletteBitmap>(albumArtView) {
-                    @Override
-                    protected void setResource(PaletteBitmap resource) {
-                        super.view.setImageBitmap(resource.bitmap);
-                        Palette.Swatch swatch = resource.palette.getDominantSwatch();
-                        if (swatch != null) {
-                            band.setBackgroundColor(swatch.getRgb());
-                            titleText.setTextColor(swatch.getBodyTextColor());
-                            subtitleText.setTextColor(swatch.getBodyTextColor());
+            Glide.with(HomeActivity.this).fromUri()
+                    .asBitmap()
+                    .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
+                    .centerCrop()
+                    .load(artUri)
+                    .error(dummyAlbumArt)
+                    .centerCrop()
+                    .into(new ImageViewTarget<PaletteBitmap>(albumArtView) {
+                        @Override
+                        protected void setResource(PaletteBitmap resource) {
+                            super.view.setImageBitmap(resource.bitmap);
+                            Palette.Swatch swatch = resource.palette.getDominantSwatch();
+                            if (swatch != null) {
+                                band.setBackgroundColor(swatch.getRgb());
+                                titleText.setTextColor(swatch.getBodyTextColor());
+                                subtitleText.setTextColor(swatch.getBodyTextColor());
+                            }
                         }
-                    }
-                });
+                    });
 
-        header.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MediaControllerCompat controller = MediaControllerCompat
-                        .getMediaController(HomeActivity.this);
-                if (controller != null) {
-                    controller.getTransportControls().playFromMediaId(daily.getMediaId(), null);
+            header.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MediaControllerCompat controller = MediaControllerCompat
+                            .getMediaController(HomeActivity.this);
+                    if (controller != null) {
+                        controller.getTransportControls().playFromMediaId(daily.getMediaId(), null);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }

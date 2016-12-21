@@ -299,6 +299,11 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
             return null;
         }
 
+        if (mMusicById.size() == 0) {
+            Log.i(TAG, "getRandomMusicItem: music library is empty.");
+            return null;
+        }
+
         Random rand = new Random();
         int index = rand.nextInt(mMusicById.size());
         MediaMetadataCompat meta = mMusicById.valueAt(index);

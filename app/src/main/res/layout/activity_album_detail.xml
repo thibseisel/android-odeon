@@ -63,12 +63,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
+            <fr.nihilus.mymusic.view.NestedScrollingLinearLayout
                 android:id="@+id/band"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="32dp"
+                app:nestedScrollingEnabled="false"
                 android:theme="?actionBarTheme">
 
                 <TextView
@@ -78,6 +79,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textColor="?android:attr/textColorPrimary"
                     tools:text="Title de l'album"/>
 
                 <TextView
@@ -86,9 +88,9 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     tools:text="Nom de l'artiste de l'album"/>
-            </LinearLayout>
+            </fr.nihilus.mymusic.view.NestedScrollingLinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@android:id/list"

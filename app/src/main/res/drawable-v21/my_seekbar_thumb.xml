@@ -3,5 +3,5 @@
        android:innerRadius="2dp"
        android:shape="ring"
        android:visible="false">
-    <solid android:color="@color/mtrl_blue_a400"/>
+    <solid android:color="?colorControlActivated"/>
 </shape>

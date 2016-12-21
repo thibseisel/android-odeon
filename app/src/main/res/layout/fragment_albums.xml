@@ -31,23 +31,21 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="64dp"
         android:visibility="gone">
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="192dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:contentDescription="@null"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/ic_album_24dp"/>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="16dp"/>
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_album_24dp"/>
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
             android:gravity="center"
             android:text="@string/empty_albums"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>

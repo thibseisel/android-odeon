@@ -54,7 +54,6 @@ public class MediaBrowserFragment extends Fragment {
         @Override
         public void onConnectionSuspended() {
             Log.w(TAG, "MediaBrowser connection has been suspended.");
-            mMediaBrowser = null;
         }
 
         @Override

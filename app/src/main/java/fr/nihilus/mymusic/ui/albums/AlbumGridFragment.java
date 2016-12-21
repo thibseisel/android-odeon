@@ -54,8 +54,6 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
             mAlbums = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
         } else {
             mAlbums = new ArrayList<>();
-            MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                    .subscribe(MediaID.ID_ALBUMS, mSubscriptionCallback);
         }
 
         mAdapter = new AlbumsAdapter(getContext(), mAlbums);
@@ -78,7 +76,7 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
 
         mRecyclerView.setAdapter(mAdapter);
 
-        if (mAlbums.isEmpty()) {
+        if (savedInstanceState == null) {
             showLoading(true);
         }
     }
@@ -87,6 +85,8 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_albums);
+        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .subscribe(MediaID.ID_ALBUMS, mSubscriptionCallback);
     }
 
     @Override
