@@ -7,7 +7,7 @@
         <shape
             android:shape="rectangle"
             android:tint="?colorControlNormal">
-            <size android:height="4dp"/>
+            <size android:height="6dp"/>
             <solid android:color="@android:color/transparent"/>
         </shape>
     </item>
@@ -23,7 +23,7 @@
                     <shape
                         android:shape="rectangle"
                         android:tint="?attr/colorControlActivated">
-                        <size android:height="4dp"/>
+                        <size android:height="6dp"/>
                         <solid android:color="#7fffffff"/>
                     </shape>
                 </item>
@@ -42,7 +42,7 @@
                     <shape
                         android:shape="rectangle"
                         android:tint="?attr/colorControlActivated">
-                        <size android:height="4dp"/>
+                        <size android:height="6dp"/>
                         <solid android:color="@android:color/white"/>
                     </shape>
                 </item>

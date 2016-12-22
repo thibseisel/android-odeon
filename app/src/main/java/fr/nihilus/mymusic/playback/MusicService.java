@@ -526,16 +526,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         @Override
         public void onPlay() {
             Log.d(TAG, "onPlay");
-            /*if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
-                // TODO Spécialiser en fonction de la dernière lecture
-                Log.d(TAG, "onPlay: generating random queue!");
-                mPlayingQueue = QueueHelper.getAllMusic(mMusicProvider);
-                mSession.setQueue(mPlayingQueue);
-                mSession.setQueueTitle("Random");
-                // On commence à lire du début
-                mCurrentIndexQueue = 0;
-            }*/
-
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
                 handlePlayRequest();
             }
@@ -546,6 +536,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             Log.d(TAG, "onPlayFromMediaId:" + "mediaId = [" + mediaId + "]");
 
             mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
+            if (mRandomEnabled) QueueHelper.shuffleQueue(mPlayingQueue);
+            else QueueHelper.sortQueue(mPlayingQueue);
             mSession.setQueue(mPlayingQueue);
 
             mSession.setQueueTitle(getString(R.string.now_playing));
@@ -556,15 +548,12 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     Log.w(TAG, "onPlayFromMediaId: can't find index on queue. Playing from start.");
                     mCurrentIndexQueue = 0;
                 }
-                mPlayback.seekTo(0);
                 handlePlayRequest();
             }
         }
 
         @Override
         public void onSkipToQueueItem(long queueId) {
-            Log.d(TAG, "onSkipToQueueItem: " + queueId);
-
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
                 // Met à jour l'index de l'item joué actuellement
                 mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, queueId);
@@ -580,13 +569,11 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         @Override
         public void onSkipToNext() {
-            Log.d(TAG, "onSkipToNext");
             handleNextRequest();
         }
 
         @Override
         public void onSkipToPrevious() {
-            Log.d(TAG, "onSkipToPrevious");
             handlePreviousRequest();
         }
 
@@ -607,6 +594,11 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             if (CUSTOM_ACTION_RANDOM.equals(action)) {
                 if (extras != null) {
                     mRandomEnabled = extras.getBoolean(EXTRA_RANDOM_ENABLED, false);
+                    if (mRandomEnabled) {
+                        QueueHelper.shuffleQueue(mPlayingQueue);
+                    } else {
+                        QueueHelper.sortQueue(mPlayingQueue);
+                    }
                     //Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                 }

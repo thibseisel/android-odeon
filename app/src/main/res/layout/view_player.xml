@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.percent.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/playerview_height"
-    android:background="?colorBackgroundFloating"
-    android:clickable="true">
+    android:layout_height="match_parent"
+    android:background="?colorBackgroundFloating">
 
     <ImageView
         android:id="@+id/albumArt"
@@ -23,22 +22,23 @@
         android:layout_alignTop="@id/albumArt"
         android:layout_toEndOf="@id/albumArt"
         android:layout_toRightOf="@id/albumArt"
-        android:layout_toStartOf="@+id/btn_play_pause"
-        android:layout_toLeftOf="@+id/btn_play_pause"
+        android:paddingBottom="4dp"
         tools:progress="100"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/playerview_height"
+        android:layout_alignBottom="@id/albumArt"
         android:layout_below="@id/progress"
         android:layout_centerVertical="true"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
-        android:gravity="center_vertical"
         android:layout_toEndOf="@+id/albumArt"
         android:layout_toLeftOf="@+id/btn_play_pause"
         android:layout_toRightOf="@+id/albumArt"
         android:layout_toStartOf="@+id/btn_play_pause"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
@@ -66,13 +66,69 @@
     <ImageView
         android:id="@+id/btn_play_pause"
         android:layout_width="@dimen/playerview_height"
-        android:layout_height="@dimen/playerview_height"
+        android:layout_height="44dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/level_list_play_pause"/>
 
-</RelativeLayout>
+    <ImageView
+        android:id="@+id/bigArt"
+        android:layout_below="@id/albumArt"
+        android:contentDescription="@string/album_art"
+        android:scaleType="centerCrop"
+        app:layout_aspectRatio="100%"
+        app:layout_widthPercent="100%"
+        tools:src="@drawable/dummy_album_art"/>
+
+    <LinearLayout
+        android:id="@+id/buttonBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@id/bigArt"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingStart="16dp">
+
+        <ImageView
+            android:id="@+id/btn_previous"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/skip_previous"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_skip_previous_24dp"/>
+
+        <ImageView
+            android:id="@+id/main_play_pause"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/play_or_pause"
+            android:padding="8dp"
+            app:srcCompat="@drawable/level_list_play_pause"/>
+
+        <ImageView
+            android:id="@+id/btn_next"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/skip_next"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_skip_next_24dp"/>
+    </LinearLayout>
+
+</android.support.percent.PercentRelativeLayout>

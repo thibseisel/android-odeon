@@ -15,10 +15,6 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <style name="AppTheme.AppBarOverlay.Neutral">
-        <item name="colorPrimary">@color/cardview_dark_background</item>
-    </style>
-
     <style name="AppTheme.NoActionBar.Neutral">
         <item name="colorPrimary">@color/cardview_dark_background</item>
         <item name="colorAccent">@android:color/black</item>

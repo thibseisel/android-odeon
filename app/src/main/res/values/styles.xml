@@ -17,7 +17,7 @@
     </style>
 
     <style name="AppTheme.NoActionBar.Neutral">
-        <item name="colorPrimary">@color/cardview_light_background</item>
+        <item name="colorPrimary">?android:attr/colorBackground</item>
         <item name="colorAccent">@android:color/white</item>
         <item name="colorControlActivated">@color/mtrl_blue_a400</item>
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay.Neutral</item>

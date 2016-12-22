@@ -26,4 +26,7 @@
     <string name="play_or_pause">Play ou pause</string>
     <string name="action_loop">Boucler</string>
     <string name="now_playing">Lecture en cours</string>
+    <string name="skip_next">Suivant</string>
+    <string name="skip_previous">Précédent</string>
+    <string name="home_screen">Écran d\'accueil</string>
 </resources>

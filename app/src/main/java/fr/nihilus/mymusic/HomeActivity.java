@@ -22,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,11 +47,9 @@ import fr.nihilus.mymusic.view.PlayerView;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "HomeActivity";
-
     public static final int REQUEST_SETTINGS = 42;
-
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
+    private static final String TAG = "HomeActivity";
     private static final String KEY_DAILY_SONG = "daily_song";
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -73,7 +70,6 @@ public class HomeActivity extends AppCompatActivity
     private ConnectedCallback mConnectionCallback = new ConnectedCallback() {
         @Override
         public void onConnected() {
-            Log.d(TAG, "onConnected: associating MediaController to PlayerView");
             MediaControllerCompat controller = MediaControllerCompat
                     .getMediaController(HomeActivity.this);
             mPlayerView.attachMediaController(controller);
@@ -98,6 +94,30 @@ public class HomeActivity extends AppCompatActivity
             mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
             prepareHeaderView(mDaily);
         }
+    }
+
+    @Override
+    public void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPlayerView.attachMediaController(null);
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_DAILY_SONG, mDaily);
     }
 
     private void setupPlayerView() {
@@ -141,24 +161,6 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_DAILY_SONG, mDaily);
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         onOptionsItemSelected(item);
         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -172,15 +174,6 @@ public class HomeActivity extends AppCompatActivity
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) loadDailySong();
-            loadFirstFragment();
-        }
     }
 
     @Override
@@ -204,17 +197,20 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onDestroy() {
-        mPlayerView.attachMediaController(null);
-        super.onDestroy();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == REQUEST_SETTINGS) && (resultCode == RESULT_OK)) {
             recreate();
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) loadDailySong();
+            loadFirstFragment();
+        }
     }
 
     private void swapFragment(Fragment newFrag) {

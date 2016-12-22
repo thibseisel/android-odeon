@@ -210,7 +210,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         // Si l'action "Previous" est activée
         if ((mPlaybackState.getActions()
                 & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0) {
-            notifBuilder.addAction(R.drawable.ic_skip_previous_white_24dp,
+            notifBuilder.addAction(R.drawable.ic_skip_previous_24dp,
                     mService.getString(R.string.action_previous), mPreviousIntent);
             // S'il y a un bouton "previous", alors "Play/Pause" est le second.
             // On garde ça en mémoire, parce que MediaStyle nécessite de préciser
@@ -223,7 +223,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         // Si le bouton next est activé
         if ((mPlaybackState.getActions()
                 & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0) {
-            notifBuilder.addAction(R.drawable.ic_skip_next_white_24dp,
+            notifBuilder.addAction(R.drawable.ic_skip_next_24dp,
                     mService.getString(R.string.action_next), mNextIntent);
         }
 

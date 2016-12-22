@@ -50,8 +50,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
+            android:clickable="true"
             app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/bottom_sheet_behavior"/>
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            tools:targetApi="lollipop"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->

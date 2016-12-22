@@ -28,4 +28,8 @@
     <string name="play_or_pause">Play or pause</string>
     <string name="action_loop">Loop</string>
     <string name="now_playing">Now playing</string>
+    <string name="skip_previous">Skip Previous</string>
+    <string name="skip_next">Skip Next</string>
+    <string name="pref_home_screen" translatable="false">home_screen</string>
+    <string name="home_screen">Home screen</string>
 </resources>

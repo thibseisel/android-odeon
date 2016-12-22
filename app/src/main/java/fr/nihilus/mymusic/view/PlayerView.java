@@ -11,17 +11,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.percent.PercentRelativeLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -30,10 +31,11 @@ import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.utils.ViewUtils;
 import fr.nihilus.mymusic.view.AutoUpdateSeekBar.OnUpdateListener;
 
 @CoordinatorLayout.DefaultBehavior(BottomSheetBehavior.class)
-public class PlayerView extends RelativeLayout implements View.OnClickListener, OnUpdateListener {
+public class PlayerView extends PercentRelativeLayout implements View.OnClickListener, OnUpdateListener {
 
     private static final String TAG = "PlayerView";
 
@@ -65,6 +67,9 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
     private AutoUpdateSeekBar mProgress;
     private boolean mIsPlaying;
     private ImageView mPlayPauseButton;
+    private ImageView mPreviousButton;
+    private ImageView mNextButton;
+    private ImageView mMasterPlayPause;
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
@@ -90,6 +95,11 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         super(context, attrs, defStyleAttr);
         View.inflate(context, R.layout.view_player, this);
 
+        // Make this view apear above AppbarLayout
+        ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, 4));
+        // Prevent from dispatching touches to the view behind
+        setClickable(true);
+
         if (isInEditMode()) {
             return;
         }
@@ -107,11 +117,23 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         mAlbumArt = (ImageView) findViewById(R.id.albumArt);
         mTitle = (TextView) findViewById(R.id.title);
         mArtist = (TextView) findViewById(R.id.subtitle);
-        mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
-        mPlayPauseButton.setOnClickListener(this);
         mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
+
+        mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
+        mPlayPauseButton.setOnClickListener(this);
+        mPreviousButton = (ImageView) findViewById(R.id.btn_previous);
+        mPreviousButton.setOnClickListener(this);
+        mNextButton = (ImageView) findViewById(R.id.btn_next);
+        mNextButton.setOnClickListener(this);
+        mMasterPlayPause = (ImageView) findViewById(R.id.main_play_pause);
+        mMasterPlayPause.setOnClickListener(this);
+    }
+
+    @Override
+    protected void dispatchSetPressed(boolean pressed) {
+        // Do not dispatch pressed event to View children
     }
 
     public void attachMediaController(@Nullable MediaControllerCompat controller) {
@@ -133,6 +155,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
             mArtist.setText(media.getSubtitle());
             mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
             mProgress.setMax((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+            onUpdate(mProgress);
         }
     }
 
@@ -141,11 +164,13 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
                 || (mLastPlaybackState.getState() != newState.getState());
         Log.d(TAG, "updatePlaybackState: hasChanged=[" + hasChanged + "]");
 
+        toggleControls(newState.getActions());
         mIsPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
         onUpdate(mProgress);
         if (hasChanged) {
-            togglePlayPauseButton(mIsPlaying);
+            togglePlayPauseButton(mPlayPauseButton, mIsPlaying);
+            togglePlayPauseButton(mMasterPlayPause, mIsPlaying);
             if (mIsPlaying) mProgress.startUpdate();
             else mProgress.stopUpdate();
         }
@@ -157,21 +182,10 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.btn_play_pause) {
-            if (mController != null) {
-                if (mIsPlaying) {
-                    mController.getTransportControls().pause();
-                } else mController.getTransportControls().play();
-            }
-        }
-    }
-
-    private void togglePlayPauseButton(boolean isPlaying) {
-        mPlayPauseButton.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
+    private void togglePlayPauseButton(ImageView button, boolean isPlaying) {
+        button.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Animatable avd = (Animatable) mPlayPauseButton.getDrawable().getCurrent();
+            Animatable avd = (Animatable) button.getDrawable().getCurrent();
             avd.start();
         }
     }
@@ -186,5 +200,34 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
             }
             view.setProgress((int) currentPosition);
         }
+    }
+
+    private void toggleControls(long actions) {
+        mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
+        mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (mController != null) {
+            switch (view.getId()) {
+                case R.id.main_play_pause:
+                case R.id.btn_play_pause:
+                    if (mIsPlaying) {
+                        mController.getTransportControls().pause();
+                    } else mController.getTransportControls().play();
+                    break;
+                case R.id.btn_previous:
+                    mController.getTransportControls().skipToPrevious();
+                    break;
+                case R.id.btn_next:
+                    mController.getTransportControls().skipToNext();
+                    break;
+            }
+        }
+    }
+
+    private static boolean hasFlag(long actions, long flag) {
+        return (actions & flag) == flag;
     }
 }
