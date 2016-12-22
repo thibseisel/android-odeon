@@ -17,6 +17,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -59,6 +60,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
     public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.RANDOM";
     public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
+    public static final String CUSTOM_ACTION_LOOP = "fr.nihilus.mymusic.LOOP";
+
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
@@ -82,7 +85,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mPlayback = new Playback(this);
         mPlayback.setState(PlaybackStateCompat.STATE_NONE);
         mPlayback.setCallback(this);
-
 
         // Création de la MediaSession
         ComponentName mediaButtonReceiver = new ComponentName(this, RemoteControlReceiver.class);
@@ -128,6 +130,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         if (!mMusicProvider.isInitialized()) {
             Log.v(TAG, "onLoadChildren: must load music library before returning children.");
             mMusicProvider.loadMetadata(this);
+            buildFirstQueue();
         }
 
         Log.d(TAG, "onLoadChildren: parentId=" + parentId);
@@ -217,15 +220,11 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         updatePlaybackState(null);
     }
 
-
     @Override
     public void onError(String error) {
         updatePlaybackState(error);
     }
 
-    /**
-     * Demande la mise en pause de la lecture en cours.
-     */
     private void handlePauseRequest() {
         Log.d(TAG, "handlePauseRequest: mState=" + mPlayback.getState());
         mPlayback.pause();
@@ -235,13 +234,12 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     /**
-     * Demande l'arrêt définitif du lecteur musical.
+     * Stops the service and the media playback.
      *
-     * @param withError message d'erreur optionnel, ou null s'il n'y a pas d'erreur
+     * @param withError an optional error message that leads the service to stop
      */
     private void handleStopRequest(@Nullable String withError) {
-        Log.d(TAG, "handleStopRequest: mState=" + mPlayback.getState()
-                + " error=" + withError);
+        Log.d(TAG, "handleStopRequest: mState=" + mPlayback.getState() + " error=" + withError);
         mPlayback.stop(true);
         // Reset the delayed stop handler.
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -260,11 +258,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      *
      * @param withError message d'erreur optionnel, ou null s'il n'y a pas d'erreur
      */
-    @SuppressWarnings("WrongConstant")
     private void updatePlaybackState(@Nullable String withError) {
         Log.d(TAG, "updatePlaybackState, playback state=" + mPlayback.getState());
         long position = PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
-        if (mPlayback != null && mPlayback.isConnected()) {
+        if (mPlayback != null) {
             position = mPlayback.getCurrentStreamPosition();
         }
 
@@ -305,8 +302,9 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      *
      * @return flags représentant les actions disponibles
      */
+    @PlaybackStateCompat.MediaKeyAction
     private long getAvailableActions() {
-        long actions = PlaybackStateCompat.ACTION_PLAY
+        @PlaybackStateCompat.MediaKeyAction long actions = PlaybackStateCompat.ACTION_PLAY
                 | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
         if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
             return actions;
@@ -324,9 +322,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void setCustomActions(PlaybackStateCompat.Builder stateBuilder) {
-        // TODO Actions : repeat
         stateBuilder.addCustomAction(CUSTOM_ACTION_RANDOM, getString(R.string.action_random),
-                R.drawable.ic_shuffle_24dp);
+                R.drawable.ic_shuffle_24dp)
+                .addCustomAction(CUSTOM_ACTION_LOOP, getString(R.string.action_loop),
+                        R.drawable.ic_repeat_24dp);
     }
 
     private void handlePlayRequest() {
@@ -365,16 +364,20 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         }
 
         QueueItem queueItem = mPlayingQueue.get(mCurrentIndexQueue);
-        String musicId = MediaID.extractMusicIDFromMediaID(queueItem.getDescription().getMediaId());
+        String mediaId = queueItem.getDescription().getMediaId();
+        String musicId = MediaID.extractMusicIDFromMediaID(mediaId);
         MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
-        final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
-        if (!musicId.equals(trackId)) {
-            IllegalStateException e = new IllegalStateException("Track ID should match musicId.");
-            Log.e(TAG, "updateMetadata: illegal state", e);
-            throw e;
+        if (track != null) {
+            final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+            if (!TextUtils.equals(musicId, trackId)) {
+                IllegalStateException e = new IllegalStateException("Track ID should match musicId.");
+                Log.e(TAG, "updateMetadata: illegal state", e);
+                throw e;
+            }
+            Log.d(TAG, "updateMetadata: musicId=" + musicId);
+            mSession.setMetadata(track);
+            Prefs.setLastPlayedMediaId(this, mediaId);
         }
-        Log.d(TAG, "updateMetadata: musicId=" + musicId);
-        mSession.setMetadata(track);
 
         // Récupère l'image de l'album pour l'afficher sur l'écran de verrouillage
         /*if (track.getDescription().getIconBitmap() == null
@@ -440,8 +443,24 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     /**
-     * Provoque l'arrêt automatique du service après {@link #STOP_DELAY} millisecondes.
-     * Ce délai n'est effectif que lorsque le service n'est pas en train de lire de la musique.
+     * Rebuild playing queue from the id of the song last played since the application closure.
+     */
+    private void buildFirstQueue() {
+        final String lastPlayedId = Prefs.getLastPlayedMediaId(this);
+        if (lastPlayedId != null && mPlayingQueue.isEmpty()) {
+            mPlayingQueue = QueueHelper.getPlayingQueue(lastPlayedId, mMusicProvider);
+            mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, lastPlayedId);
+            if (QueueHelper.isIndexPlayable(mCurrentIndexQueue, mPlayingQueue)) {
+                String musicId = MediaID.extractMusicIDFromMediaID(lastPlayedId);
+                final MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
+                mSession.setMetadata(track);
+            }
+        }
+    }
+
+    /**
+     * Automatically stops the service after {@link #STOP_DELAY} milliseconds,
+     * if it is not currently playing.
      */
     private static class DelayedStopHandler extends Handler {
         private final WeakReference<MusicService> mWeakReference;
@@ -529,15 +548,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
             mSession.setQueue(mPlayingQueue);
 
-            //mSession.setQueueTitle("All music");
+            mSession.setQueueTitle(getString(R.string.now_playing));
 
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
-                mCurrentIndexQueue = QueueHelper
-                        .getMusicIndexOnQueue(mPlayingQueue, mediaId);
+                mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, mediaId);
                 if (mCurrentIndexQueue < 0) {
                     Log.w(TAG, "onPlayFromMediaId: can't find index on queue. Playing from start.");
                     mCurrentIndexQueue = 0;
                 }
+                mPlayback.seekTo(0);
                 handlePlayRequest();
             }
         }

@@ -35,6 +35,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DISC_NUMBER;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_URI;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER;
 
@@ -133,7 +134,9 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
                     .putLong(METADATA_KEY_TRACK_NUMBER, trackNo % 100)
                     .putLong(METADATA_KEY_DISC_NUMBER, trackNo / 100)
                     .putString(METADATA_KEY_ALBUM_ART_URI, artUri.toString())
-                    .putString(METADATA_TITLE_KEY, cursor.getString(colTitleKey));
+                    .putString(METADATA_TITLE_KEY, cursor.getString(colTitleKey))
+                    .putString(METADATA_KEY_MEDIA_URI, ContentUris.withAppendedId(
+                            Media.EXTERNAL_CONTENT_URI, musicId).toString());
 
             final MediaMetadataCompat metadata = builder.build();
             mMusicById.put(musicId, metadata);
@@ -180,7 +183,10 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
             builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC))
                     .setTitle(meta.getString(METADATA_KEY_TITLE))
-                    .setSubtitle(meta.getString(METADATA_KEY_ARTIST));
+                    .setSubtitle(meta.getString(METADATA_KEY_ARTIST))
+                    .setMediaUri(Media.EXTERNAL_CONTENT_URI.buildUpon()
+                            .appendEncodedPath(musicId)
+                            .build());
             if (albumArtUri != null) {
                 builder.setIconUri(Uri.parse(albumArtUri));
             }
@@ -221,7 +227,7 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
 
         while (cursor.moveToNext()) {
             final long albumId = cursor.getLong(colId);
-            final String mediaId = MediaID.ID_ALBUMS + "/" + String.valueOf(albumId);
+            final String mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, String.valueOf(albumId));
             final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
 
             builder.setMediaId(mediaId)

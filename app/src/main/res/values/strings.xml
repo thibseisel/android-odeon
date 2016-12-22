@@ -26,4 +26,6 @@
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
     <string name="play_or_pause">Play or pause</string>
+    <string name="action_loop">Loop</string>
+    <string name="now_playing">Now playing</string>
 </resources>

@@ -24,4 +24,6 @@
     <string name="action_next">Suivant</string>
     <string name="action_previous">Précédent</string>
     <string name="play_or_pause">Play ou pause</string>
+    <string name="action_loop">Boucler</string>
+    <string name="now_playing">Lecture en cours</string>
 </resources>

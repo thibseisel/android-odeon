@@ -31,48 +31,48 @@ public final class Prefs {
      */
     @AppCompatDelegate.NightMode
     public static int getNightMode(@NonNull Context context) {
-        String nightMode = PreferenceManager.getDefaultSharedPreferences(context)
-                .getString(context.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE);
+        String nightMode = PreferenceManager.getDefaultSharedPreferences(
+                context.getApplicationContext()).getString(context.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE);
         return Integer.parseInt(nightMode);
     }
 
     public static boolean isRandomPlayingEnabled(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(KEY_RANDOM_PLAYING, false);
+        return PreferenceManager.getDefaultSharedPreferences(
+                context.getApplicationContext()).getBoolean(KEY_RANDOM_PLAYING, false);
     }
 
     public static void setRandomPlayingEnabled(@NonNull Context context, boolean enabled) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit()
                 .putBoolean(KEY_RANDOM_PLAYING, enabled)
                 .apply();
     }
 
     public static void setDailySongId(@NonNull Context context, long songId) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit()
                 .putLong(KEY_DAILY_SONG, songId)
                 .putLong(KEY_DAILY_UPDATE, System.currentTimeMillis())
                 .apply();
     }
 
     public static long getDailySongId(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getLong(KEY_DAILY_SONG, -1L);
     }
 
     public static long getLastDailySongUpdate(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getLong(KEY_DAILY_UPDATE, -1L);
     }
 
     public static void setLastPlayedMediaId(@NonNull Context context, String mediaId) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit()
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit()
                 .putString(KEY_LAST_PLAYED, mediaId)
                 .apply();
     }
 
     @Nullable
     public static String getLastPlayedMediaId(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getString(KEY_LAST_PLAYED, null);
     }
 }

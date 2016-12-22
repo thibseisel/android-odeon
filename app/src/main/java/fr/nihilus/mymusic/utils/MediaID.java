@@ -17,6 +17,7 @@
 package fr.nihilus.mymusic.utils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 
@@ -99,7 +100,11 @@ public final class MediaID {
      * @param mediaID that contains the musicID
      * @return musicID
      */
-    public static String extractMusicIDFromMediaID(@NonNull String mediaID) {
+    @Nullable
+    public static String extractMusicIDFromMediaID(String mediaID) {
+        if (mediaID == null) {
+            return null;
+        }
         int pos = mediaID.indexOf(LEAF_SEPARATOR);
         if (pos >= 0) {
             return mediaID.substring(pos + 1);

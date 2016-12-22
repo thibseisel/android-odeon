@@ -43,21 +43,18 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
     @Nullable
     private MediaControllerCompat mController;
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
-        private int mProgress;
 
         @Override
         public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
-            if (fromUser) mProgress = progress;
+            if (fromUser) seekTo(progress);
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar view) {
-
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar view) {
-            seekTo(mProgress);
         }
     };
     private BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
@@ -68,6 +65,7 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
     private AutoUpdateSeekBar mProgress;
     private boolean mIsPlaying;
     private ImageView mPlayPauseButton;
+
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat newState) {
@@ -77,7 +75,6 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             updateMetadata(metadata);
-            mProgress.setProgress(0);
         }
     };
 
@@ -142,9 +139,11 @@ public class PlayerView extends RelativeLayout implements View.OnClickListener, 
     private void updatePlaybackState(@NonNull PlaybackStateCompat newState) {
         boolean hasChanged = (mLastPlaybackState == null)
                 || (mLastPlaybackState.getState() != newState.getState());
+        Log.d(TAG, "updatePlaybackState: hasChanged=[" + hasChanged + "]");
 
         mIsPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
+        onUpdate(mProgress);
         if (hasChanged) {
             togglePlayPauseButton(mIsPlaying);
             if (mIsPlaying) mProgress.startUpdate();
