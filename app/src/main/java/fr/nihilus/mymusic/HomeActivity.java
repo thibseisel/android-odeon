@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -22,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -57,6 +59,15 @@ public class HomeActivity extends AppCompatActivity
     private PlayerView mPlayerView;
     private MediaItem mDaily;
 
+    private final ConnectedCallback mConnectionCallback = new ConnectedCallback() {
+        @Override
+        public void onConnected() {
+            MediaControllerCompat controller = MediaControllerCompat
+                    .getMediaController(HomeActivity.this);
+            mPlayerView.attachMediaController(controller);
+        }
+    };
+
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
@@ -64,15 +75,6 @@ public class HomeActivity extends AppCompatActivity
                 mDaily = children.get(0);
                 prepareHeaderView(mDaily);
             }
-        }
-    };
-
-    private ConnectedCallback mConnectionCallback = new ConnectedCallback() {
-        @Override
-        public void onConnected() {
-            MediaControllerCompat controller = MediaControllerCompat
-                    .getMediaController(HomeActivity.this);
-            mPlayerView.attachMediaController(controller);
         }
     };
 
@@ -124,6 +126,19 @@ public class HomeActivity extends AppCompatActivity
         mPlayerView = (PlayerView) findViewById(R.id.playerView);
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
                 .doWhenConnected(mConnectionCallback);
+        BottomSheetBehavior.from(mPlayerView)
+                .setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                    @Override
+                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+
+                    }
+
+                    @Override
+                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                        mPlayerView.setHeaderOpacity(1 - slideOffset);
+                        Log.d(TAG, "onSlide: offset=" + slideOffset);
+                    }
+                });
     }
 
     private void loadFirstFragment() {

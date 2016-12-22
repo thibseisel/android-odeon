@@ -70,6 +70,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private ImageView mPreviousButton;
     private ImageView mNextButton;
     private ImageView mMasterPlayPause;
+    private ImageView mBigArt;
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
@@ -99,6 +100,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, 4));
         // Prevent from dispatching touches to the view behind
         setClickable(true);
+        setOnClickListener(this);
 
         if (isInEditMode()) {
             return;
@@ -111,6 +113,10 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
                 .error(dummyAlbumArt);
     }
 
+    private static boolean hasFlag(long actions, long flag) {
+        return (actions & flag) == flag;
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -120,6 +126,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
+
+        mBigArt = (ImageView) findViewById(R.id.bigArt);
 
         mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
         mPlayPauseButton.setOnClickListener(this);
@@ -154,6 +162,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             mTitle.setText(media.getTitle());
             mArtist.setText(media.getSubtitle());
             mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
+            mGlideRequest.load(media.getIconUri()).into(mBigArt);
             mProgress.setMax((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
             onUpdate(mProgress);
         }
@@ -176,11 +185,22 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     }
 
+    public void setHeaderVisible(boolean visible) {
+        mAlbumArt.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        mPlayPauseButton.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+    }
+
+    public void setHeaderOpacity(float opacity) {
+        mPlayPauseButton.setAlpha(opacity);
+        mAlbumArt.setAlpha(opacity);
+    }
+
     private void seekTo(int position) {
         if (mController != null) {
             mController.getTransportControls().seekTo(position);
         }
     }
+
 
     private void togglePlayPauseButton(ImageView button, boolean isPlaying) {
         button.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
@@ -209,6 +229,11 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
+        if (view == this) {
+            BottomSheetBehavior.from(this).setState(BottomSheetBehavior.STATE_EXPANDED);
+            return;
+        }
+
         if (mController != null) {
             switch (view.getId()) {
                 case R.id.main_play_pause:
@@ -225,9 +250,5 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
                     break;
             }
         }
-    }
-
-    private static boolean hasFlag(long actions, long flag) {
-        return (actions & flag) == flag;
     }
 }

@@ -28,6 +28,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 
 import fr.nihilus.mymusic.HomeActivity;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.utils.ViewUtils;
 
 /**
  * Une classe associée à {@link MusicService} permettant l'affichage d'une notification
@@ -174,13 +175,13 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
     private void updateSessionToken() {
         MediaSessionCompat.Token freshToken = mService.getSessionToken();
-        if (mSessionToken == null || !mSessionToken.equals(freshToken)) {
+        if (freshToken != null && (mSessionToken == null || !mSessionToken.equals(freshToken))) {
             if (mController != null) {
                 mController.unregisterCallback(mCallback);
             }
             try {
                 mSessionToken = freshToken;
-                mController = new MediaControllerCompat(mService, mSessionToken);
+                mController = new MediaControllerCompat(mService, freshToken);
                 mTransportControls = mController.getTransportControls();
                 if (mStarted) {
                     mController.registerCallback(mCallback);
@@ -227,6 +228,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
                     mService.getString(R.string.action_next), mNextIntent);
         }
 
+        int smallIcon = mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING
+                ? R.drawable.ic_play_arrow
+                : R.drawable.ic_pause;
+
+        int colorAccent = ViewUtils.resolveThemeColor(mService, R.attr.colorAccent);
+
         MediaDescriptionCompat description = mMetadata.getDescription();
         Bitmap placeholder = BitmapFactory.decodeResource(mService.getResources(),
                 R.drawable.dummy_album_art);
@@ -235,8 +242,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 // N'affiche que le play/pause en mode compact
                 .setShowActionsInCompactView(playPauseButtonPosition)
                 .setMediaSession(mSessionToken))
-                .setColor(0x212121)
-                .setSmallIcon(R.drawable.ic_audiotrack_white_24dp)
+                .setColor(colorAccent)
+                .setSmallIcon(smallIcon)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setUsesChronometer(true)
                 .setContentIntent(createContentIntent())

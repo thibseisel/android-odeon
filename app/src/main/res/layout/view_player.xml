@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -78,11 +78,12 @@
 
     <ImageView
         android:id="@+id/bigArt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/albumArt"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
-        app:layout_aspectRatio="100%"
-        app:layout_widthPercent="100%"
+        android:layout_above="@+id/buttonBar"
         tools:src="@drawable/dummy_album_art"/>
 
     <LinearLayout
@@ -90,13 +91,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/bigArt"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingEnd="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:paddingStart="16dp">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/btn_previous"
@@ -131,4 +128,4 @@
             app:srcCompat="@drawable/ic_skip_next_24dp"/>
     </LinearLayout>
 
-</android.support.percent.PercentRelativeLayout>
+</RelativeLayout>
