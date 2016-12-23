@@ -23,6 +23,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
@@ -304,6 +305,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
         Glide.with(mService.getApplicationContext())
                 .load(artUri).asBitmap()
                 .error(placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(Bitmap art, GlideAnimation<? super Bitmap> anim) {

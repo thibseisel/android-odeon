@@ -59,7 +59,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                 .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
                 .fitCenter()
                 .error(dummyAlbumArt)
-                .diskCacheStrategy(DiskCacheStrategy.RESULT);
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
     }
 
     @Override

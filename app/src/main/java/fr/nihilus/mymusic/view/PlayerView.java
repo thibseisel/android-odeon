@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.ViewUtils;
@@ -110,7 +111,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mGlideRequest = Glide.with(context).fromUri()
                 .asBitmap()
                 .fitCenter()
-                .error(dummyAlbumArt);
+                .error(dummyAlbumArt)
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
     }
 
     private static boolean hasFlag(long actions, long flag) {

@@ -4,6 +4,9 @@ android {
     signingConfigs {
         Thib {
             keyAlias 'Thib'
+            storeFile file('C:/Users/Thib/Documents/Android/keystore/android.jks')
+            keyPassword 'MaitreJedi'
+            storePassword 'MaitreJedi'
         }
     }
     compileSdkVersion 25
@@ -23,6 +26,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.Thib
         }
     }
 }

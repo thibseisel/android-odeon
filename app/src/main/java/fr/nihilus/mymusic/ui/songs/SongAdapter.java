@@ -40,7 +40,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
                 .asBitmap()
                 .error(dummyAlbumArt)
                 .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.RESULT);
+                .diskCacheStrategy(DiskCacheStrategy.NONE);
     }
 
     @Override
