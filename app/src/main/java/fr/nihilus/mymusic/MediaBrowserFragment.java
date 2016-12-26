@@ -19,7 +19,7 @@ import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import fr.nihilus.mymusic.playback.MusicService;
+import fr.nihilus.mymusic.service.MusicService;
 
 /**
  * Un Fragment qui établit une connexion distante à {@link MusicService} pour accéder aux médias.

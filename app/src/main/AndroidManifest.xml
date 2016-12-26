@@ -39,7 +39,7 @@
 
         <!-- Le service de Playback musical est lié à un autre processus. -->
         <service
-            android:name=".playback.MusicService"
+            android:name=".service.MusicService"
             android:enabled="true"
             android:exported="false"
             android:label="@string/playback_service_label"
@@ -62,7 +62,7 @@
             android:exported="false">
         </provider>
 
-        <receiver android:name=".playback.MusicService$RemoteControlReceiver">
+        <receiver android:name=".service.MusicService$RemoteControlReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>

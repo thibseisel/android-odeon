@@ -41,6 +41,7 @@ import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
+import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
 import fr.nihilus.mymusic.ui.songs.SongListFragment;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
@@ -54,6 +55,7 @@ public class HomeActivity extends AppCompatActivity
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
     private static final String TAG = "HomeActivity";
     private static final String KEY_DAILY_SONG = "daily_song";
+    public static final String KEY_BOTTOMSHEET_STATE = "bottomsheet_state";
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
@@ -65,7 +67,7 @@ public class HomeActivity extends AppCompatActivity
         public void onConnected() {
             MediaControllerCompat controller = MediaControllerCompat
                     .getMediaController(HomeActivity.this);
-            mPlayerView.attachMediaController(controller);
+            mPlayerView.setMediaController(controller);
         }
     };
 
@@ -96,6 +98,9 @@ public class HomeActivity extends AppCompatActivity
         } else {
             mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
             prepareHeaderView(mDaily);
+            final int bottomSheetState = savedInstanceState.getInt(KEY_BOTTOMSHEET_STATE,
+                    BottomSheetBehavior.STATE_COLLAPSED);
+            BottomSheetBehavior.from(mPlayerView).setState(bottomSheetState);
         }
     }
 
@@ -113,7 +118,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        mPlayerView.attachMediaController(null);
+        mPlayerView.setMediaController(null);
         super.onDestroy();
     }
 
@@ -121,6 +126,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_DAILY_SONG, mDaily);
+        outState.putInt(KEY_BOTTOMSHEET_STATE, BottomSheetBehavior.from(mPlayerView).getState());
     }
 
     private void setupPlayerView() {
@@ -137,7 +143,6 @@ public class HomeActivity extends AppCompatActivity
                     @Override
                     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                         mPlayerView.setHeaderOpacity(1 - slideOffset);
-                        Log.d(TAG, "onSlide: offset=" + slideOffset);
                     }
                 });
     }
@@ -205,6 +210,9 @@ public class HomeActivity extends AppCompatActivity
             case R.id.action_albums:
                 swapFragment(new AlbumGridFragment());
                 return true;
+            case R.id.action_artists:
+                swapFragment(new ArtistsFragment());
+                return true;
             case R.id.action_settings:
                 Intent settingsActivity = new Intent(this, SettingsActivity.class);
                 startActivityForResult(settingsActivity, REQUEST_SETTINGS);
@@ -217,8 +225,16 @@ public class HomeActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == REQUEST_SETTINGS) && (resultCode == RESULT_OK)) {
             recreate();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent() called with: intent = [" + intent + "]");
+        super.onNewIntent(intent);
+        // Peut peut-être recevoir les actions des raccourcis ?
     }
 
     @Override
@@ -246,7 +262,7 @@ public class HomeActivity extends AppCompatActivity
             final View band = header.findViewById(R.id.band);
             final TextView titleText = ((TextView) header.findViewById(R.id.title));
             final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
-            ImageView albumArtView = (ImageView) header.findViewById(R.id.albumArt);
+            ImageView albumArtView = (ImageView) header.findViewById(R.id.cover);
 
             titleText.setText(title);
             subtitleText.setText(subtitle);

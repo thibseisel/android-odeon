@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
-           xmlns:tools="http://schemas.android.com/tools"
-           tools:targetApi="n_mr1">
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:shortcutId="albums"
-        android:icon="@drawable/shortcut_albums"
-        android:shortcutShortLabel="@string/action_albums">
-
+        android:icon="@drawable/shortcut_random"
+        android:shortcutId="random"
+        android:shortcutShortLabel="@string/random_mix">
         <intent
-            android:action="fr.nihilus.mymusic.ACTION_ALBUMS"
-            android:targetPackage="fr.nihilus.mymusic"
-            android:targetClass="fr.nihilus.mymusic.HomeActivity"/>
+            android:action="fr.nihilus.mymusic.ACTION_RANDOM"
+            android:targetClass="fr.nihilus.mymusic.HomeActivity"
+            android:targetPackage="fr.nihilus.mymusic"/>
     </shortcut>
 
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/shortcut_albums"
+        android:shortcutId="albums"
+        android:shortcutShortLabel="@string/action_albums">
+        <intent
+            android:action="fr.nihilus.mymusic.ACTION_ALBUMS"
+            android:targetClass="fr.nihilus.mymusic.HomeActivity"
+            android:targetPackage="fr.nihilus.mymusic"/>
+    </shortcut>
 </shortcuts>

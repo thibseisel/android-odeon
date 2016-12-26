@@ -8,18 +8,18 @@
     android:foreground="?attr/selectableItemBackground">
 
     <ImageView
-        android:id="@+id/albumArt"
+        android:id="@+id/cover"
         app:layout_widthPercent="100%"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
         app:layout_aspectRatio="@fraction/album_art_ratio"
-        tools:src="@drawable/ic_album_24dp"/>
+        tools:src="@drawable/dummy_album"/>
 
     <RelativeLayout
         android:id="@+id/band"
         android:layout_width="match_parent"
         android:layout_height="68dp"
-        android:layout_below="@id/albumArt"
+        android:layout_below="@id/cover"
         android:background="@color/album_band_default"
         android:padding="16dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">

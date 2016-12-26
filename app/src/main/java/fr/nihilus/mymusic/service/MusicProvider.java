@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.playback;
+package fr.nihilus.mymusic.service;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
+import android.provider.MediaStore.Audio.ArtistColumns;
+import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,7 +41,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_UR
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER;
 
-class MusicProvider implements MediaStore.Audio.AudioColumns {
+class MusicProvider implements AudioColumns {
 
     private static final String METADATA_TITLE_KEY = "title_key";
 
@@ -51,6 +53,8 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
     private static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String[] MEDIA_PROJECTION = {_ID, TITLE, ALBUM, ARTIST, DURATION, TRACK,
             TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID};
+    private static final String[] ARTIST_PROJECTION = {BaseColumns._ID, ArtistColumns.ARTIST,
+            ArtistColumns.NUMBER_OF_ALBUMS, ArtistColumns.NUMBER_OF_TRACKS};
     private final LongSparseArray<MediaMetadataCompat> mMusicById;
     private final MetadataStore mMusicByAlbum;
     private final List<MediaMetadataCompat> mMusicAlpha;
@@ -111,7 +115,6 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         final int colDuration = cursor.getColumnIndexOrThrow(DURATION);
         final int colTrackNo = cursor.getColumnIndexOrThrow(TRACK);
         final int colTitleKey = cursor.getColumnIndexOrThrow(TITLE_KEY);
-        //final int colAlbumKey = cursor.getColumnIndexOrThrow(ALBUM_KEY);
         final int colAlbumId = cursor.getColumnIndexOrThrow(ALBUM_ID);
         final int colArtistId = cursor.getColumnIndexOrThrow(ARTIST_ID);
 
@@ -180,8 +183,11 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         for (MediaMetadataCompat meta : mMusicAlpha) {
             String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
             String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
+            Bundle extras = new Bundle();
+            extras.putString(AudioColumns.TITLE_KEY, meta.getString(METADATA_TITLE_KEY));
 
             builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC))
+                    .setExtras(extras)
                     .setTitle(meta.getString(METADATA_KEY_TITLE))
                     .setSubtitle(meta.getString(METADATA_KEY_ARTIST))
                     .setMediaUri(Media.EXTERNAL_CONTENT_URI.buildUpon()
@@ -292,8 +298,45 @@ class MusicProvider implements MediaStore.Audio.AudioColumns {
         return mMusicAlpha;
     }
 
-    List<MediaItem> getArtistItems() {
-        throw new UnsupportedOperationException("Not yet implemented.");
+    List<MediaItem> getArtistItems(@NonNull Context context) {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            return Collections.emptyList();
+        }
+
+        Cursor cursor = context.getContentResolver()
+                .query(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
+                        null, null, MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
+
+        if (cursor == null) {
+            return Collections.emptyList();
+        }
+
+        List<MediaItem> result = new ArrayList<>();
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+
+        final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+        final int name = cursor.getColumnIndexOrThrow(ArtistColumns.ARTIST);
+        final int albumCount = cursor.getColumnIndexOrThrow(ArtistColumns.NUMBER_OF_ALBUMS);
+        final int trackCount = cursor.getColumnIndexOrThrow(ArtistColumns.NUMBER_OF_TRACKS);
+
+        while (cursor.moveToNext()) {
+            final long artistId = cursor.getLong(colId);
+            final String mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, String.valueOf(artistId));
+
+            // TODO AlbumArt le plus récent (CursorJoiner et MatrixCursor)
+            builder.setMediaId(mediaId)
+                    .setTitle(cursor.getString(name));
+            Bundle extras = new Bundle();
+            extras.putInt(ArtistColumns.NUMBER_OF_ALBUMS, cursor.getInt(albumCount));
+            extras.putInt(ArtistColumns.NUMBER_OF_TRACKS, cursor.getInt(trackCount));
+            builder.setExtras(extras);
+
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE));
+        }
+
+        cursor.close();
+        return result;
     }
 
     /**

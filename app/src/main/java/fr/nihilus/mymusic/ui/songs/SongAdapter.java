@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import com.bumptech.glide.BitmapRequestBuilder;
@@ -24,16 +25,20 @@ import java.util.List;
 
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
+import fr.nihilus.mymusic.utils.MediaItemIndexer;
 
-class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
+class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     private static final String TAG = "SongAdapter";
 
     private final BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+    private final MediaItemIndexer mIndexer;
     private List<MediaBrowserCompat.MediaItem> mSongs;
 
     SongAdapter(@NonNull Context context, List<MediaBrowserCompat.MediaItem> songs) {
         mSongs = songs;
+        mIndexer = new MediaItemIndexer(songs);
+        registerDataSetObserver(mIndexer);
         Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.dummy_album_art);
         mGlideRequest = Glide.with(context)
                 .fromUri()
@@ -57,7 +62,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
     public long getItemId(int pos) {
         if (hasStableIds() && mSongs != null) {
             String mediaId = mSongs.get(pos).getMediaId();
-            return Long.parseLong(MediaID.extractMusicIDFromMediaID(mediaId));
+            return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
         return ListView.NO_ID;
     }
@@ -82,7 +87,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
         return convertView;
     }
 
-    /*@Override
+    @Override
     public Object[] getSections() {
         return mIndexer.getSections();
     }
@@ -95,7 +100,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
     @Override
     public int getSectionForPosition(int position) {
         return mIndexer.getSectionForPosition(position);
-    }*/
+    }
 
     private static class ViewHolder {
         final TextView title;
@@ -105,7 +110,7 @@ class SongAdapter extends BaseAdapter /*implements SectionIndexer*/ {
         ViewHolder(View root) {
             title = (TextView) root.findViewById(R.id.title);
             subtitle = (TextView) root.findViewById(R.id.subtitle);
-            albumArt = (ImageView) root.findViewById(R.id.albumArt);
+            albumArt = (ImageView) root.findViewById(R.id.cover);
         }
     }
 }

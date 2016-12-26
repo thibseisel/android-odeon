@@ -33,7 +33,7 @@
                 app:layout_collapseParallaxMultiplier="0.8">
 
                 <ImageView
-                    android:id="@+id/albumArt"
+                    android:id="@+id/cover"
                     android:contentDescription="@string/album_art"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"

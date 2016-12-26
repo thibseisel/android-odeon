@@ -101,7 +101,7 @@ public final class MediaID {
      * @return musicID
      */
     @Nullable
-    public static String extractMusicIDFromMediaID(String mediaID) {
+    public static String extractMusicID(String mediaID) {
         if (mediaID == null) {
             return null;
         }

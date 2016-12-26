@@ -1,10 +1,8 @@
-package fr.nihilus.mymusic.ui.albums;
+package fr.nihilus.mymusic.ui.artists;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
@@ -21,28 +19,26 @@ import java.util.List;
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
-import fr.nihilus.mymusic.view.GridSpacerDecoration;
 
-public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbumSelectedListener {
+public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistSelectedListener {
 
-    private static final String TAG = "AlbumGridFragment";
-    private static final String KEY_ITEMS = "Albums";
+    private static final String TAG = "ArtistsFragment";
+    private static final String KEY_ARTISTS = "Artists";
 
     private RecyclerView mRecyclerView;
-    private AlbumsAdapter mAdapter;
     private ContentLoadingProgressBar mProgressBar;
     private View mEmptyView;
-    private ArrayList<MediaItem> mAlbums;
+    private ArrayList<MediaItem> mArtists;
+    private ArtistAdapter mAdapter;
 
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> albums) {
-            Log.d(TAG, "onChildrenLoaded: loaded children count: " + albums.size());
-            mAlbums.clear();
-            mAlbums.addAll(albums);
-            mAdapter.updateAlbums(albums);
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> artists) {
+            Log.d(TAG, "onChildrenLoaded: loaded " + artists.size() + " artists.");
+            mArtists.addAll(artists);
+            mAdapter.updateArtists(artists);
             showLoading(false);
-            showEmptyView(albums.isEmpty());
+            showEmptyView(artists.isEmpty());
         }
     };
 
@@ -51,31 +47,25 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            mAlbums = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
-        } else {
-            mAlbums = new ArrayList<>();
-        }
-
-        mAdapter = new AlbumsAdapter(getContext(), mAlbums);
-        mAdapter.setOnAlbumSelectedListener(this);
+            mArtists = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
+        } else mArtists = new ArrayList<>();
+        mAdapter = new ArtistAdapter(getContext(), mArtists);
+        mAdapter.setOnArtistSelectedListener(this);
     }
 
     @NonNull
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_albums, container, false);
+        return inflater.inflate(R.layout.fragment_artists, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-        mRecyclerView.addItemDecoration(new GridSpacerDecoration(getContext(),
-                getResources().getInteger(R.integer.album_grid_span_count)));
         mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
         mEmptyView = view.findViewById(android.R.id.empty);
-
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
         if (savedInstanceState == null) {
@@ -86,40 +76,39 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     @Override
     public void onStart() {
         super.onStart();
-        getActivity().setTitle(R.string.action_albums);
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_ALBUMS, mSubscriptionCallback);
+                .subscribe(MediaID.ID_ARTISTS, mSubscriptionCallback);
     }
 
     @Override
     public void onStop() {
-        super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaID.ID_ALBUMS);
+                .unsubscribe(MediaID.ID_ARTISTS);
+        super.onStop();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(KEY_ITEMS, mAlbums);
         super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(KEY_ARTISTS, mArtists);
     }
 
     @Override
     public void onDestroyView() {
         mRecyclerView = null;
-        mProgressBar = null;
         mEmptyView = null;
+        mProgressBar = null;
         super.onDestroyView();
     }
 
     @Override
-    public void onAlbumSelected(AlbumsAdapter.AlbumHolder holder, MediaItem album) {
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(), holder.albumArt, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME);
-        Intent albumDetailIntent = new Intent(getContext(), AlbumDetailActivity.class);
-        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album);
-        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors);
-        startActivity(albumDetailIntent, options.toBundle());
+    public void onArtistSelected(ArtistAdapter.ArtistHolder holder, MediaItem artist) {
+        // TODO Animation
+        Fragment detail = ArtistDetailFragment.newInstance(artist);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, detail)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void showLoading(boolean shown) {

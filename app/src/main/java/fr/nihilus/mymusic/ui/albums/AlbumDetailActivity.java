@@ -102,13 +102,8 @@ public class AlbumDetailActivity extends AppCompatActivity
 
         if (savedInstanceState != null) {
             mTracks = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
-        } else {
-            mTracks = new ArrayList<>();
-            MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                    .subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
-        }
+        } else mTracks = new ArrayList<>();
 
-        // TODO Placer le bandeau dans le RecyclerView
         mAlbumTitle = (TextView) findViewById(R.id.title);
         mAlbumTitle.setText(mPickedAlbum.getDescription().getTitle());
         mAlbumArtist = (TextView) findViewById(R.id.subtitle);
@@ -127,6 +122,20 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                .subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
+    }
+
+    @Override
+    protected void onStop() {
+        MediaBrowserFragment.getInstance(getSupportFragmentManager())
+                .unsubscribe(mPickedAlbum.getMediaId());
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
         MediaControllerCompat controller = MediaControllerCompat.getMediaController(this);
         if (controller != null) {
@@ -141,7 +150,7 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     private void setupAlbumArt() {
-        ImageView albumArtView = (ImageView) findViewById(R.id.albumArt);
+        ImageView albumArtView = (ImageView) findViewById(R.id.cover);
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME);
         try {
             Bitmap albumArt = Media.getBitmap(getContentResolver(),
@@ -218,7 +227,7 @@ public class AlbumDetailActivity extends AppCompatActivity
             for (int i = 0; i < mTracks.size(); i++) {
                 final String trackMediaId = mTracks.get(i).getMediaId();
                 Log.d(TAG, "onMetadataChanged: compating with " + trackMediaId);
-                if (MediaID.extractMusicIDFromMediaID(trackMediaId).equals(musicId)) {
+                if (MediaID.extractMusicID(trackMediaId).equals(musicId)) {
                     mDecoration.setDecoratedItemPosition(i);
                     mRecyclerView.invalidateItemDecorations();
                     return;

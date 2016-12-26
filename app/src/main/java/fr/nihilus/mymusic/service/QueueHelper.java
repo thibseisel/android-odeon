@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.playback;
+package fr.nihilus.mymusic.service;
 
 import android.support.annotation.Nullable;
 import android.support.v4.media.MediaMetadataCompat;
@@ -78,7 +78,7 @@ final class QueueHelper {
         }
 
         String categoryType = hierarchy[0];
-        String musicId = MediaID.extractMusicIDFromMediaID(mediaId);
+        String musicId = MediaID.extractMusicID(mediaId);
 
         List<MediaMetadataCompat> tracks = null;
         switch (categoryType) {
@@ -91,7 +91,7 @@ final class QueueHelper {
                 break;
             case MediaID.ID_ARTISTS:
                 String artistId = hierarchy[1];
-                // TODO Artist albums
+                // TODO Artist tracks
                 break;
             case MediaID.ID_DAILY:
                 MediaMetadataCompat daily = provider.getMusic(musicId);

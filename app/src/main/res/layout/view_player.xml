@@ -8,7 +8,7 @@
     android:background="?colorBackgroundFloating">
 
     <ImageView
-        android:id="@+id/albumArt"
+        android:id="@+id/cover"
         android:layout_width="@dimen/playerview_height"
         android:layout_height="@dimen/playerview_height"
         android:contentDescription="@string/album_art"
@@ -19,24 +19,24 @@
         style="@style/Widget.AppTheme.ProgressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/albumArt"
-        android:layout_toEndOf="@id/albumArt"
-        android:layout_toRightOf="@id/albumArt"
+        android:layout_alignTop="@id/cover"
+        android:layout_toEndOf="@id/cover"
+        android:layout_toRightOf="@id/cover"
         android:paddingBottom="4dp"
         tools:progress="100"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/playerview_height"
-        android:layout_alignBottom="@id/albumArt"
+        android:layout_alignBottom="@id/cover"
         android:layout_below="@id/progress"
         android:layout_centerVertical="true"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
-        android:layout_toEndOf="@+id/albumArt"
+        android:layout_toEndOf="@+id/cover"
         android:layout_toLeftOf="@+id/btn_play_pause"
-        android:layout_toRightOf="@+id/albumArt"
+        android:layout_toRightOf="@+id/cover"
         android:layout_toStartOf="@+id/btn_play_pause"
         android:gravity="center_vertical"
         android:orientation="horizontal">
@@ -80,7 +80,7 @@
         android:id="@+id/bigArt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/albumArt"
+        android:layout_below="@id/cover"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
         android:layout_above="@+id/buttonBar"

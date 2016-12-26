@@ -8,7 +8,7 @@
     android:foreground="?selectableItemBackground">
 
     <ImageView
-        android:id="@+id/albumArt"
+        android:id="@+id/cover"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
         app:layout_aspectRatio="177%"
@@ -19,7 +19,7 @@
         android:id="@+id/band"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/albumArt"
+        android:layout_below="@id/cover"
         android:background="@color/album_band_default"
         android:gravity="center"
         android:minHeight="56dp"

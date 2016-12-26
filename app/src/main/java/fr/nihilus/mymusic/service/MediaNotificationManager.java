@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.playback;
+package fr.nihilus.mymusic.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -56,6 +56,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
     private boolean mStarted = false;
+
     private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
@@ -230,8 +231,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
         }
 
         int smallIcon = mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING
-                ? R.drawable.ic_play_arrow
-                : R.drawable.ic_pause;
+                ? R.drawable.notif_play_arrow
+                : R.drawable.notif_pause;
 
         int colorAccent = ViewUtils.resolveThemeColor(mService, R.attr.colorAccent);
 
@@ -265,11 +266,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
         PendingIntent intent;
         if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             label = "Pause";
-            icon = R.drawable.notif_pause;
+            icon = R.drawable.ic_pause;
             intent = mPauseIntent;
         } else {
             label = "Play";
-            icon = R.drawable.notif_play_arrow;
+            icon = R.drawable.ic_play_arrow;
             intent = mPlayIntent;
         }
         builder.addAction(new NotificationCompat.Action(icon, label, intent));
@@ -296,7 +297,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                     .setUsesChronometer(false);
         }
 
-        // Permet de dégager la notification lorsque le player est en pause
+        // Permet de swiper la notification lorsque le player est en pause
         builder.setOngoing(mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING);
     }
 

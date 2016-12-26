@@ -29,4 +29,6 @@
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
     <string name="home_screen">Écran d\'accueil</string>
+    <string name="random_mix">Mix aléatoire</string>
+    <string name="empty_artist">Aucun artiste</string>
 </resources>

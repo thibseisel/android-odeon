@@ -25,7 +25,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.playback.MusicService;
+import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.utils.MediaID;
 
 import static android.support.v4.media.session.MediaControllerCompat.getMediaController;

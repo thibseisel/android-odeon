@@ -3,5 +3,5 @@
     <item>
         <color android:color="?colorControlNormal"/>
     </item>
-    <item android:drawable="@drawable/ic_audiotrack_24dp"/>
+    <item android:drawable="@drawable/ic_album_24dp"/>
 </layer-list>

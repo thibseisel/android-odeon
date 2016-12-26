@@ -64,7 +64,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     public long getItemId(int position) {
         if (hasStableIds() && mTracks != null) {
             final String mediaId = mTracks.get(position).getMediaId();
-            return Long.parseLong(MediaID.extractMusicIDFromMediaID(mediaId));
+            return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
         return ListView.NO_ID;
     }

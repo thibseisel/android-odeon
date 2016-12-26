@@ -1,15 +1,16 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
-        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
-        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-
+    <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/mtrl_orange_500</item>
         <item name="colorPrimaryDark">@color/mtrl_orange_700</item>
         <item name="colorAccent">@color/mtrl_blue_a400</item>
 
+        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
+        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
     </style>
+
+    <style name="AppTheme" parent="Base.AppTheme"/>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowNoTitle">true</item>

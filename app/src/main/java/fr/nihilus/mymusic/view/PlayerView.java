@@ -122,7 +122,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mAlbumArt = (ImageView) findViewById(R.id.albumArt);
+        mAlbumArt = (ImageView) findViewById(R.id.cover);
         mTitle = (TextView) findViewById(R.id.title);
         mArtist = (TextView) findViewById(R.id.subtitle);
         mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
@@ -146,8 +146,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         // Do not dispatch pressed event to View children
     }
 
-    public void attachMediaController(@Nullable MediaControllerCompat controller) {
-        Log.d(TAG, "attachMediaController() called with: controller = [" + controller + "]");
+    public void setMediaController(@Nullable MediaControllerCompat controller) {
+        Log.d(TAG, "setMediaController() called with: controller = [" + controller + "]");
         if (controller != null) {
             controller.registerCallback(mControllerCallback);
             updateMetadata(controller.getMetadata());
@@ -185,11 +185,6 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             if (mIsPlaying) mProgress.startUpdate();
             else mProgress.stopUpdate();
         }
-    }
-
-    public void setHeaderVisible(boolean visible) {
-        mAlbumArt.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
-        mPlayPauseButton.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
     }
 
     public void setHeaderOpacity(float opacity) {

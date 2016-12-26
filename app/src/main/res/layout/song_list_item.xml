@@ -8,7 +8,7 @@
                 android:paddingStart="16dp">
 
     <ImageView
-        android:id="@+id/albumArt"
+        android:id="@+id/cover"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_centerVertical="true"

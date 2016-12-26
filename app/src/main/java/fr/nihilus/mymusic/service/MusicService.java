@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.playback;
+package fr.nihilus.mymusic.service;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -32,6 +32,7 @@ import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.MediaID;
 
 import static fr.nihilus.mymusic.utils.MediaID.ID_ALBUMS;
+import static fr.nihilus.mymusic.utils.MediaID.ID_ARTISTS;
 import static fr.nihilus.mymusic.utils.MediaID.ID_DAILY;
 import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
 import static fr.nihilus.mymusic.utils.MediaID.ID_ROOT;
@@ -146,9 +147,18 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     Log.d(TAG, "onLoadChildren: loading tracks from album " + hierarchy[1]);
                     result.sendResult(mMusicProvider.getTracksItems(parentId));
                 } else {
-                    // Tous les albums
                     Log.d(TAG, "onLoadChildren: loading all albums");
                     result.sendResult(mMusicProvider.getAlbumItems(this));
+                }
+                break;
+            case ID_ARTISTS:
+                if (hierarchy.length > 1) {
+                    Log.d(TAG, "onLoadChildren: loading detail of artist " + hierarchy[1]);
+                    // TODO getArtistDetails
+                    result.sendResult(Collections.<MediaItem>emptyList());
+                } else {
+                    Log.d(TAG, "onLoadChildren: loading all artists");
+                    result.sendResult(mMusicProvider.getArtistItems(this));
                 }
                 break;
             case ID_DAILY:
@@ -365,7 +375,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         QueueItem queueItem = mPlayingQueue.get(mCurrentIndexQueue);
         String mediaId = queueItem.getDescription().getMediaId();
-        String musicId = MediaID.extractMusicIDFromMediaID(mediaId);
+        String musicId = MediaID.extractMusicID(mediaId);
         MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
         if (track != null) {
             final String trackId = track.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
@@ -451,9 +461,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             mPlayingQueue = QueueHelper.getPlayingQueue(lastPlayedId, mMusicProvider);
             mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, lastPlayedId);
             if (QueueHelper.isIndexPlayable(mCurrentIndexQueue, mPlayingQueue)) {
-                String musicId = MediaID.extractMusicIDFromMediaID(lastPlayedId);
+                String musicId = MediaID.extractMusicID(lastPlayedId);
                 final MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
                 mSession.setMetadata(track);
+                updatePlaybackState(null);
             }
         }
     }

@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
-        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
-        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-        <item name="colorPrimary">@color/mtrl_orange_500</item>
-        <item name="colorPrimaryDark">@color/mtrl_orange_700</item>
-        <item name="colorAccent">@color/mtrl_blue_a400</item>
-
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-
+    <style name="AppTheme" parent="Base.AppTheme">
         <!-- Enable window content transition -->
         <item name="android:windowContentTransitions">true</item>
-
-        <!--<item name="android:windowEnterTransition">@android:transition/fade</item>
-        <item name="android:windowExitTransition">@android:transition/fade</item>-->
 
         <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>

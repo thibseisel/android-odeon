@@ -97,7 +97,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             public void onClick(View view) {
                 if (mListener != null) {
                     final int clickedPosition = holder.getAdapterPosition();
-                    mListener.onAlbumSelected(mAlbums.get(clickedPosition), holder);
+                    mListener.onAlbumSelected(holder, mAlbums.get(clickedPosition));
                 }
             }
         });
@@ -118,7 +118,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     public long getItemId(int position) {
         if (hasStableIds() && mAlbums != null) {
             final MediaItem item = mAlbums.get(position);
-            return Long.parseLong(MediaID.extractMusicIDFromMediaID(item.getMediaId()));
+            return Long.parseLong(MediaID.extractMusicID(item.getMediaId()));
         }
         return RecyclerView.NO_ID;
     }
@@ -135,7 +135,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     }
 
     interface OnAlbumSelectedListener {
-        void onAlbumSelected(MediaItem album, AlbumHolder holder);
+        void onAlbumSelected(AlbumHolder holder, MediaItem album);
     }
 
     static class AlbumHolder extends RecyclerView.ViewHolder {
@@ -151,7 +151,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
         AlbumHolder(View itemView) {
             super(itemView);
             band = itemView.findViewById(R.id.band);
-            albumArt = (ImageView) itemView.findViewById(R.id.albumArt);
+            albumArt = (ImageView) itemView.findViewById(R.id.cover);
             title = (TextView) itemView.findViewById(R.id.title);
             artist = (TextView) itemView.findViewById(R.id.artist);
         }

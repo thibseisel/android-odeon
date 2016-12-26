@@ -33,9 +33,8 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="?actionBarSize"
+            android:paddingBottom="@dimen/playerview_height"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
 
         <!-- Ombre de la bottomsheet -->
         <View
@@ -50,10 +49,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
-            android:clickable="true"
             app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            tools:targetApi="lollipop"/>
+            app:layout_behavior="@string/bottom_sheet_behavior"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->
