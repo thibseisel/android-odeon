@@ -53,11 +53,9 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                 ContextCompat.getColor(context, android.R.color.white)
         };
         Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp);
-        mGlideRequest = Glide.with(context)
-                .fromUri()
-                .asBitmap()
+        mGlideRequest = Glide.with(context).fromUri().asBitmap()
                 .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
-                .fitCenter()
+                .centerCrop()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
     }

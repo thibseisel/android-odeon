@@ -7,8 +7,8 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -24,7 +24,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,6 +39,7 @@ import java.util.List;
 import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
+import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
@@ -53,15 +54,21 @@ public class HomeActivity extends AppCompatActivity
 
     public static final int REQUEST_SETTINGS = 42;
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
-    private static final String TAG = "HomeActivity";
+    public static final String ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
+
     private static final String KEY_DAILY_SONG = "daily_song";
-    public static final String KEY_BOTTOMSHEET_STATE = "bottomsheet_state";
+    private static final String KEY_BOTTOMSHEET_STATE = "bottomsheet_state";
+
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;
     private MediaItem mDaily;
 
+    /**
+     * Called when MediaController has been attached to this Activity.
+     * Associate this controller to the PlayerView.
+     */
     private final ConnectedCallback mConnectionCallback = new ConnectedCallback() {
         @Override
         public void onConnected() {
@@ -71,7 +78,29 @@ public class HomeActivity extends AppCompatActivity
         }
     };
 
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+    /**
+     * Starts a random mix of all music as soon as the MediaController
+     * has been attached to the Activity.
+     */
+    private final ConnectedCallback mStartRandomMix = new ConnectedCallback() {
+        @Override
+        public void onConnected() {
+            MediaControllerCompat controller = MediaControllerCompat.getMediaController(HomeActivity.this);
+            if (controller != null) {
+                Bundle args = new Bundle(1);
+                args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
+                controller.getTransportControls()
+                        .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
+                controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
+            }
+        }
+    };
+
+    /**
+     * Called when the daily song is available.
+     * Display those informations as the Navigation Drawer's header.
+     */
+    private final SubscriptionCallback mDailySubscription = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
             if (children.size() > 0) {
@@ -92,8 +121,13 @@ public class HomeActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             if (PermissionUtil.hasExternalStoragePermission(this)) {
-                loadFirstFragment();
                 loadDailySong();
+                // Load a fragment depending on the intent that launched that activity (shortcuts)
+                if (!handleIntent(getIntent())) {
+                    // If intent is not handled, load default fragment
+                    mNavigationView.setCheckedItem(R.id.action_all);
+                    swapFragment(new SongListFragment());
+                }
             } else PermissionUtil.requestExternalStoragePermission(this);
         } else {
             mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
@@ -116,10 +150,20 @@ public class HomeActivity extends AppCompatActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    /**
+     * Allow dispatching media key events to the playback service for API < 21.
+     */
     @Override
-    protected void onDestroy() {
-        mPlayerView.setMediaController(null);
-        super.onDestroy();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_MEDIA_PLAY:
+                MediaControllerCompat controller = MediaControllerCompat.getMediaController(this);
+                if (controller != null) {
+                    controller.dispatchMediaButtonEvent(event);
+                    return true;
+                } else return false;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -127,6 +171,12 @@ public class HomeActivity extends AppCompatActivity
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_DAILY_SONG, mDaily);
         outState.putInt(KEY_BOTTOMSHEET_STATE, BottomSheetBehavior.from(mPlayerView).getState());
+    }
+
+    @Override
+    protected void onDestroy() {
+        mPlayerView.setMediaController(null);
+        super.onDestroy();
     }
 
     private void setupPlayerView() {
@@ -147,29 +197,18 @@ public class HomeActivity extends AppCompatActivity
                 });
     }
 
-    private void loadFirstFragment() {
-        Fragment firstFragment = new SongListFragment();
-        @IdRes int checkedItemId = R.id.action_all;
-        String callingAction = getIntent().getAction();
-
-        if (callingAction != null) {
-            switch (callingAction) {
-                case ACTION_ALBUMS:
-                    firstFragment = new AlbumGridFragment();
-                    checkedItemId = R.id.action_albums;
-                    break;
-            }
-        }
-
-        mNavigationView.setCheckedItem(checkedItemId);
-        swapFragment(firstFragment);
-    }
-
+    /**
+     * Ask the MediaBrowser to fetch information about the daily song.
+     * The daily song changes every time the app is open.
+     */
     private void loadDailySong() {
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .subscribe(MediaID.ID_DAILY, mSubscriptionCallback);
+                .subscribe(MediaID.ID_DAILY, mDailySubscription);
     }
 
+    /**
+     * Create and populate the Navigation Drawer.
+     */
     private void setupNavigationDrawer() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -221,44 +260,71 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called when an activity launched by this one exits and returns a result.
+     * This allows this activity to recreate itself if a preference that changed
+     * in {@link SettingsActivity} affects the visual state (such as the nightmode preference).
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == REQUEST_SETTINGS) && (resultCode == RESULT_OK)) {
+            // SettingsActivity asks this activity to restart in order to apply preference changes.
             recreate();
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Called when receiving an intent while the Activity is alive.
+     * This is intended to handle actions relative to launcher shortcuts (API25+).
+     * @param intent the new intent that was started for the activity
+     */
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d(TAG, "onNewIntent() called with: intent = [" + intent + "]");
         super.onNewIntent(intent);
-        // Peut peut-être recevoir les actions des raccourcis ?
+        handleIntent(intent);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) loadDailySong();
-            loadFirstFragment();
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Load daily song only if it has permission
+                loadDailySong();
+            }
+            // Whether it has permission or not, load fragment into interface
+            if (!handleIntent(getIntent())) {
+                mNavigationView.setCheckedItem(R.id.action_all);
+                swapFragment(new SongListFragment());
+            }
         }
     }
 
+    /**
+     * Replace the currently displayed fragment in the main container by the one specified.
+     * Previous fragment will be destroyed, as the transaction is not put onto the backstack.
+     * @param newFrag fragment to display in the main container
+     */
     private void swapFragment(Fragment newFrag) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, newFrag)
                 .commit();
     }
 
+    /**
+     * Prepare the Navigation Drawer header to display informations on the daily song.
+     * Clicking on the header will start playing that song.
+     * @param daily song to display as the Navigation Drawer header
+     */
     private void prepareHeaderView(final MediaItem daily) {
         if (daily != null) {
             Uri artUri = daily.getDescription().getIconUri();
             CharSequence title = daily.getDescription().getTitle();
             CharSequence subtitle = daily.getDescription().getSubtitle();
 
-            View header = mNavigationView.getHeaderView(0);
+            View header = getLayoutInflater().inflate(R.layout.drawer_header, mNavigationView, false);
+            mNavigationView.addHeaderView(header);
             final View band = header.findViewById(R.id.band);
             final TextView titleText = ((TextView) header.findViewById(R.id.title));
             final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
@@ -270,8 +336,7 @@ public class HomeActivity extends AppCompatActivity
             final Drawable dummyAlbumArt = ContextCompat.getDrawable(HomeActivity.this,
                     R.drawable.dummy_album_art);
 
-            Glide.with(HomeActivity.this).fromUri()
-                    .asBitmap()
+            Glide.with(this).fromUri().asBitmap()
                     .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
                     .centerCrop()
                     .load(artUri)
@@ -301,5 +366,38 @@ public class HomeActivity extends AppCompatActivity
                 }
             });
         }
+    }
+
+    /**
+     * Perform an action depending on the received intent.
+     * This is intended to handle actions relative to launcher shortcuts (API 25+).
+     * @param intent the intent that started this activity, or was received later
+     * @return true if intent was handled, false otherwise
+     */
+    private boolean handleIntent(@Nullable Intent intent) {
+        if (intent != null) {
+            switch (intent.getAction()) {
+                case ACTION_RANDOM:
+                    startRandomMix();
+                    return false;
+                case ACTION_ALBUMS:
+                    mNavigationView.setCheckedItem(R.id.action_albums);
+                    swapFragment(new AlbumGridFragment());
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Start playing a random mix of all songs in the music library.
+     * If MediaBrowser is not connected, playing will start asynchronously,
+     * as soon as the MediaBrowser is connected.
+     */
+    private void startRandomMix() {
+        MediaBrowserFragment mbf = MediaBrowserFragment.getInstance(getSupportFragmentManager());
+        if (mbf.isConnected()) {
+            mStartRandomMix.onConnected();
+        } else mbf.doWhenConnected(mStartRandomMix);
     }
 }

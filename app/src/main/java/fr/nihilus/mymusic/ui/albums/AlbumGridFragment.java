@@ -93,9 +93,9 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
 
     @Override
     public void onStop() {
-        super.onStop();
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
                 .unsubscribe(MediaID.ID_ALBUMS);
+        super.onStop();
     }
 
     @Override

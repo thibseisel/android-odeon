@@ -35,7 +35,7 @@ public class NestedScrollingLinearLayout extends LinearLayout implements NestedS
                 R.styleable.NestedScrollingLinearLayout, defStyleAttr, 0);
         try {
             ViewCompat.setNestedScrollingEnabled(this, a.getBoolean(
-                    R.styleable.NestedScrollingLinearLayout_nestedScrollingEnabled, false));
+                    R.styleable.NestedScrollingLinearLayout_nestedScrollingEnabled, true));
         } finally {
             a.recycle();
         }

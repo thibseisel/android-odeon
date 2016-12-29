@@ -56,8 +56,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
         @Override
         public void onReceive(Context context, Intent intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-                Log.d(TAG, "Headphones disconnected.");
-                // Pause playback if currently playing
                 Intent pauseIntent = new Intent(context, MusicService.class);
                 pauseIntent.setAction(MusicService.ACTION_CMD);
                 pauseIntent.putExtra(MusicService.CMD_NAME, MusicService.CMD_PAUSE);
@@ -91,10 +89,8 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
             mCallback.onPlaybackStatusChanged(mState);
         }
         mCurrentPosition = getCurrentStreamPosition();
-        // Give up Audio Focus
         giveUpAudioFocus();
         unregisterAudioNoisyReceiver();
-        // Relax all resources
         relaxResources(true);
     }
 
@@ -192,8 +188,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     }
 
     void seekTo(int position) {
-        Log.d(TAG, "seekTo: called with position " + position);
-
         if (mMediaPlayer == null) {
             // If we do not have a current media player, simply update the current position.
             mCurrentPosition = position;
@@ -213,7 +207,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      * Try to get the system audio focus.
      */
     private void tryToGetAudioFocus() {
-        Log.d(TAG, "tryToGetAudioFocus");
         if (mAudioFocus != AUDIO_FOCUSED) {
             int result = mAudioManager.requestAudioFocus(this,
                     AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
@@ -224,7 +217,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     }
 
     private void giveUpAudioFocus() {
-        Log.d(TAG, "giveUpAudioFocus");
         if (mAudioFocus == AUDIO_FOCUSED) {
             if (mAudioManager.abandonAudioFocus(this) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
@@ -243,7 +235,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      * where you are sure this is the case.
      */
     private void configMediaPlayerState() {
-        Log.d(TAG, "configMediaPlayerState. mAudioFocus=" + mAudioFocus);
         if (mAudioFocus == AUDIO_NO_FOCUS_NO_DUCK) {
             // If we don't have audio focus and can't duck, we have to pause
             if (mState == PlaybackStateCompat.STATE_PLAYING) {
@@ -262,7 +253,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
             // If we were playing when we lost focus, we need to resume playing.
             if (mPlayOnFocusGain) {
                 if (mMediaPlayer != null && !mMediaPlayer.isPlaying()) {
-                    Log.d(TAG, "configMediaPlayerState: seeking to " + mCurrentPosition);
                     mMediaPlayer.seekTo(mCurrentPosition);
                     mMediaPlayer.start();
                     mState = PlaybackStateCompat.STATE_PLAYING;
@@ -281,7 +271,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      */
     @Override
     public void onAudioFocusChange(int focusChange) {
-        Log.d(TAG, "onAudioFocusChange() called with: focusChange = [" + focusChange + "]");
         if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             // We have gained focus:
             mAudioFocus = AUDIO_FOCUSED;
@@ -302,7 +291,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
                 mPlayOnFocusGain = true;
             }
         } else {
-            Log.d(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
+            Log.w(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
         }
         configMediaPlayerState();
     }
@@ -313,11 +302,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     @Override
     public void onSeekComplete(MediaPlayer mp) {
         mCurrentPosition = mp.getCurrentPosition();
-        Log.d(TAG, "onSeekComplete: new position is " + mCurrentPosition);
-        /*if (mState == PlaybackStateCompat.STATE_BUFFERING) {
-            mMediaPlayer.start();
-            mState = PlaybackStateCompat.STATE_PLAYING;
-        }*/
         if (mCallback != null) {
             mCallback.onPlaybackStatusChanged(mState);
         }
@@ -330,7 +314,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      */
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        Log.d(TAG, "onCompletion from MediaPlayer");
         if (mCallback != null) {
             mCallback.onCompletion();
         }
@@ -343,7 +326,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      */
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        Log.d(TAG, "onPrepared from MediaPlayer");
         // The media player is done preparing.
         // That means we can start playing if we have audio focus.
         configMediaPlayerState();
@@ -373,7 +355,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      */
     private void createMediaPlayerIfNeeded() {
         if (mMediaPlayer == null) {
-            Log.d(TAG, "createMediaPlayerIfNeeded: creating new instance of MediaPlayer");
             mMediaPlayer = new MediaPlayer();
 
             // Make sure the media player will acquire a wake-lock while playing.
@@ -400,7 +381,6 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
      * @param releaseMediaPlayer Indicates whether the Media Player should also be released
      */
     private void relaxResources(boolean releaseMediaPlayer) {
-        Log.d(TAG, "relaxResources. releaseMediaPlayer=" + releaseMediaPlayer);
         mService.stopForeground(releaseMediaPlayer);
 
         // Stop and release the Media Player, if it's available

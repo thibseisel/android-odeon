@@ -74,7 +74,7 @@
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/level_list_play_pause"/>
+        app:srcCompat="@drawable/level_play_pause"/>
 
     <ImageView
         android:id="@+id/bigArt"
@@ -103,7 +103,7 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/skip_previous"
             android:padding="8dp"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_skip_previous_24dp"/>
 
         <ImageView
@@ -113,8 +113,7 @@
             android:layout_weight="1"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/play_or_pause"
-            android:padding="8dp"
-            app:srcCompat="@drawable/level_list_play_pause"/>
+            app:srcCompat="@drawable/level_play_pause_filled"/>
 
         <ImageView
             android:id="@+id/btn_next"
@@ -124,7 +123,7 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/skip_next"
             android:padding="8dp"
-            android:scaleType="centerInside"
+            android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_skip_next_24dp"/>
     </LinearLayout>
 

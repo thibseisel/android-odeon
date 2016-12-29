@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -76,6 +77,7 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     @Override
     public void onStart() {
         super.onStart();
+        getActivity().setTitle(R.string.action_artists);
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
                 .subscribe(MediaID.ID_ARTISTS, mSubscriptionCallback);
     }
@@ -103,10 +105,10 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
 
     @Override
     public void onArtistSelected(ArtistAdapter.ArtistHolder holder, MediaItem artist) {
-        // TODO Animation
         Fragment detail = ArtistDetailFragment.newInstance(artist);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, detail)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
     }

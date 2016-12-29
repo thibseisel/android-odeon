@@ -23,4 +23,8 @@
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
+
+    <style name="Widget.AppTheme.CardView" parent="Base.Widget.AppTheme.CardView">
+        <item name="android:stateListAnimator">@animator/card_state_list</item>
+    </style>
 </resources>

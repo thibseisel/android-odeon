@@ -32,7 +32,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     @Override
     public TrackHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.track_list_item, parent, false);
+        View v = inflater.inflate(R.layout.album_track_item, parent, false);
         return new TrackHolder(v);
     }
 

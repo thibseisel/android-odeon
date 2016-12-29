@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="?attr/selectableItemBackground"
+                android:paddingEnd="32dp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:paddingStart="32dp">
+
+    <ImageView
+        android:id="@+id/albumArt"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:gravity="center"
+        tools:src="@drawable/dummy_album"
+        android:contentDescription="@string/album_art"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/albumArt"
+        android:layout_toLeftOf="@+id/duration"
+        android:layout_toRightOf="@id/trackNo"
+        android:layout_toStartOf="@+id/duration"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textSize="16sp"
+        tools:text="Super longue chanson de Metallica"/>
+
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="?android:attr/textColorTertiary"
+        android:textSize="16sp"
+        tools:text="12:46"/>
+
+
+</RelativeLayout>

@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView
+    style="@style/Widget.AppTheme.CardView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:foreground="?selectableItemBackground"
-    style="@style/Widget.AppTheme.CardView">
+    android:layout_height="wrap_content">
 
     <android.support.percent.PercentRelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/cover"
+            android:id="@+id/albumArt"
             android:contentDescription="@string/album_art"
             android:scaleType="centerCrop"
-            app:layout_aspectRatio="178%"
+            app:layout_aspectRatio="@fraction/album_art_ratio"
             app:layout_widthPercent="100%"
-            tools:src="@drawable/dummy_album_art"/>
+            tools:src="@drawable/dummy_album"/>
 
         <TextView
-            android:id="@+id/artistName"
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cover"
+            android:layout_below="@id/albumArt"
+            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
             android:maxLines="1"
             android:ellipsize="end"
             android:padding="16dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            tools:text="Nom de l'artiste"/>
-
+            tools:text="Titre de l'album"/>
     </android.support.percent.PercentRelativeLayout>
+
 </android.support.v7.widget.CardView>

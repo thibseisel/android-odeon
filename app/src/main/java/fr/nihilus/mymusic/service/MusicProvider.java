@@ -9,6 +9,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.AlbumColumns;
 import android.provider.MediaStore.Audio.ArtistColumns;
+import android.provider.MediaStore.Audio.Artists;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
 import android.support.annotation.NonNull;
@@ -28,7 +29,6 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import fr.nihilus.mymusic.utils.MediaID;
-import fr.nihilus.mymusic.utils.MetadataStore;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ALBUM;
@@ -43,7 +43,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NU
 
 class MusicProvider implements AudioColumns {
 
-    private static final String METADATA_TITLE_KEY = "title_key";
+    static final String METADATA_TITLE_KEY = "title_key";
 
     private static final String TAG = "MusicProvider";
     private static final String[] ALBUM_PROJECTION = {BaseColumns._ID, AlbumColumns.ALBUM,
@@ -59,13 +59,15 @@ class MusicProvider implements AudioColumns {
     private final MetadataStore mMusicByAlbum;
     private final List<MediaMetadataCompat> mMusicAlpha;
     private final MetadataStore mMusicByArtist;
+    private final LongSparseArray<Uri> mArtistAlbumCache;
     private volatile int mCurrentState = NON_INITIALIZED;
 
     MusicProvider() {
         mMusicById = new LongSparseArray<>();
         mMusicAlpha = new ArrayList<>();
-        mMusicByAlbum = new MetadataStore();
-        mMusicByArtist = new MetadataStore();
+        mMusicByAlbum = new MetadataStore(MetadataStore.SORT_TYPE_TRACKNO);
+        mMusicByArtist = new MetadataStore(MetadataStore.SORT_TYPE_TITLE);
+        mArtistAlbumCache = new LongSparseArray<>();
     }
 
     /**
@@ -89,7 +91,7 @@ class MusicProvider implements AudioColumns {
      * You must call this method before querying song-related MediaItems.
      */
     @SuppressWarnings("WrongConstant")
-    void loadMetadata(Context context) {
+    void loadMetadata(@NonNull Context context) {
         if (!isInitialized()) {
             mCurrentState = INITIALIZING;
         }
@@ -151,14 +153,28 @@ class MusicProvider implements AudioColumns {
         mCurrentState = INITIALIZED;
     }
 
-    List<MediaMetadataCompat> getTracks(String albumId) {
+    List<MediaMetadataCompat> getAlbumTracks(String albumId) {
         if (!isInitialized()) {
-            Log.w(TAG, "getTracks: music library is not initialized yet.");
+            Log.w(TAG, "getAlbumTracks: music library is not initialized yet.");
             return Collections.emptyList();
         }
 
         List<MediaMetadataCompat> tracks = new ArrayList<>();
         Set<MediaMetadataCompat> set = mMusicByAlbum.get(Long.parseLong(albumId));
+        if (set != null) {
+            tracks.addAll(set);
+        }
+        return tracks;
+    }
+
+    List<MediaMetadataCompat> getArtistTracks(String artistId) {
+        if (!isInitialized()) {
+            Log.w(TAG, "getArtistTracks: music library is not initialized yet.");
+            return Collections.emptyList();
+        }
+
+        List<MediaMetadataCompat> tracks = new ArrayList<>();
+        Set<MediaMetadataCompat> set = mMusicByArtist.get(Long.parseLong(artistId));
         if (set != null) {
             tracks.addAll(set);
         }
@@ -221,7 +237,7 @@ class MusicProvider implements AudioColumns {
             return Collections.emptyList();
         }
 
-        List<MediaItem> result = new ArrayList<>();
+        List<MediaItem> result = new ArrayList<>(cursor.getCount());
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
 
         final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
@@ -259,9 +275,9 @@ class MusicProvider implements AudioColumns {
      * @param albumMediaId mediaId the album from which get the list of song
      * @return list of songs released in this album
      */
-    List<MediaItem> getTracksItems(String albumMediaId) {
+    List<MediaItem> getAlbumTracksItems(String albumMediaId) {
         if (!isInitialized()) {
-            Log.w(TAG, "getTracksItems: music library is not initialized yet.");
+            Log.w(TAG, "getAlbumTracksItems: music library is not initialized yet.");
             return Collections.emptyList();
         }
 
@@ -269,7 +285,7 @@ class MusicProvider implements AudioColumns {
         SortedSet<MediaMetadataCompat> tracks = mMusicByAlbum.get(albumId);
 
         if (tracks == null) {
-            Log.w(TAG, "getTracksItems: no album with mediaId=" + albumMediaId);
+            Log.w(TAG, "getAlbumTracksItems: no album with mediaId=" + albumMediaId);
             return Collections.emptyList();
         }
 
@@ -290,7 +306,6 @@ class MusicProvider implements AudioColumns {
                     .setExtras(extras);
             result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
         }
-        Log.d(TAG, "getTracksItems: loaded " + result.size() + " items");
         return result;
     }
 
@@ -305,10 +320,11 @@ class MusicProvider implements AudioColumns {
         }
 
         Cursor cursor = context.getContentResolver()
-                .query(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
-                        null, null, MediaStore.Audio.Artists.DEFAULT_SORT_ORDER);
+                .query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
+                        null, null, Artists.DEFAULT_SORT_ORDER);
 
         if (cursor == null) {
+            Log.w(TAG, "getArtistItems: aborting. No artist found.");
             return Collections.emptyList();
         }
 
@@ -324,7 +340,6 @@ class MusicProvider implements AudioColumns {
             final long artistId = cursor.getLong(colId);
             final String mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, String.valueOf(artistId));
 
-            // TODO AlbumArt le plus récent (CursorJoiner et MatrixCursor)
             builder.setMediaId(mediaId)
                     .setTitle(cursor.getString(name));
             Bundle extras = new Bundle();
@@ -332,10 +347,93 @@ class MusicProvider implements AudioColumns {
             extras.putInt(ArtistColumns.NUMBER_OF_TRACKS, cursor.getInt(trackCount));
             builder.setExtras(extras);
 
+            Uri mostRecentAlbumArtUri = mArtistAlbumCache.get(artistId);
+            if (mostRecentAlbumArtUri == null) {
+                final Cursor c = context.getContentResolver()
+                        .query(Artists.Albums.getContentUri("external", artistId),
+                                new String[]{BaseColumns._ID}, null, null,
+                                AudioColumns.YEAR + " DESC");
+                if (c != null && c.moveToFirst()) {
+                    long albumId = c.getLong(c.getColumnIndex(BaseColumns._ID));
+                    mostRecentAlbumArtUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
+                    mArtistAlbumCache.put(artistId, mostRecentAlbumArtUri);
+                    c.close();
+                }
+            }
+            builder.setIconUri(mostRecentAlbumArtUri);
             result.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE));
         }
 
         cursor.close();
+        return result;
+    }
+
+    List<MediaItem> getArtistChildren(@NonNull Context context, @NonNull String artistId) {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            return Collections.emptyList();
+        }
+
+        long longId = Long.parseLong(artistId);
+        Cursor cursor = context.getContentResolver()
+                .query(Artists.Albums.getContentUri("external", longId), ALBUM_PROJECTION,
+                        null, null, null);
+        if (cursor == null) {
+            Log.e(TAG, "getArtistChildren: artist albums query failed Aborting.");
+            return Collections.emptyList();
+        }
+
+        List<MediaItem> result = new ArrayList<>(cursor.getCount());
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+
+        final int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);
+        final int colTitle = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM);
+        final int colKey = cursor.getColumnIndexOrThrow(AlbumColumns.ALBUM_KEY);
+        final int colArtist = cursor.getColumnIndexOrThrow(AlbumColumns.ARTIST);
+        final int colYear = cursor.getColumnIndexOrThrow(AlbumColumns.LAST_YEAR);
+        final int colSongCount = cursor.getColumnIndexOrThrow(AlbumColumns.NUMBER_OF_SONGS);
+
+        while (cursor.moveToNext()) {
+            final long albumId = cursor.getLong(colId);
+            final String mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, String.valueOf(albumId));
+            final Uri artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId);
+
+            builder.setMediaId(mediaId)
+                    .setTitle(cursor.getString(colTitle))
+                    .setSubtitle(cursor.getString(colArtist))
+                    .setIconUri(artUri);
+            Bundle extras = new Bundle(3);
+            extras.putString(AlbumColumns.ALBUM_KEY, cursor.getString(colKey));
+            extras.putInt(AlbumColumns.NUMBER_OF_SONGS, cursor.getInt(colSongCount));
+            extras.putInt(AlbumColumns.LAST_YEAR, cursor.getInt(colYear));
+            builder.setExtras(extras);
+
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE | MediaItem.FLAG_PLAYABLE));
+        }
+        cursor.close();
+
+        SortedSet<MediaMetadataCompat> trackSet = mMusicByArtist.get(longId);
+        if (trackSet != null) {
+            for (MediaMetadataCompat meta : trackSet) {
+                long trackId = Long.parseLong(meta.getString(METADATA_KEY_MEDIA_ID));
+                String mediaId = MediaID.createMediaID(String.valueOf(trackId), MediaID.ID_ARTISTS, artistId);
+                long duration = meta.getLong(METADATA_KEY_DURATION);
+                String albumArtUri = meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI);
+                Bundle extras = new Bundle(2);
+                extras.putLong(METADATA_KEY_DISC_NUMBER, meta.getLong(METADATA_KEY_DISC_NUMBER));
+                extras.putLong(METADATA_KEY_TRACK_NUMBER, meta.getLong(METADATA_KEY_TRACK_NUMBER));
+
+                builder.setMediaId(mediaId)
+                        .setTitle(meta.getString(METADATA_KEY_TITLE))
+                        .setSubtitle(DateUtils.formatElapsedTime(duration / 1000))
+                        .setExtras(extras);
+                if (albumArtUri != null) {
+                    builder.setIconUri(Uri.parse(albumArtUri));
+                }
+                result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
+            }
+        }
+
         return result;
     }
 

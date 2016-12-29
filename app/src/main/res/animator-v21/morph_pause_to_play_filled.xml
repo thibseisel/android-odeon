@@ -4,7 +4,6 @@
     android:duration="300"
     android:interpolator="@android:interpolator/fast_out_slow_in"
     android:propertyName="pathData"
-    android:valueFrom="@string/path_pause"
-    android:valueTo="@string/path_play"
+    android:valueFrom="@string/path_pause_filled"
+    android:valueTo="@string/path_play_filled"
     android:valueType="pathType"/>
-

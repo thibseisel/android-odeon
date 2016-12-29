@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.utils;
+package fr.nihilus.mymusic.service;
 
 
 import android.support.annotation.Nullable;
@@ -9,18 +9,27 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class MetadataStore {
+class MetadataStore {
+
+    public static final int SORT_TYPE_TRACKNO = 0;
+    public static final int SORT_TYPE_TITLE = 1;
 
     private final LongSparseArray<SortedSet<MediaMetadataCompat>> mSparseArray;
+    private final int mSortType;
 
-    public MetadataStore() {
+    MetadataStore(int sortType) {
         mSparseArray = new LongSparseArray<>();
+        mSortType = sortType;
     }
 
-    public void put(long id, MediaMetadataCompat metadata) {
+    void put(long id, MediaMetadataCompat metadata) {
         SortedSet<MediaMetadataCompat> set = mSparseArray.get(id);
         if (set == null) {
-            set = new TreeSet<>(SORT_TRACKNO);
+            final Comparator<MediaMetadataCompat> comparator;
+            if (mSortType == SORT_TYPE_TRACKNO) comparator = SORT_TRACKNO;
+            else comparator = SORT_TITLE;
+
+            set = new TreeSet<>(comparator);
             mSparseArray.put(id, set);
         }
         set.add(metadata);
@@ -43,6 +52,19 @@ public class MetadataStore {
             long anotherTrack = another.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER) * 100
                     + another.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
             return (int) (oneTrack - anotherTrack);
+        }
+    };
+
+    @SuppressWarnings("WrongConstant")
+    private static final Comparator<MediaMetadataCompat> SORT_TITLE = new Comparator<MediaMetadataCompat>() {
+        @Override
+        public int compare(MediaMetadataCompat one, MediaMetadataCompat another) {
+            String oneKey = one.getString(MusicProvider.METADATA_TITLE_KEY);
+            String anotherKey = another.getString(MusicProvider.METADATA_TITLE_KEY);
+            if (oneKey != null && anotherKey != null) {
+                return oneKey.compareTo(anotherKey);
+            }
+            return 0;
         }
     };
 }

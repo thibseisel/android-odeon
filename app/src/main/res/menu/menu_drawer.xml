@@ -21,7 +21,7 @@
                     android:icon="@drawable/ic_person_24dp"
                     android:title="@string/action_artists"/>
 
-                <item
+                <!--<item
                     android:id="@+id/action_playlist"
                     android:icon="@drawable/ic_playlist_24dp"
                     android:title="@string/action_playlists"/>
@@ -29,7 +29,7 @@
                 <item
                     android:id="@+id/action_favorites"
                     android:icon="@drawable/ic_star_24dp"
-                    android:title="@string/favorites"/>
+                    android:title="@string/favorites"/>-->
             </group>
         </menu>
     </item>
@@ -39,9 +39,9 @@
             android:icon="@drawable/ic_settings_24dp"
             android:title="@string/action_settings"/>
 
-        <item
+        <!--<item
             android:id="@+id/action_about"
             android:icon="@drawable/ic_info_outline_24dp"
-            android:title="@string/action_about"/>
+            android:title="@string/action_about"/>-->
     </group>
 </menu>

@@ -26,7 +26,7 @@ import java.util.List;
 
 /**
  * A {@link SectionIndexer} that allows FastScrolling and indexing in a list of {@link MediaItem}.
- * Sort categories are built upon the first letter of the item title.
+ * Sort categories are built upon the first letter of the item's title.
  * Titles that does not start with a letter A-Z falls under the # category.
  */
 public class MediaItemIndexer extends DataSetObserver implements SectionIndexer {

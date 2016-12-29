@@ -1,7 +1,6 @@
 package fr.nihilus.mymusic.service;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -14,12 +13,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -59,12 +58,13 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public static final String CMD_PLAY = "CMD_PLAY";
     public static final String CMD_NEXT = "CMD_NEXT";
     public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
-    public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.RANDOM";
+    public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
     public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
     public static final String CUSTOM_ACTION_LOOP = "fr.nihilus.mymusic.LOOP";
 
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
+    public static final int REQUEST_HOME_ACTIVITY_PLAYER = 99;
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
@@ -83,34 +83,38 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mMusicProvider = new MusicProvider();
         mPlayingQueue = new LinkedList<>();
 
-        mPlayback = new Playback(this);
-        mPlayback.setState(PlaybackStateCompat.STATE_NONE);
-        mPlayback.setCallback(this);
+        // Create an Intent that will start MediaSession when receiving mediabutton events
+        Intent mediaButtonIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        mediaButtonIntent.setClass(this, MusicService.class);
+        PendingIntent mbrIntent = PendingIntent.getService(this, 0, mediaButtonIntent, 0);
 
-        // Création de la MediaSession
-        ComponentName mediaButtonReceiver = new ComponentName(this, RemoteControlReceiver.class);
+        // Initiate MediaSession
+        ComponentName mbrComponent = new ComponentName(this, MediaButtonReceiver.class);
         mSession = new MediaSessionCompat(this, MusicService.class.getSimpleName(),
-                mediaButtonReceiver, null);
+                mbrComponent, mbrIntent);
         setSessionToken(mSession.getSessionToken());
         mSession.setCallback(new MediaSessionCallback());
-
-        // Utile uniquement pour l'API < 21
         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        // Crée un Intent permettant d'afficher une interface graphique liée à la MediaSession
+        // Restarts an inactive MediaSession with media button events in API 21+
+        mSession.setMediaButtonReceiver(mbrIntent);
+
+        // Associate an UI to this MediaSession
         Context context = getApplicationContext();
         Intent intent = new Intent(context, HomeActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(context, 99 /* Request code */,
+        PendingIntent pi = PendingIntent.getActivity(context, REQUEST_HOME_ACTIVITY_PLAYER,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mSession.setSessionActivity(pi);
 
-        updatePlaybackState(null);
-
+        // Prepare playback
+        mPlayback = new Playback(this);
+        mPlayback.setState(PlaybackStateCompat.STATE_NONE);
+        mPlayback.setCallback(this);
         mMediaNotificationManager = new MediaNotificationManager(this);
 
-        // Lecture aléatoire active ?
         mRandomEnabled = Prefs.isRandomPlayingEnabled(this);
+        updatePlaybackState(null);
     }
 
     @Nullable
@@ -144,18 +148,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 break;
             case ID_ALBUMS:
                 if (hierarchy.length > 1) {
-                    Log.d(TAG, "onLoadChildren: loading tracks from album " + hierarchy[1]);
-                    result.sendResult(mMusicProvider.getTracksItems(parentId));
+                    result.sendResult(mMusicProvider.getAlbumTracksItems(parentId));
                 } else {
-                    Log.d(TAG, "onLoadChildren: loading all albums");
                     result.sendResult(mMusicProvider.getAlbumItems(this));
                 }
                 break;
             case ID_ARTISTS:
                 if (hierarchy.length > 1) {
                     Log.d(TAG, "onLoadChildren: loading detail of artist " + hierarchy[1]);
-                    // TODO getArtistDetails
-                    result.sendResult(Collections.<MediaItem>emptyList());
+                    result.sendResult(mMusicProvider.getArtistChildren(this, hierarchy[1]));
                 } else {
                     Log.d(TAG, "onLoadChildren: loading all artists");
                     result.sendResult(mMusicProvider.getArtistItems(this));
@@ -174,6 +175,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        MediaButtonReceiver.handleIntent(mSession, intent);
         if (intent != null) {
             String action = intent.getAction();
             String command = intent.getStringExtra(CMD_NAME);
@@ -200,10 +202,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     @Override
     public void onDestroy() {
         handleStopRequest(null);
-
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mSession.release();
-
         super.onDestroy();
     }
 
@@ -236,7 +236,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void handlePauseRequest() {
-        Log.d(TAG, "handlePauseRequest: mState=" + mPlayback.getState());
         mPlayback.pause();
         // Reset the delayed stop handler.
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -249,7 +248,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      * @param withError an optional error message that leads the service to stop
      */
     private void handleStopRequest(@Nullable String withError) {
-        Log.d(TAG, "handleStopRequest: mState=" + mPlayback.getState() + " error=" + withError);
         mPlayback.stop(true);
         // Reset the delayed stop handler.
         mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -269,7 +267,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      * @param withError message d'erreur optionnel, ou null s'il n'y a pas d'erreur
      */
     private void updatePlaybackState(@Nullable String withError) {
-        Log.d(TAG, "updatePlaybackState, playback state=" + mPlayback.getState());
         long position = PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
         if (mPlayback != null) {
             position = mPlayback.getCurrentStreamPosition();
@@ -339,8 +336,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void handlePlayRequest() {
-        Log.d(TAG, "handlePlayRequest: mState=" + mPlayback.getState());
-
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         if (!mServiceStarted) {
             Log.v(TAG, "Starting service");
@@ -384,7 +379,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 Log.e(TAG, "updateMetadata: illegal state", e);
                 throw e;
             }
-            Log.d(TAG, "updateMetadata: musicId=" + musicId);
             mSession.setMetadata(track);
             Prefs.setLastPlayedMediaId(this, mediaId);
         }
@@ -496,41 +490,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     /**
-     * Un BroadcastReceiver qui notifie le service lorsqu'un bouton média est pressé, par exemple
-     * le bouton d'un casque filaire ou Bluetooth.
-     */
-    public static class RemoteControlReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-                KeyEvent event = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                Intent musicService = new Intent(context, MusicService.class);
-                musicService.setAction(ACTION_CMD);
-
-                switch (event.getKeyCode()) {
-                    case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        musicService.putExtra(CMD_NAME, CMD_PLAY);
-                        context.startService(musicService);
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        musicService.putExtra(CMD_NAME, CMD_PAUSE);
-                        context.startService(musicService);
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        musicService.putExtra(CMD_NAME, CMD_NEXT);
-                        context.startService(musicService);
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        musicService.putExtra(CMD_NAME, CMD_PREVIOUS);
-                        context.startService(musicService);
-                        break;
-                }
-            }
-        }
-    }
-
-    /**
      * Callbacks envoyés au service par le MediaController pour transmettre les commandes.
      */
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
@@ -544,8 +503,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            Log.d(TAG, "onPlayFromMediaId:" + "mediaId = [" + mediaId + "]");
-
             mPlayingQueue = QueueHelper.getPlayingQueue(mediaId, mMusicProvider);
             if (mRandomEnabled) QueueHelper.shuffleQueue(mPlayingQueue);
             else QueueHelper.sortQueue(mPlayingQueue);
@@ -566,7 +523,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         @Override
         public void onSkipToQueueItem(long queueId) {
             if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
-                // Met à jour l'index de l'item joué actuellement
                 mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, queueId);
                 handlePlayRequest();
             }
@@ -574,7 +530,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         @Override
         public void onPause() {
-            Log.d(TAG, "onPause: currentState=" + mPlayback.getState());
             handlePauseRequest();
         }
 
@@ -590,13 +545,11 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
         @Override
         public void onStop() {
-            Log.d(TAG, "onStop: currentState=" + mPlayback.getState());
             handleStopRequest(null);
         }
 
         @Override
         public void onSeekTo(long position) {
-            Log.d(TAG, "onSeekTo: " + position);
             mPlayback.seekTo((int) position);
         }
 
@@ -614,6 +567,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                 }
             }
+        }
+
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            if (mediaButtonEvent != null) {
+                Log.d(TAG, "onMediaButtonEvent: keyEvent="
+                        + mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
+            }
+            return super.onMediaButtonEvent(mediaButtonEvent);
         }
     }
 }

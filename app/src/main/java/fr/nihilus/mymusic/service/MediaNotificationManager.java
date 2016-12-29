@@ -55,13 +55,13 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private MediaControllerCompat.TransportControls mTransportControls;
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
+    private final Bitmap mDummyAlbumArt;
     private boolean mStarted = false;
 
     private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mPlaybackState = state;
-            Log.d(TAG, "Received new playback state " + state);
             if (state != null && (state.getState() == PlaybackStateCompat.STATE_STOPPED
                     || state.getState() == PlaybackStateCompat.STATE_NONE)) {
                 stopNotification();
@@ -85,8 +85,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         @Override
         public void onSessionDestroyed() {
-            super.onSessionDestroyed();
-            Log.d(TAG, "Session was destroyed, resetting to the new session token");
             updateSessionToken();
         }
     };
@@ -97,7 +95,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         mNotificationManager = (NotificationManager)
                 mService.getSystemService(Context.NOTIFICATION_SERVICE);
-
         String pkg = mService.getPackageName();
         mPauseIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
                 new Intent(ACTION_PAUSE).setPackage(pkg),
@@ -112,9 +109,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 new Intent(ACTION_NEXT).setPackage(pkg),
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
-        // Annule toutes les notifications pour gérer le cas où
-        // le service serait arrêté par le système.
+        // Cancel all notifications in case the service may have been stopped by the system
         mNotificationManager.cancelAll();
+
+        mDummyAlbumArt = BitmapFactory.decodeResource(service.getResources(),
+                R.drawable.dummy_album_art);
     }
 
     public void startNotification() {
@@ -156,7 +155,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
-        Log.d(TAG, "onReceive: intent with action=" + action);
         switch (action) {
             case ACTION_PAUSE:
                 mTransportControls.pause();
@@ -189,7 +187,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                     mController.registerCallback(mCallback);
                 }
             } catch (RemoteException | NullPointerException e) {
-                Log.e(TAG, "updateSessionToken: erreur à la création du MediaController.", e);
+                Log.e(TAG, "updateSessionToken: error when creating MediaController.", e);
             }
         }
     }
@@ -202,7 +200,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
     }
 
     private Notification createNotification() {
-        Log.d(TAG, "createNotification: mMetadata=" + mMetadata);
         if (mMetadata == null || mPlaybackState == null) {
             return null;
         }
@@ -235,10 +232,9 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 : R.drawable.notif_pause;
 
         int colorAccent = ViewUtils.resolveThemeColor(mService, R.attr.colorAccent);
+        Log.d(TAG, "createNotification: accentColor for notification=" + colorAccent);
 
         MediaDescriptionCompat description = mMetadata.getDescription();
-        Bitmap placeholder = BitmapFactory.decodeResource(mService.getResources(),
-                R.drawable.dummy_album_art);
 
         notifBuilder.setStyle(new NotificationCompat.MediaStyle()
                 // N'affiche que le play/pause en mode compact
@@ -251,7 +247,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .setContentIntent(createContentIntent())
                 .setContentTitle(description.getTitle())
                 .setContentText(description.getSubtitle())
-                .setLargeIcon(placeholder);
+                .setLargeIcon(mDummyAlbumArt);
 
         setNotificationPlaybackState(notifBuilder);
         fetchAlbumArtAsync(description.getIconUri(), notifBuilder);

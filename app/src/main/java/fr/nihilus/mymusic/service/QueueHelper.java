@@ -87,11 +87,11 @@ final class QueueHelper {
                 break;
             case MediaID.ID_ALBUMS:
                 String albumId = hierarchy[1];
-                tracks = provider.getTracks(albumId);
+                tracks = provider.getAlbumTracks(albumId);
                 break;
             case MediaID.ID_ARTISTS:
                 String artistId = hierarchy[1];
-                // TODO Artist tracks
+                tracks = provider.getArtistTracks(artistId);
                 break;
             case MediaID.ID_DAILY:
                 MediaMetadataCompat daily = provider.getMusic(musicId);
@@ -108,11 +108,11 @@ final class QueueHelper {
         return convertToQueue(tracks, hierarchy);
     }
 
-    public static void shuffleQueue(List<QueueItem> queue) {
+    static void shuffleQueue(List<QueueItem> queue) {
         Collections.shuffle(queue);
     }
 
-    public static void sortQueue(List<QueueItem> queue) {
+    static void sortQueue(List<QueueItem> queue) {
         Collections.sort(queue, new Comparator<QueueItem>() {
             @Override
             public int compare(QueueItem one, QueueItem another) {
