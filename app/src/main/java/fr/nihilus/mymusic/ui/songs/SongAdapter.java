@@ -39,7 +39,7 @@ class SongAdapter extends BaseAdapter implements SectionIndexer {
         mSongs = songs;
         mIndexer = new MediaItemIndexer(songs);
         registerDataSetObserver(mIndexer);
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.dummy_album_art);
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp);
         mGlideRequest = Glide.with(context)
                 .fromUri()
                 .asBitmap()

@@ -26,6 +26,7 @@
         tools:progress="100"/>
 
     <LinearLayout
+        android:id="@+id/textContainer"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/playerview_height"
         android:layout_alignBottom="@id/cover"
@@ -84,7 +85,7 @@
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
         android:layout_above="@+id/buttonBar"
-        tools:src="@drawable/dummy_album_art"/>
+        tools:src="@drawable/ic_audiotrack_24dp"/>
 
     <LinearLayout
         android:id="@+id/buttonBar"

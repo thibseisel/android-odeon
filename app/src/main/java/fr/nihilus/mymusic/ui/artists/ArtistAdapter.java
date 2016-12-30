@@ -33,7 +33,7 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
     ArtistAdapter(@NonNull Context context, List<MediaItem> artists) {
         mItems = artists;
-        Drawable dummyCover = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art);
+        Drawable dummyCover = AppCompatResources.getDrawable(context, R.drawable.ic_person_24dp);
         mGlide = Glide.with(context).fromUri().asBitmap()
                 .error(dummyCover)
                 .centerCrop()

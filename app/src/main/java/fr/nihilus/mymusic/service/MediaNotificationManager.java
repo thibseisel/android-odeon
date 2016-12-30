@@ -11,15 +11,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.annotation.DrawableRes;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
 
 import com.bumptech.glide.Glide;
@@ -231,7 +232,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 ? R.drawable.notif_play_arrow
                 : R.drawable.notif_pause;
 
-        int colorAccent = ViewUtils.resolveThemeColor(mService, R.attr.colorAccent);
+        int colorAccent = ViewUtils.resolveThemeColor(mService.getApplicationContext(), R.attr.colorAccent);
         Log.d(TAG, "createNotification: accentColor for notification=" + colorAccent);
 
         MediaDescriptionCompat description = mMetadata.getDescription();
@@ -256,7 +257,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
     }
 
     private void addPlayPauseButton(NotificationCompat.Builder builder) {
-        Log.d(TAG, "updatePlayPauseAction");
         String label;
         @DrawableRes int icon;
         PendingIntent intent;
@@ -298,7 +298,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
     }
 
     private void fetchAlbumArtAsync(final Uri artUri, final NotificationCompat.Builder builder) {
-        Drawable placeholder = ContextCompat.getDrawable(mService, R.drawable.dummy_album_art);
+        Drawable placeholder = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // FIXME Pre-lollipop don't like Vector whatever I do
+            placeholder = AppCompatResources.getDrawable(mService.getApplicationContext(), R.drawable.ic_audiotrack_24dp);
+        }
         Glide.with(mService.getApplicationContext())
                 .load(artUri).asBitmap()
                 .error(placeholder)

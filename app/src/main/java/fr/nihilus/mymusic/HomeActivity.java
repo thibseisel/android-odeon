@@ -12,7 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -21,9 +21,11 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,6 +44,7 @@ import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
+import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
 import fr.nihilus.mymusic.ui.songs.SongListFragment;
 import fr.nihilus.mymusic.utils.MediaID;
@@ -51,6 +54,8 @@ import fr.nihilus.mymusic.view.PlayerView;
 @SuppressWarnings("ConstantConditions")
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final String TAG = "HomeActivity";
 
     public static final int REQUEST_SETTINGS = 42;
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
@@ -222,6 +227,8 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        getSupportFragmentManager().popBackStackImmediate(ArtistDetailFragment.BACKSTACK_ENTRY,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE);
         onOptionsItemSelected(item);
         mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -324,21 +331,26 @@ public class HomeActivity extends AppCompatActivity
             CharSequence subtitle = daily.getDescription().getSubtitle();
 
             View header = getLayoutInflater().inflate(R.layout.drawer_header, mNavigationView, false);
-            mNavigationView.addHeaderView(header);
+
             final View band = header.findViewById(R.id.band);
-            final TextView titleText = ((TextView) header.findViewById(R.id.title));
-            final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
             ImageView albumArtView = (ImageView) header.findViewById(R.id.cover);
 
+            final TextView titleText = ((TextView) header.findViewById(R.id.title));
             titleText.setText(title);
+
+            final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
             subtitleText.setText(subtitle);
 
-            final Drawable dummyAlbumArt = ContextCompat.getDrawable(HomeActivity.this,
-                    R.drawable.dummy_album_art);
+            // If header is already added, don't add it twice
+            if (mNavigationView.getHeaderView(0) == null) {
+                mNavigationView.addHeaderView(header);
+            }
+
+            final Drawable dummyAlbumArt = AppCompatResources.getDrawable(HomeActivity.this,
+                    R.drawable.ic_audiotrack_24dp);
 
             Glide.with(this).fromUri().asBitmap()
                     .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
-                    .centerCrop()
                     .load(artUri)
                     .error(dummyAlbumArt)
                     .centerCrop()
@@ -375,7 +387,8 @@ public class HomeActivity extends AppCompatActivity
      * @return true if intent was handled, false otherwise
      */
     private boolean handleIntent(@Nullable Intent intent) {
-        if (intent != null) {
+        Log.d(TAG, "handleIntent: " + intent.getAction());
+        if (intent != null && intent.getAction() != null) {
             switch (intent.getAction()) {
                 case ACTION_RANDOM:
                     startRandomMix();

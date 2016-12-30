@@ -109,7 +109,7 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, detail)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
+                .addToBackStack(ArtistDetailFragment.BACKSTACK_ENTRY)
                 .commit();
     }
 

@@ -30,7 +30,7 @@
         android:layout_toRightOf="@id/trackNo"
         android:layout_toStartOf="@+id/duration"
         android:ellipsize="end"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|start"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="16sp"
@@ -49,7 +49,7 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textColor="?android:attr/textColorTertiary"
-        android:textSize="16sp"
+        android:textSize="14sp"
         tools:text="12:46"/>
 
 

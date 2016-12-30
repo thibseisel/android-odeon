@@ -12,13 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.percent.PercentRelativeLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -101,13 +101,12 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, 4));
         // Prevent from dispatching touches to the view behind
         setClickable(true);
-        setOnClickListener(this);
 
         if (isInEditMode()) {
             return;
         }
 
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.dummy_album_art);
+        Drawable dummyAlbumArt = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp);
         mGlideRequest = Glide.with(context).fromUri()
                 .asBitmap()
                 .fitCenter()
@@ -128,6 +127,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
+
+        findViewById(R.id.textContainer).setOnClickListener(this);
 
         mBigArt = (ImageView) findViewById(R.id.bigArt);
 
@@ -226,7 +227,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        if (view == this) {
+        if (view.getId() == R.id.textContainer) {
             BottomSheetBehavior.from(this).setState(BottomSheetBehavior.STATE_EXPANDED);
             return;
         }

@@ -1,5 +1,7 @@
 package fr.nihilus.mymusic.ui.songs;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,15 +12,14 @@ import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
             mSongs = savedInstanceState.getParcelableArrayList(KEY_SONGS);
@@ -80,6 +80,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         mListContainer = view.findViewById(R.id.list_container);
 
         mListView = (ListView) view.findViewById(R.id.list);
+        setupListHeader();
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
@@ -95,6 +96,15 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         }
     }
 
+    private void setupListHeader() {
+        final Context context = getContext();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        View headerView = inflater.inflate(R.layout.random_button, mListView, false);
+        Drawable icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_primary);
+        ((TextView) headerView.findViewById(R.id.text)).setCompoundDrawables(icRandom, null, null, null);
+        mListView.addHeaderView(headerView);
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -104,17 +114,17 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(ID_MUSIC);
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(KEY_SONGS, mSongs);
         outState.putInt(KEY_SCROLL, mListView.getFirstVisiblePosition());
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .unsubscribe(ID_MUSIC);
     }
 
     @Override
@@ -127,33 +137,18 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        MediaItem clickedItem = mAdapter.getItem(position);
         MediaControllerCompat controller = getMediaController(getActivity());
-        if (controller != null && clickedItem.isPlayable()) {
-            controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
-        }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_songlist, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (R.id.action_random == item.getItemId()) {
-            MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
-            if (controller != null) {
-                // Active le mode aléatoire et joue la totalité des chansons
+        if (controller != null) {
+            if (position == 0) {
                 Bundle extras = new Bundle();
                 extras.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
-                controller.getTransportControls()
-                        .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, extras);
-                controller.getTransportControls().playFromMediaId(
-                        MediaID.createMediaID(null, ID_MUSIC), null);
+                controller.getTransportControls().sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, extras);
+                controller.getTransportControls().playFromMediaId(MediaID.createMediaID(null, ID_MUSIC), null);
+            } else {
+                // Offset the position as the header is considered at position 0
+                MediaItem clickedItem = mAdapter.getItem(position - 1);
+                controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
             }
-            return true;
         }
-        return super.onOptionsItemSelected(item);
     }
 }

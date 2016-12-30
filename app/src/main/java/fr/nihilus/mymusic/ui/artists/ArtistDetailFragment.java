@@ -28,6 +28,8 @@ import fr.nihilus.mymusic.ui.albums.AlbumDetailActivity;
 public class ArtistDetailFragment extends Fragment
         implements ArtistDetailAdapter.OnMediaItemSelectedListener {
 
+    public static final String BACKSTACK_ENTRY = "artist_detail";
+
     private static final String TAG = "ArtistDetailFragment";
     private static final String KEY_ARTIST = "artist";
     private static final String KEY_ARTIST_DETAIL = "artist_detail";
