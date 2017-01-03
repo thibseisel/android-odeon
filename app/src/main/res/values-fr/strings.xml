@@ -31,4 +31,5 @@
     <string name="home_screen">Écran d\'accueil</string>
     <string name="random_mix">Mix aléatoire</string>
     <string name="empty_artist">Aucun artiste</string>
+    <string name="action_delete">Supprimer</string>
 </resources>

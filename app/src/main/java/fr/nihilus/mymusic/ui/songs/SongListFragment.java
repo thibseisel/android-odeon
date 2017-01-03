@@ -14,12 +14,17 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +37,8 @@ import fr.nihilus.mymusic.utils.MediaID;
 import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
 import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
 
-public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class SongListFragment extends Fragment
+        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SONGS = "MediaItems";
@@ -96,15 +102,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         }
     }
 
-    private void setupListHeader() {
-        final Context context = getContext();
-        final LayoutInflater inflater = LayoutInflater.from(context);
-        View headerView = inflater.inflate(R.layout.random_button, mListView, false);
-        Drawable icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_primary);
-        ((TextView) headerView.findViewById(R.id.text)).setCompoundDrawables(icRandom, null, null, null);
-        mListView.addHeaderView(headerView);
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -135,6 +132,15 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         super.onDestroyView();
     }
 
+    private void setupListHeader() {
+        final Context context = getContext();
+        final LayoutInflater inflater = LayoutInflater.from(context);
+        View headerView = inflater.inflate(R.layout.random_button, mListView, false);
+        Drawable icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_primary);
+        ((TextView) headerView.findViewById(R.id.text)).setCompoundDrawables(icRandom, null, null, null);
+        mListView.addHeaderView(headerView);
+    }
+
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         MediaControllerCompat controller = getMediaController(getActivity());
@@ -149,6 +155,50 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
                 MediaItem clickedItem = mAdapter.getItem(position - 1);
                 controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
             }
+        }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if (position > 0) {
+            //getActivity().startActionMode(new SongListActionMode());
+        }
+        return true;
+    }
+
+    /**
+     * An ActionMode that handles multiple item selection inside the song ListView.
+     */
+    private class SongListActionMode implements MultiChoiceModeListener {
+
+        @Override
+        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            getActivity().getMenuInflater().inflate(R.menu.actionmode_songlist, menu);
+            mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            if (R.id.action_delete == item.getItemId()) {
+                Toast.makeText(getContext(), "Should delete ", Toast.LENGTH_SHORT).show();
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mListView.setChoiceMode(ListView.CHOICE_MODE_NONE);
         }
     }
 }

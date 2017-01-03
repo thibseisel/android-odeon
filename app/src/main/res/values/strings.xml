@@ -36,4 +36,5 @@
     <string name="random_mix">Random mix</string>
     <string name="path_pause_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM9,8L11,8L11,16L9,16zM13,8 L15,8 L15,16 L13,16z</string>
     <string name="path_play_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM10,7.5L13,9.75L13,14.25L10,16.5zM13,9.75L16,12L16,12L13,14.25z</string>
+    <string name="action_delete">Delete</string>
 </resources>

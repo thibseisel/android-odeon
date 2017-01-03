@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -30,7 +31,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 
 import fr.nihilus.mymusic.HomeActivity;
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.utils.ViewUtils;
+import fr.nihilus.mymusic.utils.ResourceHelper;
 
 /**
  * Une classe associée à {@link MusicService} permettant l'affichage d'une notification
@@ -57,6 +58,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private PlaybackStateCompat mPlaybackState;
     private MediaMetadataCompat mMetadata;
     private final Bitmap mDummyAlbumArt;
+    private final int mAccentColor;
     private boolean mStarted = false;
 
     private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
@@ -115,6 +117,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
         mDummyAlbumArt = BitmapFactory.decodeResource(service.getResources(),
                 R.drawable.dummy_album_art);
+        mAccentColor = ResourceHelper.getThemeColor(mService, R.attr.colorAccent, Color.DKGRAY);
     }
 
     public void startNotification() {
@@ -232,16 +235,13 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 ? R.drawable.notif_play_arrow
                 : R.drawable.notif_pause;
 
-        int colorAccent = ViewUtils.resolveThemeColor(mService.getApplicationContext(), R.attr.colorAccent);
-        Log.d(TAG, "createNotification: accentColor for notification=" + colorAccent);
-
         MediaDescriptionCompat description = mMetadata.getDescription();
 
         notifBuilder.setStyle(new NotificationCompat.MediaStyle()
                 // N'affiche que le play/pause en mode compact
                 .setShowActionsInCompactView(playPauseButtonPosition)
                 .setMediaSession(mSessionToken))
-                .setColor(colorAccent)
+                .setColor(mAccentColor)
                 .setSmallIcon(smallIcon)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setUsesChronometer(true)

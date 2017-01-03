@@ -14,11 +14,13 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserServiceCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
@@ -61,10 +63,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
     public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
     public static final String CUSTOM_ACTION_LOOP = "fr.nihilus.mymusic.LOOP";
-
+    public static final int REQUEST_HOME_ACTIVITY_PLAYER = 99;
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
-    public static final int REQUEST_HOME_ACTIVITY_PLAYER = 99;
+    private static final int SKIP_PREVIOUS_DELAY = 5000;
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
@@ -175,7 +177,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        MediaButtonReceiver.handleIntent(mSession, intent);
         if (intent != null) {
             String action = intent.getAction();
             String command = intent.getStringExtra(CMD_NAME);
@@ -194,6 +195,8 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                         if (mPlayback != null) handlePreviousRequest();
                         break;
                 }
+            } else {
+                MediaButtonReceiver.handleIntent(mSession, intent);
             }
         }
         return START_NOT_STICKY;
@@ -399,26 +402,33 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void handlePreviousRequest() {
-        mCurrentIndexQueue--;
+        if (mPlayback.getCurrentStreamPosition() < SKIP_PREVIOUS_DELAY) {
+            // Currently playing song has not been playing for more than 5 seconds.
+            // We want to play the previous track.
+            mCurrentIndexQueue--;
 
-        if (mPlayingQueue != null && mCurrentIndexQueue < 0) {
-            // Si on revient avant le premier item, on le rejoue
-            mCurrentIndexQueue = 0;
-        }
+            if (mPlayingQueue != null && mCurrentIndexQueue < 0) {
+                // If we went back too far, reset queue to the first item.
+                mCurrentIndexQueue = 0;
+            }
 
-        // Ne pas lancer la lecture si le lecteur est en pause
-        if (mPlayback.isPlaying()) {
-            if (QueueHelper.isIndexPlayable(mCurrentIndexQueue, mPlayingQueue)) {
-                handlePlayRequest();
+            // Do not start playing track if the playback is paused
+            if (mPlayback.isPlaying()) {
+                if (QueueHelper.isIndexPlayable(mCurrentIndexQueue, mPlayingQueue)) {
+                    handlePlayRequest();
+                } else {
+                    Log.e(TAG, "onSkipToPrevious: impossible de revenir au précédent." +
+                            " Précédent=" + mCurrentIndexQueue +
+                            " longueur=" + (mPlayingQueue == null ? "null" : mPlayingQueue.size()));
+                    handleStopRequest("Cannot skip");
+                }
             } else {
-                Log.e(TAG, "onSkipToPrevious: impossible de revenir au précédent." +
-                        " Précédent=" + mCurrentIndexQueue +
-                        " longueur=" + (mPlayingQueue == null ? "null" : mPlayingQueue.size()));
-                handleStopRequest("Cannot skip");
+                // Update metadata without starting playback
+                updateMetadata();
             }
         } else {
-            // Met à jour les métadonnées de la chanson en cours de lecture
-            updateMetadata();
+            // If playing this song for more than 5 seconds, play from the start.
+            mPlayback.seekTo(0);
         }
     }
 
@@ -490,9 +500,62 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     /**
-     * Callbacks envoyés au service par le MediaController pour transmettre les commandes.
+     * Callbacks that are received from the {@link MediaControllerCompat}
+     * in order to deliver commands to this service.
+     * This callback also handles {@link KeyEvent#KEYCODE_HEADSETHOOK} by itself to support
+     * skipping to next when the button is pressed twice.
      */
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
+        /**
+         * Delay a single click on the headset button by this amount of time.
+         * This is the time the user has to press the button a second time in order to trigger a
+         * "skip to next" instead of the usual "play/pause".
+         */
+        private static final int HEADSET_CLICK_DELAY = 250;
+
+        private final Handler mHeadsetButtonHandler = new Handler();
+        private volatile int mHeadsetClickCount;
+
+        /**
+         * Action to be executed when a delay of {@link #HEADSET_CLICK_DELAY} has elapsed
+         * since the user has clicked the headset button only once.
+         */
+        private final Runnable mHeadsetButtonRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mHeadsetClickCount == 1) {
+                    // Single click: play if paused, or pause if playing.
+                    if (!mPlayback.isPlaying()) onPlay();
+                    else onPause();
+                    mHeadsetClickCount = 0;
+                }
+            }
+        };
+
+        @Override
+        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
+            if (mediaButtonEvent != null) {
+                KeyEvent event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                if (event.getKeyCode() == KeyEvent.KEYCODE_HEADSETHOOK
+                        && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    // Event is produced by a click on the headset button.
+                    mHeadsetClickCount++;
+                    if (mHeadsetClickCount > 1) {
+                        // Double click: skip to next song.
+                        onSkipToNext();
+                        mHeadsetButtonHandler.removeCallbacks(mHeadsetButtonRunnable);
+                        mHeadsetClickCount = 0;
+                        return true;
+                    } else {
+                        // Single click: delay action to wait for a potential second click.
+                        mHeadsetButtonHandler.postDelayed(mHeadsetButtonRunnable, HEADSET_CLICK_DELAY);
+                        return true;
+                    }
+                }
+            }
+            return super.onMediaButtonEvent(mediaButtonEvent);
+        }
+
         @Override
         public void onPlay() {
             Log.d(TAG, "onPlay");
@@ -567,15 +630,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                 }
             }
-        }
-
-        @Override
-        public boolean onMediaButtonEvent(Intent mediaButtonEvent) {
-            if (mediaButtonEvent != null) {
-                Log.d(TAG, "onMediaButtonEvent: keyEvent="
-                        + mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT));
-            }
-            return super.onMediaButtonEvent(mediaButtonEvent);
         }
     }
 }
