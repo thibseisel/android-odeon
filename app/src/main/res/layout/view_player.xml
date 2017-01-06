@@ -81,10 +81,10 @@
         android:id="@+id/bigArt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/buttonBar"
         android:layout_below="@id/cover"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
-        android:layout_above="@+id/buttonBar"
         tools:src="@drawable/ic_audiotrack_24dp"/>
 
     <LinearLayout
@@ -97,10 +97,16 @@
         android:padding="16dp">
 
         <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="16dp"
+            android:layout_weight="1"/>
+
+        <ImageView
             android:id="@+id/btn_previous"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/skip_previous"
             android:padding="8dp"
@@ -111,7 +117,7 @@
             android:id="@+id/main_play_pause"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/play_or_pause"
             app:srcCompat="@drawable/level_play_pause_filled"/>
@@ -120,12 +126,22 @@
             android:id="@+id/btn_next"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/skip_next"
             android:padding="8dp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_skip_next_24dp"/>
+
+        <ImageView
+            android:id="@+id/btn_random"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_random"
+            app:srcCompat="@drawable/ic_shuffle_24dp"/>
     </LinearLayout>
 
 </RelativeLayout>

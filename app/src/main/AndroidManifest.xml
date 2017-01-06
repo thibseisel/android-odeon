@@ -20,7 +20,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTop"
@@ -60,7 +59,7 @@
         </activity>
 
         <provider
-            android:name=".provider.MediaUsageProvider"
+            android:name=".provider.MusicStatsProvider"
             android:authorities="fr.nihilus.mymusic.provider"
             android:enabled="true"
             android:exported="false">
@@ -83,10 +82,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
         </activity>
+
+        <service
+            android:name=".provider.SetupService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

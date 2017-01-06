@@ -1,17 +1,20 @@
 package fr.nihilus.mymusic.view;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.percent.PercentRelativeLayout;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -32,6 +35,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.utils.ViewUtils;
 import fr.nihilus.mymusic.view.AutoUpdateSeekBar.OnUpdateListener;
 
@@ -43,10 +47,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
 
-    @Nullable
-    private MediaControllerCompat mController;
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
-
         @Override
         public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
             if (fromUser) seekTo(progress);
@@ -60,6 +61,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         public void onStopTrackingTouch(SeekBar view) {
         }
     };
+
+    private MediaControllerCompat mController;
     private BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
     private PlaybackStateCompat mLastPlaybackState;
     private TextView mTitle;
@@ -72,6 +75,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private ImageView mNextButton;
     private ImageView mMasterPlayPause;
     private ImageView mBigArt;
+    private ImageView mRandomButton;
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
@@ -140,6 +144,15 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mNextButton.setOnClickListener(this);
         mMasterPlayPause = (ImageView) findViewById(R.id.main_play_pause);
         mMasterPlayPause.setOnClickListener(this);
+
+        // Random button
+        mRandomButton = (ImageView) findViewById(R.id.btn_random);
+        ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
+                R.color.activation_state_list);
+        Drawable wrapDrawable = DrawableCompat.wrap(mRandomButton.getDrawable());
+        DrawableCompat.setTintList(wrapDrawable, colorStateList);
+        mRandomButton.setImageDrawable(wrapDrawable);
+        mRandomButton.setOnClickListener(this);
     }
 
     @Override
@@ -166,7 +179,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             mArtist.setText(media.getSubtitle());
             mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
             mGlideRequest.load(media.getIconUri()).into(mBigArt);
-            mProgress.setMax((int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+            int max = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+            mProgress.setMax(max > 0 ? max : 0);
             onUpdate(mProgress);
         }
     }
@@ -199,7 +213,6 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     }
 
-
     private void togglePlayPauseButton(ImageView button, boolean isPlaying) {
         button.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -221,8 +234,11 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     }
 
     private void toggleControls(long actions) {
+        mMasterPlayPause.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
+        mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
         mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
         mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
+        mRandomButton.setActivated(hasFlag(actions, MusicService.ACTION_RANDOM));
     }
 
     @Override
@@ -233,18 +249,24 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
 
         if (mController != null) {
+            MediaControllerCompat.TransportControls controls = mController.getTransportControls();
             switch (view.getId()) {
                 case R.id.main_play_pause:
                 case R.id.btn_play_pause:
                     if (mIsPlaying) {
-                        mController.getTransportControls().pause();
-                    } else mController.getTransportControls().play();
+                        controls.pause();
+                    } else controls.play();
                     break;
                 case R.id.btn_previous:
-                    mController.getTransportControls().skipToPrevious();
+                    controls.skipToPrevious();
                     break;
                 case R.id.btn_next:
-                    mController.getTransportControls().skipToNext();
+                    controls.skipToNext();
+                    break;
+                case R.id.btn_random:
+                    Bundle args = new Bundle(1);
+                    args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, !mRandomButton.isActivated());
+                    controls.sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
                     break;
             }
         }

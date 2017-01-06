@@ -19,6 +19,7 @@ public final class Prefs {
     private static final String KEY_DAILY_SONG = "daily_song_id";
     private static final String KEY_DAILY_UPDATE = "last_daily_update";
     private static final String KEY_LAST_PLAYED = "last_played";
+    private static final String KEY_DB_SETUP = "db_setup";
 
     /**
      * Returns the night mode preference. Result of this method can be the following :
@@ -74,5 +75,16 @@ public final class Prefs {
     public static String getLastPlayedMediaId(@NonNull Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getString(KEY_LAST_PLAYED, null);
+    }
+
+    public static boolean isDatabaseSetupComplete(@NonNull Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(KEY_DB_SETUP, false);
+    }
+
+    public static void setDatabaseSetupComplete(@NonNull Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putBoolean(KEY_DB_SETUP, true)
+                .apply();
     }
 }

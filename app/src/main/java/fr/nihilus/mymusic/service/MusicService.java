@@ -4,6 +4,8 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.HomeActivity;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.provider.StatsRecorder;
 import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -57,16 +60,15 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      * @see #onStartCommand(Intent, int, int)
      */
     public static final String CMD_PAUSE = "CMD_PAUSE";
-    public static final String CMD_PLAY = "CMD_PLAY";
-    public static final String CMD_NEXT = "CMD_NEXT";
-    public static final String CMD_PREVIOUS = "CMD_PREVIOUS";
     public static final String CUSTOM_ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
+    public static final long ACTION_RANDOM = 262144L;
     public static final String EXTRA_RANDOM_ENABLED = "random_enabled";
-    public static final String CUSTOM_ACTION_LOOP = "fr.nihilus.mymusic.LOOP";
     public static final int REQUEST_HOME_ACTIVITY_PLAYER = 99;
+
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
     private static final int SKIP_PREVIOUS_DELAY = 5000;
+
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
     private MusicProvider mMusicProvider;
@@ -75,6 +77,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     private boolean mServiceStarted;
     private int mCurrentIndexQueue;
     private MediaNotificationManager mMediaNotificationManager;
+    private StatsRecorder mStatsRecorder;
 
     private boolean mRandomEnabled;
 
@@ -114,6 +117,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mPlayback.setState(PlaybackStateCompat.STATE_NONE);
         mPlayback.setCallback(this);
         mMediaNotificationManager = new MediaNotificationManager(this);
+
+        // Start stats recorder
+        mStatsRecorder = new StatsRecorder(this);
+        mStatsRecorder.start();
 
         mRandomEnabled = Prefs.isRandomPlayingEnabled(this);
         updatePlaybackState(null);
@@ -185,15 +192,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     case CMD_PAUSE:
                         if (mPlayback != null && mPlayback.isPlaying()) handlePauseRequest();
                         break;
-                    case CMD_PLAY:
-                        handlePlayRequest();
-                        break;
-                    case CMD_NEXT:
-                        if (mPlayback != null) handleNextRequest();
-                        break;
-                    case CMD_PREVIOUS:
-                        if (mPlayback != null) handlePreviousRequest();
-                        break;
                 }
             } else {
                 MediaButtonReceiver.handleIntent(mSession, intent);
@@ -205,6 +203,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     @Override
     public void onDestroy() {
         handleStopRequest(null);
+        mStatsRecorder.stop();
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mSession.release();
         super.onDestroy();
@@ -212,6 +211,11 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     @Override
     public void onCompletion() {
+        // Update stats of the completed track
+        QueueItem completedItem = mPlayingQueue.get(mCurrentIndexQueue);
+        String musicId = MediaID.extractMusicID(completedItem.getDescription().getMediaId());
+        mStatsRecorder.recordCompletion(Long.parseLong(musicId));
+
         // On vient de finir la lecture d'une piste, on passe à la suivante
         if (mPlayingQueue != null && !mPlayingQueue.isEmpty()) {
             mCurrentIndexQueue++;
@@ -314,14 +318,16 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
      */
     @PlaybackStateCompat.MediaKeyAction
     private long getAvailableActions() {
-        @PlaybackStateCompat.MediaKeyAction long actions = PlaybackStateCompat.ACTION_PLAY
-                | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
+        @PlaybackStateCompat.MediaKeyAction
+        long actions = PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
+        if (mRandomEnabled) {
+            //noinspection WrongConstant
+            actions |= MusicService.ACTION_RANDOM;
+        }
         if (mPlayingQueue == null || mPlayingQueue.isEmpty()) {
             return actions;
         }
-        if (mPlayback.isPlaying()) {
-            actions |= PlaybackStateCompat.ACTION_PAUSE;
-        }
+        actions |= PlaybackStateCompat.ACTION_PLAY_PAUSE;
         if (mCurrentIndexQueue > 0) {
             actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
         }
@@ -333,9 +339,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     private void setCustomActions(PlaybackStateCompat.Builder stateBuilder) {
         stateBuilder.addCustomAction(CUSTOM_ACTION_RANDOM, getString(R.string.action_random),
-                R.drawable.ic_shuffle_24dp)
-                .addCustomAction(CUSTOM_ACTION_LOOP, getString(R.string.action_loop),
-                        R.drawable.ic_repeat_24dp);
+                R.drawable.ic_shuffle_24dp);
     }
 
     private void handlePlayRequest() {
@@ -433,6 +437,13 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void handleNextRequest() {
+        if (mPlayback.isPlaying()) {
+            // Update stats of the skipped track only if it should be playing
+            QueueItem completedItem = mPlayingQueue.get(mCurrentIndexQueue);
+            String musicId = MediaID.extractMusicID(completedItem.getDescription().getMediaId());
+            mStatsRecorder.recordSkip(Long.parseLong(musicId));
+        }
+
         mCurrentIndexQueue++;
 
         if (mPlayingQueue != null && mCurrentIndexQueue >= mPlayingQueue.size()) {
@@ -626,9 +637,29 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     } else {
                         QueueHelper.sortQueue(mPlayingQueue);
                     }
-                    //Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
+                    Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
+                    updatePlaybackState(null);
                 }
+            }
+        }
+    }
+
+    private class SongContentObserver extends ContentObserver {
+        public SongContentObserver() {
+            super(null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            Log.w(TAG, "onChange: called with no Uri parameter.");
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
+            if (uri != null) {
+                mMusicProvider.notifySongChanged(getContentResolver(), uri);
             }
         }
     }
