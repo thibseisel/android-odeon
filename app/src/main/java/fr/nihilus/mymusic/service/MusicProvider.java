@@ -83,8 +83,8 @@ class MusicProvider implements AudioColumns {
         return mMusicById.get(id, null);
     }
 
-    boolean isInitialized() {
-        return mCurrentState == INITIALIZED;
+    boolean isNotInitialized() {
+        return mCurrentState != INITIALIZED;
     }
 
     /**
@@ -93,7 +93,7 @@ class MusicProvider implements AudioColumns {
      */
     @SuppressWarnings("WrongConstant")
     void loadMetadata(@NonNull Context context) {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             mCurrentState = INITIALIZING;
         }
 
@@ -155,7 +155,7 @@ class MusicProvider implements AudioColumns {
     }
 
     List<MediaMetadataCompat> getAlbumTracks(String albumId) {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             Log.w(TAG, "getAlbumTracks: music library is not initialized yet.");
             return Collections.emptyList();
         }
@@ -169,7 +169,7 @@ class MusicProvider implements AudioColumns {
     }
 
     List<MediaMetadataCompat> getArtistTracks(String artistId) {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             Log.w(TAG, "getArtistTracks: music library is not initialized yet.");
             return Collections.emptyList();
         }
@@ -189,7 +189,7 @@ class MusicProvider implements AudioColumns {
      */
     @SuppressWarnings("WrongConstant")
     List<MediaItem> getMusicItems() {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             Log.w(TAG, "getSongs: music library is not initialized yet.");
             return Collections.emptyList();
         }
@@ -227,7 +227,7 @@ class MusicProvider implements AudioColumns {
      * @return list of songs released in this album
      */
     List<MediaItem> getAlbumTracksItems(String albumMediaId) {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             Log.w(TAG, "getAlbumTracksItems: music library is not initialized yet.");
             return Collections.emptyList();
         }
@@ -392,7 +392,7 @@ class MusicProvider implements AudioColumns {
      * @return a random song from the music library as a MediaItem.
      */
     MediaItem getRandomMusicItem() {
-        if (!isInitialized()) {
+        if (isNotInitialized()) {
             Log.w(TAG, "getRandomMusicItem: music library not initialized yet.");
             return null;
         }

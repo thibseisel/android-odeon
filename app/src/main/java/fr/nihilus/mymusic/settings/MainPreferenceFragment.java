@@ -8,9 +8,6 @@ import android.support.v7.preference.PreferenceFragmentCompat;
 
 import fr.nihilus.mymusic.R;
 
-/**
- * Created by Thib on 20/12/2016.
- */
 public class MainPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 

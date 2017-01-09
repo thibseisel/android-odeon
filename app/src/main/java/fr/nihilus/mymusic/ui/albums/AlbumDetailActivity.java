@@ -177,6 +177,7 @@ public class AlbumDetailActivity extends AppCompatActivity
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(null);
     }
 
     /**

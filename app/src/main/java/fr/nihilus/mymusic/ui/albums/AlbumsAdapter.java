@@ -1,7 +1,6 @@
 package fr.nihilus.mymusic.ui.albums;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.ColorInt;
@@ -28,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
-import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
 import fr.nihilus.mymusic.utils.ViewUtils;
@@ -163,22 +162,6 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             colors[1] = accent;
             colors[2] = title;
             colors[3] = body;
-        }
-    }
-
-    private static class BottomPaletteTranscoder extends PaletteBitmapTranscoder {
-
-        BottomPaletteTranscoder(@NonNull Context context) {
-            super(context);
-        }
-
-        @NonNull
-        @Override
-        protected Palette onGeneratePalette(Bitmap bitmap) {
-            return Palette.from(bitmap)
-                    .setRegion(0, bitmap.getHeight() / 5, bitmap.getWidth(), bitmap.getHeight())
-                    .maximumColorCount(16)
-                    .generate();
         }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Nihilus Music</string>
     <string name="action_albums">Albums</string>
     <string name="action_artists">Artistes</string>
@@ -32,4 +32,11 @@
     <string name="random_mix">Mix aléatoire</string>
     <string name="empty_artist">Aucun artiste</string>
     <string name="action_delete">Supprimer</string>
+    <string name="add_to_playlist">Ajouter à une playlist</string>
+    <plurals name="delete_dialog_message">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Cette chanson sera effacée de votre appareil.</item>
+        <item quantity="other">Ces %d chansons seront effacées de votre appareil.</item>
+    </plurals>
+    <string name="cancel">Annuler</string>
+    <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
 </resources>

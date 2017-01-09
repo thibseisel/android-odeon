@@ -90,7 +90,7 @@ public class ArtistDetailFragment extends Fragment
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
-        final int spanCount = getResources().getInteger(R.integer.album_grid_span_count);
+        final int spanCount = getResources().getInteger(R.integer.artist_grid_span_count);
         GridLayoutManager manager = new GridLayoutManager(getContext(), spanCount);
         mRecyclerView.setLayoutManager(manager);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {

@@ -10,10 +10,10 @@ import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder;
 
-public class PaletteBitmapTranscoder implements ResourceTranscoder<Bitmap, PaletteBitmap> {
+class PaletteBitmapTranscoder implements ResourceTranscoder<Bitmap, PaletteBitmap> {
     private final BitmapPool bitmapPool;
 
-    public PaletteBitmapTranscoder(@NonNull Context context) {
+    PaletteBitmapTranscoder(@NonNull Context context) {
         this.bitmapPool = Glide.get(context).getBitmapPool();
     }
 

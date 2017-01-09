@@ -9,7 +9,5 @@
     <dimen name="playerview_height">64dp</dimen>
     <fraction name="album_detail_ratio">100%</fraction>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
-    <dimen name="card_resting_elevation">2dp</dimen>
     <dimen name="card_max_elevation">8dp</dimen>
-    <dimen name="card_corner_radius">2dp</dimen>
 </resources>

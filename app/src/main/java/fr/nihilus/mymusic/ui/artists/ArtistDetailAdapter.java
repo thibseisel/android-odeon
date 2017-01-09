@@ -29,8 +29,8 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
-import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
 import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
 import fr.nihilus.mymusic.utils.ViewUtils;
 
@@ -54,7 +54,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         };
         Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp);
         mGlide = Glide.with(context).fromUri().asBitmap()
-                .transcode(new PaletteBitmapTranscoder(context), PaletteBitmap.class)
+                .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
                 .centerCrop()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);

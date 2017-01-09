@@ -19,6 +19,7 @@ import android.util.Log;
 public class MusicStatsProvider extends ContentProvider implements MusicStats {
 
     static final String METHOD_INCREMENT = "increment";
+    static final String METHOD_BULK_INCREMENT = "bulkIncrement";
     static final String KEY_MUSIC_ID = "musicId";
     static final String KEY_FIELD = "incrementedField";
     static final String KEY_AMOUNT = "incrementAmount";
@@ -177,6 +178,12 @@ public class MusicStatsProvider extends ContentProvider implements MusicStats {
             String fieldName = extras.getString(KEY_FIELD);
             int amount = extras.getInt(KEY_AMOUNT, 1);
             increment(musicId, fieldName, amount);
+        } else if (METHOD_BULK_INCREMENT.equals(method)) {
+            if (extras == null) return null;
+            long[] musicId = extras.getLongArray(KEY_MUSIC_ID);
+            String fieldName = extras.getString(KEY_FIELD);
+            int[] amount = extras.getIntArray(KEY_AMOUNT);
+            bulkIncrement(musicId, fieldName, amount);
         }
         return null;
     }
@@ -191,12 +198,10 @@ public class MusicStatsProvider extends ContentProvider implements MusicStats {
      *                Must be provided as an argument with key {@link #KEY_MUSIC_ID}.
      * @param fieldName name of the numeric field to increment in database.
      *                  Must be provided as an argument with key {@link #KEY_FIELD}.
-     * @param amount number to add to thhis field current value.
+     * @param amount number to add to this field current value.
      *               Must be provided as an argument with key {@link #KEY_AMOUNT}.
      */
     private void increment(long musicId, String fieldName, int amount) {
-        Log.d(TAG, "increment() called with: musicId = [" + musicId + "], fieldName = ["
-                + fieldName + "], amount = [" + amount + "]");
         SQLiteDatabase db = mHelper.getWritableDatabase();
         String sql = "UPDATE " + TABLE_NAME
                 + " SET " + fieldName + "=" + fieldName + "+ ?"
@@ -209,6 +214,42 @@ public class MusicStatsProvider extends ContentProvider implements MusicStats {
             Log.d(TAG, "increment: success updating.");
             Uri updatedUri = ContentUris.withAppendedId(CONTENT_URI, musicId);
             getContext().getContentResolver().notifyChange(updatedUri, null);
+        }
+    }
+
+    /**
+     * Increment the value of a stats associated with a music id.
+     * This is more efficient than querying current value and writing again
+     * via {@link #query} and {@link #update}.
+     * This method must be called via {@link #call} with method name {@link #METHOD_INCREMENT}.
+     *
+     * @param musicId unique identifiers of musics where there's a stat to increment.
+     *                Must be provided as an argument with key {@link #KEY_MUSIC_ID}.
+     * @param fieldName name of the numeric field to increment in database.
+     *                  Must be provided as an argument with key {@link #KEY_FIELD}.
+     * @param amount numbers to add to this field current value.
+     *               Must be provided as an argument with key {@link #KEY_AMOUNT}.
+     */
+    private void bulkIncrement(long[] musicId, String fieldName, int[] amount) {
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        String sql = "UPDATE " + TABLE_NAME
+                + " SET " + fieldName + "=" + fieldName + "+ ?"
+                + " WHERE " + MUSIC_ID + "= ?";
+        SQLiteStatement statement = db.compileStatement(sql);
+        int updateCount = 0;
+
+        db.beginTransaction();
+        try {
+            int limit = Math.min(musicId.length, amount.length);
+            for (int i = 0; i < limit; i++) {
+                statement.bindLong(1, amount[i]);
+                statement.bindLong(2, musicId[i]);
+                updateCount = statement.executeUpdateDelete();
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            Log.d(TAG, "bulkIncrement: incremented row count: " + updateCount);
         }
     }
 

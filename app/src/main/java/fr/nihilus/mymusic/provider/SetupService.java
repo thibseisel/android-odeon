@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import fr.nihilus.mymusic.settings.Prefs;
+import fr.nihilus.mymusic.utils.PermissionUtil;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -52,8 +53,15 @@ public class SetupService extends IntentService {
     private void handleDatabaseSetup() {
         // Perform only if database setup is not already done
         if (!Prefs.isDatabaseSetupComplete(this)) {
+
+            if (!PermissionUtil.hasExternalStoragePermission(this)) {
+                Log.e(TAG, "handleDatabaseSetup: application does not have storage permissions.");
+                return;
+            }
+
             Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    new String[]{BaseColumns._ID}, null, null, BaseColumns._ID);
+                    new String[]{BaseColumns._ID}, MediaStore.Audio.Media.IS_MUSIC + " = 1",
+                    null, BaseColumns._ID);
             if (cursor != null) {
                 ContentValues[] values = new ContentValues[cursor.getCount()];
                 int colId = cursor.getColumnIndexOrThrow(BaseColumns._ID);

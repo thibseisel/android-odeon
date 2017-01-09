@@ -119,8 +119,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mMediaNotificationManager = new MediaNotificationManager(this);
 
         // Start stats recorder
-        mStatsRecorder = new StatsRecorder(this);
-        mStatsRecorder.start();
+        mStatsRecorder = new StatsRecorder();
 
         mRandomEnabled = Prefs.isRandomPlayingEnabled(this);
         updatePlaybackState(null);
@@ -141,7 +140,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     @Override
     public void onLoadChildren(@NonNull final String parentId,
                                @NonNull final Result<List<MediaItem>> result) {
-        if (!mMusicProvider.isInitialized()) {
+        if (mMusicProvider.isNotInitialized()) {
             Log.v(TAG, "onLoadChildren: must load music library before returning children.");
             mMusicProvider.loadMetadata(this);
             buildFirstQueue();
@@ -203,7 +202,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     @Override
     public void onDestroy() {
         handleStopRequest(null);
-        mStatsRecorder.stop();
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mSession.release();
         super.onDestroy();
@@ -503,6 +501,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     // On n'arrête pas le service tant qu'il est en train de lire de la musique
                     return;
                 }
+
+                Log.d(TAG, "DelayedStopHandler: publish stats before stopping service.");
+                service.mStatsRecorder.publish(service);
+
                 Log.d(TAG, "DelayedStopHandler: arrêt automatique du service");
                 service.stopSelf();
                 service.mServiceStarted = false;

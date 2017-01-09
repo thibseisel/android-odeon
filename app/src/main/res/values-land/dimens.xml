@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <fraction name="album_detail_ratio">330%</fraction>
+    <dimen name="playerview_height">56dp</dimen>
 </resources>

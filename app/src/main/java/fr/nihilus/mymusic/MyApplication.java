@@ -15,6 +15,6 @@ public class MyApplication extends Application {
         super.onCreate();
 
         // Permet d'inflater des VectorDrawable pour API < 21. Peut causer des problèmes.
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        // AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 }

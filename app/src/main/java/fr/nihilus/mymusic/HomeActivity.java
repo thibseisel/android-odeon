@@ -39,9 +39,11 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
+import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
-import fr.nihilus.mymusic.palette.PaletteBitmapTranscoder;
+import fr.nihilus.mymusic.provider.SetupService;
 import fr.nihilus.mymusic.service.MusicService;
+import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
@@ -299,6 +301,10 @@ public class HomeActivity extends AppCompatActivity
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Load daily song only if it has permission
                 loadDailySong();
+                // TODO Placer ça dans un écran de présentation de l'application, au premier démarrage
+                if (!Prefs.isDatabaseSetupComplete(this)) {
+                    SetupService.startDatabaseSetup(this);
+                }
             }
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(getIntent())) {
@@ -350,7 +356,7 @@ public class HomeActivity extends AppCompatActivity
                     R.drawable.ic_audiotrack_24dp);
 
             Glide.with(this).fromUri().asBitmap()
-                    .transcode(new PaletteBitmapTranscoder(HomeActivity.this), PaletteBitmap.class)
+                    .transcode(new BottomPaletteTranscoder(HomeActivity.this), PaletteBitmap.class)
                     .load(artUri)
                     .error(dummyAlbumArt)
                     .centerCrop()

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/mtrl_orange_500</item>
@@ -8,6 +8,11 @@
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+
+        <!-- Styling ActionMode to look like Material Design Specs -->
+        <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">@drawable/abc_ic_clear_material</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">?colorControlActivated</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>

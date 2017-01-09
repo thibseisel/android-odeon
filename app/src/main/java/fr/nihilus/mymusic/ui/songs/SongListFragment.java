@@ -14,6 +14,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.content.res.AppCompatResources;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +25,6 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,8 @@ import fr.nihilus.mymusic.utils.MediaID;
 import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
 import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
 
-public class SongListFragment extends Fragment
-        implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener {
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SONGS = "MediaItems";
@@ -90,6 +90,8 @@ public class SongListFragment extends Fragment
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
+        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mListView.setMultiChoiceModeListener(new SongListActionMode());
         ViewCompat.setNestedScrollingEnabled(mListView, true);
 
         mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
@@ -160,10 +162,21 @@ public class SongListFragment extends Fragment
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        if (position > 0) {
-            //getActivity().startActionMode(new SongListActionMode());
+        return false;
+    }
+
+    private void handleDeleteSongs() {
+        int index = 0;
+        SparseBooleanArray checked = mListView.getCheckedItemPositions();
+        MediaItem[] toDelete = new MediaItem[mListView.getCheckedItemCount()];
+        for (int i = 0; i < checked.size(); i++) {
+            if (checked.valueAt(i)) {
+                int pos = checked.keyAt(i);
+                toDelete[index++] = mSongs.get(pos - 1);
+            }
         }
-        return true;
+        ConfirmDeleteDialog dialog = ConfirmDeleteDialog.newInstance(toDelete);
+        dialog.show(getActivity().getSupportFragmentManager(), "confirm_delete");
     }
 
     /**
@@ -173,13 +186,12 @@ public class SongListFragment extends Fragment
 
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-
+            mode.setTitle(String.valueOf(mListView.getCheckedItemCount()));
         }
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            getActivity().getMenuInflater().inflate(R.menu.actionmode_songlist, menu);
-            mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+            mode.getMenuInflater().inflate(R.menu.actionmode_songlist, menu);
             return true;
         }
 
@@ -190,15 +202,23 @@ public class SongListFragment extends Fragment
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if (R.id.action_delete == item.getItemId()) {
-                Toast.makeText(getContext(), "Should delete ", Toast.LENGTH_SHORT).show();
+            switch (item.getItemId()) {
+                case R.id.action_delete:
+                    handleDeleteSongs();
+                    mode.finish();
+                    return true;
+                case R.id.action_playlist:
+                    // TODO Ouvrir écran des playlists
+                    mode.finish();
+                    return true;
+                default:
+                    return false;
             }
-            return false;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            mListView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+            // By default, deselect items
         }
     }
 }
