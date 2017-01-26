@@ -44,4 +44,8 @@
         <item quantity="one">This song will disappear from your device.</item>
         <item quantity="other">These %d songs will disappear from your device.</item>
     </plurals>
+    <plurals name="deleted_songs_confirmation">
+        <item quantity="one">%d song has been deleted.</item>
+        <item quantity="other">%d songs has been deleted.</item>
+    </plurals>
 </resources>

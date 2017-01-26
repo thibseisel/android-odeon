@@ -15,11 +15,11 @@ public class PermissionUtil {
 
     public static boolean hasExternalStoragePermission(@NonNull Context ctx) {
         return ContextCompat.checkSelfPermission(ctx,
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static void requestExternalStoragePermission(Activity activity) {
-        String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         ActivityCompat.requestPermissions(activity, permissions, EXTERNAL_STORAGE_REQUEST);
     }
 }

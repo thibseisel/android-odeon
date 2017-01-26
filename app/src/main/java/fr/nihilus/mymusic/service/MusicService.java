@@ -472,6 +472,9 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         final String lastPlayedId = Prefs.getLastPlayedMediaId(this);
         if (lastPlayedId != null && mPlayingQueue.isEmpty()) {
             mPlayingQueue = QueueHelper.getPlayingQueue(lastPlayedId, mMusicProvider);
+            if (mRandomEnabled) {
+                QueueHelper.shuffleQueue(mPlayingQueue);
+            }
             mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, lastPlayedId);
             if (QueueHelper.isIndexPlayable(mCurrentIndexQueue, mPlayingQueue)) {
                 String musicId = MediaID.extractMusicID(lastPlayedId);
@@ -634,11 +637,13 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             if (CUSTOM_ACTION_RANDOM.equals(action)) {
                 if (extras != null) {
                     mRandomEnabled = extras.getBoolean(EXTRA_RANDOM_ENABLED, false);
+                    long currentQueueId = mPlayingQueue.get(mCurrentIndexQueue).getQueueId();
                     if (mRandomEnabled) {
                         QueueHelper.shuffleQueue(mPlayingQueue);
                     } else {
                         QueueHelper.sortQueue(mPlayingQueue);
                     }
+                    mCurrentIndexQueue = QueueHelper.getMusicIndexOnQueue(mPlayingQueue, currentQueueId);
                     Prefs.setRandomPlayingEnabled(MusicService.this, mRandomEnabled);
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                     updatePlaybackState(null);

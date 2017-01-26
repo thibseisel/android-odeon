@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic.ui.songs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
@@ -67,14 +69,20 @@ public class ConfirmDeleteDialog extends DialogFragment implements DialogInterfa
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            new DeleteSongTask().execute(mToDelete);
+            new DeleteSongTask(getContext()).execute(mToDelete);
         }
     }
 
     /**
      * An {@link AsyncTask} that deletes selected songs from the device.
      */
-    private class DeleteSongTask extends AsyncTask<MediaBrowserCompat.MediaItem, Void, Integer> {
+    private static class DeleteSongTask extends AsyncTask<MediaBrowserCompat.MediaItem, Void, Integer> {
+
+        private final Context mmContext;
+
+        DeleteSongTask(Context context) {
+            mmContext = context;
+        }
 
         @Override
         protected Integer doInBackground(MediaBrowserCompat.MediaItem... params) {
@@ -90,13 +98,15 @@ public class ConfirmDeleteDialog extends DialogFragment implements DialogInterfa
             }
 
             String whereClause = BaseColumns._ID + inClause.toString();
-            return getContext().getContentResolver()
+            return mmContext.getContentResolver()
                     .delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, whereClause, null);
         }
 
         @Override
         protected void onPostExecute(Integer deleteCount) {
-            Log.d(TAG, "onPostExecute: deleted " + deleteCount + " songs.");
+            String message = mmContext.getResources().getQuantityString(
+                    R.plurals.deleted_songs_confirmation, deleteCount, deleteCount);
+            Toast.makeText(mmContext, message, Toast.LENGTH_LONG).show();
         }
     }
 }
