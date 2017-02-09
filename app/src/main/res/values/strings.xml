@@ -40,6 +40,7 @@
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library ?</string>
     <string name="cancel">Cancel</string>
+    <string name="empty_playlist">No playlist</string>
     <plurals name="delete_dialog_message">
         <item quantity="one">This song will disappear from your device.</item>
         <item quantity="other">These %d songs will disappear from your device.</item>
