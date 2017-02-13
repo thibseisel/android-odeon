@@ -68,6 +68,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     private static final String TAG = "MusicService";
     private static final long STOP_DELAY = 30000;
     private static final int SKIP_PREVIOUS_DELAY = 5000;
+    public static final int SKIP_STAT_THRESHOLD = 5000;
 
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
@@ -435,10 +436,12 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     }
 
     private void handleNextRequest() {
-        if (mPlayback.isPlaying()) {
-            // Update stats of the skipped track only if it should be playing
-            QueueItem completedItem = mPlayingQueue.get(mCurrentIndexQueue);
-            String musicId = MediaID.extractMusicID(completedItem.getDescription().getMediaId());
+        if (mPlayback.isPlaying() && mPlayback.getCurrentStreamPosition() < SKIP_STAT_THRESHOLD) {
+            // Update stats of the skipped track only if it playing.
+            // Song must be skipped before the use has heard the first 5 seconds,
+            // in order to be sure he does not want to lister to that song.
+            QueueItem skippedItem = mPlayingQueue.get(mCurrentIndexQueue);
+            String musicId = MediaID.extractMusicID(skippedItem.getDescription().getMediaId());
             mStatsRecorder.recordSkip(Long.parseLong(musicId));
         }
 
