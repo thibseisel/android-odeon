@@ -44,6 +44,10 @@ public final class MediaID {
      * Classement des titres par artistes.
      */
     public static final String ID_ARTISTS = "ARTISTS";
+    /**
+     * Playlists définies par l'utilisateur.
+     */
+    public static final String ID_PLAYLISTS = "PLAYLISTS";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';

@@ -83,4 +83,30 @@ final class MediaItemHelper {
         }
         return result;
     }
+
+    static List<MediaItem> getPlaylistTracks(List<MediaMetadataCompat> metadataList, String playlistId) {
+        List<MediaItem> result = new ArrayList<>();
+
+        final MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+        for (MediaMetadataCompat meta : metadataList) {
+            String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
+            String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
+            Bundle extras = new Bundle();
+            extras.putString(AudioColumns.TITLE_KEY, meta.getString(MusicProvider.METADATA_TITLE_KEY));
+
+            builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_PLAYLISTS, playlistId))
+                    .setExtras(extras)
+                    .setTitle(meta.getString(METADATA_KEY_TITLE))
+                    .setSubtitle(meta.getString(METADATA_KEY_ARTIST))
+                    .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
+                            .appendEncodedPath(musicId)
+                            .build());
+            if (albumArtUri != null) {
+                builder.setIconUri(Uri.parse(albumArtUri));
+            }
+
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE));
+        }
+        return result;
+    }
 }

@@ -42,6 +42,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
         final String tablePlaylistTracks = "CREATE TABLE " + Playlists.Tracks.TABLE_NAME + " ("
                 + Playlists.Tracks.TRACK_ID + " INTEGER PRIMARY KEY,"
                 + Playlists.Tracks.MUSIC + " INTEGER NOT NULL,"
+                + Playlists.Tracks.PLAYLIST + " INTEGER NOT NULL,"
                 + Playlists.Tracks.INDEX + " INTEGER NOT NULL" + ");";
         db.execSQL(tablePlaylistTracks);
     }

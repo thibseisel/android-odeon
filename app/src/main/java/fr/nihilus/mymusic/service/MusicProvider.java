@@ -29,6 +29,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import fr.nihilus.mymusic.provider.Playlists;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
@@ -330,7 +331,7 @@ class MusicProvider implements AudioColumns {
                 .query(Artists.Albums.getContentUri("external", longId), ALBUM_PROJECTION,
                         null, null, null);
         if (cursor == null) {
-            Log.e(TAG, "getArtistChildren: artist albums query failed Aborting.");
+            Log.e(TAG, "getArtistChildren: artist albums query failed. Aborting.");
             return Collections.emptyList();
         }
 
@@ -386,6 +387,60 @@ class MusicProvider implements AudioColumns {
         }
 
         return result;
+    }
+
+    List<MediaItem> getPlaylistItems(@NonNull Context context) {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            return Collections.emptyList();
+        }
+
+        Cursor cursor = context.getContentResolver().query(Playlists.CONTENT_URI, null, null, null, null);
+        if (cursor == null) {
+            Log.e(TAG, "getPlaylistItems: playlists query failed. Aborting.");
+            return Collections.emptyList();
+        }
+
+        int colId = cursor.getColumnIndexOrThrow(Playlists.PLAYLIST_ID);
+        int colName = cursor.getColumnIndexOrThrow(Playlists.NAME);
+
+        List<MediaItem> result = new ArrayList<>(cursor.getCount());
+        MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder();
+
+        while (cursor.moveToNext()) {
+            final long playlistId = cursor.getLong(colId);
+            final String mediaId = MediaID.createMediaID(null, MediaID.ID_PLAYLISTS, String.valueOf(playlistId));
+
+            builder.setMediaId(mediaId).setTitle(cursor.getString(colName));
+            result.add(new MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE | MediaItem.FLAG_PLAYABLE));
+        }
+
+        cursor.close();
+        return result;
+    }
+
+    List<MediaItem> getPlaylistTracks(@NonNull Context context, @NonNull String playlistId) {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            return Collections.emptyList();
+        }
+
+        Cursor cursor = context.getContentResolver().query(Playlists.Tracks.CONTENT_URI, null, null, null, null);
+
+        if (cursor == null) {
+            Log.e(TAG, "getPlaylistItems: playlists query failed. Aborting.");
+            return Collections.emptyList();
+        }
+
+        int colMusic = cursor.getColumnIndexOrThrow(Playlists.Tracks.MUSIC);
+
+        List<MediaMetadataCompat> meta = new ArrayList<>(cursor.getCount());
+
+        while (cursor.moveToNext()) {
+            meta.add(getMusic(cursor.getString(colMusic)));
+        }
+        cursor.close();
+        return MediaItemHelper.getPlaylistTracks(meta, playlistId);
     }
 
     /**

@@ -4,13 +4,13 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 
-interface Playlists {
+public interface Playlists {
 
     String AUTHORITY = "fr.nihilus.mymusic.provider";
     Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
     String DEFAULT_SORT_ORDER = Playlists.DATE_CREATED;
     String TABLE_NAME = "playlist";
-    Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE_NAME).build();
+    public Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE_NAME).build();
 
     String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE_NAME;
     String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE_NAME;
@@ -56,6 +56,11 @@ interface Playlists {
          * <p>Type: INTEGER (long)</p>
          */
         String MUSIC = "song_id";
+        /**
+         * Unique identifier of the playlist that contains this music.
+         * <p>Type: INTEGER (long)</p>
+         */
+        String PLAYLIST = "playlist_id";
         /**
          * Position of this music within the playlist.
          * <p>Type: INTEGER</p>

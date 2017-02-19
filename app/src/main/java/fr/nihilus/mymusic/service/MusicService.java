@@ -35,10 +35,6 @@ import fr.nihilus.mymusic.provider.StatsRecorder;
 import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.MediaID;
 
-import static fr.nihilus.mymusic.utils.MediaID.ID_ALBUMS;
-import static fr.nihilus.mymusic.utils.MediaID.ID_ARTISTS;
-import static fr.nihilus.mymusic.utils.MediaID.ID_DAILY;
-import static fr.nihilus.mymusic.utils.MediaID.ID_MUSIC;
 import static fr.nihilus.mymusic.utils.MediaID.ID_ROOT;
 
 public class MusicService extends MediaBrowserServiceCompat implements Playback.Callback {
@@ -152,17 +148,17 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         String[] hierarchy = MediaID.getHierarchy(parentId);
 
         switch (hierarchy[0]) {
-            case ID_MUSIC:
+            case MediaID.ID_MUSIC:
                 result.sendResult(mMusicProvider.getMusicItems());
                 break;
-            case ID_ALBUMS:
+            case MediaID.ID_ALBUMS:
                 if (hierarchy.length > 1) {
                     result.sendResult(mMusicProvider.getAlbumTracksItems(parentId));
                 } else {
                     result.sendResult(mMusicProvider.getAlbumItems(this));
                 }
                 break;
-            case ID_ARTISTS:
+            case MediaID.ID_ARTISTS:
                 if (hierarchy.length > 1) {
                     Log.d(TAG, "onLoadChildren: loading detail of artist " + hierarchy[1]);
                     result.sendResult(mMusicProvider.getArtistChildren(this, hierarchy[1]));
@@ -171,9 +167,18 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     result.sendResult(mMusicProvider.getArtistItems(this));
                 }
                 break;
-            case ID_DAILY:
+            case MediaID.ID_DAILY:
                 MediaItem daily = mMusicProvider.getRandomMusicItem();
                 result.sendResult(Collections.singletonList(daily));
+                break;
+            case MediaID.ID_PLAYLISTS:
+                if (hierarchy.length > 1) {
+                    Log.d(TAG, "onLoadChildren: loading tracks from playlist " + hierarchy[1]);
+                    result.sendResult(mMusicProvider.getPlaylistTracks(this, hierarchy[1]));
+                } else {
+                    Log.d(TAG, "onLoadChildren: loading all playlists");
+                    result.sendResult(mMusicProvider.getPlaylistItems(this));
+                }
                 break;
             default:
                 Log.w(TAG, "loadChildrenImpl: MediaId not implemented.");
