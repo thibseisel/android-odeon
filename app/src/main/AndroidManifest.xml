@@ -60,7 +60,7 @@
         </activity>
 
         <provider
-            android:name=".provider.MusicStatsProvider"
+            android:name=".provider.DatabaseProvider"
             android:authorities="fr.nihilus.mymusic.provider"
             android:enabled="true"
             android:exported="false">

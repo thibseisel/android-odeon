@@ -36,28 +36,28 @@ public class StatsRecorder {
         Bundle args = new Bundle(3);
 
         // Incrementing the READ_COUNT field
-        args.putString(MusicStatsProvider.KEY_FIELD, MusicStats.READ_COUNT);
+        args.putString(DatabaseProvider.KEY_FIELD, Stats.READ_COUNT);
         long[] ids = new long[mCompletions.size()];
         int[] amounts = new int[mCompletions.size()];
         for (int i = 0; i < mCompletions.size(); i++) {
             ids[i] = mCompletions.keyAt(i);
             amounts[i] = mCompletions.valueAt(i);
         }
-        args.putLongArray(MusicStatsProvider.KEY_MUSIC_ID, ids);
-        args.putIntArray(MusicStatsProvider.KEY_AMOUNT, amounts);
-        resolver.call(MusicStats.CONTENT_URI, MusicStatsProvider.METHOD_BULK_INCREMENT, null, args);
+        args.putLongArray(DatabaseProvider.KEY_MUSIC_ID, ids);
+        args.putIntArray(DatabaseProvider.KEY_AMOUNT, amounts);
+        resolver.call(Stats.CONTENT_URI, DatabaseProvider.METHOD_BULK_INCREMENT, null, args);
 
         // Incrementing the SKIP_COUNT field
-        args.putString(MusicStatsProvider.KEY_FIELD, MusicStats.SKIP_COUNT);
+        args.putString(DatabaseProvider.KEY_FIELD, Stats.SKIP_COUNT);
         ids = new long[mSkips.size()];
         amounts = new int[mSkips.size()];
         for (int i = 0; i < mSkips.size(); i++) {
             ids[i] = mSkips.keyAt(i);
             amounts[i] = mSkips.valueAt(i);
         }
-        args.putLongArray(MusicStatsProvider.KEY_MUSIC_ID, ids);
-        args.putIntArray(MusicStatsProvider.KEY_AMOUNT, amounts);
-        resolver.call(MusicStats.CONTENT_URI, MusicStatsProvider.METHOD_BULK_INCREMENT, null, args);
+        args.putLongArray(DatabaseProvider.KEY_MUSIC_ID, ids);
+        args.putIntArray(DatabaseProvider.KEY_AMOUNT, amounts);
+        resolver.call(Stats.CONTENT_URI, DatabaseProvider.METHOD_BULK_INCREMENT, null, args);
 
         // Clear cached values
         mCompletions.clear();

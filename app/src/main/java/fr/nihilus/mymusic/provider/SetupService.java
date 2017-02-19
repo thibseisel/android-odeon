@@ -69,12 +69,12 @@ public class SetupService extends IntentService {
                 while (cursor.moveToNext()) {
                     long musicId = cursor.getLong(colId);
                     ContentValues cv = new ContentValues();
-                    cv.put(MusicStats.MUSIC_ID, musicId);
+                    cv.put(Stats.MUSIC_ID, musicId);
                     values[cursor.getPosition()] = cv;
                 }
 
                 cursor.close();
-                int insertCount = getContentResolver().bulkInsert(MusicStats.CONTENT_URI, values);
+                int insertCount = getContentResolver().bulkInsert(Stats.CONTENT_URI, values);
                 Log.d(TAG, "handleDatabaseSetup: inserted " + insertCount + " rows in database.");
                 Prefs.setDatabaseSetupComplete(this);
             }

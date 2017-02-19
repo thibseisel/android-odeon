@@ -4,11 +4,11 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore.Audio;
 
-interface MusicStats extends BaseColumns {
+interface Stats extends BaseColumns {
 
     String AUTHORITY = "fr.nihilus.mymusic.provider";
     Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
-    String DEFAULT_SORT_ORDER = MusicStats.MUSIC_ID;
+    String DEFAULT_SORT_ORDER = Stats.MUSIC_ID;
     String TABLE_NAME = "stats";
     Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE_NAME).build();
 
