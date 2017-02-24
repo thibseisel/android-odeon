@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic;
 
 import android.app.Application;
+import android.os.Build;
 import android.support.v7.app.AppCompatDelegate;
 
 import fr.nihilus.mymusic.settings.Prefs;
@@ -15,6 +16,8 @@ public class MyApplication extends Application {
         super.onCreate();
 
         // Permet d'inflater des VectorDrawable pour API < 21. Peut causer des problèmes.
-        // AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        }
     }
 }

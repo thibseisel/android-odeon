@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="@integer/default_animation_duration"
+    android:exitFadeDuration="@integer/default_animation_duration">
+    <item android:state_activated="true">
+        <color android:color="@color/color_control_activated_compat"/>
+    </item>
+    <item android:state_pressed="true">
+        <color android:color="@color/color_control_activated_compat"/>
+    </item>
+    <item android:drawable="@android:color/white"/>
+</selector>
