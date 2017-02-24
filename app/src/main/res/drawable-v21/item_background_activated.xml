@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="@integer/default_animation_duration"
+    android:exitFadeDuration="@integer/default_animation_duration">
+    <item android:state_activated="true">
+        <color android:color="?colorControlHighlight"/>
+    </item>
+    <item>
+        <!-- Copie de selectableItemBackground: item_background_material.xml -->
+        <ripple android:color="?attr/colorControlHighlight">
+            <item android:id="@android:id/mask">
+                <color android:color="@android:color/white"/>
+            </item>
+        </ripple>
+    </item>
+</selector>

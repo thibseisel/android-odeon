@@ -2,4 +2,5 @@
 <resources>
     <integer name="album_grid_span_count">2</integer>
     <integer name="artist_grid_span_count">2</integer>
+    <integer name="default_animation_duration">300</integer>
 </resources>
