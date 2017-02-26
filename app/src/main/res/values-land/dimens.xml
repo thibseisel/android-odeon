@@ -2,4 +2,8 @@
 <resources>
     <fraction name="album_detail_ratio">330%</fraction>
     <dimen name="playerview_height">56dp</dimen>
+    <dimen name="song_item_height">60dp</dimen>
+    <dimen name="album_art_item_side">40dp</dimen>
+    <dimen name="song_title_size">13sp</dimen>
+    <dimen name="song_subtitle_size">13sp</dimen>
 </resources>
