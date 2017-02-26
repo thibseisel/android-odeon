@@ -1,8 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
-        <item name="colorPrimary">@color/mtrl_orange_500</item>
-        <item name="colorPrimaryDark">@color/mtrl_orange_700</item>
+        <item name="colorPrimary">@color/mtrl_red_500</item>
+        <item name="colorPrimaryDark">@color/mtrl_red_700</item>
         <item name="colorAccent">@color/mtrl_blue_a400</item>
 
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>

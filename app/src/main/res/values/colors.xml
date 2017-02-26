@@ -13,6 +13,8 @@
     <color name="mtrl_orange_700">#F57C00</color>
     <color name="mtrl_deeporange_500">#FF5722</color>
     <color name="mtrl_deeporange_700">#E64A19</color>
+    <color name="mtrl_red_500">#F44336</color>
+    <color name="mtrl_red_700">#D32F2F</color>
     <color name="mtrl_blue_a100">#82B1FF</color>
     <color name="mtrl_blue_a200">#448AFF</color>
     <color name="mtrl_blue_a400">#2979FF</color>
