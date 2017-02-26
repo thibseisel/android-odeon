@@ -119,6 +119,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     @Override
     public void onStart() {
         super.onStart();
+        getActivity().setTitle(R.string.action_playlists);
         MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
                 .subscribe(MediaID.ID_PLAYLISTS, mSubscriptionCallback);
     }

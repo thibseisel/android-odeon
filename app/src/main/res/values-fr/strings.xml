@@ -52,4 +52,7 @@
     <string name="title_hint">Titre</string>
     <string name="saving_playlist">Enregistrement de la playlist…</string>
     <string name="playlist_title_error">Veuillez saisir un titre</string>
+    <string name="action_close">Fermer</string>
+    <string name="validate">Valider</string>
+    <string name="new_playlist_help_message">Sélectionnez les chansons à ajouter</string>
 </resources>

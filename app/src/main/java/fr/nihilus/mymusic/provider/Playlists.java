@@ -52,7 +52,7 @@ public final class Playlists {
         static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE;
         static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE;
 
-        static Uri getContentUri(long playlistId) {
+        public static Uri getContentUri(long playlistId) {
             return Playlists.CONTENT_URI.buildUpon()
                     .appendPath(String.valueOf(playlistId))
                     .appendPath(TABLE)

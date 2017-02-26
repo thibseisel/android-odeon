@@ -10,7 +10,9 @@
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
-        <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">@drawable/abc_ic_clear_material</item>
+        <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">
+            @drawable/abc_ic_clear_material
+        </item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">?colorControlActivated</item>
     </style>
@@ -55,5 +57,9 @@
     </style>
 
     <style name="Widget.AppTheme.CardView" parent="Base.Widget.AppTheme.CardView"/>
+
+    <style name="AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
+        <!-- colorPrimary, colorAccent... ne sont pas définies pour ce thème -->
+    </style>
 
 </resources>

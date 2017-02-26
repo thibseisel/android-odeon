@@ -45,6 +45,9 @@
     <string name="title_hint">Title</string>
     <string name="saving_playlist">Saving playlist…</string>
     <string name="playlist_title_error">Please specify a title</string>
+    <string name="action_close">Close</string>
+    <string name="validate">Validate</string>
+    <string name="new_playlist_help_message">Select songs to add</string>
     <plurals name="delete_dialog_message">
         <item quantity="one">This song will disappear from your device.</item>
         <item quantity="other">These %d songs will disappear from your device.</item>

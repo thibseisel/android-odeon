@@ -425,7 +425,9 @@ class MusicProvider implements AudioColumns {
             return Collections.emptyList();
         }
 
-        Cursor cursor = context.getContentResolver().query(Playlists.Tracks.CONTENT_URI, null, null, null, null);
+        Cursor cursor = context.getContentResolver()
+                .query(Playlists.Tracks.getContentUri(Long.parseLong(playlistId)),
+                        null, null, null, null);
 
         if (cursor == null) {
             Log.e(TAG, "getPlaylistItems: playlists query failed. Aborting.");
