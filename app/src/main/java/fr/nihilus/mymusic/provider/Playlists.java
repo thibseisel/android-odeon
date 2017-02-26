@@ -33,12 +33,12 @@ public final class Playlists {
      * URI of the album art chosen by the user to represent this playlist.
      * <p>Type: TEXT</p>
      */
-    static final String ART = "album_art";
+    public static final String ART = "album_art";
     /**
      * Date at which this playlist has been created.
      * <p>Type: INTEGER (long)</p>
      */
-    static final String DATE_CREATED = "date_created";
+    public static final String DATE_CREATED = "date_created";
 
     public static final class Tracks {
 

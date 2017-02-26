@@ -1,5 +1,10 @@
 package fr.nihilus.mymusic.ui.playlist;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,6 +31,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.provider.Playlists;
 import fr.nihilus.mymusic.ui.songs.SongAdapter;
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -163,7 +169,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
     @Override
     public void onClick(View v) {
-        CharSequence playlistTitle = mTitleInput.getText();
+        final CharSequence playlistTitle = mTitleInput.getText();
         if (playlistTitle.length() == 0) {
             mTitleLayout.setError(getString(R.string.playlist_title_error));
             mTitleInput.requestFocus();
@@ -192,6 +198,39 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         }
 
         // TODO AsyncTask in another retained fragment
+        new AsyncTask<MediaItem, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(MediaItem... params) {
+                final ContentResolver resolver = getContext().getContentResolver();
+
+                // Insert playlist
+                ContentValues playlistValues = new ContentValues(2);
+                playlistValues.put(Playlists.NAME, playlistTitle.toString());
+                playlistValues.put(Playlists.DATE_CREATED, System.currentTimeMillis());
+                Uri playlistUri = resolver.insert(Playlists.CONTENT_URI, playlistValues);
+                long playlistId = ContentUris.parseId(playlistUri);
+
+                Log.v(TAG, "doInBackground: created playlist at URI: " + playlistUri);
+                Log.v(TAG, "doInBackground: must insert " + params.length + " songs");
+
+                // Insert songs
+                ContentValues[] values = new ContentValues[params.length];
+                for (int i = 0; i < params.length; i++) {
+                    long songId = Long.parseLong(MediaID.extractMusicID(params[i].getMediaId()));
+                    values[i] = new ContentValues(2);
+                    values[i].put(Playlists.Tracks.MUSIC, songId);
+                    values[i].put(Playlists.Tracks.POSITION, i);
+                }
+
+                return resolver.bulkInsert(Playlists.Tracks.getContentUri(playlistId), values);
+            }
+
+            @Override
+            protected void onPostExecute(Integer insertedSongs) {
+                Log.d(TAG, "onPostExecute: inserted " + insertedSongs + " songs into playlist.");
+                dismiss();
+            }
+        }.execute(playlistSongs);
     }
 
     @Override

@@ -12,13 +12,6 @@ import android.util.Log;
 import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
-/**
- * An {@link IntentService} subclass for handling asynchronous task requests in
- * a service on a separate handler thread.
- * <p>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
- */
 public class SetupService extends IntentService {
     private static final String TAG = "SetupService";
     private static final String ACTION_SETUP_DB = "fr.nihilus.mymusic.action.SETUP_DATABASE";

@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_new_playlist"
-        android:icon="@drawable/ic_playlist_add_24dp"
+        android:icon="@drawable/ic_add_24dp"
         android:menuCategory="container"
         android:orderInCategory="1"
         android:title="@string/new_playlist"
