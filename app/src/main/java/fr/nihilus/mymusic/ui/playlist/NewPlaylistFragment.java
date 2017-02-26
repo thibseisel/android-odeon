@@ -45,7 +45,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private SongAdapter mAdapter;
     private ArrayList<MediaItem> mSongs;
 
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
             mSongs.addAll(children);
@@ -105,8 +105,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     @Override
     public void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_MUSIC, mSubscriptionCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_MUSIC, mCallback);
     }
 
     @Override

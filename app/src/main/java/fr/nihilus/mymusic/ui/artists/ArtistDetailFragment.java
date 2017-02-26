@@ -40,7 +40,7 @@ public class ArtistDetailFragment extends Fragment
     private ArrayList<MediaItem> mItems;
     private ArtistDetailAdapter mAdapter;
 
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items");
@@ -114,13 +114,13 @@ public class ArtistDetailFragment extends Fragment
     public void onStart() {
         super.onStart();
         getActivity().setTitle(mPickedArtist.getDescription().getTitle());
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(mPickedArtist.getMediaId(), mSubscriptionCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager())
+                .subscribe(mPickedArtist.getMediaId(), mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+        MediaBrowserFragment.getInstance(getFragmentManager())
                 .unsubscribe(mPickedArtist.getMediaId());
         super.onStop();
     }

@@ -24,7 +24,7 @@ import fr.nihilus.mymusic.utils.StringJoiner;
  * The action of deleting is also handled by this dialog.
  */
 public class ConfirmDeleteDialog extends DialogFragment implements DialogInterface.OnClickListener {
-    private static final String TAG = "ConfirmDeleteDialog";
+    static final String TAG = "ConfirmDeleteDialog";
     private static final String KEY_ITEMS = "itemsToDelete";
 
     private MediaBrowserCompat.MediaItem[] mToDelete;

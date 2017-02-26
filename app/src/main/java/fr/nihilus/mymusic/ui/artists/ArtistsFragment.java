@@ -32,7 +32,7 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     private ArrayList<MediaItem> mArtists;
     private ArtistAdapter mAdapter;
 
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> artists) {
             Log.d(TAG, "onChildrenLoaded: loaded " + artists.size() + " artists.");
@@ -78,14 +78,13 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_artists);
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_ARTISTS, mSubscriptionCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager())
+                .subscribe(MediaID.ID_ARTISTS, mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaID.ID_ARTISTS);
+        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_ARTISTS);
         super.onStop();
     }
 
@@ -106,7 +105,7 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     @Override
     public void onArtistSelected(ArtistAdapter.ArtistHolder holder, MediaItem artist) {
         Fragment detail = ArtistDetailFragment.newInstance(artist);
-        getActivity().getSupportFragmentManager().beginTransaction()
+        getFragmentManager().beginTransaction()
                 .replace(R.id.container, detail)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(ArtistDetailFragment.BACKSTACK_ENTRY)

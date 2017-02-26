@@ -34,7 +34,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     private RecyclerView mRecyclerView;
     private ContentLoadingProgressBar mProgressBar;
     private View mEmptyView;
-    private SubscriptionCallback mSubscriptionCallback = new MediaBrowserCompat.SubscriptionCallback() {
+    private SubscriptionCallback mCallback = new MediaBrowserCompat.SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items from " + parentId);
@@ -69,7 +69,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (R.id.action_new_playlist == item.getItemId()) {
-            NewPlaylistFragment.newInstance().show(getActivity().getSupportFragmentManager(), null);
+            NewPlaylistFragment.newInstance().show(getFragmentManager(), null);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -120,14 +120,12 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_playlists);
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_PLAYLISTS, mSubscriptionCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_PLAYLISTS, mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaID.ID_PLAYLISTS);
+        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_PLAYLISTS);
         showLoading(false);
         super.onStop();
     }

@@ -34,7 +34,7 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     private View mEmptyView;
     private ArrayList<MediaItem> mAlbums;
 
-    private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> albums) {
             Log.d(TAG, "onChildrenLoaded: loaded children count: " + albums.size());
@@ -87,14 +87,12 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_albums);
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(MediaID.ID_ALBUMS, mSubscriptionCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_ALBUMS, mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(MediaID.ID_ALBUMS);
+        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_ALBUMS);
         super.onStop();
     }
 

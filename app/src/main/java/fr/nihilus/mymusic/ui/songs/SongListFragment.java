@@ -107,8 +107,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .subscribe(ID_MUSIC, mCallback);
+        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(ID_MUSIC, mCallback);
         getActivity().setTitle(R.string.all_music);
     }
 
@@ -122,8 +121,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onStop() {
         super.onStop();
-        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
-                .unsubscribe(ID_MUSIC);
+        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(ID_MUSIC);
     }
 
     @Override
@@ -176,7 +174,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
             }
         }
         ConfirmDeleteDialog dialog = ConfirmDeleteDialog.newInstance(toDelete);
-        dialog.show(getActivity().getSupportFragmentManager(), "confirm_delete");
+        dialog.show(getFragmentManager(), ConfirmDeleteDialog.TAG);
     }
 
     /**
