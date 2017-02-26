@@ -490,6 +490,10 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 mSession.setMetadata(track);
                 updatePlaybackState(null);
             }
+        } else {
+            // It's the first time the application must play music
+            // Load all music in the queue
+            mPlayingQueue = QueueHelper.getPlayingQueue(MediaID.ID_MUSIC, mMusicProvider);
         }
     }
 
