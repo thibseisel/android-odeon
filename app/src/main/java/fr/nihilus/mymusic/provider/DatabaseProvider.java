@@ -38,12 +38,18 @@ public class DatabaseProvider extends ContentProvider {
 
     static {
         sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sMatcher.addURI(Stats.AUTHORITY, Stats.TABLE_NAME, STATS);
-        sMatcher.addURI(Stats.AUTHORITY, Stats.TABLE_NAME + "/#", STAT_ID);
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE_NAME, PLAYLISTS);
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE_NAME + "/#", PLAYLIST_ID);
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE_NAME + "/#/" + Playlists.Tracks.TABLE_NAME, PLAYLIST_TRACKS);
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE_NAME + "/#/" + Playlists.Tracks.TABLE_NAME + "/#", PLAYLIST_TRACK_ID);
+        // stats
+        sMatcher.addURI(Stats.AUTHORITY, Stats.TABLE, STATS);
+        // stats/{song_id}
+        sMatcher.addURI(Stats.AUTHORITY, Stats.TABLE + "/#", STAT_ID);
+        // playlists
+        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE, PLAYLISTS);
+        // playlists/{playlist_id}
+        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#", PLAYLIST_ID);
+        // playlists/{playlist_id}/tracks
+        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE, PLAYLIST_TRACKS);
+        // playlists/{playlist_id}/tracks/{track_id}
+        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE + "/#", PLAYLIST_TRACK_ID);
     }
 
     private DatabaseHelper mHelper;
@@ -62,15 +68,15 @@ public class DatabaseProvider extends ContentProvider {
             case STAT_ID:
                 qb.appendWhere(Stats.MUSIC_ID + "=" + ContentUris.parseId(uri));
             case STATS:
-                qb.setTables(Stats.TABLE_NAME);
+                qb.setTables(Stats.TABLE);
                 if (sortOrder == null) {
                     sortOrder = Stats.DEFAULT_SORT_ORDER;
                 }
                 break;
             case PLAYLIST_ID:
-                qb.appendWhere(Playlists.TABLE_NAME + "=" + ContentUris.parseId(uri));
+                qb.appendWhere(Playlists.TABLE + "=" + ContentUris.parseId(uri));
             case PLAYLISTS:
-                qb.setTables(Playlists.TABLE_NAME);
+                qb.setTables(Playlists.TABLE);
                 if (sortOrder == null) {
                     sortOrder = Playlists.DEFAULT_SORT_ORDER;
                 }
@@ -99,6 +105,10 @@ public class DatabaseProvider extends ContentProvider {
                 return Playlists.CONTENT_TYPE;
             case PLAYLIST_ID:
                 return Playlists.CONTENT_ITEM_TYPE;
+            case PLAYLIST_TRACKS:
+                return Playlists.Tracks.CONTENT_TYPE;
+            case PLAYLIST_TRACK_ID:
+                return Playlists.Tracks.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unsupported URI: " + uri);
         }
@@ -110,12 +120,20 @@ public class DatabaseProvider extends ContentProvider {
         Uri contentUri;
         switch (sMatcher.match(uri)) {
             case STATS:
-                tableName = Stats.TABLE_NAME;
+                tableName = Stats.TABLE;
                 contentUri = Stats.CONTENT_URI;
                 break;
             case PLAYLISTS:
-                tableName = Playlists.TABLE_NAME;
+                tableName = Playlists.TABLE;
                 contentUri = Playlists.CONTENT_URI;
+                break;
+            case PLAYLIST_TRACKS:
+                // Uri is in the form: playlists/{playlist_id}/tracks
+                long playlistId = Long.parseLong(uri.getPathSegments().get(1));
+                tableName = Playlists.Tracks.TABLE;
+                contentUri = Playlists.Tracks.getContentUri(playlistId);
+                // Add the playlist_id to the inserted row
+                values.put(Playlists.Tracks.PLAYLIST, playlistId);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for insertion: " + uri);
@@ -130,29 +148,43 @@ public class DatabaseProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
-        if (sMatcher.match(uri) != STATS) {
-            throw new UnsupportedOperationException("Unsupported URI for insertion: " + uri);
-        }
-        SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.beginTransaction();
-        int insertCount = 0;
-        try {
-            for (ContentValues val : values) {
-                db.insertOrThrow(Stats.TABLE_NAME, null, val);
-                insertCount++;
-            }
-            db.setTransactionSuccessful();
-        } catch (SQLException e) {
-            Log.e(TAG, "bulkInsert: error while inserting multiple rows.", e);
-            throw e;
-        } finally {
-            db.endTransaction();
+        String tableName;
+        int match = sMatcher.match(uri);
+        switch (match) {
+            case STATS:
+                tableName = Stats.TABLE;
+                break;
+            case PLAYLIST_TRACKS:
+                long playlistId = Long.parseLong(uri.getPathSegments().get(1));
+                tableName = Playlists.Tracks.TABLE;
+                for (ContentValues val : values) {
+                    val.put(Playlists.Tracks.PLAYLIST, playlistId);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported URI for insertion: " + uri);
         }
 
-        if (insertCount > 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        }
-        return insertCount;
+            SQLiteDatabase db = mHelper.getWritableDatabase();
+            db.beginTransaction();
+            int insertCount = 0;
+            try {
+                for (ContentValues val : values) {
+                    db.insertOrThrow(tableName, null, val);
+                    insertCount++;
+                }
+                db.setTransactionSuccessful();
+            } catch (SQLException e) {
+                Log.e(TAG, "bulkInsert: error while inserting multiple rows.", e);
+                throw e;
+            } finally {
+                db.endTransaction();
+            }
+
+            if (insertCount > 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            return insertCount;
     }
 
     @Override
@@ -173,11 +205,15 @@ public class DatabaseProvider extends ContentProvider {
         switch (match) {
             case STAT_ID:
             case STATS:
-                tableName = Stats.TABLE_NAME;
+                tableName = Stats.TABLE;
                 break;
             case PLAYLIST_ID:
             case PLAYLISTS:
-                tableName = Playlists.TABLE_NAME;
+                tableName = Playlists.TABLE;
+                break;
+            case PLAYLIST_TRACK_ID:
+            case PLAYLIST_TRACKS:
+                tableName = Playlists.Tracks.TABLE;
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for delete: " + uri);
@@ -193,6 +229,7 @@ public class DatabaseProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
+        // FIXME N'autoriser les UPDATE que sur des éléments individuels
         SQLiteDatabase db = mHelper.getWritableDatabase();
         int updatedCount;
         String tableName;
@@ -209,11 +246,15 @@ public class DatabaseProvider extends ContentProvider {
         switch (match) {
             case STAT_ID:
             case STATS:
-                tableName = Stats.TABLE_NAME;
+                tableName = Stats.TABLE;
                 break;
             case PLAYLIST_ID:
             case PLAYLISTS:
-                tableName = Playlists.TABLE_NAME;
+                tableName = Playlists.TABLE;
+                break;
+            case PLAYLIST_TRACK_ID:
+            case PLAYLIST_TRACKS:
+                tableName = Playlists.Tracks.TABLE;
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for update: " + uri);
@@ -266,7 +307,7 @@ public class DatabaseProvider extends ContentProvider {
      */
     private void increment(long musicId, String fieldName, int amount) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        String sql = "UPDATE " + Stats.TABLE_NAME
+        String sql = "UPDATE " + Stats.TABLE
                 + " SET " + fieldName + "=" + fieldName + "+ ?"
                 + " WHERE " + MUSIC_ID + "= ?";
         SQLiteStatement statement = db.compileStatement(sql);
@@ -295,7 +336,7 @@ public class DatabaseProvider extends ContentProvider {
      */
     private void bulkIncrement(long[] musicId, String fieldName, int[] amount) {
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        String sql = "UPDATE " + Stats.TABLE_NAME
+        String sql = "UPDATE " + Stats.TABLE
                 + " SET " + fieldName + "=" + fieldName + "+ ?"
                 + " WHERE " + MUSIC_ID + "= ?";
         SQLiteStatement statement = db.compileStatement(sql);

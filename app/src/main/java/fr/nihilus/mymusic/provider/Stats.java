@@ -9,11 +9,11 @@ interface Stats extends BaseColumns {
     String AUTHORITY = "fr.nihilus.mymusic.provider";
     Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
     String DEFAULT_SORT_ORDER = Stats.MUSIC_ID;
-    String TABLE_NAME = "stats";
-    Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE_NAME).build();
+    String TABLE = "stats";
+    Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE).build();
 
-    String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE_NAME;
-    String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE_NAME;
+    String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE;
+    String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE;
 
     /**
      * Unique id representing the song associated with those stats.

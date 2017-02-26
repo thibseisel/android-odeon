@@ -69,7 +69,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (R.id.action_new_playlist == item.getItemId()) {
-
+            NewPlaylistFragment.newInstance().show(getActivity().getSupportFragmentManager(), null);
             return true;
         }
         return super.onOptionsItemSelected(item);

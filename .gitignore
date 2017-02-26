@@ -3,7 +3,10 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
+/.idea/icon.png
+/.idea/icon_dark.png
 .DS_Store
 /build
 /captures
 .externalNativeBuild
+/projectFilesBackup

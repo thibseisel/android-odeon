@@ -24,7 +24,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String tableStats = "CREATE TABLE " + Stats.TABLE_NAME + " ("
+        final String tableStats = "CREATE TABLE " + Stats.TABLE + " ("
                 + Stats.MUSIC_ID + " INTEGER PRIMARY KEY,"
                 + Stats.READ_COUNT + " INTEGER DEFAULT 0,"
                 + Stats.SKIP_COUNT + " INTEGER DEFAULT 0,"
@@ -32,19 +32,27 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 + Stats.ENERGY + " INTEGER DEFAULT 0" + ");";
         db.execSQL(tableStats);
 
-        final String tablePlaylist = "CREATE TABLE " + Playlists.TABLE_NAME + " ("
+        final String tablePlaylist = "CREATE TABLE " + Playlists.TABLE + " ("
                 + Playlists.PLAYLIST_ID + " INTEGER PRIMARY KEY,"
                 + Playlists.DATE_CREATED + " INTEGER NOT NULL,"
                 + Playlists.NAME + " TEXT NOT NULL,"
                 + Playlists.ART + " TEXT" + ");";
         db.execSQL(tablePlaylist);
 
-        final String tablePlaylistTracks = "CREATE TABLE " + Playlists.Tracks.TABLE_NAME + " ("
+        final String tablePlaylistTracks = "CREATE TABLE " + Playlists.Tracks.TABLE + " ("
                 + Playlists.Tracks.TRACK_ID + " INTEGER PRIMARY KEY,"
                 + Playlists.Tracks.MUSIC + " INTEGER NOT NULL,"
                 + Playlists.Tracks.PLAYLIST + " INTEGER NOT NULL,"
-                + Playlists.Tracks.INDEX + " INTEGER NOT NULL" + ");";
+                + Playlists.Tracks.POSITION + " INTEGER NOT NULL UNIQUE,"
+                + "FOREIGN KEY (" + Playlists.Tracks.PLAYLIST + ") REFERENCES "
+                + Playlists.TABLE + "(" + Playlists.PLAYLIST_ID + ")"
+                + ");";
         db.execSQL(tablePlaylistTracks);
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override
