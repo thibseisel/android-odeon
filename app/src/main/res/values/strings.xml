@@ -41,6 +41,10 @@
     <string name="delete_dialog_title">Delete from library ?</string>
     <string name="cancel">Cancel</string>
     <string name="empty_playlist">No playlist</string>
+    <string name="new_playlist">New playlist</string>
+    <string name="title_hint">Title</string>
+    <string name="saving_playlist">Saving playlist…</string>
+    <string name="playlist_title_error">Please specify a title</string>
     <plurals name="delete_dialog_message">
         <item quantity="one">This song will disappear from your device.</item>
         <item quantity="other">These %d songs will disappear from your device.</item>
@@ -48,5 +52,9 @@
     <plurals name="deleted_songs_confirmation">
         <item quantity="one">%d song has been deleted.</item>
         <item quantity="other">%d songs has been deleted.</item>
+    </plurals>
+    <plurals name="selected_song_count">
+        <item quantity="one">%d song selected</item>
+        <item quantity="other">%d songs selected</item>
     </plurals>
 </resources>

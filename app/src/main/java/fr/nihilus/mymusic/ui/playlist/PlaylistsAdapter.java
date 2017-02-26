@@ -2,8 +2,10 @@ package fr.nihilus.mymusic.ui.playlist;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v7.util.DiffUtil;
@@ -31,9 +33,11 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
 
     PlaylistsAdapter(@NonNull Context context, List<MediaItem> playlists) {
         mItems = playlists;
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp);
         mGlideRequest = Glide.with(context)
                 .fromUri()
                 .asBitmap()
+                .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
     }
 

@@ -27,7 +27,7 @@ import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.MediaItemIndexer;
 
-class SongAdapter extends BaseAdapter implements SectionIndexer {
+public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     private static final String TAG = "SongAdapter";
 
@@ -35,7 +35,7 @@ class SongAdapter extends BaseAdapter implements SectionIndexer {
     private final MediaItemIndexer mIndexer;
     private List<MediaBrowserCompat.MediaItem> mSongs;
 
-    SongAdapter(@NonNull Context context, List<MediaBrowserCompat.MediaItem> songs) {
+    public SongAdapter(@NonNull Context context, List<MediaBrowserCompat.MediaItem> songs) {
         mSongs = songs;
         mIndexer = new MediaItemIndexer(songs);
         registerDataSetObserver(mIndexer);

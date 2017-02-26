@@ -21,12 +21,12 @@
                     android:icon="@drawable/ic_person_24dp"
                     android:title="@string/action_artists"/>
 
-                <!--<item
+                <item
                     android:id="@+id/action_playlist"
                     android:icon="@drawable/ic_playlist_24dp"
                     android:title="@string/action_playlists"/>
 
-                <item
+                <!--<item
                     android:id="@+id/action_favorites"
                     android:icon="@drawable/ic_star_24dp"
                     android:title="@string/favorites"/>-->

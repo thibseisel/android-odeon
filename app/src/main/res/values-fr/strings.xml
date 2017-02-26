@@ -33,6 +33,7 @@
     <string name="empty_artist">Aucun artiste</string>
     <string name="action_delete">Supprimer</string>
     <string name="add_to_playlist">Ajouter à une playlist</string>
+    <string name="empty_playlist">Aucune playlist</string>
     <string name="cancel">Annuler</string>
     <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
     <plurals name="delete_dialog_message">
@@ -43,4 +44,12 @@
         <item quantity="one" tools:ignore="ImpliedQuantity">La chanson a été effacée.</item>
         <item quantity="other">Ces %d chansons ont été effacées.</item>
     </plurals>
+    <plurals name="selected_song_count">
+        <item quantity="one">%d chanson sélectionnée</item>
+        <item quantity="other">%d chansons sélectionnées</item>
+    </plurals>
+    <string name="new_playlist">Nouvelle playlist</string>
+    <string name="title_hint">Titre</string>
+    <string name="saving_playlist">Enregistrement de la playlist…</string>
+    <string name="playlist_title_error">Veuillez saisir un titre</string>
 </resources>

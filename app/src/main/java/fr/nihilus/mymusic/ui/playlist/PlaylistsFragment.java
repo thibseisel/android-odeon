@@ -1,21 +1,32 @@
 package fr.nihilus.mymusic.ui.playlist;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import fr.nihilus.mymusic.MediaBrowserFragment;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.utils.MediaID;
 
 public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
 
+    private static final String TAG = "PlaylistsFragment";
     private static final String KEY_PLAYLISTS = "playlists";
 
     private ArrayList<MediaItem> mPlaylists;
@@ -23,10 +34,24 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     private RecyclerView mRecyclerView;
     private ContentLoadingProgressBar mProgressBar;
     private View mEmptyView;
+    private SubscriptionCallback mSubscriptionCallback = new MediaBrowserCompat.SubscriptionCallback() {
+        @Override
+        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+            Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items from " + parentId);
+            mPlaylists.clear();
+            mPlaylists.addAll(children);
+            mAdapter.notifyDataSetChanged();
+            showLoading(false);
+            if (children.isEmpty()) {
+                showEmptyView(true);
+            }
+        }
+    };
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
             mPlaylists = savedInstanceState.getParcelableArrayList(KEY_PLAYLISTS);
@@ -34,6 +59,20 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
 
         mAdapter = new PlaylistsAdapter(getContext(), mPlaylists);
         mAdapter.setOnPlaylistSelectedListener(this);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_playlists, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (R.id.action_new_playlist == item.getItemId()) {
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Nullable
@@ -80,10 +119,15 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     @Override
     public void onStart() {
         super.onStart();
+        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .subscribe(MediaID.ID_PLAYLISTS, mSubscriptionCallback);
     }
 
     @Override
     public void onStop() {
+        MediaBrowserFragment.getInstance(getActivity().getSupportFragmentManager())
+                .unsubscribe(MediaID.ID_PLAYLISTS);
+        showLoading(false);
         super.onStop();
     }
 

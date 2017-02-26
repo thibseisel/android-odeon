@@ -93,6 +93,7 @@
             android:name=".provider.SetupService"
             android:exported="false">
         </service>
+
     </application>
 
 </manifest>

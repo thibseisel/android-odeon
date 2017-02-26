@@ -48,6 +48,7 @@ import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
+import fr.nihilus.mymusic.ui.playlist.PlaylistsFragment;
 import fr.nihilus.mymusic.ui.songs.SongListFragment;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
@@ -260,6 +261,9 @@ public class HomeActivity extends AppCompatActivity
                 return true;
             case R.id.action_artists:
                 swapFragment(new ArtistsFragment());
+                return true;
+            case R.id.action_playlist:
+                swapFragment(new PlaylistsFragment());
                 return true;
             case R.id.action_settings:
                 Intent settingsActivity = new Intent(this, SettingsActivity.class);
