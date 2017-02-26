@@ -229,7 +229,6 @@ public class DatabaseProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // FIXME N'autoriser les UPDATE que sur des éléments individuels
         SQLiteDatabase db = mHelper.getWritableDatabase();
         int updatedCount;
         String tableName;
@@ -245,15 +244,12 @@ public class DatabaseProvider extends ContentProvider {
 
         switch (match) {
             case STAT_ID:
-            case STATS:
                 tableName = Stats.TABLE;
                 break;
             case PLAYLIST_ID:
-            case PLAYLISTS:
                 tableName = Playlists.TABLE;
                 break;
             case PLAYLIST_TRACK_ID:
-            case PLAYLIST_TRACKS:
                 tableName = Playlists.Tracks.TABLE;
                 break;
             default:
