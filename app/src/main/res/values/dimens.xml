@@ -10,4 +10,8 @@
     <fraction name="album_detail_ratio">100%</fraction>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
     <dimen name="card_max_elevation">8dp</dimen>
+    <dimen name="song_item_height">72dp</dimen>
+    <dimen name="album_art_item_side">56dp</dimen>
+    <dimen name="song_title_size">16sp</dimen>
+    <dimen name="song_subtitle_size">14sp</dimen>
 </resources>
