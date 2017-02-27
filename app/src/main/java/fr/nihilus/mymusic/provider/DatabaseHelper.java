@@ -43,7 +43,7 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 + Playlists.Tracks.TRACK_ID + " INTEGER PRIMARY KEY,"
                 + Playlists.Tracks.MUSIC + " INTEGER NOT NULL,"
                 + Playlists.Tracks.PLAYLIST + " INTEGER NOT NULL,"
-                + Playlists.Tracks.POSITION + " INTEGER NOT NULL UNIQUE,"
+                + Playlists.Tracks.POSITION + " INTEGER NOT NULL,"
                 + "FOREIGN KEY (" + Playlists.Tracks.PLAYLIST + ") REFERENCES "
                 + Playlists.TABLE + "(" + Playlists.PLAYLIST_ID + ")"
                 + ");";
