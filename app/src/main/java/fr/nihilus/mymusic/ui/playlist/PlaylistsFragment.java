@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -140,6 +141,9 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
 
     @Override
     public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, MediaItem playlist) {
-
+        MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
+        if (controller != null) {
+            controller.getTransportControls().playFromMediaId(playlist.getMediaId(), null);
+        }
     }
 }

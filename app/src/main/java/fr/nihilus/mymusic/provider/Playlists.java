@@ -6,9 +6,7 @@ import android.provider.MediaStore;
 
 public final class Playlists {
 
-    private Playlists() {
-        throw new AssertionError("Playlists class is not instantiable.");
-    }
+    private Playlists() {}
 
     static final String AUTHORITY = "fr.nihilus.mymusic.provider";
     static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
@@ -42,15 +40,16 @@ public final class Playlists {
 
     public static final class Tracks {
 
-        private Tracks() {
-            throw new AssertionError("Playlists.Tracks class is not instantiable.");
-        }
+        private Tracks() {}
 
         static final String TABLE = "tracks";
 
         static final String DEFAULT_SORT_ORDER = Tracks.POSITION;
         static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE;
         static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE;
+
+        public static final Uri CONTENT_URI_ALL = Playlists.CONTENT_URI.buildUpon()
+                .appendPath("all").appendPath(TABLE).build();
 
         public static Uri getContentUri(long playlistId) {
             return Playlists.CONTENT_URI.buildUpon()
@@ -76,7 +75,7 @@ public final class Playlists {
          * Unique identifier of the playlist that contains this music.
          * <p>Type: INTEGER (long)</p>
          */
-        static final String PLAYLIST = "playlist_id";
+        public static final String PLAYLIST = "playlist_id";
         /**
          * Position of this music within the playlist.
          * <p>Type: INTEGER</p>

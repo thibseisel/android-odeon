@@ -46,13 +46,12 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NU
 class MusicProvider implements AudioColumns {
 
     static final String METADATA_TITLE_KEY = "title_key";
-
+    static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String TAG = "MusicProvider";
     private static final String[] ALBUM_PROJECTION = {BaseColumns._ID, AlbumColumns.ALBUM,
             AlbumColumns.ALBUM_KEY, AlbumColumns.ARTIST,
             AlbumColumns.LAST_YEAR, AlbumColumns.NUMBER_OF_SONGS};
     private static final int NON_INITIALIZED = 0, INITIALIZING = 1, INITIALIZED = 2;
-    static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String[] MEDIA_PROJECTION = {_ID, TITLE, ALBUM, ARTIST, DURATION, TRACK,
             TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID};
     private static final String[] ARTIST_PROJECTION = {BaseColumns._ID, ArtistColumns.ARTIST,
@@ -62,13 +61,15 @@ class MusicProvider implements AudioColumns {
     private final List<MediaMetadataCompat> mMusicAlpha;
     private final MetadataStore mMusicByArtist;
     private final LongSparseArray<Uri> mArtistAlbumCache;
+    private final MetadataStore mMusicByPlaylist;
     private volatile int mCurrentState = NON_INITIALIZED;
 
     MusicProvider() {
         mMusicById = new LongSparseArray<>();
         mMusicAlpha = new ArrayList<>();
-        mMusicByAlbum = new MetadataStore(MetadataStore.SORT_TYPE_TRACKNO);
-        mMusicByArtist = new MetadataStore(MetadataStore.SORT_TYPE_TITLE);
+        mMusicByAlbum = new MetadataStore(MetadataStore.SORT_TRACKNO);
+        mMusicByArtist = new MetadataStore(MetadataStore.SORT_TITLE);
+        mMusicByPlaylist = new MetadataStore(MetadataStore.SORT_TITLE);
         mArtistAlbumCache = new LongSparseArray<>();
     }
 
@@ -152,7 +153,41 @@ class MusicProvider implements AudioColumns {
             mMusicByArtist.put(cursor.getLong(colArtistId), metadata);
         }
         cursor.close();
+
+        loadPlaylists(context);
+
         mCurrentState = INITIALIZED;
+    }
+
+    private void loadPlaylists(@NonNull Context context) {
+
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
+            mCurrentState = NON_INITIALIZED;
+            return;
+        }
+
+        final Cursor cursor = context.getContentResolver().query(Playlists.Tracks.CONTENT_URI_ALL,
+                null, null, null, null);
+
+        if (cursor == null) {
+            Log.w(TAG, "loadPlaylists: query failed. Aborting.");
+            return;
+        }
+
+        final int colPlaylist = cursor.getColumnIndexOrThrow(Playlists.Tracks.PLAYLIST);
+        final int colMusicId = cursor.getColumnIndexOrThrow(Playlists.Tracks.MUSIC);
+
+        while (cursor.moveToNext()) {
+            long playlistId = cursor.getLong(colPlaylist);
+            long musicId = cursor.getLong(colMusicId);
+            MediaMetadataCompat meta = mMusicById.get(musicId, null);
+            if (meta == null) {
+                throw new IllegalStateException("Music library must be loaded to retrive playlists.");
+            }
+            mMusicByPlaylist.put(playlistId, meta);
+        }
+        cursor.close();
     }
 
     List<MediaMetadataCompat> getAlbumTracks(String albumId) {
@@ -419,7 +454,16 @@ class MusicProvider implements AudioColumns {
         return result;
     }
 
-    List<MediaItem> getPlaylistTracks(@NonNull Context context, @NonNull String playlistId) {
+    List<MediaMetadataCompat> getPlaylistTracks(@NonNull String playlistId) {
+        List<MediaMetadataCompat> result = Collections.emptyList();
+        Set<MediaMetadataCompat> tracks = mMusicByPlaylist.get(Long.parseLong(playlistId));
+        if (tracks != null) {
+            result = new ArrayList<>(tracks);
+        }
+        return result;
+    }
+
+    List<MediaItem> getPlaylistTracksItems(@NonNull Context context, @NonNull String playlistId) {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
@@ -480,7 +524,8 @@ class MusicProvider implements AudioColumns {
 
     /**
      * Call this method to notify the provider that the media associated with the ID has changed.
-     * @param resolver ContentResolver to query the ContentProvider
+     *
+     * @param resolver   ContentResolver to query the ContentProvider
      * @param changedUri uri of the media that has changed
      */
     void notifySongChanged(@NonNull ContentResolver resolver, @NonNull Uri changedUri) {

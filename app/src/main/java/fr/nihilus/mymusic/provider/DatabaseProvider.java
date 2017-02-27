@@ -33,6 +33,7 @@ public class DatabaseProvider extends ContentProvider {
     private static final int PLAYLIST_ID = 201;
     private static final int PLAYLIST_TRACKS = 300;
     private static final int PLAYLIST_TRACK_ID = 301;
+    private static final int PLAYLIST_ALL_TRACKS = 302;
 
     private static UriMatcher sMatcher;
 
@@ -43,13 +44,15 @@ public class DatabaseProvider extends ContentProvider {
         // stats/{song_id}
         sMatcher.addURI(Stats.AUTHORITY, Stats.TABLE + "/#", STAT_ID);
         // playlists
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE, PLAYLISTS);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE, PLAYLISTS);
         // playlists/{playlist_id}
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#", PLAYLIST_ID);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#", PLAYLIST_ID);
         // playlists/{playlist_id}/tracks
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE, PLAYLIST_TRACKS);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE, PLAYLIST_TRACKS);
         // playlists/{playlist_id}/tracks/{track_id}
-        sMatcher.addURI(Stats.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE + "/#", PLAYLIST_TRACK_ID);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE + "/#", PLAYLIST_TRACK_ID);
+        // playlists/all/tracks
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/all/" + Playlists.Tracks.TABLE, PLAYLIST_ALL_TRACKS);
     }
 
     private DatabaseHelper mHelper;
@@ -80,6 +83,19 @@ public class DatabaseProvider extends ContentProvider {
                 if (sortOrder == null) {
                     sortOrder = Playlists.DEFAULT_SORT_ORDER;
                 }
+                break;
+            case PLAYLIST_TRACK_ID:
+                qb.appendWhere(Playlists.Tracks.TABLE + "=" + ContentUris.parseId(uri));
+            case PLAYLIST_TRACKS:
+                long playlistId = Long.parseLong(uri.getPathSegments().get(1));
+                qb.setTables(Playlists.Tracks.TABLE);
+                qb.appendWhere(Playlists.Tracks.PLAYLIST + "=" + playlistId);
+                if (sortOrder == null) {
+                    sortOrder = Playlists.Tracks.DEFAULT_SORT_ORDER;
+                }
+                break;
+            case PLAYLIST_ALL_TRACKS:
+                qb.setTables(Playlists.Tracks.TABLE);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI.");

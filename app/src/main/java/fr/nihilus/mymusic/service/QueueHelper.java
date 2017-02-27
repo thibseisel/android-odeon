@@ -93,6 +93,10 @@ final class QueueHelper {
                 String artistId = hierarchy[1];
                 tracks = provider.getArtistTracks(artistId);
                 break;
+            case MediaID.ID_PLAYLISTS:
+                String playlistId = hierarchy[1];
+                tracks = provider.getPlaylistTracks(playlistId);
+                break;
             case MediaID.ID_DAILY:
                 MediaMetadataCompat daily = provider.getMusic(musicId);
                 tracks = Collections.singletonList(daily);
