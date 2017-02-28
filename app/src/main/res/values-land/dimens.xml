@@ -6,4 +6,5 @@
     <dimen name="album_art_item_side">40dp</dimen>
     <dimen name="song_title_size">13sp</dimen>
     <dimen name="song_subtitle_size">13sp</dimen>
+    <dimen name="tick_mark_inset">8dp</dimen>
 </resources>

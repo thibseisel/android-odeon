@@ -10,13 +10,20 @@
                 android:paddingRight="16dp"
                 android:paddingStart="16dp">
 
-    <ImageView
-        android:id="@+id/cover"
+    <FrameLayout
         android:layout_width="@dimen/album_art_item_side"
         android:layout_height="@dimen/album_art_item_side"
-        android:layout_centerVertical="true"
-        android:contentDescription="@string/album_art"
-        tools:src="@drawable/dummy_album_art"/>
+        android:foreground="@drawable/selected_tick_mark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:layout_centerVertical="true">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            tools:src="@drawable/dummy_album_art"/>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

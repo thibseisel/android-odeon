@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true">
+        <layer-list>
+            <item>
+                <color android:color="?colorControlActivated"/>
+            </item>
+            <item>
+                <inset
+                    android:drawable="@drawable/ic_check_24dp"
+                    android:insetBottom="@dimen/tick_mark_inset"
+                    android:insetLeft="@dimen/tick_mark_inset"
+                    android:insetRight="@dimen/tick_mark_inset"
+                    android:insetTop="@dimen/tick_mark_inset"/>
+            </item>
+        </layer-list>
+    </item>
+</selector>
