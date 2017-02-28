@@ -174,7 +174,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             case MediaID.ID_PLAYLISTS:
                 if (hierarchy.length > 1) {
                     Log.d(TAG, "onLoadChildren: loading tracks from playlist " + hierarchy[1]);
-                    result.sendResult(mMusicProvider.getPlaylistTracksItems(this, hierarchy[1]));
+                    result.sendResult(mMusicProvider.getPlaylistMembersItems(this, hierarchy[1]));
                 } else {
                     Log.d(TAG, "onLoadChildren: loading all playlists");
                     result.sendResult(mMusicProvider.getPlaylistItems(this));

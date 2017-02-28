@@ -39,13 +39,13 @@ class DatabaseHelper extends SQLiteOpenHelper {
                 + Playlists.ART + " TEXT" + ");";
         db.execSQL(tablePlaylist);
 
-        final String tablePlaylistTracks = "CREATE TABLE " + Playlists.Tracks.TABLE + " ("
-                + Playlists.Tracks.TRACK_ID + " INTEGER PRIMARY KEY,"
-                + Playlists.Tracks.MUSIC + " INTEGER NOT NULL,"
-                + Playlists.Tracks.PLAYLIST + " INTEGER NOT NULL,"
-                + Playlists.Tracks.POSITION + " INTEGER NOT NULL,"
-                + "FOREIGN KEY (" + Playlists.Tracks.PLAYLIST + ") REFERENCES "
-                + Playlists.TABLE + "(" + Playlists.PLAYLIST_ID + ")"
+        final String tablePlaylistTracks = "CREATE TABLE " + Playlists.Members.TABLE + " ("
+                + Playlists.Members.MEMBER_ID + " INTEGER PRIMARY KEY,"
+                + Playlists.Members.MUSIC + " INTEGER NOT NULL,"
+                + Playlists.Members.PLAYLIST + " INTEGER NOT NULL,"
+                + Playlists.Members.POSITION + " INTEGER NOT NULL,"
+                + "FOREIGN KEY (" + Playlists.Members.PLAYLIST + ") REFERENCES "
+                + Playlists.TABLE + "(" + Playlists.PLAYLIST_ID + ") ON DELETE CASCADE "
                 + ");";
         db.execSQL(tablePlaylistTracks);
     }

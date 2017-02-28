@@ -218,11 +218,11 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                 for (int i = 0; i < params.length; i++) {
                     long songId = Long.parseLong(MediaID.extractMusicID(params[i].getMediaId()));
                     values[i] = new ContentValues(2);
-                    values[i].put(Playlists.Tracks.MUSIC, songId);
-                    values[i].put(Playlists.Tracks.POSITION, i);
+                    values[i].put(Playlists.Members.MUSIC, songId);
+                    values[i].put(Playlists.Members.POSITION, i);
                 }
 
-                return resolver.bulkInsert(Playlists.Tracks.getContentUri(playlistId), values);
+                return resolver.bulkInsert(Playlists.Members.getContentUri(playlistId), values);
             }
 
             @Override

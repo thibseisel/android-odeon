@@ -9,7 +9,7 @@ public final class Playlists {
     private Playlists() {}
 
     static final String AUTHORITY = "fr.nihilus.mymusic.provider";
-    static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
+    private static final Uri AUTHORITY_URI = Uri.parse("content://" + AUTHORITY);
     static final String DEFAULT_SORT_ORDER = Playlists.DATE_CREATED;
     static final String TABLE = "playlists";
     public static final Uri CONTENT_URI = AUTHORITY_URI.buildUpon().appendPath(TABLE).build();
@@ -38,13 +38,13 @@ public final class Playlists {
      */
     public static final String DATE_CREATED = "date_created";
 
-    public static final class Tracks {
+    public static final class Members {
 
-        private Tracks() {}
+        private Members() {}
 
-        static final String TABLE = "tracks";
+        static final String TABLE = "members";
 
-        static final String DEFAULT_SORT_ORDER = Tracks.POSITION;
+        static final String DEFAULT_SORT_ORDER = Members.POSITION;
         static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_URI  + "/" + TABLE;
         static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_URI + "/" + TABLE;
 
@@ -63,7 +63,7 @@ public final class Playlists {
          * <p>Type: INTEGER (long)</p>
          * <p>Generated automatically when created.</p>
          */
-        public static final String TRACK_ID = BaseColumns._ID;
+        static final String MEMBER_ID = BaseColumns._ID;
         /**
          * Unique id representing the song that is part of this playlist.
          * This id must match the id of the song from {@link MediaStore.Audio.Media#EXTERNAL_CONTENT_URI}.

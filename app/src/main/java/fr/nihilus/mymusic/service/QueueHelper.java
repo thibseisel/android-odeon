@@ -95,7 +95,7 @@ final class QueueHelper {
                 break;
             case MediaID.ID_PLAYLISTS:
                 String playlistId = hierarchy[1];
-                tracks = provider.getPlaylistTracks(playlistId);
+                tracks = provider.getPlaylistMembers(playlistId);
                 break;
             case MediaID.ID_DAILY:
                 MediaMetadataCompat daily = provider.getMusic(musicId);

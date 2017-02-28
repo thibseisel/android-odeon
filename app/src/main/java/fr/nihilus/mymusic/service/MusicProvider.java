@@ -167,7 +167,7 @@ class MusicProvider implements AudioColumns {
             return;
         }
 
-        final Cursor cursor = context.getContentResolver().query(Playlists.Tracks.CONTENT_URI_ALL,
+        final Cursor cursor = context.getContentResolver().query(Playlists.Members.CONTENT_URI_ALL,
                 null, null, null, null);
 
         if (cursor == null) {
@@ -175,8 +175,8 @@ class MusicProvider implements AudioColumns {
             return;
         }
 
-        final int colPlaylist = cursor.getColumnIndexOrThrow(Playlists.Tracks.PLAYLIST);
-        final int colMusicId = cursor.getColumnIndexOrThrow(Playlists.Tracks.MUSIC);
+        final int colPlaylist = cursor.getColumnIndexOrThrow(Playlists.Members.PLAYLIST);
+        final int colMusicId = cursor.getColumnIndexOrThrow(Playlists.Members.MUSIC);
 
         while (cursor.moveToNext()) {
             long playlistId = cursor.getLong(colPlaylist);
@@ -454,23 +454,23 @@ class MusicProvider implements AudioColumns {
         return result;
     }
 
-    List<MediaMetadataCompat> getPlaylistTracks(@NonNull String playlistId) {
+    List<MediaMetadataCompat> getPlaylistMembers(@NonNull String playlistId) {
         List<MediaMetadataCompat> result = Collections.emptyList();
-        Set<MediaMetadataCompat> tracks = mMusicByPlaylist.get(Long.parseLong(playlistId));
-        if (tracks != null) {
-            result = new ArrayList<>(tracks);
+        Set<MediaMetadataCompat> members = mMusicByPlaylist.get(Long.parseLong(playlistId));
+        if (members != null) {
+            result = new ArrayList<>(members);
         }
         return result;
     }
 
-    List<MediaItem> getPlaylistTracksItems(@NonNull Context context, @NonNull String playlistId) {
+    List<MediaItem> getPlaylistMembersItems(@NonNull Context context, @NonNull String playlistId) {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
         Cursor cursor = context.getContentResolver()
-                .query(Playlists.Tracks.getContentUri(Long.parseLong(playlistId)),
+                .query(Playlists.Members.getContentUri(Long.parseLong(playlistId)),
                         null, null, null, null);
 
         if (cursor == null) {
@@ -478,7 +478,7 @@ class MusicProvider implements AudioColumns {
             return Collections.emptyList();
         }
 
-        int colMusic = cursor.getColumnIndexOrThrow(Playlists.Tracks.MUSIC);
+        int colMusic = cursor.getColumnIndexOrThrow(Playlists.Members.MUSIC);
 
         List<MediaMetadataCompat> meta = new ArrayList<>(cursor.getCount());
 

@@ -48,11 +48,11 @@ public class DatabaseProvider extends ContentProvider {
         // playlists/{playlist_id}
         sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#", PLAYLIST_ID);
         // playlists/{playlist_id}/tracks
-        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE, PLAYLIST_TRACKS);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Members.TABLE, PLAYLIST_TRACKS);
         // playlists/{playlist_id}/tracks/{track_id}
-        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Tracks.TABLE + "/#", PLAYLIST_TRACK_ID);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/#/" + Playlists.Members.TABLE + "/#", PLAYLIST_TRACK_ID);
         // playlists/all/tracks
-        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/all/" + Playlists.Tracks.TABLE, PLAYLIST_ALL_TRACKS);
+        sMatcher.addURI(Playlists.AUTHORITY, Playlists.TABLE + "/all/" + Playlists.Members.TABLE, PLAYLIST_ALL_TRACKS);
     }
 
     private DatabaseHelper mHelper;
@@ -85,17 +85,17 @@ public class DatabaseProvider extends ContentProvider {
                 }
                 break;
             case PLAYLIST_TRACK_ID:
-                qb.appendWhere(Playlists.Tracks.TABLE + "=" + ContentUris.parseId(uri));
+                qb.appendWhere(Playlists.Members.TABLE + "=" + ContentUris.parseId(uri));
             case PLAYLIST_TRACKS:
                 long playlistId = Long.parseLong(uri.getPathSegments().get(1));
-                qb.setTables(Playlists.Tracks.TABLE);
-                qb.appendWhere(Playlists.Tracks.PLAYLIST + "=" + playlistId);
+                qb.setTables(Playlists.Members.TABLE);
+                qb.appendWhere(Playlists.Members.PLAYLIST + "=" + playlistId);
                 if (sortOrder == null) {
-                    sortOrder = Playlists.Tracks.DEFAULT_SORT_ORDER;
+                    sortOrder = Playlists.Members.DEFAULT_SORT_ORDER;
                 }
                 break;
             case PLAYLIST_ALL_TRACKS:
-                qb.setTables(Playlists.Tracks.TABLE);
+                qb.setTables(Playlists.Members.TABLE);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI.");
@@ -122,9 +122,9 @@ public class DatabaseProvider extends ContentProvider {
             case PLAYLIST_ID:
                 return Playlists.CONTENT_ITEM_TYPE;
             case PLAYLIST_TRACKS:
-                return Playlists.Tracks.CONTENT_TYPE;
+                return Playlists.Members.CONTENT_TYPE;
             case PLAYLIST_TRACK_ID:
-                return Playlists.Tracks.CONTENT_ITEM_TYPE;
+                return Playlists.Members.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unsupported URI: " + uri);
         }
@@ -146,10 +146,10 @@ public class DatabaseProvider extends ContentProvider {
             case PLAYLIST_TRACKS:
                 // Uri is in the form: playlists/{playlist_id}/tracks
                 long playlistId = Long.parseLong(uri.getPathSegments().get(1));
-                tableName = Playlists.Tracks.TABLE;
-                contentUri = Playlists.Tracks.getContentUri(playlistId);
+                tableName = Playlists.Members.TABLE;
+                contentUri = Playlists.Members.getContentUri(playlistId);
                 // Add the playlist_id to the inserted row
-                values.put(Playlists.Tracks.PLAYLIST, playlistId);
+                values.put(Playlists.Members.PLAYLIST, playlistId);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for insertion: " + uri);
@@ -172,9 +172,9 @@ public class DatabaseProvider extends ContentProvider {
                 break;
             case PLAYLIST_TRACKS:
                 long playlistId = Long.parseLong(uri.getPathSegments().get(1));
-                tableName = Playlists.Tracks.TABLE;
+                tableName = Playlists.Members.TABLE;
                 for (ContentValues val : values) {
-                    val.put(Playlists.Tracks.PLAYLIST, playlistId);
+                    val.put(Playlists.Members.PLAYLIST, playlistId);
                 }
                 break;
             default:
@@ -229,7 +229,7 @@ public class DatabaseProvider extends ContentProvider {
                 break;
             case PLAYLIST_TRACK_ID:
             case PLAYLIST_TRACKS:
-                tableName = Playlists.Tracks.TABLE;
+                tableName = Playlists.Members.TABLE;
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for delete: " + uri);
@@ -266,7 +266,7 @@ public class DatabaseProvider extends ContentProvider {
                 tableName = Playlists.TABLE;
                 break;
             case PLAYLIST_TRACK_ID:
-                tableName = Playlists.Tracks.TABLE;
+                tableName = Playlists.Members.TABLE;
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported URI for update: " + uri);
