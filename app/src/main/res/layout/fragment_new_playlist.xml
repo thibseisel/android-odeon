@@ -14,7 +14,7 @@
         android:background="?colorPrimary">
 
         <android.support.v7.widget.Toolbar
-            android:id="@id/toolbar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?actionBarSize"/>
@@ -49,6 +49,12 @@
         android:divider="@null"
         android:listSelector="@android:color/transparent"
         tools:listitem="@layout/song_list_item"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/buttonBar"
+        android:background="#23000000"/>
 
     <android.support.v7.widget.ButtonBarLayout
         android:id="@+id/buttonBar"
