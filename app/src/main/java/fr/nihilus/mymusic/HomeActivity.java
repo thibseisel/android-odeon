@@ -195,12 +195,12 @@ public class HomeActivity extends AppCompatActivity
                 .setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
                     @Override
                     public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
+                        mPlayerView.open(newState != BottomSheetBehavior.STATE_COLLAPSED);
                     }
 
                     @Override
                     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                        mPlayerView.setHeaderOpacity(1 - slideOffset);
+                        //mPlayerView.setHeaderOpacity(1 - slideOffset);
                     }
                 });
     }

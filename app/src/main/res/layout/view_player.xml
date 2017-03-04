@@ -8,82 +8,88 @@
     android:background="?colorBackgroundFloating"
     tools:ignore="Overdraw">
 
-    <ImageView
-        android:id="@+id/cover"
-        android:layout_width="@dimen/playerview_height"
-        android:layout_height="@dimen/playerview_height"
-        android:contentDescription="@string/album_art"
-        tools:src="@android:color/black"/>
-
-    <fr.nihilus.mymusic.view.AutoUpdateSeekBar
-        android:id="@+id/progress"
-        style="@style/Widget.AppTheme.ProgressBar"
+    <RelativeLayout
+        android:id="@+id/playbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/cover"
-        android:layout_toEndOf="@id/cover"
-        android:layout_toRightOf="@id/cover"
-        android:paddingBottom="4dp"
-        tools:progress="100"/>
+        android:layout_height="@dimen/playerview_height">
 
-    <LinearLayout
-        android:id="@+id/textContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/playerview_height"
-        android:layout_alignBottom="@id/cover"
-        android:layout_below="@id/progress"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginStart="12dp"
-        android:layout_toEndOf="@+id/cover"
-        android:layout_toLeftOf="@+id/btn_play_pause"
-        android:layout_toRightOf="@+id/cover"
-        android:layout_toStartOf="@+id/btn_play_pause"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="@dimen/playerview_height"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            tools:src="@android:color/black"/>
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
+        <fr.nihilus.mymusic.view.AutoUpdateSeekBar
+            android:id="@+id/progress"
+            style="@style/Widget.AppTheme.ProgressBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            tools:text="Title de la chanson"/>
+            android:layout_alignTop="@id/cover"
+            android:layout_toEndOf="@id/cover"
+            android:layout_toRightOf="@id/cover"
+            android:paddingBottom="4dp"
+            tools:progress="100"/>
 
-        <TextView
-            android:id="@+id/subtitle"
+        <LinearLayout
+            android:id="@+id/textContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="?android:attr/textColorTertiary"
-            tools:text="Nom de l'artiste"/>
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:layout_below="@id/progress"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_toEndOf="@+id/cover"
+            android:layout_toLeftOf="@+id/btn_play_pause"
+            android:layout_toRightOf="@+id/cover"
+            android:layout_toStartOf="@+id/btn_play_pause"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            tools:showIn="@layout/view_player">
 
-    <ImageView
-        android:id="@+id/btn_play_pause"
-        android:layout_width="@dimen/playerview_height"
-        android:layout_height="@dimen/playerview_icon_height"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/play_icon_margin"
-        android:layout_marginTop="@dimen/play_icon_margin"
-        android:background="?selectableItemBackgroundBorderless"
-        android:contentDescription="@string/play_or_pause"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/level_play_pause"/>
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                tools:text="Title de la chanson"/>
+
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="?android:attr/textColorTertiary"
+                tools:text="Nom de l'artiste"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/btn_play_pause"
+            android:layout_width="@dimen/playerview_height"
+            android:layout_height="@dimen/playerview_icon_height"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="@dimen/play_icon_margin"
+            android:layout_marginTop="@dimen/play_icon_margin"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/play_or_pause"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/level_play_pause"/>
+    </RelativeLayout>
 
     <ImageView
         android:id="@+id/bigArt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/buttonBar"
-        android:layout_below="@id/cover"
+        android:layout_below="@id/playbar"
         android:contentDescription="@string/album_art"
         android:scaleType="centerCrop"
         tools:src="@drawable/ic_audiotrack_24dp"/>
@@ -101,8 +107,8 @@
         <android.support.v4.widget.Space
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:padding="16dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:padding="16dp"/>
 
         <ImageView
             android:id="@+id/btn_previous"
@@ -140,9 +146,9 @@
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:padding="16dp"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_random"
+            android:padding="16dp"
             app:srcCompat="@drawable/ic_shuffle_24dp"/>
     </LinearLayout>
 
