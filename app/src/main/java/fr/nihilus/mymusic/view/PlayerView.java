@@ -15,6 +15,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.percent.PercentRelativeLayout;
 import android.support.transition.Scene;
+import android.support.transition.TransitionManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -26,7 +27,6 @@ import android.support.v7.content.res.AppCompatResources;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -128,9 +128,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ViewGroup sceneRoot = (ViewGroup) findViewById(R.id.playbar);
-        /*mClosedScene = Scene.getSceneForLayout(sceneRoot, R.layout.scene_playerview_closed, getContext());
-        mOpenScene = Scene.getSceneForLayout(sceneRoot, R.layout.scene_playerview_open, getContext());*/
+        mClosedScene = Scene.getSceneForLayout(this, R.layout.scene_playerview_closed, getContext());
+        mOpenScene = Scene.getSceneForLayout(this, R.layout.scene_playerview_open, getContext());
 
         mAlbumArt = (ImageView) findViewById(R.id.cover);
         mTitle = (TextView) findViewById(R.id.title);
@@ -215,11 +214,11 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     }
 
     public void open(boolean isOpen) {
-        /*if (isOpen) {
+        if (isOpen) {
             TransitionManager.go(mOpenScene);
         } else {
             TransitionManager.go(mClosedScene);
-        }*/
+        }
     }
 
     private void seekTo(int position) {
