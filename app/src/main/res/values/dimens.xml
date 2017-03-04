@@ -15,4 +15,6 @@
     <dimen name="song_title_size">16sp</dimen>
     <dimen name="song_subtitle_size">14sp</dimen>
     <dimen name="tick_mark_inset">12dp</dimen>
+    <dimen name="playerview_icon_height">46dp</dimen>
+    <dimen name="play_icon_margin">10dp</dimen>
 </resources>
