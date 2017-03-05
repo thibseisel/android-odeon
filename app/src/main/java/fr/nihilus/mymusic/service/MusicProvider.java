@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import fr.nihilus.mymusic.provider.Playlists;
+import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
@@ -504,9 +505,21 @@ class MusicProvider implements AudioColumns {
             return null;
         }
 
-        Random rand = new Random();
-        int index = rand.nextInt(mMusicById.size());
-        MediaMetadataCompat meta = mMusicById.valueAt(index);
+        MediaMetadataCompat meta;
+
+        long lastUpdate = Prefs.getLastDailySongUpdate(mContext);
+        if (DateUtils.isToday(lastUpdate)) {
+            // Song of the Day has already been determined for today
+            long songId = Prefs.getDailySongId(mContext);
+            meta = mMusicById.get(songId);
+        } else {
+            // It's a new day, get Song of the Day randomly and save its ID
+            Random rand = new Random();
+            int index = rand.nextInt(mMusicById.size());
+            long musicId = mMusicById.keyAt(index);
+            meta = mMusicById.valueAt(index);
+            Prefs.setDailySongId(mContext, musicId);
+        }
 
         String mediaId = MediaID.createMediaID(meta.getString(METADATA_KEY_MEDIA_ID), MediaID.ID_MUSIC);
         String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
