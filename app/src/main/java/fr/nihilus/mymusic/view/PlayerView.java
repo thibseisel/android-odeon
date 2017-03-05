@@ -61,7 +61,6 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private ImageView mMasterPlayPause;
     private ImageView mBigArt;
     private ImageView mRandomButton;
-    private BottomSheetBehavior<PlayerView> mBehavior;
     private MediaControllerCompat mController;
 
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
@@ -83,6 +82,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     private PlaybackStateCompat mLastPlaybackState;
     private boolean mIsPlaying;
+
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat newState) {
@@ -94,6 +94,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             updateMetadata(metadata);
         }
     };
+
     private ViewGroup mPlayBar;
     private Transition mOpenTransition;
 
@@ -144,8 +145,13 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
          */
         ViewGroup.LayoutParams params = getLayoutParams();
         if (params instanceof CoordinatorLayout.LayoutParams) {
-            mBehavior = BottomSheetBehavior.from(this);
+            BottomSheetBehavior<PlayerView> mBehavior = BottomSheetBehavior.from(this);
             mBehavior.setBottomSheetCallback(new BottomSheetCallback());
+            if (mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                onClose(false);
+            } else if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                onOpen(false);
+            }
         }
     }
 
@@ -191,21 +197,23 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     }
 
-    private void onOpen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    private void onOpen(boolean animate) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
             TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
-            int eightDps = ViewUtils.dipToPixels(getContext(), 8);
-            mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
-            mPlayPauseButton.setVisibility(View.GONE);
         }
+
+        int eightDps = ViewUtils.dipToPixels(getContext(), 8);
+        mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
+        mPlayPauseButton.setVisibility(View.GONE);
     }
 
-    private void onClose() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    private void onClose(boolean animate) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
             TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
-            mAlbumArt.setPadding(0, 0, 0, 0);
-            mPlayPauseButton.setVisibility(View.VISIBLE);
         }
+
+        mAlbumArt.setPadding(0, 0, 0, 0);
+        mPlayPauseButton.setVisibility(View.VISIBLE);
     }
 
     private void seekTo(int position) {
@@ -320,9 +328,9 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         @Override
         public void onStateChanged(@NonNull View bottomSheet, int newState) {
             if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                onClose();
+                onClose(true);
             } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                onOpen();
+                onOpen(true);
             }
         }
 
