@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -61,7 +60,6 @@ public class HomeActivity extends AppCompatActivity
     public static final String ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
 
     private static final String KEY_DAILY_SONG = "daily_song";
-    private static final String KEY_BOTTOMSHEET_STATE = "bottomsheet_state";
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -136,9 +134,6 @@ public class HomeActivity extends AppCompatActivity
         } else {
             mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
             prepareHeaderView(mDaily);
-            final int bottomSheetState = savedInstanceState.getInt(KEY_BOTTOMSHEET_STATE,
-                    BottomSheetBehavior.STATE_COLLAPSED);
-            BottomSheetBehavior.from(mPlayerView).setState(bottomSheetState);
         }
     }
 
@@ -174,7 +169,6 @@ public class HomeActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_DAILY_SONG, mDaily);
-        outState.putInt(KEY_BOTTOMSHEET_STATE, BottomSheetBehavior.from(mPlayerView).getState());
     }
 
     @Override
@@ -187,22 +181,6 @@ public class HomeActivity extends AppCompatActivity
         mPlayerView = (PlayerView) findViewById(R.id.playerView);
         MediaBrowserFragment.getInstance(getSupportFragmentManager())
                 .doWhenConnected(mConnectionCallback);
-        BottomSheetBehavior.from(mPlayerView)
-                .setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-                    @Override
-                    public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                            mPlayerView.close();
-                        } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                            mPlayerView.open();
-                        }
-                    }
-
-                    @Override
-                    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
-                    }
-                });
     }
 
     /**

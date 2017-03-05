@@ -50,7 +50,20 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
+    private BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+    private TextView mTitle;
+    private TextView mArtist;
+    private ImageView mAlbumArt;
+    private AutoUpdateSeekBar mProgress;
+    private ImageView mPlayPauseButton;
+    private ImageView mPreviousButton;
+    private ImageView mNextButton;
+    private ImageView mMasterPlayPause;
+    private ImageView mBigArt;
+    private ImageView mRandomButton;
+    private BottomSheetBehavior<PlayerView> mBehavior;
     private MediaControllerCompat mController;
+
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
@@ -59,29 +72,17 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
         @Override
         public void onStartTrackingTouch(SeekBar view) {
+            // Do nothing
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar view) {
+            // Do nothing
         }
     };
-    private BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+
     private PlaybackStateCompat mLastPlaybackState;
-    private TextView mTitle;
-    private TextView mArtist;
-    private ImageView mAlbumArt;
-    private AutoUpdateSeekBar mProgress;
     private boolean mIsPlaying;
-    private ImageView mPlayPauseButton;
-    private ImageView mPreviousButton;
-    private ImageView mNextButton;
-    private ImageView mMasterPlayPause;
-    private ImageView mBigArt;
-    private ImageView mRandomButton;
-    private ViewGroup mPlayBar;
-
-    private Transition mOpenTransition;
-
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat newState) {
@@ -93,6 +94,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             updateMetadata(metadata);
         }
     };
+    private ViewGroup mPlayBar;
+    private Transition mOpenTransition;
 
     public PlayerView(Context context) {
         this(context, null, 0);
@@ -128,47 +131,22 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     }
 
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPlayBar = (ViewGroup) findViewById(R.id.playbar);
-            mOpenTransition = TransitionInflater.from(getContext())
-                    .inflateTransition(R.transition.playerview_header_transition);
-        }
-
-        mAlbumArt = (ImageView) findViewById(R.id.cover);
-        mTitle = (TextView) findViewById(R.id.title);
-        mArtist = (TextView) findViewById(R.id.subtitle);
-        mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
-        mProgress.setOnUpdateListener(this);
-        mProgress.setOnSeekBarChangeListener(mSeekListener);
-
-        findViewById(R.id.textContainer).setOnClickListener(this);
-
-        mBigArt = (ImageView) findViewById(R.id.bigArt);
-
-        mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
-        mPlayPauseButton.setOnClickListener(this);
-        mPreviousButton = (ImageView) findViewById(R.id.btn_previous);
-        mPreviousButton.setOnClickListener(this);
-        mNextButton = (ImageView) findViewById(R.id.btn_next);
-        mNextButton.setOnClickListener(this);
-        mMasterPlayPause = (ImageView) findViewById(R.id.main_play_pause);
-        mMasterPlayPause.setOnClickListener(this);
-
-        // Random button
-        mRandomButton = (ImageView) findViewById(R.id.btn_random);
-        ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
-                R.color.activation_state_list);
-        Drawable wrapDrawable = DrawableCompat.wrap(mRandomButton.getDrawable());
-        DrawableCompat.setTintList(wrapDrawable, colorStateList);
-        mRandomButton.setImageDrawable(wrapDrawable);
-        mRandomButton.setOnClickListener(this);
+    protected void dispatchSetPressed(boolean pressed) {
+        // Do not dispatch pressed event to View children
     }
 
     @Override
-    protected void dispatchSetPressed(boolean pressed) {
-        // Do not dispatch pressed event to View children
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        /* Starting from this point, PlayerView is attached to its parent.
+         * Initialize BottomSheetBehavior only if the parent is a CoordinatorLayout.
+         */
+        ViewGroup.LayoutParams params = getLayoutParams();
+        if (params instanceof CoordinatorLayout.LayoutParams) {
+            mBehavior = BottomSheetBehavior.from(this);
+            mBehavior.setBottomSheetCallback(new BottomSheetCallback());
+        }
     }
 
     public void setMediaController(@Nullable MediaControllerCompat controller) {
@@ -213,23 +191,19 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     }
 
-    public void open() {
+    private void onOpen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
-
             int eightDps = ViewUtils.dipToPixels(getContext(), 8);
             mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
-
             mPlayPauseButton.setVisibility(View.GONE);
         }
     }
 
-    public void close() {
+    private void onClose() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
-
             mAlbumArt.setPadding(0, 0, 0, 0);
-
             mPlayPauseButton.setVisibility(View.VISIBLE);
         }
     }
@@ -296,6 +270,65 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
                     controls.sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
                     break;
             }
+        }
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        mAlbumArt = (ImageView) findViewById(R.id.cover);
+        mTitle = (TextView) findViewById(R.id.title);
+        mArtist = (TextView) findViewById(R.id.subtitle);
+        mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
+        mProgress.setOnUpdateListener(this);
+        mProgress.setOnSeekBarChangeListener(mSeekListener);
+
+        findViewById(R.id.textContainer).setOnClickListener(this);
+
+        mBigArt = (ImageView) findViewById(R.id.bigArt);
+
+        mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
+        mPlayPauseButton.setOnClickListener(this);
+        mPreviousButton = (ImageView) findViewById(R.id.btn_previous);
+        mPreviousButton.setOnClickListener(this);
+        mNextButton = (ImageView) findViewById(R.id.btn_next);
+        mNextButton.setOnClickListener(this);
+        mMasterPlayPause = (ImageView) findViewById(R.id.main_play_pause);
+        mMasterPlayPause.setOnClickListener(this);
+
+        mRandomButton = (ImageView) findViewById(R.id.btn_random);
+        ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
+                R.color.activation_state_list);
+        Drawable wrapDrawable = DrawableCompat.wrap(mRandomButton.getDrawable());
+        DrawableCompat.setTintList(wrapDrawable, colorStateList);
+        mRandomButton.setImageDrawable(wrapDrawable);
+        mRandomButton.setOnClickListener(this);
+
+        // Transitions of the top of the PlayerView
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mPlayBar = (ViewGroup) findViewById(R.id.playbar);
+            mOpenTransition = TransitionInflater.from(getContext())
+                    .inflateTransition(R.transition.playerview_header_transition);
+        }
+    }
+
+    /**
+     * Class that contains callback to execute when this view's BottomSheet state changes.
+     */
+    private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                onClose();
+            } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                onOpen();
+            }
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            // Do nothing
         }
     }
 }
