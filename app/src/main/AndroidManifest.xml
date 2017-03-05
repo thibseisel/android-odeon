@@ -77,17 +77,6 @@
             android:parentActivityName=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar.Neutral">
         </activity>
-        <activity
-            android:name=".ui.SearchResultActivity"
-            android:parentActivityName=".HomeActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
-        </activity>
 
         <service
             android:name=".provider.SetupService"
