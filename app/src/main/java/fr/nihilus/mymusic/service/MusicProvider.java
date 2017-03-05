@@ -507,8 +507,7 @@ class MusicProvider implements AudioColumns {
         int index = rand.nextInt(mMusicById.size());
         MediaMetadataCompat meta = mMusicById.valueAt(index);
 
-        String mediaId = MediaID.createMediaID(meta.getString(METADATA_KEY_MEDIA_ID),
-                MediaID.ID_DAILY, MediaID.ID_DAILY);
+        String mediaId = MediaID.createMediaID(meta.getString(METADATA_KEY_MEDIA_ID), MediaID.ID_MUSIC);
         String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
 
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder()

@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 
+import java.util.Date;
+
 import fr.nihilus.mymusic.R;
 
 /**
@@ -20,6 +22,8 @@ public final class Prefs {
     private static final String KEY_DAILY_UPDATE = "last_daily_update";
     private static final String KEY_LAST_PLAYED = "last_played";
     private static final String KEY_DB_SETUP = "db_setup";
+
+    private Prefs() {}
 
     /**
      * Returns the night mode preference. Result of this method can be the following :
@@ -60,9 +64,10 @@ public final class Prefs {
                 .getLong(KEY_DAILY_SONG, -1L);
     }
 
-    public static long getLastDailySongUpdate(@NonNull Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+    public static Date getLastDailySongUpdate(@NonNull Context context) {
+        long time = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getLong(KEY_DAILY_UPDATE, -1L);
+        return new Date(time);
     }
 
     public static void setLastPlayedMediaId(@NonNull Context context, String mediaId) {
