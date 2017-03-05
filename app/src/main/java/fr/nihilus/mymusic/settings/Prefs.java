@@ -64,7 +64,7 @@ public final class Prefs {
 
     public static long getLastDailySongUpdate(@NonNull Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
-                .getLong(KEY_DAILY_UPDATE, -1L);
+                .getLong(KEY_DAILY_UPDATE, 0);
     }
 
     public static void setLastPlayedMediaId(@NonNull Context context, String mediaId) {
