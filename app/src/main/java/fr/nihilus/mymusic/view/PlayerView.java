@@ -14,8 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.percent.PercentRelativeLayout;
-import android.support.transition.Scene;
-import android.support.transition.TransitionManager;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -24,9 +22,13 @@ import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -76,9 +78,9 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private ImageView mMasterPlayPause;
     private ImageView mBigArt;
     private ImageView mRandomButton;
+    private ViewGroup mPlayBar;
 
-    private Scene mClosedScene;
-    private Scene mOpenScene;
+    private Transition mOpenTransition;
 
     private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
         @Override
@@ -128,8 +130,11 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        mClosedScene = Scene.getSceneForLayout(this, R.layout.scene_playerview_closed, getContext());
-        mOpenScene = Scene.getSceneForLayout(this, R.layout.scene_playerview_open, getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mPlayBar = (ViewGroup) findViewById(R.id.playbar);
+            mOpenTransition = TransitionInflater.from(getContext())
+                    .inflateTransition(R.transition.playerview_header_transition);
+        }
 
         mAlbumArt = (ImageView) findViewById(R.id.cover);
         mTitle = (TextView) findViewById(R.id.title);
@@ -186,7 +191,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
             mGlideRequest.load(media.getIconUri()).into(mBigArt);
             int max = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-            mProgress.setMax(max > 0 ? max : 0);
+            mProgress.setMax(Math.max(max, 0));
             onUpdate(mProgress);
         }
     }
@@ -208,16 +213,24 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     }
 
-    public void setHeaderOpacity(float opacity) {
-        mPlayPauseButton.setAlpha(opacity);
-        mAlbumArt.setAlpha(opacity);
+    public void open() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
+
+            int eightDps = ViewUtils.dipToPixels(getContext(), 8);
+            mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
+
+            mPlayPauseButton.setVisibility(View.GONE);
+        }
     }
 
-    public void open(boolean isOpen) {
-        if (isOpen) {
-            TransitionManager.go(mOpenScene);
-        } else {
-            TransitionManager.go(mClosedScene);
+    public void close() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
+
+            mAlbumArt.setPadding(0, 0, 0, 0);
+
+            mPlayPauseButton.setVisibility(View.VISIBLE);
         }
     }
 

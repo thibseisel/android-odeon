@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+               android:transitionOrdering="together">
+
+    <!-- TODO changeImageTransform ne resize pas l'image correctement -->
+    <changeImageTransform
+        android:interpolator="@android:interpolator/fast_out_slow_in">
+        <targets android:targetId="@id/cover"/>
+    </changeImageTransform>
+    <changeBounds
+        android:interpolator="@android:interpolator/fast_out_slow_in">
+        <targets>
+            <target android:targetId="@+id/title"/>
+            <target android:targetId="@+id/subtitle"/>
+        </targets>
+    </changeBounds>
+    <explode
+        android:fadingMode="fade_in_out"
+        android:interpolator="@android:interpolator/fast_out_slow_in">
+        <targets android:targetId="@id/btn_play_pause"/>
+    </explode>
+</transitionSet>
