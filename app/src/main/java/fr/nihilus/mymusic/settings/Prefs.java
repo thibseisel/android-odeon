@@ -6,8 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 
-import java.util.Date;
-
 import fr.nihilus.mymusic.R;
 
 /**
@@ -64,10 +62,9 @@ public final class Prefs {
                 .getLong(KEY_DAILY_SONG, -1L);
     }
 
-    public static Date getLastDailySongUpdate(@NonNull Context context) {
-        long time = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+    public static long getLastDailySongUpdate(@NonNull Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
                 .getLong(KEY_DAILY_UPDATE, -1L);
-        return new Date(time);
     }
 
     public static void setLastPlayedMediaId(@NonNull Context context, String mediaId) {

@@ -1,6 +1,5 @@
 package fr.nihilus.mymusic.service;
 
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
@@ -63,8 +62,10 @@ class MusicProvider implements AudioColumns {
     private final LongSparseArray<Uri> mArtistAlbumCache;
     private final MetadataStore mMusicByPlaylist;
     private volatile int mCurrentState = NON_INITIALIZED;
+    private final Context mContext;
 
-    MusicProvider() {
+    MusicProvider(@NonNull Context context) {
+        mContext = context;
         mMusicById = new LongSparseArray<>();
         mMusicAlpha = new ArrayList<>();
         mMusicByAlbum = new MetadataStore(MetadataStore.SORT_TRACKNO);
@@ -94,18 +95,18 @@ class MusicProvider implements AudioColumns {
      * You must call this method before querying song-related MediaItems.
      */
     @SuppressWarnings("WrongConstant")
-    void loadMetadata(@NonNull Context context) {
+    void loadMetadata() {
         if (isNotInitialized()) {
             mCurrentState = INITIALIZING;
         }
 
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             mCurrentState = NON_INITIALIZED;
             return;
         }
 
-        final Cursor cursor = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI,
+        final Cursor cursor = mContext.getContentResolver().query(Media.EXTERNAL_CONTENT_URI,
                 MEDIA_PROJECTION, IS_MUSIC + "=1", null, Media.DEFAULT_SORT_ORDER);
 
         if (cursor == null) {
@@ -154,20 +155,20 @@ class MusicProvider implements AudioColumns {
         }
         cursor.close();
 
-        loadPlaylists(context);
+        loadPlaylists();
 
         mCurrentState = INITIALIZED;
     }
 
-    private void loadPlaylists(@NonNull Context context) {
+    private void loadPlaylists() {
 
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             mCurrentState = NON_INITIALIZED;
             return;
         }
 
-        final Cursor cursor = context.getContentResolver().query(Playlists.Members.CONTENT_URI_ALL,
+        final Cursor cursor = mContext.getContentResolver().query(Playlists.Members.CONTENT_URI_ALL,
                 null, null, null, null);
 
         if (cursor == null) {
@@ -237,13 +238,13 @@ class MusicProvider implements AudioColumns {
      *
      * @return list of all albums, alphabetically sorted
      */
-    List<MediaItem> getAlbumItems(@NonNull Context context) {
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+    List<MediaItem> getAlbumItems() {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
-        Cursor cursor = context.getContentResolver()
+        Cursor cursor = mContext.getContentResolver()
                 .query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
                         null, null, MediaStore.Audio.Albums.DEFAULT_SORT_ORDER);
 
@@ -300,13 +301,13 @@ class MusicProvider implements AudioColumns {
         return mMusicAlpha;
     }
 
-    List<MediaItem> getArtistItems(@NonNull Context context) {
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+    List<MediaItem> getArtistItems() {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
-        Cursor cursor = context.getContentResolver()
+        Cursor cursor = mContext.getContentResolver()
                 .query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
                         null, null, Artists.DEFAULT_SORT_ORDER);
 
@@ -336,7 +337,7 @@ class MusicProvider implements AudioColumns {
 
             Uri mostRecentAlbumArtUri = mArtistAlbumCache.get(artistId);
             if (mostRecentAlbumArtUri == null) {
-                final Cursor c = context.getContentResolver()
+                final Cursor c = mContext.getContentResolver()
                         .query(Artists.Albums.getContentUri("external", artistId),
                                 new String[]{BaseColumns._ID}, null, null,
                                 AudioColumns.YEAR + " DESC");
@@ -355,14 +356,14 @@ class MusicProvider implements AudioColumns {
         return result;
     }
 
-    List<MediaItem> getArtistChildren(@NonNull Context context, @NonNull String artistId) {
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+    List<MediaItem> getArtistChildren(@NonNull String artistId) {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
         long longId = Long.parseLong(artistId);
-        Cursor cursor = context.getContentResolver()
+        Cursor cursor = mContext.getContentResolver()
                 .query(Artists.Albums.getContentUri("external", longId), ALBUM_PROJECTION,
                         null, null, null);
         if (cursor == null) {
@@ -424,13 +425,13 @@ class MusicProvider implements AudioColumns {
         return result;
     }
 
-    List<MediaItem> getPlaylistItems(@NonNull Context context) {
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+    List<MediaItem> getPlaylistItems() {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
-        Cursor cursor = context.getContentResolver().query(Playlists.CONTENT_URI, null, null, null, null);
+        Cursor cursor = mContext.getContentResolver().query(Playlists.CONTENT_URI, null, null, null, null);
         if (cursor == null) {
             Log.e(TAG, "getPlaylistItems: playlists query failed. Aborting.");
             return Collections.emptyList();
@@ -463,13 +464,13 @@ class MusicProvider implements AudioColumns {
         return result;
     }
 
-    List<MediaItem> getPlaylistMembersItems(@NonNull Context context, @NonNull String playlistId) {
-        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+    List<MediaItem> getPlaylistMembersItems(@NonNull String playlistId) {
+        if (!PermissionUtil.hasExternalStoragePermission(mContext)) {
             Log.w(TAG, "loadMetadata: application doesn't have external storage permissions.");
             return Collections.emptyList();
         }
 
-        Cursor cursor = context.getContentResolver()
+        Cursor cursor = mContext.getContentResolver()
                 .query(Playlists.Members.getContentUri(Long.parseLong(playlistId)),
                         null, null, null, null);
 
@@ -492,14 +493,14 @@ class MusicProvider implements AudioColumns {
     /**
      * @return a random song from the music library as a MediaItem.
      */
-    MediaItem getRandomMusicItem() {
+    MediaItem getSongOfTheDayItem() {
         if (isNotInitialized()) {
-            Log.w(TAG, "getRandomMusicItem: music library not initialized yet.");
+            Log.w(TAG, "getSongOfTheDayItem: music library not initialized yet.");
             return null;
         }
 
         if (mMusicById.size() == 0) {
-            Log.i(TAG, "getRandomMusicItem: music library is empty.");
+            Log.i(TAG, "getSongOfTheDayItem: music library is empty.");
             return null;
         }
 
@@ -524,11 +525,11 @@ class MusicProvider implements AudioColumns {
     /**
      * Call this method to notify the provider that the media associated with the ID has changed.
      *
-     * @param resolver   ContentResolver to query the ContentProvider
      * @param changedUri uri of the media that has changed
      */
-    void notifySongChanged(@NonNull ContentResolver resolver, @NonNull Uri changedUri) {
-        Cursor cursor = resolver.query(changedUri, MEDIA_PROJECTION, null, null, Media.DEFAULT_SORT_ORDER);
+    void notifySongChanged(@NonNull Uri changedUri) {
+        Cursor cursor = mContext.getContentResolver()
+                .query(changedUri, MEDIA_PROJECTION, null, null, Media.DEFAULT_SORT_ORDER);
         if (cursor != null) {
             if (!cursor.moveToFirst()) {
                 // Cursor empty, song has been DELETED

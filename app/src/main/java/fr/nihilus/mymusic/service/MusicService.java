@@ -82,7 +82,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
     public void onCreate() {
         super.onCreate();
 
-        mMusicProvider = new MusicProvider();
+        mMusicProvider = new MusicProvider(this);
         mPlayingQueue = new LinkedList<>();
 
         // Create an Intent that will start MediaSession when receiving mediabutton events
@@ -139,7 +139,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                                @NonNull final Result<List<MediaItem>> result) {
         if (mMusicProvider.isNotInitialized()) {
             Log.v(TAG, "onLoadChildren: must load music library before returning children.");
-            mMusicProvider.loadMetadata(this);
+            mMusicProvider.loadMetadata();
             buildFirstQueue();
         }
 
@@ -155,29 +155,29 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                 if (hierarchy.length > 1) {
                     result.sendResult(mMusicProvider.getAlbumTracksItems(parentId));
                 } else {
-                    result.sendResult(mMusicProvider.getAlbumItems(this));
+                    result.sendResult(mMusicProvider.getAlbumItems());
                 }
                 break;
             case MediaID.ID_ARTISTS:
                 if (hierarchy.length > 1) {
                     Log.d(TAG, "onLoadChildren: loading detail of artist " + hierarchy[1]);
-                    result.sendResult(mMusicProvider.getArtistChildren(this, hierarchy[1]));
+                    result.sendResult(mMusicProvider.getArtistChildren(hierarchy[1]));
                 } else {
                     Log.d(TAG, "onLoadChildren: loading all artists");
-                    result.sendResult(mMusicProvider.getArtistItems(this));
+                    result.sendResult(mMusicProvider.getArtistItems());
                 }
                 break;
             case MediaID.ID_DAILY:
-                MediaItem daily = mMusicProvider.getRandomMusicItem();
+                MediaItem daily = mMusicProvider.getSongOfTheDayItem();
                 result.sendResult(Collections.singletonList(daily));
                 break;
             case MediaID.ID_PLAYLISTS:
                 if (hierarchy.length > 1) {
                     Log.d(TAG, "onLoadChildren: loading tracks from playlist " + hierarchy[1]);
-                    result.sendResult(mMusicProvider.getPlaylistMembersItems(this, hierarchy[1]));
+                    result.sendResult(mMusicProvider.getPlaylistMembersItems(hierarchy[1]));
                 } else {
                     Log.d(TAG, "onLoadChildren: loading all playlists");
-                    result.sendResult(mMusicProvider.getPlaylistItems(this));
+                    result.sendResult(mMusicProvider.getPlaylistItems());
                 }
                 break;
             default:
@@ -678,7 +678,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             if (uri != null) {
-                mMusicProvider.notifySongChanged(getContentResolver(), uri);
+                mMusicProvider.notifySongChanged(uri);
             }
         }
     }
