@@ -49,14 +49,16 @@
         <item name="paddingEnd">0dp</item>
     </style>
 
-    <style name="Base.Widget.AppTheme.CardView" parent="Base.CardView">
+    <style name="Widget.AppTheme.CardView" parent="Base.CardView">
         <item name="cardElevation">@dimen/cardview_default_elevation</item>
         <item name="cardMaxElevation">@dimen/card_max_elevation</item>
         <item name="cardCornerRadius">@dimen/cardview_default_radius</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
 
-    <style name="Widget.AppTheme.CardView" parent="Base.Widget.AppTheme.CardView"/>
+    <style name="Widget.AppTheme.CardView.Animated">
+        <!-- Animation is available for API 21+ -->
+    </style>
 
     <style name="AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
         <!-- colorPrimary, colorAccent... ne sont pas définies pour ce thème -->

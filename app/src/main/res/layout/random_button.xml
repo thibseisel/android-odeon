@@ -4,7 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="72dp">
+    android:layout_height="72dp"
+    android:foreground="?selectableItemBackground">
 
     <TextView
         android:id="@+id/text"
@@ -17,5 +18,6 @@
         android:text="@string/play_all_shuffled"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="?colorAccent"
-        tools:drawableStart="@drawable/ic_shuffle_primary"/>
+        tools:drawableStart="@drawable/ic_shuffle_primary"
+        android:textAllCaps="true"/>
 </android.support.v7.widget.CardView>
