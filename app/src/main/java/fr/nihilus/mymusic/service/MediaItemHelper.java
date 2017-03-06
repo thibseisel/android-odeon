@@ -33,8 +33,9 @@ final class MediaItemHelper {
         for (MediaMetadataCompat meta : metadataList) {
             String musicId = meta.getString(METADATA_KEY_MEDIA_ID);
             String albumArtUri = meta.getString(METADATA_KEY_ALBUM_ART_URI);
-            Bundle extras = new Bundle();
+            Bundle extras = new Bundle(2);
             extras.putString(AudioColumns.TITLE_KEY, meta.getString(MusicProvider.METADATA_TITLE_KEY));
+            extras.putLong(AudioColumns.DURATION, meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
 
             builder.setMediaId(MediaID.createMediaID(musicId, MediaID.ID_MUSIC))
                     .setExtras(extras)

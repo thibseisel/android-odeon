@@ -55,4 +55,5 @@
     <string name="action_close">Fermer</string>
     <string name="validate">Valider</string>
     <string name="new_playlist_help_message">Sélectionnez les chansons à ajouter</string>
+    <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
 </resources>

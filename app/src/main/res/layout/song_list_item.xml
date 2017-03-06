@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/album_art"
-            tools:src="@drawable/dummy_album_art"/>
+            tools:src="@android:color/black"/>
     </FrameLayout>
 
     <LinearLayout
@@ -42,7 +42,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat"
             android:textSize="@dimen/song_title_size"
-            tools:text="Two-line item"/>
+            tools:text="All Theses Things I Hate (Revolve Around Me)"/>
 
         <TextView
             android:id="@+id/subtitle"
@@ -53,7 +53,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:textSize="@dimen/song_subtitle_size"
-            tools:text="Secondary item"/>
+            tools:text="Bullet For My Valentine &#8226; 3:46"/>
 
     </LinearLayout>
 

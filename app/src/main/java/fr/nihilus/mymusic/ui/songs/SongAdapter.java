@@ -4,10 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,9 +81,17 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        MediaDescriptionCompat song = mSongs.get(pos).getDescription();
+        final Context context = holder.title.getContext();
+        final MediaDescriptionCompat song = mSongs.get(pos).getDescription();
+
+        // TODO Stocker la durée formattée dans les extras et la récupérer ici au lieu de la calculer
+        //noinspection ConstantConditions
+        final long millis = song.getExtras().getLong(MediaStore.Audio.AudioColumns.DURATION);
+        final CharSequence duration = DateUtils.formatElapsedTime(millis / 1000);
+        String subtitle = context.getString(R.string.song_item_subtitle, song.getSubtitle(), duration);
+
         holder.title.setText(song.getTitle());
-        holder.subtitle.setText(song.getSubtitle());
+        holder.subtitle.setText(subtitle);
         mGlideRequest.load(song.getIconUri()).into(holder.albumArt);
 
         return convertView;
