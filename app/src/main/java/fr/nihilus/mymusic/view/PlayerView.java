@@ -98,6 +98,8 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     private ViewGroup mPlayBar;
     private Transition mOpenTransition;
 
+    private BottomSheetBehavior<PlayerView> mBehavior;
+
     public PlayerView(Context context) {
         this(context, null, 0);
     }
@@ -145,7 +147,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
          */
         ViewGroup.LayoutParams params = getLayoutParams();
         if (params instanceof CoordinatorLayout.LayoutParams) {
-            BottomSheetBehavior<PlayerView> mBehavior = BottomSheetBehavior.from(this);
+            mBehavior = BottomSheetBehavior.from(this);
             mBehavior.setBottomSheetCallback(new BottomSheetCallback());
             if (mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
                 onClose(false);
@@ -165,6 +167,21 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
             mController.unregisterCallback(mControllerCallback);
         }
         mController = controller;
+    }
+
+    /**
+     * Expand or collapse the PlayerView with an animation.
+     * When expanded, it is drawn above the main content view.
+     * When collapsed, only the top is visible.
+     * If the playerView is not a direct child of CoordinatorLayout, this method will do nothing.
+     * @param expanded true to expand the PlayerView, false to collapse
+     */
+    public void setExpanded(boolean expanded) {
+        if (mBehavior != null) {
+            mBehavior.setState(expanded
+                    ? BottomSheetBehavior.STATE_EXPANDED
+                    : BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 
     private void updateMetadata(MediaMetadataCompat metadata) {

@@ -352,6 +352,15 @@ public class HomeActivity extends AppCompatActivity
                             .getMediaController(HomeActivity.this);
                     if (controller != null) {
                         controller.getTransportControls().playFromMediaId(daily.getMediaId(), null);
+
+                        // Close the drawer and open the PlayerView
+                        mDrawerLayout.closeDrawer(GravityCompat.START);
+                        mPlayerView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mPlayerView.setExpanded(true);
+                            }
+                        }, 200);
                     }
                 }
             });
