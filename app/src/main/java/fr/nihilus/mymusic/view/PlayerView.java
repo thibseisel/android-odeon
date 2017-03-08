@@ -270,7 +270,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.textContainer) {
-            BottomSheetBehavior.from(this).setState(BottomSheetBehavior.STATE_EXPANDED);
+            setExpanded(mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED);
             return;
         }
 
