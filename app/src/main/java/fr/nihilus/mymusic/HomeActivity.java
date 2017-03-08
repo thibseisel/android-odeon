@@ -94,6 +94,7 @@ public class HomeActivity extends AppCompatActivity
                 controller.getTransportControls()
                         .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
                 controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
+                mPlayerView.setExpanded(true);
             }
         }
     };
