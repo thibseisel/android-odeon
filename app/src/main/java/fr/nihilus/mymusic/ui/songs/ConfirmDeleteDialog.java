@@ -15,6 +15,8 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
+
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.StringJoiner;
@@ -31,6 +33,7 @@ public class ConfirmDeleteDialog extends DialogFragment implements DialogInterfa
 
     /**
      * Create a new instance of this DialogFragment with the specified items to delete.
+     *
      * @param toDelete items to delete if the user presses the "Delete" button
      * @return new instance of this class
      */
@@ -93,8 +96,14 @@ public class ConfirmDeleteDialog extends DialogFragment implements DialogInterfa
 
             StringJoiner inClause = new StringJoiner(",", " IN (", ")");
             for (MediaBrowserCompat.MediaItem item : params) {
-                String musicId = MediaID.extractMusicID(item.getMediaId());
-                inClause.add(musicId);
+
+                String filePath = item.getDescription().getExtras()
+                        .getString(MediaStore.Audio.AudioColumns.DATA);
+                File file = new File(filePath);
+                if (file.delete()) {
+                    String musicId = MediaID.extractMusicID(item.getMediaId());
+                    inClause.add(musicId);
+                }
             }
 
             String whereClause = BaseColumns._ID + inClause.toString();

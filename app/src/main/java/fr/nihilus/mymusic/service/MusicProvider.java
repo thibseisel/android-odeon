@@ -46,6 +46,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NU
 class MusicProvider implements AudioColumns {
 
     static final String METADATA_TITLE_KEY = "title_key";
+    static final String METADATA_SOURCE = "file_path";
     static final Uri ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart");
     private static final String TAG = "MusicProvider";
     private static final String[] ALBUM_PROJECTION = {BaseColumns._ID, AlbumColumns.ALBUM,
@@ -53,7 +54,7 @@ class MusicProvider implements AudioColumns {
             AlbumColumns.LAST_YEAR, AlbumColumns.NUMBER_OF_SONGS};
     private static final int NON_INITIALIZED = 0, INITIALIZING = 1, INITIALIZED = 2;
     private static final String[] MEDIA_PROJECTION = {_ID, TITLE, ALBUM, ARTIST, DURATION, TRACK,
-            TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID};
+            TITLE_KEY, ALBUM_KEY, ALBUM_ID, ARTIST_ID, DATA};
     private static final String[] ARTIST_PROJECTION = {BaseColumns._ID, ArtistColumns.ARTIST,
             ArtistColumns.NUMBER_OF_ALBUMS, ArtistColumns.NUMBER_OF_TRACKS};
     private final LongSparseArray<MediaMetadataCompat> mMusicById;
@@ -124,6 +125,7 @@ class MusicProvider implements AudioColumns {
         final int colTitleKey = cursor.getColumnIndexOrThrow(TITLE_KEY);
         final int colAlbumId = cursor.getColumnIndexOrThrow(ALBUM_ID);
         final int colArtistId = cursor.getColumnIndexOrThrow(ARTIST_ID);
+        final int colFilePath = cursor.getColumnIndexOrThrow(DATA);
 
         mMusicById.clear();
         mMusicByAlbum.clear();
@@ -145,6 +147,7 @@ class MusicProvider implements AudioColumns {
                     .putLong(METADATA_KEY_DISC_NUMBER, trackNo / 100)
                     .putString(METADATA_KEY_ALBUM_ART_URI, artUri.toString())
                     .putString(METADATA_TITLE_KEY, cursor.getString(colTitleKey))
+                    .putString(METADATA_SOURCE, cursor.getString(colFilePath))
                     .putString(METADATA_KEY_MEDIA_URI, ContentUris.withAppendedId(
                             Media.EXTERNAL_CONTENT_URI, musicId).toString());
 
