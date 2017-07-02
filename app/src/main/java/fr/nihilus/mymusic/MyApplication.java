@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
+import fr.nihilus.mymusic.di.DaggerAppComponent;
 import fr.nihilus.mymusic.settings.Prefs;
 
 public class MyApplication extends Application implements HasActivityInjector {
@@ -17,8 +18,14 @@ public class MyApplication extends Application implements HasActivityInjector {
 
     @Override
     public void onCreate() {
-        AppCompatDelegate.setDefaultNightMode(Prefs.getNightMode(this));
         super.onCreate();
+
+        DaggerAppComponent.builder()
+                .application(this)
+                .build()
+                .inject(this);
+
+        AppCompatDelegate.setDefaultNightMode(Prefs.getNightMode(this));
 
         // Permet d'inflater des VectorDrawable pour API < 21. Peut causer des problèmes.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
