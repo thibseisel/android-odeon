@@ -1,5 +1,6 @@
 package fr.nihilus.mymusic.ui.artists;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,8 +18,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 
 public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistSelectedListener {
@@ -32,6 +36,8 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     private ArrayList<MediaItem> mArtists;
     private ArtistAdapter mAdapter;
 
+    @Inject MediaBrowserConnection mBrowserConnection;
+
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> artists) {
@@ -42,6 +48,12 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
             showEmptyView(artists.isEmpty());
         }
     };
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,13 +90,12 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_artists);
-        MediaBrowserFragment.getInstance(getFragmentManager())
-                .subscribe(MediaID.ID_ARTISTS, mCallback);
+        mBrowserConnection.subscribe(MediaID.ID_ARTISTS, mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_ARTISTS);
+        mBrowserConnection.unsubscribe(MediaID.ID_ARTISTS);
         super.onStop();
     }
 

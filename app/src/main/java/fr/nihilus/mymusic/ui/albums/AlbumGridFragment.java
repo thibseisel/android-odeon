@@ -1,5 +1,6 @@
 package fr.nihilus.mymusic.ui.albums;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,8 +19,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.view.GridSpacerDecoration;
 
@@ -34,9 +38,11 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     private View mEmptyView;
     private ArrayList<MediaItem> mAlbums;
 
+    @Inject MediaBrowserConnection mBrowserConnection;
+
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> albums) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> albums) {
             Log.d(TAG, "onChildrenLoaded: loaded children count: " + albums.size());
             mAlbums.clear();
             mAlbums.addAll(albums);
@@ -45,6 +51,12 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
             showEmptyView(albums.isEmpty());
         }
     };
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,12 +99,12 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_albums);
-        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_ALBUMS, mCallback);
+        mBrowserConnection.subscribe(MediaID.ID_ALBUMS, mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_ALBUMS);
+        mBrowserConnection.unsubscribe(MediaID.ID_ALBUMS);
         super.onStop();
     }
 

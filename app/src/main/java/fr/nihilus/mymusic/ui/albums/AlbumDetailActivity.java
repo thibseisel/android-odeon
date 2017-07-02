@@ -29,12 +29,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
-import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.ViewUtils;
 import fr.nihilus.mymusic.view.CurrentlyPlayingDecoration;
+import io.reactivex.functions.Consumer;
 
 public class AlbumDetailActivity extends AppCompatActivity
         implements View.OnClickListener, TrackAdapter.OnTrackSelectedListener {
@@ -56,6 +59,8 @@ public class AlbumDetailActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private CurrentlyPlayingDecoration mDecoration;
 
+    @Inject MediaBrowserConnection mBrowserConnection;
+
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
@@ -71,26 +76,15 @@ public class AlbumDetailActivity extends AppCompatActivity
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
+            // FIXME Display of playing track does not update correctly
             decoratePlayingTrack(metadata);
         }
 
     };
 
-    private ConnectedCallback mConnectedCallback = new ConnectedCallback() {
-        @Override
-        public void onConnected() {
-            MediaControllerCompat controller = MediaControllerCompat
-                    .getMediaController(AlbumDetailActivity.this);
-            if (controller != null) {
-                Log.d(TAG, "onConnected: register controller callback.");
-                controller.registerCallback(mControllerCallback);
-                decoratePlayingTrack(controller.getMetadata());
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_album_detail);
 
@@ -117,30 +111,42 @@ public class AlbumDetailActivity extends AppCompatActivity
         setupTrackList();
         applyPaletteTheme(callingActivity.getIntArrayExtra(ARG_PALETTE));
 
-        MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .doWhenConnected(mConnectedCallback);
+        mBrowserConnection.connect();
+        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                if (controller != null) {
+                    Log.d(TAG, "onConnected: register controller callback.");
+                    controller.registerCallback(mControllerCallback);
+                    decoratePlayingTrack(controller.getMetadata());
+                }
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
+        mBrowserConnection.subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
     }
 
     @Override
     protected void onStop() {
-        MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .unsubscribe(mPickedAlbum.getMediaId());
+        mBrowserConnection.unsubscribe(mPickedAlbum.getMediaId());
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(this);
-        if (controller != null) {
-            controller.unregisterCallback(mControllerCallback);
-        }
+        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                if (controller != null) {
+                    controller.unregisterCallback(mControllerCallback);
+                }
+            }
+        });
+        mBrowserConnection.release();
         super.onDestroy();
     }
 

@@ -20,6 +20,12 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true;
         signingConfig signingConfigs.Thib
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {
@@ -61,6 +67,7 @@ dependencies {
     compile "com.google.dagger:dagger-android-support:${daggerVersion}"
 
     compile "android.arch.persistence.room:runtime:${archVersion}"
+    compile "android.arch.persistence.room:rxjava2:${archVersion}"
 
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
     annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"

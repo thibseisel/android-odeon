@@ -655,6 +655,7 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
             if (CUSTOM_ACTION_RANDOM.equals(action)) {
                 if (extras != null) {
                     mRandomEnabled = extras.getBoolean(EXTRA_RANDOM_ENABLED, false);
+                    // FIXME OutOfBoundsException : should wait until Queue is ready
                     long currentQueueId = mPlayingQueue.get(mCurrentIndexQueue).getQueueId();
                     if (mRandomEnabled) {
                         QueueHelper.shuffleQueue(mPlayingQueue);

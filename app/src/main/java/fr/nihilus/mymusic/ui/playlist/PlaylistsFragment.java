@@ -1,10 +1,10 @@
 package fr.nihilus.mymusic.ui.playlist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -21,8 +21,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 
 public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
@@ -36,9 +39,11 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     private ContentLoadingProgressBar mProgressBar;
     private View mEmptyView;
 
-    private SubscriptionCallback mCallback = new MediaBrowserCompat.SubscriptionCallback() {
+    @Inject MediaBrowserConnection mBrowserConnection;
+
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items from " + parentId);
             mPlaylists.clear();
             mPlaylists.addAll(children);
@@ -47,6 +52,12 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
             showEmptyView(children.isEmpty());
         }
     };
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,14 +131,14 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     public void onResume() {
         super.onResume();
         getActivity().setTitle(R.string.action_playlists);
-        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_PLAYLISTS, mCallback);
+        mBrowserConnection.subscribe(MediaID.ID_PLAYLISTS, mCallback);
     }
 
     @Override
     public void onPause() {
-        super.onPause();
-        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(MediaID.ID_PLAYLISTS);
+        mBrowserConnection.unsubscribe(MediaID.ID_PLAYLISTS);
         showLoading(false);
+        super.onPause();
     }
 
     @Override

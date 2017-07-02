@@ -1,5 +1,6 @@
 package fr.nihilus.mymusic.ui.artists;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.AlbumColumns;
@@ -21,8 +22,11 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.ui.albums.AlbumDetailActivity;
 
 public class ArtistDetailFragment extends Fragment
@@ -40,9 +44,11 @@ public class ArtistDetailFragment extends Fragment
     private ArrayList<MediaItem> mItems;
     private ArtistDetailAdapter mAdapter;
 
+    @Inject MediaBrowserConnection mBrowserConnection;
+
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items");
             mItems.clear();
             mItems.addAll(children);
@@ -57,6 +63,12 @@ public class ArtistDetailFragment extends Fragment
         ArtistDetailFragment fragment = new ArtistDetailFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
     }
 
     @Override
@@ -114,14 +126,12 @@ public class ArtistDetailFragment extends Fragment
     public void onStart() {
         super.onStart();
         getActivity().setTitle(mPickedArtist.getDescription().getTitle());
-        MediaBrowserFragment.getInstance(getFragmentManager())
-                .subscribe(mPickedArtist.getMediaId(), mCallback);
+        mBrowserConnection.subscribe(mPickedArtist.getMediaId(), mCallback);
     }
 
     @Override
     public void onStop() {
-        MediaBrowserFragment.getInstance(getFragmentManager())
-                .unsubscribe(mPickedArtist.getMediaId());
+        mBrowserConnection.unsubscribe(mPickedArtist.getMediaId());
         super.onStop();
     }
 

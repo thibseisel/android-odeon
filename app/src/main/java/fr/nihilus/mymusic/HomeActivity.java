@@ -36,25 +36,26 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
-import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
+import dagger.android.AndroidInjector;
+import dagger.android.DispatchingAndroidInjector;
+import dagger.android.support.HasSupportFragmentInjector;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
+import fr.nihilus.mymusic.library.NavigationController;
 import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.provider.SetupService;
 import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.settings.SettingsActivity;
-import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
-import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
-import fr.nihilus.mymusic.ui.playlist.PlaylistsFragment;
-import fr.nihilus.mymusic.ui.songs.SongListFragment;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 import fr.nihilus.mymusic.view.PlayerView;
+import io.reactivex.functions.Consumer;
 
 @SuppressWarnings("ConstantConditions")
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, HasSupportFragmentInjector {
 
     private static final String TAG = "HomeActivity";
 
@@ -70,39 +71,10 @@ public class HomeActivity extends AppCompatActivity
     private PlayerView mPlayerView;
     private MediaItem mDaily;
 
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingFragmentInjector;
     @Inject PreferenceDao mPrefs;
-
-    /**
-     * Called when MediaController has been attached to this Activity.
-     * Associate this controller to the PlayerView.
-     */
-    private final ConnectedCallback mConnectionCallback = new ConnectedCallback() {
-        @Override
-        public void onConnected() {
-            MediaControllerCompat controller = MediaControllerCompat
-                    .getMediaController(HomeActivity.this);
-            mPlayerView.setMediaController(controller);
-        }
-    };
-
-    /**
-     * Starts a random mix of all music as soon as the MediaController
-     * has been attached to the Activity.
-     */
-    private final ConnectedCallback mStartRandomMix = new ConnectedCallback() {
-        @Override
-        public void onConnected() {
-            MediaControllerCompat controller = MediaControllerCompat.getMediaController(HomeActivity.this);
-            if (controller != null) {
-                Bundle args = new Bundle(1);
-                args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
-                controller.getTransportControls()
-                        .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
-                controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
-                mPlayerView.setExpanded(true);
-            }
-        }
-    };
+    @Inject NavigationController mRouter;
+    @Inject MediaBrowserConnection mBrowserConnection;
 
     /**
      * Called when the daily song is available.
@@ -128,6 +100,8 @@ public class HomeActivity extends AppCompatActivity
         setupNavigationDrawer();
         setupPlayerView();
 
+        mBrowserConnection.connect();
+
         if (savedInstanceState == null) {
             if (PermissionUtil.hasExternalStoragePermission(this)) {
                 loadDailySong();
@@ -135,7 +109,7 @@ public class HomeActivity extends AppCompatActivity
                 if (!handleIntent(getIntent())) {
                     // If intent is not handled, load default fragment
                     mNavigationView.setCheckedItem(R.id.action_all);
-                    swapFragment(new SongListFragment());
+                    mRouter.navigateToAllSongs();
                 }
             } else PermissionUtil.requestExternalStoragePermission(this);
         } else {
@@ -181,13 +155,18 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         mPlayerView.setMediaController(null);
+        mBrowserConnection.release();
         super.onDestroy();
     }
 
     private void setupPlayerView() {
         mPlayerView = (PlayerView) findViewById(R.id.playerView);
-        MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .doWhenConnected(mConnectionCallback);
+        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                mPlayerView.setMediaController(controller);
+            }
+        });
     }
 
     /**
@@ -195,8 +174,7 @@ public class HomeActivity extends AppCompatActivity
      * The daily song changes every time the app is open.
      */
     private void loadDailySong() {
-        MediaBrowserFragment.getInstance(getSupportFragmentManager())
-                .subscribe(MediaID.ID_DAILY, mDailySubscription);
+        mBrowserConnection.subscribe(MediaID.ID_DAILY, mDailySubscription);
     }
 
     /**
@@ -229,16 +207,16 @@ public class HomeActivity extends AppCompatActivity
         }
         switch (item.getItemId()) {
             case R.id.action_all:
-                swapFragment(new SongListFragment());
+                mRouter.navigateToAllSongs();
                 return true;
             case R.id.action_albums:
-                swapFragment(new AlbumGridFragment());
+                mRouter.navigateToAlbums();
                 return true;
             case R.id.action_artists:
-                swapFragment(new ArtistsFragment());
+                mRouter.navigateToArtists();
                 return true;
             case R.id.action_playlist:
-                swapFragment(new PlaylistsFragment());
+                mRouter.navigateToPlaylists();
                 return true;
             case R.id.action_settings:
                 Intent settingsActivity = new Intent(this, SettingsActivity.class);
@@ -288,20 +266,9 @@ public class HomeActivity extends AppCompatActivity
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(getIntent())) {
                 mNavigationView.setCheckedItem(R.id.action_all);
-                swapFragment(new SongListFragment());
+                mRouter.navigateToAllSongs();
             }
         }
-    }
-
-    /**
-     * Replace the currently displayed fragment in the main container by the one specified.
-     * Previous fragment will be destroyed, as the transaction is not put onto the backstack.
-     * @param newFrag fragment to display in the main container
-     */
-    private void swapFragment(Fragment newFrag) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, newFrag)
-                .commit();
     }
 
     /**
@@ -389,7 +356,7 @@ public class HomeActivity extends AppCompatActivity
                     return false;
                 case ACTION_ALBUMS:
                     mNavigationView.setCheckedItem(R.id.action_albums);
-                    swapFragment(new AlbumGridFragment());
+                    mRouter.navigateToAlbums();
                     return true;
             }
         }
@@ -402,9 +369,23 @@ public class HomeActivity extends AppCompatActivity
      * as soon as the MediaBrowser is connected.
      */
     private void startRandomMix() {
-        MediaBrowserFragment mbf = MediaBrowserFragment.getInstance(getSupportFragmentManager());
-        if (mbf.isConnected()) {
-            mStartRandomMix.onConnected();
-        } else mbf.doWhenConnected(mStartRandomMix);
+        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                if (controller != null) {
+                    Bundle args = new Bundle(1);
+                    args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
+                    controller.getTransportControls()
+                            .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
+                    controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
+                    mPlayerView.setExpanded(true);
+                }
+            }
+        });
+    }
+
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return dispatchingFragmentInjector;
     }
 }

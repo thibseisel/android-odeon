@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -32,8 +31,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -53,9 +55,11 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     private SongAdapter mAdapter;
     private ContentLoadingProgressBar mProgressBar;
 
-    private final SubscriptionCallback mCallback = new MediaBrowserCompat.SubscriptionCallback() {
+    @Inject MediaBrowserConnection mBrowserConnection;
+
+    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> items) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> items) {
             Log.d(TAG, "onChildrenLoaded: loaded " + items.size() + " from " + parentId);
             mSongs.clear();
             mSongs.addAll(items);
@@ -65,6 +69,12 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
             mListContainer.setVisibility(View.VISIBLE);
         }
     };
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,8 +130,8 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     @Override
     public void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(ID_MUSIC, mCallback);
         getActivity().setTitle(R.string.all_music);
+        mBrowserConnection.subscribe(MediaID.ID_MUSIC, mCallback);
     }
 
     @Override
@@ -133,8 +143,8 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onStop() {
+        mBrowserConnection.unsubscribe(MediaID.ID_MUSIC);
         super.onStop();
-        MediaBrowserFragment.getInstance(getFragmentManager()).unsubscribe(ID_MUSIC);
     }
 
     @Override

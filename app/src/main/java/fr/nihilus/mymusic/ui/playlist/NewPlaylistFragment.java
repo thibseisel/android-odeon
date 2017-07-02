@@ -1,5 +1,6 @@
 package fr.nihilus.mymusic.ui.playlist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,8 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import fr.nihilus.mymusic.MediaBrowserFragment;
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.ui.songs.SongAdapter;
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -46,9 +50,11 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private SongAdapter mAdapter;
     private ArrayList<MediaItem> mSongs;
 
+    @Inject MediaBrowserConnection mBrowserConnection;
+
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             mSongs.addAll(children);
             mAdapter.notifyDataSetChanged();
 
@@ -92,6 +98,12 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     }
 
     @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -106,7 +118,13 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     @Override
     public void onStart() {
         super.onStart();
-        MediaBrowserFragment.getInstance(getFragmentManager()).subscribe(MediaID.ID_MUSIC, mCallback);
+        mBrowserConnection.subscribe(MediaID.ID_MUSIC, mCallback);
+    }
+
+    @Override
+    public void onStop() {
+        mBrowserConnection.unsubscribe(MediaID.ID_MUSIC);
+        super.onStop();
     }
 
     @Override
