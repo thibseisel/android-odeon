@@ -10,8 +10,11 @@ import fr.nihilus.mymusic.R;
 
 /**
  * Helper class allowing to retrieve user shared preferences.
+ * @deprecated Preference access has been moved to {@link PreferenceDao}
+ * which is injected with Dagger 2.
  */
 @SuppressWarnings("WrongConstant")
+@Deprecated
 public final class Prefs {
 
     private static final String DEFAULT_NIGHT_MODE = "-1";

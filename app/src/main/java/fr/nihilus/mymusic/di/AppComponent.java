@@ -10,7 +10,14 @@ import dagger.android.AndroidInjectionModule;
 import fr.nihilus.mymusic.MyApplication;
 
 @Singleton
-@Component(modules = {AndroidInjectionModule.class, AppModule.class})
+@Component(modules = {
+        AndroidInjectionModule.class,
+        AppModule.class,
+        MusicLibraryModule.class,
+        MusicServiceModule.class,
+        SettingsModule.class,
+        SetupModule.class
+})
 public interface AppComponent {
 
     @Component.Builder

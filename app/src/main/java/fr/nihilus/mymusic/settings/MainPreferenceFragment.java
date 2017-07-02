@@ -1,17 +1,29 @@
 package fr.nihilus.mymusic.settings;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.preference.PreferenceFragmentCompat;
 
+import javax.inject.Inject;
+
+import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
 
 public class MainPreferenceFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private String mKeyNightMode;
+    @Inject PreferenceDao mPrefs;
+
+    @Override
+    public void onAttach(Context context) {
+        AndroidSupportInjection.inject(this);
+        super.onAttach(context);
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -36,8 +48,9 @@ public class MainPreferenceFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         if (mKeyNightMode.equals(key)) {
-            int newMode = Prefs.getNightMode(getContext());
-            AppCompatDelegate.setDefaultNightMode(newMode);
+            int nightModeConfig = mPrefs.getNightMode();
+            AppCompatDelegate.setDefaultNightMode(nightModeConfig);
+            ((AppCompatActivity) getActivity()).getDelegate().applyDayNight();
             getActivity().setResult(Activity.RESULT_OK);
         }
     }

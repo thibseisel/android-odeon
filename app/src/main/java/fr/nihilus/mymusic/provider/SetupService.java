@@ -9,22 +9,31 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import fr.nihilus.mymusic.settings.Prefs;
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
+import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
 public class SetupService extends IntentService {
     private static final String TAG = "SetupService";
     private static final String ACTION_SETUP_DB = "fr.nihilus.mymusic.action.SETUP_DATABASE";
+    @Inject PreferenceDao mPrefs;
 
     public SetupService() {
         super("SetupService");
     }
 
+    @Override
+    public void onCreate() {
+        AndroidInjection.inject(this);
+        super.onCreate();
+    }
+
     /**
      * Start initialization of the database containing all statistics related
      * to the use of this application.
-     * This should be called when the application starts for the first time.
-     * Use {@link Prefs#isDatabaseSetupComplete} to make sure this is the first time you run this.
+     * This should be called only when the application starts for the first time.
      * @param context context of this application package
      */
     public static void startDatabaseSetup(Context context) {
@@ -45,7 +54,7 @@ public class SetupService extends IntentService {
 
     private void handleDatabaseSetup() {
         // Perform only if database setup is not already done
-        if (!Prefs.isDatabaseSetupComplete(this)) {
+        if (!mPrefs.isDatabaseSetupComplete()) {
 
             if (!PermissionUtil.hasExternalStoragePermission(this)) {
                 Log.e(TAG, "handleDatabaseSetup: application does not have storage permissions.");
@@ -69,7 +78,7 @@ public class SetupService extends IntentService {
                 cursor.close();
                 int insertCount = getContentResolver().bulkInsert(Stats.CONTENT_URI, values);
                 Log.d(TAG, "handleDatabaseSetup: inserted " + insertCount + " rows in database.");
-                Prefs.setDatabaseSetupComplete(this);
+                mPrefs.setDatabaseSetupComplete(true);
             }
         }
     }

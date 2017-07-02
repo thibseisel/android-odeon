@@ -33,12 +33,15 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.android.AndroidInjection;
 import fr.nihilus.mymusic.MediaBrowserFragment.ConnectedCallback;
 import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.provider.SetupService;
 import fr.nihilus.mymusic.service.MusicService;
-import fr.nihilus.mymusic.settings.Prefs;
+import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
@@ -66,6 +69,8 @@ public class HomeActivity extends AppCompatActivity
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;
     private MediaItem mDaily;
+
+    @Inject PreferenceDao mPrefs;
 
     /**
      * Called when MediaController has been attached to this Activity.
@@ -115,6 +120,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -275,7 +281,7 @@ public class HomeActivity extends AppCompatActivity
                 // Load daily song only if it has permission
                 loadDailySong();
                 // TODO Placer ça dans un écran de présentation de l'application, au premier démarrage
-                if (!Prefs.isDatabaseSetupComplete(this)) {
+                if (!mPrefs.isDatabaseSetupComplete()) {
                     SetupService.startDatabaseSetup(this);
                 }
             }
