@@ -32,11 +32,12 @@ android {
 }
 
 ext {
-    supportLibVersion = '25.3.1'
+    supportLibVersion = '25.4.0'
     glideVersion = '3.8.0'
     daggerVersion = '2.11'
     junitVersion = '4.12'
     mockitoVersion = '2.8.47'
+    archVersion = '1.0.0-alpha3'
 }
 
 dependencies {
@@ -59,8 +60,11 @@ dependencies {
     compile "com.google.dagger:dagger-android:${daggerVersion}"
     compile "com.google.dagger:dagger-android-support:${daggerVersion}"
 
+    compile "android.arch.persistence.room:runtime:${archVersion}"
+
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
     annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
+    annotationProcessor "android.arch.persistence.room:compiler:${archVersion}"
 
     testCompile "junit:junit:${junitVersion}"
     testCompile "org.mockito:mockito-core:${mockitoVersion}"
