@@ -115,6 +115,7 @@ public class AlbumDetailActivity extends AppCompatActivity
         mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
             @Override
             public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                MediaControllerCompat.setMediaController(AlbumDetailActivity.this, controller);
                 if (controller != null) {
                     Log.d(TAG, "onConnected: register controller callback.");
                     controller.registerCallback(mControllerCallback);

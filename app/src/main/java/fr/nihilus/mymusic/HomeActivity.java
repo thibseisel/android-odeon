@@ -101,6 +101,12 @@ public class HomeActivity extends AppCompatActivity
         setupPlayerView();
 
         mBrowserConnection.connect();
+        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                MediaControllerCompat.setMediaController(HomeActivity.this, controller);
+            }
+        });
 
         if (savedInstanceState == null) {
             if (PermissionUtil.hasExternalStoragePermission(this)) {
