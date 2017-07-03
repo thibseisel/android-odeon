@@ -57,25 +57,20 @@ import io.reactivex.functions.Consumer;
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HasSupportFragmentInjector {
 
-    private static final String TAG = "HomeActivity";
-
     public static final int REQUEST_SETTINGS = 42;
     public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
     public static final String ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
-
+    private static final String TAG = "HomeActivity";
     private static final String KEY_DAILY_SONG = "daily_song";
-
+    @Inject DispatchingAndroidInjector<Fragment> dispatchingFragmentInjector;
+    @Inject PreferenceDao mPrefs;
+    @Inject NavigationController mRouter;
+    @Inject MediaBrowserConnection mBrowserConnection;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;
     private MediaItem mDaily;
-
-    @Inject DispatchingAndroidInjector<Fragment> dispatchingFragmentInjector;
-    @Inject PreferenceDao mPrefs;
-    @Inject NavigationController mRouter;
-    @Inject MediaBrowserConnection mBrowserConnection;
-
     /**
      * Called when the daily song is available.
      * Display those informations as the Navigation Drawer's header.
@@ -136,6 +131,19 @@ public class HomeActivity extends AppCompatActivity
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
+    @Override
+    protected void onDestroy() {
+        mPlayerView.setMediaController(null);
+        mBrowserConnection.release();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_DAILY_SONG, mDaily);
+    }
+
     /**
      * Allow dispatching media key events to the playback service for API < 21.
      */
@@ -153,16 +161,29 @@ public class HomeActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_DAILY_SONG, mDaily);
-    }
-
-    @Override
-    protected void onDestroy() {
-        mPlayerView.setMediaController(null);
-        mBrowserConnection.release();
-        super.onDestroy();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        switch (item.getItemId()) {
+            case R.id.action_all:
+                mRouter.navigateToAllSongs();
+                return true;
+            case R.id.action_albums:
+                mRouter.navigateToAlbums();
+                return true;
+            case R.id.action_artists:
+                mRouter.navigateToArtists();
+                return true;
+            case R.id.action_playlist:
+                mRouter.navigateToPlaylists();
+                return true;
+            case R.id.action_settings:
+                Intent settingsActivity = new Intent(this, SettingsActivity.class);
+                startActivityForResult(settingsActivity, REQUEST_SETTINGS);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupPlayerView() {
@@ -206,32 +227,6 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        switch (item.getItemId()) {
-            case R.id.action_all:
-                mRouter.navigateToAllSongs();
-                return true;
-            case R.id.action_albums:
-                mRouter.navigateToAlbums();
-                return true;
-            case R.id.action_artists:
-                mRouter.navigateToArtists();
-                return true;
-            case R.id.action_playlist:
-                mRouter.navigateToPlaylists();
-                return true;
-            case R.id.action_settings:
-                Intent settingsActivity = new Intent(this, SettingsActivity.class);
-                startActivityForResult(settingsActivity, REQUEST_SETTINGS);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     /**
      * Called when an activity launched by this one exits and returns a result.
      * This allows this activity to recreate itself if a preference that changed
@@ -249,6 +244,7 @@ public class HomeActivity extends AppCompatActivity
     /**
      * Called when receiving an intent while the Activity is alive.
      * This is intended to handle actions relative to launcher shortcuts (API25+).
+     *
      * @param intent the new intent that was started for the activity
      */
     @Override
@@ -280,6 +276,7 @@ public class HomeActivity extends AppCompatActivity
     /**
      * Prepare the Navigation Drawer header to display informations on the daily song.
      * Clicking on the header will start playing that song.
+     *
      * @param daily song to display as the Navigation Drawer header
      */
     private void prepareHeaderView(final MediaItem daily) {
@@ -350,6 +347,7 @@ public class HomeActivity extends AppCompatActivity
     /**
      * Perform an action depending on the received intent.
      * This is intended to handle actions relative to launcher shortcuts (API 25+).
+     *
      * @param intent the intent that started this activity, or was received later
      * @return true if intent was handled, false otherwise
      */
@@ -375,7 +373,7 @@ public class HomeActivity extends AppCompatActivity
      * as soon as the MediaBrowser is connected.
      */
     private void startRandomMix() {
-        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+        mBrowserConnection.getMediaController().take(1).subscribe(new Consumer<MediaControllerCompat>() {
             @Override
             public void accept(@Nullable MediaControllerCompat controller) throws Exception {
                 if (controller != null) {
