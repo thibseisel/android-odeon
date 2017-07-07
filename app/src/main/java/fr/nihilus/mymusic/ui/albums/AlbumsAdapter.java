@@ -127,7 +127,8 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     void updateAlbums(List<MediaItem> newAlbums) {
         MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
         DiffUtil.DiffResult diff = DiffUtil.calculateDiff(callback, false);
-        mAlbums = newAlbums;
+        mAlbums.clear();
+        mAlbums.addAll(newAlbums);
         diff.dispatchUpdatesTo(this);
     }
 

@@ -1,12 +1,15 @@
 apply plugin: 'com.android.application'
 
+Properties localProperties = new Properties();
+localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     signingConfigs {
         Thib {
-            keyAlias 'Thib'
-            storeFile file('C:/Users/Thib/Documents/Android/keystore/android.jks')
-            keyPassword 'MaitreJedi'
-            storePassword 'MaitreJedi'
+            keyAlias localProperties.getProperty('signing.keyAlias')
+            storeFile file(localProperties.getProperty('signing.storeFile'))
+            keyPassword localProperties.getProperty('signing.keyPassword')
+            storePassword localProperties.getProperty('signing.storePassword')
         }
     }
     compileSdkVersion 25
@@ -35,15 +38,6 @@ android {
             signingConfig signingConfigs.Thib
         }
     }
-}
-
-ext {
-    supportLibVersion = '25.4.0'
-    glideVersion = '3.8.0'
-    daggerVersion = '2.11'
-    junitVersion = '4.12'
-    mockitoVersion = '2.8.47'
-    archVersion = '1.0.0-alpha3'
 }
 
 dependencies {

@@ -15,9 +15,17 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        //mavenLocal()
         maven { url 'https://maven.google.com' }
     }
+}
+
+ext {
+    supportLibVersion = '25.4.0'
+    glideVersion = '3.8.0'
+    daggerVersion = '2.11'
+    junitVersion = '4.12'
+    mockitoVersion = '2.8.47'
+    archVersion = '1.0.0-alpha3'
 }
 
 task clean(type: Delete) {
