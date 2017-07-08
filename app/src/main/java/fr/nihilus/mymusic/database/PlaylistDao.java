@@ -9,18 +9,20 @@ import android.support.annotation.WorkerThread;
 
 import java.util.List;
 
+import io.reactivex.Flowable;
+
 @Dao
 public interface PlaylistDao {
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    public List<Playlist> getPlaylists();
+    public Flowable<List<Playlist>> getPlaylists();
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    public List<PlaylistWithTracks> getPlaylistsWithTracks();
+    public Flowable<List<PlaylistWithTracks>> getPlaylistsWithTracks();
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.FAIL)
-    public void add(Playlist playlist);
+    public Long savePlaylist(Playlist playlist);
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -28,5 +30,9 @@ public interface PlaylistDao {
 
     @WorkerThread
     @Delete
-    public void delete(Playlist... playlists);
+    public void deletePlaylists(Playlist... playlists);
+
+    @WorkerThread
+    @Delete
+    public void deleteTracks(PlaylistTrack... tracks);
 }

@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v7.app.AppCompatDialogFragment;
@@ -30,7 +29,9 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.database.Playlist;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
+import fr.nihilus.mymusic.playlists.PlaylistRepository;
 import fr.nihilus.mymusic.ui.songs.SongAdapter;
 import fr.nihilus.mymusic.utils.MediaID;
 
@@ -51,6 +52,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private ArrayList<MediaItem> mSongs;
 
     @Inject MediaBrowserConnection mBrowserConnection;
+    @Inject PlaylistRepository mRepo;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -75,10 +77,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                     }
                 }
 
-                int selectedCount = mListView.getCheckedItemCount();
-                CharSequence selectedMessage = getResources()
-                        .getQuantityString(R.plurals.selected_song_count, selectedCount, selectedCount);
-                mMessage.setText(selectedMessage);
+                updateCheckCountMessage(mListView.getCheckedItemCount());
             }
         }
     };
@@ -174,8 +173,8 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.action_close) {
                     dismiss();
-                }
-                return false;
+                    return true;
+                } else return false;
             }
         });
     }
@@ -189,38 +188,38 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
             return;
         }
 
-        mTitleLayout.setError(null);
-
         int checkedItemCount = mListView.getCheckedItemCount();
         if (checkedItemCount == 0) {
             mMessage.setText(R.string.new_playlist_help_message);
             return;
         }
 
+        mTitleLayout.setError(null);
+
         SparseBooleanArray selectedSongs = mListView.getCheckedItemPositions();
         Log.d(TAG, "onClick: selected items = " + selectedSongs.toString());
 
-        mMessage.setText(R.string.saving_playlist);
-        MediaItem[] playlistSongs = new MediaItem[checkedItemCount];
-        int position = 0;
-
-        for (int index = 0; index < selectedSongs.size(); index++) {
+        long[] trackIds = new long[checkedItemCount];
+        for (int index = 0, position = 0; index < selectedSongs.size(); index++) {
             if (selectedSongs.valueAt(index)) {
-                playlistSongs[position++] = mAdapter.getItem(selectedSongs.keyAt(index));
+                MediaItem item = mAdapter.getItem(selectedSongs.keyAt(index));
+                trackIds[position++] = Long.parseLong(MediaID.extractMusicID(item.getMediaId()));
             }
         }
 
-        // Starts a new async task in a retained fragment, and dismiss this fragment when finished.
-        Fragment task = CreatePlaylistTaskFragment.newInstance(playlistTitle, playlistSongs);
-        task.setTargetFragment(this, 0);
-        getFragmentManager().beginTransaction().add(task, CreatePlaylistTaskFragment.TAG).commit();
+        mMessage.setText(R.string.saving_playlist);
+        Playlist newPlaylist = Playlist.create(playlistTitle);
+        mRepo.saveNewPlaylist(newPlaylist, trackIds);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        int selectedCount = mListView.getCheckedItemCount();
+        updateCheckCountMessage(mListView.getCheckedItemCount());
+    }
+
+    private void updateCheckCountMessage(int checkedItemCount) {
         CharSequence selectedMessage = getResources()
-                .getQuantityString(R.plurals.selected_song_count, selectedCount, selectedCount);
+                .getQuantityString(R.plurals.selected_song_count, checkedItemCount, checkedItemCount);
         mMessage.setText(selectedMessage);
     }
 }

@@ -15,15 +15,15 @@ import java.util.Date;
  * to be included.
  */
 @Entity(tableName = "playlist",
-        indices = {@Index(value = "name", unique = true)})
+        indices = {@Index(value = "title", unique = true)})
 public class Playlist {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     private Long id;
 
-    @ColumnInfo(name = "name")
-    private String name;
+    @ColumnInfo(name = "title")
+    private String title;
 
     @ColumnInfo(name = "date_created")
     private Date created;
@@ -33,6 +33,13 @@ public class Playlist {
 
     @ColumnInfo(name = "art_uri")
     private Uri artUri;
+
+    public static Playlist create(CharSequence title) {
+        Playlist newPlaylist = new Playlist();
+        newPlaylist.setTitle(title.toString());
+        newPlaylist.setCreated(new Date());
+        return newPlaylist;
+    }
 
     /**
      * Returns the unique identifier of this playlist.
@@ -49,18 +56,18 @@ public class Playlist {
     }
 
     /**
-     * @return The name given by the user to this playlist
+     * @return The title given by the user to this playlist
      */
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     /**
      * Rename this playlist.
-     * @param name The new name of this playlist
+     * @param title The new title of this playlist
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     /**

@@ -14,6 +14,7 @@ import android.util.Log;
 import fr.nihilus.mymusic.provider.Playlists;
 import fr.nihilus.mymusic.utils.MediaID;
 
+@Deprecated
 public class CreatePlaylistTaskFragment extends Fragment {
 
     static final String TAG = "CreatePlaylistTask";

@@ -12,6 +12,7 @@ import dagger.Module;
 import dagger.Provides;
 import fr.nihilus.mymusic.database.AppDatabase;
 import fr.nihilus.mymusic.database.MusicInfoDao;
+import fr.nihilus.mymusic.database.PlaylistDao;
 
 @Module
 public class AppModule {
@@ -29,5 +30,10 @@ public class AppModule {
     @Provides @Singleton
     MusicInfoDao provideMusicInfoDao(@NonNull AppDatabase db) {
         return db.musicInfoDao();
+    }
+
+    @Provides @Singleton
+    PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
+        return db.playlistDao();
     }
 }

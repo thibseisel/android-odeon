@@ -27,6 +27,7 @@ import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
+import io.reactivex.functions.Consumer;
 
 public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
 
@@ -150,10 +151,14 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     }
 
     @Override
-    public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, MediaItem playlist) {
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
-        if (controller != null) {
-            controller.getTransportControls().playFromMediaId(playlist.getMediaId(), null);
-        }
+    public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, final MediaItem playlist) {
+        mBrowserConnection.getMediaController().take(1).subscribe(new Consumer<MediaControllerCompat>() {
+            @Override
+            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
+                if (controller != null) {
+                    controller.getTransportControls().playFromMediaId(playlist.getMediaId(), null);
+                }
+            }
+        });
     }
 }
