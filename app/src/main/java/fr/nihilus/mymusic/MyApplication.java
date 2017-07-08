@@ -15,6 +15,10 @@ import dagger.android.HasServiceInjector;
 import fr.nihilus.mymusic.di.DaggerAppComponent;
 import fr.nihilus.mymusic.settings.PreferenceDao;
 
+/**
+ * An Android Application component that can inject dependencies into Activities and Services.
+ * This class also performs general configuration tasks.
+ */
 public class MyApplication extends Application implements HasActivityInjector, HasServiceInjector {
     @Inject DispatchingAndroidInjector<Activity> dispatchingActivityInjector;
     @Inject DispatchingAndroidInjector<Service> dispatchingServiceInjector;

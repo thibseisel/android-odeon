@@ -21,6 +21,9 @@ import io.reactivex.subjects.Subject;
 
 import static android.content.ContentValues.TAG;
 
+/**
+ * An object that manages a connection between UI components and the {@link MusicService}.
+ */
 @ActivityScope
 public class MediaBrowserConnection {
     private static final boolean LOG = true;
