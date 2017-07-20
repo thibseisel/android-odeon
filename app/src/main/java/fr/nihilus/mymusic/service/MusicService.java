@@ -4,8 +4,6 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.database.ContentObserver;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -667,25 +665,6 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
                     Log.d(TAG, "onCustomAction: random read is enabled: " + mRandomEnabled);
                     updatePlaybackState(null);
                 }
-            }
-        }
-    }
-
-    private class SongContentObserver extends ContentObserver {
-        public SongContentObserver() {
-            super(null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            Log.w(TAG, "onChange: called with no Uri parameter.");
-            onChange(selfChange, null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            if (uri != null) {
-                mMusicProvider.notifySongChanged(uri);
             }
         }
     }

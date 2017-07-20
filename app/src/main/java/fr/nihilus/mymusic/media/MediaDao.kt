@@ -3,30 +3,54 @@ package fr.nihilus.mymusic.media
 import android.app.Application
 import android.content.ContentResolver
 import android.content.ContentUris
-import android.database.Cursor
+import android.database.ContentObserver
 import android.net.Uri
 import android.provider.BaseColumns
-import android.provider.MediaStore.Audio.AudioColumns.ARTIST_ID
-import android.provider.MediaStore.Audio.AudioColumns.TITLE_KEY
 import android.provider.MediaStore.Audio.Media
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
-import java.util.*
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class MediaDao
 @Inject constructor(app: Application) {
+    private val resolver: ContentResolver = app.contentResolver
 
-    private val mResolver: ContentResolver = app.contentResolver
+    /**
+     * Observe changes in Mediastore and publish updated metadata when a change occur.
+     */
+    private val mediaChanges: Observable<List<MediaMetadataCompat>> = Observable.create { emitter ->
+        var disposed = false
+        val observer = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean, uri: Uri?) {
+                emitter.onNext(loadMetadataFromMediastore())
+            }
+        }
 
-    val allTracks: List<MediaMetadataCompat>
-        get() = loadMetadataFromMediastore()
+        resolver.registerContentObserver(Media.EXTERNAL_CONTENT_URI, true, observer)
+        emitter.setDisposable(object : Disposable {
+            override fun isDisposed() = disposed
+
+            override fun dispose() {
+                resolver.unregisterContentObserver(observer)
+                disposed = true
+            }
+        })
+    }
+
+    fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
+        return Observable.fromCallable(this::loadMetadataFromMediastore)
+                .timeout(1, TimeUnit.SECONDS)
+                .concatWith(mediaChanges)
+    }
 
     private fun loadMetadataFromMediastore(): List<MediaMetadataCompat> {
-        val cursor: Cursor? = mResolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
-                MEDIA_SELECTION_CLAUSE, null, TITLE_KEY)
+        val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
+                MEDIA_SELECTION_CLAUSE, null, Media.TITLE_KEY)
 
         if (cursor == null) {
             Log.e(TAG, "getTracksMetadata: track metadata query failed (null cursor)")
@@ -82,16 +106,16 @@ internal class MediaDao
         throw UnsupportedOperationException("Not yet implemented")
     }
 
-    companion object {
+    internal companion object {
         private const val TAG = "MediaDao"
-        private const val MEDIA_SELECTION_CLAUSE = Media.IS_MUSIC + " = 1"
-        private const val CUSTOM_META_TITLE_KEY = "title_key"
-        private const val CUSTOM_META_ALBUM_ID = "album_id"
-        private const val CUSTOM_META_ARTIST_ID = "artist_id"
+        private const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
+        internal const val CUSTOM_META_TITLE_KEY = "title_key"
+        internal const val CUSTOM_META_ALBUM_ID = "album_id"
+        internal const val CUSTOM_META_ARTIST_ID = "artist_id"
 
         private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
         private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM,
-                Media.ARTIST, Media.DURATION, Media.TRACK, TITLE_KEY, Media.ALBUM_KEY,
-                Media.ALBUM_ID, ARTIST_ID, Media.DATA)
+                Media.ARTIST, Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY,
+                Media.ALBUM_ID, Media.ARTIST_ID, Media.DATA)
     }
 }
