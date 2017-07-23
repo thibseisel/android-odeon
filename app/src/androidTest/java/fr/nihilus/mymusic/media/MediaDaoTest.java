@@ -1,12 +1,10 @@
 package fr.nihilus.mymusic.media;
 
 import android.app.Application;
-import android.content.ContentProvider;
 import android.database.MatrixCursor;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
-import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v4.media.MediaMetadataCompat;
 import android.test.mock.MockContentResolver;
@@ -18,6 +16,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 import fr.nihilus.mymusic.media.mock.MockCursorProvider;
+import io.reactivex.observers.TestObserver;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertEquals;
@@ -40,7 +39,8 @@ public class MediaDaoTest {
     @Before
     public void setUp() throws Exception {
         cursor = getMockCursor();
-        ContentProvider mockProvider = new MockCursorProvider(cursor);
+        MockCursorProvider mockProvider = new MockCursorProvider();
+        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor);
 
         Application app = mock(Application.class);
         MockContentResolver mockResolver = new MockContentResolver();
@@ -64,13 +64,26 @@ public class MediaDaoTest {
     }
 
     @Test
-    @SmallTest
     public void allTracks_cursorToMetadata() throws Exception {
         List<MediaMetadataCompat> data = testSubject.getAllTracks().firstElement().blockingGet();
 
         assertThat(data, hasSize(VALUES.length));
         assertMetadataHas(data.get(0), "1", "Title", "Album", "Artist", 123L, 1L, 1L, artUriOf(1));
         assertMetadataHas(data.get(1), "2", "Amerika", "Reise Reise", "Rammstein", 3046L, 1L, 6L, artUriOf(2));
+    }
+
+    @Test
+    public void allTracks_unsubscriptionCallsOnComplete() throws Exception {
+        /*TestObserver<List<MediaMetadataCompat>> observer = new TestObserver<>();
+        testSubject.getAllTracks().subscribe(observer);
+        observer.assertSubscribed();
+        observer.assertValueCount(1);*/
+    }
+
+    @Test
+    public void allTracks_reloadedWhenContentChanged() throws Exception {
+        TestObserver<List<MediaMetadataCompat>> observer = new TestObserver<>();
+        testSubject.getAllTracks().subscribe(observer);
     }
 
     private void assertMetadataHas(MediaMetadataCompat meta, String mediaId, String title,
