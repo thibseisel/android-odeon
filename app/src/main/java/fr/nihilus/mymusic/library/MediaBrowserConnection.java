@@ -1,7 +1,7 @@
 package fr.nihilus.mymusic.library;
 
-import android.app.Application;
 import android.content.ComponentName;
+import android.content.Context;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat;
@@ -12,6 +12,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import fr.nihilus.mymusic.di.ActivityScope;
 import fr.nihilus.mymusic.service.MusicService;
@@ -31,17 +32,17 @@ public class MediaBrowserConnection {
     private Subject<MediaControllerCompat> mControllerSubject;
 
     @Inject
-    public MediaBrowserConnection(@NonNull final Application app) {
+    public MediaBrowserConnection(@Named("Application") final Context context) {
         mControllerSubject = BehaviorSubject.create();
 
-        ComponentName musicServiceComponent = new ComponentName(app, MusicService.class);
-        mBrowser = new MediaBrowserCompat(app, musicServiceComponent, new ConnectionCallback() {
+        ComponentName musicServiceComponent = new ComponentName(context, MusicService.class);
+        mBrowser = new MediaBrowserCompat(context, musicServiceComponent, new ConnectionCallback() {
             @Override
             public void onConnected() {
                 try {
                     if (LOG) Log.d(TAG, "onConnected: mediaBrowser is now connected.");
                     MediaSessionCompat.Token token = mBrowser.getSessionToken();
-                    MediaControllerCompat controller = new MediaControllerCompat(app, token);
+                    MediaControllerCompat controller = new MediaControllerCompat(context, token);
                     mControllerSubject.onNext(controller);
                 } catch (RemoteException rex) {
                     Log.e(TAG, "onConnected: failed to create MediaController", rex);

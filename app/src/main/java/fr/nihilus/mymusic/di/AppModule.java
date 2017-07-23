@@ -2,10 +2,12 @@ package fr.nihilus.mymusic.di;
 
 import android.app.Application;
 import android.arch.persistence.room.Room;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -16,6 +18,12 @@ import fr.nihilus.mymusic.database.PlaylistDao;
 
 @Module
 public class AppModule {
+
+    @Provides
+    @Named("Application")
+    Context provideApplicationContext(@NonNull Application app) {
+        return app;
+    }
 
     @Provides @Singleton
     SharedPreferences provideSharedPreferences(@NonNull Application app) {

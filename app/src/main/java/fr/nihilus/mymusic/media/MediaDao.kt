@@ -1,8 +1,8 @@
 package fr.nihilus.mymusic.media
 
-import android.app.Application
 import android.content.ContentResolver
 import android.content.ContentUris
+import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
 import android.provider.BaseColumns
@@ -13,12 +13,13 @@ import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
 class MediaDao
-@Inject constructor(app: Application) {
-    private val resolver: ContentResolver = app.contentResolver
+@Inject constructor(@Named("Application") context: Context) {
+    private val resolver: ContentResolver = context.contentResolver
 
     /**
      * Observe changes in Mediastore and publish updated metadata when a change occur.

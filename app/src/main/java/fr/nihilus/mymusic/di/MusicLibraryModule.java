@@ -1,6 +1,11 @@
 package fr.nihilus.mymusic.di;
 
+import android.content.Context;
+
+import javax.inject.Named;
+
 import dagger.Module;
+import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.mymusic.HomeActivity;
 import fr.nihilus.mymusic.ui.albums.AlbumDetailActivity;
@@ -15,4 +20,16 @@ public abstract class MusicLibraryModule {
     @ActivityScope
     @ContributesAndroidInjector
     abstract AlbumDetailActivity contributeAlbumDetailActivity();
+
+    @Provides
+    @Named("HomeActivity")
+    Context provideHomeActivityContext(HomeActivity activity) {
+        return activity;
+    }
+
+    @Provides
+    @Named("AlbumActivity")
+    Context provideAlbumActivityContext(AlbumDetailActivity activity) {
+        return activity;
+    }
 }
