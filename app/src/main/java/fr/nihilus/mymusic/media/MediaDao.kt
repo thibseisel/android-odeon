@@ -16,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class MediaDao
+class MediaDao
 @Inject constructor(app: Application) {
     private val resolver: ContentResolver = app.contentResolver
 
@@ -36,8 +36,11 @@ internal class MediaDao
             override fun isDisposed() = disposed
 
             override fun dispose() {
-                resolver.unregisterContentObserver(observer)
-                disposed = true
+                if (!disposed) {
+                    resolver.unregisterContentObserver(observer)
+                    emitter.onComplete()
+                    disposed = true
+                }
             }
         })
     }
@@ -81,7 +84,7 @@ internal class MediaDao
             val mediaUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId)
 
             builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, musicId.toString())
-                    .putText(MediaMetadataCompat.METADATA_KEY_TITLE, cursor.getString(colTitle))
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, cursor.getString(colTitle))
                     .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, cursor.getString(colAlbum))
                     .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, cursor.getString(colArtist))
                     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, cursor.getLong(colDuration))
