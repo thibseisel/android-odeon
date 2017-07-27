@@ -80,7 +80,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     }
 
     /**
-     * Stop the media playback. This will release resources used by the MediaPlayer.
+     * Stop the media playback. This will clear resources used by the MediaPlayer.
      * @param notifyListeners whether clients must be notified of the new stopped state
      */
     void stop(boolean notifyListeners) {
@@ -383,7 +383,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     private void relaxResources(boolean releaseMediaPlayer) {
         mService.stopForeground(releaseMediaPlayer);
 
-        // Stop and release the Media Player, if it's available
+        // Stop and clear the Media Player, if it's available
         if (releaseMediaPlayer && mMediaPlayer != null) {
             mMediaPlayer.reset();
             mMediaPlayer.release();

@@ -22,22 +22,26 @@ class MediaDao
     private val resolver: ContentResolver = context.contentResolver
 
     /**
-     * Observe changes in Mediastore and publish updated metadata when a change occur.
+     * Observe changes in [android.provider.MediaStore] and publish updated metadata when a change occur.
      */
     private val mediaChanges: Observable<List<MediaMetadataCompat>> = Observable.create { emitter ->
         var disposed = false
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
-                emitter.onNext(loadMetadataFromMediastore())
+                val mediaMetadataList = loadMetadataFromMediastore()
+                Log.d(TAG, "Received ${mediaMetadataList.size} metadata items.")
+                emitter.onNext(mediaMetadataList)
             }
         }
 
+        Log.d(TAG, "Start listening for metadata changes...")
         resolver.registerContentObserver(Media.EXTERNAL_CONTENT_URI, true, observer)
         emitter.setDisposable(object : Disposable {
             override fun isDisposed() = disposed
 
             override fun dispose() {
                 if (!disposed) {
+                    Log.d(TAG, "Disposing metadata change listener.")
                     resolver.unregisterContentObserver(observer)
                     emitter.onComplete()
                     disposed = true
@@ -48,7 +52,7 @@ class MediaDao
 
     fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable(this::loadMetadataFromMediastore)
-                .timeout(1, TimeUnit.SECONDS)
+                .timeout(1L, TimeUnit.SECONDS)
                 .concatWith(mediaChanges)
     }
 

@@ -12,18 +12,18 @@ import android.test.mock.MockContentProvider
  * All methods others than [query] throw an [UnsupportedOperationException].
  */
 class MockCursorProvider : MockContentProvider() {
-    private val queryMap = ArrayMap<Uri, Cursor>()
+    private val queryMap = ArrayMap<Uri, Cursor?>()
 
     override fun query(uri: Uri?, projection: Array<out String>?, selection: String?,
                        selectionArgs: Array<out String>?, sortOrder: String?): Cursor? {
-        return queryMap.get(uri)
+        return queryMap[uri]
     }
 
     /**
      * Associate a Cursor to an Uri,
      * so that it will be returned when the provider is queried for that Uri.
      */
-    fun registerQueryResult(uri: Uri, cursor: Cursor) {
+    fun registerQueryResult(uri: Uri, cursor: Cursor?) {
         queryMap.put(uri, cursor)
     }
 }
