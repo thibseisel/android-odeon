@@ -21,10 +21,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class MusicRepository
-@Inject internal constructor(val mediaDao: MediaDao) {
+@Inject internal constructor(mediaDao: MediaDao) {
 
     private val metadataById = LongSparseArray<MediaMetadataCompat>()
-    private var metadatas: Observable<List<MediaMetadataCompat>> = mediaDao.getAllTracks()
+    private val metadatas = mediaDao.getAllTracks()
             .doOnNext(this::cacheMetadatas)
             .share()
 

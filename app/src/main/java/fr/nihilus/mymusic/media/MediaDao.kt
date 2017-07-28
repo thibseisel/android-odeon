@@ -17,14 +17,14 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-class MediaDao
+open class MediaDao
 @Inject constructor(@Named("Application") context: Context) {
     private val resolver: ContentResolver = context.contentResolver
 
     /**
      * Observe changes in [android.provider.MediaStore] and publish updated metadata when a change occur.
      */
-    private val mediaChanges: Observable<List<MediaMetadataCompat>> = Observable.create { emitter ->
+    private val mediaChanges = Observable.create<List<MediaMetadataCompat>> { emitter ->
         var disposed = false
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
@@ -50,7 +50,7 @@ class MediaDao
         })
     }
 
-    fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
+    open fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable(this::loadMetadataFromMediastore)
                 .timeout(1L, TimeUnit.SECONDS)
                 .concatWith(mediaChanges)
@@ -109,7 +109,7 @@ class MediaDao
         return allTracks
     }
 
-    fun deleteTrack(track: MediaMetadataCompat) {
+    open fun deleteTrack(track: MediaMetadataCompat) {
         // TODO Delete from MediaStore and from disk
         throw UnsupportedOperationException("Not yet implemented")
     }

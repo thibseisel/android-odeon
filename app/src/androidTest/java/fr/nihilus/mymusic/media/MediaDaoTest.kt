@@ -1,7 +1,7 @@
 package fr.nihilus.mymusic.media
 
-import android.app.Application
 import android.content.ContentResolver
+import android.content.Context
 import android.database.MatrixCursor
 import android.provider.BaseColumns
 import android.provider.MediaStore
@@ -10,10 +10,6 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
-import io.reactivex.observers.TestObserver
-import org.hamcrest.Matchers.hasSize
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,40 +28,24 @@ class MediaDaoTest {
         val mockProvider = MockCursorProvider()
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
-        val app = mock(Application::class.java)
+        val context = mock(Context::class.java)
         val mockResolver = MockContentResolver()
-        `when`<ContentResolver>(app.contentResolver).thenReturn(mockResolver)
+        `when`<ContentResolver>(context.contentResolver).thenReturn(mockResolver)
         mockResolver.addProvider(MediaStore.AUTHORITY, mockProvider)
 
-        testSubject = MediaDao(app)
+        testSubject = MediaDao(context)
     }
 
     @Test
     fun allTracks_cursorToMetadata() {
-        val data = testSubject!!.getAllTracks().firstElement().blockingGet()
-
-        assertThat(data, hasSize<Any>(VALUES.size))
-        assertMetadataHas(data[0], "1", "Title", "Album", "Artist", 123L, 1L, 1L, artUriOf(1))
-        assertMetadataHas(data[1], "2", "Amerika", "Reise Reise", "Rammstein", 3046L, 1L, 6L, artUriOf(2))
-    }
-
-    @Test
-    fun allTracks_reloadedWhenContentChanged() {
-        val observer = TestObserver<List<MediaMetadataCompat>>()
-        testSubject!!.getAllTracks().subscribe(observer)
-    }
-
-    private fun assertMetadataHas(meta: MediaMetadataCompat, mediaId: String, title: String,
-                                  album: String, artist: String, duration: Long, discNo: Long,
-                                  trackNo: Long, artUri: String) {
-        assertEquals(mediaId, meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID))
-        assertEquals(title, meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE))
-        assertEquals(album, meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM))
-        assertEquals(artist, meta.getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
-        assertEquals(duration, meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
-        assertEquals(discNo, meta.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER))
-        assertEquals(trackNo, meta.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER))
-        assertEquals(artUri, meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI))
+        testSubject!!.getAllTracks().test()
+                .awaitCount(1)
+                .assertValue { metadataList ->
+                    metadataHasValues(metadataList[0], "1", "Title", "Album",
+                            "Artist", 123L, 1L, 1L, artUriOf(1))
+                            && metadataHasValues(metadataList[1], "2", "Amerika", "Reise Reise",
+                            "Rammstein", 3046L, 1L, 6L, artUriOf(2))
+                }.dispose()
     }
 }
 
@@ -89,4 +69,17 @@ private fun getMockCursor(): MatrixCursor {
     }
 
     return cursor
+}
+
+private fun metadataHasValues(meta: MediaMetadataCompat, mediaId: String, title: String,
+                              album: String, artist: String, duration: Long, discNo: Long,
+                              trackNo: Long, artUri: String): Boolean {
+    return mediaId == meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            && title == meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+            && album == meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM)
+            && artist == meta.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
+            && duration == meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+            && discNo == meta.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
+            && trackNo == meta.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
+            && artUri == meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
 }
