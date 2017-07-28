@@ -19,9 +19,9 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 class MusicRepositoryTest {
 
-    /** A Subject allowing the tester to emulate the emission of new metadata from [mockDao]. */
+    /** A Subject allowing the tester to emulate the emission of new metadata from [MediaDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
-    var testSubject: MusicRepository? = null
+    lateinit var testSubject: MusicRepository
 
     @Before
     fun setUp() {
@@ -46,10 +46,14 @@ class MusicRepositoryTest {
         assertThat(extras.getLong(MediaItems.EXTRA_DURATION), equalTo(values[4]))
     }
 
+    /**
+     * Assert that [MusicRepository.getMediaItems] emits a list of media items
+     * corresponding to tracks fetched from [MediaDao] when the media ID is [MediaID.ID_MUSIC].
+     */
     @Test
     fun mediaItems_allTracks() {
         // Subscribe to this Single with a TestObserver
-        val testObserver = testSubject!!.getMediaItems(MediaID.ID_MUSIC).test()
+        val testObserver = testSubject.getMediaItems(MediaID.ID_MUSIC).test()
 
         // Push one event
         metadataSubject.onNext(listOf(
@@ -63,19 +67,29 @@ class MusicRepositoryTest {
                     && items[0].mediaId == "${MediaID.ID_MUSIC}|1"
                     && items[1].mediaId == "${MediaID.ID_MUSIC}|2"
         }.assertComplete()
-
     }
 
     /**
-     * Assert that subscriptions to mediaChanges are shared between observers.
+     * Assert that the Single returned by [MusicRepository.getMediaItems]
+     * emits an error notification when the passed parent media ID is unsupported.
+     */
+    @Test
+    fun mediaItems_unsupportedMediaIdThrows() {
+        testSubject.getMediaItems("Unknown").test()
+                .assertError(UnsupportedOperationException::class.java)
+    }
+
+    /**
+     * Assert that events from [MusicRepository.mediaChanges] are shared
+     * between multiple observers.
      */
     @Test
     fun mediaChanges_sharedSubscription() {
-        val firstObserver = testSubject!!.mediaChanges.test()
+        val firstObserver = testSubject.mediaChanges.test()
         metadataSubject.onNext(emptyList())
         firstObserver.assertValueCount(1)
 
-        val secondObserver = testSubject!!.mediaChanges.test()
+        val secondObserver = testSubject.mediaChanges.test()
         metadataSubject.onNext(emptyList())
         firstObserver.assertValueCount(2)
         secondObserver.assertValueCount(1)
@@ -84,12 +98,27 @@ class MusicRepositoryTest {
         metadataSubject.onNext(emptyList())
         firstObserver.assertValueCount(2)
         secondObserver.assertValueCount(2)
+
+        firstObserver.dispose()
+        secondObserver.dispose()
+    }
+
+    /**
+     * Assert that a change in track metadata in the repository
+     * triggers a notification with [MediaID.ID_MUSIC].
+     */
+    @Test
+    fun mediaChanges_notifyChangeInTracks() {
+        val testObserver = testSubject.mediaChanges.test()
+        metadataSubject.onNext(emptyList())
+        testObserver.assertValue(MediaID.ID_MUSIC)
+
+        testObserver.dispose()
     }
 
     @After
     fun tearDown() {
-        testSubject?.clear()
-        testSubject = null
+        testSubject.clear()
     }
 
     private fun provideMockDao(): MediaDao {
@@ -110,6 +139,9 @@ private val METADATA = arrayOf(
 
 private fun mediaUriOf(musicId: Long) = "$EXTERNAL_CONTENT_URI/$musicId"
 
+/**
+ * Translate sample data contained in the [METADATA] array into a [MediaMetadataCompat].
+ */
 private fun sampleToMetadata(values: Array<Any>): MediaMetadataCompat {
     return MediaMetadataCompat.Builder()
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, values[0] as String)

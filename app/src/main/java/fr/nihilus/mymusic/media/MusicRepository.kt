@@ -11,13 +11,15 @@ import android.support.v4.util.LongSparseArray
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * A Repository that centralize access to media stored on the device.
- * You must initialize the repository with [init] before querying items.
- * Observables returned by query methods will not emit items until properly initialized.
+ * It returns [MediaItem]s depending on a specified parent media ID.
+ * When in use, it is recommanded to listen for the [mediaChanges] property to be notified when
+ * a subset of item has changed.
  */
 @Singleton
 class MusicRepository
@@ -61,10 +63,10 @@ class MusicRepository
      * An Observable that notify observers when a change is detected in the music library.
      * It emits the parent media id of the collection of items that have change.
      *
-     * Clients should then call [getMediaItems] to get up to date items.
+     * Clients are then advised to call [getMediaItems] to fetch up-to-date items.
      *
      * When done observing changes, clients __must__ dispose their observers
-     * through [io.reactivex.disposables.Disposable.dispose] to avoid memory leaks.
+     * through [Disposable.dispose] to avoid memory leaks.
      */
     val mediaChanges: Observable<String> by lazy {
         // TODO Add any other media that are subject to changes
