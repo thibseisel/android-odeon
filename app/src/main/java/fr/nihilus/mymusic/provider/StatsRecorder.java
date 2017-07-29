@@ -5,11 +5,17 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.util.LongSparseArray;
 
+import javax.inject.Inject;
+
+import fr.nihilus.mymusic.di.MusicServiceScope;
+
+@MusicServiceScope
 public class StatsRecorder {
 
     private final LongSparseArray<Integer> mSkips;
     private final LongSparseArray<Integer> mCompletions;
 
+    @Inject
     public StatsRecorder() {
         mSkips = new LongSparseArray<>();
         mCompletions = new LongSparseArray<>();

@@ -69,24 +69,23 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
 
     private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
     private MediaSessionCompat mSession;
-    private MusicProvider mMusicProvider;
     private List<QueueItem> mPlayingQueue;
-    private Playback mPlayback;
     private boolean mServiceStarted;
     private int mCurrentIndexQueue;
     private MediaNotificationManager mMediaNotificationManager;
-    private StatsRecorder mStatsRecorder;
 
     private boolean mRandomEnabled;
 
     @Inject PreferenceDao mPrefs;
+    @Inject StatsRecorder mStatsRecorder;
+    @Inject MusicProvider mMusicProvider;
+    @Inject Playback mPlayback;
 
     @Override
     public void onCreate() {
         AndroidInjection.inject(this);
         super.onCreate();
 
-        mMusicProvider = new MusicProvider(this);
         mPlayingQueue = new LinkedList<>();
 
         // Create an Intent that will start MediaSession when receiving mediabutton events
@@ -114,13 +113,9 @@ public class MusicService extends MediaBrowserServiceCompat implements Playback.
         mSession.setSessionActivity(pi);
 
         // Prepare playback
-        mPlayback = new Playback(this);
         mPlayback.setState(PlaybackStateCompat.STATE_NONE);
         mPlayback.setCallback(this);
         mMediaNotificationManager = new MediaNotificationManager(this);
-
-        // Start stats recorder
-        mStatsRecorder = new StatsRecorder();
 
         mRandomEnabled = mPrefs.isRandomPlayingEnabled();
         updatePlaybackState(null);

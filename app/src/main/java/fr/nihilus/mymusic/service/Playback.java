@@ -31,9 +31,14 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
+import fr.nihilus.mymusic.di.MusicServiceScope;
+
 /**
  * A class that implements local media playback using {@link MediaPlayer}.
  */
+@MusicServiceScope
 class Playback implements AudioManager.OnAudioFocusChangeListener,
         MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnPreparedListener, MediaPlayer.OnSeekCompleteListener {
@@ -74,6 +79,7 @@ class Playback implements AudioManager.OnAudioFocusChangeListener,
     private boolean mAudioNoisyReceiverRegistered;
     private Callback mCallback;
 
+    @Inject
     Playback(@NonNull MusicService service) {
         mService = service;
         mAudioManager = (AudioManager) service.getSystemService(Context.AUDIO_SERVICE);

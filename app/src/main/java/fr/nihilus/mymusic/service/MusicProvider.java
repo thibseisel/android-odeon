@@ -28,6 +28,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import fr.nihilus.mymusic.di.MusicServiceScope;
 import fr.nihilus.mymusic.provider.Playlists;
 import fr.nihilus.mymusic.settings.Prefs;
 import fr.nihilus.mymusic.utils.MediaID;
@@ -43,6 +47,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_UR
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER;
 
+@MusicServiceScope
 class MusicProvider implements AudioColumns {
 
     static final String METADATA_TITLE_KEY = "title_key";
@@ -66,7 +71,8 @@ class MusicProvider implements AudioColumns {
     private volatile int mCurrentState = NON_INITIALIZED;
     private final Context mContext;
 
-    MusicProvider(@NonNull Context context) {
+    @Inject
+    MusicProvider(@NonNull @Named("Application") Context context) {
         mContext = context;
         mMusicById = new LongSparseArray<>();
         mMusicAlpha = new ArrayList<>();
