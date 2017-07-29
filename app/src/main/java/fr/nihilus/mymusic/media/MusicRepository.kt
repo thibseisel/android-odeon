@@ -8,6 +8,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.util.LongSparseArray
+import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -33,7 +34,7 @@ class MusicRepository
     /**
      * Fetch [MediaItem]s children of a given Media ID.
      * The returned [Observable] will emit the requested children or an error if [parentMediaId] is unsupported.
-     * @param parentMediaId
+     * @param parentMediaId the media id that identifies the requested media items
      * @return an observable list of media items proper for display.
      */
     fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
@@ -46,9 +47,18 @@ class MusicRepository
     /**
      * @return a single metadata item with the specified musicId
      */
-    fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
-        val fromCache = Observable.fromCallable { this.metadataById[musicId.toLong()] }
-        TODO("Search in cache, or in DAO if not found")
+    fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
+        val fromCache = Single.defer {
+            val metadata = metadataById.get(musicId)
+            Log.d("TEST", "Requested Metadata: $metadata")
+            return@defer if (metadata == null) Single.error<MediaMetadataCompat> {
+                RuntimeException("No metadata with ID $musicId")
+            }
+            else Single.just(metadata)
+        }
+
+        // TODO Fetch from MediaDao if missing
+        return fromCache
     }
 
     /**
@@ -74,14 +84,14 @@ class MusicRepository
     }
 
     /**
-     * Release all references to objects loaded in this repository.
-     * You'll have to [init] this repository again to use it.
+     * Release all references to objects loaded by this repository.
      */
     fun clear() {
         this.metadataById.clear()
     }
 
     private fun cacheMetadatas(metadataList: List<MediaMetadataCompat>) {
+        Log.d("TEST", "Metadata put in cache: $metadataList")
         for (meta in metadataList) {
             val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
             metadataById.put(musicId, meta)
@@ -100,7 +110,6 @@ internal fun MediaMetadataCompat.asMediaItem(
         parentMediaId: String,
         builder: MediaDescriptionCompat.Builder = MediaDescriptionCompat.Builder()
 ): MediaItem {
-
     val musicId = this.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
     val extras = Bundle(2)
     extras.putString(MediaItems.EXTRA_TITLE_KEY, this.getString(MediaDao.CUSTOM_META_TITLE_KEY))

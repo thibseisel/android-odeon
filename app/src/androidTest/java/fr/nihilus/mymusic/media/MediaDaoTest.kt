@@ -19,8 +19,8 @@ import org.mockito.Mockito.mock
 @RunWith(AndroidJUnit4::class)
 class MediaDaoTest {
 
-    private var testSubject: MediaDao? = null
-    private var cursor: MatrixCursor? = null
+    private lateinit var testSubject: MediaDao
+    private lateinit var cursor: MatrixCursor
 
     @Before
     fun setUp() {
@@ -38,7 +38,7 @@ class MediaDaoTest {
 
     @Test
     fun allTracks_cursorToMetadata() {
-        testSubject!!.getAllTracks().test()
+        testSubject.getAllTracks().test()
                 .awaitCount(1)
                 .assertValue { metadataList ->
                     metadataHasValues(metadataList[0], "1", "Title", "Album",

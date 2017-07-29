@@ -83,6 +83,37 @@ class MusicRepositoryTest {
                 .assertError(UnsupportedOperationException::class.java)
     }
 
+    @Test
+    fun metadata_getFromDao() {
+        val requestedMetadata = sampleToMetadata(METADATA[0])
+
+        val testObserver = testSubject.getMetadata(1L).test()
+        metadataSubject.onNext(listOf(requestedMetadata, sampleToMetadata(METADATA[1])))
+
+        testObserver.assertValue(requestedMetadata)
+                .assertComplete()
+    }
+
+    @Test
+    fun metadata_getFromCache() {
+        val requestedMetadata = sampleToMetadata(METADATA[0])
+
+        // Pre-fetch metadata in repository
+        testSubject.getMediaItems(MediaID.ID_MUSIC).subscribe()
+        val testObserver = testSubject.getMetadata(1L).test()
+        metadataSubject.onNext(listOf(requestedMetadata, sampleToMetadata(METADATA[1])))
+
+        testObserver.assertValue(requestedMetadata)
+                .assertComplete()
+    }
+
+    @Test
+    fun metadata_errorIfNotFound() {
+        testSubject.getMetadata(3L).test()
+                .assertError(RuntimeException::class.java)
+                .assertTerminated()
+    }
+
     /**
      * Assert that events from [MusicRepository.mediaChanges] are shared
      * between multiple observers.

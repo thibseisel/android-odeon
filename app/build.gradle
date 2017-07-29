@@ -13,12 +13,12 @@ android {
             storePassword localProperties.getProperty('signing.storePassword')
         }
     }
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "fr.nihilus.mymusic"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -76,7 +76,7 @@ dependencies {
 
     testCompile "junit:junit:${junitVersion}"
     testCompile "org.hamcrest:hamcrest-all:${hamcrestVersion}"
-    testCompile "org.mockito:mockito-android:${mockitoVersion}"
+    testCompile "org.mockito:mockito-core:${mockitoVersion}"
 
     androidTestCompile "org.mockito:mockito-android:${mockitoVersion}"
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
