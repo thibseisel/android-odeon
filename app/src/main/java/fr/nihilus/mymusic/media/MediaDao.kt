@@ -5,10 +5,18 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
+import android.os.Bundle
 import android.provider.BaseColumns
+import android.provider.MediaStore
+import android.provider.MediaStore.Audio.AlbumColumns.ALBUM
+import android.provider.MediaStore.Audio.Albums
 import android.provider.MediaStore.Audio.Media
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
@@ -50,6 +58,14 @@ open class MediaDao
         })
     }
 
+    /**
+     * Return an observable dataset of tracks stored on the device.
+     * When subscribed, the returned Observable will trigger an initial load,
+     * then listen for any change to the tracks.
+     *
+     * When done listening, you should dispose the listener to avoid memory leaks
+     * due to observing track changes.
+     */
     open fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable(this::loadMetadataFromMediastore)
                 .timeout(1L, TimeUnit.SECONDS)
@@ -109,9 +125,55 @@ open class MediaDao
         return allTracks
     }
 
+    open fun getAlbums(): Observable<List<MediaItem>> {
+        return Observable.fromCallable(this::loadAlbumsFromMediaStore)
+                .timeout(1000L, TimeUnit.MILLISECONDS)
+    }
+
+    private fun loadAlbumsFromMediaStore(): List<MediaBrowserCompat.MediaItem> {
+        val cursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
+                null, null, Albums.DEFAULT_SORT_ORDER)
+
+        if (cursor == null) {
+            Log.e(TAG, "Album query failed. Cursor is null.")
+            return emptyList()
+        }
+
+        val colId = cursor.getColumnIndexOrThrow(BaseColumns._ID)
+        val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
+        val colKey = cursor.getColumnIndexOrThrow(Albums.ALBUM_KEY)
+        val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
+        val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
+        val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
+
+        val albums = ArrayList<MediaBrowserCompat.MediaItem>(cursor.count)
+        val builder = MediaDescriptionCompat.Builder()
+
+        while (cursor.moveToNext()) {
+            val albumId = cursor.getLong(colId)
+            val mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
+            val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
+
+            val extras = Bundle(3)
+            extras.putString(MediaItems.EXTRA_ALBUM_KEY, cursor.getString(colKey))
+            extras.putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, cursor.getInt(colSongCount))
+            extras.putInt(MediaItems.EXTRA_YEAR, cursor.getInt(colYear))
+
+            builder.setMediaId(mediaId)
+                    .setTitle(cursor.getString(colTitle))
+                    .setSubtitle(cursor.getString(colArtist)) // artiste
+                    .setIconUri(artUri)
+                    .setExtras(extras)
+
+            albums.add(MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE))
+        }
+
+        cursor.close()
+        return albums
+    }
+
     open fun deleteTrack(track: MediaMetadataCompat) {
-        // TODO Delete from MediaStore and from disk
-        throw UnsupportedOperationException("Not yet implemented")
+        // TODO("Delete from MediaStore and from disk")
     }
 
     internal companion object {
@@ -125,5 +187,7 @@ open class MediaDao
         private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM,
                 Media.ARTIST, Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY,
                 Media.ALBUM_ID, Media.ARTIST_ID, Media.DATA)
+        private val ALBUM_PROJECTION = arrayOf(BaseColumns._ID, ALBUM, Albums.ALBUM_KEY,
+                Albums.ARTIST, Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
     }
 }

@@ -24,7 +24,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class MusicRepository
-@Inject internal constructor(mediaDao: MediaDao) {
+@Inject internal constructor(private val mediaDao: MediaDao) {
 
     private val metadataById = LongSparseArray<MediaMetadataCompat>()
     private val metadatas = mediaDao.getAllTracks()
@@ -40,6 +40,7 @@ class MusicRepository
     fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
         return when (parentMediaId) {
             MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::asMediaItems)
+            MediaID.ID_ALBUMS -> mediaDao.getAlbums().firstOrError()
             else -> Single.error(::UnsupportedOperationException)
         }
     }
@@ -50,15 +51,17 @@ class MusicRepository
     fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
         val fromCache = Single.defer {
             val metadata = metadataById.get(musicId)
-            Log.d("TEST", "Requested Metadata: $metadata")
-            return@defer if (metadata == null) Single.error<MediaMetadataCompat> {
+            if (metadata == null) Single.error<MediaMetadataCompat> {
                 RuntimeException("No metadata with ID $musicId")
-            }
-            else Single.just(metadata)
+            } else Single.just(metadata)
         }
 
         // TODO Fetch from MediaDao if missing
         return fromCache
+    }
+
+    private fun getAlbumTracks(albumId: Long): Single<List<MediaItem>> {
+        return Single.fromCallable { albumTracksFromCache(albumId) }
     }
 
     /**
@@ -67,6 +70,24 @@ class MusicRepository
     private fun asMediaItems(metadataList: List<MediaMetadataCompat>): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return metadataList.map { it.asMediaItem(MediaID.ID_MUSIC, builder) }
+    }
+
+    private fun albumTracksFromCache(albumId: Long): List<MediaItem> {
+        val albumTracks = ArrayList<MediaItem>()
+        val builder = MediaDescriptionCompat.Builder()
+        val parentMediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
+
+        for (i in 0 until metadataById.size()) {
+            val musicId = metadataById.keyAt(i)
+            val meta = metadataById.valueAt(i)
+
+            if (albumId == meta.getLong(MediaDao.CUSTOM_META_ALBUM_ID)) {
+                val mediaItem = meta.asMediaItem(parentMediaId + '/' + musicId, builder)
+                albumTracks.add(mediaItem)
+            }
+        }
+
+        return albumTracks
     }
 
     /**
@@ -91,10 +112,10 @@ class MusicRepository
     }
 
     private fun cacheMetadatas(metadataList: List<MediaMetadataCompat>) {
-        Log.d("TEST", "Metadata put in cache: $metadataList")
         for (meta in metadataList) {
             val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
             metadataById.put(musicId, meta)
+            Log.d("TESTS", "Metadata put in cache: $musicId")
         }
     }
 }

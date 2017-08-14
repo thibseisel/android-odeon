@@ -2,11 +2,14 @@ package fr.nihilus.mymusic.media
 
 import android.net.Uri.parse
 import android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertThat
@@ -16,18 +19,19 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 
+@SmallTest
 @RunWith(AndroidJUnit4::class)
 class MusicRepositoryTest {
 
     /** A Subject allowing the tester to emulate the emission of new metadata from [MediaDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
-    lateinit var testSubject: MusicRepository
+    lateinit var subject: MusicRepository
 
     @Before
     fun setUp() {
         metadataSubject = PublishSubject.create()
         val mediaDao = provideMockDao()
-        testSubject = MusicRepository(mediaDao)
+        subject = MusicRepository(mediaDao)
     }
 
     /**
@@ -57,7 +61,7 @@ class MusicRepositoryTest {
     @Test
     fun mediaItems_allTracks() {
         // Subscribe to this Single with a TestObserver
-        val testObserver = testSubject.getMediaItems(MediaID.ID_MUSIC).test()
+        val testObserver = subject.getMediaItems(MediaID.ID_MUSIC).test()
 
         // Push one event
         metadataSubject.onNext(listOf(
@@ -79,7 +83,7 @@ class MusicRepositoryTest {
      */
     @Test
     fun mediaItems_unsupportedMediaIdThrows() {
-        testSubject.getMediaItems("Unknown").test()
+        subject.getMediaItems("Unknown").test()
                 .assertError(UnsupportedOperationException::class.java)
     }
 
@@ -87,7 +91,7 @@ class MusicRepositoryTest {
     fun metadata_getFromDao() {
         val requestedMetadata = sampleToMetadata(METADATA[0])
 
-        val testObserver = testSubject.getMetadata(1L).test()
+        val testObserver = subject.getMetadata(1L).test()
         metadataSubject.onNext(listOf(requestedMetadata, sampleToMetadata(METADATA[1])))
 
         testObserver.assertValue(requestedMetadata)
@@ -99,8 +103,11 @@ class MusicRepositoryTest {
         val requestedMetadata = sampleToMetadata(METADATA[0])
 
         // Pre-fetch metadata in repository
-        testSubject.getMediaItems(MediaID.ID_MUSIC).subscribe()
-        val testObserver = testSubject.getMetadata(1L).test()
+        Log.d("TESTS", "Prefetching")
+        subject.getMediaItems(MediaID.ID_MUSIC).subscribe()
+
+        Log.d("TESTS", "Getting metadata")
+        val testObserver = subject.getMetadata(1L).test()
         metadataSubject.onNext(listOf(requestedMetadata, sampleToMetadata(METADATA[1])))
 
         testObserver.assertValue(requestedMetadata)
@@ -109,7 +116,7 @@ class MusicRepositoryTest {
 
     @Test
     fun metadata_errorIfNotFound() {
-        testSubject.getMetadata(3L).test()
+        subject.getMetadata(3L).test()
                 .assertError(RuntimeException::class.java)
                 .assertTerminated()
     }
@@ -120,21 +127,24 @@ class MusicRepositoryTest {
      */
     @Test
     fun mediaChanges_sharedSubscription() {
-        val firstObserver = testSubject.mediaChanges.test()
-        metadataSubject.onNext(emptyList())
+        val firstMeta = sampleToMetadata(METADATA[0])
+        val secondMeta = sampleToMetadata(METADATA[1])
+
+        val firstObserver = subject.mediaChanges.test()
+        metadataSubject.onNext(listOf(firstMeta))
         firstObserver.assertValueCount(1)
 
-        val secondObserver = testSubject.mediaChanges.test()
-        metadataSubject.onNext(emptyList())
+        val secondObserver = subject.mediaChanges.test()
+        metadataSubject.onNext(listOf(secondMeta))
         firstObserver.assertValueCount(2)
         secondObserver.assertValueCount(1)
+        assertThat(firstObserver.values()[1] === secondObserver.values()[0], `is`(true))
 
         firstObserver.dispose()
-        metadataSubject.onNext(emptyList())
+        metadataSubject.onNext(listOf(firstMeta))
         firstObserver.assertValueCount(2)
         secondObserver.assertValueCount(2)
 
-        firstObserver.dispose()
         secondObserver.dispose()
     }
 
@@ -144,7 +154,7 @@ class MusicRepositoryTest {
      */
     @Test
     fun mediaChanges_notifyChangeInTracks() {
-        val testObserver = testSubject.mediaChanges.test()
+        val testObserver = subject.mediaChanges.test()
         metadataSubject.onNext(emptyList())
         testObserver.assertValue(MediaID.ID_MUSIC)
 
@@ -153,7 +163,7 @@ class MusicRepositoryTest {
 
     @After
     fun tearDown() {
-        testSubject.clear()
+        subject.clear()
     }
 
     private fun provideMockDao(): MediaDao {
