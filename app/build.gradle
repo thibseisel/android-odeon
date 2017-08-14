@@ -58,6 +58,7 @@ dependencies {
     compile "com.android.support:preference-v14:${supportLibVersion}"
 
     compile "com.github.bumptech.glide:glide:${glideVersion}"
+    compile "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
 
     compile "com.google.dagger:dagger:${daggerVersion}"
     compile "com.google.dagger:dagger-android:${daggerVersion}"
