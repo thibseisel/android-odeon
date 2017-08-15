@@ -61,7 +61,7 @@ internal class LocalPlayback
     /**
      * The ID of the currently playing media.
      */
-    var currentMediaId: String = ""
+    var currentMediaId: String? = null
         private set
 
     /**
@@ -93,7 +93,7 @@ internal class LocalPlayback
     /**
      * The current position in the audio stream in milliseconds.
      */
-    val currentPosition get() = mExoPlayer?.currentPosition ?: 0
+    val currentPosition get() = mExoPlayer?.currentPosition ?: 0L
 
     /**
      * Start playback for an [item] in the queue.

@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Message
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -23,7 +24,7 @@ private const val TAG = "MusicService"
 /** Number of milliseconds to wait until the service stops itself when not playing. */
 private const val STOP_DELAY = 30000L
 
-class MusicService : MediaBrowserServiceCompat(),
+open class MusicService : MediaBrowserServiceCompat(),
         PlaybackManager.ServiceCallback, QueueManager.MetadataUpdateListener {
 
     @Inject private lateinit var mRepository: MusicRepository
@@ -91,6 +92,23 @@ class MusicService : MediaBrowserServiceCompat(),
 
     override fun onPlaybackStateUpdated(newState: PlaybackStateCompat) {
         mSession.setPlaybackState(newState)
+    }
+
+    override fun onMetadataChanged(metadata: MediaMetadataCompat) {
+        mSession.setMetadata(metadata)
+    }
+
+    override fun onMetadataRetrieveError() {
+        mPlaybackManager.updatePlaybackState("No metadata")
+    }
+
+    override fun onCurrentQueueIndexUpdated(queueIndex: Int) {
+        mPlaybackManager.handlePlayRequest()
+    }
+
+    override fun onQueueUpdated(title: String, newQueue: List<MediaSessionCompat.QueueItem>) {
+        mSession.setQueueTitle(title)
+        mSession.setQueue(newQueue)
     }
 }
 

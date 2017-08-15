@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic.playback
 
 import android.os.Bundle
+import android.support.annotation.VisibleForTesting
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -53,7 +54,9 @@ class QueueManager
     }
 
     private fun setCurrentQueueItem(mediaId: String): Boolean {
-        TODO()
+        val index = musicIndexOnQueue(mPlayingQueue, mediaId)
+        setCurrentQueueIndex(index)
+        return index >= 0
     }
 
     fun skipPosition(amount: Int): Boolean {
@@ -108,8 +111,9 @@ class QueueManager
     fun loadRandomQueue() {
         TODO()
     }
-    
-    private fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
+
+    @VisibleForTesting
+    internal fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
                                 initialMediaId: String? = null) {
         mPlayingQueue.clear()
         mPlayingQueue.addAll(newQueue)

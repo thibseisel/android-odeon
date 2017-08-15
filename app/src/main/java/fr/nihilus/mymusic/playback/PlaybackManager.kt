@@ -12,7 +12,7 @@ import javax.inject.Inject
 private const val TAG = "PlaybackManager"
 
 @MusicServiceScope
-internal class PlaybackManager
+open internal class PlaybackManager
 @Inject constructor(
         service: MusicService,
         queueManager: QueueManager,

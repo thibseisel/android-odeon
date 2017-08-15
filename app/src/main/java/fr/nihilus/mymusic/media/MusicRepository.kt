@@ -23,12 +23,12 @@ import javax.inject.Singleton
  * a subset of item has changed.
  */
 @Singleton
-class MusicRepository
+open class MusicRepository
 @Inject internal constructor(private val mediaDao: MediaDao) {
 
     private val metadataById = LongSparseArray<MediaMetadataCompat>()
     private val metadatas = mediaDao.getAllTracks()
-            .doOnNext(this::cacheMetadatas)
+            .doOnNext { cacheMetadatas(it) }
             .share()
 
     /**
@@ -37,7 +37,7 @@ class MusicRepository
      * @param parentMediaId the media id that identifies the requested media items
      * @return an observable list of media items proper for display.
      */
-    fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
+    open fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
         return when (parentMediaId) {
             MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::asMediaItems)
             MediaID.ID_ALBUMS -> mediaDao.getAlbums().firstOrError()
@@ -48,7 +48,7 @@ class MusicRepository
     /**
      * @return a single metadata item with the specified musicId
      */
-    fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
+    open fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
         val fromCache = Single.defer {
             val metadata = metadataById.get(musicId)
             if (metadata == null) Single.error<MediaMetadataCompat> {
@@ -99,7 +99,7 @@ class MusicRepository
      * When done observing changes, clients __must__ dispose their observers
      * through [Disposable.dispose] to avoid memory leaks.
      */
-    val mediaChanges: Observable<String> by lazy {
+    open val mediaChanges: Observable<String> by lazy {
         // TODO Add any other media that are subject to changes
         metadatas.map { _ -> MediaID.ID_MUSIC }
     }
@@ -107,7 +107,7 @@ class MusicRepository
     /**
      * Release all references to objects loaded by this repository.
      */
-    fun clear() {
+    open fun clear() {
         this.metadataById.clear()
     }
 
