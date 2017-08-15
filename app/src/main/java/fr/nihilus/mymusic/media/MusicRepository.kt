@@ -32,14 +32,14 @@ open class MusicRepository
             .share()
 
     /**
-     * Fetch [MediaItem]s children of a given Media ID.
+     * Fetch [MediaDescriptionCompat]s children of a given Media ID.
      * The returned [Observable] will emit the requested children or an error if [parentMediaId] is unsupported.
-     * @param parentMediaId the media id that identifies the requested media items
-     * @return an observable list of media items proper for display.
+     * @param parentMediaId the media id that identifies the requested medias
+     * @return an observable list of media descriptions proper for display.
      */
-    open fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
+    open fun getMediaChildren(parentMediaId: String): Single<List<MediaDescriptionCompat>> {
         return when (parentMediaId) {
-            MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::asMediaItems)
+            MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::toMediaDescriptions)
             MediaID.ID_ALBUMS -> mediaDao.getAlbums().firstOrError()
             else -> Single.error(::UnsupportedOperationException)
         }
@@ -60,20 +60,20 @@ open class MusicRepository
         return fromCache
     }
 
-    private fun getAlbumTracks(albumId: Long): Single<List<MediaItem>> {
+    private fun getAlbumTracks(albumId: Long): Single<List<MediaDescriptionCompat>> {
         return Single.fromCallable { albumTracksFromCache(albumId) }
     }
 
     /**
-     * Convert a list of [MediaMetadataCompat]s into a list of [MediaItem]s with the MUSIC media ID.
+     * Convert a list of [MediaMetadataCompat]s into a list of [MediaDescriptionCompat]s with the MUSIC media ID.
      */
-    private fun asMediaItems(metadataList: List<MediaMetadataCompat>): List<MediaItem> {
+    private fun toMediaDescriptions(metadataList: List<MediaMetadataCompat>): List<MediaDescriptionCompat> {
         val builder = MediaDescriptionCompat.Builder()
-        return metadataList.map { it.asMediaItem(MediaID.ID_MUSIC, builder) }
+        return metadataList.map { it.asMediaDescription(MediaID.ID_MUSIC, builder) }
     }
 
-    private fun albumTracksFromCache(albumId: Long): List<MediaItem> {
-        val albumTracks = ArrayList<MediaItem>()
+    private fun albumTracksFromCache(albumId: Long): List<MediaDescriptionCompat> {
+        val albumTracks = ArrayList<MediaDescriptionCompat>()
         val builder = MediaDescriptionCompat.Builder()
         val parentMediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
 
@@ -82,8 +82,8 @@ open class MusicRepository
             val meta = metadataById.valueAt(i)
 
             if (albumId == meta.getLong(MediaDao.CUSTOM_META_ALBUM_ID)) {
-                val mediaItem = meta.asMediaItem(parentMediaId + '/' + musicId, builder)
-                albumTracks.add(mediaItem)
+                val description = meta.asMediaDescription(parentMediaId + '/' + musicId, builder)
+                albumTracks.add(description)
             }
         }
 
@@ -94,7 +94,7 @@ open class MusicRepository
      * An Observable that notify observers when a change is detected in the music library.
      * It emits the parent media id of the collection of items that have change.
      *
-     * Clients are then advised to call [getMediaItems] to fetch up-to-date items.
+     * Clients are then advised to call [getMediaChildren] to fetch up-to-date items.
      *
      * When done observing changes, clients __must__ dispose their observers
      * through [Disposable.dispose] to avoid memory leaks.
@@ -121,16 +121,16 @@ open class MusicRepository
 }
 
 /**
- * Convert this [MediaMetadataCompat] into its [MediaItem] equivalent.
+ * Convert this [MediaMetadataCompat] into its [MediaDescriptionCompat] equivalent.
  * @param parentMediaId the Media ID to use a prefix for this item's Media ID
  * @param builder an optional builder for reuse
- * @return a media item created from this track metadatas
+ * @return a media description created from this track metadatas
  */
-@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-internal fun MediaMetadataCompat.asMediaItem(
+@VisibleForTesting
+internal fun MediaMetadataCompat.asMediaDescription(
         parentMediaId: String,
         builder: MediaDescriptionCompat.Builder = MediaDescriptionCompat.Builder()
-): MediaItem {
+): MediaDescriptionCompat {
     val musicId = this.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
     val extras = Bundle(2)
     extras.putString(MediaItems.EXTRA_TITLE_KEY, this.getString(MediaDao.CUSTOM_META_TITLE_KEY))
@@ -146,5 +146,5 @@ internal fun MediaMetadataCompat.asMediaItem(
             .setExtras(extras)
     artUri?.let { builder.setIconUri(Uri.parse(it)) }
 
-    return MediaItem(builder.build(), MediaItem.FLAG_PLAYABLE)
+    return builder.build()
 }

@@ -11,6 +11,7 @@ import android.provider.MediaStore.Audio.Media
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
@@ -80,7 +81,7 @@ class MediaDaoTest {
 
         val albums = observer.values()[0]
         assertThat(albums, hasSize(3))
-        assertMediaItem(albums[0], mediaId = "${MediaID.ID_ALBUMS}/1", title = "Album",
+        assertMediaDescription(albums[0], mediaId = "${MediaID.ID_ALBUMS}/1", title = "Album",
                 subtitle = "Artist", iconUri = artUriOf(1), extras = mapOf(
                 MediaItems.EXTRA_ALBUM_KEY to "AlbumKey",
                 MediaItems.EXTRA_NUMBER_OF_TRACKS to 8,
@@ -151,14 +152,14 @@ private fun assertMetadata(meta: MediaMetadataCompat, mediaId: String, title: St
  * Assert that the given [MediaBrowserCompat.MediaItem] has the expected mediaId, title, subtitle,
  * icon Uri and extras.
  */
-private fun assertMediaItem(item: MediaBrowserCompat.MediaItem, mediaId: String, title: CharSequence,
-                            subtitle: CharSequence, iconUri: Uri, extras: Map<String, Any>) {
-    assertThat(item.mediaId, equalTo(mediaId))
-    assertThat(item.description.title, equalTo(title))
-    assertThat(item.description.subtitle, equalTo(subtitle))
-    assertThat(item.description.iconUri, equalTo(iconUri))
+private fun assertMediaDescription(descr: MediaDescriptionCompat, mediaId: String, title: CharSequence,
+                                   subtitle: CharSequence, iconUri: Uri, extras: Map<String, Any>) {
+    assertThat(descr.mediaId, equalTo(mediaId))
+    assertThat(descr.title, equalTo(title))
+    assertThat(descr.subtitle, equalTo(subtitle))
+    assertThat(descr.iconUri, equalTo(iconUri))
 
     for ((key, value) in extras) {
-        assertThat(item.description.extras?.get(key), equalTo(value))
+        assertThat(descr.extras?.get(key), equalTo(value))
     }
 }

@@ -36,32 +36,32 @@ class MusicRepositoryTest {
 
     /**
      * Check proper transformation of a MediaMetadataCompat into a MediaItem via
-     * the [MusicRepository.asMediaItem] extension function.
+     * the [MusicRepository.asMediaDescription] extension function.
      */
     @Test
-    fun mediaMetadataToMediaItem() {
+    fun mediaMetadataToMediaDescription() {
         val values = METADATA[0]
         val metadata = sampleToMetadata(values)
 
-        val mediaItem = metadata.asMediaItem(MediaID.ID_MUSIC)
-        assertThat(mediaItem.mediaId, equalTo("${MediaID.ID_MUSIC}|${values[0]}"))
-        assertThat(mediaItem.description.title, equalTo(values[1] as CharSequence))
-        assertThat(mediaItem.description.subtitle, equalTo(values[3] as CharSequence))
-        assertThat(mediaItem.description.mediaUri, equalTo(parse(values[8] as String)))
+        val description = metadata.asMediaDescription(MediaID.ID_MUSIC)
+        assertThat(description.mediaId, equalTo("${MediaID.ID_MUSIC}|${values[0]}"))
+        assertThat(description.title, equalTo(values[1] as CharSequence))
+        assertThat(description.subtitle, equalTo(values[3] as CharSequence))
+        assertThat(description.mediaUri, equalTo(parse(values[8] as String)))
 
-        val extras = mediaItem.description.extras!!
+        val extras = description.extras!!
         assertThat(extras.getString(MediaItems.EXTRA_TITLE_KEY), equalTo(values[9]))
         assertThat(extras.getLong(MediaItems.EXTRA_DURATION), equalTo(values[4]))
     }
 
     /**
-     * Assert that [MusicRepository.getMediaItems] emits a list of media items
+     * Assert that [MusicRepository.getMediaChildren] emits a list of media items
      * corresponding to tracks fetched from [MediaDao] when the media ID is [MediaID.ID_MUSIC].
      */
     @Test
     fun mediaItems_allTracks() {
         // Subscribe to this Single with a TestObserver
-        val testObserver = subject.getMediaItems(MediaID.ID_MUSIC).test()
+        val testObserver = subject.getMediaChildren(MediaID.ID_MUSIC).test()
 
         // Push one event
         metadataSubject.onNext(listOf(
@@ -78,12 +78,12 @@ class MusicRepositoryTest {
     }
 
     /**
-     * Assert that the Single returned by [MusicRepository.getMediaItems]
+     * Assert that the Single returned by [MusicRepository.getMediaChildren]
      * emits an error notification when the passed parent media ID is unsupported.
      */
     @Test
     fun mediaItems_unsupportedMediaIdThrows() {
-        subject.getMediaItems("Unknown").test()
+        subject.getMediaChildren("Unknown").test()
                 .assertError(UnsupportedOperationException::class.java)
     }
 
@@ -104,7 +104,7 @@ class MusicRepositoryTest {
 
         // Pre-fetch metadata in repository
         Log.d("TESTS", "Prefetching")
-        subject.getMediaItems(MediaID.ID_MUSIC).subscribe()
+        subject.getMediaChildren(MediaID.ID_MUSIC).subscribe()
 
         Log.d("TESTS", "Getting metadata")
         val testObserver = subject.getMetadata(1L).test()

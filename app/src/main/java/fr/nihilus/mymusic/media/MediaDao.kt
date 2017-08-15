@@ -11,8 +11,6 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Audio.AlbumColumns.ALBUM
 import android.provider.MediaStore.Audio.Albums
 import android.provider.MediaStore.Audio.Media
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
@@ -125,12 +123,12 @@ open class MediaDao
         return allTracks
     }
 
-    open fun getAlbums(): Observable<List<MediaItem>> {
+    open fun getAlbums(): Observable<List<MediaDescriptionCompat>> {
         return Observable.fromCallable(this::loadAlbumsFromMediaStore)
                 .timeout(1000L, TimeUnit.MILLISECONDS)
     }
 
-    private fun loadAlbumsFromMediaStore(): List<MediaBrowserCompat.MediaItem> {
+    private fun loadAlbumsFromMediaStore(): List<MediaDescriptionCompat> {
         val cursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
                 null, null, Albums.DEFAULT_SORT_ORDER)
 
@@ -146,7 +144,7 @@ open class MediaDao
         val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
         val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
 
-        val albums = ArrayList<MediaBrowserCompat.MediaItem>(cursor.count)
+        val albums = ArrayList<MediaDescriptionCompat>(cursor.count)
         val builder = MediaDescriptionCompat.Builder()
 
         while (cursor.moveToNext()) {
@@ -165,7 +163,7 @@ open class MediaDao
                     .setIconUri(artUri)
                     .setExtras(extras)
 
-            albums.add(MediaItem(builder.build(), MediaItem.FLAG_BROWSABLE))
+            albums.add(builder.build())
         }
 
         cursor.close()

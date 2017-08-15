@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserServiceCompat
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -16,6 +18,8 @@ import fr.nihilus.mymusic.media.MusicRepository
 import fr.nihilus.mymusic.playback.PlaybackManager
 import fr.nihilus.mymusic.playback.QueueManager
 import fr.nihilus.mymusic.utils.MediaID
+import io.reactivex.SingleObserver
+import io.reactivex.disposables.Disposable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
@@ -24,7 +28,7 @@ private const val TAG = "MusicService"
 /** Number of milliseconds to wait until the service stops itself when not playing. */
 private const val STOP_DELAY = 30000L
 
-open class MusicService : MediaBrowserServiceCompat(),
+class MusicService : MediaBrowserServiceCompat(),
         PlaybackManager.ServiceCallback, QueueManager.MetadataUpdateListener {
 
     @Inject private lateinit var mRepository: MusicRepository
@@ -64,7 +68,20 @@ open class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        result.detach()
+        mRepository.getMediaChildren(parentId).subscribe(object : SingleObserver<List<MediaDescriptionCompat>> {
+            override fun onSubscribe(d: Disposable) {}
+            override fun onError(e: Throwable) = result.sendResult(emptyList())
+            override fun onSuccess(medias: List<MediaDescriptionCompat>) {
+                val items = medias.map {
+                    val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
+                    else MediaItem.FLAG_PLAYABLE
+                    MediaItem(it, flags)
+                }
+
+                result.sendResult(items)
+            }
+        })
     }
 
     override fun onPlaybackStart() {
