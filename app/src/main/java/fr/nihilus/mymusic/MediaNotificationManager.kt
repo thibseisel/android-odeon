@@ -11,11 +11,11 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.RemoteException
 import android.support.annotation.DrawableRes
+import android.support.v4.app.NotificationCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v7.app.NotificationCompat
 import android.util.Log
 import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.utils.ResourceHelper
@@ -177,7 +177,7 @@ internal class MediaNotificationManager
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.ic_pause else R.drawable.ic_play_arrow
 
-        notificationBuilder.setStyle(NotificationCompat.MediaStyle()
+        notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setShowActionsInCompactView(1)
                 .setMediaSession(mSessionToken))
                 .setColor(mNotificationColor)
