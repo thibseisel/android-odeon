@@ -71,7 +71,7 @@ class MusicService : MediaBrowserServiceCompat(),
         result.detach()
         mRepository.getMediaChildren(parentId).subscribe(object : SingleObserver<List<MediaDescriptionCompat>> {
             override fun onSubscribe(d: Disposable) {}
-            override fun onError(e: Throwable) = result.sendResult(emptyList())
+            override fun onError(e: Throwable) = result.sendResult(null)
             override fun onSuccess(medias: List<MediaDescriptionCompat>) {
                 val items = medias.map {
                     val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
