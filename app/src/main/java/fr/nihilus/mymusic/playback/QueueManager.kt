@@ -2,6 +2,7 @@ package fr.nihilus.mymusic.playback
 
 import android.os.Bundle
 import android.support.annotation.VisibleForTesting
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -29,9 +30,18 @@ class QueueManager
     private val mPlayingQueue: MutableList<MediaSessionCompat.QueueItem> = ArrayList()
     private var mCurrentIndex = 0
 
+    /**
+     * Item in the queue that is currently selected.
+     * When the playback starts or resume, this item will be the one to be played.
+     */
     val currentMusic: MediaSessionCompat.QueueItem?
         get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
 
+    /**
+     * Indicates if a [mediaId] belongs to the same hierarchy
+     * as the one whose items are loaded into the queue.
+     */
+    @VisibleForTesting
     fun isSameBrowsingCategory(mediaId: String): Boolean {
         val newBrowseHierarchy = MediaID.getHierarchy(mediaId)
         val current = currentMusic ?: return false
@@ -47,6 +57,11 @@ class QueueManager
         }
     }
 
+    /**
+     * Move to a specific item in the queue.
+     * @param queueId unique identifier of the item
+     * @return whether changing current queue item was successful
+     */
     fun setCurrentQueueItem(queueId: Long): Boolean {
         val index = musicIndexOnQueue(mPlayingQueue, queueId)
         setCurrentQueueIndex(index)
@@ -59,13 +74,19 @@ class QueueManager
         return index >= 0
     }
 
-    fun skipPosition(amount: Int): Boolean {
+    /**
+     * Move in the queue relatively to the current position.
+     * If the number of steps is negative, then the move is backward.
+     * @param steps the number of items to skip, negative is backward, position is forward
+     * @return whether the move succeeded
+     */
+    fun skipPosition(steps: Int): Boolean {
         // TODO Implement cycling capabilities
-        var index = mCurrentIndex + amount
+        var index = mCurrentIndex + steps
         index = if (index < 0) 0 else index % mPlayingQueue.size
 
         if (!isIndexPlayable(index, mPlayingQueue)) {
-            Log.e(TAG, "Cannot increment queue index by $amount. Current=$mCurrentIndex, " +
+            Log.e(TAG, "Cannot increment queue index by $steps. Current=$mCurrentIndex, " +
                     "queue length= ${mPlayingQueue.size}")
             return false
         }
@@ -78,13 +99,21 @@ class QueueManager
         TODO("Implement search logic in MusicRepository and retrieve queue from it")
     }
 
+    /**
+     *
+     */
     fun loadQueueFromMusic(mediaId: String) {
         Log.d(TAG, "loadQueueFromMusic: $mediaId")
-        val canReuseQueue = if (isSameBrowsingCategory(mediaId)) setCurrentQueueItem(mediaId) else false
+        val canReuseQueue = isSameBrowsingCategory(mediaId) && setCurrentQueueItem(mediaId)
         if (!canReuseQueue) {
             // TODO Determine queue name from MediaId, get static names from resources
             val queueTitle = "Playing queue"
-            TODO("Get QueueItems from MusicRepository")
+            mRepository.getMediaChildren(mediaId).subscribe { medias: List<MediaDescriptionCompat> ->
+                setCurrentQueue(queueTitle, medias.mapIndexed {
+                    index, descr -> MediaSessionCompat.QueueItem(descr, index.toLong())
+                })
+                updateMetadata()
+            }
         }
 
         updateMetadata()
@@ -109,7 +138,7 @@ class QueueManager
     }
 
     fun loadRandomQueue() {
-        TODO()
+        TODO("Should be the same as loadQueueFromMusic, but in random order")
     }
 
     @VisibleForTesting

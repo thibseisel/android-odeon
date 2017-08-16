@@ -7,6 +7,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.mymusic.MusicService
 import fr.nihilus.mymusic.di.MusicServiceScope
+import fr.nihilus.mymusic.utils.MediaID
 import javax.inject.Inject
 
 private const val TAG = "PlaybackManager"
@@ -57,7 +58,7 @@ open internal class PlaybackManager
 
         var state = mPlayback.state
         if (error != null) {
-            stateBuilder.setErrorMessage(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, error)
+            stateBuilder.setErrorMessage(PlaybackStateCompat.ERROR_CODE_APP_ERROR, error)
             state = PlaybackStateCompat.STATE_ERROR
         }
 
@@ -95,7 +96,7 @@ open internal class PlaybackManager
     }
 
     override fun onCompletion() {
-        if (mQueueManager.skipPosition(+1)) {
+        if (mQueueManager.skipPosition(1)) {
             handlePlayRequest()
             mQueueManager.updateMetadata()
         } else {
@@ -112,14 +113,15 @@ open internal class PlaybackManager
     }
 
     /**
-     *
+     * Handle commands received by the media session.
+     * Available commands are configured by [setAvailableActions].
      */
     internal val mediaSessionCallback = object : MediaSessionCompat.Callback() {
 
         override fun onPlay() {
             Log.v(TAG, "onPlay")
             if (mQueueManager.currentMusic == null) {
-                mQueueManager.loadRandomQueue()
+                mQueueManager.loadQueueFromMusic(MediaID.ID_MUSIC)
             }
 
             handlePlayRequest()
