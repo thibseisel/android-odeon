@@ -16,7 +16,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
@@ -31,7 +30,6 @@ open class MediaDao
      * Observe changes in [android.provider.MediaStore] and publish updated metadata when a change occur.
      */
     private val mediaChanges = Observable.create<List<MediaMetadataCompat>> { emitter ->
-        var disposed = false
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
                 val mediaMetadataList = loadMetadataFromMediastore()
@@ -42,18 +40,12 @@ open class MediaDao
 
         Log.d(TAG, "Start listening for metadata changes...")
         resolver.registerContentObserver(Media.EXTERNAL_CONTENT_URI, true, observer)
-        emitter.setDisposable(object : Disposable {
-            override fun isDisposed() = disposed
 
-            override fun dispose() {
-                if (!disposed) {
-                    Log.d(TAG, "Disposing metadata change listener.")
-                    resolver.unregisterContentObserver(observer)
-                    emitter.onComplete()
-                    disposed = true
-                }
-            }
-        })
+        emitter.setCancellable {
+            Log.d(TAG, "Disposing metadata change listener.")
+            resolver.unregisterContentObserver(observer)
+            emitter.onComplete()
+        }
     }
 
     /**
