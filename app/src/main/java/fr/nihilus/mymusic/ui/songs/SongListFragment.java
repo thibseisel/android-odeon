@@ -108,7 +108,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         mListContainer = view.findViewById(R.id.list_container);
 
-        mListView = (ListView) view.findViewById(R.id.list);
+        mListView = view.findViewById(R.id.list);
         setupListHeader();
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(this);
@@ -117,7 +117,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         mListView.setMultiChoiceModeListener(new SongListActionMode());
         ViewCompat.setNestedScrollingEnabled(mListView, true);
 
-        mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
+        mProgressBar = view.findViewById(android.R.id.progress);
 
         if (savedInstanceState == null) {
             mListContainer.setVisibility(View.GONE);

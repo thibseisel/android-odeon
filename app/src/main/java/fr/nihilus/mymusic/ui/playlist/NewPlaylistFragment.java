@@ -151,22 +151,22 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mTitleLayout = (TextInputLayout) view.findViewById(R.id.titleLayout);
-        mTitleInput = (TextInputEditText) mTitleLayout.findViewById(R.id.title);
+        mTitleLayout = view.findViewById(R.id.titleLayout);
+        mTitleInput = mTitleLayout.findViewById(R.id.title);
 
-        mValidateButton = (Button) view.findViewById(R.id.validate);
+        mValidateButton = view.findViewById(R.id.validate);
         mValidateButton.setOnClickListener(this);
 
-        mMessage = (TextView) view.findViewById(R.id.selected_songs);
+        mMessage = view.findViewById(R.id.selected_songs);
         mMessage.setText(R.string.new_playlist_help_message);
 
-        mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView = view.findViewById(android.R.id.list);
         mListView.setAdapter(mAdapter);
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         mListView.setOnItemClickListener(this);
 
         // Add a dismiss button to the toolbar
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_dialog);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override

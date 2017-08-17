@@ -187,7 +187,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void setupPlayerView() {
-        mPlayerView = (PlayerView) findViewById(R.id.playerView);
+        mPlayerView = findViewById(R.id.playerView);
         mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
             @Override
             public void accept(@Nullable MediaControllerCompat controller) throws Exception {
@@ -208,13 +208,13 @@ public class HomeActivity extends AppCompatActivity
      * Create and populate the Navigation Drawer.
      */
     private void setupNavigationDrawer() {
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        mDrawerLayout = findViewById(R.id.drawerLayout);
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 R.string.drawer_opened, R.string.drawer_closed);
         mDrawerLayout.addDrawerListener(mDrawerToggle);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mNavigationView = (NavigationView) findViewById(R.id.navDrawer);
+        mNavigationView = findViewById(R.id.navDrawer);
         mNavigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -288,12 +288,12 @@ public class HomeActivity extends AppCompatActivity
             View header = getLayoutInflater().inflate(R.layout.drawer_header, mNavigationView, false);
 
             final View band = header.findViewById(R.id.band);
-            ImageView albumArtView = (ImageView) header.findViewById(R.id.cover);
+            ImageView albumArtView = header.findViewById(R.id.cover);
 
-            final TextView titleText = ((TextView) header.findViewById(R.id.title));
+            final TextView titleText = header.findViewById(R.id.title);
             titleText.setText(title);
 
-            final TextView subtitleText = ((TextView) header.findViewById(R.id.subtitle));
+            final TextView subtitleText = header.findViewById(R.id.subtitle);
             subtitleText.setText(subtitle);
 
             // If header is already added, don't add it twice

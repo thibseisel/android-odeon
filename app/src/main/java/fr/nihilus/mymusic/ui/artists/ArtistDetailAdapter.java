@@ -192,8 +192,8 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         AlbumHolder(View itemView) {
             super(itemView);
-            albumArt = (ImageView) itemView.findViewById(R.id.albumArt);
-            title = (TextView) itemView.findViewById(R.id.title);
+            albumArt = itemView.findViewById(R.id.albumArt);
+            title = itemView.findViewById(R.id.title);
         }
 
         void setColors(@ColorInt int primary, @ColorInt int accent, @ColorInt int title,
@@ -214,9 +214,9 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         TrackHolder(View itemView) {
             super(itemView);
-            albumArt = (ImageView) itemView.findViewById(R.id.albumArt);
-            title = (TextView) itemView.findViewById(R.id.title);
-            duration = (TextView) itemView.findViewById(R.id.duration);
+            albumArt = itemView.findViewById(R.id.albumArt);
+            title = itemView.findViewById(R.id.title);
+            duration = itemView.findViewById(R.id.duration);
         }
     }
 }

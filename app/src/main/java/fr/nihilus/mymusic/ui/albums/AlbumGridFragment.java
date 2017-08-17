@@ -82,10 +82,10 @@ public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbum
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.addItemDecoration(new GridSpacerDecoration(getContext(),
                 getResources().getInteger(R.integer.album_grid_span_count)));
-        mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
+        mProgressBar = view.findViewById(android.R.id.progress);
         mEmptyView = view.findViewById(android.R.id.empty);
 
         mRecyclerView.setAdapter(mAdapter);

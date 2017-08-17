@@ -96,9 +96,9 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
 
         TrackHolder(View itemView) {
             super(itemView);
-            trackNo = (TextView) itemView.findViewById(R.id.trackNo);
-            title = (TextView) itemView.findViewById(R.id.title);
-            duration = (TextView) itemView.findViewById(R.id.duration);
+            trackNo = itemView.findViewById(R.id.trackNo);
+            title = itemView.findViewById(R.id.title);
+            duration = itemView.findViewById(R.id.duration);
         }
     }
 }

@@ -302,27 +302,27 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        mAlbumArt = (ImageView) findViewById(R.id.cover);
-        mTitle = (TextView) findViewById(R.id.title);
-        mArtist = (TextView) findViewById(R.id.subtitle);
-        mProgress = (AutoUpdateSeekBar) findViewById(R.id.progress);
+        mAlbumArt = findViewById(R.id.cover);
+        mTitle = findViewById(R.id.title);
+        mArtist = findViewById(R.id.subtitle);
+        mProgress = findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
 
         findViewById(R.id.textContainer).setOnClickListener(this);
 
-        mBigArt = (ImageView) findViewById(R.id.bigArt);
+        mBigArt = findViewById(R.id.bigArt);
 
-        mPlayPauseButton = (ImageView) findViewById(R.id.btn_play_pause);
+        mPlayPauseButton = findViewById(R.id.btn_play_pause);
         mPlayPauseButton.setOnClickListener(this);
-        mPreviousButton = (ImageView) findViewById(R.id.btn_previous);
+        mPreviousButton = findViewById(R.id.btn_previous);
         mPreviousButton.setOnClickListener(this);
-        mNextButton = (ImageView) findViewById(R.id.btn_next);
+        mNextButton = findViewById(R.id.btn_next);
         mNextButton.setOnClickListener(this);
-        mMasterPlayPause = (ImageView) findViewById(R.id.main_play_pause);
+        mMasterPlayPause = findViewById(R.id.main_play_pause);
         mMasterPlayPause.setOnClickListener(this);
 
-        mRandomButton = (ImageView) findViewById(R.id.btn_random);
+        mRandomButton = findViewById(R.id.btn_random);
         ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
                 R.color.activation_state_list);
         Drawable wrapDrawable = DrawableCompat.wrap(mRandomButton.getDrawable());
@@ -332,7 +332,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
         // Transitions of the top of the PlayerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPlayBar = (ViewGroup) findViewById(R.id.playbar);
+            mPlayBar = findViewById(R.id.playbar);
             mOpenTransition = TransitionInflater.from(getContext())
                     .inflateTransition(R.transition.playerview_header_transition);
         }

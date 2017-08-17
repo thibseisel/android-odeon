@@ -118,9 +118,9 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         final ImageView albumArt;
 
         ViewHolder(View root) {
-            title = (TextView) root.findViewById(R.id.title);
-            subtitle = (TextView) root.findViewById(R.id.subtitle);
-            albumArt = (ImageView) root.findViewById(R.id.cover);
+            title = root.findViewById(R.id.title);
+            subtitle = root.findViewById(R.id.subtitle);
+            albumArt = root.findViewById(R.id.cover);
         }
     }
 }

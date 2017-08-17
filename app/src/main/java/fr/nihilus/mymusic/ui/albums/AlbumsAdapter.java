@@ -149,9 +149,9 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
         AlbumHolder(View itemView) {
             super(itemView);
             band = itemView.findViewById(R.id.band);
-            albumArt = (ImageView) itemView.findViewById(R.id.cover);
-            title = (TextView) itemView.findViewById(R.id.title);
-            artist = (TextView) itemView.findViewById(R.id.artist);
+            albumArt = itemView.findViewById(R.id.cover);
+            title = itemView.findViewById(R.id.title);
+            artist = itemView.findViewById(R.id.artist);
         }
 
         void setColors(@ColorInt int primary, @ColorInt int accent, @ColorInt int title,

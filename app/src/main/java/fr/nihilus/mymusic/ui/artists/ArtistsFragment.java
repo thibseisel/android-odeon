@@ -76,9 +76,9 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
+        mProgressBar = view.findViewById(android.R.id.progress);
         mEmptyView = view.findViewById(android.R.id.empty);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
         if (savedInstanceState == null) {

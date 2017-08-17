@@ -100,8 +100,8 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
         ArtistHolder(View itemView) {
             super(itemView);
-            artistName = (TextView) itemView.findViewById(R.id.artistName);
-            cover = (ImageView) itemView.findViewById(R.id.cover);
+            artistName = itemView.findViewById(R.id.artistName);
+            cover = itemView.findViewById(R.id.cover);
         }
     }
 

@@ -98,8 +98,8 @@ public class ArtistDetailFragment extends Fragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+        mProgressBar = view.findViewById(android.R.id.progress);
+        mRecyclerView = view.findViewById(R.id.recyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
         final int spanCount = getResources().getInteger(R.integer.artist_grid_span_count);

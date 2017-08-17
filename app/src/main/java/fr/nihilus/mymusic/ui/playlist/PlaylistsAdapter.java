@@ -102,8 +102,8 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
 
         PlaylistHolder(View itemView) {
             super(itemView);
-            title = (TextView) itemView.findViewById(R.id.title);
-            image = (ImageView) itemView.findViewById(R.id.albumArt);
+            title = itemView.findViewById(R.id.title);
+            image = itemView.findViewById(R.id.albumArt);
         }
     }
 

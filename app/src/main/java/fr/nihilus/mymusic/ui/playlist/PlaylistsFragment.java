@@ -97,8 +97,8 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-        mProgressBar = (ContentLoadingProgressBar) view.findViewById(android.R.id.progress);
+        mRecyclerView = view.findViewById(R.id.recyclerView);
+        mProgressBar = view.findViewById(android.R.id.progress);
         mEmptyView = view.findViewById(android.R.id.empty);
 
         mRecyclerView.setAdapter(mAdapter);
