@@ -15,7 +15,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -57,7 +56,6 @@ open class MediaDao
      */
     open fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable(this::loadMetadataFromMediastore)
-                .timeout(1L, TimeUnit.SECONDS)
                 .concatWith(mediaChanges)
     }
 
@@ -169,7 +167,7 @@ open class MediaDao
 
             cursor.close()
             albums
-        }.timeout(1L, TimeUnit.SECONDS)
+        }
     }
 
     /**
@@ -233,7 +231,7 @@ open class MediaDao
             albumsCursor.close()
 
             artists.sortedBy { it.extras!!.getString(MediaItems.EXTRA_TITLE_KEY) }
-        }.timeout(1L, TimeUnit.SECONDS)
+        }
     }
 
     open fun deleteTrack(track: MediaMetadataCompat) {

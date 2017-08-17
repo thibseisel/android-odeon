@@ -6,8 +6,7 @@ import android.database.MatrixCursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
-import android.provider.MediaStore.Audio.Albums
-import android.provider.MediaStore.Audio.Media
+import android.provider.MediaStore.Audio.*
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaBrowserCompat
@@ -16,8 +15,8 @@ import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
 import fr.nihilus.mymusic.utils.MediaID
-import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.hasSize
+import org.hamcrest.Matchers.*
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -54,9 +53,6 @@ class MediaDaoTest {
         assertMetadata(metadataList[0], mediaId = "1", title = "Title", album = "Album",
                 artist = "Artist", duration = 123L, discNo = 1L, trackNo = 1L,
                 artUri = artUriOf(1).toString())
-        assertMetadata(metadataList[1], mediaId = "2", title = "Amerika", album = "Reise Reise",
-                artist = "Rammstein", duration = 3046L, discNo = 1L, trackNo = 6L,
-                artUri = artUriOf(2).toString())
 
         observer.dispose()
     }
@@ -80,15 +76,51 @@ class MediaDaoTest {
         val observer = subject.getAlbums().test().assertValueCount(1)
 
         val albums = observer.values()[0]
-        assertThat(albums, hasSize(3))
+        assertThat(albums, hasSize(cursor.count))
         assertMediaDescription(albums[0], mediaId = "${MediaID.ID_ALBUMS}/1", title = "Album",
-                subtitle = "Artist", iconUri = artUriOf(1), extras = mapOf(
+                subtitle = "Artist", iconUri = artUriOf(1L), extras = mapOf(
                 MediaItems.EXTRA_ALBUM_KEY to "AlbumKey",
                 MediaItems.EXTRA_NUMBER_OF_TRACKS to 8,
                 MediaItems.EXTRA_YEAR to 2017
         ))
 
         observer.dispose()
+    }
+
+    @Test
+    fun getArtists_cursorToArtists() {
+        val artistCursor = getMockArtistCursor()
+        val albumCursor = getMockAlbumCursor()
+        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
+        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+
+        val observer = subject.getArtists().test().assertValueCount(1)
+
+        val artists = observer.values()[0]
+        assertThat(artists, hasSize(artistCursor.count))
+        assertMediaDescription(artists[0], mediaId = "${MediaID.ID_ARTISTS}/1", title = "Artist",
+                subtitle = null, iconUri = artUriOf(1L), extras = mapOf(
+                MediaItems.EXTRA_TITLE_KEY to "ArtistKey",
+                MediaItems.EXTRA_NUMBER_OF_TRACKS to 23
+        ))
+
+        observer.dispose()
+    }
+
+    @Test
+    fun getArtists_mostRecentAlbumArt() {
+        val artistCursor = getMockArtistCursor()
+        val albumCursor = getMockAlbumCursor()
+        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
+        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+
+        val observer = subject.getArtists().test()
+
+        val artists = observer.values()[0]
+        assertThat(artists, hasSize(artistCursor.count))
+        val rammsteinArtist = artists[1]
+
+        assertThat(rammsteinArtist.iconUri, `is`(equalTo(artUriOf(18L))))
     }
 }
 
@@ -104,7 +136,13 @@ private val METADATA = arrayOf(
 private val ALBUMS = arrayOf(
         arrayOf(1L, "Album", "AlbumKey", "Artist", 2017, 8),
         arrayOf(18L, "Reise Reise", "ReiseReise", "Rammstein", 2001, 10),
+        arrayOf(24L, "Sehnsucht", "Sehnsucht", "Rammstein", 1999, 9),
         arrayOf(1664L, "Fever", "Fever", "Bullet For My Valentine", 2010, 11)
+)
+
+private val ARTISTS = arrayOf(
+        arrayOf(1L, "Artist", "ArtistKey", 23),
+        arrayOf(2L, "Rammstein", "Rammstein", 36)
 )
 
 private fun getMockMetadataCursor(): MatrixCursor {
@@ -125,6 +163,16 @@ private fun getMockAlbumCursor(): MatrixCursor {
             Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
     val cursor = MatrixCursor(columns)
     for (row in ALBUMS) {
+        cursor.addRow(row)
+    }
+
+    return cursor
+}
+
+private fun getMockArtistCursor(): MatrixCursor {
+    val columns = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY, Artists.NUMBER_OF_TRACKS)
+    val cursor = MatrixCursor(columns)
+    for (row in ARTISTS) {
         cursor.addRow(row)
     }
 
@@ -152,14 +200,19 @@ private fun assertMetadata(meta: MediaMetadataCompat, mediaId: String, title: St
  * Assert that the given [MediaBrowserCompat.MediaItem] has the expected mediaId, title, subtitle,
  * icon Uri and extras.
  */
-private fun assertMediaDescription(descr: MediaDescriptionCompat, mediaId: String, title: CharSequence,
-                                   subtitle: CharSequence, iconUri: Uri, extras: Map<String, Any>) {
+private fun assertMediaDescription(descr: MediaDescriptionCompat, mediaId: String?, title: CharSequence?,
+                                   subtitle: CharSequence?, iconUri: Uri?, extras: Map<String, Any>?) {
     assertThat(descr.mediaId, equalTo(mediaId))
     assertThat(descr.title, equalTo(title))
     assertThat(descr.subtitle, equalTo(subtitle))
     assertThat(descr.iconUri, equalTo(iconUri))
 
-    for ((key, value) in extras) {
-        assertThat(descr.extras?.get(key), equalTo(value))
+    if (extras != null) {
+        assertThat(descr.extras?.size() ?: 0, `is`(extras.size))
+        for ((key, value) in extras) {
+            assertThat(descr.extras?.get(key), equalTo(value))
+        }
+    } else {
+        assertNull(descr.extras)
     }
 }
