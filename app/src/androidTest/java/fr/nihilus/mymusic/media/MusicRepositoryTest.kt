@@ -77,6 +77,11 @@ class MusicRepositoryTest {
         }.assertComplete()
     }
 
+    @Test
+    fun mediaItems_allAlbums() {
+        val testObserver = subject.getMediaChildren(MediaID.ID_ALBUMS).test()
+    }
+
     /**
      * Assert that the Single returned by [MusicRepository.getMediaChildren]
      * emits an error notification when the passed parent media ID is unsupported.

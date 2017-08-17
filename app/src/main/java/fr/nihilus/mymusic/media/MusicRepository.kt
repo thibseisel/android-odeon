@@ -38,9 +38,14 @@ open class MusicRepository
      * @return an observable list of media descriptions proper for display.
      */
     open fun getMediaChildren(parentMediaId: String): Single<List<MediaDescriptionCompat>> {
-        return when (parentMediaId) {
+        val parentHierarchy = MediaID.getHierarchy(parentMediaId)
+        return when (parentHierarchy[0]) {
             MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::toMediaDescriptions)
-            MediaID.ID_ALBUMS -> mediaDao.getAlbums().firstOrError()
+            MediaID.ID_ALBUMS -> {
+                if (parentHierarchy.size > 1) getAlbumTracks(parentHierarchy[1].toLong())
+                else mediaDao.getAlbums().firstOrError()
+            }
+            MediaID.ID_ARTISTS -> mediaDao.getArtists().firstOrError()
             else -> Single.error(::UnsupportedOperationException)
         }
     }

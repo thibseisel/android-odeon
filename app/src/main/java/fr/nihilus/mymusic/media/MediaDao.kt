@@ -234,7 +234,7 @@ open class MediaDao
         }
     }
 
-    open fun deleteTrack(track: MediaMetadataCompat) {
+    fun deleteTrack(track: MediaMetadataCompat) {
         // TODO("Delete from MediaStore and from disk")
     }
 

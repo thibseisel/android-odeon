@@ -3,20 +3,15 @@ package fr.nihilus.mymusic.media
 import android.content.ContentResolver
 import android.content.Context
 import android.database.MatrixCursor
-import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
 import fr.nihilus.mymusic.utils.MediaID
 import org.hamcrest.Matchers.*
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -125,7 +120,6 @@ class MediaDaoTest {
 }
 
 // Test materials
-private fun artUriOf(musicId: Long) = Uri.parse("content://media/external/audio/albumart/$musicId")
 
 private val METADATA = arrayOf(
         arrayOf(1L, "Title", "Album", "Artist", 123, 101, "TitleKey", "AlbumKey", 1L, 1L, ""),
@@ -179,40 +173,3 @@ private fun getMockArtistCursor(): MatrixCursor {
     return cursor
 }
 
-/**
- * Assert that the given [MediaMetadataCompat] has the expected mediaId, title, album, artist,
- * duration, disc number, track number and album art Uri.
- */
-private fun assertMetadata(meta: MediaMetadataCompat, mediaId: String, title: String,
-                           album: String, artist: String, duration: Long, discNo: Long,
-                           trackNo: Long, artUri: String) {
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID), equalTo(mediaId))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE), equalTo(title))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM), equalTo(album))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ARTIST), equalTo(artist))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION), equalTo(duration))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER), equalTo(discNo))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER), equalTo(trackNo))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), equalTo(artUri))
-}
-
-/**
- * Assert that the given [MediaBrowserCompat.MediaItem] has the expected mediaId, title, subtitle,
- * icon Uri and extras.
- */
-private fun assertMediaDescription(descr: MediaDescriptionCompat, mediaId: String?, title: CharSequence?,
-                                   subtitle: CharSequence?, iconUri: Uri?, extras: Map<String, Any>?) {
-    assertThat(descr.mediaId, equalTo(mediaId))
-    assertThat(descr.title, equalTo(title))
-    assertThat(descr.subtitle, equalTo(subtitle))
-    assertThat(descr.iconUri, equalTo(iconUri))
-
-    if (extras != null) {
-        assertThat(descr.extras?.size() ?: 0, `is`(extras.size))
-        for ((key, value) in extras) {
-            assertThat(descr.extras?.get(key), equalTo(value))
-        }
-    } else {
-        assertNull(descr.extras)
-    }
-}
