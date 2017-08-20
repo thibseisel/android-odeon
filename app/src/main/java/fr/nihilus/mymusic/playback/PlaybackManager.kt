@@ -32,8 +32,16 @@ open class PlaybackManager
     private val mPlayback = playback
     private val mPrefs = prefs
 
-    init {
-        playback.callback = this
+    /**
+     * Initialize the playback manager.
+     */
+    fun init() {
+        mPlayback.callback = this
+
+        mPrefs.lastPlayedMediaId?.let {
+            // Recover the queue from the last time it has played
+            mQueueManager.loadQueueFromMusic(it)
+        }
     }
 
     fun handlePlayRequest() {
@@ -41,6 +49,7 @@ open class PlaybackManager
         mQueueManager.currentMusic?.let {
             mServiceCallback.onPlaybackStart()
             mPlayback.play(it)
+            mPrefs.lastPlayedMediaId = it.description.mediaId
         }
     }
 

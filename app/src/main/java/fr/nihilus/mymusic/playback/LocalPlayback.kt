@@ -15,7 +15,9 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.ContentDataSource
+import com.google.android.exoplayer2.upstream.DataSource
+import com.google.android.exoplayer2.upstream.DataSpec
 import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
@@ -118,16 +120,24 @@ class LocalPlayback
                     ?: throw IllegalStateException("Queue item has no source URI")
 
             if (mExoPlayer == null) {
-                mExoPlayer = ExoPlayerFactory.newSimpleInstance(context,
-                        DefaultTrackSelector(), DefaultLoadControl())
+                mExoPlayer = ExoPlayerFactory.newSimpleInstance(
+                        DefaultRenderersFactory(context),
+                        DefaultTrackSelector(),
+                        DefaultLoadControl())
                 mExoPlayer!!.addListener(this)
+                mExoPlayer!!.audioStreamType = AudioManager.STREAM_MUSIC
             }
 
-            mExoPlayer!!.audioStreamType = AudioManager.STREAM_MUSIC
+            // For some reasons, DefaultDataSourceFactory does not work.
+            // Details: DefaultHttpDataSource is used instead of ContentDataSource
+            // FIXME May be fixed in a most recent version of ExoPlayer ?
 
-            val datasourceFactory = DefaultDataSourceFactory(context, null as String?, null)
+            val contentDataSource = ContentDataSource(context)
+            contentDataSource.open(DataSpec(sourceUri))
+
             val extractorsFactory = DefaultExtractorsFactory()
-            val mediaSource = ExtractorMediaSource(sourceUri, datasourceFactory, extractorsFactory, null, null)
+            val mediaSource = ExtractorMediaSource(sourceUri,
+                    DataSource.Factory { contentDataSource }, extractorsFactory, null, null)
 
             // Prepares media to play (happen on background thread) an triggers
             // onPlayerStateChanged callback when the stream is ready to play.
@@ -283,7 +293,7 @@ class LocalPlayback
         }
     }
 
-    override fun onTimelineChanged(timeline: Timeline, manifest: Any) {
+    override fun onTimelineChanged(timeline: Timeline, manifest: Any?) {
         // Nothing to do.
     }
 

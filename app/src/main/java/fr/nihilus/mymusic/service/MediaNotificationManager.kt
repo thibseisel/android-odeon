@@ -49,8 +49,6 @@ class MediaNotificationManager
 
     init {
         val pkg = service.packageName
-        updateSessionToken()
-
         mPauseIntent = PendingIntent.getBroadcast(service, REQUEST_CODE,
                 Intent(ACTION_PAUSE).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT)
         mPlayIntent = PendingIntent.getBroadcast(service, REQUEST_CODE,
@@ -66,6 +64,10 @@ class MediaNotificationManager
                 as NotificationManager
         initNotificationChannel()
         mNotificationManager.cancelAll()
+    }
+
+    fun init() {
+        updateSessionToken()
     }
 
     private fun initNotificationChannel() {

@@ -210,6 +210,7 @@ open class MediaDao
             artistsCursor.moveToFirst()
             albumsCursor.moveToFirst()
 
+            // We need to find the most recent album for each artist to display its album art
             while (!artistsCursor.isAfterLast && !albumsCursor.isAfterLast) {
                 val artistName = artistsCursor.getString(colArtistName)
                 val artistInAlbum = albumsCursor.getString(colArtistAlbum)

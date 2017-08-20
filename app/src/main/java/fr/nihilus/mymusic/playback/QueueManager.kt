@@ -35,7 +35,12 @@ class QueueManager
      * When the playback starts or resume, this item will be the one to be played.
      */
     val currentMusic: MediaSessionCompat.QueueItem?
-        get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
+    get() {
+        val current = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
+        Log.d(TAG, "Current music: $current")
+        return current
+    }
+
 
     /**
      * Indicates if a [mediaId] belongs to the same hierarchy
@@ -108,6 +113,7 @@ class QueueManager
         if (!canReuseQueue) {
             // TODO Determine queue name from MediaId, get static names from resources
             val queueTitle = "Playing queue"
+
             mRepository.getMediaChildren(mediaId).subscribe { medias: List<MediaDescriptionCompat> ->
                 setCurrentQueue(queueTitle, medias.mapIndexed {
                     index, descr -> MediaSessionCompat.QueueItem(descr, index.toLong())
@@ -137,13 +143,10 @@ class QueueManager
         })
     }
 
-    fun loadRandomQueue() {
-        TODO("Should be the same as loadQueueFromMusic, but in random order")
-    }
-
     @VisibleForTesting
     internal fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
                                 initialMediaId: String? = null) {
+        // TODO Implement ordering (shuffled or not)
         mPlayingQueue.clear()
         mPlayingQueue.addAll(newQueue)
         val index = if (initialMediaId != null) musicIndexOnQueue(mPlayingQueue, initialMediaId) else 0

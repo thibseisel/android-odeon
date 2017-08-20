@@ -57,7 +57,10 @@ class MusicService : MediaBrowserServiceCompat(),
                 uiIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         mSession.setSessionActivity(pi)
 
+        mPlaybackManager.init()
         mPlaybackManager.updatePlaybackState(null)
+
+        mNotificationManager.init()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
