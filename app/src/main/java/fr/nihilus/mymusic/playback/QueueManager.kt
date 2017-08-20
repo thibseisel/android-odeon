@@ -30,12 +30,20 @@ class QueueManager
     private val mPlayingQueue: MutableList<MediaSessionCompat.QueueItem> = ArrayList()
     private var mCurrentIndex = 0
 
+    var randomEnabled: Boolean = false
+        set(value) {
+            field = value
+            val currentMediaId = if (isIndexPlayable(mCurrentIndex, mPlayingQueue))
+                mPlayingQueue[mCurrentIndex].description.mediaId else null
+            setCurrentQueue("Queue", mPlayingQueue, currentMediaId)
+        }
+
     /**
      * Item in the queue that is currently selected.
      * When the playback starts or resume, this item will be the one to be played.
      */
     val currentMusic: MediaSessionCompat.QueueItem?
-    get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
+        get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
 
     /**
      * Indicates if a [mediaId] belongs to the same hierarchy
@@ -112,8 +120,8 @@ class QueueManager
             val queueTitle = "Playing queue"
 
             mRepository.getMediaChildren(mediaId).subscribe { medias: List<MediaDescriptionCompat> ->
-                setCurrentQueue(queueTitle, medias.mapIndexed {
-                    index, descr -> MediaSessionCompat.QueueItem(descr, index.toLong())
+                setCurrentQueue(queueTitle, medias.mapIndexed { index, descr ->
+                    MediaSessionCompat.QueueItem(descr, index.toLong())
                 })
                 updateMetadata()
             }
@@ -142,10 +150,13 @@ class QueueManager
 
     @VisibleForTesting
     internal fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
-                                initialMediaId: String? = null) {
-        // TODO Implement ordering (shuffled or not)
+                                 initialMediaId: String? = null) {
         mPlayingQueue.clear()
         mPlayingQueue.addAll(newQueue)
+
+        if (randomEnabled) Collections.shuffle(mPlayingQueue)
+        else mPlayingQueue.sortBy { it.queueId }
+
         val index = if (initialMediaId != null) musicIndexOnQueue(mPlayingQueue, initialMediaId) else 0
         mCurrentIndex = maxOf(0, index)
         mListener.onQueueUpdated(title, newQueue)

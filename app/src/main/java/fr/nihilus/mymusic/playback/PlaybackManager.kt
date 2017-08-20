@@ -38,6 +38,7 @@ open class PlaybackManager
     fun init() {
         mPlayback.callback = this
 
+        mQueueManager.randomEnabled = mPrefs.isRandomPlayingEnabled
         mPrefs.lastPlayedMediaId?.let {
             // Recover the queue from the last time it has played
             mQueueManager.loadQueueFromMusic(it)
@@ -188,7 +189,7 @@ open class PlaybackManager
         override fun onSkipToPrevious() {
             Log.d(TAG, "onSkipToPrevious")
             if (mQueueManager.skipPosition(-1))
-                handlePlayRequest()
+                if (mPlayback.isPlaying) handlePlayRequest()
             else handleStopRequest("Cannot skip")
             mQueueManager.updateMetadata()
         }
@@ -196,7 +197,7 @@ open class PlaybackManager
         override fun onSkipToNext() {
             Log.d(TAG, "onSkipToNext")
             if (mQueueManager.skipPosition(1))
-                handlePlayRequest()
+                if (mPlayback.isPlaying) handlePlayRequest()
             else handleStopRequest("Cannot skip")
             mQueueManager.updateMetadata()
         }
@@ -221,12 +222,6 @@ open class PlaybackManager
             // TODO Modify MediaSession shuffle mode and queue order accordingly
             val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
             mPrefs.isRandomPlayingEnabled = shouldShuffle
-
-            val currentlyPlaying = mQueueManager.currentMusic
-            val currentMediaId = currentlyPlaying?.description?.mediaId
-                    ?: mPrefs.lastPlayedMediaId
-                    ?: MediaID.ID_MUSIC
-            mQueueManager.loadQueueFromMusic(currentMediaId, shouldShuffle)
         }
 
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {

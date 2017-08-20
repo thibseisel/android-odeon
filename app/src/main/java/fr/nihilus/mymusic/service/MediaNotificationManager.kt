@@ -191,7 +191,7 @@ class MediaNotificationManager
                 R.drawable.dummy_album_art)
 
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
-            R.drawable.ic_pause else R.drawable.ic_play_arrow
+            R.drawable.ic_play_arrow else R.drawable.ic_pause
 
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setShowActionsInCompactView(1)
