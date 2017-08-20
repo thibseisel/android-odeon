@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import fr.nihilus.mymusic.di.MusicServiceScope;
 
+@Deprecated
 @MusicServiceScope
 public class StatsRecorder {
 

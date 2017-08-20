@@ -15,6 +15,7 @@ import dagger.android.AndroidInjection;
 import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.utils.PermissionUtil;
 
+@Deprecated
 public class SetupService extends IntentService {
     private static final String TAG = "SetupService";
     private static final String ACTION_SETUP_DB = "fr.nihilus.mymusic.action.SETUP_DATABASE";

@@ -17,6 +17,7 @@ import android.util.Log;
 
 import static fr.nihilus.mymusic.provider.Stats.MUSIC_ID;
 
+@Deprecated
 @SuppressWarnings("ConstantConditions")
 public class DatabaseProvider extends ContentProvider {
 

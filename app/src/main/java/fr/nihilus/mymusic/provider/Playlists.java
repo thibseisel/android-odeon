@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
 
+@Deprecated
 public final class Playlists {
 
     private Playlists() {}
@@ -38,6 +39,7 @@ public final class Playlists {
      */
     public static final String DATE_CREATED = "date_created";
 
+    @Deprecated
     public static final class Members {
 
         private Members() {}

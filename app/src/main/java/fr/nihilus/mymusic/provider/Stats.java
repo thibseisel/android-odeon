@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.provider.MediaStore.Audio;
 
+@Deprecated
 interface Stats extends BaseColumns {
 
     String AUTHORITY = "fr.nihilus.mymusic.provider";
