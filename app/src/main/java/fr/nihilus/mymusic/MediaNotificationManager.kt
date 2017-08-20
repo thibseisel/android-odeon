@@ -1,6 +1,7 @@
 package fr.nihilus.mymusic
 
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -9,6 +10,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.os.Build
 import android.os.RemoteException
 import android.support.annotation.DrawableRes
 import android.support.v4.app.NotificationCompat
@@ -60,7 +62,17 @@ internal class MediaNotificationManager
         // and restarted by the system.
         mNotificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
                 as NotificationManager
+        initNotificationChannel()
         mNotificationManager.cancelAll()
+    }
+
+    private fun initNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelName = "Playback control"
+            val channel = NotificationChannel(CHANNEL_ID, channelName,
+                    NotificationManager.IMPORTANCE_DEFAULT)
+            mNotificationManager.createNotificationChannel(channel)
+        }
     }
 
     private fun updateSessionToken() {
@@ -158,7 +170,7 @@ internal class MediaNotificationManager
         Log.v(TAG, "updateNotificationMetadata: metadata=$mMetadata")
         if (mMetadata == null || mPlaybackState == null) return null
 
-        val notificationBuilder = NotificationCompat.Builder(mService)
+        val notificationBuilder = NotificationCompat.Builder(mService, CHANNEL_ID)
         notificationBuilder.addAction(R.drawable.ic_skip_previous_24dp,
                 mService.getString(R.string.action_previous), mPreviousIntent)
 
@@ -259,5 +271,6 @@ internal class MediaNotificationManager
         const val ACTION_PAUSE = "fr.nihilus.music.action.PAUSE"
         const val ACTION_PREVIOUS = "fr.nihilus.music.action.PREVIOUS"
         const val ACTION_NEXT = "fr.nihilus.music.action.NEXT"
+        const val CHANNEL_ID = "media_channel"
     }
 }
