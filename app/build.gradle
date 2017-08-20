@@ -64,9 +64,8 @@ dependencies {
     compile "com.google.dagger:dagger-android:${daggerVersion}"
     compile "com.google.dagger:dagger-android-support:${daggerVersion}"
 
-    compile "io.reactivex.rxjava2:rxandroid:2.0.1"
-    compile "io.reactivex.rxjava2:rxjava:2.1.1"
-    compile "io.reactivex.rxjava2:rxkotlin:2.1.0"
+    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+    compile "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
 
     compile "android.arch.persistence.room:runtime:${archVersion}"
     compile "android.arch.persistence.room:rxjava2:${archVersion}"
