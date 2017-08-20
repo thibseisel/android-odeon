@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic
+package fr.nihilus.mymusic.service
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -14,12 +14,15 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import dagger.android.AndroidInjection
+import fr.nihilus.mymusic.HomeActivity
 import fr.nihilus.mymusic.media.MusicRepository
 import fr.nihilus.mymusic.playback.PlaybackManager
 import fr.nihilus.mymusic.playback.QueueManager
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.SingleObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
@@ -31,9 +34,9 @@ private const val STOP_DELAY = 30000L
 class MusicService : MediaBrowserServiceCompat(),
         PlaybackManager.ServiceCallback, QueueManager.MetadataUpdateListener {
 
-    @Inject private lateinit var mRepository: MusicRepository
-    @Inject private lateinit var mPlaybackManager: PlaybackManager
-    @Inject private lateinit var mNotificationManager: MediaNotificationManager
+    @Inject lateinit var mRepository: MusicRepository
+    @Inject lateinit var mPlaybackManager: PlaybackManager
+    @Inject lateinit var mNotificationManager: MediaNotificationManager
 
     private lateinit var mSession: MediaSessionCompat
     private val mDelayedStopHandler = DelayedStopHandler(this)
@@ -57,6 +60,18 @@ class MusicService : MediaBrowserServiceCompat(),
         mPlaybackManager.updatePlaybackState(null)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null) {
+            if (ACTION_CMD == intent.action) {
+                val cmd = intent.getStringExtra(CMD_NAME)
+                if (CMD_PAUSE == cmd) {
+                    mPlaybackManager.handlePauseRequest()
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
         val thisApplicationPackage = application.packageName
         if (clientPackageName != thisApplicationPackage) {
@@ -69,19 +84,20 @@ class MusicService : MediaBrowserServiceCompat(),
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
         result.detach()
-        mRepository.getMediaChildren(parentId).subscribe(object : SingleObserver<List<MediaDescriptionCompat>> {
-            override fun onSubscribe(d: Disposable) {}
-            override fun onError(e: Throwable) = result.sendResult(null)
-            override fun onSuccess(medias: List<MediaDescriptionCompat>) {
-                val items = medias.map {
-                    val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
-                    else MediaItem.FLAG_PLAYABLE
-                    MediaItem(it, flags)
-                }
-
-                result.sendResult(items)
-            }
-        })
+        mRepository.getMediaChildren(parentId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(object : SingleObserver<List<MediaDescriptionCompat>> {
+                    override fun onSubscribe(d: Disposable) {}
+                    override fun onError(e: Throwable) = result.sendResult(null)
+                    override fun onSuccess(medias: List<MediaDescriptionCompat>) {
+                        result.sendResult(medias.map {
+                            val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
+                            else MediaItem.FLAG_PLAYABLE
+                            MediaItem(it, flags)
+                        })
+                    }
+                })
     }
 
     override fun onPlaybackStart() {
@@ -100,6 +116,10 @@ class MusicService : MediaBrowserServiceCompat(),
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
         stopForeground(true)
+    }
+
+    override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode shuffleMode: Int) {
+        mSession.setShuffleMode(shuffleMode)
     }
 
 
@@ -126,6 +146,12 @@ class MusicService : MediaBrowserServiceCompat(),
     override fun onQueueUpdated(title: String, newQueue: List<MediaSessionCompat.QueueItem>) {
         mSession.setQueueTitle(title)
         mSession.setQueue(newQueue)
+    }
+
+    companion object {
+        const val ACTION_CMD = "fr.nihilus.music.ACTION_CMD"
+        const val CMD_NAME = "CMD_NAME"
+        const val CMD_PAUSE = "CMD_PAUSE"
     }
 }
 

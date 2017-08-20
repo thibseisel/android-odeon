@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -36,7 +37,6 @@ import javax.inject.Inject;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
-import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.utils.MediaID;
 
 import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
@@ -170,8 +170,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         if (controller != null) {
             if (position == 0) {
                 Bundle extras = new Bundle();
-                extras.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
-                controller.getTransportControls().sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, extras);
+                controller.getTransportControls().setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
                 controller.getTransportControls().playFromMediaId(MediaID.createMediaID(null, ID_MUSIC), null);
             } else {
                 // Offset the position as the header is considered at position 0

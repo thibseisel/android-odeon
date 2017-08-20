@@ -1,32 +1,43 @@
 package fr.nihilus.mymusic.playback
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import fr.nihilus.mymusic.MusicService
+import android.view.KeyEvent
 import fr.nihilus.mymusic.di.MusicServiceScope
+import fr.nihilus.mymusic.service.MusicService
+import fr.nihilus.mymusic.settings.PreferenceDao
 import fr.nihilus.mymusic.utils.MediaID
 import javax.inject.Inject
 
 private const val TAG = "PlaybackManager"
+private const val HEADSET_CLICK_DELAY = 250L
 
 @MusicServiceScope
-open internal class PlaybackManager
+open class PlaybackManager
 @Inject constructor(
         service: MusicService,
         queueManager: QueueManager,
-        playback: LocalPlayback
+        playback: LocalPlayback,
+        prefs: PreferenceDao
 ) : LocalPlayback.Callback {
 
     private val mServiceCallback: ServiceCallback = service
     private val mResources = service.resources
     private val mQueueManager = queueManager
     private val mPlayback = playback
+    private val mPrefs = prefs
+
+    init {
+        playback.callback = this
+    }
 
     fun handlePlayRequest() {
-        Log.v(TAG, "handlePlayRequest: mState=${mPlayback.state}")
+        Log.d(TAG, "handlePlayRequest: mState=${mPlayback.state}")
         mQueueManager.currentMusic?.let {
             mServiceCallback.onPlaybackStart()
             mPlayback.play(it)
@@ -34,7 +45,7 @@ open internal class PlaybackManager
     }
 
     fun handlePauseRequest() {
-        Log.v(TAG, "handlePauseRequest: mState=${mPlayback.state}")
+        Log.d(TAG, "handlePauseRequest: mState=${mPlayback.state}")
         if (mPlayback.isPlaying) {
             mPlayback.pause()
             mServiceCallback.onPlaybackStop()
@@ -42,14 +53,14 @@ open internal class PlaybackManager
     }
 
     fun handleStopRequest(error: String?) {
-        Log.v(TAG, "handleStopRequest: mState=${mPlayback.state}, error=$error")
+        Log.d(TAG, "handleStopRequest: mState=${mPlayback.state}, error=$error")
         mPlayback.stop()
         mServiceCallback.onPlaybackStop()
         updatePlaybackState(error)
     }
 
     fun updatePlaybackState(error: String?) {
-        Log.v(TAG, "updatePlaybackState: mState=${mPlayback.state}")
+        Log.d(TAG, "updatePlaybackState: mState=${mPlayback.state}")
         val position = mPlayback.currentPosition
 
         val stateBuilder = PlaybackStateCompat.Builder()
@@ -117,9 +128,20 @@ open internal class PlaybackManager
      * Available commands are configured by [setAvailableActions].
      */
     internal val mediaSessionCallback = object : MediaSessionCompat.Callback() {
+        private val mHeadsetButtonHandler = Handler()
+        @Volatile private var mHeadsetClickCount = 0
+
+        private val mHeadsetButtonRunnable = Runnable {
+            if (mHeadsetClickCount == 1) {
+                // Single click: play if paused, or pause if playing.
+                if (!mPlayback.isPlaying) onPlay()
+                else onPause()
+                mHeadsetClickCount = 0
+            }
+        }
 
         override fun onPlay() {
-            Log.v(TAG, "onPlay")
+            Log.d(TAG, "onPlay")
             if (mQueueManager.currentMusic == null) {
                 mQueueManager.loadQueueFromMusic(MediaID.ID_MUSIC)
             }
@@ -128,33 +150,33 @@ open internal class PlaybackManager
         }
 
         override fun onSkipToQueueItem(queueId: Long) {
-            Log.v(TAG, "onSkipToQueueItem: queueId=$queueId")
+            Log.d(TAG, "onSkipToQueueItem: queueId=$queueId")
             mQueueManager.setCurrentQueueItem(queueId)
             mQueueManager.updateMetadata()
         }
 
         override fun onSeekTo(position: Long) {
-            Log.v(TAG, "onSeekTo: position=$position")
+            Log.d(TAG, "onSeekTo: position=$position")
             mPlayback.seekTo(position)
         }
 
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
-            Log.v(TAG, "onPlayFromMediaId: mediaId=$mediaId, extras=$extras")
+            Log.d(TAG, "onPlayFromMediaId: mediaId=$mediaId, extras=$extras")
             mQueueManager.loadQueueFromMusic(mediaId)
         }
 
         override fun onPause() {
-            Log.v(TAG, "onPause")
+            Log.d(TAG, "onPause")
             handlePauseRequest()
         }
 
         override fun onStop() {
-            Log.v(TAG, "onStop")
+            Log.d(TAG, "onStop")
             handleStopRequest(null)
         }
 
         override fun onSkipToPrevious() {
-            Log.v(TAG, "onSkipToPrevious")
+            Log.d(TAG, "onSkipToPrevious")
             if (mQueueManager.skipPosition(-1))
                 handlePlayRequest()
             else handleStopRequest("Cannot skip")
@@ -162,7 +184,7 @@ open internal class PlaybackManager
         }
 
         override fun onSkipToNext() {
-            Log.v(TAG, "onSkipToNext")
+            Log.d(TAG, "onSkipToNext")
             if (mQueueManager.skipPosition(1))
                 handlePlayRequest()
             else handleStopRequest("Cannot skip")
@@ -170,12 +192,12 @@ open internal class PlaybackManager
         }
 
         override fun onCustomAction(action: String, extras: Bundle?) {
-            Log.v(TAG, "onCustomAction: action=$action, extras=$extras")
+            Log.d(TAG, "onCustomAction: action=$action, extras=$extras")
             Log.w(TAG, "Unhandled custom action: $action")
         }
 
         override fun onPlayFromSearch(query: String, extras: Bundle?) {
-            Log.v(TAG, "onPlayFromSearch: query=$query, extras=$extras")
+            Log.d(TAG, "onPlayFromSearch: query=$query, extras=$extras")
             val searchSuccessful = mQueueManager.loadQueueFromSearch(query, extras)
             if (searchSuccessful) {
                 handlePlayRequest()
@@ -187,10 +209,38 @@ open internal class PlaybackManager
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             // TODO Modify MediaSession shuffle mode and queue order accordingly
-            when(shuffleMode) {
-                PlaybackStateCompat.SHUFFLE_MODE_NONE -> TODO("Reorder queue")
-                PlaybackStateCompat.SHUFFLE_MODE_ALL -> TODO("Shuffle queue")
+            val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
+            mPrefs.isRandomPlayingEnabled = shouldShuffle
+
+            val currentlyPlaying = mQueueManager.currentMusic
+            val currentMediaId = currentlyPlaying?.description?.mediaId
+                    ?: mPrefs.lastPlayedMediaId
+                    ?: MediaID.ID_MUSIC
+            mQueueManager.loadQueueFromMusic(currentMediaId, shouldShuffle)
+        }
+
+        override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+            if (mediaButtonEvent != null) {
+                val event = mediaButtonEvent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
+                if (event.keyCode == KeyEvent.KEYCODE_HEADSETHOOK && event.action == KeyEvent.ACTION_DOWN) {
+                    // Event is produced by a click on the headset button.
+                    mHeadsetClickCount++
+                    if (mHeadsetClickCount > 1) {
+                        // Double click: skip to next song.
+                        onSkipToNext()
+                        mHeadsetButtonHandler.removeCallbacks(mHeadsetButtonRunnable)
+                        mHeadsetClickCount = 0
+                    } else {
+                        // Single click: delay action to wait for a potential second click.
+                        mHeadsetButtonHandler.postDelayed(mHeadsetButtonRunnable, HEADSET_CLICK_DELAY)
+                    }
+
+                    // Prevent the default behavior (play/pause immediately)
+                    return true
+                }
             }
+
+            return super.onMediaButtonEvent(mediaButtonEvent)
         }
     }
 
@@ -199,5 +249,6 @@ open internal class PlaybackManager
         fun onNotificationRequired()
         fun onPlaybackStop()
         fun onPlaybackStateUpdated(newState: PlaybackStateCompat)
+        fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode shuffleMode: Int)
     }
 }

@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -44,7 +45,6 @@ import fr.nihilus.mymusic.library.NavigationController;
 import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.provider.SetupService;
-import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
@@ -377,10 +377,8 @@ public class HomeActivity extends AppCompatActivity
             @Override
             public void accept(@Nullable MediaControllerCompat controller) throws Exception {
                 if (controller != null) {
-                    Bundle args = new Bundle(1);
-                    args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, true);
                     controller.getTransportControls()
-                            .sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
+                            .setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
                     controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
                     mPlayerView.setExpanded(true);
                 }

@@ -7,7 +7,6 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -39,7 +38,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.service.MusicService;
 import fr.nihilus.mymusic.utils.ViewUtils;
 import fr.nihilus.mymusic.view.AutoUpdateSeekBar.OnUpdateListener;
 
@@ -264,7 +262,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
         mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
         mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
-        mRandomButton.setActivated(hasFlag(actions, MusicService.ACTION_RANDOM));
+        //mRandomButton.setActivated(hasFlag(actions, MusicService.ACTION_RANDOM));
     }
 
     @Override
@@ -290,9 +288,10 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
                     controls.skipToNext();
                     break;
                 case R.id.btn_random:
-                    Bundle args = new Bundle(1);
-                    args.putBoolean(MusicService.EXTRA_RANDOM_ENABLED, !mRandomButton.isActivated());
-                    controls.sendCustomAction(MusicService.CUSTOM_ACTION_RANDOM, args);
+                    int shuffleMode = mRandomButton.isActivated()
+                            ? PlaybackStateCompat.SHUFFLE_MODE_NONE
+                            : PlaybackStateCompat.SHUFFLE_MODE_ALL;
+                    controls.setShuffleMode(shuffleMode);
                     break;
             }
         }

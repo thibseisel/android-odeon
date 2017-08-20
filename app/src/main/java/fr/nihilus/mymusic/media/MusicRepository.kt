@@ -8,13 +8,14 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.util.LongSparseArray
-import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "MusicRepository"
 
 /**
  * A Repository that centralize access to media stored on the device.
@@ -120,7 +121,6 @@ open class MusicRepository
         for (meta in metadataList) {
             val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
             metadataById.put(musicId, meta)
-            Log.d("TESTS", "Metadata put in cache: $musicId")
         }
     }
 }
@@ -140,7 +140,7 @@ internal fun MediaMetadataCompat.asMediaDescription(
     val extras = Bundle(2)
     extras.putString(MediaItems.EXTRA_TITLE_KEY, this.getString(MediaDao.CUSTOM_META_TITLE_KEY))
     extras.putLong(MediaItems.EXTRA_DURATION, this.getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
-    val artUri = this.getString(MediaMetadataCompat.METADATA_KEY_ART_URI)
+    val artUri = this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
 
     builder.setMediaId(MediaID.createMediaID(musicId, parentMediaId))
             .setTitle(this.getString(MediaMetadataCompat.METADATA_KEY_TITLE))

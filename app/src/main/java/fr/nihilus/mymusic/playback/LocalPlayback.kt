@@ -42,13 +42,11 @@ private const val AUDIO_FOCUSED = 2
  * Perform local media playback using [ExoPlayer].
  */
 @MusicServiceScope
-internal class LocalPlayback
+class LocalPlayback
 @Inject constructor(
-        @Named("Application") private val context: Context,
-        manager: PlaybackManager
+        @Named("Application") private val context: Context
 ) : ExoPlayer.EventListener {
 
-    private val mCallback: Callback = manager
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
 
@@ -57,6 +55,8 @@ internal class LocalPlayback
     private var mPlayerNullIfStopped = false
     private var mAudioNoisyReceiverRegistered = false
     private var mCurrentAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
+
+    var callback: Callback? = null
 
     /**
      * The ID of the currently playing media.
@@ -146,6 +146,7 @@ internal class LocalPlayback
      */
     fun pause() {
         // Pause player and cancel the foreground service state.
+        Log.d(TAG, "pause called")
         mExoPlayer?.playWhenReady = false
 
         releaseResources(false)
@@ -158,7 +159,7 @@ internal class LocalPlayback
      * @param position in the currently playing media in milliseconds
      */
     fun seekTo(position: Long) {
-        Log.v(TAG, "seekTo called with $position")
+        Log.d(TAG, "seekTo called with $position")
         mExoPlayer?.let {
             registerAudioNoisyReceiver()
             it.seekTo(position)
@@ -193,7 +194,7 @@ internal class LocalPlayback
     }
 
     private fun configurePlayerState() {
-        Log.v(TAG, "configurePlayerState. mCurrentAudioFocus=$mCurrentAudioFocus")
+        Log.d(TAG, "configurePlayerState. mCurrentAudioFocus=$mCurrentAudioFocus")
         if (mCurrentAudioFocus == AUDIO_NO_FOCUS_NO_DUCK) {
             // We don't have audio focus and can't duck, so we have to pause
             pause()
@@ -234,7 +235,7 @@ internal class LocalPlayback
      * @param releasePlayer whether the mExoPlayer should also be released
      */
     private fun releaseResources(releasePlayer: Boolean) {
-        Log.v(TAG, "releaseResources: releasePlayer = $releasePlayer")
+        Log.d(TAG, "releaseResources: releasePlayer = $releasePlayer")
 
         if (releasePlayer && mExoPlayer != null) {
             mExoPlayer!!.release()
@@ -259,7 +260,7 @@ internal class LocalPlayback
             AudioManager.AUDIOFOCUS_LOSS ->
                 // Lost audio focus, probably permanently
                 mCurrentAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
-            else -> Log.v(TAG, "Unhandled AudioFocus state: $it")
+            else -> Log.w(TAG, "Unhandled AudioFocus state: $it")
         }
 
         if (mExoPlayer != null) {
@@ -271,7 +272,7 @@ internal class LocalPlayback
     private val audioNoisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
-                Log.v(TAG, "Headphones disconnected.")
+                Log.d(TAG, "Headphones disconnected.")
                 if (isPlaying) {
                     val pauseIntent = Intent(context, MusicService::class.java)
                     pauseIntent.action = MusicService.ACTION_CMD
@@ -297,8 +298,8 @@ internal class LocalPlayback
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
             ExoPlayer.STATE_IDLE, ExoPlayer.STATE_BUFFERING, ExoPlayer.STATE_READY ->
-                mCallback.onPlaybackStatusChanged(state)
-            ExoPlayer.STATE_ENDED -> mCallback.onCompletion()
+                callback?.onPlaybackStatusChanged(state)
+            ExoPlayer.STATE_ENDED -> callback?.onCompletion()
         }
     }
 
@@ -311,7 +312,7 @@ internal class LocalPlayback
         }
 
         Log.e(TAG, "Exoplayer error: what=$what")
-        mCallback.onError("ExoPlayer error $what")
+        callback?.onError("ExoPlayer error $what")
     }
 
     override fun onPositionDiscontinuity() {

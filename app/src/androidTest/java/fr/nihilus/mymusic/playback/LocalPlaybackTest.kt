@@ -9,13 +9,11 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
 class LocalPlaybackTest {
 
-    @Mock private lateinit var mockManager: PlaybackManager
     private var context = InstrumentationRegistry.getTargetContext()
 
     private lateinit var subject: LocalPlayback
@@ -23,7 +21,7 @@ class LocalPlaybackTest {
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        subject = LocalPlayback(context, mockManager)
+        subject = LocalPlayback(context)
     }
 
     @Test

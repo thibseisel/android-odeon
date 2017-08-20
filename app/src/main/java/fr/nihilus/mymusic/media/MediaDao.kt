@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
-import android.database.CursorJoiner
 import android.net.Uri
 import android.os.Bundle
 import android.provider.BaseColumns
@@ -187,9 +186,10 @@ open class MediaDao
         return Observable.fromCallable {
             val artistsCursor = resolver.query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
                     null, null, Artists.ARTIST)
+
             val albumsCursor = resolver.query(Albums.EXTERNAL_CONTENT_URI,
-                    arrayOf(Albums._ID, Albums.ARTIST, MAX_LAST_YEAR),
-                    GROUP_BY_ARTIST, null, Albums.ARTIST)
+                    arrayOf(Albums._ID, Albums.ARTIST, Albums.LAST_YEAR),
+                    null, null, ORDER_BY_MOST_RECENT)
 
             if (artistsCursor == null || albumsCursor == null) {
                 Log.e(TAG, "Query for artists failed. Returning an empty list.")
@@ -200,16 +200,23 @@ open class MediaDao
             val colArtistName = artistsCursor.getColumnIndexOrThrow(Artists.ARTIST)
             val colArtistKey = artistsCursor.getColumnIndexOrThrow(Artists.ARTIST_KEY)
             val colTrackCount = artistsCursor.getColumnIndexOrThrow(Artists.NUMBER_OF_TRACKS)
+
+            val colArtistAlbum = albumsCursor.getColumnIndexOrThrow(Albums.ARTIST)
             val colAlbumId = albumsCursor.getColumnIndexOrThrow(Albums._ID)
 
             val artists = ArrayList<MediaDescriptionCompat>(albumsCursor.count)
             val builder = MediaDescriptionCompat.Builder()
 
-            val joiner = CursorJoiner(artistsCursor, arrayOf(Artists.ARTIST),
-                    albumsCursor, arrayOf(Albums.ARTIST))
+            artistsCursor.moveToFirst()
+            albumsCursor.moveToFirst()
 
-            for (result in joiner) {
-                if (result == CursorJoiner.Result.BOTH) {
+            while (!artistsCursor.isAfterLast && !albumsCursor.isAfterLast) {
+                val artistName = artistsCursor.getString(colArtistName)
+                val artistInAlbum = albumsCursor.getString(colArtistAlbum)
+
+                if (artistName == artistInAlbum) {
+                    // As albums are sorted by descending release year, the first album to match
+                    // with the name of the artist is the most recent one.
                     val artistId = artistsCursor.getLong(colId)
                     val albumId = albumsCursor.getLong(colAlbumId)
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
@@ -224,7 +231,13 @@ open class MediaDao
                             .setExtras(extras)
 
                     artists.add(builder.build())
+
+                    // Look for the next artist
+                    artistsCursor.moveToNext()
                 }
+
+                // Whether it is matching or not, move to the next album
+                albumsCursor.moveToNext()
             }
 
             artistsCursor.close()
@@ -245,8 +258,10 @@ open class MediaDao
         internal const val CUSTOM_META_ALBUM_ID = "album_id"
         internal const val CUSTOM_META_ARTIST_ID = "artist_id"
 
-        private const val MAX_LAST_YEAR = "max(${Albums.LAST_YEAR})"
-        private const val GROUP_BY_ARTIST = "1 = 1 GROUP BY ${Albums.ARTIST}"
+        /**
+         * ORDER BY clause to use when querying for albums associated with an artist.
+         */
+        private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
 
         private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
         private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM,

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Service;
 import android.os.Build;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatDelegate;
 
 import javax.inject.Inject;
@@ -29,7 +28,7 @@ public class MyApplication extends Application implements HasActivityInjector, H
     public void onCreate() {
         super.onCreate();
 
-        if (BuildConfig.DEBUG) {
+        /*if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectAll()
                     .penaltyLog()
@@ -41,7 +40,7 @@ public class MyApplication extends Application implements HasActivityInjector, H
                     .penaltyLog()
                     .build()
             );
-        }
+        }*/
 
 
         DaggerAppComponent.builder()

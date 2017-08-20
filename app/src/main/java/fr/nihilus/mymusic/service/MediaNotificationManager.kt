@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic
+package fr.nihilus.mymusic.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,12 +19,14 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import fr.nihilus.mymusic.HomeActivity
+import fr.nihilus.mymusic.R
 import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.utils.ResourceHelper
 import javax.inject.Inject
 
 @MusicServiceScope
-internal class MediaNotificationManager
+class MediaNotificationManager
 @Inject constructor(service: MusicService) : BroadcastReceiver() {
 
     private val mService = service

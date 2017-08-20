@@ -27,6 +27,5 @@ internal fun musicIndexOnQueue(queue: List<MediaSessionCompat.QueueItem>, mediaI
  * @param queueId of a item that might be in the queue
  * @return position of an item with the specified queueId, or -1 if not found
  */
-internal fun musicIndexOnQueue(queue: List<MediaSessionCompat.QueueItem>, queueId: Long): Int {
-    return queue.indexOfFirst { it.queueId == queueId }
-}
+internal fun musicIndexOnQueue(queue: List<MediaSessionCompat.QueueItem>, queueId: Long) =
+        queue.indexOfFirst { it.queueId == queueId }

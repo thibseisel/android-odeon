@@ -5,7 +5,7 @@ import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.mymusic.service.MusicService;
 
 @Module
-public abstract class MusicServiceModule {
+abstract class MusicServiceModule {
 
     @MusicServiceScope
     @ContributesAndroidInjector

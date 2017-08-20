@@ -6,9 +6,9 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import fr.nihilus.mymusic.MusicService
 import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.media.MusicRepository
+import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
@@ -102,7 +102,7 @@ class QueueManager
     /**
      *
      */
-    fun loadQueueFromMusic(mediaId: String) {
+    fun loadQueueFromMusic(mediaId: String, shuffled: Boolean = false) {
         Log.d(TAG, "loadQueueFromMusic: $mediaId")
         val canReuseQueue = isSameBrowsingCategory(mediaId) && setCurrentQueueItem(mediaId)
         if (!canReuseQueue) {
