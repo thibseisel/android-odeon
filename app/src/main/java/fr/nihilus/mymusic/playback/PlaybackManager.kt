@@ -99,9 +99,10 @@ open class PlaybackManager
         // Actions that are available at any time
         var actions = PlaybackStateCompat.ACTION_PLAY_PAUSE or
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
                 PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
+
+        if (mQueueManager.canSkip(-1)) actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        if (mQueueManager.canSkip(+1)) actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
 
         // Give opportunity to pause only when playing
         actions = actions or if (mPlayback.isPlaying)

@@ -35,12 +35,7 @@ class QueueManager
      * When the playback starts or resume, this item will be the one to be played.
      */
     val currentMusic: MediaSessionCompat.QueueItem?
-    get() {
-        val current = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
-        Log.d(TAG, "Current music: $current")
-        return current
-    }
-
+    get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
 
     /**
      * Indicates if a [mediaId] belongs to the same hierarchy
@@ -99,6 +94,8 @@ class QueueManager
         mCurrentIndex = index
         return true
     }
+
+    fun canSkip(steps: Int): Boolean = isIndexPlayable(mCurrentIndex + steps, mPlayingQueue)
 
     fun loadQueueFromSearch(query: String, extras: Bundle?): Boolean {
         TODO("Implement search logic in MusicRepository and retrieve queue from it")
