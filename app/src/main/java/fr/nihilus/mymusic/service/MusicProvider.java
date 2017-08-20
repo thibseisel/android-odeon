@@ -47,6 +47,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_UR
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER;
 
+@Deprecated
 @MusicServiceScope
 class MusicProvider implements AudioColumns {
 

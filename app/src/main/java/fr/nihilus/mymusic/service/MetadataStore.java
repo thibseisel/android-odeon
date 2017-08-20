@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+@Deprecated
 class MetadataStore {
 
     static final Comparator<MediaMetadataCompat> SORT_TRACKNO = new Comparator<MediaMetadataCompat>() {

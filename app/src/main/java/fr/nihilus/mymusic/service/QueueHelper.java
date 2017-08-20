@@ -13,6 +13,7 @@ import java.util.List;
 
 import fr.nihilus.mymusic.utils.MediaID;
 
+@Deprecated
 final class QueueHelper {
 
     private static final String TAG = "QueueHelper";

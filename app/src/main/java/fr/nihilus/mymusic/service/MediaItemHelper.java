@@ -22,6 +22,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_ARTIST;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_TITLE;
 
+@Deprecated
 @SuppressWarnings("WrongConstant")
 final class MediaItemHelper {
 
