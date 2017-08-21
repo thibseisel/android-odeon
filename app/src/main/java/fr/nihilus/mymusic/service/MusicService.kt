@@ -72,7 +72,8 @@ class MusicService : MediaBrowserServiceCompat(),
                 }
             }
         }
-        return super.onStartCommand(intent, flags, startId)
+
+        return START_STICKY
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
