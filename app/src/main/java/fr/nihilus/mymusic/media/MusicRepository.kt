@@ -7,7 +7,9 @@ import android.support.annotation.VisibleForTesting
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.util.LongSparseArray
+import fr.nihilus.mymusic.MetadataList
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -44,9 +46,47 @@ open class MusicRepository
             MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::toMediaDescriptions)
             MediaID.ID_ALBUMS -> {
                 if (parentHierarchy.size > 1) getAlbumTracks(parentHierarchy[1].toLong())
+                        .map(this::toMediaDescriptions)
                 else mediaDao.getAlbums().firstOrError()
             }
             MediaID.ID_ARTISTS -> mediaDao.getArtists().firstOrError()
+            else -> Single.error(::UnsupportedOperationException)
+        }
+    }
+
+    fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
+        // Get the "true" parent in case the passed media id is a playable item
+        val trueParent = MediaID.stripMusicId(parentMediaId)
+        val parentHierarchy = MediaID.getHierarchy(trueParent)
+        return when (parentHierarchy[0]) {
+            MediaID.ID_MUSIC -> metadatas.first(emptyList()).map { toMediaItems(trueParent, it) }
+            MediaID.ID_ALBUMS -> {
+                if (parentHierarchy.size > 1) getAlbumTracks(parentHierarchy[1].toLong())
+                        .map { toMediaItems(trueParent, it) }
+                else mediaDao.getAlbums()
+                        .flatMap { Observable.fromIterable(it) }
+                        .map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
+                        .toList()
+            }
+            else -> Single.error(::UnsupportedOperationException)
+        }
+    }
+
+    /**
+     * Build a playing queue composed of children of a given Media ID.
+     * The returned [Observable] will emit the requested items or an error if [parentMediaId] is unsupported.
+     * @param parentMediaId the media id that identifies the requested medias
+     * @return an observable list of items that can be played
+     */
+    fun getQueueChildren(parentMediaId: String): Single<List<MediaSessionCompat.QueueItem>> {
+        val trueParent = MediaID.stripMusicId(parentMediaId)
+        val parentHierarchy = MediaID.getHierarchy(trueParent)
+        return when (parentHierarchy[0]) {
+            MediaID.ID_MUSIC -> metadatas.first(emptyList())
+                    .map { toQueueItems(MediaID.ID_MUSIC, it) }
+            MediaID.ID_ALBUMS -> getAlbumTracks(parentHierarchy[1].toLong())
+                    .map { toQueueItems(trueParent, it) }
+            //MediaID.ID_ARTISTS -> mediaDao.getArtistTracks(parentHierarchy[1].toLong())
             else -> Single.error(::UnsupportedOperationException)
         }
     }
@@ -55,19 +95,32 @@ open class MusicRepository
      * @return a single metadata item with the specified musicId
      */
     open fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
-        val fromCache = Single.defer {
-            val metadata = metadataById.get(musicId)
-            if (metadata == null) Single.error<MediaMetadataCompat> {
-                RuntimeException("No metadata with ID $musicId")
-            } else Single.just(metadata)
+        val fromCache = Single.fromCallable {
+            metadataById.get(musicId) ?: throw RuntimeException("No metadata with ID $musicId")
         }
 
         // TODO Fetch from MediaDao if missing
         return fromCache
     }
 
-    private fun getAlbumTracks(albumId: Long): Single<List<MediaDescriptionCompat>> {
-        return Single.fromCallable { albumTracksFromCache(albumId) }
+    private fun getAlbumTracks(albumId: Long): Single<MetadataList> {
+        val fromCache = Observable.fromCallable {
+            val albumTracks = ArrayList<MediaMetadataCompat>()
+
+            for (i in 0 until metadataById.size()) {
+                val meta = metadataById.valueAt(i)
+                if (albumId == meta.getLong(MediaDao.CUSTOM_META_ALBUM_ID)) {
+                    albumTracks.add(meta)
+                }
+            }
+
+            albumTracks
+        }
+
+        val fromStorage = mediaDao.getAlbumTracks(albumId)
+        return Observable.concat(fromCache, fromStorage)
+                .filter { !it.isEmpty() }
+                .single(emptyList())
     }
 
     /**
@@ -78,22 +131,20 @@ open class MusicRepository
         return metadataList.map { it.asMediaDescription(MediaID.ID_MUSIC, builder) }
     }
 
-    private fun albumTracksFromCache(albumId: Long): List<MediaDescriptionCompat> {
-        val albumTracks = ArrayList<MediaDescriptionCompat>()
+    private fun toQueueItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
+            : List<MediaSessionCompat.QueueItem> {
         val builder = MediaDescriptionCompat.Builder()
-        val parentMediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
+        return metadataList
+                .map { it.asMediaDescription(parentMediaId, builder) }
+                .mapIndexed { index, media -> MediaSessionCompat.QueueItem(media, index.toLong()) }
+    }
 
-        for (i in 0 until metadataById.size()) {
-            val musicId = metadataById.keyAt(i)
-            val meta = metadataById.valueAt(i)
-
-            if (albumId == meta.getLong(MediaDao.CUSTOM_META_ALBUM_ID)) {
-                val description = meta.asMediaDescription(parentMediaId + '/' + musicId, builder)
-                albumTracks.add(description)
-            }
-        }
-
-        return albumTracks
+    private fun toMediaItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
+            : List<MediaItem> {
+        val builder = MediaDescriptionCompat.Builder()
+        return metadataList
+                .map { it.asMediaDescription(parentMediaId, builder) }
+                .map { description -> MediaItem(description, MediaItem.FLAG_PLAYABLE) }
     }
 
     /**

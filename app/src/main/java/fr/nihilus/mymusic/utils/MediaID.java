@@ -156,4 +156,13 @@ public final class MediaID {
         String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length - 1);
         return createMediaID(null, parentHierarchy);
     }
+
+    public static String stripMusicId(String mediaId) {
+        int indexOfLeaf = mediaId.indexOf(LEAF_SEPARATOR);
+        if (indexOfLeaf < 0) {
+            return mediaId;
+        }
+
+        return mediaId.substring(0, indexOfLeaf);
+    }
 }
