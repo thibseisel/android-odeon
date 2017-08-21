@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.ContentObserver
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import android.provider.BaseColumns
@@ -12,8 +13,11 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import fr.nihilus.mymusic.MetadataList
 import fr.nihilus.mymusic.utils.MediaID
+import io.reactivex.Completable
 import io.reactivex.Observable
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -26,10 +30,10 @@ open class MediaDao
     /**
      * Observe changes in [android.provider.MediaStore] and publish updated metadata when a change occur.
      */
-    private val mediaChanges = Observable.create<List<MediaMetadataCompat>> { emitter ->
+    private val mediaChanges = Observable.create<MetadataList> { emitter ->
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
-                val mediaMetadataList = loadMetadataFromMediastore()
+                val mediaMetadataList = loadMetadata(null, null, Media.TITLE_KEY)
                 Log.d(TAG, "Received ${mediaMetadataList.size} metadata items.")
                 emitter.onNext(mediaMetadataList)
             }
@@ -53,14 +57,21 @@ open class MediaDao
      * When done listening, you should dispose the listener to avoid memory leaks
      * due to observing track changes.
      */
-    open fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
-        return Observable.fromCallable(this::loadMetadataFromMediastore)
+    open fun getAllTracks(): Observable<MetadataList> {
+        return Observable.fromCallable { loadMetadata(null, null, Media.TITLE_KEY) }
                 .concatWith(mediaChanges)
     }
 
-    private fun loadMetadataFromMediastore(): List<MediaMetadataCompat> {
+    private fun loadMetadata(selection: String?, selectionArgs: Array<String>?,
+                             sortOrder: String?): MetadataList {
+        val whereClause = StringBuilder(MEDIA_SELECTION_CLAUSE)
+        if (selection != null) {
+            whereClause.append(" AND ")
+            whereClause.append(selection)
+        }
+
         val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
-                MEDIA_SELECTION_CLAUSE, null, Media.TITLE_KEY)
+                whereClause.toString(), selectionArgs, sortOrder)
 
         if (cursor == null) {
             Log.e(TAG, "getTracksMetadata: track metadata query failed (null cursor)")
@@ -135,38 +146,43 @@ open class MediaDao
                 return@fromCallable emptyList<MediaDescriptionCompat>()
             }
 
-            val colId = cursor.getColumnIndexOrThrow(Albums._ID)
-            val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
-            val colKey = cursor.getColumnIndexOrThrow(Albums.ALBUM_KEY)
-            val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
-            val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
-            val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
-
-            val albums = ArrayList<MediaDescriptionCompat>(cursor.count)
-            val builder = MediaDescriptionCompat.Builder()
-
-            while (cursor.moveToNext()) {
-                val albumId = cursor.getLong(colId)
-                val mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
-                val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
-
-                val extras = Bundle(3)
-                extras.putString(MediaItems.EXTRA_ALBUM_KEY, cursor.getString(colKey))
-                extras.putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, cursor.getInt(colSongCount))
-                extras.putInt(MediaItems.EXTRA_YEAR, cursor.getInt(colYear))
-
-                builder.setMediaId(mediaId)
-                        .setTitle(cursor.getString(colTitle))
-                        .setSubtitle(cursor.getString(colArtist)) // artiste
-                        .setIconUri(artUri)
-                        .setExtras(extras)
-
-                albums.add(builder.build())
+            cursor.use {
+                extractAlbums(it, MediaID.ID_ALBUMS)
             }
-
-            cursor.close()
-            albums
         }
+    }
+
+    private fun extractAlbums(cursor: Cursor, parentMediaId: String): List<MediaDescriptionCompat> {
+        val colId = cursor.getColumnIndexOrThrow(Albums._ID)
+        val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
+        val colKey = cursor.getColumnIndexOrThrow(Albums.ALBUM_KEY)
+        val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
+        val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
+        val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
+
+        val albums = ArrayList<MediaDescriptionCompat>(cursor.count)
+        val builder = MediaDescriptionCompat.Builder()
+
+        while (cursor.moveToNext()) {
+            val albumId = cursor.getLong(colId)
+            val mediaId = MediaID.createMediaID(null, parentMediaId, albumId.toString())
+            val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
+
+            val extras = Bundle(3)
+            extras.putString(MediaItems.EXTRA_ALBUM_KEY, cursor.getString(colKey))
+            extras.putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, cursor.getInt(colSongCount))
+            extras.putInt(MediaItems.EXTRA_YEAR, cursor.getInt(colYear))
+
+            builder.setMediaId(mediaId)
+                    .setTitle(cursor.getString(colTitle))
+                    .setSubtitle(cursor.getString(colArtist)) // artiste
+                    .setIconUri(artUri)
+                    .setExtras(extras)
+
+            albums.add(builder.build())
+        }
+
+        return albums
     }
 
     /**
@@ -248,8 +264,80 @@ open class MediaDao
         }
     }
 
-    fun deleteTrack(track: MediaMetadataCompat) {
-        // TODO("Delete from MediaStore and from disk")
+    /**
+     * Return an observable dataset of tracks that are part of a given album.
+     * @param albumId unique identifier of the album
+     * @return track metadatas from this album sorted by track number
+     */
+    fun getAlbumTracks(albumId: Long): Observable<MetadataList> {
+        return Observable.fromCallable {
+            loadMetadata(SELECTION_ALBUM_TRACKS, arrayOf(albumId.toString()), Media.TRACK)
+        }
+    }
+
+    /**
+     * Return an observable dataset of tracks that are produced by a given artist.
+     * @param artistId unique identifier of the artist
+     * @return track metadatas from this artist sorted by track name
+     */
+    fun getArtistTracks(artistId: Long): Observable<MetadataList> {
+        return Observable.fromCallable {
+            loadMetadata(SELECTION_ARTIST_TRACKS, arrayOf(artistId.toString()), Media.TITLE_KEY)
+        }
+    }
+
+    /**
+     * Return an observable dataset of albums that are produced by a given artist.
+     * @param artistId unique identifier of the artist
+     * @return informations of albums from this artist sorted by descending release date
+     */
+    fun getArtistAlbums(artistId: Long): Observable<List<MediaDescriptionCompat>> {
+        return Observable.fromCallable {
+            val cursor = resolver.query(Artists.Albums.getContentUri("external", artistId),
+                    ALBUM_PROJECTION, null, null, ARTIST_ALBUMS_ORDER)
+
+            if (cursor == null) {
+                Log.e(TAG, "Failed retrieving albums for artist $artistId.")
+                return@fromCallable emptyList<MediaDescriptionCompat>()
+            }
+
+            cursor.use {
+                extractAlbums(it, MediaID.ID_ARTISTS)
+            }
+        }
+    }
+
+    /**
+     * Delete the track with the specified [trackId] from the device and from the MediaStore.
+     * If no track exist with this id, the operation will terminate without an error.
+     */
+    fun deleteTrack(trackId: Long): Completable {
+        return Completable.fromAction {
+            val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, arrayOf(Media.DATA),
+                    SELECTION_TRACK_BY_ID, arrayOf(trackId.toString()), null)
+
+            if (cursor == null || !cursor.moveToFirst()) {
+                Log.w(TAG, "deleteTrack : attempt to delete a non existing track: id = $trackId")
+                return@fromAction
+            }
+
+            val filepath = cursor.use {
+                val colFilePath = cursor.getColumnIndexOrThrow(Media.DATA)
+                cursor.getString(colFilePath)
+            }
+
+            val file = File(filepath)
+            if (!file.exists()) {
+                Log.w(TAG, "deleteTrack: attempt to delete a file that does not exist.")
+                return@fromAction
+            }
+
+            if (file.delete()) {
+                // Delete from MediaStore only if the file has been successfully deleted
+                val deletedUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId)
+                resolver.delete(deletedUri, null, null)
+            }
+        }
     }
 
     internal companion object {
@@ -259,17 +347,22 @@ open class MediaDao
         internal const val CUSTOM_META_ALBUM_ID = "album_id"
         internal const val CUSTOM_META_ARTIST_ID = "artist_id"
 
+        private const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
+        private const val SELECTION_ALBUM_TRACKS = "${Media.ALBUM_ID} = ?"
+        private const val SELECTION_ARTIST_TRACKS = "${Media.ARTIST_ID} = ?"
+        private const val ARTIST_ALBUMS_ORDER = "${Artists.Albums.LAST_YEAR} DESC"
+
         /**
          * ORDER BY clause to use when querying for albums associated with an artist.
          */
         private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
-
         private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
         private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM,
                 Media.ARTIST, Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY,
                 Media.ALBUM_ID, Media.ARTIST_ID, Media.DATA)
         private val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY,
                 Albums.ARTIST, Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+
         private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
                 Artists.NUMBER_OF_TRACKS)
     }
