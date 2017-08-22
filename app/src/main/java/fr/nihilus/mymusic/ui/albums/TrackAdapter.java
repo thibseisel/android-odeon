@@ -3,7 +3,6 @@ package fr.nihilus.mymusic.ui.albums;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.media.MediaItems;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
 
@@ -45,7 +45,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
         holder.duration.setText(track.getSubtitle());
 
         if (extras != null) {
-            long trackNumber = extras.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
+            long trackNumber = extras.getLong(MediaItems.EXTRA_TRACK_NUMBER);
             holder.trackNo.setText(String.valueOf(trackNumber));
         }
 

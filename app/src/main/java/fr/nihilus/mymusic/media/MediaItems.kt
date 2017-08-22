@@ -36,4 +36,8 @@ object MediaItems {
      * Type: integer
      */
     const val EXTRA_YEAR = "last_year"
+
+    const val EXTRA_TRACK_NUMBER = "trackno"
+
+    const val EXTRA_DISC_NUMBER = "discno"
 }
