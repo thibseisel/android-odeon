@@ -87,6 +87,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
+        Log.d(TAG, "Loading children for ID: $parentId")
         result.detach()
         mRepository.getMediaChildren(parentId)
                 .subscribeOn(Schedulers.io())
@@ -95,6 +96,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     override fun onSubscribe(d: Disposable) {}
                     override fun onError(e: Throwable) = result.sendResult(null)
                     override fun onSuccess(medias: List<MediaDescriptionCompat>) {
+                        Log.d(TAG, "Loaded items for $parentId: ${medias.size}")
                         result.sendResult(medias.map {
                             val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
                             else MediaItem.FLAG_PLAYABLE

@@ -49,7 +49,10 @@ open class MusicRepository
                         .map(this::toMediaDescriptions)
                 else mediaDao.getAlbums().firstOrError()
             }
-            MediaID.ID_ARTISTS -> mediaDao.getArtists().firstOrError()
+            MediaID.ID_ARTISTS -> {
+                if (parentHierarchy.size > 1) getArtistItems(parentHierarchy[1].toLong())
+                else mediaDao.getArtists().firstOrError()
+            }
             else -> Single.error(::UnsupportedOperationException)
         }
     }
@@ -59,7 +62,8 @@ open class MusicRepository
         val trueParent = MediaID.stripMusicId(parentMediaId)
         val parentHierarchy = MediaID.getHierarchy(trueParent)
         return when (parentHierarchy[0]) {
-            MediaID.ID_MUSIC -> metadatas.first(emptyList()).map { toMediaItems(trueParent, it) }
+            MediaID.ID_MUSIC -> metadatas.first(emptyList())
+                    .map { toMediaItems(trueParent, it) }
             MediaID.ID_ALBUMS -> {
                 if (parentHierarchy.size > 1) getAlbumTracks(parentHierarchy[1].toLong())
                         .map { toMediaItems(trueParent, it) }
@@ -91,6 +95,14 @@ open class MusicRepository
         }
     }
 
+    private fun getArtistItems(artistId: Long): Single<List<MediaDescriptionCompat>> {
+        val albums = mediaDao.getArtistAlbums(artistId)
+        val tracks = mediaDao.getArtistTracks(artistId).map(this::toMediaDescriptions)
+        return Observable.concat(albums, tracks)
+                .flatMap { Observable.fromIterable(it) }
+                .toList()
+    }
+
     /**
      * @return a single metadata item with the specified musicId
      */
@@ -104,23 +116,8 @@ open class MusicRepository
     }
 
     private fun getAlbumTracks(albumId: Long): Single<MetadataList> {
-        val fromCache = Observable.fromCallable {
-            val albumTracks = ArrayList<MediaMetadataCompat>()
-
-            for (i in 0 until metadataById.size()) {
-                val meta = metadataById.valueAt(i)
-                if (albumId == meta.getLong(MediaDao.CUSTOM_META_ALBUM_ID)) {
-                    albumTracks.add(meta)
-                }
-            }
-
-            albumTracks
-        }
-
-        val fromStorage = mediaDao.getAlbumTracks(albumId)
-        return Observable.concat(fromCache, fromStorage)
-                .filter { !it.isEmpty() }
-                .single(emptyList())
+        // TODO Get tracks from cache if exist
+        return mediaDao.getAlbumTracks(albumId).single(emptyList())
     }
 
     /**

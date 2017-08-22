@@ -147,12 +147,12 @@ open class MediaDao
             }
 
             cursor.use {
-                extractAlbums(it, MediaID.ID_ALBUMS)
+                extractAlbums(it)
             }
         }
     }
 
-    private fun extractAlbums(cursor: Cursor, parentMediaId: String): List<MediaDescriptionCompat> {
+    private fun extractAlbums(cursor: Cursor): List<MediaDescriptionCompat> {
         val colId = cursor.getColumnIndexOrThrow(Albums._ID)
         val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
         val colKey = cursor.getColumnIndexOrThrow(Albums.ALBUM_KEY)
@@ -165,7 +165,7 @@ open class MediaDao
 
         while (cursor.moveToNext()) {
             val albumId = cursor.getLong(colId)
-            val mediaId = MediaID.createMediaID(null, parentMediaId, albumId.toString())
+            val mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
             val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
 
             val extras = Bundle(3)
@@ -302,7 +302,7 @@ open class MediaDao
             }
 
             cursor.use {
-                extractAlbums(it, MediaID.ID_ARTISTS)
+                extractAlbums(it)
             }
         }
     }
