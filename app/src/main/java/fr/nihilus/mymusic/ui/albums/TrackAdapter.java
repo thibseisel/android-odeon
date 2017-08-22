@@ -5,6 +5,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,9 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
         holder.duration.setText(track.getSubtitle());
 
         if (extras != null) {
+            long duration = extras.getLong(MediaItems.EXTRA_DURATION);
+            holder.duration.setText(formatDuration(duration));
+
             long trackNumber = extras.getLong(MediaItems.EXTRA_TRACK_NUMBER);
             holder.trackNo.setText(String.valueOf(trackNumber));
         }
@@ -58,6 +62,10 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
                 }
             }
         });
+    }
+
+    private String formatDuration(long duration) {
+        return DateUtils.formatElapsedTime(duration / 1000);
     }
 
     @Override
