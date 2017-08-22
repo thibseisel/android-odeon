@@ -252,7 +252,7 @@ class MediaNotificationManager
         builder.setOngoing(mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
     }
 
-    private fun stopNotification() {
+    fun stopNotification() {
         if (mStarted) {
             mStarted = false
             mController!!.unregisterCallback(mControllerCallback)

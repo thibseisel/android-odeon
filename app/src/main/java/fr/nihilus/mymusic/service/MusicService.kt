@@ -63,6 +63,12 @@ class MusicService : MediaBrowserServiceCompat(),
         mNotificationManager.init()
     }
 
+    override fun onDestroy() {
+        mPlaybackManager.handleStopRequest(null)
+        mNotificationManager.stopNotification()
+        super.onDestroy()
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
             if (ACTION_CMD == intent.action) {

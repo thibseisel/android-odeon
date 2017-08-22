@@ -10,7 +10,6 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.content.res.AppCompatResources;
@@ -91,8 +90,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_songlist, menu);
-        final SearchView searchView = (SearchView) MenuItemCompat
-                .getActionView(menu.findItem(R.id.action_search));
+        final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         // TODO Search and filtering functionalities
     }
 
@@ -169,7 +167,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         MediaControllerCompat controller = getMediaController(getActivity());
         if (controller != null) {
             if (position == 0) {
-                Bundle extras = new Bundle();
                 controller.getTransportControls().setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
                 controller.getTransportControls().playFromMediaId(MediaID.createMediaID(null, ID_MUSIC), null);
             } else {
