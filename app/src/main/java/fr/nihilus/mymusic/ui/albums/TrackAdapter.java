@@ -64,7 +64,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
         });
     }
 
-    private String formatDuration(long duration) {
+    private static String formatDuration(long duration) {
         return DateUtils.formatElapsedTime(duration / 1000);
     }
 

@@ -15,6 +15,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 import java.util.List;
 
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.media.MediaItems;
 import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
 import fr.nihilus.mymusic.utils.MediaItemDiffCallback;
@@ -157,8 +159,13 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private void bindTrackHolder(final TrackHolder holder, int position) {
         final MediaDescriptionCompat item = mItems.get(position).getDescription();
+        final Bundle extras = item.getExtras();
         holder.title.setText(item.getTitle());
-        holder.duration.setText(item.getSubtitle());
+
+        if (extras != null) {
+            long duration = extras.getLong(MediaItems.EXTRA_DURATION);
+            holder.duration.setText(formatDuration(duration));
+        }
 
         mGlide.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
             @Override
@@ -176,6 +183,10 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 }
             }
         });
+    }
+
+    private static String formatDuration(long duration) {
+        return DateUtils.formatElapsedTime(duration / 1000);
     }
 
     interface OnMediaItemSelectedListener {
