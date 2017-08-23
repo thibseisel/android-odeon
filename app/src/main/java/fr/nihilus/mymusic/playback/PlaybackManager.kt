@@ -174,6 +174,7 @@ open class PlaybackManager
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
             Log.d(TAG, "onPlayFromMediaId: mediaId=$mediaId, extras=$extras")
             mQueueManager.loadQueueFromMusic(mediaId)
+            handlePlayRequest()
         }
 
         override fun onPause() {
