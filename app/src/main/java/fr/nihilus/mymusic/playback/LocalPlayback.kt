@@ -309,7 +309,7 @@ class LocalPlayback
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
-            Player.STATE_IDLE, Player.STATE_BUFFERING, Player.STATE_READY ->
+            Player.STATE_IDLE, Player.STATE_READY ->
                 callback?.onPlaybackStatusChanged(state)
             Player.STATE_ENDED -> callback?.onCompletion()
         }
