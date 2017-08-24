@@ -11,13 +11,15 @@ import android.text.TextUtils
 import android.util.Log
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.ContentDataSource
 import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DataSpec
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.util.Util
+import fr.nihilus.mymusic.R
 import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
@@ -47,7 +49,7 @@ private const val AUDIO_FOCUSED = 2
 class LocalPlayback
 @Inject constructor(
         @Named("Application") private val context: Context
-) : ExoPlayer.EventListener {
+) : Player.EventListener {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -57,6 +59,14 @@ class LocalPlayback
     private var mPlayerNullIfStopped = false
     private var mAudioNoisyReceiverRegistered = false
     private var mCurrentAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
+
+    private val mExtractorFactory: ExtractorsFactory = DefaultExtractorsFactory()
+    private val mDataSourceFactory: DataSource.Factory
+
+    init {
+        val userAgent = Util.getUserAgent(context, context.getString(R.string.app_name))
+        mDataSourceFactory = DefaultDataSourceFactory(context, userAgent)
+    }
 
     var callback: Callback? = null
 
@@ -78,9 +88,9 @@ class LocalPlayback
             }
 
             return when (mExoPlayer!!.playbackState) {
-                ExoPlayer.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
-                ExoPlayer.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
-                ExoPlayer.STATE_READY -> if (mExoPlayer!!.playWhenReady)
+                Player.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
+                Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+                Player.STATE_READY -> if (mExoPlayer!!.playWhenReady)
                     PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
                 else -> PlaybackStateCompat.STATE_NONE
             }
@@ -128,16 +138,8 @@ class LocalPlayback
                 mExoPlayer!!.audioStreamType = AudioManager.STREAM_MUSIC
             }
 
-            // For some reasons, DefaultDataSourceFactory does not work.
-            // Details: DefaultHttpDataSource is used instead of ContentDataSource
-            // FIXME May be fixed in a most recent version of ExoPlayer ?
-
-            val contentDataSource = ContentDataSource(context)
-            contentDataSource.open(DataSpec(sourceUri))
-
-            val extractorsFactory = DefaultExtractorsFactory()
-            val mediaSource = ExtractorMediaSource(sourceUri,
-                    DataSource.Factory { contentDataSource }, extractorsFactory, null, null)
+            val mediaSource = ExtractorMediaSource(sourceUri, mDataSourceFactory,
+                    mExtractorFactory, null, null)
 
             // Prepares media to play (happen on background thread) an triggers
             // onPlayerStateChanged callback when the stream is ready to play.
@@ -256,8 +258,8 @@ class LocalPlayback
         }
     }
 
-    private val mAudioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
-        when (it) {
+    private val mAudioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focus ->
+        when (focus) {
             AudioManager.AUDIOFOCUS_GAIN -> mCurrentAudioFocus = AUDIO_FOCUSED
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK ->
                 // Audio focus was lost, but it's possible to duck
@@ -270,7 +272,7 @@ class LocalPlayback
             AudioManager.AUDIOFOCUS_LOSS ->
                 // Lost audio focus, probably permanently
                 mCurrentAudioFocus = AUDIO_NO_FOCUS_NO_DUCK
-            else -> Log.w(TAG, "Unhandled AudioFocus state: $it")
+            else -> Log.w(TAG, "Unhandled AudioFocus state: $focus")
         }
 
         if (mExoPlayer != null) {
@@ -307,9 +309,9 @@ class LocalPlayback
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         when (playbackState) {
-            ExoPlayer.STATE_IDLE, ExoPlayer.STATE_BUFFERING, ExoPlayer.STATE_READY ->
+            Player.STATE_IDLE, Player.STATE_BUFFERING, Player.STATE_READY ->
                 callback?.onPlaybackStatusChanged(state)
-            ExoPlayer.STATE_ENDED -> callback?.onCompletion()
+            Player.STATE_ENDED -> callback?.onCompletion()
         }
     }
 
@@ -331,6 +333,10 @@ class LocalPlayback
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
         // Nothing to do.
+    }
+
+    override fun onRepeatModeChanged(repeatMode: Int) {
+        // Nothing to do (for the moment).
     }
 
     interface Callback {
