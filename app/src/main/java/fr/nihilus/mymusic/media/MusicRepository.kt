@@ -15,7 +15,6 @@ import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -191,7 +190,7 @@ internal fun MediaMetadataCompat.asMediaDescription(
         builder: MediaDescriptionCompat.Builder = MediaDescriptionCompat.Builder()
 ): MediaDescriptionCompat {
     val musicId = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-    val extras = Bundle(3)
+    val extras = Bundle(4)
     extras.putString(MediaItems.EXTRA_TITLE_KEY, getString(MediaDao.CUSTOM_META_TITLE_KEY))
     extras.putLong(MediaItems.EXTRA_DURATION, getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
     extras.putLong(MediaItems.EXTRA_TRACK_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER))
