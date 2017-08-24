@@ -223,6 +223,7 @@ open class PlaybackManager
             // TODO Modify MediaSession shuffle mode and queue order accordingly
             val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
             mPrefs.isRandomPlayingEnabled = shouldShuffle
+            mServiceCallback.onShuffleModeChanged(shuffleMode)
         }
 
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {

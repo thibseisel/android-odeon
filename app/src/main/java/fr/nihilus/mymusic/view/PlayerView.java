@@ -262,7 +262,11 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
         mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
         mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
-        //mRandomButton.setActivated(hasFlag(actions, MusicService.ACTION_RANDOM));
+
+        if (mController != null) {
+            mRandomButton.setActivated(
+                    mController.getShuffleMode() != PlaybackStateCompat.SHUFFLE_MODE_NONE);
+        }
     }
 
     @Override

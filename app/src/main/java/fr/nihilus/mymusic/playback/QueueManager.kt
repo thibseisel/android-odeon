@@ -31,12 +31,12 @@ class QueueManager
     private var mCurrentIndex = 0
 
     var randomEnabled: Boolean = false
-        set(value) {
+        /*set(value) {
             field = value
             val currentMediaId = if (isIndexPlayable(mCurrentIndex, mPlayingQueue))
                 mPlayingQueue[mCurrentIndex].description.mediaId else null
             setCurrentQueue("Queue", mPlayingQueue, currentMediaId)
-        }
+        }*/
 
     /**
      * Item in the queue that is currently selected.
@@ -120,6 +120,7 @@ class QueueManager
             val queueTitle = "Playing queue"
 
             mRepository.getMediaChildren(mediaId).subscribe { medias: List<MediaDescriptionCompat> ->
+                Log.d(TAG, "onReceived queue: $medias")
                 setCurrentQueue(queueTitle, medias.mapIndexed { index, descr ->
                     MediaSessionCompat.QueueItem(descr, index.toLong())
                 })

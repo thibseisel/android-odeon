@@ -9,11 +9,13 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.util.LongSparseArray
+import android.util.Log
 import fr.nihilus.mymusic.MetadataList
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,12 +43,14 @@ open class MusicRepository
      * @return an observable list of media descriptions proper for display.
      */
     open fun getMediaChildren(parentMediaId: String): Single<List<MediaDescriptionCompat>> {
+        Log.d(TAG, "getMediaChildren called with parentMediaId=$parentMediaId")
         val parentHierarchy = MediaID.getHierarchy(parentMediaId)
         return when (parentHierarchy[0]) {
-            MediaID.ID_MUSIC -> metadatas.first(emptyList()).map(this::toMediaDescriptions)
+            MediaID.ID_MUSIC -> metadatas.first(emptyList())
+                    .map { toMediaDescriptions(it, MediaID.ID_MUSIC) }
             MediaID.ID_ALBUMS -> {
                 if (parentHierarchy.size > 1) getAlbumTracks(parentHierarchy[1].toLong())
-                        .map(this::toMediaDescriptions)
+                        .map { toMediaDescriptions(it, parentMediaId) }
                 else mediaDao.getAlbums().firstOrError()
             }
             MediaID.ID_ARTISTS -> {
@@ -96,8 +100,9 @@ open class MusicRepository
     }
 
     private fun getArtistItems(artistId: Long): Single<List<MediaDescriptionCompat>> {
+        val parentId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
         val albums = mediaDao.getArtistAlbums(artistId)
-        val tracks = mediaDao.getArtistTracks(artistId).map(this::toMediaDescriptions)
+        val tracks = mediaDao.getArtistTracks(artistId).map { toMediaDescriptions(it, parentId) }
         return Observable.concat(albums, tracks)
                 .flatMap { Observable.fromIterable(it) }
                 .toList()
@@ -123,9 +128,10 @@ open class MusicRepository
     /**
      * Convert a list of [MediaMetadataCompat]s into a list of [MediaDescriptionCompat]s with the MUSIC media ID.
      */
-    private fun toMediaDescriptions(metadataList: List<MediaMetadataCompat>): List<MediaDescriptionCompat> {
+    private fun toMediaDescriptions(metadataList: List<MediaMetadataCompat>, parentId: String): List<MediaDescriptionCompat> {
+        Log.d(TAG, "toMediaDescriptions called, list size=${metadataList.size} parentId=$parentId")
         val builder = MediaDescriptionCompat.Builder()
-        return metadataList.map { it.asMediaDescription(MediaID.ID_MUSIC, builder) }
+        return metadataList.map { it.asMediaDescription(parentId, builder) }
     }
 
     private fun toQueueItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
@@ -192,7 +198,8 @@ internal fun MediaMetadataCompat.asMediaDescription(
     extras.putLong(MediaItems.EXTRA_DISC_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER))
     val artUri = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
 
-    builder.setMediaId(MediaID.createMediaID(musicId, parentMediaId))
+    val mediaId = MediaID.createMediaID(musicId, parentMediaId)
+    builder.setMediaId(mediaId)
             .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
             .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
             .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
