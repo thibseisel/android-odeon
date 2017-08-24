@@ -113,7 +113,7 @@ class QueueManager
     /**
      *
      */
-    fun loadQueueFromMusic(mediaId: String, shuffled: Boolean = false) {
+    fun loadQueueFromMusic(mediaId: String) {
         Log.d(TAG, "loadQueueFromMusic: $mediaId")
         val canReuseQueue = isSameBrowsingCategory(mediaId) && setCurrentQueueItem(mediaId)
         if (!canReuseQueue) {
@@ -128,7 +128,7 @@ class QueueManager
                 Log.d(TAG, "onReceived queue: $medias")
                 setCurrentQueue(queueTitle, medias.mapIndexed { index, item ->
                     MediaSessionCompat.QueueItem(item.description, index.toLong())
-                })
+                }, mediaId)
                 updateMetadata()
             }
         }
