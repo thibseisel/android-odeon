@@ -224,6 +224,7 @@ open class PlaybackManager
             val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
             mPrefs.isRandomPlayingEnabled = shouldShuffle
             mServiceCallback.onShuffleModeChanged(shuffleMode)
+            updatePlaybackState(null)
         }
 
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
