@@ -87,6 +87,27 @@ public final class MediaID {
         return sb.toString();
     }
 
+    public static String createMediaId(String[] categories, String musicId) {
+        StringBuilder sb = new StringBuilder();
+        if (categories != null) {
+            for (int i = 0; i < categories.length; i++) {
+                if (!isValidCategory(categories[i])) {
+                    throw new IllegalArgumentException("Invalid category " + categories[i]);
+                }
+                sb.append(categories[i]);
+                if (i < categories.length - 1) {
+                    sb.append(CATEGORY_SEPARATOR);
+                }
+            }
+        }
+
+        if (musicId != null) {
+            sb.append(LEAF_SEPARATOR).append(musicId);
+        }
+
+        return sb.toString();
+    }
+
     private static boolean isValidCategory(String category) {
         return category == null ||
                 (

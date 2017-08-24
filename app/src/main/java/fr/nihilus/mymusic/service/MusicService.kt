@@ -8,7 +8,6 @@ import android.os.Message
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserServiceCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -95,19 +94,18 @@ class MusicService : MediaBrowserServiceCompat(),
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
         Log.d(TAG, "Loading children for ID: $parentId")
         result.detach()
-        mRepository.getMediaChildren(parentId)
+        mRepository.getMediaItems(parentId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : SingleObserver<List<MediaDescriptionCompat>> {
+                .subscribe(object : SingleObserver<List<MediaItem>> {
                     override fun onSubscribe(d: Disposable) {}
-                    override fun onError(e: Throwable) = result.sendResult(null)
-                    override fun onSuccess(medias: List<MediaDescriptionCompat>) {
-                        Log.d(TAG, "Loaded items for $parentId: ${medias.size}")
-                        result.sendResult(medias.map {
-                            val flags = if (MediaID.isBrowseable(it.mediaId!!)) MediaItem.FLAG_BROWSABLE
-                            else MediaItem.FLAG_PLAYABLE
-                            MediaItem(it, flags)
-                        })
+                    override fun onError(e: Throwable) {
+                        Log.e(TAG, "An error occured: $e")
+                        result.sendResult(null)
+                    }
+                    override fun onSuccess(items: List<MediaItem>) {
+                        Log.d(TAG, "Loaded items for $parentId: ${items.size}")
+                        result.sendResult(items)
                     }
                 })
     }
@@ -133,7 +131,6 @@ class MusicService : MediaBrowserServiceCompat(),
     override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode shuffleMode: Int) {
         mSession.setShuffleMode(shuffleMode)
     }
-
 
     override fun onNotificationRequired() {
         mNotificationManager.startNotification()

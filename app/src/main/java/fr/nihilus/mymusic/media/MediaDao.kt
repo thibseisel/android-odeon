@@ -59,7 +59,7 @@ open class MediaDao
      */
     open fun getAllTracks(): Observable<MetadataList> {
         return Observable.fromCallable { loadMetadata(null, null, Media.TITLE_KEY) }
-                .concatWith(mediaChanges)
+                //.concatWith(mediaChanges)
     }
 
     private fun loadMetadata(selection: String?, selectionArgs: Array<String>?,
@@ -72,7 +72,6 @@ open class MediaDao
 
         val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
                 whereClause.toString(), selectionArgs, sortOrder)
-
         if (cursor == null) {
             Log.e(TAG, "getTracksMetadata: track metadata query failed (null cursor)")
             return emptyList()
@@ -269,9 +268,9 @@ open class MediaDao
      * @param albumId unique identifier of the album
      * @return track metadatas from this album sorted by track number
      */
-    fun getAlbumTracks(albumId: Long): Observable<MetadataList> {
+    fun getAlbumTracks(albumId: String): Observable<MetadataList> {
         return Observable.fromCallable {
-            loadMetadata(SELECTION_ALBUM_TRACKS, arrayOf(albumId.toString()), Media.TRACK)
+            loadMetadata(SELECTION_ALBUM_TRACKS, arrayOf(albumId), Media.TRACK)
         }
     }
 
@@ -280,9 +279,9 @@ open class MediaDao
      * @param artistId unique identifier of the artist
      * @return track metadatas from this artist sorted by track name
      */
-    fun getArtistTracks(artistId: Long): Observable<MetadataList> {
+    fun getArtistTracks(artistId: String): Observable<MetadataList> {
         return Observable.fromCallable {
-            loadMetadata(SELECTION_ARTIST_TRACKS, arrayOf(artistId.toString()), Media.TITLE_KEY)
+            loadMetadata(SELECTION_ARTIST_TRACKS, arrayOf(artistId), Media.TITLE_KEY)
         }
     }
 
@@ -291,9 +290,9 @@ open class MediaDao
      * @param artistId unique identifier of the artist
      * @return informations of albums from this artist sorted by descending release date
      */
-    fun getArtistAlbums(artistId: Long): Observable<List<MediaDescriptionCompat>> {
+    fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>> {
         return Observable.fromCallable {
-            val cursor = resolver.query(Artists.Albums.getContentUri("external", artistId),
+            val cursor = resolver.query(Artists.Albums.getContentUri("external", artistId.toLong()),
                     ALBUM_PROJECTION, null, null, ARTIST_ALBUMS_ORDER)
 
             if (cursor == null) {

@@ -2,7 +2,7 @@ package fr.nihilus.mymusic.playback
 
 import android.os.Bundle
 import android.support.annotation.VisibleForTesting
-import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
@@ -10,6 +10,7 @@ import fr.nihilus.mymusic.di.MusicServiceScope
 import fr.nihilus.mymusic.media.MusicRepository
 import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
+import io.reactivex.Observable
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
 import java.util.*
@@ -119,10 +120,14 @@ class QueueManager
             // TODO Determine queue name from MediaId, get static names from resources
             val queueTitle = "Playing queue"
 
-            mRepository.getMediaChildren(mediaId).subscribe { medias: List<MediaDescriptionCompat> ->
+            mRepository.getMediaItems(mediaId).toObservable()
+                    .flatMap { Observable.fromIterable(it) }
+                    .filter { !it.isBrowsable }
+                    .toList()
+                    .subscribe { medias: List<MediaBrowserCompat.MediaItem> ->
                 Log.d(TAG, "onReceived queue: $medias")
-                setCurrentQueue(queueTitle, medias.mapIndexed { index, descr ->
-                    MediaSessionCompat.QueueItem(descr, index.toLong())
+                setCurrentQueue(queueTitle, medias.mapIndexed { index, item ->
+                    MediaSessionCompat.QueueItem(item.description, index.toLong())
                 })
                 updateMetadata()
             }
