@@ -10,38 +10,44 @@ import android.support.annotation.NonNull;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import fr.nihilus.mymusic.database.AppDatabase;
 import fr.nihilus.mymusic.database.MusicInfoDao;
 import fr.nihilus.mymusic.database.PlaylistDao;
+import fr.nihilus.mymusic.media.LruMusicCache;
+import fr.nihilus.mymusic.media.MusicCache;
 
 @Module
-public class AppModule {
+abstract class AppModule {
 
     @Provides
     @Named("Application")
-    Context provideApplicationContext(@NonNull Application app) {
+    static Context provideApplicationContext(@NonNull Application app) {
         return app;
     }
 
     @Provides @Singleton
-    SharedPreferences provideSharedPreferences(@NonNull Application app) {
+    static SharedPreferences provideSharedPreferences(@NonNull Application app) {
         return PreferenceManager.getDefaultSharedPreferences(app);
     }
 
     @Provides @Singleton
-    AppDatabase provideDatabase(@NonNull Application app) {
+    static AppDatabase provideDatabase(@NonNull Application app) {
         return Room.databaseBuilder(app, AppDatabase.class, AppDatabase.NAME).build();
     }
 
     @Provides @Singleton
-    MusicInfoDao provideMusicInfoDao(@NonNull AppDatabase db) {
+    static MusicInfoDao provideMusicInfoDao(@NonNull AppDatabase db) {
         return db.musicInfoDao();
     }
 
     @Provides @Singleton
-    PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
+    static PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
         return db.playlistDao();
     }
+
+    @Binds @Singleton
+    abstract MusicCache bindsMusicCache(LruMusicCache lruCache);
 }

@@ -147,7 +147,7 @@ class QueueManager
                 ?: throw IllegalStateException("Queue item should have a media ID")
 
         // TODO Chain with another Single to load album art if needed
-        mRepository.getMetadata(musicId.toLong()).subscribe(object : SingleObserver<MediaMetadataCompat> {
+        mRepository.getMetadata(musicId).subscribe(object : SingleObserver<MediaMetadataCompat> {
             override fun onSubscribe(d: Disposable) {}
             override fun onSuccess(metadata: MediaMetadataCompat) = mListener.onMetadataChanged(metadata)
             override fun onError(e: Throwable) = mListener.onMetadataRetrieveError()

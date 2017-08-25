@@ -8,7 +8,6 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.util.LongSparseArray
 import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
@@ -26,10 +25,11 @@ private const val TAG = "MusicRepository"
  * a subset of item has changed.
  */
 @Singleton
-open class MusicRepository
-@Inject internal constructor(private val mediaDao: MediaDao) {
+class MusicRepository
+@Inject internal constructor(mediaDao: MediaDao, musicCache: LruMusicCache) {
 
-    private val metadataById = LongSparseArray<MediaMetadataCompat>()
+    private val mDao = mediaDao
+    private val mCache = musicCache
     private val metadatas = mediaDao.getAllTracks()
             .doOnNext { cacheMetadatas(it) }
             .share()
@@ -68,14 +68,14 @@ open class MusicRepository
     }
 
     private fun getAlbums(): Single<List<MediaItem>> {
-        return mediaDao.getAlbums().flatMap { Observable.fromIterable(it) }
+        return mDao.getAlbums().flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }
 
     private fun getAlbumChildren(albumId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return mediaDao.getAlbumTracks(albumId)
+        return mDao.getAlbumTracks(albumId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
@@ -84,10 +84,10 @@ open class MusicRepository
 
     private fun getArtistChildren(artistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        val albums = mediaDao.getArtistAlbums(artistId)
+        val albums = mDao.getArtistAlbums(artistId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
-        val tracks = mediaDao.getArtistTracks(artistId)
+        val tracks = mDao.getArtistTracks(artistId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
@@ -95,7 +95,7 @@ open class MusicRepository
     }
 
     private fun getArtists(): Single<List<MediaItem>> {
-        return mediaDao.getArtists().flatMap { Observable.fromIterable(it) }
+        return mDao.getArtists().flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }
@@ -103,9 +103,9 @@ open class MusicRepository
     /**
      * @return a single metadata item with the specified musicId
      */
-    open fun getMetadata(musicId: Long): Single<MediaMetadataCompat> {
+    open fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
         val fromCache = Single.fromCallable {
-            metadataById.get(musicId) ?: throw RuntimeException("No metadata with ID $musicId")
+            mCache.getMetadata(musicId) ?: throw RuntimeException("No metadata with ID $musicId")
         }
 
         // TODO Fetch from MediaDao if missing
@@ -155,13 +155,13 @@ open class MusicRepository
      * Release all references to objects loaded by this repository.
      */
     open fun clear() {
-        this.metadataById.clear()
+        mCache.clear()
     }
 
     private fun cacheMetadatas(metadataList: List<MediaMetadataCompat>) {
         for (meta in metadataList) {
-            val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
-            metadataById.put(musicId, meta)
+            val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            mCache.putMetadata(musicId, meta)
         }
     }
 }
