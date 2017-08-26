@@ -18,13 +18,13 @@ private const val TAG = "PlaybackManager"
 private const val HEADSET_CLICK_DELAY = 250L
 
 @ServiceScoped
-open class PlaybackManager
+class PlaybackManager
 @Inject constructor(
         service: MusicService,
         queueManager: QueueManager,
-        playback: LocalPlayback,
+        playback: Playback,
         prefs: PreferenceDao
-) : LocalPlayback.Callback {
+) : Playback.Callback {
 
     private val mServiceCallback: ServiceCallback = service
     private val mResources = service.resources
@@ -113,6 +113,7 @@ open class PlaybackManager
         stateBuilder.setActions(actions)
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun setCustomActions(stateBuilder: PlaybackStateCompat.Builder) {
         // No custom action at the time.
     }

@@ -4,5 +4,5 @@ import org.junit.runner.RunWith
 import org.junit.runners.Suite
 
 @RunWith(Suite::class)
-@Suite.SuiteClasses(LocalPlaybackTest::class, QueueManagerTest::class)
+@Suite.SuiteClasses(ExoPlaybackTest::class, QueueManagerTest::class)
 class PlaybackTestSuite

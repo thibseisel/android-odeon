@@ -24,7 +24,7 @@ import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
 
-private const val TAG = "LocalPlayback"
+private const val TAG = "ExoPlayback"
 
 /**
  * The volume level to use when we lose audio focus,
@@ -45,8 +45,8 @@ private const val AUDIO_FOCUSED = 2
  * Perform local media playback using [ExoPlayer].
  */
 @ServiceScoped
-class LocalPlayback
-@Inject constructor(private val context: Context) : Player.EventListener {
+class ExoPlayback
+@Inject constructor(private val context: Context) : Player.EventListener, Playback {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -65,19 +65,18 @@ class LocalPlayback
         mDataSourceFactory = DefaultDataSourceFactory(context, userAgent)
     }
 
-    var callback: Callback? = null
+    override var callback: Playback.Callback? = null
 
     /**
      * The ID of the currently playing media.
      */
-    var currentMediaId: String? = null
-        private set
+    override var currentMediaId: String? = null
 
     /**
      * The current [android.media.session.PlaybackState.getState]
      */
     @PlaybackStateCompat.State
-    val state: Int
+    override val state: Int
         get() {
             if (mExoPlayer == null) {
                 return if (mPlayerNullIfStopped) PlaybackStateCompat.STATE_STOPPED
@@ -97,12 +96,12 @@ class LocalPlayback
      * Indicate whether the mExoPlayer is playing or is supposed to be
      * playing when we gain audio focus.
      */
-    val isPlaying get() = mPlayOnFocusGain || mExoPlayer?.playWhenReady ?: false
+    override val isPlaying get() = mPlayOnFocusGain || mExoPlayer?.playWhenReady ?: false
 
     /**
      * The current position in the audio stream in milliseconds.
      */
-    val currentPosition get() = mExoPlayer?.currentPosition ?: 0L
+    override val currentPosition get() = mExoPlayer?.currentPosition ?: 0L
 
     /**
      * Start playback for an [item] in the queue.
@@ -111,7 +110,7 @@ class LocalPlayback
      *
      * Playback will begin only if the application has audio focus.
      */
-    fun play(item: MediaSessionCompat.QueueItem) {
+    override fun play(item: MediaSessionCompat.QueueItem) {
         mPlayOnFocusGain = true
         tryToGetAudioFocus()
         registerAudioNoisyReceiver()
@@ -153,7 +152,7 @@ class LocalPlayback
      *
      * Listeners are notified when playback state is updated.
      */
-    fun pause() {
+    override fun pause() {
         // Pause player and cancel the foreground service state.
         Log.d(TAG, "pause called")
         mExoPlayer?.playWhenReady = false
@@ -167,7 +166,7 @@ class LocalPlayback
      * When playing, playback will resume at this position.
      * @param position in the currently playing media in milliseconds
      */
-    fun seekTo(position: Long) {
+    override fun seekTo(position: Long) {
         Log.d(TAG, "seekTo called with $position")
         mExoPlayer?.let {
             registerAudioNoisyReceiver()
@@ -178,7 +177,7 @@ class LocalPlayback
     /**
      * Stop the player. All resources are de-allocated.
      */
-    fun stop() {
+    override fun stop() {
         giveUpAudioFocus()
         unregisterAudioNoisyReceiver()
         releaseResources(true)
@@ -336,20 +335,4 @@ class LocalPlayback
         // Nothing to do (for the moment).
     }
 
-    interface Callback {
-        /**
-         * Called when the playback status has changed.
-         * Use this callback to update playback state on the media session.
-         */
-        fun onPlaybackStatusChanged(@PlaybackStateCompat.State newState: Int)
-
-        /** Called when the currently playing music has completed. */
-        fun onCompletion()
-
-        /**
-         * Called when an message occur during media playback.
-         * @param message describing the error to be added to the PlaybackState
-         */
-        fun onError(message: String)
-    }
 }

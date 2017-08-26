@@ -20,7 +20,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class CachedMusicRepository
-@Inject constructor(mediaDao: MediaStoreMusicDao, musicCache: LruMusicCache) : MusicRepository {
+@Inject constructor(mediaDao: MusicDao, musicCache: MusicCache) : MusicRepository {
 
     private val mDao = mediaDao
     private val mCache = musicCache

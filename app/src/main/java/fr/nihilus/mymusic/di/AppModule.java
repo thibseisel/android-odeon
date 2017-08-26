@@ -15,10 +15,9 @@ import dagger.Provides;
 import fr.nihilus.mymusic.database.AppDatabase;
 import fr.nihilus.mymusic.database.MusicInfoDao;
 import fr.nihilus.mymusic.database.PlaylistDao;
-import fr.nihilus.mymusic.media.LruMusicCache;
-import fr.nihilus.mymusic.media.MusicCache;
+import fr.nihilus.mymusic.media.MediaModule;
 
-@Module
+@Module(includes = MediaModule.class)
 abstract class AppModule {
 
     @Binds
@@ -43,7 +42,4 @@ abstract class AppModule {
     static PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
         return db.playlistDao();
     }
-
-    @Binds @Singleton
-    abstract MusicCache bindsMusicCache(LruMusicCache lruCache);
 }

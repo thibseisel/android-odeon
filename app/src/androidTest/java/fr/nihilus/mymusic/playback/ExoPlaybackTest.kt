@@ -12,16 +12,16 @@ import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
-class LocalPlaybackTest {
+class ExoPlaybackTest {
 
     private var context = InstrumentationRegistry.getTargetContext()
 
-    private lateinit var subject: LocalPlayback
+    private lateinit var subject: ExoPlayback
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        subject = LocalPlayback(context)
+        subject = ExoPlayback(context)
     }
 
     @Test

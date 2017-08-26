@@ -14,7 +14,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import dagger.android.AndroidInjection
 import fr.nihilus.mymusic.HomeActivity
-import fr.nihilus.mymusic.media.CachedMusicRepository
+import fr.nihilus.mymusic.media.MusicRepository
 import fr.nihilus.mymusic.playback.PlaybackManager
 import fr.nihilus.mymusic.playback.QueueManager
 import fr.nihilus.mymusic.utils.MediaID
@@ -33,7 +33,7 @@ private const val STOP_DELAY = 30000L
 class MusicService : MediaBrowserServiceCompat(),
         PlaybackManager.ServiceCallback, QueueManager.MetadataUpdateListener {
 
-    @Inject lateinit var mRepository: CachedMusicRepository
+    @Inject lateinit var mRepository: MusicRepository
     @Inject lateinit var mPlaybackManager: PlaybackManager
     @Inject lateinit var mNotificationManager: MediaNotificationManager
 
