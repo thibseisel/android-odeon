@@ -26,7 +26,7 @@ private const val TAG = "MusicRepository"
  */
 @Singleton
 class MusicRepository
-@Inject constructor(mediaDao: MediaDao, musicCache: LruMusicCache) {
+@Inject constructor(mediaDao: LocalMusicDao, musicCache: LruMusicCache) {
 
     private val mDao = mediaDao
     private val mCache = musicCache
@@ -167,7 +167,7 @@ internal fun MediaMetadataCompat.asMediaDescription(
 ): MediaDescriptionCompat {
     val musicId = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
     val extras = Bundle(4)
-    extras.putString(MediaItems.EXTRA_TITLE_KEY, getString(MediaDao.CUSTOM_META_TITLE_KEY))
+    extras.putString(MediaItems.EXTRA_TITLE_KEY, getString(MusicDao.CUSTOM_META_TITLE_KEY))
     extras.putLong(MediaItems.EXTRA_DURATION, getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
     extras.putLong(MediaItems.EXTRA_TRACK_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER))
     extras.putLong(MediaItems.EXTRA_DISC_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER))

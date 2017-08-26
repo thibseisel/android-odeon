@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations
 @RunWith(AndroidJUnit4::class)
 class MusicRepositoryTest {
 
-    /** A Subject allowing the tester to emulate the emission of new metadata from [MediaDao]. */
+    /** A Subject allowing the tester to emulate the emission of new metadata from [LocalMusicDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
     lateinit var subject: MusicRepository
 
@@ -61,7 +61,7 @@ class MusicRepositoryTest {
 
     /**
      * Assert that [MusicRepository.getMediaChildren] emits a list of media items
-     * corresponding to tracks fetched from [MediaDao] when the media ID is [MediaID.ID_MUSIC].
+     * corresponding to tracks fetched from [LocalMusicDao] when the media ID is [MediaID.ID_MUSIC].
      */
     @Test
     fun mediaItems_allTracks() {
@@ -172,8 +172,8 @@ class MusicRepositoryTest {
         subject.clear()
     }
 
-    private fun provideMockDao(): MediaDao {
-        val mock = mock(MediaDao::class.java)
+    private fun provideMockDao(): LocalMusicDao {
+        val mock = mock(LocalMusicDao::class.java)
         `when`(mock.getAllTracks()).thenReturn(metadataSubject)
         return mock
     }
@@ -204,8 +204,8 @@ private fun sampleToMetadata(values: Array<Any>): MediaMetadataCompat {
             .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, values[6] as Long)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, values[7] as String)
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, values[8] as String)
-            .putString(MediaDao.CUSTOM_META_TITLE_KEY, values[9] as String)
-            .putLong(MediaDao.CUSTOM_META_ALBUM_ID, values[10] as Long)
-            .putLong(MediaDao.CUSTOM_META_ARTIST_ID, values[11] as Long)
+            .putString(MusicDao.CUSTOM_META_TITLE_KEY, values[9] as String)
+            .putLong(MusicDao.CUSTOM_META_ALBUM_ID, values[10] as Long)
+            .putLong(MusicDao.CUSTOM_META_ARTIST_ID, values[11] as Long)
             .build()
 }
