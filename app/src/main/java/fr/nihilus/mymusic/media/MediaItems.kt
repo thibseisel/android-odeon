@@ -1,9 +1,9 @@
 package fr.nihilus.mymusic.media
 
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 
 /**
- * A helper class grouping [MediaBrowserCompat.MediaItem]-related constants.
+ * A helper class grouping [MediaItem]-related constants.
  */
 object MediaItems {
     /**
@@ -37,7 +37,17 @@ object MediaItems {
      */
     const val EXTRA_YEAR = "last_year"
 
+    /**
+     * The number of this track in its album.
+     *
+     * Type: integer
+     */
     const val EXTRA_TRACK_NUMBER = "trackno"
 
+    /**
+     * The number of the disc this track appears.
+     *
+     * Type: integer
+     */
     const val EXTRA_DISC_NUMBER = "discno"
 }

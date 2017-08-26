@@ -1,13 +1,13 @@
-package fr.nihilus.mymusic.di;
+package fr.nihilus.mymusic.service;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
-import fr.nihilus.mymusic.service.MusicService;
+import fr.nihilus.mymusic.di.ServiceScoped;
 
 @Module
-abstract class MusicServiceModule {
+public abstract class MusicServiceModule {
 
-    @MusicServiceScope
+    @ServiceScoped
     @ContributesAndroidInjector
     abstract MusicService contributeMusicService();
 }

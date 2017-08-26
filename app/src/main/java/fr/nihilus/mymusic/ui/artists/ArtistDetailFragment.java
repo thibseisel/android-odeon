@@ -26,9 +26,11 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.ui.albums.AlbumDetailActivity;
 
+@ActivityScoped
 public class ArtistDetailFragment extends Fragment
         implements ArtistDetailAdapter.OnMediaItemSelectedListener {
 

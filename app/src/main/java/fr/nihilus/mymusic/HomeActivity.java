@@ -44,7 +44,6 @@ import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.library.NavigationController;
 import fr.nihilus.mymusic.palette.BottomPaletteTranscoder;
 import fr.nihilus.mymusic.palette.PaletteBitmap;
-import fr.nihilus.mymusic.provider.SetupService;
 import fr.nihilus.mymusic.settings.PreferenceDao;
 import fr.nihilus.mymusic.settings.SettingsActivity;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
@@ -260,10 +259,6 @@ public class HomeActivity extends AppCompatActivity
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Load daily song only if it has permission
                 loadDailySong();
-                // TODO Placer ça dans un écran de présentation de l'application, au premier démarrage
-                if (!mPrefs.isDatabaseSetupComplete()) {
-                    SetupService.startDatabaseSetup(this);
-                }
             }
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(getIntent())) {

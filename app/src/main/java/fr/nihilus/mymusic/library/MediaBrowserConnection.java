@@ -14,7 +14,7 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import fr.nihilus.mymusic.di.ActivityScope;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.service.MusicService;
 import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
@@ -25,7 +25,7 @@ import static android.content.ContentValues.TAG;
 /**
  * An object that manages a connection between UI components and the {@link MusicService}.
  */
-@ActivityScope
+@ActivityScoped
 public class MediaBrowserConnection {
     private static final boolean LOG = true;
     private MediaBrowserCompat mBrowser;

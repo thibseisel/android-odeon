@@ -23,10 +23,12 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 import fr.nihilus.mymusic.view.GridSpacerDecoration;
 
+@ActivityScoped
 public class AlbumGridFragment extends Fragment implements AlbumsAdapter.OnAlbumSelectedListener {
 
     private static final String TAG = "AlbumGridFragment";

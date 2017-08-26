@@ -30,11 +30,15 @@ import javax.inject.Inject;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
 import fr.nihilus.mymusic.database.Playlist;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.playlists.PlaylistRepository;
 import fr.nihilus.mymusic.ui.songs.SongAdapter;
 import fr.nihilus.mymusic.utils.MediaID;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
+@ActivityScoped
 public class NewPlaylistFragment extends AppCompatDialogFragment
         implements AdapterView.OnItemClickListener, View.OnClickListener {
 
@@ -209,7 +213,10 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
         mMessage.setText(R.string.saving_playlist);
         Playlist newPlaylist = Playlist.create(playlistTitle);
-        mRepo.saveNewPlaylist(newPlaylist, trackIds);
+        mRepo.saveNewPlaylist(newPlaylist, trackIds)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
     }
 
     @Override

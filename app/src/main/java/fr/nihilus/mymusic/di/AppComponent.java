@@ -8,15 +8,14 @@ import dagger.BindsInstance;
 import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 import fr.nihilus.mymusic.MyApplication;
+import fr.nihilus.mymusic.service.MusicServiceModule;
 
 @Singleton
 @Component(modules = {
         AndroidInjectionModule.class,
         AppModule.class,
-        MusicLibraryModule.class,
-        MusicServiceModule.class,
-        SettingsModule.class,
-        SetupModule.class
+        ActivityBindingModule.class,
+        MusicServiceModule.class
 })
 public interface AppComponent {
 

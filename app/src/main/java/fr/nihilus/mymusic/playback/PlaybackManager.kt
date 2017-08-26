@@ -8,7 +8,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.KeyEvent
-import fr.nihilus.mymusic.di.MusicServiceScope
+import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.settings.PreferenceDao
 import fr.nihilus.mymusic.utils.MediaID
@@ -17,7 +17,7 @@ import javax.inject.Inject
 private const val TAG = "PlaybackManager"
 private const val HEADSET_CLICK_DELAY = 250L
 
-@MusicServiceScope
+@ServiceScoped
 open class PlaybackManager
 @Inject constructor(
         service: MusicService,

@@ -4,37 +4,35 @@ import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import fr.nihilus.mymusic.AppExecutors;
 import fr.nihilus.mymusic.database.Playlist;
 import fr.nihilus.mymusic.database.PlaylistDao;
 import fr.nihilus.mymusic.database.PlaylistTrack;
 import fr.nihilus.mymusic.database.PlaylistWithTracks;
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
+import io.reactivex.functions.Action;
 
 @Singleton
 public class PlaylistRepository {
     private final PlaylistDao mDao;
-    private final Executor mDiskExecutor;
 
     @Inject
-    public PlaylistRepository(@NonNull PlaylistDao dao, @NonNull AppExecutors executors) {
+    PlaylistRepository(@NonNull PlaylistDao dao) {
         mDao = dao;
-        mDiskExecutor = executors.diskIo();
     }
 
     public Flowable<List<PlaylistWithTracks>> getPlaylists() {
         return mDao.getPlaylistsWithTracks();
     }
 
-    public void saveNewPlaylist(final Playlist playlist, final long[] musicIds) {
-        mDiskExecutor.execute(new Runnable() {
+    public Completable saveNewPlaylist(final Playlist playlist, final long[] musicIds) {
+        return Completable.fromAction(new Action() {
             @Override
-            public void run() {
+            public void run() throws Exception {
                 Long playlistId = mDao.savePlaylist(playlist);
 
                 List<PlaylistTrack> playlistTracks = new ArrayList<>(musicIds.length);
@@ -50,8 +48,8 @@ public class PlaylistRepository {
         });
     }
 
-    public void addTracks(final List<PlaylistTrack> tracks) {
-        mDiskExecutor.execute(new Runnable() {
+    public Completable addTracks(final List<PlaylistTrack> tracks) {
+        return Completable.fromAction(new Action() {
             @Override
             public void run() {
                 mDao.addTracks(tracks);
@@ -59,8 +57,8 @@ public class PlaylistRepository {
         });
     }
 
-    public void deletePlaylist(final Playlist playlist) {
-        mDiskExecutor.execute(new Runnable() {
+    public Completable deletePlaylist(final Playlist playlist) {
+        return Completable.fromAction(new Action() {
             @Override
             public void run() {
                 mDao.deletePlaylists(playlist);
@@ -68,8 +66,8 @@ public class PlaylistRepository {
         });
     }
 
-    public void deleteTracks(final PlaylistTrack[] tracks) {
-        mDiskExecutor.execute(new Runnable() {
+    public Completable deleteTracks(final PlaylistTrack[] tracks) {
+        return Completable.fromAction(new Action() {
             @Override
             public void run() {
                 mDao.deleteTracks(tracks);

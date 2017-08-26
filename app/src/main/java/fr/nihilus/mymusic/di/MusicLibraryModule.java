@@ -1,35 +1,38 @@
 package fr.nihilus.mymusic.di;
 
-import android.content.Context;
-
-import javax.inject.Named;
-
 import dagger.Module;
-import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
-import fr.nihilus.mymusic.HomeActivity;
-import fr.nihilus.mymusic.ui.albums.AlbumDetailActivity;
+import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
+import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
+import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
+import fr.nihilus.mymusic.ui.playlist.NewPlaylistFragment;
+import fr.nihilus.mymusic.ui.playlist.PlaylistsFragment;
+import fr.nihilus.mymusic.ui.songs.SongListFragment;
 
 @Module
-public abstract class MusicLibraryModule {
+abstract class MusicLibraryModule {
 
-    @ActivityScope
-    @ContributesAndroidInjector(modules = {FragmentsBuilderModule.class})
-    abstract HomeActivity contributeHomeActivity();
-
-    @ActivityScope
+    @FragmentScoped
     @ContributesAndroidInjector
-    abstract AlbumDetailActivity contributeAlbumDetailActivity();
+    abstract SongListFragment contributeSongListFragment();
 
-    @Provides
-    @Named("HomeActivity")
-    Context provideHomeActivityContext(HomeActivity activity) {
-        return activity;
-    }
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract AlbumGridFragment contributeAlbumGridFragment();
 
-    @Provides
-    @Named("AlbumActivity")
-    Context provideAlbumActivityContext(AlbumDetailActivity activity) {
-        return activity;
-    }
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract ArtistsFragment contributeArtistsFragment();
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract ArtistDetailFragment contributeArtistDetailFragment();
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract PlaylistsFragment contributePlaylistsFragment();
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract NewPlaylistFragment contributeNewPlaylistFragment();
 }

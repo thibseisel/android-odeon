@@ -21,11 +21,11 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.mymusic.HomeActivity
 import fr.nihilus.mymusic.R
-import fr.nihilus.mymusic.di.MusicServiceScope
+import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.utils.ResourceHelper
 import javax.inject.Inject
 
-@MusicServiceScope
+@ServiceScoped
 class MediaNotificationManager
 @Inject constructor(service: MusicService) : BroadcastReceiver() {
 
@@ -183,7 +183,7 @@ class MediaNotificationManager
         notificationBuilder.addAction(R.drawable.ic_skip_next_24dp,
                 mService.getString(R.string.action_next), mNextIntent)
 
-        // TODO Maybe replace by the description calculated by MusicRepository
+        // TODO Maybe replace by the description calculated by CachedMusicRepository
         val description = mMetadata!!.description
 
         // TODO handle album art loading (placeholder used instead)

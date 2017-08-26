@@ -8,14 +8,14 @@ import javax.inject.Inject;
 
 import fr.nihilus.mymusic.HomeActivity;
 import fr.nihilus.mymusic.R;
-import fr.nihilus.mymusic.di.ActivityScope;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.ui.albums.AlbumGridFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistDetailFragment;
 import fr.nihilus.mymusic.ui.artists.ArtistsFragment;
 import fr.nihilus.mymusic.ui.playlist.PlaylistsFragment;
 import fr.nihilus.mymusic.ui.songs.SongListFragment;
 
-@ActivityScope
+@ActivityScoped
 public class NavigationController {
     private final FragmentManager mFm;
     private final @IdRes int mContainerId;

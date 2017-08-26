@@ -22,11 +22,9 @@ import fr.nihilus.mymusic.media.MusicCache;
 @Module
 abstract class AppModule {
 
-    @Provides
+    @Binds
     @Named("Application")
-    static Context provideApplicationContext(@NonNull Application app) {
-        return app;
-    }
+    abstract Context bindsApplicationContext(@NonNull Application app);
 
     @Provides @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull Application app) {

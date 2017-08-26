@@ -25,10 +25,12 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.mymusic.R;
+import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.library.MediaBrowserConnection;
 import fr.nihilus.mymusic.utils.MediaID;
 import io.reactivex.functions.Consumer;
 
+@ActivityScoped
 public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
 
     private static final String TAG = "PlaylistsFragment";

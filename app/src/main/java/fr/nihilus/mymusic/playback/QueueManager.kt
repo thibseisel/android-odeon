@@ -6,8 +6,8 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
-import fr.nihilus.mymusic.di.MusicServiceScope
-import fr.nihilus.mymusic.media.MusicRepository
+import fr.nihilus.mymusic.di.ServiceScoped
+import fr.nihilus.mymusic.media.CachedMusicRepository
 import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
@@ -18,11 +18,11 @@ import javax.inject.Inject
 
 private const val TAG = "QueueManager"
 
-@MusicServiceScope
+@ServiceScoped
 class QueueManager
 @Inject constructor(
         service: MusicService,
-        repository: MusicRepository
+        repository: CachedMusicRepository
 ) {
     private val mResources = service.resources
     private val mListener: MetadataUpdateListener = service
@@ -107,7 +107,7 @@ class QueueManager
     fun canSkip(steps: Int): Boolean = isIndexPlayable(mCurrentIndex + steps, mPlayingQueue)
 
     fun loadQueueFromSearch(query: String, extras: Bundle?): Boolean {
-        TODO("Implement search logic in MusicRepository and retrieve queue from it")
+        TODO("Implement search logic in CachedMusicRepository and retrieve queue from it")
     }
 
     /**

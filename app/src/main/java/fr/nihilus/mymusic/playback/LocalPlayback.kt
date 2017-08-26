@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fr.nihilus.mymusic.R
-import fr.nihilus.mymusic.di.MusicServiceScope
+import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
 import javax.inject.Named
@@ -45,7 +45,7 @@ private const val AUDIO_FOCUSED = 2
 /**
  * Perform local media playback using [ExoPlayer].
  */
-@MusicServiceScope
+@ServiceScoped
 class LocalPlayback
 @Inject constructor(
         @Named("Application") private val context: Context

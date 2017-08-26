@@ -23,11 +23,11 @@ import org.mockito.MockitoAnnotations
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class MusicRepositoryTest {
+class CachedMusicRepositoryTest {
 
     /** A Subject allowing the tester to emulate the emission of new metadata from [MediaStoreMusicDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
-    lateinit var subject: MusicRepository
+    lateinit var subject: CachedMusicRepository
 
     @Mock lateinit var mockCache: LruMusicCache
 
@@ -36,12 +36,12 @@ class MusicRepositoryTest {
         MockitoAnnotations.initMocks(this)
         metadataSubject = PublishSubject.create()
         val mediaDao = provideMockDao()
-        subject = MusicRepository(mediaDao, mockCache)
+        subject = CachedMusicRepository(mediaDao, mockCache)
     }
 
     /**
      * Check proper transformation of a MediaMetadataCompat into a MediaItem via
-     * the [MusicRepository.asMediaDescription] extension function.
+     * the [CachedMusicRepository.asMediaDescription] extension function.
      */
     @Test
     fun mediaMetadataToMediaDescription() {
@@ -60,7 +60,7 @@ class MusicRepositoryTest {
     }
 
     /**
-     * Assert that [MusicRepository.getMediaChildren] emits a list of media items
+     * Assert that [CachedMusicRepository.getMediaChildren] emits a list of media items
      * corresponding to tracks fetched from [MediaStoreMusicDao] when the media ID is [MediaID.ID_MUSIC].
      */
     @Test
@@ -128,7 +128,7 @@ class MusicRepositoryTest {
     }
 
     /**
-     * Assert that events from [MusicRepository.mediaChanges] are shared
+     * Assert that events from [CachedMusicRepository.mediaChanges] are shared
      * between multiple observers.
      */
     @Test
