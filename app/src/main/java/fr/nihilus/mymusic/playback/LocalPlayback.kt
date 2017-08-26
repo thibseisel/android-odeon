@@ -23,7 +23,6 @@ import fr.nihilus.mymusic.R
 import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
-import javax.inject.Named
 
 private const val TAG = "LocalPlayback"
 
@@ -47,9 +46,7 @@ private const val AUDIO_FOCUSED = 2
  */
 @ServiceScoped
 class LocalPlayback
-@Inject constructor(
-        @Named("Application") private val context: Context
-) : Player.EventListener {
+@Inject constructor(private val context: Context) : Player.EventListener {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)

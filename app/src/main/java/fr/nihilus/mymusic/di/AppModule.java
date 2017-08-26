@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Binds;
@@ -23,7 +22,6 @@ import fr.nihilus.mymusic.media.MusicCache;
 abstract class AppModule {
 
     @Binds
-    @Named("Application")
     abstract Context bindsApplicationContext(@NonNull Application app);
 
     @Provides @Singleton

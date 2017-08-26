@@ -6,6 +6,7 @@ import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import fr.nihilus.mymusic.asMediaDescription
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
@@ -60,7 +61,7 @@ class CachedMusicRepositoryTest {
     }
 
     /**
-     * Assert that [CachedMusicRepository.getMediaChildren] emits a list of media items
+     * Assert that [CachedMusicRepository.getMediaItems] emits a list of media items
      * corresponding to tracks fetched from [MediaStoreMusicDao] when the media ID is [MediaID.ID_MUSIC].
      */
     @Test

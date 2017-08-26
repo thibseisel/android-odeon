@@ -18,7 +18,6 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Named
 import javax.inject.Singleton
 
 private const val TAG = "MediaStoreMusicDao"
@@ -49,7 +48,7 @@ private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ART
  */
 @Singleton
 class MediaStoreMusicDao
-@Inject constructor(@Named("Application") context: Context) : MusicDao {
+@Inject constructor(context: Context) : MusicDao {
     private val resolver: ContentResolver = context.contentResolver
 
     /**

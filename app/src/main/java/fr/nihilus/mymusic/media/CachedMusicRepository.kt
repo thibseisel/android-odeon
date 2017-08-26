@@ -12,8 +12,6 @@ import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "CachedMusicRepository"
-
 /**
  * A Repository that centralize access to media stored on the device.
  * It returns [MediaItem]s depending on a specified parent media ID.

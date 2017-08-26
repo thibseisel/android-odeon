@@ -12,7 +12,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import fr.nihilus.mymusic.di.ActivityScoped;
 import fr.nihilus.mymusic.service.MusicService;
@@ -32,7 +31,7 @@ public class MediaBrowserConnection {
     private Subject<MediaControllerCompat> mControllerSubject;
 
     @Inject
-    public MediaBrowserConnection(@Named("Application") final Context context) {
+    public MediaBrowserConnection(final Context context) {
         mControllerSubject = BehaviorSubject.create();
 
         ComponentName musicServiceComponent = new ComponentName(context, MusicService.class);
