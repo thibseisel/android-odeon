@@ -26,7 +26,7 @@ private const val TAG = "MusicRepository"
  */
 @Singleton
 class MusicRepository
-@Inject constructor(mediaDao: LocalMusicDao, musicCache: LruMusicCache) {
+@Inject constructor(mediaDao: MediaStoreMusicDao, musicCache: LruMusicCache) {
 
     private val mDao = mediaDao
     private val mCache = musicCache

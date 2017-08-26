@@ -25,7 +25,7 @@ import org.mockito.MockitoAnnotations
 @RunWith(AndroidJUnit4::class)
 class MusicRepositoryTest {
 
-    /** A Subject allowing the tester to emulate the emission of new metadata from [LocalMusicDao]. */
+    /** A Subject allowing the tester to emulate the emission of new metadata from [MediaStoreMusicDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
     lateinit var subject: MusicRepository
 
@@ -61,7 +61,7 @@ class MusicRepositoryTest {
 
     /**
      * Assert that [MusicRepository.getMediaChildren] emits a list of media items
-     * corresponding to tracks fetched from [LocalMusicDao] when the media ID is [MediaID.ID_MUSIC].
+     * corresponding to tracks fetched from [MediaStoreMusicDao] when the media ID is [MediaID.ID_MUSIC].
      */
     @Test
     fun mediaItems_allTracks() {
@@ -172,8 +172,8 @@ class MusicRepositoryTest {
         subject.clear()
     }
 
-    private fun provideMockDao(): LocalMusicDao {
-        val mock = mock(LocalMusicDao::class.java)
+    private fun provideMockDao(): MediaStoreMusicDao {
+        val mock = mock(MediaStoreMusicDao::class.java)
         `when`(mock.getAllTracks()).thenReturn(metadataSubject)
         return mock
     }

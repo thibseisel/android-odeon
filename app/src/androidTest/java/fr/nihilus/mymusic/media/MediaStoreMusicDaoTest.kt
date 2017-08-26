@@ -21,9 +21,9 @@ import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class LocalMusicDaoTest {
+class MediaStoreMusicDaoTest {
 
-    private lateinit var subject: LocalMusicDao
+    private lateinit var subject: MediaStoreMusicDao
     private val mockProvider = MockCursorProvider()
     private val mockResolver = MockContentResolver()
 
@@ -33,7 +33,7 @@ class LocalMusicDaoTest {
         `when`<ContentResolver>(context.contentResolver).thenReturn(mockResolver)
         mockResolver.addProvider(MediaStore.AUTHORITY, mockProvider)
 
-        subject = LocalMusicDao(context)
+        subject = MediaStoreMusicDao(context)
     }
 
     @Test

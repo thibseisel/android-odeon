@@ -12,7 +12,6 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
-import fr.nihilus.mymusic.MetadataList
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -22,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
 
-private const val TAG = "LocalMusicDao"
+private const val TAG = "MediaStoreMusicDao"
 private const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
 
 private const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
@@ -45,17 +44,18 @@ private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ART
         Artists.NUMBER_OF_TRACKS)
 
 /**
- *
+ * A music datasource that fetches its items from the Android mediastore.
+ * Items represents files that are stored on the device's external storage.
  */
 @Singleton
-class LocalMusicDao
+class MediaStoreMusicDao
 @Inject constructor(@Named("Application") context: Context) : MusicDao {
     private val resolver: ContentResolver = context.contentResolver
 
     /**
      * Observe changes in [android.provider.MediaStore] and publish updated metadata when a change occur.
      */
-    private val mediaChanges = Observable.create<MetadataList> { emitter ->
+    private val mediaChanges = Observable.create<List<MediaMetadataCompat>> { emitter ->
         val observer = object : ContentObserver(null) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
                 val mediaMetadataList = loadMetadata(null, null, Media.TITLE_KEY)
@@ -82,7 +82,7 @@ class LocalMusicDao
      * When done listening, you should dispose the listener to avoid memory leaks
      * due to observing track changes.
      */
-    override fun getAllTracks(): Observable<MetadataList> {
+    override fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable { loadMetadata(null, null, Media.TITLE_KEY) }
         //.concatWith(mediaChanges)
     }
@@ -302,7 +302,7 @@ class LocalMusicDao
      * @param albumId unique identifier of the album
      * @return track metadatas from this album sorted by track number
      */
-    override fun getAlbumTracks(albumId: String): Observable<MetadataList> {
+    override fun getAlbumTracks(albumId: String): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable {
             loadMetadata(SELECTION_ALBUM_TRACKS, arrayOf(albumId), Media.TRACK)
         }
@@ -313,7 +313,7 @@ class LocalMusicDao
      * @param artistId unique identifier of the artist
      * @return track metadatas from this artist sorted by track name
      */
-    override fun getArtistTracks(artistId: String): Observable<MetadataList> {
+    override fun getArtistTracks(artistId: String): Observable<List<MediaMetadataCompat>> {
         return Observable.fromCallable {
             loadMetadata(SELECTION_ARTIST_TRACKS, arrayOf(artistId), Media.TITLE_KEY)
         }

@@ -2,7 +2,6 @@ package fr.nihilus.mymusic.media
 
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.mymusic.MetadataList
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -91,14 +90,14 @@ interface MusicDao {
      * @param albumId unique identifier of the album
      * @return track metadatas from this album sorted by track number
      */
-    fun getAlbumTracks(albumId: String): Observable<MetadataList>
+    fun getAlbumTracks(albumId: String): Observable<List<MediaMetadataCompat>>
 
     /**
      * Retrieve tracks that are produced by a given artist.
      * @param artistId unique identifier of the artist
      * @return track metadatas from this artist sorted by track name
      */
-    fun getArtistTracks(artistId: String): Observable<MetadataList>
+    fun getArtistTracks(artistId: String): Observable<List<MediaMetadataCompat>>
 
     /**
      * Retrieve albums that are produced by a given artist.
