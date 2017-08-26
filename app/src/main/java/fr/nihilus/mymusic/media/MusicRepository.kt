@@ -7,9 +7,9 @@ import android.support.annotation.VisibleForTesting
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import fr.nihilus.mymusic.utils.MediaID
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
@@ -26,7 +26,7 @@ private const val TAG = "MusicRepository"
  */
 @Singleton
 class MusicRepository
-@Inject internal constructor(mediaDao: MediaDao, musicCache: LruMusicCache) {
+@Inject constructor(mediaDao: MediaDao, musicCache: LruMusicCache) {
 
     private val mDao = mediaDao
     private val mCache = musicCache
@@ -103,13 +103,9 @@ class MusicRepository
     /**
      * @return a single metadata item with the specified musicId
      */
-    open fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
-        val fromCache = Single.fromCallable {
-            mCache.getMetadata(musicId) ?: throw RuntimeException("No metadata with ID $musicId")
-        }
-
-        // TODO Fetch from MediaDao if missing
-        return fromCache
+    fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
+        val fromCache: Maybe<MediaMetadataCompat> = Maybe.fromCallable { mCache.getMetadata(musicId) }
+        return fromCache.concatWith(mDao.getTrack(musicId)).firstOrError()
     }
 
     /**
@@ -119,14 +115,6 @@ class MusicRepository
         Log.d(TAG, "toMediaDescriptions called, list size=${metadataList.size} parentId=$parentId")
         val builder = MediaDescriptionCompat.Builder()
         return metadataList.map { it.asMediaDescription(builder, parentId) }
-    }
-
-    private fun toQueueItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
-            : List<MediaSessionCompat.QueueItem> {
-        val builder = MediaDescriptionCompat.Builder()
-        return metadataList
-                .map { it.asMediaDescription(builder, parentMediaId) }
-                .mapIndexed { index, media -> MediaSessionCompat.QueueItem(media, index.toLong()) }
     }
 
     private fun toMediaItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
@@ -141,12 +129,12 @@ class MusicRepository
      * An Observable that notify observers when a change is detected in the music library.
      * It emits the parent media id of the collection of items that have change.
      *
-     * Clients are then advised to call [getMediaChildren] to fetch up-to-date items.
+     * Clients are then advised to call [getMediaItems] to fetch up-to-date items.
      *
      * When done observing changes, clients __must__ dispose their observers
      * through [Disposable.dispose] to avoid memory leaks.
      */
-    open val mediaChanges: Observable<String> by lazy {
+    val mediaChanges: Observable<String> by lazy {
         // TODO Add any other media that are subject to changes
         metadatas.map { _ -> MediaID.ID_MUSIC }
     }
@@ -154,7 +142,7 @@ class MusicRepository
     /**
      * Release all references to objects loaded by this repository.
      */
-    open fun clear() {
+    fun clear() {
         mCache.clear()
     }
 

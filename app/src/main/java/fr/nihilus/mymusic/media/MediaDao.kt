@@ -16,6 +16,7 @@ import android.util.Log
 import fr.nihilus.mymusic.MetadataList
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import java.io.File
 import javax.inject.Inject
@@ -23,7 +24,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Singleton
-open class MediaDao
+class MediaDao
 @Inject constructor(@Named("Application") context: Context) {
     private val resolver: ContentResolver = context.contentResolver
 
@@ -57,9 +58,17 @@ open class MediaDao
      * When done listening, you should dispose the listener to avoid memory leaks
      * due to observing track changes.
      */
-    open fun getAllTracks(): Observable<MetadataList> {
+    fun getAllTracks(): Observable<MetadataList> {
         return Observable.fromCallable { loadMetadata(null, null, Media.TITLE_KEY) }
                 //.concatWith(mediaChanges)
+    }
+
+    fun getTrack(musicId: String): Maybe<MediaMetadataCompat> {
+        return Maybe.fromCallable {
+            val trackList = loadMetadata(SELECTION_TRACK_BY_ID,
+                    arrayOf(musicId), Media.DEFAULT_SORT_ORDER)
+            if (trackList.isNotEmpty()) trackList[0] else null
+        }
     }
 
     private fun loadMetadata(selection: String?, selectionArgs: Array<String>?,
@@ -135,7 +144,7 @@ open class MediaDao
      *
      * Albums are sorted by name by default.
      */
-    open fun getAlbums(): Observable<List<MediaDescriptionCompat>> {
+    fun getAlbums(): Observable<List<MediaDescriptionCompat>> {
         return Observable.fromCallable {
             val cursor = resolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
                     null, null, Albums.DEFAULT_SORT_ORDER)
@@ -310,10 +319,10 @@ open class MediaDao
      * Delete the track with the specified [trackId] from the device and from the MediaStore.
      * If no track exist with this id, the operation will terminate without an error.
      */
-    fun deleteTrack(trackId: Long): Completable {
+    fun deleteTrack(trackId: String): Completable {
         return Completable.fromAction {
             val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, arrayOf(Media.DATA),
-                    SELECTION_TRACK_BY_ID, arrayOf(trackId.toString()), null)
+                    SELECTION_TRACK_BY_ID, arrayOf(trackId), null)
 
             if (cursor == null || !cursor.moveToFirst()) {
                 Log.w(TAG, "deleteTrack : attempt to delete a non existing track: id = $trackId")
@@ -333,7 +342,7 @@ open class MediaDao
 
             if (file.delete()) {
                 // Delete from MediaStore only if the file has been successfully deleted
-                val deletedUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId)
+                val deletedUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId.toLong())
                 resolver.delete(deletedUri, null, null)
             }
         }
