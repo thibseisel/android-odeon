@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.media
+package fr.nihilus.mymusic.media.repo
 
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat

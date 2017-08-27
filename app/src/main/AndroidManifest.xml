@@ -41,7 +41,7 @@
                 android:resource="@xml/shortcuts"/>
         </activity>
 
-        <!-- Le service de Playback musical est lié à un autre processus. -->
+        <!-- Le service de MusicPlayer musical est lié à un autre processus. -->
         <service
             android:name=".service.MusicService"
             android:enabled="true"

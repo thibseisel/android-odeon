@@ -1,9 +1,11 @@
-package fr.nihilus.mymusic.media
+package fr.nihilus.mymusic.media.repo
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.mymusic.asMediaDescription
+import fr.nihilus.mymusic.media.cache.MusicCache
+import fr.nihilus.mymusic.media.source.MusicDao
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Maybe
 import io.reactivex.Observable

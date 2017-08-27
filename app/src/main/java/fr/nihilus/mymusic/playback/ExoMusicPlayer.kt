@@ -24,7 +24,7 @@ import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.service.MusicService
 import javax.inject.Inject
 
-private const val TAG = "ExoPlayback"
+private const val TAG = "ExoMusicPlayer"
 
 /**
  * The volume level to use when we lose audio focus,
@@ -45,8 +45,8 @@ private const val AUDIO_FOCUSED = 2
  * Perform local media playback using [ExoPlayer].
  */
 @ServiceScoped
-class ExoPlayback
-@Inject constructor(private val context: Context) : Player.EventListener, Playback {
+class ExoMusicPlayer
+@Inject constructor(private val context: Context) : Player.EventListener, MusicPlayer {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -65,7 +65,7 @@ class ExoPlayback
         mDataSourceFactory = DefaultDataSourceFactory(context, userAgent)
     }
 
-    override var callback: Playback.Callback? = null
+    override var callback: MusicPlayer.Callback? = null
 
     /**
      * The ID of the currently playing media.
@@ -108,7 +108,7 @@ class ExoPlayback
      * If the media id of this item is the same as [currentMediaId], then the playback is resumed.
      * Otherwise, the specified [item] will be played instead.
      *
-     * Playback will begin only if the application has audio focus.
+     * MusicPlayer will begin only if the application has audio focus.
      */
     override fun play(item: MediaSessionCompat.QueueItem) {
         mPlayOnFocusGain = true

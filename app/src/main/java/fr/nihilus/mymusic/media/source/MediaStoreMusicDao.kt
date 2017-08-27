@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.media
+package fr.nihilus.mymusic.media.source
 
 import android.content.ContentResolver
 import android.content.ContentUris
@@ -12,6 +12,7 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import fr.nihilus.mymusic.media.MediaItems
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Completable
 import io.reactivex.Maybe

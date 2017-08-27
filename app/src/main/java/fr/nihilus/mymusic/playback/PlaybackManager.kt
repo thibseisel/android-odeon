@@ -22,18 +22,18 @@ class PlaybackManager
 @Inject constructor(
         service: MusicService,
         queueManager: QueueManager,
-        playback: Playback,
+        musicPlayer: MusicPlayer,
         prefs: PreferenceDao
-) : Playback.Callback {
+) : MusicPlayer.Callback {
 
     private val mServiceCallback: ServiceCallback = service
     private val mResources = service.resources
     private val mQueueManager = queueManager
-    private val mPlayback = playback
+    private val mPlayback = musicPlayer
     private val mPrefs = prefs
 
     /**
-     * Initialize the playback manager.
+     * Initialize the musicPlayer manager.
      */
     fun init() {
         mPlayback.callback = this

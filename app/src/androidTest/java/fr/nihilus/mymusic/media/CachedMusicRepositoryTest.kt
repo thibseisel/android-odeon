@@ -7,6 +7,10 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.mymusic.asMediaDescription
+import fr.nihilus.mymusic.media.cache.LruMusicCache
+import fr.nihilus.mymusic.media.repo.CachedMusicRepository
+import fr.nihilus.mymusic.media.source.MediaStoreMusicDao
+import fr.nihilus.mymusic.media.source.MusicDao
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject

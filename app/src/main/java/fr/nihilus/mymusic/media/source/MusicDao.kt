@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.media
+package fr.nihilus.mymusic.media.source
 
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat

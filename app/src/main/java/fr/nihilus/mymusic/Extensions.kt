@@ -6,7 +6,7 @@ import android.provider.MediaStore
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.mymusic.media.MediaItems
-import fr.nihilus.mymusic.media.MusicDao
+import fr.nihilus.mymusic.media.source.MusicDao
 import fr.nihilus.mymusic.utils.MediaID
 
 /**

@@ -72,7 +72,7 @@ class MediaNotificationManager
 
     private fun initNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelName = "Playback control"
+            val channelName = "MusicPlayer control"
             val channel = NotificationChannel(CHANNEL_ID, channelName,
                     NotificationManager.IMPORTANCE_DEFAULT)
             mNotificationManager.createNotificationChannel(channel)

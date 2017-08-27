@@ -4,8 +4,8 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.mymusic.di.ServiceScoped;
-import fr.nihilus.mymusic.playback.ExoPlayback;
-import fr.nihilus.mymusic.playback.Playback;
+import fr.nihilus.mymusic.playback.ExoMusicPlayer;
+import fr.nihilus.mymusic.playback.MusicPlayer;
 
 @Module
 public abstract class MusicServiceModule {
@@ -15,5 +15,5 @@ public abstract class MusicServiceModule {
     abstract MusicService contributeMusicService();
 
     @Binds
-    abstract Playback bindsExoPlayback(ExoPlayback exoPlayback);
+    abstract MusicPlayer bindsExoPlayback(ExoMusicPlayer exoPlayback);
 }

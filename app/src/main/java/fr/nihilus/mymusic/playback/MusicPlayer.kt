@@ -3,7 +3,7 @@ package fr.nihilus.mymusic.playback
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 
-interface Playback {
+interface MusicPlayer {
     var callback: Callback?
 
     /**
@@ -36,7 +36,7 @@ interface Playback {
     fun play(item: MediaSessionCompat.QueueItem)
 
     /**
-     * Pause the media playback.
+     * Pause the player.
      * If you call this method during media buffering,
      * playback will not resume when the loading is complete.
      *
@@ -56,6 +56,9 @@ interface Playback {
      */
     fun stop()
 
+    /**
+     * Propagates events produced by a MusicPlayer instance.
+     */
     interface Callback {
 
         /**

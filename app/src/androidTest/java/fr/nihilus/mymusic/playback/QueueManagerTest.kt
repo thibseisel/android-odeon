@@ -3,7 +3,7 @@ package fr.nihilus.mymusic.playback
 import android.content.res.Resources
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.session.MediaSessionCompat
-import fr.nihilus.mymusic.media.CachedMusicRepository
+import fr.nihilus.mymusic.media.repo.CachedMusicRepository
 import fr.nihilus.mymusic.service.MusicService
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.*

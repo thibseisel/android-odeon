@@ -10,6 +10,7 @@ import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.test.mock.MockContentResolver
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
+import fr.nihilus.mymusic.media.source.MediaStoreMusicDao
 import fr.nihilus.mymusic.utils.MediaID
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat

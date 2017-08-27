@@ -14,7 +14,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import dagger.android.AndroidInjection
 import fr.nihilus.mymusic.HomeActivity
-import fr.nihilus.mymusic.media.MusicRepository
+import fr.nihilus.mymusic.media.repo.MusicRepository
 import fr.nihilus.mymusic.playback.PlaybackManager
 import fr.nihilus.mymusic.playback.QueueManager
 import fr.nihilus.mymusic.utils.MediaID

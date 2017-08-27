@@ -7,7 +7,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import fr.nihilus.mymusic.di.ServiceScoped
-import fr.nihilus.mymusic.media.CachedMusicRepository
+import fr.nihilus.mymusic.media.repo.CachedMusicRepository
 import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable

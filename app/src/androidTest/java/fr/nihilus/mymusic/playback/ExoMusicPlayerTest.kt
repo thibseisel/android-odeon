@@ -12,16 +12,16 @@ import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
 
 @RunWith(AndroidJUnit4::class)
-class ExoPlaybackTest {
+class ExoMusicPlayerTest {
 
     private var context = InstrumentationRegistry.getTargetContext()
 
-    private lateinit var subject: ExoPlayback
+    private lateinit var subject: ExoMusicPlayer
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
-        subject = ExoPlayback(context)
+        subject = ExoMusicPlayer(context)
     }
 
     @Test
