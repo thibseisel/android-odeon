@@ -99,10 +99,10 @@ public final class MediaID {
                     sb.append(CATEGORY_SEPARATOR);
                 }
             }
-        }
 
-        if (musicId != null) {
-            sb.append(LEAF_SEPARATOR).append(musicId);
+            if (musicId != null && categories.length > 0) {
+                sb.append(LEAF_SEPARATOR).append(musicId);
+            }
         }
 
         return sb.toString();

@@ -7,12 +7,14 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import fr.nihilus.mymusic.di.ServiceScoped
-import fr.nihilus.mymusic.media.repo.CachedMusicRepository
+import fr.nihilus.mymusic.media.repo.MusicRepository
 import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.SingleObserver
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
@@ -22,7 +24,7 @@ private const val TAG = "QueueManager"
 class QueueManager
 @Inject constructor(
         service: MusicService,
-        repository: CachedMusicRepository
+        repository: MusicRepository
 ) {
     private val mResources = service.resources
     private val mListener: MetadataUpdateListener = service
@@ -32,12 +34,13 @@ class QueueManager
     private var mCurrentIndex = 0
 
     var randomEnabled: Boolean = false
-        /*set(value) {
+    set(value) {
+        if (field != value) {
             field = value
-            val currentMediaId = if (isIndexPlayable(mCurrentIndex, mPlayingQueue))
-                mPlayingQueue[mCurrentIndex].description.mediaId else null
-            setCurrentQueue("Queue", mPlayingQueue, currentMediaId)
-        }*/
+            val currentMediaId = currentMusic?.description?.mediaId
+            setCurrentQueue(getQueueTitle(currentMediaId), mPlayingQueue, currentMediaId)
+        }
+    }
 
     /**
      * Item in the queue that is currently selected.
@@ -118,19 +121,21 @@ class QueueManager
         val canReuseQueue = isSameBrowsingCategory(mediaId) && setCurrentQueueItem(mediaId)
         if (!canReuseQueue) {
             // TODO Determine queue name from MediaId, get static names from resources
-            val queueTitle = "Playing queue"
+            val queueTitle = getQueueTitle(mediaId)
 
             mRepository.getMediaItems(mediaId).toObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap { Observable.fromIterable(it) }
                     .filter { !it.isBrowsable }
                     .toList()
                     .subscribe { medias: List<MediaBrowserCompat.MediaItem> ->
-                Log.d(TAG, "onReceived queue: $medias")
-                setCurrentQueue(queueTitle, medias.mapIndexed { index, item ->
-                    MediaSessionCompat.QueueItem(item.description, index.toLong())
-                }, mediaId)
-                updateMetadata()
-            }
+                        Log.d(TAG, "items: $medias")
+                        setCurrentQueue(queueTitle, medias.mapIndexed { index, item ->
+                            MediaSessionCompat.QueueItem(item.description, index.toLong())
+                        }, mediaId)
+                        updateMetadata()
+                    }
         }
 
         updateMetadata()
@@ -154,11 +159,19 @@ class QueueManager
         })
     }
 
+    private fun getQueueTitle(mediaId: String?): String {
+        // TODO Retrieve queue title from media id
+        return "Playing queue"
+    }
+
     @VisibleForTesting
     internal fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
                                  initialMediaId: String? = null) {
-        mPlayingQueue.clear()
-        mPlayingQueue.addAll(newQueue)
+        // Clear queue only if its content is not the same
+        if (mPlayingQueue !== newQueue) {
+            mPlayingQueue.clear()
+            mPlayingQueue.addAll(newQueue)
+        }
 
         if (randomEnabled) Collections.shuffle(mPlayingQueue)
         else mPlayingQueue.sortBy { it.queueId }

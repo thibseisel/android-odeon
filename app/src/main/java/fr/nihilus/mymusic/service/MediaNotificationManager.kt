@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.RemoteException
 import android.support.annotation.DrawableRes
 import android.support.v4.app.NotificationCompat
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -21,6 +22,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.mymusic.HomeActivity
 import fr.nihilus.mymusic.R
+import fr.nihilus.mymusic.asMediaDescription
 import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.utils.ResourceHelper
 import javax.inject.Inject
@@ -74,7 +76,7 @@ class MediaNotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelName = "MusicPlayer control"
             val channel = NotificationChannel(CHANNEL_ID, channelName,
-                    NotificationManager.IMPORTANCE_DEFAULT)
+                    NotificationManager.IMPORTANCE_LOW)
             mNotificationManager.createNotificationChannel(channel)
         }
     }
@@ -184,7 +186,7 @@ class MediaNotificationManager
                 mService.getString(R.string.action_next), mNextIntent)
 
         // TODO Maybe replace by the description calculated by CachedMusicRepository
-        val description = mMetadata!!.description
+        val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
 
         // TODO handle album art loading (placeholder used instead)
         val albumArt = BitmapFactory.decodeResource(mService.resources,
@@ -193,10 +195,12 @@ class MediaNotificationManager
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.ic_play_arrow else R.drawable.ic_pause
 
+        // FIXME On API 26, Chronometer is not shown anymore
+
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setShowActionsInCompactView(1)
                 .setMediaSession(mSessionToken))
-                .setColor(mNotificationColor)
+                //.setColor(mNotificationColor)
                 .setSmallIcon(smallIcon)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setUsesChronometer(true)
