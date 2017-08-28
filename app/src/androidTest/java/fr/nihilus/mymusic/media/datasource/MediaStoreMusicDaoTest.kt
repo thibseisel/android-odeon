@@ -1,4 +1,4 @@
-package fr.nihilus.mymusic.media
+package fr.nihilus.mymusic.media.datasource
 
 import android.content.ContentResolver
 import android.content.Context
@@ -9,6 +9,10 @@ import android.provider.MediaStore.Audio.*
 import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.test.mock.MockContentResolver
+import fr.nihilus.mymusic.assertMediaDescription
+import fr.nihilus.mymusic.media.MediaItems
+import fr.nihilus.mymusic.media.artUriOf
+import fr.nihilus.mymusic.media.assertMetadata
 import fr.nihilus.mymusic.media.mock.MockCursorProvider
 import fr.nihilus.mymusic.media.source.MediaStoreMusicDao
 import fr.nihilus.mymusic.utils.MediaID
@@ -17,8 +21,9 @@ import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mock
 import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
+import org.mockito.MockitoAnnotations
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -28,9 +33,11 @@ class MediaStoreMusicDaoTest {
     private val mockProvider = MockCursorProvider()
     private val mockResolver = MockContentResolver()
 
+    @Mock lateinit var context: Context
+
     @Before
     fun setUp() {
-        val context = mock(Context::class.java)
+        MockitoAnnotations.initMocks(this)
         `when`<ContentResolver>(context.contentResolver).thenReturn(mockResolver)
         mockResolver.addProvider(MediaStore.AUTHORITY, mockProvider)
 

@@ -7,7 +7,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.mymusic.asMediaDescription
-import fr.nihilus.mymusic.media.cache.LruMusicCache
+import fr.nihilus.mymusic.media.cache.MusicCache
 import fr.nihilus.mymusic.media.repo.CachedMusicRepository
 import fr.nihilus.mymusic.media.source.MediaStoreMusicDao
 import fr.nihilus.mymusic.media.source.MusicDao
@@ -34,14 +34,14 @@ class CachedMusicRepositoryTest {
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
     lateinit var subject: CachedMusicRepository
 
-    @Mock lateinit var mockCache: LruMusicCache
+    @Mock lateinit var cache: MusicCache
+    @Mock lateinit var dao: MusicDao
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         metadataSubject = PublishSubject.create()
-        val mediaDao = provideMockDao()
-        subject = CachedMusicRepository(mediaDao, mockCache)
+        subject = CachedMusicRepository(dao, cache)
     }
 
     /**

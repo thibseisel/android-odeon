@@ -4,9 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 
 private val descrBuilder = MediaDescriptionCompat.Builder()
@@ -59,23 +57,3 @@ internal fun assertMetadata(meta: MediaMetadataCompat, mediaId: String, title: S
     assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), equalTo(artUri))
 }
 
-/**
- * Assert that the given [android.support.v4.media.MediaBrowserCompat.MediaItem]
- * has the expected mediaId, title, subtitle, icon Uri and extras.
- */
-internal fun assertMediaDescription(descr: MediaDescriptionCompat, mediaId: String?, title: CharSequence?,
-                                   subtitle: CharSequence?, iconUri: Uri?, extras: Map<String, Any>?) {
-    assertThat(descr.mediaId, equalTo(mediaId))
-    assertThat(descr.title, equalTo(title))
-    assertThat(descr.subtitle, equalTo(subtitle))
-    assertThat(descr.iconUri, equalTo(iconUri))
-
-    if (extras != null) {
-        assertThat(descr.extras?.size() ?: 0, `is`(extras.size))
-        for ((key, value) in extras) {
-            assertThat(descr.extras?.get(key), equalTo(value))
-        }
-    } else {
-        assertNull(descr.extras)
-    }
-}
