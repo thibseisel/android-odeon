@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.os.Build
 import android.os.RemoteException
 import android.support.annotation.DrawableRes
@@ -24,7 +23,6 @@ import fr.nihilus.mymusic.HomeActivity
 import fr.nihilus.mymusic.R
 import fr.nihilus.mymusic.asMediaDescription
 import fr.nihilus.mymusic.di.ServiceScoped
-import fr.nihilus.mymusic.utils.ResourceHelper
 import javax.inject.Inject
 
 @ServiceScoped
@@ -38,7 +36,7 @@ class MediaNotificationManager
     private val mPlayIntent: PendingIntent
     private val mPreviousIntent: PendingIntent
     private val mNextIntent: PendingIntent
-    private val mNotificationColor = ResourceHelper.getThemeColor(service, R.attr.colorPrimary, Color.DKGRAY)
+    //private val mNotificationColor = ResourceHelper.getThemeColor(service, R.attr.colorPrimary, Color.DKGRAY)
 
     private var mController: MediaControllerCompat? = null
     private var mTransportControls: MediaControllerCompat.TransportControls? = null
@@ -99,6 +97,7 @@ class MediaNotificationManager
 
     fun startNotification() {
         if (!mStarted) {
+            Log.d(TAG, "startingNotification called")
             mMetadata = mController!!.metadata
             mPlaybackState = mController!!.playbackState
 
@@ -112,6 +111,7 @@ class MediaNotificationManager
                 filter.addAction(ACTION_NEXT)
                 mService.registerReceiver(this, filter)
 
+                Log.d(TAG, "Putting service to foreground state")
                 mService.startForeground(NOTIFICATION_ID, notification)
                 mStarted = true
             }
@@ -195,7 +195,7 @@ class MediaNotificationManager
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.ic_play_arrow else R.drawable.ic_pause
 
-        // FIXME On API 26, Chronometer is not shown anymore
+        // FIXME Chronometer is not shown anymore when playing
 
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setShowActionsInCompactView(1)
@@ -244,7 +244,7 @@ class MediaNotificationManager
                 && mPlaybackState!!.position >= 0) {
             builder.setWhen(System.currentTimeMillis() - mPlaybackState!!.position)
                     .setShowWhen(true)
-                    .setUsesChronometer(false)
+                    .setUsesChronometer(true)
         } else {
             Log.v(TAG, "updateNotificationPlaybackState: hiding playback position")
             builder.setWhen(0)
@@ -258,6 +258,7 @@ class MediaNotificationManager
 
     fun stopNotification() {
         if (mStarted) {
+            Log.d(TAG, "stopNotification called: hiding notification")
             mStarted = false
             mController!!.unregisterCallback(mControllerCallback)
             try {
@@ -266,6 +267,7 @@ class MediaNotificationManager
             } catch (e: IllegalArgumentException) {
                 // Ignore if the receiver is not registered.
             } finally {
+                Log.d(TAG, "Stopping foreground state")
                 mService.stopForeground(true)
             }
         }

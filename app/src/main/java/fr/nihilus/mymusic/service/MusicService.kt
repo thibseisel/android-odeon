@@ -118,6 +118,7 @@ class MusicService : MediaBrowserServiceCompat(),
          * disconnects, otherwise the music playback will stop.
          * Calling startService(Intent) will keep the service running until it is explicitely killed.
          */
+        Log.d(TAG, "Service is now started")
         startService(Intent(applicationContext, MusicService::class.java))
     }
 
@@ -145,6 +146,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onMetadataRetrieveError() {
+        Log.e(TAG, "MetadataRetrieveError")
         mPlaybackManager.updatePlaybackState("No metadata")
     }
 
@@ -169,7 +171,7 @@ private class DelayedStopHandler(service: MusicService) : Handler() {
 
     override fun handleMessage(msg: Message?) {
         mServiceRef.get()?.let {
-            Log.d(TAG, "Stopping service xith delay handler")
+            Log.i(TAG, "Stopping service with delay handler")
             it.stopSelf()
         }
     }

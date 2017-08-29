@@ -83,7 +83,9 @@ class MediaStoreMusicDao
      * due to observing track changes.
      */
     override fun getAllTracks(): Observable<List<MediaMetadataCompat>> {
-        return Observable.fromCallable { loadMetadata(null, null, Media.TITLE_KEY) }
+        return Observable.fromCallable {
+            loadMetadata(null, null, Media.TITLE_KEY)
+        }
         //.concatWith(mediaChanges)
     }
 
