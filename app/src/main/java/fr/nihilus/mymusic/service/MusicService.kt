@@ -127,7 +127,7 @@ class MusicService : MediaBrowserServiceCompat(),
         mSession.isActive = false
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
-        stopForeground(true)
+        stopForeground(false)
     }
 
     override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode shuffleMode: Int) {
