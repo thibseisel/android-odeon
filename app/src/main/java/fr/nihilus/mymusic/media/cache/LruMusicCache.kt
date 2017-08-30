@@ -37,7 +37,7 @@ class LruMusicCache
 
     override fun getMetadata(musicId: String): MediaMetadataCompat? {
         val metadata = mMetadataCache[musicId]
-        Log.d(TAG, "Retrieved from cache: ($musicId) -> $metadata")
+        Log.d(TAG, "Retrieved from cache: ($musicId) -> ${metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
         return metadata
     }
 

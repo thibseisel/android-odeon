@@ -225,6 +225,7 @@ class PlaybackManager
         override fun onSetShuffleMode(shuffleMode: Int) {
             // TODO Modify MediaSession shuffle mode and queue order accordingly
             val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
+            Log.d(TAG, "Should activate shuffle mode ? $shouldShuffle")
             mPrefs.isRandomPlayingEnabled = shouldShuffle
             mQueueManager.randomEnabled = shouldShuffle
             mServiceCallback.onShuffleModeChanged(shuffleMode)

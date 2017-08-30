@@ -12,9 +12,7 @@ import fr.nihilus.mymusic.service.MusicService
 import fr.nihilus.mymusic.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import java.util.*
 import javax.inject.Inject
 
@@ -123,22 +121,25 @@ class QueueManager
             // TODO Determine queue name from MediaId, get static names from resources
             val queueTitle = getQueueTitle(mediaId)
 
+            // When using Schedulers, playback is launched for last played media ID
+            // before the queue is fully loaded.
+            // A solution might be to return a Completable from this method.
+
             mRepository.getMediaItems(mediaId).toObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
                     .flatMap { Observable.fromIterable(it) }
                     .filter { !it.isBrowsable }
                     .toList()
                     .subscribe { medias: List<MediaBrowserCompat.MediaItem> ->
-                        Log.d(TAG, "items: $medias")
+                        Log.d(TAG, "MediaID=$mediaId, size=${medias.size}")
                         setCurrentQueue(queueTitle, medias.mapIndexed { index, item ->
                             MediaSessionCompat.QueueItem(item.description, index.toLong())
                         }, mediaId)
                         updateMetadata()
                     }
+        } else {
+            updateMetadata()
         }
 
-        updateMetadata()
     }
 
     fun updateMetadata() {

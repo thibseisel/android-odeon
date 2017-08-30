@@ -201,6 +201,8 @@ class MediaNotificationManager
                 .setShowActionsInCompactView(1)
                 .setMediaSession(mSessionToken))
                 //.setColor(mNotificationColor)
+                .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setOnlyAlertOnce(true)
                 .setSmallIcon(smallIcon)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setUsesChronometer(true)

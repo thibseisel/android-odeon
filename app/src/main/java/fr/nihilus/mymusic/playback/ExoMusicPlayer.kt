@@ -131,7 +131,6 @@ class ExoMusicPlayer
                         DefaultTrackSelector(),
                         DefaultLoadControl())
                 mExoPlayer!!.addListener(this)
-                mExoPlayer!!.audioStreamType = AudioManager.STREAM_MUSIC
             }
 
             val mediaSource = ExtractorMediaSource(sourceUri, mDataSourceFactory,

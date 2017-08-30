@@ -65,6 +65,7 @@ class MusicService : MediaBrowserServiceCompat(),
     override fun onDestroy() {
         mPlaybackManager.handleStopRequest(null)
         mNotificationManager.stopNotification()
+        Log.i(TAG, "Destroying service.")
         super.onDestroy()
     }
 
@@ -104,7 +105,7 @@ class MusicService : MediaBrowserServiceCompat(),
                         result.sendResult(null)
                     }
                     override fun onSuccess(items: List<MediaItem>) {
-                        Log.d(TAG, "Loaded items for $parentId: ${items.size}")
+                        Log.d(TAG, "Loaded items for $parentId: size=${items.size}")
                         result.sendResult(items)
                     }
                 })
