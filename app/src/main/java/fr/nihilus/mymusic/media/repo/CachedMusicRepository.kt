@@ -15,10 +15,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * A Repository that centralize access to media stored on the device.
- * It returns [MediaItem]s depending on a specified parent media ID.
- * When in use, it is recommanded to listen for the [mediaChanges] property to be notified when
- * a subset of item has changed.
+ * A Music Repository that tries to fetch items and metadata from cache,
+ * and then from the datasource if not available.
  */
 @Singleton
 class CachedMusicRepository
@@ -30,17 +28,17 @@ class CachedMusicRepository
             .doOnNext(this::cacheMetadatas)
             .share()
 
-    /**
-     * Build a set of items suitable for display composed of children of a given Media ID.
-     * The returned [Observable] will emit the requested items or an error if [parentMediaId] is unsupported.
-     * @param parentMediaId the media id that identifies the requested medias
-     * @return an observable list of items suitable for display
-     */
     override fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
         // Get the "true" parent in case the passed media id is a playable item
         val trueParent = MediaID.stripMusicId(parentMediaId)
+
+        val cachedItems = mCache.getItems(trueParent)
+        if (cachedItems.isNotEmpty()) {
+            return Single.just(cachedItems)
+        }
+
         val parentHierarchy = MediaID.getHierarchy(trueParent)
-        return when (parentHierarchy[0]) {
+        val items = when (parentHierarchy[0]) {
             MediaID.ID_MUSIC -> getAllTracks()
             MediaID.ID_ALBUMS -> {
                 if (parentHierarchy.size > 1) getAlbumChildren(parentHierarchy[1])
@@ -52,6 +50,8 @@ class CachedMusicRepository
             }
             else -> Single.error(::UnsupportedOperationException)
         }
+
+        return items.doOnSuccess { mCache.putItems(trueParent, it) }
     }
 
     private fun getAllTracks(): Single<List<MediaItem>> {
@@ -100,23 +100,6 @@ class CachedMusicRepository
         val fromCache: Maybe<MediaMetadataCompat> = Maybe.fromCallable { mCache.getMetadata(musicId) }
         return fromCache.concatWith(mDao.getTrack(musicId)).firstOrError()
     }
-
-    /**
-     * Convert a list of [MediaMetadataCompat]s into a list of [MediaDescriptionCompat]s with the MUSIC media ID.
-     */
-    /*private fun toMediaDescriptions(metadataList: List<MediaMetadataCompat>, parentId: String): List<MediaDescriptionCompat> {
-        Log.d(TAG, "toMediaDescriptions called, list size=${metadataList.size} parentId=$parentId")
-        val builder = MediaDescriptionCompat.Builder()
-        return metadataList.map { it.asMediaDescription(builder, parentId) }
-    }
-
-    private fun toMediaItems(parentMediaId: String, metadataList: List<MediaMetadataCompat>)
-            : List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-        return metadataList
-                .map { it.asMediaDescription(builder, parentMediaId) }
-                .map { description -> MediaItem(description, MediaItem.FLAG_PLAYABLE) }
-    }*/
 
     /**
      * An Observable that notify observers when a change is detected in the music library.
