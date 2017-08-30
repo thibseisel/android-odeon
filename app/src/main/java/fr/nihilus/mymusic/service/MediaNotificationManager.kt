@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.BitmapFactory
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.RemoteException
 import android.support.annotation.DrawableRes
@@ -19,6 +19,9 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.animation.GlideAnimation
+import com.bumptech.glide.request.target.SimpleTarget
 import fr.nihilus.mymusic.HomeActivity
 import fr.nihilus.mymusic.R
 import fr.nihilus.mymusic.asMediaDescription
@@ -36,7 +39,6 @@ class MediaNotificationManager
     private val mPlayIntent: PendingIntent
     private val mPreviousIntent: PendingIntent
     private val mNextIntent: PendingIntent
-    //private val mNotificationColor = ResourceHelper.getThemeColor(service, R.attr.colorPrimary, Color.DKGRAY)
 
     private var mController: MediaControllerCompat? = null
     private var mTransportControls: MediaControllerCompat.TransportControls? = null
@@ -185,22 +187,16 @@ class MediaNotificationManager
         notificationBuilder.addAction(R.drawable.ic_skip_next_24dp,
                 mService.getString(R.string.action_next), mNextIntent)
 
-        // TODO Maybe replace by the description calculated by CachedMusicRepository
         val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
 
-        // TODO handle album art loading (placeholder used instead)
-        val albumArt = BitmapFactory.decodeResource(mService.resources,
-                R.drawable.dummy_album_art)
+
 
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.ic_play_arrow else R.drawable.ic_pause
 
-        // FIXME Chronometer is not shown anymore when playing
-
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setShowActionsInCompactView(1)
                 .setMediaSession(mSessionToken))
-                //.setColor(mNotificationColor)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(smallIcon)
@@ -209,7 +205,18 @@ class MediaNotificationManager
                 .setContentIntent(createContentIntent())
                 .setContentTitle(description.title)
                 .setContentText(description.subtitle)
-                .setLargeIcon(albumArt)
+
+        Glide.with(mService)
+                .load(description.iconUri)
+                .asBitmap()
+                .into(object : SimpleTarget<Bitmap>() {
+                    override fun onResourceReady(art: Bitmap?, anim: GlideAnimation<in Bitmap>?) {
+                        val notif = notificationBuilder.setLargeIcon(art).build()
+                        if (notif != null) {
+                            mNotificationManager.notify(NOTIFICATION_ID, notif)
+                        }
+                    }
+                })
 
         setNotificationPlaybackState(notificationBuilder)
         return notificationBuilder.build()
