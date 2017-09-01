@@ -79,7 +79,8 @@ class MusicService : MediaBrowserServiceCompat(),
             }
         }
 
-        return START_STICKY
+        // FIXME Service may become Sticky if restart does not produce a blocking notification
+        return START_NOT_STICKY
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
@@ -112,7 +113,10 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onPlaybackStart() {
-        mSession.isActive = true
+        if (!mSession.isActive) {
+            mSession.isActive = true
+        }
+
         mDelayedStopHandler.removeCallbacksAndMessages(null)
 
         /* The service must continue running aven after the bound client (usually a MediaController)

@@ -5,6 +5,7 @@ import android.support.annotation.VisibleForTesting
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.mymusic.di.ServiceScoped
 import fr.nihilus.mymusic.media.repo.MusicRepository
@@ -31,14 +32,15 @@ class QueueManager
     private val mPlayingQueue: MutableList<MediaSessionCompat.QueueItem> = ArrayList()
     private var mCurrentIndex = 0
 
-    var randomEnabled: Boolean = false
-    set(value) {
-        if (field != value) {
-            field = value
-            val currentMediaId = currentMusic?.description?.mediaId
-            setCurrentQueue(getQueueTitle(currentMediaId), mPlayingQueue, currentMediaId)
+    @PlaybackStateCompat.ShuffleMode
+    var shuffleMode: Int = PlaybackStateCompat.SHUFFLE_MODE_NONE
+        set(value) {
+            if (field != value) {
+                field = value
+                val currentMediaId = currentMusic?.description?.mediaId
+                setCurrentQueue(getQueueTitle(currentMediaId), mPlayingQueue, currentMediaId)
+            }
         }
-    }
 
     /**
      * Item in the queue that is currently selected.
@@ -174,7 +176,8 @@ class QueueManager
             mPlayingQueue.addAll(newQueue)
         }
 
-        if (randomEnabled) Collections.shuffle(mPlayingQueue)
+        if (shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE)
+            Collections.shuffle(mPlayingQueue)
         else mPlayingQueue.sortBy { it.queueId }
 
         val index = if (initialMediaId != null) musicIndexOnQueue(mPlayingQueue, initialMediaId) else 0

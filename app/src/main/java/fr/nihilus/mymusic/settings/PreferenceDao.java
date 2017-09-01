@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.AppCompatDelegate;
 
 import javax.inject.Inject;
@@ -36,12 +37,13 @@ public class PreferenceDao {
         return Integer.parseInt(nightMode);
     }
 
-    public boolean isRandomPlayingEnabled() {
-        return mPrefs.getBoolean(KEY_RANDOM_PLAYING, false);
+    @PlaybackStateCompat.ShuffleMode
+    public int getShuffleMode() {
+        return mPrefs.getInt(KEY_RANDOM_PLAYING, PlaybackStateCompat.SHUFFLE_MODE_NONE);
     }
 
-    public void setRandomPlayingEnabled(boolean enabled) {
-        mPrefs.edit().putBoolean(KEY_RANDOM_PLAYING, enabled).apply();
+    public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
+        mPrefs.edit().putInt(KEY_RANDOM_PLAYING, shuffleMode).apply();
     }
 
     public long getDailySongId() {
@@ -66,13 +68,5 @@ public class PreferenceDao {
     @Nullable
     public String getLastPlayedMediaId() {
         return mPrefs.getString(KEY_LAST_PLAYED, null);
-    }
-
-    public boolean isDatabaseSetupComplete() {
-        return mPrefs.getBoolean(KEY_DB_SETUP, false);
-    }
-
-    public void setDatabaseSetupComplete(boolean complete) {
-        mPrefs.edit().putBoolean(KEY_DB_SETUP, complete).apply();
     }
 }

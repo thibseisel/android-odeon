@@ -207,8 +207,7 @@ class MediaNotificationManager
                 .setContentText(description.subtitle)
 
         Glide.with(mService)
-                .load(description.iconUri)
-                .asBitmap()
+                .load(description.iconUri).asBitmap()
                 .into(object : SimpleTarget<Bitmap>() {
                     override fun onResourceReady(art: Bitmap?, anim: GlideAnimation<in Bitmap>?) {
                         val notif = notificationBuilder.setLargeIcon(art).build()

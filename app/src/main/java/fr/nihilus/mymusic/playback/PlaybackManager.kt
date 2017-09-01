@@ -38,7 +38,7 @@ class PlaybackManager
     fun init() {
         mPlayer.callback = this
 
-        mQueueManager.randomEnabled = mPrefs.isRandomPlayingEnabled
+        mediaSessionCallback.onSetShuffleMode(mPrefs.shuffleMode)
         mPrefs.lastPlayedMediaId?.let {
             // Recover the queue from the last time it has played
             mQueueManager.loadQueueFromMusic(it)
@@ -223,11 +223,9 @@ class PlaybackManager
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
-            // TODO Modify MediaSession shuffle mode and queue order accordingly
-            val shouldShuffle = shuffleMode != PlaybackStateCompat.SHUFFLE_MODE_NONE
-            Log.d(TAG, "Should activate shuffle mode ? $shouldShuffle")
-            mPrefs.isRandomPlayingEnabled = shouldShuffle
-            mQueueManager.randomEnabled = shouldShuffle
+            Log.d(TAG, "New shuffle mode: $shuffleMode")
+            mPrefs.shuffleMode = shuffleMode
+            mQueueManager.shuffleMode = shuffleMode
             mServiceCallback.onShuffleModeChanged(shuffleMode)
             updatePlaybackState(null)
         }

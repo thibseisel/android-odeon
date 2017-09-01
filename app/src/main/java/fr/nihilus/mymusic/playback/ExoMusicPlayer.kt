@@ -245,8 +245,8 @@ class ExoMusicPlayer
         Log.d(TAG, "releaseResources: releasePlayer = $releasePlayer")
 
         if (releasePlayer && mExoPlayer != null) {
-            mExoPlayer!!.release()
             mExoPlayer!!.removeListener(this)
+            mExoPlayer!!.release()
             mExoPlayer = null
             mPlayerNullIfStopped = true
             mPlayOnFocusGain = false
