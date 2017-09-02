@@ -46,8 +46,7 @@
             android:name=".service.MusicService"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/playback_service_label"
-            android:process=":musicplayer">
+            android:label="@string/playback_service_label">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>

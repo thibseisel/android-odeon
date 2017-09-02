@@ -15,7 +15,7 @@ private const val TAG = "LruMusicCache"
  * but keep all metadata.
  */
 @Singleton
-class LruMusicCache
+internal class LruMusicCache
 @Inject constructor() : MusicCache {
     private val mItemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
     private val mMetadataCache = ArrayMap<String, MediaMetadataCompat>()

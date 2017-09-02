@@ -19,7 +19,7 @@ import javax.inject.Singleton
  * and then from the datasource if not available.
  */
 @Singleton
-class CachedMusicRepository
+internal class CachedMusicRepository
 @Inject constructor(mediaDao: MusicDao, musicCache: MusicCache) : MusicRepository {
 
     private val mDao = mediaDao

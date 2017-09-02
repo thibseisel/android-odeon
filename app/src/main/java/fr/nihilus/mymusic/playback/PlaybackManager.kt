@@ -22,64 +22,64 @@ class PlaybackManager
 @Inject constructor(
         service: MusicService,
         queueManager: QueueManager,
-        musicPlayer: MusicPlayer,
-        prefs: PreferenceDao
+        val musicPlayer: MusicPlayer,
+        val prefs: PreferenceDao
 ) : MusicPlayer.Callback {
 
     private val mServiceCallback: ServiceCallback = service
     private val mResources = service.resources
     private val mQueueManager = queueManager
-    private val mPlayer = musicPlayer
-    private val mPrefs = prefs
 
     /**
      * Initialize the musicPlayer manager.
      */
     fun init() {
-        mPlayer.callback = this
+        musicPlayer.callback = this
 
-        mediaSessionCallback.onSetShuffleMode(mPrefs.shuffleMode)
-        mPrefs.lastPlayedMediaId?.let {
+        mediaSessionCallback.onSetShuffleMode(prefs.shuffleMode)
+        prefs.lastPlayedMediaId?.let {
             // Recover the queue from the last time it has played
             mQueueManager.loadQueueFromMusic(it)
         }
     }
 
     fun handlePlayRequest() {
-        Log.d(TAG, "handlePlayRequest: mState=${mPlayer.state}")
+        Log.d(TAG, "handlePlayRequest: mState=${musicPlayer.state}")
         mQueueManager.currentMusic?.let {
             mServiceCallback.onPlaybackStart()
-            mPlayer.play(it)
-
-            // TODO Save last played mediaId and queue in onStop
-            mPrefs.lastPlayedMediaId = it.description.mediaId
+            musicPlayer.play(it)
         }
     }
 
     fun handlePauseRequest() {
-        Log.d(TAG, "handlePauseRequest: mState=${mPlayer.state}")
-        if (mPlayer.isPlaying) {
-            mPlayer.pause()
+        Log.d(TAG, "handlePauseRequest: mState=${musicPlayer.state}")
+        if (musicPlayer.isPlaying) {
+            musicPlayer.pause()
             mServiceCallback.onPlaybackStop()
         }
     }
 
-    fun handleStopRequest(error: String?) {
-        Log.d(TAG, "handleStopRequest: mState=${mPlayer.state}, error=$error")
-        mPlayer.stop()
+    fun handleStopRequest(withError: String?) {
+        Log.d(TAG, "handleStopRequest: mState=${musicPlayer.state}, withError=$withError")
+
+        mQueueManager.currentMusic?.let {
+            prefs.lastPlayedMediaId = it.description.mediaId
+        }
+
+        musicPlayer.stop()
         mServiceCallback.onPlaybackStop()
-        updatePlaybackState(error)
+        updatePlaybackState(withError)
     }
 
     fun updatePlaybackState(error: String?) {
-        Log.d(TAG, "updatePlaybackState: mState=${mPlayer.state}")
-        val position = mPlayer.currentPosition
+        Log.d(TAG, "updatePlaybackState: mState=${musicPlayer.state}")
+        val position = musicPlayer.currentPosition
 
         val stateBuilder = PlaybackStateCompat.Builder()
         setAvailableActions(stateBuilder)
         setCustomActions(stateBuilder)
 
-        var state = mPlayer.state
+        var state = musicPlayer.state
         if (error != null) {
             stateBuilder.setErrorMessage(PlaybackStateCompat.ERROR_CODE_APP_ERROR, error)
             state = PlaybackStateCompat.STATE_ERROR
@@ -104,11 +104,13 @@ class PlaybackManager
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
                 PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE_ENABLED
 
-        if (mQueueManager.canSkip(-1)) actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-        if (mQueueManager.canSkip(+1)) actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+        if (mQueueManager.canSkip(-1))
+            actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        if (mQueueManager.canSkip(+1))
+            actions = actions or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
 
         // Give opportunity to pause only when playing
-        actions = actions or if (mPlayer.isPlaying)
+        actions = actions or if (musicPlayer.isPlaying)
             PlaybackStateCompat.ACTION_PAUSE
         else PlaybackStateCompat.ACTION_PLAY
 
@@ -125,6 +127,7 @@ class PlaybackManager
             handlePlayRequest()
             mQueueManager.updateMetadata()
         } else {
+            // If skipping was not possible, we stop and release the resources
             handleStopRequest(null)
         }
     }
@@ -148,7 +151,7 @@ class PlaybackManager
         private val mHeadsetButtonRunnable = Runnable {
             if (mHeadsetClickCount == 1) {
                 // Single click: play if paused, or pause if playing.
-                if (!mPlayer.isPlaying) onPlay()
+                if (!musicPlayer.isPlaying) onPlay()
                 else onPause()
                 mHeadsetClickCount = 0
             }
@@ -157,7 +160,9 @@ class PlaybackManager
         override fun onPlay() {
             Log.d(TAG, "onPlay")
             if (mQueueManager.currentMusic == null) {
-                mQueueManager.loadQueueFromMusic(MediaID.ID_MUSIC)
+                Log.d(TAG, "Playing without a queue. Play last played media id")
+                val lastPlayedMediaId = prefs.lastPlayedMediaId ?: MediaID.ID_MUSIC
+                mQueueManager.loadQueueFromMusic(lastPlayedMediaId)
             }
 
             handlePlayRequest()
@@ -171,7 +176,7 @@ class PlaybackManager
 
         override fun onSeekTo(position: Long) {
             Log.d(TAG, "onSeekTo: position=$position")
-            mPlayer.seekTo(position)
+            musicPlayer.seekTo(position)
         }
 
         override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
@@ -193,16 +198,16 @@ class PlaybackManager
         override fun onSkipToPrevious() {
             Log.d(TAG, "onSkipToPrevious")
             if (mQueueManager.skipPosition(-1))
-                if (mPlayer.isPlaying) handlePlayRequest()
-            else handleStopRequest("Cannot skip")
+                if (musicPlayer.isPlaying) handlePlayRequest()
+            else handleStopRequest("Cannot skip to previous")
             mQueueManager.updateMetadata()
         }
 
         override fun onSkipToNext() {
             Log.d(TAG, "onSkipToNext")
             if (mQueueManager.skipPosition(1))
-                if (mPlayer.isPlaying) handlePlayRequest()
-            else handleStopRequest("Cannot skip")
+                if (musicPlayer.isPlaying) handlePlayRequest()
+            else handleStopRequest("Cannot skip to next")
             mQueueManager.updateMetadata()
         }
 
@@ -224,7 +229,7 @@ class PlaybackManager
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             Log.d(TAG, "New shuffle mode: $shuffleMode")
-            mPrefs.shuffleMode = shuffleMode
+            prefs.shuffleMode = shuffleMode
             mQueueManager.shuffleMode = shuffleMode
             mServiceCallback.onShuffleModeChanged(shuffleMode)
             updatePlaybackState(null)

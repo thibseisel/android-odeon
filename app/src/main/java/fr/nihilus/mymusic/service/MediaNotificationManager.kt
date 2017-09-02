@@ -189,8 +189,6 @@ class MediaNotificationManager
 
         val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
 
-
-
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.ic_play_arrow else R.drawable.ic_pause
 

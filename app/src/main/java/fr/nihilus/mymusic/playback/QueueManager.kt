@@ -2,6 +2,7 @@ package fr.nihilus.mymusic.playback
 
 import android.os.Bundle
 import android.support.annotation.VisibleForTesting
+import android.support.v4.math.MathUtils
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -23,11 +24,10 @@ private const val TAG = "QueueManager"
 class QueueManager
 @Inject constructor(
         service: MusicService,
-        repository: MusicRepository
+        private val repository: MusicRepository
 ) {
     private val mResources = service.resources
     private val mListener: MetadataUpdateListener = service
-    private val mRepository = repository
 
     private val mPlayingQueue: MutableList<MediaSessionCompat.QueueItem> = ArrayList()
     private var mCurrentIndex = 0
@@ -47,14 +47,16 @@ class QueueManager
      * When the playback starts or resume, this item will be the one to be played.
      */
     val currentMusic: MediaSessionCompat.QueueItem?
-        get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue)) mPlayingQueue[mCurrentIndex] else null
+        get() = if (isIndexPlayable(mCurrentIndex, mPlayingQueue))
+            mPlayingQueue[mCurrentIndex]
+        else null
 
     /**
      * Indicates if a [mediaId] belongs to the same hierarchy
      * as the one whose items are loaded into the queue.
      */
     @VisibleForTesting
-    fun isSameBrowsingCategory(mediaId: String): Boolean {
+    internal fun isSameBrowsingCategory(mediaId: String): Boolean {
         val newBrowseHierarchy = MediaID.getHierarchy(mediaId)
         val current = currentMusic ?: return false
 
@@ -89,17 +91,22 @@ class QueueManager
     /**
      * Move in the queue relatively to the current position.
      * If the number of steps is negative, then the move is backward.
+     *
+     * If attempted to skip backwards before the first song, then move to the first song.
+     * If attempted to skip forwards after the last song, then move to the last song.
+     *
      * @param steps the number of items to skip, negative is backward, position is forward
      * @return whether the move succeeded
      */
     fun skipPosition(steps: Int): Boolean {
         // TODO Implement cycling capabilities
         var index = mCurrentIndex + steps
-        index = if (index < 0) 0 else index % mPlayingQueue.size
+        index = MathUtils.clamp(index, 0, mPlayingQueue.size)
 
         if (!isIndexPlayable(index, mPlayingQueue)) {
-            Log.e(TAG, "Cannot increment queue index by $steps. Current=$mCurrentIndex, " +
-                    "queue length= ${mPlayingQueue.size}")
+            Log.e(TAG, """Cannot increment queue index by $steps steps.
+                |Current index = $mCurrentIndex, queue length = ${mPlayingQueue.size}
+                |This was never supposed to happen.""".trimMargin())
             return false
         }
 
@@ -118,7 +125,9 @@ class QueueManager
      */
     fun loadQueueFromMusic(mediaId: String) {
         Log.d(TAG, "loadQueueFromMusic: $mediaId")
-        val canReuseQueue = isSameBrowsingCategory(mediaId) && setCurrentQueueItem(mediaId)
+        val canReuseQueue = if (isSameBrowsingCategory(mediaId))
+            setCurrentQueueItem(mediaId) else false
+
         if (!canReuseQueue) {
             // TODO Determine queue name from MediaId, get static names from resources
             val queueTitle = getQueueTitle(mediaId)
@@ -127,7 +136,7 @@ class QueueManager
             // before the queue is fully loaded.
             // A solution might be to return a Completable from this method.
 
-            mRepository.getMediaItems(mediaId).toObservable()
+            repository.getMediaItems(mediaId).toObservable()
                     .flatMap { Observable.fromIterable(it) }
                     .filter { !it.isBrowsable }
                     .toList()
@@ -155,7 +164,7 @@ class QueueManager
                 ?: throw IllegalStateException("Queue item should have a media ID")
 
         // TODO Chain with another Single to load album art if needed
-        mRepository.getMetadata(musicId).subscribe(object : SingleObserver<MediaMetadataCompat> {
+        repository.getMetadata(musicId).subscribe(object : SingleObserver<MediaMetadataCompat> {
             override fun onSubscribe(d: Disposable) {}
             override fun onSuccess(metadata: MediaMetadataCompat) = mListener.onMetadataChanged(metadata)
             override fun onError(e: Throwable) = mListener.onMetadataRetrieveError()

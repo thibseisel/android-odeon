@@ -32,7 +32,7 @@ class CachedMusicRepositoryTest {
 
     /** A Subject allowing the tester to emulate the emission of new metadata from [MediaStoreMusicDao]. */
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
-    lateinit var subject: CachedMusicRepository
+    private lateinit var subject: CachedMusicRepository
 
     @Mock lateinit var cache: MusicCache
     @Mock lateinit var dao: MusicDao

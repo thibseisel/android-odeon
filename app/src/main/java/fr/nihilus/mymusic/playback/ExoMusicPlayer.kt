@@ -45,8 +45,8 @@ private const val AUDIO_FOCUSED = 2
  * Perform local media playback using [ExoPlayer].
  */
 @ServiceScoped
-class ExoMusicPlayer
-@Inject constructor(private val context: Context) : Player.EventListener, MusicPlayer {
+internal class ExoMusicPlayer
+@Inject constructor(private val context: Context) : ExoPlayer.EventListener, MusicPlayer {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -84,9 +84,9 @@ class ExoMusicPlayer
             }
 
             return when (mExoPlayer!!.playbackState) {
-                Player.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
-                Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
-                Player.STATE_READY -> if (mExoPlayer!!.playWhenReady)
+                ExoPlayer.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
+                ExoPlayer.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+                ExoPlayer.STATE_READY -> if (mExoPlayer!!.playWhenReady)
                     PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
                 else -> PlaybackStateCompat.STATE_NONE
             }
@@ -111,6 +111,7 @@ class ExoMusicPlayer
      * MusicPlayer will begin only if the application has audio focus.
      */
     override fun play(item: MediaSessionCompat.QueueItem) {
+        Log.d(TAG, "play called with item: $item")
         mPlayOnFocusGain = true
         tryToGetAudioFocus()
         registerAudioNoisyReceiver()
@@ -167,9 +168,9 @@ class ExoMusicPlayer
      */
     override fun seekTo(position: Long) {
         Log.d(TAG, "seekTo called with $position")
-        mExoPlayer?.let {
+        if (mExoPlayer != null) {
             registerAudioNoisyReceiver()
-            it.seekTo(position)
+            mExoPlayer!!.seekTo(position)
         }
     }
 
@@ -245,8 +246,8 @@ class ExoMusicPlayer
         Log.d(TAG, "releaseResources: releasePlayer = $releasePlayer")
 
         if (releasePlayer && mExoPlayer != null) {
-            mExoPlayer!!.removeListener(this)
             mExoPlayer!!.release()
+            mExoPlayer!!.removeListener(this)
             mExoPlayer = null
             mPlayerNullIfStopped = true
             mPlayOnFocusGain = false
@@ -303,10 +304,11 @@ class ExoMusicPlayer
     }
 
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+        Log.d(TAG, "ExoPlayer new state: $playbackState, playWhenReady: $playWhenReady")
         when (playbackState) {
-            Player.STATE_IDLE, Player.STATE_READY ->
+            ExoPlayer.STATE_IDLE, ExoPlayer.STATE_READY ->
                 callback?.onPlaybackStatusChanged(state)
-            Player.STATE_ENDED -> callback?.onCompletion()
+            ExoPlayer.STATE_ENDED -> callback?.onCompletion()
         }
     }
 
@@ -328,10 +330,6 @@ class ExoMusicPlayer
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
         // Nothing to do.
-    }
-
-    override fun onRepeatModeChanged(repeatMode: Int) {
-        // Nothing to do (for the moment).
     }
 
 }

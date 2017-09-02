@@ -48,7 +48,7 @@ private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ART
  * Items represents files that are stored on the device's external storage.
  */
 @Singleton
-class MediaStoreMusicDao
+internal class MediaStoreMusicDao
 @Inject constructor(context: Context) : MusicDao {
     private val resolver: ContentResolver = context.contentResolver
 
