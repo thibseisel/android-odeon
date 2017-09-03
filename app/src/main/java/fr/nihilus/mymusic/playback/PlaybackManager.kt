@@ -48,6 +48,7 @@ class PlaybackManager
         mQueueManager.currentMusic?.let {
             mServiceCallback.onPlaybackStart()
             musicPlayer.play(it)
+            prefs.lastPlayedMediaId = it.description.mediaId
         }
     }
 
@@ -61,10 +62,6 @@ class PlaybackManager
 
     fun handleStopRequest(withError: String?) {
         Log.d(TAG, "handleStopRequest: mState=${musicPlayer.state}, withError=$withError")
-
-        mQueueManager.currentMusic?.let {
-            prefs.lastPlayedMediaId = it.description.mediaId
-        }
 
         musicPlayer.stop()
         mServiceCallback.onPlaybackStop()
