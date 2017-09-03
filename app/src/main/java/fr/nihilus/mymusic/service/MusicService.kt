@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.support.v4.content.ContextCompat.startForegroundService
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -123,12 +124,12 @@ class MusicService : MediaBrowserServiceCompat(),
         mSession.isActive = true
         mDelayedStopHandler.removeCallbacksAndMessages(null)
 
-        /* The service must continue running aven after the bound client (usually a MediaController)
-         * disconnects, otherwise the music playback will stop.
-         * Calling startService(Intent) will keep the service running until it is explicitely killed.
-         */
+        // The service must continue running even after the bound client (usually a MediaController)
+        // disconnects, otherwise the music playback will stop.
+        // Calling startService(Intent) will keep the service running until it is explicitly killed.
+
         Log.d(TAG, "Service is now started")
-        startService(Intent(applicationContext, MusicService::class.java))
+        startForegroundService(this, Intent(applicationContext, MusicService::class.java))
     }
 
     override fun onPlaybackStop() {
