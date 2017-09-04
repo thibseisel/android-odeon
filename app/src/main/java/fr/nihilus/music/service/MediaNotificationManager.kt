@@ -98,25 +98,23 @@ class MediaNotificationManager
     }
 
     fun startNotification() {
-        if (!mStarted) {
-            Log.d(TAG, "startingNotification called")
-            mMetadata = mController!!.metadata
-            mPlaybackState = mController!!.playbackState
+        Log.d(TAG, "startingNotification called")
+        mMetadata = mController!!.metadata
+        mPlaybackState = mController!!.playbackState
 
-            val notification = createNotification()
-            if (notification != null) {
-                mController!!.registerCallback(mControllerCallback)
-                val filter = IntentFilter()
-                filter.addAction(ACTION_PAUSE)
-                filter.addAction(ACTION_PLAY)
-                filter.addAction(ACTION_PREVIOUS)
-                filter.addAction(ACTION_NEXT)
-                mService.registerReceiver(this, filter)
+        val notification = createNotification()
+        if (notification != null) {
+            mController!!.registerCallback(mControllerCallback)
+            val filter = IntentFilter()
+            filter.addAction(ACTION_PAUSE)
+            filter.addAction(ACTION_PLAY)
+            filter.addAction(ACTION_PREVIOUS)
+            filter.addAction(ACTION_NEXT)
+            mService.registerReceiver(this, filter)
 
-                Log.d(TAG, "Putting service to foreground state")
-                mService.startForeground(NOTIFICATION_ID, notification)
-                mStarted = true
-            }
+            Log.i(TAG, "FOREGROUND: true")
+            mService.startForeground(NOTIFICATION_ID, notification)
+            mStarted = true
         }
     }
 

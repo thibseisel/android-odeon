@@ -320,7 +320,7 @@ internal class ExoMusicPlayer
             else -> "Unknown $error"
         }
 
-        Log.e(TAG, "Exoplayer error: what=$what")
+        Log.e(TAG, "ExoPlayer error: what=$what")
         callback?.onError("ExoPlayer error $what")
     }
 

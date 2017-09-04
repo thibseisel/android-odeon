@@ -61,6 +61,8 @@ class MusicService : MediaBrowserServiceCompat(),
         playbackMgr.updatePlaybackState(null)
 
         notificationMgr.init()
+
+        Log.i(TAG, "Service fully initialized")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -72,6 +74,8 @@ class MusicService : MediaBrowserServiceCompat(),
                 }
             }
         }
+
+        Log.i(TAG, "Service is now started.")
 
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
@@ -128,7 +132,7 @@ class MusicService : MediaBrowserServiceCompat(),
         // disconnects, otherwise the music playback will stop.
         // Calling startService(Intent) will keep the service running until it is explicitly killed.
 
-        Log.d(TAG, "Service is now started")
+        Log.i(TAG, "Starting service to keep it running while playing")
         startForegroundService(this, Intent(applicationContext, MusicService::class.java))
     }
 
@@ -138,6 +142,8 @@ class MusicService : MediaBrowserServiceCompat(),
         // potentially stopping the service.
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
+
+        Log.i(TAG, "FOREGROUND: false")
         stopForeground(false)
     }
 
@@ -146,6 +152,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onNotificationRequired() {
+        Log.i(TAG, "Require a notification")
         notificationMgr.startNotification()
     }
 
