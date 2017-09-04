@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="fr.nihilus.mymusic.ui.albums.AlbumDetailActivity">
+    tools:context="fr.nihilus.music.ui.albums.AlbumDetailActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarLayout"
@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <fr.nihilus.mymusic.view.NestedScrollingLinearLayout
+        <fr.nihilus.music.view.NestedScrollingLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -98,7 +98,7 @@
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
                 tools:listitem="@layout/album_track_item"/>
-        </fr.nihilus.mymusic.view.NestedScrollingLinearLayout>
+        </fr.nihilus.music.view.NestedScrollingLinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
 

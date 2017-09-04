@@ -6,9 +6,9 @@
         android:shortcutId="random"
         android:shortcutShortLabel="@string/random_mix">
         <intent
-            android:action="fr.nihilus.mymusic.ACTION_RANDOM"
-            android:targetClass="fr.nihilus.mymusic.HomeActivity"
-            android:targetPackage="fr.nihilus.mymusic"/>
+            android:action="fr.nihilus.music.ACTION_RANDOM"
+            android:targetClass="fr.nihilus.music.HomeActivity"
+            android:targetPackage="fr.nihilus.music"/>
     </shortcut>
 
     <shortcut
@@ -17,8 +17,8 @@
         android:shortcutId="albums"
         android:shortcutShortLabel="@string/action_albums">
         <intent
-            android:action="fr.nihilus.mymusic.ACTION_ALBUMS"
-            android:targetClass="fr.nihilus.mymusic.HomeActivity"
-            android:targetPackage="fr.nihilus.mymusic"/>
+            android:action="fr.nihilus.music.ACTION_ALBUMS"
+            android:targetClass="fr.nihilus.music.HomeActivity"
+            android:targetPackage="fr.nihilus.music"/>
     </shortcut>
 </shortcuts>

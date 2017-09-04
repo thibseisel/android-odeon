@@ -20,7 +20,7 @@
             android:contentDescription="@string/album_art"
             tools:src="@android:color/black"/>
 
-        <fr.nihilus.mymusic.view.AutoUpdateSeekBar
+        <fr.nihilus.music.view.AutoUpdateSeekBar
             android:id="@+id/progress"
             style="@style/Widget.AppTheme.ProgressBar"
             android:layout_width="match_parent"
