@@ -11,6 +11,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.util.DiffUtil;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -138,7 +139,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
     static class AlbumHolder extends RecyclerView.ViewHolder {
 
-        final View band;
+        final CardView card;
         final ImageView albumArt;
         final TextView title;
         final TextView artist;
@@ -148,7 +149,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
         AlbumHolder(View itemView) {
             super(itemView);
-            band = itemView.findViewById(R.id.band);
+            card = itemView.findViewById(R.id.card);
             albumArt = itemView.findViewById(R.id.cover);
             title = itemView.findViewById(R.id.title);
             artist = itemView.findViewById(R.id.artist);
@@ -156,7 +157,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
         void setColors(@ColorInt int primary, @ColorInt int accent, @ColorInt int title,
                        @ColorInt int body) {
-            this.band.setBackgroundColor(primary);
+            this.card.setCardBackgroundColor(primary);
             this.title.setTextColor(body);
             artist.setTextColor(body);
             colors[0] = primary;
