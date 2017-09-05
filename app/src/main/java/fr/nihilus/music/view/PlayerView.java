@@ -110,7 +110,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         super(context, attrs, defStyleAttr);
         View.inflate(context, R.layout.view_player, this);
 
-        // Make this view apear above AppbarLayout
+        // Make this view appear above AppbarLayout
         ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, 4));
         // Prevent from dispatching touches to the view behind
         setClickable(true);

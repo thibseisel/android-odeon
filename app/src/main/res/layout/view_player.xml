@@ -76,6 +76,7 @@
             android:layout_height="@dimen/playerview_icon_height"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:padding="8dp"
             android:layout_marginBottom="@dimen/play_icon_margin"
             android:layout_marginTop="@dimen/play_icon_margin"
             android:background="?selectableItemBackgroundBorderless"
