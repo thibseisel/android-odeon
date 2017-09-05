@@ -57,6 +57,8 @@ dependencies {
     compile "android.arch.persistence.room:runtime:${archVersion}"
     compile "android.arch.persistence.room:rxjava2:${archVersion}"
 
+    compile "fr.nihilus:recyclerfragment:${recyclerVersion}"
+
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
     annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
     annotationProcessor "android.arch.persistence.room:compiler:${archVersion}"
