@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Base.AppTheme">
         <item name="colorPrimary">@color/mtrl_grey_900</item>
         <item name="colorPrimaryDark">@android:color/background_dark</item>
-        <item name="colorAccent">@color/mtrl_blue_a200</item>
+        <item name="colorAccent">@color/mtrl_deeppurple_300</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark"/>
@@ -19,7 +19,7 @@
     </style>
 
     <style name="AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
-        <!-- colorPrimary, colorAccent... ne sont pas définies pour ce thème -->
+        <!-- colorPrimary, colorAccent... are not defined for this theme -->
         <item name="colorAccent">@color/mtrl_blue_a200</item>
     </style>
 
