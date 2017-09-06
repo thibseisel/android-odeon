@@ -60,5 +60,11 @@
         <item quantity="one">%d song selected</item>
         <item quantity="other">%d songs selected</item>
     </plurals>
+
+    <plurals name="number_of_tracks">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+
     <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
 </resources>

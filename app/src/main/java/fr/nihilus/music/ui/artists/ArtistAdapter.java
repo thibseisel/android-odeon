@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v7.content.res.AppCompatResources;
@@ -22,6 +23,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import java.util.List;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 
@@ -52,6 +54,14 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
         final MediaItem artist = mItems.get(position);
         holder.artistName.setText(artist.getDescription().getTitle());
         mGlide.load(artist.getDescription().getIconUri()).into(holder.cover);
+
+        Bundle extras = artist.getDescription().getExtras();
+        if (extras != null) {
+            int trackCount = extras.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS);
+            String subtitle = holder.subtitle.getResources()
+                    .getQuantityString(R.plurals.number_of_tracks, trackCount, trackCount);
+            holder.subtitle.setText(subtitle);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,11 +106,13 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
     static class ArtistHolder extends RecyclerView.ViewHolder {
         TextView artistName;
+        TextView subtitle;
         ImageView cover;
 
         ArtistHolder(View itemView) {
             super(itemView);
             artistName = itemView.findViewById(R.id.artistName);
+            subtitle = itemView.findViewById(R.id.subtitle);
             cover = itemView.findViewById(R.id.cover);
         }
     }
