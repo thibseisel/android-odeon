@@ -7,17 +7,12 @@ import android.provider.MediaStore.Audio.AlbumColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +24,10 @@ import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.MediaBrowserConnection;
 import fr.nihilus.music.ui.albums.AlbumDetailActivity;
+import fr.nihilus.recyclerfragment.RecyclerFragment;
 
 @ActivityScoped
-public class ArtistDetailFragment extends Fragment
+public class ArtistDetailFragment extends RecyclerFragment
         implements ArtistDetailAdapter.OnMediaItemSelectedListener {
 
     public static final String BACKSTACK_ENTRY = "artist_detail";
@@ -40,10 +36,7 @@ public class ArtistDetailFragment extends Fragment
     private static final String KEY_ARTIST = "artist";
     private static final String KEY_ARTIST_DETAIL = "artist_detail";
 
-    private RecyclerView mRecyclerView;
-    private ContentLoadingProgressBar mProgressBar;
     private MediaItem mPickedArtist;
-    private ArrayList<MediaItem> mItems;
     private ArtistDetailAdapter mAdapter;
 
     @Inject MediaBrowserConnection mBrowserConnection;
@@ -52,10 +45,8 @@ public class ArtistDetailFragment extends Fragment
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items");
-            mItems.clear();
-            mItems.addAll(children);
             mAdapter.updateItems(children);
-            showLoading(false);
+            setRecyclerShown(true);
         }
     };
 
@@ -82,35 +73,21 @@ public class ArtistDetailFragment extends Fragment
             throw new IllegalStateException("Caller must specify the artist to display.");
         }
 
-        if (savedInstanceState != null) {
-            mItems = savedInstanceState.getParcelableArrayList(KEY_ARTIST_DETAIL);
-        } else mItems = new ArrayList<>();
-
-        mAdapter = new ArtistDetailAdapter(getContext(), mItems);
+        mAdapter = new ArtistDetailAdapter(getContext(), new ArrayList<MediaItem>());
         mAdapter.setOnMediaItemSelectedListener(this);
     }
 
-    @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_artist_detail, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mProgressBar = view.findViewById(android.R.id.progress);
-        mRecyclerView = view.findViewById(R.id.recyclerView);
-        mRecyclerView.setAdapter(mAdapter);
 
         final int spanCount = getResources().getInteger(R.integer.artist_grid_span_count);
         GridLayoutManager manager = new GridLayoutManager(getContext(), spanCount);
-        mRecyclerView.setLayoutManager(manager);
+        getRecyclerView().setLayoutManager(manager);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                Bundle extras = mItems.get(position).getDescription().getExtras();
+                Bundle extras = mAdapter.get(position).getDescription().getExtras();
                 if (extras != null) {
                     boolean isAlbum = extras.getString(AlbumColumns.ALBUM_KEY, null) != null;
                     return isAlbum ?  1 : spanCount;
@@ -118,10 +95,12 @@ public class ArtistDetailFragment extends Fragment
                 return 1;
             }
         });
+    }
 
-        if (savedInstanceState == null) {
-            showLoading(true);
-        }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        setAdapter(mAdapter);
     }
 
     @Override
@@ -135,29 +114,6 @@ public class ArtistDetailFragment extends Fragment
     public void onStop() {
         mBrowserConnection.unsubscribe(mPickedArtist.getMediaId());
         super.onStop();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(KEY_ARTIST_DETAIL, mItems);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onDestroyView() {
-        mRecyclerView = null;
-        mProgressBar = null;
-        super.onDestroyView();
-    }
-
-    private void showLoading(boolean shown) {
-        if (shown) {
-            mRecyclerView.setVisibility(View.GONE);
-            mProgressBar.show();
-        } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mProgressBar.hide();
-        }
     }
 
     @Override

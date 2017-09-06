@@ -119,6 +119,10 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mListener = listener;
     }
 
+    MediaItem get(int position) {
+        return mItems.get(position);
+    }
+
     void updateItems(List<MediaItem> newItems) {
         MediaItemDiffCallback callback = new MediaItemDiffCallback(mItems, newItems);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);

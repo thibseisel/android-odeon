@@ -54,6 +54,7 @@
         </activity>
 
         <service
+            android:process=":musicplayer"
             android:name="fr.nihilus.music.service.MusicService"
             android:enabled="true"
             android:exported="false"

@@ -8,8 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,29 +23,23 @@ import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.MediaBrowserConnection;
 import fr.nihilus.music.utils.MediaID;
+import fr.nihilus.recyclerfragment.RecyclerFragment;
 
 @ActivityScoped
-public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistSelectedListener {
+public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.OnArtistSelectedListener {
 
     private static final String TAG = "ArtistsFragment";
-    private static final String KEY_ARTISTS = "Artists";
 
-    private RecyclerView mRecyclerView;
-    private ContentLoadingProgressBar mProgressBar;
-    private View mEmptyView;
-    private ArrayList<MediaItem> mArtists;
     private ArtistAdapter mAdapter;
 
     @Inject MediaBrowserConnection mBrowserConnection;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> artists) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> artists) {
             Log.d(TAG, "onChildrenLoaded: loaded " + artists.size() + " artists.");
-            mArtists.addAll(artists);
             mAdapter.updateArtists(artists);
-            showLoading(false);
-            showEmptyView(artists.isEmpty());
+            setRecyclerShown(true);
         }
     };
 
@@ -60,11 +52,7 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            mArtists = savedInstanceState.getParcelableArrayList(KEY_ARTISTS);
-        } else mArtists = new ArrayList<>();
-        mAdapter = new ArtistAdapter(getContext(), mArtists);
+        mAdapter = new ArtistAdapter(getContext(), new ArrayList<MediaItem>());
         mAdapter.setOnArtistSelectedListener(this);
     }
 
@@ -76,19 +64,6 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mProgressBar = view.findViewById(android.R.id.progress);
-        mEmptyView = view.findViewById(android.R.id.empty);
-        mRecyclerView = view.findViewById(R.id.recyclerView);
-        mRecyclerView.setAdapter(mAdapter);
-
-        if (savedInstanceState == null) {
-            showLoading(true);
-        }
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_artists);
@@ -96,23 +71,19 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        setAdapter(mAdapter);
+        if (savedInstanceState == null) {
+            setRecyclerShown(false);
+        }
+    }
+
+    @Override
     public void onStop() {
         mBrowserConnection.unsubscribe(MediaID.ID_ARTISTS);
         super.onStop();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_ARTISTS, mArtists);
-    }
-
-    @Override
-    public void onDestroyView() {
-        mRecyclerView = null;
-        mEmptyView = null;
-        mProgressBar = null;
-        super.onDestroyView();
     }
 
     @Override
@@ -123,19 +94,5 @@ public class ArtistsFragment extends Fragment implements ArtistAdapter.OnArtistS
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(ArtistDetailFragment.BACKSTACK_ENTRY)
                 .commit();
-    }
-
-    private void showLoading(boolean shown) {
-        if (shown) {
-            mRecyclerView.setVisibility(View.GONE);
-            mProgressBar.show();
-        } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mProgressBar.hide();
-        }
-    }
-
-    private void showEmptyView(boolean shown) {
-        mEmptyView.setVisibility(shown ? View.VISIBLE : View.GONE);
     }
 }
