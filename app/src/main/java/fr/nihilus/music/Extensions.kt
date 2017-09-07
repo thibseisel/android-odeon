@@ -3,8 +3,12 @@ package fr.nihilus.music
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
@@ -39,3 +43,16 @@ fun MediaMetadataCompat.asMediaDescription(
 
     return builder.build()
 }
+
+/**
+ * Inflate the given layout as a child of this view group.
+ *
+ * @receiver the view parent in which inflate this layout
+ * @param resource id for an XML resource to load
+ * @param attach whether the inflated layout should be attached to this view group.
+ * If false, the view group will be used to create the correct layout params.
+ * @return the root view of the inflated hierarchy. If [attach] is `true`,
+ * this will be this view group, otherwise the root of the inflated XML file.
+ */
+fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
+        LayoutInflater.from(context).inflate(resource, this, attach)

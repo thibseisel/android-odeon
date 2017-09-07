@@ -76,7 +76,7 @@ public class HomeActivity extends AppCompatActivity
      */
     private final SubscriptionCallback mDailySubscription = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             if (children.size() > 0) {
                 mDaily = children.get(0);
                 prepareHeaderView(mDaily);
