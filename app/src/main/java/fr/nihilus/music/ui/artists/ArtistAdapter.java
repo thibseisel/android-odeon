@@ -1,11 +1,11 @@
 package fr.nihilus.music.ui.artists;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v7.content.res.AppCompatResources;
 import android.support.v7.util.DiffUtil;
@@ -20,23 +20,29 @@ import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
-    private List<MediaItem> mItems;
+    private final List<MediaItem> mItems = new ArrayList<>();
     private final BitmapRequestBuilder<Uri, Bitmap> mGlide;
     private OnArtistSelectedListener mListener;
 
-    ArtistAdapter(@NonNull Context context, List<MediaItem> artists) {
-        mItems = artists;
-        Drawable dummyCover = AppCompatResources.getDrawable(context, R.drawable.ic_person_24dp);
-        mGlide = Glide.with(context).fromUri().asBitmap()
+    ArtistAdapter(@NonNull Fragment fragment) {
+        Drawable dummyCover = AppCompatResources.getDrawable(fragment.getContext(),
+                R.drawable.ic_person_24dp);
+        mGlide = Glide.with(fragment).fromUri().asBitmap()
                 .error(dummyCover)
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
@@ -74,17 +80,17 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
     }
 
     @Override
-    public int getItemCount() {
-        return mItems != null ? mItems.size() : 0;
-    }
-
-    @Override
     public long getItemId(int position) {
         if (mItems != null && hasStableIds()) {
             String mediaId = mItems.get(position).getMediaId();
             return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
         return RecyclerView.NO_ID;
+    }
+
+    @Override
+    public int getItemCount() {
+        return mItems != null ? mItems.size() : 0;
     }
 
     @Override
@@ -97,11 +103,27 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
         mListener = listener;
     }
 
-    void updateArtists(List<MediaItem> artists) {
-        MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, artists);
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
-        mItems = artists;
-        result.dispatchUpdatesTo(this);
+    void updateArtists(final List<MediaItem> artists) {
+        Single.fromCallable(new Callable<DiffUtil.DiffResult>() {
+            @Override
+            public DiffUtil.DiffResult call() throws Exception {
+                MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, artists);
+                return DiffUtil.calculateDiff(diffCallback, false);
+            }
+        }).subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<DiffUtil.DiffResult>() {
+                    @Override
+                    public void accept(DiffUtil.DiffResult result) throws Exception {
+                        mItems.clear();
+                        mItems.addAll(artists);
+                        result.dispatchUpdatesTo(ArtistAdapter.this);
+                    }
+                });
+    }
+
+    interface OnArtistSelectedListener {
+        void onArtistSelected(ArtistHolder holder, MediaItem artist);
     }
 
     static class ArtistHolder extends RecyclerView.ViewHolder {
@@ -115,9 +137,5 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
             subtitle = itemView.findViewById(R.id.subtitle);
             cover = itemView.findViewById(R.id.cover);
         }
-    }
-
-    interface OnArtistSelectedListener {
-        void onArtistSelected(ArtistHolder holder, MediaItem artist);
     }
 }

@@ -21,7 +21,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,7 +42,6 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         implements AdapterView.OnItemClickListener, View.OnClickListener {
 
     private static final String TAG = "NewPlaylistFragment";
-    private static final String KEY_SONGS = "songs";
     private static final String ARG_SONGS_IDS = "song_ids";
 
     private TextInputLayout mTitleLayout;
@@ -53,7 +51,6 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private Button mValidateButton;
 
     private SongAdapter mAdapter;
-    private ArrayList<MediaItem> mSongs;
 
     @Inject MediaBrowserConnection mBrowserConnection;
     @Inject PlaylistRepository mRepo;
@@ -61,8 +58,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
-            mSongs.addAll(children);
-            mAdapter.notifyDataSetChanged();
+            mAdapter.updateItems(children);
 
             // In case we have provided song ids as arguments
             Bundle args = getArguments();
@@ -110,11 +106,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            mSongs = savedInstanceState.getParcelableArrayList(KEY_SONGS);
-        } else mSongs = new ArrayList<>();
-
-        mAdapter = new SongAdapter(getContext(), mSongs);
+        mAdapter = new SongAdapter(this);
         setStyle(AppCompatDialogFragment.STYLE_NO_TITLE, R.style.AppTheme_DialogWhenLarge);
     }
 
@@ -128,12 +120,6 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     public void onStop() {
         mBrowserConnection.unsubscribe(MediaID.ID_MUSIC);
         super.onStop();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_SONGS, mSongs);
     }
 
     @Override

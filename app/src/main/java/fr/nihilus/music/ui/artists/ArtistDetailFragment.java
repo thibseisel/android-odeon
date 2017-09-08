@@ -14,7 +14,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -73,7 +72,7 @@ public class ArtistDetailFragment extends RecyclerFragment
             throw new IllegalStateException("Caller must specify the artist to display.");
         }
 
-        mAdapter = new ArtistDetailAdapter(getContext(), new ArrayList<MediaItem>());
+        mAdapter = new ArtistDetailAdapter(this);
         mAdapter.setOnMediaItemSelectedListener(this);
     }
 

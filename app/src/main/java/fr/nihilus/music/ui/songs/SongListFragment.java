@@ -28,7 +28,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -48,7 +47,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     private static final String KEY_SONGS = "MediaItems";
     private static final String KEY_SCROLL = "ScrollY";
 
-    private ArrayList<MediaItem> mSongs;
     private ListView mListView;
     private View mListContainer;
     private SongAdapter mAdapter;
@@ -60,10 +58,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> items) {
             Log.d(TAG, "onChildrenLoaded: loaded " + items.size() + " from " + parentId);
-            mSongs.clear();
-            mSongs.addAll(items);
-            mAdapter.notifyDataSetChanged();
-
+            mAdapter.updateItems(items);
             mProgressBar.hide();
             mListContainer.setVisibility(View.VISIBLE);
         }
@@ -79,11 +74,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        if (savedInstanceState != null) {
-            mSongs = savedInstanceState.getParcelableArrayList(KEY_SONGS);
-        } else mSongs = new ArrayList<>();
-        mAdapter = new SongAdapter(getContext(), mSongs);
+        mAdapter = new SongAdapter(this);
     }
 
     @Override
@@ -117,12 +108,13 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         mProgressBar = view.findViewById(android.R.id.progress);
 
+        mListContainer.setVisibility(View.GONE);
         if (savedInstanceState == null) {
-            mListContainer.setVisibility(View.GONE);
             mProgressBar.show();
         } else {
             mListView.setSelectionFromTop(savedInstanceState.getInt(KEY_SCROLL), 0);
         }
+
     }
 
     @Override
@@ -134,7 +126,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(KEY_SONGS, mSongs);
         outState.putInt(KEY_SCROLL, mListView.getFirstVisiblePosition());
         super.onSaveInstanceState(outState);
     }
@@ -189,7 +180,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         for (int i = 0; i < checked.size(); i++) {
             if (checked.valueAt(i)) {
                 int pos = checked.keyAt(i);
-                toDelete[index++] = mSongs.get(pos - 1);
+                toDelete[index++] = mAdapter.getItem(pos - 1);
             }
         }
         ConfirmDeleteDialog dialog = ConfirmDeleteDialog.newInstance(toDelete);

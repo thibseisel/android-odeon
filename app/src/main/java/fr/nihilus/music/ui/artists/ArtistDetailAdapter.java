@@ -8,6 +8,7 @@ import android.provider.MediaStore.Audio.AlbumColumns;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -28,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
@@ -44,20 +46,21 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private final BitmapRequestBuilder<Uri, PaletteBitmap> mGlide;
     private final int[] mDefaultColors;
-    private List<MediaItem> mItems;
+    private final List<MediaItem> mItems = new ArrayList<>();
     private OnMediaItemSelectedListener mListener;
 
-    ArtistDetailAdapter(@NonNull Context context, List<MediaItem> items) {
-        mItems = items;
+    ArtistDetailAdapter(@NonNull Fragment fragment) {
+        Context ctx = fragment.getContext();
         mDefaultColors = new int[]{
-                ContextCompat.getColor(context, R.color.album_band_default),
-                ViewUtils.resolveThemeColor(context, R.attr.colorAccent),
-                ContextCompat.getColor(context, android.R.color.white),
-                ContextCompat.getColor(context, android.R.color.white)
+                ContextCompat.getColor(ctx, R.color.album_band_default),
+                ViewUtils.resolveThemeColor(ctx, R.attr.colorAccent),
+                ContextCompat.getColor(ctx, android.R.color.white),
+                ContextCompat.getColor(ctx, android.R.color.white)
         };
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp);
-        mGlide = Glide.with(context).fromUri().asBitmap()
-                .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
+
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
+        mGlide = Glide.with(fragment).fromUri().asBitmap()
+                .transcode(new BottomPaletteTranscoder(ctx), PaletteBitmap.class)
                 .centerCrop()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
@@ -96,7 +99,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public long getItemId(int position) {
-        if (hasStableIds() && mItems != null) {
+        if (hasStableIds()) {
             String mediaId = mItems.get(position).getMediaId();
             return mediaId.hashCode();
         }
@@ -105,7 +108,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mItems != null ? mItems.size() : 0;
+        return mItems.size();
     }
 
     @Override
@@ -127,7 +130,8 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     void updateItems(List<MediaItem> newItems) {
         MediaItemDiffCallback callback = new MediaItemDiffCallback(mItems, newItems);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
-        mItems = newItems;
+        mItems.clear();
+        mItems.addAll(newItems);
         result.dispatchUpdatesTo(this);
     }
 

@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -52,7 +51,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAdapter = new ArtistAdapter(getContext(), new ArrayList<MediaItem>());
+        mAdapter = new ArtistAdapter(this);
         mAdapter.setOnArtistSelectedListener(this);
     }
 

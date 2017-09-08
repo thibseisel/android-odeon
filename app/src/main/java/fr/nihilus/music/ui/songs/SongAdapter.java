@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -23,6 +24,7 @@ import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
@@ -35,14 +37,15 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     private final BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
     private final MediaItemIndexer mIndexer;
-    private List<MediaBrowserCompat.MediaItem> mSongs;
+    private final List<MediaBrowserCompat.MediaItem> mSongs = new ArrayList<>();
 
-    public SongAdapter(@NonNull Context context, List<MediaBrowserCompat.MediaItem> songs) {
-        mSongs = songs;
-        mIndexer = new MediaItemIndexer(songs);
+    public SongAdapter(@NonNull Fragment fragment) {
+        mIndexer = new MediaItemIndexer(mSongs);
         registerDataSetObserver(mIndexer);
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp);
-        mGlideRequest = Glide.with(context)
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(fragment.getContext(),
+                R.drawable.ic_audiotrack_24dp);
+
+        mGlideRequest = Glide.with(fragment)
                 .fromUri()
                 .asBitmap()
                 .error(dummyAlbumArt)
@@ -52,17 +55,17 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     @Override
     public int getCount() {
-        return mSongs != null ? mSongs.size() : 0;
+        return mSongs.size();
     }
 
     @Override
     public MediaBrowserCompat.MediaItem getItem(int pos) {
-        return mSongs != null ? mSongs.get(pos) : null;
+        return mSongs.get(pos);
     }
 
     @Override
     public long getItemId(int pos) {
-        if (hasStableIds() && mSongs != null) {
+        if (hasStableIds()) {
             String mediaId = mSongs.get(pos).getMediaId();
             return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
@@ -110,6 +113,12 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     @Override
     public int getSectionForPosition(int position) {
         return mIndexer.getSectionForPosition(position);
+    }
+
+    public void updateItems(final List<MediaBrowserCompat.MediaItem> newItems) {
+        mSongs.clear();
+        mSongs.addAll(newItems);
+        notifyDataSetChanged();
     }
 
     private static class ViewHolder {
