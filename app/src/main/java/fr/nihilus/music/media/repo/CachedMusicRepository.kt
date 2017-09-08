@@ -3,10 +3,13 @@ package fr.nihilus.music.media.repo
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Log
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
+import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -20,10 +23,12 @@ import javax.inject.Singleton
  */
 @Singleton
 internal class CachedMusicRepository
-@Inject constructor(mediaDao: MusicDao, musicCache: MusicCache) : MusicRepository {
+@Inject constructor(
+        private val mediaDao: MusicDao,
+        private val musicCache: MusicCache,
+        private val playlistDao: PlaylistDao
+) : MusicRepository {
 
-    private val mDao = mediaDao
-    private val mCache = musicCache
     private val metadatas = mediaDao.getAllTracks()
             .doOnNext(this::cacheMetadatas)
             .share()
@@ -32,7 +37,7 @@ internal class CachedMusicRepository
         // Get the "true" parent in case the passed media id is a playable item
         val trueParent = MediaID.stripMusicId(parentMediaId)
 
-        val cachedItems = mCache.getItems(trueParent)
+        val cachedItems = musicCache.getItems(trueParent)
         if (cachedItems.isNotEmpty()) {
             return Single.just(cachedItems)
         }
@@ -48,10 +53,14 @@ internal class CachedMusicRepository
                 if (parentHierarchy.size > 1) getArtistChildren(parentHierarchy[1])
                 else getArtists()
             }
+            MediaID.ID_PLAYLISTS -> {
+                if (parentHierarchy.size > 1) getPlaylistMembers(parentHierarchy[1])
+                else getPlaylists()
+            }
             else -> Single.error(::UnsupportedOperationException)
         }
 
-        return items.doOnSuccess { mCache.putItems(trueParent, it) }
+        return items.doOnSuccess { musicCache.putItems(trueParent, it) }
     }
 
     private fun getAllTracks(): Single<List<MediaItem>> {
@@ -64,14 +73,14 @@ internal class CachedMusicRepository
     }
 
     private fun getAlbums(): Single<List<MediaItem>> {
-        return mDao.getAlbums().flatMap { Observable.fromIterable(it) }
+        return mediaDao.getAlbums().flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }
 
     private fun getAlbumChildren(albumId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return mDao.getAlbumTracks(albumId)
+        return mediaDao.getAlbumTracks(albumId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
@@ -80,10 +89,10 @@ internal class CachedMusicRepository
 
     private fun getArtistChildren(artistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        val albums = mDao.getArtistAlbums(artistId)
+        val albums = mediaDao.getArtistAlbums(artistId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
-        val tracks = mDao.getArtistTracks(artistId)
+        val tracks = mediaDao.getArtistTracks(artistId)
                 .flatMap { Observable.fromIterable(it) }
                 .map { it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
@@ -91,14 +100,37 @@ internal class CachedMusicRepository
     }
 
     private fun getArtists(): Single<List<MediaItem>> {
-        return mDao.getArtists().flatMap { Observable.fromIterable(it) }
+        return mediaDao.getArtists().flatMap { Observable.fromIterable(it) }
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }
 
+    private fun getPlaylists(): Single<List<MediaItem>> {
+        val builder = MediaDescriptionCompat.Builder()
+        return playlistDao.playlists
+                .doOnNext { Log.d("Repository", "Retrieved playlist: size = ${it.size}") }
+                .single(emptyList())
+                .flatMapObservable { Observable.fromIterable(it) }
+                .doOnNext { Log.d("Repository", "Playlist item: $it") }
+                .map { it.asMediaDescription(builder) }
+                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
+                .toList()
+    }
+
+    private fun getPlaylistMembers(playlistId: String): Single<List<MediaItem>> {
+        val builder = MediaDescriptionCompat.Builder()
+        return playlistDao.getPlaylistTracks(playlistId.toLong())
+                .take(1)
+                .flatMap { Flowable.fromIterable(it) }
+                .flatMapSingle { getMetadata(it.musicId.toString()) }
+                .map { it.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId) }
+                .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
+                .toList()
+    }
+
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
-        val fromCache: Maybe<MediaMetadataCompat> = Maybe.fromCallable { mCache.getMetadata(musicId) }
-        return fromCache.concatWith(mDao.getTrack(musicId)).firstOrError()
+        val fromusicCache: Maybe<MediaMetadataCompat> = Maybe.fromCallable { musicCache.getMetadata(musicId) }
+        return fromusicCache.concatWith(mediaDao.getTrack(musicId)).firstOrError()
     }
 
     /**
@@ -116,13 +148,13 @@ internal class CachedMusicRepository
     }
 
     override fun clear() {
-        mCache.clear()
+        musicCache.clear()
     }
 
     private fun cacheMetadatas(metadataList: List<MediaMetadataCompat>) {
         for (meta in metadataList) {
             val musicId = meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-            mCache.putMetadata(musicId, meta)
+            musicCache.putMetadata(musicId, meta)
         }
     }
 }

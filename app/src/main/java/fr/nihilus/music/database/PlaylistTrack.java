@@ -11,7 +11,7 @@ import android.arch.persistence.room.ForeignKey;
  * This object can be associated only to one playlist.
  * To feature the same track in multiple playlists you have to define multiple instances.
  */
-@Entity(tableName = "playlist_tracks", primaryKeys = {"music_id", "playlist_id"})
+@Entity(tableName = "playlist_track", primaryKeys = {"music_id", "playlist_id"})
 @ForeignKey(entity = Playlist.class, onDelete = ForeignKey.CASCADE,
         childColumns = "playlist_id", parentColumns = "id")
 public class PlaylistTrack {

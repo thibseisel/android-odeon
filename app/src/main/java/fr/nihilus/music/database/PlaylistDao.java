@@ -15,24 +15,27 @@ import io.reactivex.Flowable;
 public interface PlaylistDao {
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    public Flowable<List<Playlist>> getPlaylists();
+    Flowable<List<Playlist>> getPlaylists();
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    public Flowable<List<PlaylistWithTracks>> getPlaylistsWithTracks();
+    Flowable<List<PlaylistWithTracks>> getPlaylistsWithTracks();
+
+    @Query("SELECT * FROM playlist_track WHERE playlist_id = :id ORDER BY position ASC")
+    Flowable<List<PlaylistTrack>> getPlaylistTracks(long id);
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.FAIL)
-    public Long savePlaylist(Playlist playlist);
+    Long savePlaylist(Playlist playlist);
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    public void addTracks(Iterable<PlaylistTrack> tracks);
+    void addTracks(Iterable<PlaylistTrack> tracks);
 
     @WorkerThread
     @Delete
-    public void deletePlaylists(Playlist... playlists);
+    void deletePlaylists(Playlist... playlists);
 
     @WorkerThread
     @Delete
-    public void deleteTracks(PlaylistTrack... tracks);
+    void deleteTracks(PlaylistTrack... tracks);
 }

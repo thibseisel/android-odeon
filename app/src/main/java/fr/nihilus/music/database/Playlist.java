@@ -6,8 +6,11 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.v4.media.MediaDescriptionCompat;
 
 import java.util.Date;
+
+import fr.nihilus.music.utils.MediaID;
 
 /**
  * A class that groups informations associated with a playlist.
@@ -109,5 +112,13 @@ public class Playlist {
      */
     public void setArtUri(Uri artUri) {
         this.artUri = artUri;
+    }
+
+    public MediaDescriptionCompat asMediaDescription(MediaDescriptionCompat.Builder builder) {
+        String mediaId = MediaID.createMediaID(null, MediaID.ID_PLAYLISTS, id.toString());
+        return builder.setMediaId(mediaId)
+                .setTitle(title)
+                .setIconUri(artUri)
+                .build();
     }
 }
