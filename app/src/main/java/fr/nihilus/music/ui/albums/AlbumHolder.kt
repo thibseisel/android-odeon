@@ -1,7 +1,7 @@
 package fr.nihilus.music.ui.albums
 
+import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,12 +9,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
+import fr.nihilus.music.inflate
 import fr.nihilus.music.palette.BottomPaletteTranscoder
 import fr.nihilus.music.palette.PaletteBitmap
 import fr.nihilus.music.ui.MediaItemHolder
 
-class AlbumHolder(parent: ViewGroup) : MediaItemHolder(LayoutInflater.from(parent.context)
-        .inflate(R.layout.album_grid_item, parent, false)) {
+class AlbumHolder(fragment: Fragment, parent: ViewGroup)
+    : MediaItemHolder(fragment, parent.inflate(R.layout.album_grid_item)) {
 
     private val albumArt = itemView.findViewById<ImageView>(R.id.cover)
     private val band = itemView.findViewById<ViewGroup>(R.id.band)
@@ -25,9 +26,8 @@ class AlbumHolder(parent: ViewGroup) : MediaItemHolder(LayoutInflater.from(paren
         title.text = item.description.title
         artist.text = item.description.subtitle
 
-        // TODO Use Fragment instead of context to bind images to the correct lifecycle
-        // Might also inject a request builder loaded with Fragment's context
-        Glide.with(itemView.context)
+        // TODO Might have passed a request builder loaded with Fragment's context
+        Glide.with(fragment)
                 .load(item.description.iconUri).asBitmap()
                 .transcode(BottomPaletteTranscoder(itemView.context), PaletteBitmap::class.java)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)

@@ -26,6 +26,7 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.palette.BottomPaletteTranscoder;
@@ -33,6 +34,10 @@ import fr.nihilus.music.palette.PaletteBitmap;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
@@ -41,11 +46,10 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     @ColorInt
     private final int[] mDefaultColors;
     private final BitmapRequestBuilder<Uri, PaletteBitmap> mGlideRequest;
-    private List<MediaItem> mAlbums;
+    private final List<MediaItem> mAlbums = new ArrayList<>();
     private OnAlbumSelectedListener mListener;
 
-    AlbumsAdapter(@NonNull Context context, @NonNull ArrayList<MediaItem> items) {
-        mAlbums = items;
+    AlbumsAdapter(@NonNull Context context) {
         mDefaultColors = new int[]{
                 ContextCompat.getColor(context, R.color.album_band_default),
                 ViewUtils.resolveThemeColor(context, R.attr.colorAccent),
@@ -102,17 +106,6 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     }
 
     @Override
-    public void onViewRecycled(AlbumHolder holder) {
-        super.onViewRecycled(holder);
-        Glide.clear(holder.albumArt);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mAlbums != null ? mAlbums.size() : 0;
-    }
-
-    @Override
     public long getItemId(int position) {
         if (hasStableIds() && mAlbums != null) {
             final MediaItem item = mAlbums.get(position);
@@ -121,16 +114,39 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
         return RecyclerView.NO_ID;
     }
 
+    @Override
+    public int getItemCount() {
+        return mAlbums != null ? mAlbums.size() : 0;
+    }
+
+    @Override
+    public void onViewRecycled(AlbumHolder holder) {
+        super.onViewRecycled(holder);
+        Glide.clear(holder.albumArt);
+    }
+
     void setOnAlbumSelectedListener(OnAlbumSelectedListener listener) {
         mListener = listener;
     }
 
-    void updateAlbums(List<MediaItem> newAlbums) {
-        MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
-        DiffUtil.DiffResult diff = DiffUtil.calculateDiff(callback, false);
-        mAlbums.clear();
-        mAlbums.addAll(newAlbums);
-        diff.dispatchUpdatesTo(this);
+    void updateAlbums(final List<MediaItem> newAlbums) {
+        Single.fromCallable(new Callable<DiffUtil.DiffResult>() {
+            @Override
+            public DiffUtil.DiffResult call() throws Exception {
+                MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
+                return DiffUtil.calculateDiff(callback, false);
+            }
+        })
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<DiffUtil.DiffResult>() {
+                    @Override
+                    public void accept(DiffUtil.DiffResult result) throws Exception {
+                        mAlbums.clear();
+                        mAlbums.addAll(newAlbums);
+                        result.dispatchUpdatesTo(AlbumsAdapter.this);
+                    }
+                });
     }
 
     interface OnAlbumSelectedListener {

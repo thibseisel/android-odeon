@@ -83,6 +83,7 @@ public class ArtistDetailFragment extends RecyclerFragment
 
         final int spanCount = getResources().getInteger(R.integer.artist_grid_span_count);
         GridLayoutManager manager = new GridLayoutManager(getContext(), spanCount);
+        getRecyclerView().setHasFixedSize(true);
         getRecyclerView().setLayoutManager(manager);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override

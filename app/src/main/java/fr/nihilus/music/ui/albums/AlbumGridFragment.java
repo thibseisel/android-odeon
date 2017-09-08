@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -54,7 +53,7 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new AlbumsAdapter(getContext(), new ArrayList<MediaItem>());
+        mAdapter = new AlbumsAdapter(getContext());
         mAdapter.setOnAlbumSelectedListener(this);
     }
 
@@ -66,11 +65,9 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        getActivity().setTitle(R.string.action_albums);
-        mBrowserConnection.subscribe(MediaID.ID_ALBUMS, mCallback);
-        Log.d(TAG, "Subscribed, waiting for items...");
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getRecyclerView().setHasFixedSize(true);
     }
 
     @Override
@@ -82,6 +79,14 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
             // Show progress indicator while loading album items
             setRecyclerShown(false);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        getActivity().setTitle(R.string.action_albums);
+        mBrowserConnection.subscribe(MediaID.ID_ALBUMS, mCallback);
+        Log.d(TAG, "Subscribed, waiting for items...");
     }
 
     @Override

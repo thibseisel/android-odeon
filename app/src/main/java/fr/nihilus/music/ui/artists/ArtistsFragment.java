@@ -64,6 +64,12 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        getRecyclerView().setHasFixedSize(true);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_artists);
