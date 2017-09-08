@@ -63,6 +63,7 @@ class MusicService : MediaBrowserServiceCompat(),
         notificationMgr.init()
 
         Log.i(TAG, "Service fully initialized")
+        mSession.isActive = true
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
