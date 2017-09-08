@@ -1,16 +1,15 @@
 package fr.nihilus.music.ui
 
+import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
 import fr.nihilus.music.ui.albums.AlbumHolder
 import fr.nihilus.music.utils.MediaID
-import javax.inject.Singleton
 
-@Singleton
-class ViewHolderFactory {
+class ViewHolderFactory(private val fragment: Fragment) {
 
     fun create(parent: ViewGroup, viewType: Int): MediaItemHolder = when (viewType) {
-        TYPE_ALBUM -> AlbumHolder(parent)
+        TYPE_ALBUM -> AlbumHolder(fragment, parent)
         TYPE_ARTIST -> TODO()
         TYPE_ALBUM_TRACK -> TODO()
         TYPE_ARTIST_TRACK -> TODO()
