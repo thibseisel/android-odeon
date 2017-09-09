@@ -55,15 +55,17 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HasSupportFragmentInjector {
 
     public static final int REQUEST_SETTINGS = 42;
-    public static final String ACTION_ALBUMS = "fr.nihilus.mymusic.ACTION_ALBUMS";
-    public static final String ACTION_RANDOM = "fr.nihilus.mymusic.ACTION_RANDOM";
+    public static final String ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS";
+    public static final String ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM";
     private static final String TAG = "HomeActivity";
     private static final String KEY_DAILY_SONG = "daily_song";
+
     @Inject DispatchingAndroidInjector<Fragment> dispatchingFragmentInjector;
     @Inject PreferenceDao mPrefs;
     @Inject NavigationController mRouter;
     @Inject MediaBrowserConnection mBrowserConnection;
     private DrawerLayout mDrawerLayout;
+    
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;
