@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <uses-feature
         android:name="android.hardware.audio.output"
@@ -15,7 +16,6 @@
         android:name="fr.nihilus.music.MyApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup"
-        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -54,11 +54,11 @@
         </activity>
 
         <service
-            android:process=":musicplayer"
             android:name="fr.nihilus.music.service.MusicService"
             android:enabled="true"
             android:exported="false"
-            android:label="@string/playback_service_label">
+            android:label="@string/playback_service_label"
+            android:process=":musicplayer">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>

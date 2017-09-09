@@ -12,6 +12,7 @@ public class PermissionUtil {
 
     public static final String EXTERNAL_STORAGE = Manifest.permission.READ_EXTERNAL_STORAGE;
     public static final int EXTERNAL_STORAGE_REQUEST = 99;
+    public static final int LOCATION_REQUEST = 66;
 
     public static boolean hasExternalStoragePermission(@NonNull Context ctx) {
         return ContextCompat.checkSelfPermission(ctx,
@@ -19,7 +20,17 @@ public class PermissionUtil {
     }
 
     public static void requestExternalStoragePermission(Activity activity) {
-        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
         ActivityCompat.requestPermissions(activity, permissions, EXTERNAL_STORAGE_REQUEST);
+    }
+
+    public static void requestLocationPermission(@NonNull Activity activity) {
+        String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION};
+        ActivityCompat.requestPermissions(activity, permissions, LOCATION_REQUEST);
+    }
+
+    public static boolean hasLocationPermission(@NonNull Context ctx) {
+        return ContextCompat.checkSelfPermission(ctx,
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }

@@ -6,6 +6,7 @@
             android:defaultValue="-1"
             android:entries="@array/prefs_entries_night_mode"
             android:entryValues="@array/prefs_values_night_mode"
+            android:icon="@drawable/ic_night_mode_24dp"
             android:key="@string/pref_night_mode"
             android:title="@string/night_mode"/>
     </PreferenceCategory>

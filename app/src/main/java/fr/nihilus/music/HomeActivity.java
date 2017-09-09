@@ -65,7 +65,7 @@ public class HomeActivity extends AppCompatActivity
     @Inject NavigationController mRouter;
     @Inject MediaBrowserConnection mBrowserConnection;
     private DrawerLayout mDrawerLayout;
-    
+
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
     private PlayerView mPlayerView;

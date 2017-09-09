@@ -67,4 +67,8 @@
     </plurals>
 
     <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
+    <string name="location_rationnale_title">Use location to improve night mode ?</string>
+    <string name="location_rationnale_message">The theme will change automatically when the sun sets in your current region.</string>
+    <string name="ok">OK</string>
+    <string name="no_thanks">No thanks</string>
 </resources>
