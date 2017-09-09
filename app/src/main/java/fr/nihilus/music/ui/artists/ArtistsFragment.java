@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.util.Log;
@@ -21,6 +19,7 @@ import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.NavigationController;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
 
@@ -32,6 +31,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     private ArtistAdapter mAdapter;
 
     @Inject MediaBrowserConnection mBrowserConnection;
+    @Inject NavigationController mNavigation;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -93,11 +93,6 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
 
     @Override
     public void onArtistSelected(ArtistAdapter.ArtistHolder holder, MediaItem artist) {
-        Fragment detail = ArtistDetailFragment.newInstance(artist);
-        getFragmentManager().beginTransaction()
-                .replace(R.id.container, detail)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(ArtistDetailFragment.BACKSTACK_ENTRY)
-                .commit();
+        mNavigation.navigateToArtistDetail(artist);
     }
 }

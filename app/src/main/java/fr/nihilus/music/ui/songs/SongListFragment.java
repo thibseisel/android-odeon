@@ -126,8 +126,9 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(KEY_SCROLL, mListView.getFirstVisiblePosition());
-        super.onSaveInstanceState(outState);
+        if (isVisible()) {
+            outState.putInt(KEY_SCROLL, mListView.getFirstVisiblePosition());
+        }
     }
 
     @Override
