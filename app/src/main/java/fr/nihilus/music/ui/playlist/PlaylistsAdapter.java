@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -37,8 +36,7 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
         mGlideRequest = Glide.with(context)
                 .fromUri()
                 .asBitmap()
-                .error(dummyAlbumArt)
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
+                .error(dummyAlbumArt);
     }
 
     @Override

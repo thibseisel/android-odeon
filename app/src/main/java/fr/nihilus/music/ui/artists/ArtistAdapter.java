@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +43,7 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
                 R.drawable.ic_person_24dp);
         mGlide = Glide.with(fragment).fromUri().asBitmap()
                 .error(dummyCover)
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
+                .centerCrop();
     }
 
     @Override

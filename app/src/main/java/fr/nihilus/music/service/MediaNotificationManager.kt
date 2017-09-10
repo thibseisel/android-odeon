@@ -20,7 +20,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
 import fr.nihilus.music.HomeActivity
@@ -206,7 +205,6 @@ class MediaNotificationManager
 
         Glide.with(service)
                 .load(description.iconUri).asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(object : SimpleTarget<Bitmap>(mMaxIconSize, mMaxIconSize) {
                     override fun onResourceReady(art: Bitmap?, anim: GlideAnimation<in Bitmap>?) {
                         val notif = notificationBuilder.setLargeIcon(art).build()

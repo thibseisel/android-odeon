@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.ArrayList;
@@ -62,8 +61,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mGlide = Glide.with(fragment).fromUri().asBitmap()
                 .transcode(new BottomPaletteTranscoder(ctx), PaletteBitmap.class)
                 .centerCrop()
-                .error(dummyAlbumArt)
-                .diskCacheStrategy(DiskCacheStrategy.NONE);
+                .error(dummyAlbumArt);
     }
 
     @Override
