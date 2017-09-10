@@ -20,6 +20,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
 import fr.nihilus.music.HomeActivity
@@ -30,9 +31,7 @@ import javax.inject.Inject
 
 @ServiceScoped
 class MediaNotificationManager
-@Inject constructor(service: MusicService) : BroadcastReceiver() {
-
-    private val mService = service
+@Inject constructor(private val service: MusicService) : BroadcastReceiver() {
 
     private val mNotificationManager: NotificationManager
     private val mPauseIntent: PendingIntent
@@ -48,6 +47,9 @@ class MediaNotificationManager
 
     private var mMetadata: MediaMetadataCompat? = null
     private var mStarted = false
+
+    private val mMaxIconSize = service.resources
+            .getDimensionPixelSize(R.dimen.max_metadata_art_size)
 
     init {
         val pkg = service.packageName
@@ -82,13 +84,13 @@ class MediaNotificationManager
     }
 
     private fun updateSessionToken() {
-        val freshToken = mService.sessionToken
+        val freshToken = service.sessionToken
         if (mSessionToken == null && freshToken != null ||
                 mSessionToken != null && mSessionToken != freshToken) {
             mController?.unregisterCallback(mControllerCallback)
             mSessionToken = freshToken
             if (mSessionToken != null) {
-                mController = MediaControllerCompat(mService, mSessionToken!!)
+                mController = MediaControllerCompat(service, mSessionToken!!)
                 mTransportControls = mController!!.transportControls
                 if (mStarted) {
                     mController!!.registerCallback(mControllerCallback)
@@ -110,10 +112,10 @@ class MediaNotificationManager
             filter.addAction(ACTION_PLAY)
             filter.addAction(ACTION_PREVIOUS)
             filter.addAction(ACTION_NEXT)
-            mService.registerReceiver(this, filter)
+            service.registerReceiver(this, filter)
 
             Log.i(TAG, "FOREGROUND: true")
-            mService.startForeground(NOTIFICATION_ID, notification)
+            service.startForeground(NOTIFICATION_ID, notification)
             mStarted = true
         }
     }
@@ -166,9 +168,9 @@ class MediaNotificationManager
     }
 
     private fun createContentIntent(): PendingIntent {
-        val openUi = Intent(mService, HomeActivity::class.java)
+        val openUi = Intent(service, HomeActivity::class.java)
         openUi.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        return PendingIntent.getActivity(mService, REQUEST_CODE, openUi,
+        return PendingIntent.getActivity(service, REQUEST_CODE, openUi,
                 PendingIntent.FLAG_CANCEL_CURRENT)
     }
 
@@ -176,14 +178,14 @@ class MediaNotificationManager
         Log.v(TAG, "updateNotificationMetadata: metadata=$mMetadata")
         if (mMetadata == null || mPlaybackState == null) return null
 
-        val notificationBuilder = NotificationCompat.Builder(mService, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
         notificationBuilder.addAction(R.drawable.ic_skip_previous_24dp,
-                mService.getString(R.string.action_previous), mPreviousIntent)
+                service.getString(R.string.action_previous), mPreviousIntent)
 
         addPlayPauseButton(notificationBuilder)
 
         notificationBuilder.addAction(R.drawable.ic_skip_next_24dp,
-                mService.getString(R.string.action_next), mNextIntent)
+                service.getString(R.string.action_next), mNextIntent)
 
         val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
 
@@ -202,9 +204,10 @@ class MediaNotificationManager
                 .setContentTitle(description.title)
                 .setContentText(description.subtitle)
 
-        Glide.with(mService)
+        Glide.with(service)
                 .load(description.iconUri).asBitmap()
-                .into(object : SimpleTarget<Bitmap>() {
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(object : SimpleTarget<Bitmap>(mMaxIconSize, mMaxIconSize) {
                     override fun onResourceReady(art: Bitmap?, anim: GlideAnimation<in Bitmap>?) {
                         val notif = notificationBuilder.setLargeIcon(art).build()
                         if (notif != null) {
@@ -240,7 +243,7 @@ class MediaNotificationManager
         Log.v(TAG, "updateNotificationPlaybackState: mPlaybackState=$mPlaybackState")
         if (mPlaybackState == null || !mStarted) {
             Log.v(TAG, "updatedNotificationPlaybackState: canceling notification!")
-            mService.stopForeground(true)
+            service.stopForeground(true)
             return
         }
 
@@ -267,12 +270,12 @@ class MediaNotificationManager
             mController!!.unregisterCallback(mControllerCallback)
             try {
                 mNotificationManager.cancel(NOTIFICATION_ID)
-                mService.unregisterReceiver(this)
+                service.unregisterReceiver(this)
             } catch (e: IllegalArgumentException) {
                 // Ignore if the receiver is not registered.
             } finally {
                 Log.d(TAG, "Stopping foreground state")
-                mService.stopForeground(true)
+                service.stopForeground(true)
             }
         }
     }

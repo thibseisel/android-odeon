@@ -48,6 +48,7 @@ class NavigationController
         }
 
         showFragment(tag, fragment)
+
     }
 
     fun navigateToPlaylists() {
@@ -115,5 +116,4 @@ class NavigationController
                     .commit()
         }
     }
-
 }
