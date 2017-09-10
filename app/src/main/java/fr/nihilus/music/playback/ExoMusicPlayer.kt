@@ -46,7 +46,7 @@ private const val AUDIO_FOCUSED = 2
  */
 @ServiceScoped
 internal class ExoMusicPlayer
-@Inject constructor(private val context: Context) : ExoPlayer.EventListener, MusicPlayer {
+@Inject constructor(private val context: Context) : Player.EventListener, MusicPlayer {
 
     private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -84,9 +84,9 @@ internal class ExoMusicPlayer
             }
 
             return when (mExoPlayer!!.playbackState) {
-                ExoPlayer.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
-                ExoPlayer.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
-                ExoPlayer.STATE_READY -> if (mExoPlayer!!.playWhenReady)
+                Player.STATE_IDLE -> PlaybackStateCompat.STATE_PAUSED
+                Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+                Player.STATE_READY -> if (mExoPlayer!!.playWhenReady)
                     PlaybackStateCompat.STATE_PLAYING else PlaybackStateCompat.STATE_PAUSED
                 else -> PlaybackStateCompat.STATE_NONE
             }
@@ -306,9 +306,9 @@ internal class ExoMusicPlayer
     override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
         Log.d(TAG, "ExoPlayer new state: $playbackState, playWhenReady: $playWhenReady")
         when (playbackState) {
-            ExoPlayer.STATE_IDLE, ExoPlayer.STATE_READY ->
+            Player.STATE_IDLE, Player.STATE_READY ->
                 callback?.onPlaybackStatusChanged(state)
-            ExoPlayer.STATE_ENDED -> callback?.onCompletion()
+            Player.STATE_ENDED -> callback?.onCompletion()
         }
     }
 
@@ -330,6 +330,10 @@ internal class ExoMusicPlayer
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
         // Nothing to do.
+    }
+
+    override fun onRepeatModeChanged(repeatMode: Int) {
+        // Nothing to do (for the time being)
     }
 
 }
