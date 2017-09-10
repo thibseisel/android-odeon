@@ -192,7 +192,7 @@ class MediaNotificationManager
             R.drawable.ic_play_arrow else R.drawable.ic_pause
 
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
-                .setShowActionsInCompactView(1)
+                .setShowActionsInCompactView(0, 1, 2)
                 .setMediaSession(mSessionToken))
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
                 .setOnlyAlertOnce(true)
