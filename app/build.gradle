@@ -33,6 +33,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
 
+    // Support library dependencies
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:cardview-v7:${supportLibVersion}"
@@ -43,28 +44,30 @@ dependencies {
     compile "com.android.support:palette-v7:${supportLibVersion}"
     compile "com.android.support:preference-v7:${supportLibVersion}"
     compile "com.android.support:preference-v14:${supportLibVersion}"
-
     compile "com.android.support.constraint:constraint-layout:${constraintVersion}"
 
+    // Android Room
+    compile "android.arch.persistence.room:runtime:${archVersion}"
+    compile "android.arch.persistence.room:rxjava2:${archVersion}"
+    annotationProcessor "android.arch.persistence.room:compiler:${archVersion}"
+
     compile "com.github.bumptech.glide:glide:${glideVersion}"
+    compile "fr.nihilus:recyclerfragment:${recyclerVersion}"
+
     compile "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
 
+    // Dagger
     compile "com.google.dagger:dagger:${daggerVersion}"
     compile "com.google.dagger:dagger-android:${daggerVersion}"
     compile "com.google.dagger:dagger-android-support:${daggerVersion}"
-
-    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
-    compile "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-
-    compile "android.arch.persistence.room:runtime:${archVersion}"
-    compile "android.arch.persistence.room:rxjava2:${archVersion}"
-
-    compile "fr.nihilus:recyclerfragment:${recyclerVersion}"
-
     annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
     annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
-    annotationProcessor "android.arch.persistence.room:compiler:${archVersion}"
 
+    // ReactiveX
+    compile "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
+    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+
+    // Test dependencies
     testCompile "junit:junit:${junitVersion}"
     testCompile "org.hamcrest:hamcrest-all:${hamcrestVersion}"
     testCompile "org.mockito:mockito-core:${mockitoVersion}"
