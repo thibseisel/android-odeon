@@ -60,8 +60,6 @@
     <string name="validate">Valider</string>
     <string name="new_playlist_help_message">Sélectionnez les chansons à ajouter</string>
     <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
-    <string name="location_rationnale_message">Le mode nuit sera activé automatiquement quand le soleil sera couché dans votre région.</string>
-    <string name="location_rationnale_title">Utiliser la géolocalisation ?</string>
     <string name="ok">OK</string>
     <string name="no_thanks">Non merci</string>
 </resources>
