@@ -34,7 +34,7 @@ ext {
     rxAndroidVersion = '2.0.1'
     exoplayerVersion = 'r2.5.2'
     constraintVersion = '1.0.2'
-    recyclerVersion = '1.1.1'
+    recyclerVersion = '1.1.2'
 }
 
 task clean(type: Delete) {
