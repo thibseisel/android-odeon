@@ -1,8 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
-        <item name="colorPrimary">@color/mtrl_red_500</item>
-        <item name="colorPrimaryDark">@color/mtrl_red_700</item>
+        <item name="colorPrimary">@color/mtrl_deeppurple_500</item>
         <item name="colorAccent">@color/mtrl_blue_a400</item>
 
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
@@ -35,6 +34,9 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
+        <item name="colorPrimary">@color/mtrl_grey_100</item>
+        <item name="android:textColorPrimary">@color/mtrl_deeppurple_500</item>
+        <item name="android:textColorSecondary">@color/mtrl_deeppurple_500</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay.Neutral" parent="ThemeOverlay.AppCompat.Light"/>

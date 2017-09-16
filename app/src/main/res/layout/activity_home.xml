@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="fr.nihilus.mymusic.HomeActivity">
+    tools:context="fr.nihilus.music.HomeActivity">
 
     <!-- Main content -->
     <android.support.design.widget.CoordinatorLayout
@@ -27,8 +27,7 @@
                 android:layout_height="?actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:titleTextColor="@android:color/white"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay"/>
         </android.support.design.widget.AppBarLayout>
 
         <FrameLayout
@@ -46,7 +45,7 @@
             android:background="@drawable/shape_top_shadow"
             app:layout_anchor="@+id/playerView"/>
 
-        <fr.nihilus.mymusic.view.PlayerView
+        <fr.nihilus.music.view.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

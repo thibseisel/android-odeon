@@ -17,4 +17,5 @@
     <dimen name="tick_mark_inset">12dp</dimen>
     <dimen name="playerview_icon_height">46dp</dimen>
     <dimen name="play_icon_margin">10dp</dimen>
+    <dimen name="max_metadata_art_size">320dp</dimen>
 </resources>

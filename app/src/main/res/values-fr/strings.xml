@@ -48,6 +48,10 @@
         <item quantity="one">%d chanson sélectionnée</item>
         <item quantity="other">%d chansons sélectionnées</item>
     </plurals>
+    <plurals name="number_of_tracks">
+        <item quantity="one">%d chanson</item>
+        <item quantity="other">%d chansons</item>
+    </plurals>
     <string name="new_playlist">Nouvelle playlist</string>
     <string name="title_hint">Titre</string>
     <string name="saving_playlist">Enregistrement de la playlist…</string>
@@ -56,4 +60,6 @@
     <string name="validate">Valider</string>
     <string name="new_playlist_help_message">Sélectionnez les chansons à ajouter</string>
     <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
+    <string name="ok">OK</string>
+    <string name="no_thanks">Non merci</string>
 </resources>

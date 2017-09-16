@@ -20,7 +20,7 @@
             android:contentDescription="@string/album_art"
             tools:src="@android:color/black"/>
 
-        <fr.nihilus.mymusic.view.AutoUpdateSeekBar
+        <fr.nihilus.music.view.AutoUpdateSeekBar
             android:id="@+id/progress"
             style="@style/Widget.AppTheme.ProgressBar"
             android:layout_width="match_parent"
@@ -76,6 +76,7 @@
             android:layout_height="@dimen/playerview_icon_height"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:padding="8dp"
             android:layout_marginBottom="@dimen/play_icon_margin"
             android:layout_marginTop="@dimen/play_icon_margin"
             android:background="?selectableItemBackgroundBorderless"

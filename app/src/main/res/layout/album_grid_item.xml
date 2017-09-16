@@ -1,50 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
+<android.support.v7.widget.CardView
+    android:id="@+id/card"
+    app:cardMaxElevation="4dp"
+    style="@style/Widget.AppTheme.CardView.Animated"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground">
+    android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/cover"
-        app:layout_widthPercent="100%"
-        android:contentDescription="@string/album_art"
-        android:scaleType="centerCrop"
-        app:layout_aspectRatio="@fraction/album_art_ratio"
-        tools:src="@drawable/dummy_album"/>
-
-    <RelativeLayout
-        android:id="@+id/band"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="68dp"
-        android:layout_below="@id/cover"
-        android:background="@color/album_band_default"
-        android:padding="16dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/album_art"
+            android:scaleType="centerCrop"
+            app:layout_aspectRatio="@fraction/album_art_ratio"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/dummy_album"/>
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:textSize="14sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cover"
             tools:text="Scream Aim Fire"/>
 
         <TextView
             android:id="@+id/artist"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textSize="13sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
             tools:text="Bullet For My Valentine"/>
 
-    </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 
-</android.support.percent.PercentRelativeLayout>
+</android.support.v7.widget.CardView>

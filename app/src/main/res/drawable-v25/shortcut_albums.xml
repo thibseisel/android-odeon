@@ -11,6 +11,6 @@
         android:strokeColor="@android:color/transparent"
         android:strokeWidth="1.0"/>
     <path
-        android:fillColor="@color/mtrl_orange_500"
+        android:fillColor="@color/mtrl_deeppurple_500"
         android:pathData="M24,14c-5.52,0 -10,4.48 -10,10 0,5.52 4.48,10 10,10 5.52,0 10,-4.48 10,-10 0,-5.52 -4.48,-10 -10,-10 z m 0,14.5 c -2.49,0 -4.5,-2.01 -4.5,-4.5 0,-2.49 2.01,-4.5 4.5,-4.5 2.49,0 4.5,2.01 4.5,4.5 0,2.49 -2.01,4.5 -4.5,4.5 z M 24,23 c -0.55,0 -1,0.45 -1,1 0,0.55 0.45,1 1,1 0.55,0 1,-0.45 1,-1 0,-0.55 -0.45,-1 -1,-1 z"/>
 </vector>
