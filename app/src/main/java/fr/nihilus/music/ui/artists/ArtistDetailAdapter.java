@@ -205,9 +205,9 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     static class AlbumHolder extends RecyclerView.ViewHolder {
         @ColorInt
         final int[] colors = new int[4];
-        CardView card;
-        ImageView albumArt;
-        TextView title;
+        final CardView card;
+        final ImageView albumArt;
+        final TextView title;
 
         AlbumHolder(View itemView) {
             super(itemView);

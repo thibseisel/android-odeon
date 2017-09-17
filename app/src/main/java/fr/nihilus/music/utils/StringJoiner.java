@@ -74,7 +74,7 @@ public final class StringJoiner {
      * i.e. when it is empty.  This may be overridden by the user to be some
      * other value including the empty String.
      */
-    private String emptyValue;
+    private final String emptyValue;
 
     /**
      * Constructs a {@code StringJoiner} with no characters in it, with no

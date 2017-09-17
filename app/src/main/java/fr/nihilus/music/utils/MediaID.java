@@ -162,7 +162,7 @@ public final class MediaID {
         return null;
     }
 
-    public static boolean isBrowseable(@NonNull String mediaID) {
+    static boolean isBrowseable(@NonNull String mediaID) {
         return mediaID.indexOf(LEAF_SEPARATOR) < 0;
     }
 

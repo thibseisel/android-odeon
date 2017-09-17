@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?colorBackgroundFloating">
+    android:background="?colorBackgroundFloating"
+    tools:ignore="Overdraw">
 
     <!-- Top of the bottom sheet that appears when collapsed -->
     <android.support.constraint.Guideline

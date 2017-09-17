@@ -25,7 +25,7 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:titleEnabled="false">
 
-            <android.support.percent.PercentFrameLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
@@ -34,13 +34,16 @@
 
                 <ImageView
                     android:id="@+id/cover"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintDimensionRatio="1:1"
                     android:contentDescription="@string/album_art"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
-                    app:layout_aspectRatio="@fraction/album_detail_ratio"
-                    app:layout_widthPercent="100%"
                     app:srcCompat="@drawable/ic_album_24dp"/>
-            </android.support.percent.PercentFrameLayout>
+            </android.support.constraint.ConstraintLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"

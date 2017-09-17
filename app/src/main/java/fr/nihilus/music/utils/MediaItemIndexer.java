@@ -36,8 +36,8 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
             "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     private List<MediaItem> mItems;
-    private Collator mCollator;
-    private SparseIntArray mAlphaMap;
+    private final Collator mCollator;
+    private final SparseIntArray mAlphaMap;
 
     public MediaItemIndexer(List<MediaItem> items) {
         mItems = items;

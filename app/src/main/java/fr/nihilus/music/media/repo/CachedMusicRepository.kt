@@ -147,9 +147,7 @@ internal class CachedMusicRepository
         metadatas.map { _ -> MediaID.ID_MUSIC }
     }
 
-    override fun clear() {
-        musicCache.clear()
-    }
+    override fun clear() = musicCache.clear()
 
     private fun cacheMetadatas(metadataList: List<MediaMetadataCompat>) {
         for (meta in metadataList) {

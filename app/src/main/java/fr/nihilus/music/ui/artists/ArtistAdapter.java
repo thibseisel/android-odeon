@@ -125,9 +125,9 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
     }
 
     static class ArtistHolder extends RecyclerView.ViewHolder {
-        TextView artistName;
-        TextView subtitle;
-        ImageView cover;
+        final TextView artistName;
+        final TextView subtitle;
+        final ImageView cover;
 
         ArtistHolder(View itemView) {
             super(itemView);

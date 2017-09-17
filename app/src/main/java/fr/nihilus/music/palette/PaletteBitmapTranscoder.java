@@ -26,7 +26,7 @@ class PaletteBitmapTranscoder implements ResourceTranscoder<Bitmap, PaletteBitma
     }
 
     @NonNull
-    protected Palette onGeneratePalette(Bitmap bitmap) {
+    Palette onGeneratePalette(Bitmap bitmap) {
         return new Palette.Builder(bitmap).generate();
     }
 

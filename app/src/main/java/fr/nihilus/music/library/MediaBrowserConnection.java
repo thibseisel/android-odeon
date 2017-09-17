@@ -28,7 +28,7 @@ import static android.content.ContentValues.TAG;
 public class MediaBrowserConnection {
     private static final boolean LOG = true;
     private MediaBrowserCompat mBrowser;
-    private Subject<MediaControllerCompat> mControllerSubject;
+    private final Subject<MediaControllerCompat> mControllerSubject;
 
     @Inject
     public MediaBrowserConnection(final Context context) {

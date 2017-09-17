@@ -96,7 +96,7 @@ internal class ExoMusicPlayer
      * Indicate whether the mExoPlayer is playing or is supposed to be
      * playing when we gain audio focus.
      */
-    override val isPlaying get() = mPlayOnFocusGain || mExoPlayer?.playWhenReady ?: false
+    override val isPlaying get() = mPlayOnFocusGain || mExoPlayer?.playWhenReady == true
 
     /**
      * The current position in the audio stream in milliseconds.

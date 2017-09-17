@@ -8,7 +8,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaMetadataCompat;
@@ -53,7 +52,6 @@ public class AlbumDetailActivity extends AppCompatActivity
     private ArrayList<MediaItem> mTracks;
     private MediaItem mPickedAlbum;
     private CollapsingToolbarLayout mCollapsingToolbar;
-    private FloatingActionButton mFab;
     private TextView mAlbumTitle;
     private TextView mAlbumArtist;
     private RecyclerView mRecyclerView;
@@ -63,7 +61,7 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
-        public void onChildrenLoaded(@NonNull String parentId, List<MediaItem> children) {
+        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " tracks");
             mTracks.clear();
             mTracks.addAll(children);
@@ -98,13 +96,12 @@ public class AlbumDetailActivity extends AppCompatActivity
             mTracks = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
         } else mTracks = new ArrayList<>();
 
-        mAlbumTitle = (TextView) findViewById(R.id.title);
+        mAlbumTitle = findViewById(R.id.title);
         mAlbumTitle.setText(mPickedAlbum.getDescription().getTitle());
-        mAlbumArtist = (TextView) findViewById(R.id.subtitle);
+        mAlbumArtist = findViewById(R.id.subtitle);
         mAlbumArtist.setText(mPickedAlbum.getDescription().getSubtitle());
 
-        mFab = (FloatingActionButton) findViewById(R.id.action_play);
-        mFab.setOnClickListener(this);
+        findViewById(R.id.action_play).setOnClickListener(this);
 
         setupToolbar();
         setupAlbumArt();
@@ -157,7 +154,7 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     private void setupAlbumArt() {
-        ImageView albumArtView = (ImageView) findViewById(R.id.cover);
+        ImageView albumArtView = findViewById(R.id.cover);
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME);
         try {
             Bitmap albumArt = Media.getBitmap(getContentResolver(),
@@ -182,7 +179,7 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     private void setupToolbar() {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        mCollapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbar);
+        mCollapsingToolbar = findViewById(R.id.collapsingToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(null);
     }
