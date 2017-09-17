@@ -104,7 +104,7 @@ public class HomeActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             if (PermissionUtil.hasExternalStoragePermission(this)) {
-                loadDailySong();
+                //loadDailySong();
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(getIntent())) {
                     // If intent is not handled, load default fragment
@@ -256,7 +256,7 @@ public class HomeActivity extends AppCompatActivity
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Load daily song only if it has permission
-                loadDailySong();
+                //loadDailySong();
             }
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(getIntent())) {
