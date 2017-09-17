@@ -1,13 +1,10 @@
 package fr.nihilus.music.playback
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import android.view.KeyEvent
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
@@ -15,7 +12,6 @@ import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
 private const val TAG = "PlaybackManager"
-private const val HEADSET_CLICK_DELAY = 250L
 
 @ServiceScoped
 class PlaybackManager
@@ -142,17 +138,6 @@ class PlaybackManager
      * Available commands are configured by [setAvailableActions].
      */
     internal val mediaSessionCallback = object : MediaSessionCompat.Callback() {
-        private val mHeadsetButtonHandler = Handler()
-        @Volatile private var mHeadsetClickCount = 0
-
-        private val mHeadsetButtonRunnable = Runnable {
-            if (mHeadsetClickCount == 1) {
-                // Single click: play if paused, or pause if playing.
-                if (!musicPlayer.isPlaying) onPlay()
-                else onPause()
-                mHeadsetClickCount = 0
-            }
-        }
 
         override fun onPlay() {
             Log.d(TAG, "onPlay")
@@ -230,30 +215,6 @@ class PlaybackManager
             mQueueManager.shuffleMode = shuffleMode
             mServiceCallback.onShuffleModeChanged(shuffleMode)
             updatePlaybackState(null)
-        }
-
-        override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
-            if (mediaButtonEvent != null) {
-                val event = mediaButtonEvent.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
-                if (event.keyCode == KeyEvent.KEYCODE_HEADSETHOOK && event.action == KeyEvent.ACTION_DOWN) {
-                    // Event is produced by a click on the headset button.
-                    mHeadsetClickCount++
-                    if (mHeadsetClickCount > 1) {
-                        // Double click: skip to next song.
-                        onSkipToNext()
-                        mHeadsetButtonHandler.removeCallbacks(mHeadsetButtonRunnable)
-                        mHeadsetClickCount = 0
-                    } else {
-                        // Single click: delay action to wait for a potential second click.
-                        mHeadsetButtonHandler.postDelayed(mHeadsetButtonRunnable, HEADSET_CLICK_DELAY)
-                    }
-
-                    // Prevent the default behavior (play/pause immediately)
-                    return true
-                }
-            }
-
-            return super.onMediaButtonEvent(mediaButtonEvent)
         }
     }
 
