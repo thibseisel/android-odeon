@@ -7,9 +7,10 @@
         android:interpolator="@android:interpolator/fast_out_slow_in">
         <targets android:targetId="@id/cover"/>
     </changeImageTransform>
-    <explode
+    <slide
         android:fadingMode="fade_in_out"
+        android:slideEdge="end"
         android:interpolator="@android:interpolator/fast_out_slow_in">
         <targets android:targetId="@id/btn_play_pause"/>
-    </explode>
+    </slide>
 </transitionSet>
