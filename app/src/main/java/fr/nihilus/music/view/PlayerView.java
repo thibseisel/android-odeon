@@ -10,9 +10,9 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.percent.PercentRelativeLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -42,7 +42,7 @@ import fr.nihilus.music.utils.ViewUtils;
 import fr.nihilus.music.view.AutoUpdateSeekBar.OnUpdateListener;
 
 @CoordinatorLayout.DefaultBehavior(BottomSheetBehavior.class)
-public class PlayerView extends PercentRelativeLayout implements View.OnClickListener, OnUpdateListener {
+public class PlayerView extends ConstraintLayout implements View.OnClickListener, OnUpdateListener {
 
     private static final String TAG = "PlayerView";
 
@@ -93,7 +93,6 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         }
     };
 
-    private ViewGroup mPlayBar;
     private Transition mOpenTransition;
 
     private BottomSheetBehavior<PlayerView> mBehavior;
@@ -214,7 +213,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     private void onOpen(boolean animate) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
-            TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
+            TransitionManager.beginDelayedTransition(this, mOpenTransition);
         }
 
         int eightDps = ViewUtils.dipToPixels(getContext(), 8);
@@ -224,7 +223,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     private void onClose(boolean animate) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
-            TransitionManager.beginDelayedTransition(mPlayBar, mOpenTransition);
+            TransitionManager.beginDelayedTransition(this, mOpenTransition);
         }
 
         mAlbumArt.setPadding(0, 0, 0, 0);
@@ -271,10 +270,10 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.textContainer) {
+        /*if (view.getId() == R.id.textContainer) {
             setExpanded(mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED);
-            return;
-        }
+            //return;
+        }*/
 
         if (mController != null) {
             MediaControllerCompat.TransportControls controls = mController.getTransportControls();
@@ -312,7 +311,7 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
 
-        findViewById(R.id.textContainer).setOnClickListener(this);
+        //findViewById(R.id.textContainer).setOnClickListener(this);
 
         mBigArt = findViewById(R.id.bigArt);
 
@@ -335,7 +334,6 @@ public class PlayerView extends PercentRelativeLayout implements View.OnClickLis
 
         // Transitions of the top of the PlayerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mPlayBar = findViewById(R.id.playbar);
             mOpenTransition = TransitionInflater.from(getContext())
                     .inflateTransition(R.transition.playerview_header_transition);
         }

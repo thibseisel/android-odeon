@@ -71,4 +71,5 @@
     <string name="location_rationnale_message">The theme will change automatically when the sun sets in your current region.</string>
     <string name="ok">OK</string>
     <string name="no_thanks">No thanks</string>
+    <string name="repeat">Repeat</string>
 </resources>
