@@ -28,7 +28,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.List;
@@ -39,10 +38,10 @@ import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
+import fr.nihilus.music.glide.GlideApp;
+import fr.nihilus.music.glide.PaletteBitmap;
 import fr.nihilus.music.library.MediaBrowserConnection;
 import fr.nihilus.music.library.NavigationController;
-import fr.nihilus.music.palette.BottomPaletteTranscoder;
-import fr.nihilus.music.palette.PaletteBitmap;
 import fr.nihilus.music.settings.PreferenceDao;
 import fr.nihilus.music.settings.SettingsActivity;
 import fr.nihilus.music.utils.MediaID;
@@ -297,16 +296,15 @@ public class HomeActivity extends AppCompatActivity
             final Drawable dummyAlbumArt = AppCompatResources.getDrawable(HomeActivity.this,
                     R.drawable.ic_audiotrack_24dp);
 
-            Glide.with(this).fromUri().asBitmap()
-                    .transcode(new BottomPaletteTranscoder(HomeActivity.this), PaletteBitmap.class)
+            GlideApp.with(this).as(PaletteBitmap.class)
                     .load(artUri)
                     .error(dummyAlbumArt)
                     .centerCrop()
                     .into(new ImageViewTarget<PaletteBitmap>(albumArtView) {
                         @Override
                         protected void setResource(PaletteBitmap resource) {
-                            super.view.setImageBitmap(resource.bitmap);
-                            Palette.Swatch swatch = resource.palette.getDominantSwatch();
+                            super.view.setImageBitmap(resource.getBitmap());
+                            Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
                             if (swatch != null) {
                                 band.setBackgroundColor(swatch.getRgb());
                                 titleText.setTextColor(swatch.getBodyTextColor());

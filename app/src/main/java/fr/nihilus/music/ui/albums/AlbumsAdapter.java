@@ -2,9 +2,9 @@ package fr.nihilus.music.ui.albums;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -19,8 +19,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.ArrayList;
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
-import fr.nihilus.music.palette.BottomPaletteTranscoder;
-import fr.nihilus.music.palette.PaletteBitmap;
+import fr.nihilus.music.glide.GlideApp;
+import fr.nihilus.music.glide.PaletteBitmap;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;
@@ -42,22 +42,25 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
     private static final String TAG = "AlbumsAdapter";
 
+    private final Fragment mFragment;
     @ColorInt
     private final int[] mDefaultColors;
-    private final BitmapRequestBuilder<Uri, PaletteBitmap> mGlideRequest;
+    private final RequestBuilder<PaletteBitmap> mGlideRequest;
     private final List<MediaItem> mAlbums = new ArrayList<>();
     private OnAlbumSelectedListener mListener;
 
-    AlbumsAdapter(@NonNull Context context) {
+    AlbumsAdapter(@NonNull Fragment fragment) {
+        mFragment = fragment;
+        final Context ctx = fragment.getContext();
         mDefaultColors = new int[]{
-                ContextCompat.getColor(context, R.color.album_band_default),
-                ViewUtils.resolveThemeColor(context, R.attr.colorAccent),
-                ContextCompat.getColor(context, android.R.color.white),
-                ContextCompat.getColor(context, android.R.color.white)
+                ContextCompat.getColor(ctx, R.color.album_band_default),
+                ViewUtils.resolveThemeColor(ctx, R.attr.colorAccent),
+                ContextCompat.getColor(ctx, android.R.color.white),
+                ContextCompat.getColor(ctx, android.R.color.white)
         };
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp);
-        mGlideRequest = Glide.with(context).fromUri().asBitmap()
-                .transcode(new BottomPaletteTranscoder(context), PaletteBitmap.class)
+
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
+        mGlideRequest = GlideApp.with(fragment).as(PaletteBitmap.class)
                 .centerCrop()
                 .error(dummyAlbumArt);
     }
@@ -82,9 +85,9 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                 .into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
                     @Override
                     protected void setResource(PaletteBitmap resource) {
-                        super.view.setImageBitmap(resource.bitmap);
-                        Palette.Swatch swatch = resource.palette.getDominantSwatch();
-                        int accentColor = resource.palette.getVibrantColor(mDefaultColors[1]);
+                        super.view.setImageBitmap(resource.getBitmap());
+                        Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
+                        int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
                         if (swatch != null) {
                             holder.setColors(swatch.getRgb(), accentColor,
                                     swatch.getTitleTextColor(), swatch.getBodyTextColor());
@@ -120,7 +123,7 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     @Override
     public void onViewRecycled(AlbumHolder holder) {
         super.onViewRecycled(holder);
-        Glide.clear(holder.albumArt);
+        Glide.with(mFragment).clear(holder.albumArt);
     }
 
     void setOnAlbumSelectedListener(OnAlbumSelectedListener listener) {
@@ -152,7 +155,6 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     }
 
     static class AlbumHolder extends RecyclerView.ViewHolder {
-
         final CardView card;
         final ImageView albumArt;
         final TextView title;
@@ -167,6 +169,10 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             albumArt = itemView.findViewById(R.id.cover);
             title = itemView.findViewById(R.id.title);
             artist = itemView.findViewById(R.id.artist);
+        }
+
+        public void bind(MediaItem item) {
+
         }
 
         void setColors(@ColorInt int primary, @ColorInt int accent, @ColorInt int title,

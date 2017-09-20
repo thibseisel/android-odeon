@@ -71,7 +71,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
             mPlaylists = savedInstanceState.getParcelableArrayList(KEY_PLAYLISTS);
         } else mPlaylists = new ArrayList<>();
 
-        mAdapter = new PlaylistsAdapter(getContext(), mPlaylists);
+        mAdapter = new PlaylistsAdapter(this, mPlaylists);
         mAdapter.setOnPlaylistSelectedListener(this);
     }
 

@@ -3,8 +3,8 @@ package fr.nihilus.music.ui.playlist;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -16,26 +16,28 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 
 import java.util.List;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 
 class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
     private List<MediaItem> mItems;
-    private final BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+    private final RequestBuilder<Bitmap> mGlideRequest;
+    private final Fragment mFragment;
     private OnPlaylistSelectedListener mListener;
 
-    PlaylistsAdapter(@NonNull Context context, List<MediaItem> playlists) {
+    PlaylistsAdapter(@NonNull Fragment fragment, List<MediaItem> playlists) {
+        mFragment = fragment;
         mItems = playlists;
-        Drawable dummyAlbumArt = ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp);
-        mGlideRequest = Glide.with(context)
-                .fromUri()
-                .asBitmap()
+        final Context ctx = fragment.getContext();
+        Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_playlist_24dp);
+        mGlideRequest = GlideApp.with(fragment).asBitmap()
                 .error(dummyAlbumArt);
     }
 
@@ -79,7 +81,7 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
 
     @Override
     public void onViewRecycled(PlaylistHolder holder) {
-        Glide.clear(holder.image);
+        Glide.with(mFragment).clear(holder.image);
         super.onViewRecycled(holder);
     }
 

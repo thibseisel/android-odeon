@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 26
@@ -48,9 +49,11 @@ dependencies {
     // Android Room
     compile "android.arch.persistence.room:runtime:${archVersion}"
     compile "android.arch.persistence.room:rxjava2:${archVersion}"
-    annotationProcessor "android.arch.persistence.room:compiler:${archVersion}"
+    kapt "android.arch.persistence.room:compiler:${archVersion}"
 
     compile "com.github.bumptech.glide:glide:${glideVersion}"
+    kapt "com.github.bumptech.glide:compiler:${glideVersion}"
+
     compile "fr.nihilus:recyclerfragment:${recyclerVersion}"
 
     compile "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
@@ -59,8 +62,8 @@ dependencies {
     compile "com.google.dagger:dagger:${daggerVersion}"
     compile "com.google.dagger:dagger-android:${daggerVersion}"
     compile "com.google.dagger:dagger-android-support:${daggerVersion}"
-    annotationProcessor "com.google.dagger:dagger-compiler:${daggerVersion}"
-    annotationProcessor "com.google.dagger:dagger-android-processor:${daggerVersion}"
+    kapt "com.google.dagger:dagger-compiler:${daggerVersion}"
+    kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
 
     // ReactiveX
     compile "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"

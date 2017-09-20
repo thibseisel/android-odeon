@@ -2,7 +2,6 @@ package fr.nihilus.music.ui.artists;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -16,14 +15,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
@@ -34,14 +34,16 @@ import io.reactivex.schedulers.Schedulers;
 
 class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
+    private final Fragment mFragment;
     private final List<MediaItem> mItems = new ArrayList<>();
-    private final BitmapRequestBuilder<Uri, Bitmap> mGlide;
+    private final RequestBuilder<Bitmap> mGlide;
     private OnArtistSelectedListener mListener;
 
     ArtistAdapter(@NonNull Fragment fragment) {
+        mFragment = fragment;
         Drawable dummyCover = AppCompatResources.getDrawable(fragment.getContext(),
                 R.drawable.ic_person_24dp);
-        mGlide = Glide.with(fragment).fromUri().asBitmap()
+        mGlide = GlideApp.with(fragment).asBitmap()
                 .error(dummyCover)
                 .centerCrop();
     }
@@ -94,7 +96,7 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
     @Override
     public void onViewRecycled(ArtistHolder holder) {
         super.onViewRecycled(holder);
-        Glide.clear(holder.cover);
+        Glide.with(mFragment).clear(holder.cover);
     }
 
     void setOnArtistSelectedListener(OnArtistSelectedListener listener) {

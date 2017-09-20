@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -33,11 +32,11 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
 import fr.nihilus.music.view.AutoUpdateSeekBar.OnUpdateListener;
 
@@ -48,7 +47,7 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
 
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
-    private BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+    private RequestBuilder<Bitmap> mGlideRequest;
     private TextView mTitle;
     private TextView mArtist;
     private ImageView mAlbumArt;
@@ -119,8 +118,7 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         }
 
         Drawable dummyAlbumArt = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp);
-        mGlideRequest = Glide.with(context).fromUri()
-                .asBitmap()
+        mGlideRequest = GlideApp.with(context).asBitmap()
                 .fitCenter()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);

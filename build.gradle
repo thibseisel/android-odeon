@@ -23,8 +23,7 @@ allprojects {
 
 ext {
     supportLibVersion = '26.1.0'
-    // TODO : Update to Glide 4+
-    glideVersion = '3.8.0'
+    glideVersion = '4.1.1'
     daggerVersion = '2.11'
     junitVersion = '4.12'
     hamcrestVersion = '1.3'

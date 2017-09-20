@@ -53,7 +53,7 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new AlbumsAdapter(getContext());
+        mAdapter = new AlbumsAdapter(this);
         mAdapter.setOnAlbumSelectedListener(this);
     }
 

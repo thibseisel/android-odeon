@@ -2,7 +2,6 @@ package fr.nihilus.music.ui.artists;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.AlbumColumns;
 import android.support.annotation.ColorInt;
@@ -24,17 +23,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.glide.GlideApp;
+import fr.nihilus.music.glide.PaletteBitmap;
 import fr.nihilus.music.media.MediaItems;
-import fr.nihilus.music.palette.BottomPaletteTranscoder;
-import fr.nihilus.music.palette.PaletteBitmap;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;
 
@@ -43,12 +42,14 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int TYPE_ALBUM = 1;
     private static final int TYPE_TRACK = 0;
 
-    private final BitmapRequestBuilder<Uri, PaletteBitmap> mGlide;
+    private final Fragment mFragment;
+    private final RequestBuilder<PaletteBitmap> mGlide;
     private final int[] mDefaultColors;
     private final List<MediaItem> mItems = new ArrayList<>();
     private OnMediaItemSelectedListener mListener;
 
     ArtistDetailAdapter(@NonNull Fragment fragment) {
+        mFragment = fragment;
         Context ctx = fragment.getContext();
         mDefaultColors = new int[]{
                 ContextCompat.getColor(ctx, R.color.album_band_default),
@@ -58,8 +59,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         };
 
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
-        mGlide = Glide.with(fragment).fromUri().asBitmap()
-                .transcode(new BottomPaletteTranscoder(ctx), PaletteBitmap.class)
+        mGlide = GlideApp.with(fragment).as(PaletteBitmap.class)
                 .centerCrop()
                 .error(dummyAlbumArt);
     }
@@ -113,7 +113,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onViewRecycled(RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder.getItemViewType() == TYPE_ALBUM) {
-            Glide.clear(((AlbumHolder) holder).albumArt);
+            Glide.with(mFragment).clear(((AlbumHolder) holder).albumArt);
         }
     }
 
@@ -143,9 +143,9 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mGlide.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
             @Override
             protected void setResource(PaletteBitmap resource) {
-                super.view.setImageBitmap(resource.bitmap);
-                Palette.Swatch swatch = resource.palette.getDominantSwatch();
-                int accentColor = resource.palette.getVibrantColor(mDefaultColors[1]);
+                super.view.setImageBitmap(resource.getBitmap());
+                Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
+                int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
                 if (swatch != null) {
                     holder.setColors(swatch.getRgb(), accentColor,
                             swatch.getTitleTextColor(), swatch.getBodyTextColor());
@@ -177,7 +177,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         mGlide.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
             @Override
             protected void setResource(PaletteBitmap resource) {
-                super.view.setImageBitmap(resource.bitmap);
+                super.view.setImageBitmap(resource.getBitmap());
             }
         });
 

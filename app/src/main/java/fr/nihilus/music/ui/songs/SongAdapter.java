@@ -3,7 +3,6 @@ package fr.nihilus.music.ui.songs;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -20,13 +19,13 @@ import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-import com.bumptech.glide.BitmapRequestBuilder;
-import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
+import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemIndexer;
 
@@ -34,7 +33,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     private static final String TAG = "SongAdapter";
 
-    private final BitmapRequestBuilder<Uri, Bitmap> mGlideRequest;
+    private final RequestBuilder<Bitmap> mGlideRequest;
     private final MediaItemIndexer mIndexer;
     private final List<MediaBrowserCompat.MediaItem> mSongs = new ArrayList<>();
 
@@ -44,9 +43,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         Drawable dummyAlbumArt = ContextCompat.getDrawable(fragment.getContext(),
                 R.drawable.ic_audiotrack_24dp);
 
-        mGlideRequest = Glide.with(fragment)
-                .fromUri()
-                .asBitmap()
+        mGlideRequest = GlideApp.with(fragment).asBitmap()
                 .error(dummyAlbumArt)
                 .fitCenter();
     }

@@ -19,13 +19,13 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.glide.GlideApp
 import javax.inject.Inject
 
 @ServiceScoped
@@ -203,10 +203,10 @@ class MediaNotificationManager
                 .setContentTitle(description.title)
                 .setContentText(description.subtitle)
 
-        Glide.with(service)
-                .load(description.iconUri).asBitmap()
+        GlideApp.with(service).asBitmap()
+                .load(description.iconUri)
                 .into(object : SimpleTarget<Bitmap>(mMaxIconSize, mMaxIconSize) {
-                    override fun onResourceReady(art: Bitmap?, anim: GlideAnimation<in Bitmap>?) {
+                    override fun onResourceReady(art: Bitmap?, transition: Transition<in Bitmap>?) {
                         val notif = notificationBuilder.setLargeIcon(art).build()
                         if (notif != null) {
                             mNotificationManager.notify(NOTIFICATION_ID, notif)

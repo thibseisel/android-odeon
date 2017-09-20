@@ -150,6 +150,7 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(KEY_ITEMS, mTracks);
     }
 
