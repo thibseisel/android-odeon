@@ -20,8 +20,7 @@
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay.Neutral</item>
     </style>
 
-    <style name="AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
-        <!-- colorPrimary, colorAccent... are not defined for this theme -->
+    <style name="AppTheme.DialogWhenLarge" parent="Base.AppTheme.DialogWhenLarge">
         <item name="colorAccent">@color/mtrl_blue_a100</item>
     </style>
 

@@ -62,9 +62,16 @@
         <!-- Animation is available for API 21+ -->
     </style>
 
-    <style name="AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
-        <!-- colorPrimary, colorAccent... ne sont pas définies pour ce thème -->
+    <style name="Base.AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
         <item name="colorAccent">@color/mtrl_blue_a400</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
+    <style name="AppTheme.DialogWhenLarge" parent="Base.AppTheme.DialogWhenLarge"/>
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_enter_anim</item>
+        <item name="android:windowExitAnimation">@anim/dialog_exit_anim</item>
     </style>
 
 </resources>

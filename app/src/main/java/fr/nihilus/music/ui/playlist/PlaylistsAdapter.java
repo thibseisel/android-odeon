@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
@@ -27,14 +28,13 @@ import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 
 class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
-    private List<MediaItem> mItems;
+    private final List<MediaItem> mItems = new ArrayList<>();
     private final RequestBuilder<Bitmap> mGlideRequest;
     private final Fragment mFragment;
     private OnPlaylistSelectedListener mListener;
 
-    PlaylistsAdapter(@NonNull Fragment fragment, List<MediaItem> playlists) {
+    PlaylistsAdapter(@NonNull Fragment fragment) {
         mFragment = fragment;
-        mItems = playlists;
         final Context ctx = fragment.getContext();
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_playlist_24dp);
         mGlideRequest = GlideApp.with(fragment).asBitmap()
@@ -67,12 +67,12 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
 
     @Override
     public int getItemCount() {
-        return mItems != null ? mItems.size() : 0;
+        return mItems.size();
     }
 
     @Override
     public long getItemId(int position) {
-        if (hasStableIds() && mItems != null) {
+        if (hasStableIds()) {
             String mediaId = mItems.get(position).getMediaId();
             return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
@@ -92,7 +92,8 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
     void update(List<MediaItem> newItems) {
         MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, newItems);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
-        mItems = newItems;
+        mItems.clear();
+        mItems.addAll(newItems);
         result.dispatchUpdatesTo(this);
     }
 

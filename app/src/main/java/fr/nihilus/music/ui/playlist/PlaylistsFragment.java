@@ -4,12 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.widget.ContentLoadingProgressBar;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -28,31 +24,23 @@ import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.MediaBrowserConnection;
 import fr.nihilus.music.utils.MediaID;
+import fr.nihilus.recyclerfragment.RecyclerFragment;
 import io.reactivex.functions.Consumer;
 
 @ActivityScoped
-public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
+public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
 
     private static final String TAG = "PlaylistsFragment";
-    private static final String KEY_PLAYLISTS = "playlists";
 
-    private ArrayList<MediaItem> mPlaylists;
     private PlaylistsAdapter mAdapter;
-    private RecyclerView mRecyclerView;
-    private ContentLoadingProgressBar mProgressBar;
-    private View mEmptyView;
-
     @Inject MediaBrowserConnection mBrowserConnection;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " items from " + parentId);
-            mPlaylists.clear();
-            mPlaylists.addAll(children);
-            mAdapter.notifyDataSetChanged();
-            showLoading(false);
-            showEmptyView(children.isEmpty());
+            mAdapter.update(children);
+            setRecyclerShown(true);
         }
     };
 
@@ -67,11 +55,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        if (savedInstanceState != null) {
-            mPlaylists = savedInstanceState.getParcelableArrayList(KEY_PLAYLISTS);
-        } else mPlaylists = new ArrayList<>();
-
-        mAdapter = new PlaylistsAdapter(this, mPlaylists);
+        mAdapter = new PlaylistsAdapter(this);
         mAdapter.setOnPlaylistSelectedListener(this);
     }
 
@@ -89,7 +73,7 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
         return super.onOptionsItemSelected(item);
     }
 
-    @Nullable
+    @NonNull
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -97,59 +81,26 @@ public class PlaylistsFragment extends Fragment implements PlaylistsAdapter.OnPl
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = view.findViewById(R.id.recyclerView);
-        mProgressBar = view.findViewById(android.R.id.progress);
-        mEmptyView = view.findViewById(android.R.id.empty);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        mRecyclerView.setAdapter(mAdapter);
-
+        setAdapter(mAdapter);
         if (savedInstanceState == null) {
-            showLoading(true);
+            setRecyclerShown(false);
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_PLAYLISTS, mPlaylists);
-    }
-
-    private void showLoading(boolean shown) {
-        if (shown) {
-            mRecyclerView.setVisibility(View.GONE);
-            mProgressBar.show();
-        } else {
-            mRecyclerView.setVisibility(View.VISIBLE);
-            mProgressBar.hide();
-        }
-    }
-
-    private void showEmptyView(boolean shown) {
-        mEmptyView.setVisibility(shown ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         getActivity().setTitle(R.string.action_playlists);
         mBrowserConnection.subscribe(MediaID.ID_PLAYLISTS, mCallback);
     }
 
     @Override
-    public void onPause() {
+    public void onStop() {
         mBrowserConnection.unsubscribe(MediaID.ID_PLAYLISTS);
-        showLoading(false);
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroyView() {
-        mRecyclerView = null;
-        mProgressBar = null;
-        mEmptyView = null;
-        super.onDestroyView();
+        super.onStop();
     }
 
     @Override
