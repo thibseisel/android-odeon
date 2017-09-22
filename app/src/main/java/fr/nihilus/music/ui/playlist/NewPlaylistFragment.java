@@ -35,6 +35,7 @@ import fr.nihilus.music.playlists.PlaylistRepository;
 import fr.nihilus.music.ui.songs.SongAdapter;
 import fr.nihilus.music.utils.MediaID;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 @ActivityScoped
@@ -161,10 +162,8 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_close) {
-                    dismiss();
-                    return true;
-                } else return false;
+                if (item.getItemId() == R.id.action_close) dismiss();
+                return true;
             }
         });
     }
@@ -202,7 +201,12 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         mRepo.saveNewPlaylist(newPlaylist, trackIds)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        dismiss();
+                    }
+                });
     }
 
     @Override
