@@ -3,7 +3,6 @@ package fr.nihilus.music.media.repo
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.media.cache.MusicCache
@@ -107,24 +106,23 @@ internal class CachedMusicRepository
 
     private fun getPlaylists(): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return playlistDao.playlists
-                .doOnNext { Log.d("Repository", "Retrieved playlist: size = ${it.size}") }
-                .single(emptyList())
-                .flatMapObservable { Observable.fromIterable(it) }
-                .doOnNext { Log.d("Repository", "Playlist item: $it") }
-                .map { it.asMediaDescription(builder) }
-                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
-                .toList()
+        return playlistDao.playlists.take(1)
+                .flatMap { Flowable.fromIterable(it) }
+                .map { playlist ->
+                    val description = playlist.asMediaDescription(builder)
+                    MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
+                }.toList()
     }
 
     private fun getPlaylistMembers(playlistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return playlistDao.getPlaylistTracks(playlistId.toLong())
-                .take(1)
+        return playlistDao.getPlaylistTracks(playlistId.toLong()).take(1)
                 .flatMap { Flowable.fromIterable(it) }
                 .flatMapSingle { getMetadata(it.musicId.toString()) }
-                .map { it.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId) }
-                .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
+                .map { member ->
+                    val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
+                    MediaItem(descr, MediaItem.FLAG_PLAYABLE)
+                }
                 .toList()
     }
 
