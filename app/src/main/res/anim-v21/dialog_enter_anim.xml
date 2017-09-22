@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <translate
+    <scale
+        android:pivotX="92%"
+        android:pivotY="8%"
+        android:fromXScale="0"
+        android:fromYScale="0"
+        android:toXScale="100%"
+        android:toYScale="100%"
         android:duration="225"
-        android:interpolator="@android:interpolator/fast_out_slow_in"
-        android:fromYDelta="50%p"
-        android:toYDelta="0" />
+        android:interpolator="@android:interpolator/fast_out_linear_in"/>
 </set>

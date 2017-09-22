@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <set xmlns:android="http://schemas.android.com/apk/res/android">
-    <alpha
-        android:fromAlpha="0.5"
-        android:toAlpha="1.0"/>
-
-    <translate
+    <scale
         android:duration="225"
-        android:fromYDelta="75%"
-        android:toYDelta="0" />
+        android:fromXScale="0"
+        android:fromYScale="0"
+        android:pivotX="92%"
+        android:pivotY="8%"
+        android:toXScale="100%"
+        android:toYScale="100%"/>
 </set>
