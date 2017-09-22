@@ -1,6 +1,7 @@
 package fr.nihilus.music.ui.artists;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.AlbumColumns;
@@ -43,7 +44,8 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final int TYPE_TRACK = 0;
 
     private final Fragment mFragment;
-    private final RequestBuilder<PaletteBitmap> mGlide;
+    private final RequestBuilder<PaletteBitmap> mPaletteLoader;
+    private final RequestBuilder<Bitmap> mBitmapLoader;
     private final int[] mDefaultColors;
     private final List<MediaItem> mItems = new ArrayList<>();
     private OnMediaItemSelectedListener mListener;
@@ -59,7 +61,10 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         };
 
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
-        mGlide = GlideApp.with(fragment).as(PaletteBitmap.class)
+        mPaletteLoader = GlideApp.with(fragment).as(PaletteBitmap.class)
+                .centerCrop()
+                .error(dummyAlbumArt);
+        mBitmapLoader = GlideApp.with(fragment).asBitmap()
                 .centerCrop()
                 .error(dummyAlbumArt);
     }
@@ -140,15 +145,17 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         ViewCompat.setTransitionName(holder.albumArt, "art_" + item.getMediaId());
         holder.setColors(mDefaultColors[0], mDefaultColors[1], mDefaultColors[2], mDefaultColors[3]);
 
-        mGlide.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
+        mPaletteLoader.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
             @Override
-            protected void setResource(PaletteBitmap resource) {
-                super.view.setImageBitmap(resource.getBitmap());
-                Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
-                int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
-                if (swatch != null) {
-                    holder.setColors(swatch.getRgb(), accentColor,
-                            swatch.getTitleTextColor(), swatch.getBodyTextColor());
+            protected void setResource(@Nullable PaletteBitmap resource) {
+                if (resource != null) {
+                    super.view.setImageBitmap(resource.getBitmap());
+                    Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
+                    int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
+                    if (swatch != null) {
+                        holder.setColors(swatch.getRgb(), accentColor,
+                                swatch.getTitleTextColor(), swatch.getBodyTextColor());
+                    }
                 }
             }
         });
@@ -174,12 +181,7 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             holder.duration.setText(formatDuration(duration));
         }
 
-        mGlide.load(item.getIconUri()).into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
-            @Override
-            protected void setResource(PaletteBitmap resource) {
-                super.view.setImageBitmap(resource.getBitmap());
-            }
-        });
+        mBitmapLoader.load(item.getIconUri()).into(holder.albumArt);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

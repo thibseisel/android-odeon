@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -84,13 +85,15 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
         mGlideRequest.load(item.getIconUri())
                 .into(new ImageViewTarget<PaletteBitmap>(holder.albumArt) {
                     @Override
-                    protected void setResource(PaletteBitmap resource) {
-                        super.view.setImageBitmap(resource.getBitmap());
-                        Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
-                        int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
-                        if (swatch != null) {
-                            holder.setColors(swatch.getRgb(), accentColor,
-                                    swatch.getTitleTextColor(), swatch.getBodyTextColor());
+                    protected void setResource(@Nullable PaletteBitmap resource) {
+                        if (resource != null) {
+                            super.view.setImageBitmap(resource.getBitmap());
+                            Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
+                            int accentColor = resource.getPalette().getVibrantColor(mDefaultColors[1]);
+                            if (swatch != null) {
+                                holder.setColors(swatch.getRgb(), accentColor,
+                                        swatch.getTitleTextColor(), swatch.getBodyTextColor());
+                            }
                         }
                     }
                 });
