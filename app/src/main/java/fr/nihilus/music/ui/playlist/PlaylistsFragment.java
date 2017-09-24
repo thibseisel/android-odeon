@@ -23,6 +23,7 @@ import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.NavigationController;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
 import io.reactivex.functions.Consumer;
@@ -34,6 +35,7 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
 
     private PlaylistsAdapter mAdapter;
     @Inject MediaBrowserConnection mBrowserConnection;
+    @Inject NavigationController mRouter;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -104,7 +106,12 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
     }
 
     @Override
-    public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, final MediaItem playlist) {
+    public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, MediaItem playlist) {
+        mRouter.navigateToPlaylistDetails(playlist);
+    }
+
+    @Override
+    public void onPlay(final MediaItem playlist) {
         mBrowserConnection.getMediaController().take(1).subscribe(new Consumer<MediaControllerCompat>() {
             @Override
             public void accept(@Nullable MediaControllerCompat controller) throws Exception {

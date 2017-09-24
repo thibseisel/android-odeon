@@ -57,11 +57,11 @@ public class PlaylistRepository {
         });
     }
 
-    public Completable deletePlaylist(final Playlist playlist) {
+    public Completable deletePlaylist(final long id) {
         return Completable.fromAction(new Action() {
             @Override
             public void run() {
-                mDao.deletePlaylists(playlist);
+                mDao.deletePlaylist(id);
             }
         });
     }

@@ -11,6 +11,7 @@ import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
+import fr.nihilus.music.ui.playlist.MembersFragment
 import fr.nihilus.music.ui.playlist.PlaylistsFragment
 import fr.nihilus.music.ui.songs.SongListFragment
 import fr.nihilus.music.utils.MediaID
@@ -54,6 +55,19 @@ class NavigationController
     fun navigateToPlaylists() {
         val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, ::PlaylistsFragment)
         showFragment(MediaID.ID_PLAYLISTS, fragment)
+    }
+
+    fun navigateToPlaylistDetails(playlist: MediaBrowserCompat.MediaItem) {
+        val tag = playlist.mediaId!!
+        val fragment = findOrCreateFragment(tag) {
+            MembersFragment.newInstance(playlist)
+        }
+
+        showFragment(tag, fragment)
+    }
+
+    fun navigateBack() {
+        mFm.popBackStack()
     }
 
     /**

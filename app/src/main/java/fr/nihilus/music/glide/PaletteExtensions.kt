@@ -1,17 +1,12 @@
 package fr.nihilus.music.glide
 
 import android.graphics.Rect
-import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
-import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.request.RequestOptions
 
 @GlideExtension
 object PaletteExtensions {
-
-    @GlideType(PaletteBitmap::class)
-    @JvmStatic fun asBitmapWithPalette(requestBuilder: RequestBuilder<PaletteBitmap>) {}
 
     @GlideOption
     @JvmStatic fun maxColorCount(options: RequestOptions, maxColorCount: Int) {

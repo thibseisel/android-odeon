@@ -44,7 +44,7 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
     @Override
     public PlaylistHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.artist_album_item, parent, false);
+        View v = inflater.inflate(R.layout.playlist_item, parent, false);
         return new PlaylistHolder(v);
     }
 
@@ -60,6 +60,16 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
                 if (mListener != null) {
                     MediaItem clickedItem = mItems.get(holder.getAdapterPosition());
                     mListener.onPlaylistSelected(holder, clickedItem);
+                }
+            }
+        });
+
+        holder.actionPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mListener != null) {
+                    MediaItem clickedItem = mItems.get(holder.getAdapterPosition());
+                    mListener.onPlay(clickedItem);
                 }
             }
         });
@@ -100,15 +110,18 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
     static class PlaylistHolder extends RecyclerView.ViewHolder {
         final TextView title;
         final ImageView image;
+        final View actionPlay;
 
         PlaylistHolder(View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.title);
             image = itemView.findViewById(R.id.albumArt);
+            actionPlay = itemView.findViewById(R.id.action_play);
         }
     }
 
     interface OnPlaylistSelectedListener {
         void onPlaylistSelected(PlaylistHolder holder, MediaItem playlist);
+        void onPlay(MediaItem playlist);
     }
 }

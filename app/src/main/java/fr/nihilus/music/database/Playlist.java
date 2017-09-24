@@ -37,6 +37,10 @@ public class Playlist {
     @ColumnInfo(name = "art_uri")
     private Uri artUri;
 
+    public Playlist() {
+        // Default empty constructor
+    }
+
     public static Playlist create(CharSequence title) {
         Playlist newPlaylist = new Playlist();
         newPlaylist.setTitle(title.toString());

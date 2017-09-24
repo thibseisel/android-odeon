@@ -197,6 +197,8 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         }
 
         mMessage.setText(R.string.saving_playlist);
+        // TODO Move the actual saving of the Playlist to the service
+        // This allow the service to notify of a change in browsed playlists
         Playlist newPlaylist = Playlist.create(playlistTitle);
         mRepo.saveNewPlaylist(newPlaylist, trackIds)
                 .subscribeOn(Schedulers.io())

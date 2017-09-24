@@ -26,7 +26,7 @@
             android:scrollbars="vertical"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:spanCount="@integer/artist_grid_span_count"
-            tools:listitem="@layout/artist_album_item"/>
+            tools:listitem="@layout/playlist_item"/>
 
         <!-- Empty View -->
         <LinearLayout

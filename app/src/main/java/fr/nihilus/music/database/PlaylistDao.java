@@ -32,8 +32,8 @@ public interface PlaylistDao {
     void addTracks(Iterable<PlaylistTrack> tracks);
 
     @WorkerThread
-    @Delete
-    void deletePlaylists(Playlist... playlists);
+    @Query("DELETE FROM playlist WHERE id = :playlistId")
+    void deletePlaylist(long playlistId);
 
     @WorkerThread
     @Delete
