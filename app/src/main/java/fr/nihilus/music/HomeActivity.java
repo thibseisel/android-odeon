@@ -1,36 +1,23 @@
 package fr.nihilus.music;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.content.res.AppCompatResources;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.bumptech.glide.request.target.ImageViewTarget;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -38,16 +25,13 @@ import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
-import fr.nihilus.music.glide.GlideApp;
-import fr.nihilus.music.glide.PaletteBitmap;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.library.NavigationController;
+import fr.nihilus.music.library.ViewModelFactory;
 import fr.nihilus.music.settings.PreferenceDao;
 import fr.nihilus.music.settings.SettingsActivity;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.PermissionUtil;
-import fr.nihilus.music.view.PlayerView;
-import io.reactivex.functions.Consumer;
 
 @SuppressWarnings("ConstantConditions")
 public class HomeActivity extends AppCompatActivity
@@ -57,31 +41,17 @@ public class HomeActivity extends AppCompatActivity
     private static final String ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS";
     private static final String ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM";
     private static final String TAG = "HomeActivity";
-    private static final String KEY_DAILY_SONG = "daily_song";
 
     @Inject DispatchingAndroidInjector<Fragment> dispatchingFragmentInjector;
     @Inject PreferenceDao mPrefs;
     @Inject NavigationController mRouter;
-    @Inject MediaBrowserConnection mBrowserConnection;
-    private DrawerLayout mDrawerLayout;
+    @Inject ViewModelFactory mFactory;
 
+    private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private NavigationView mNavigationView;
-    private PlayerView mPlayerView;
-    private MediaItem mDaily;
-    /**
-     * Called when the daily song is available.
-     * Display those informations as the Navigation Drawer's header.
-     */
-    private final SubscriptionCallback mDailySubscription = new SubscriptionCallback() {
-        @Override
-        public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
-            if (children.size() > 0) {
-                mDaily = children.get(0);
-                prepareHeaderView(mDaily);
-            }
-        }
-    };
+
+    private BrowserViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,19 +61,12 @@ public class HomeActivity extends AppCompatActivity
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         setupNavigationDrawer();
-        setupPlayerView();
 
-        mBrowserConnection.connect();
-        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
-            @Override
-            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
-                MediaControllerCompat.setMediaController(HomeActivity.this, controller);
-            }
-        });
+        mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel.class);
+        mViewModel.connect();
 
         if (savedInstanceState == null) {
             if (PermissionUtil.hasExternalStoragePermission(this)) {
-                //loadDailySong();
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(getIntent())) {
                     // If intent is not handled, load default fragment
@@ -111,9 +74,6 @@ public class HomeActivity extends AppCompatActivity
                     mRouter.navigateToAllSongs();
                 }
             } else PermissionUtil.requestExternalStoragePermission(this);
-        } else {
-            mDaily = savedInstanceState.getParcelable(KEY_DAILY_SONG);
-            prepareHeaderView(mDaily);
         }
     }
 
@@ -127,19 +87,6 @@ public class HomeActivity extends AppCompatActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    protected void onDestroy() {
-        mPlayerView.setMediaController(null);
-        mBrowserConnection.release();
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(KEY_DAILY_SONG, mDaily);
     }
 
     /**
@@ -182,24 +129,6 @@ public class HomeActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setupPlayerView() {
-        mPlayerView = findViewById(R.id.playerView);
-        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
-            @Override
-            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
-                mPlayerView.setMediaController(controller);
-            }
-        });
-    }
-
-    /**
-     * Ask the MediaBrowser to fetch information about the daily song.
-     * The daily song changes every time the app is open.
-     */
-    private void loadDailySong() {
-        mBrowserConnection.subscribe(MediaID.ID_DAILY, mDailySubscription);
     }
 
     /**
@@ -253,85 +182,11 @@ public class HomeActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Load daily song only if it has permission
-                //loadDailySong();
-            }
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(getIntent())) {
                 mNavigationView.setCheckedItem(R.id.action_all);
                 mRouter.navigateToAllSongs();
             }
-        }
-    }
-
-    /**
-     * Prepare the Navigation Drawer header to display informations on the daily song.
-     * Clicking on the header will start playing that song.
-     *
-     * @param daily song to display as the Navigation Drawer header
-     */
-    private void prepareHeaderView(final MediaItem daily) {
-        if (daily != null) {
-            Uri artUri = daily.getDescription().getIconUri();
-            CharSequence title = daily.getDescription().getTitle();
-            CharSequence subtitle = daily.getDescription().getSubtitle();
-
-            View header = getLayoutInflater().inflate(R.layout.drawer_header, mNavigationView, false);
-
-            final View band = header.findViewById(R.id.band);
-            ImageView albumArtView = header.findViewById(R.id.cover);
-
-            final TextView titleText = header.findViewById(R.id.title);
-            titleText.setText(title);
-
-            final TextView subtitleText = header.findViewById(R.id.subtitle);
-            subtitleText.setText(subtitle);
-
-            // If header is already added, don't add it twice
-            if (mNavigationView.getHeaderView(0) == null) {
-                mNavigationView.addHeaderView(header);
-            }
-
-            final Drawable dummyAlbumArt = AppCompatResources.getDrawable(HomeActivity.this,
-                    R.drawable.ic_audiotrack_24dp);
-
-            GlideApp.with(this).as(PaletteBitmap.class)
-                    .load(artUri)
-                    .error(dummyAlbumArt)
-                    .centerCrop()
-                    .into(new ImageViewTarget<PaletteBitmap>(albumArtView) {
-                        @Override
-                        protected void setResource(PaletteBitmap resource) {
-                            super.view.setImageBitmap(resource.getBitmap());
-                            Palette.Swatch swatch = resource.getPalette().getDominantSwatch();
-                            if (swatch != null) {
-                                band.setBackgroundColor(swatch.getRgb());
-                                titleText.setTextColor(swatch.getBodyTextColor());
-                                subtitleText.setTextColor(swatch.getBodyTextColor());
-                            }
-                        }
-                    });
-
-            header.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MediaControllerCompat controller = MediaControllerCompat
-                            .getMediaController(HomeActivity.this);
-                    if (controller != null) {
-                        controller.getTransportControls().playFromMediaId(daily.getMediaId(), null);
-
-                        // Close the drawer and open the PlayerView
-                        mDrawerLayout.closeDrawer(GravityCompat.START);
-                        mPlayerView.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mPlayerView.setExpanded(true);
-                            }
-                        }, 200);
-                    }
-                }
-            });
         }
     }
 
@@ -358,23 +213,9 @@ public class HomeActivity extends AppCompatActivity
         return false;
     }
 
-    /**
-     * Start playing a random mix of all songs in the music library.
-     * If MediaBrowser is not connected, playing will start asynchronously,
-     * as soon as the MediaBrowser is connected.
-     */
     private void startRandomMix() {
-        mBrowserConnection.getMediaController().take(1).subscribe(new Consumer<MediaControllerCompat>() {
-            @Override
-            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
-                if (controller != null) {
-                    controller.getTransportControls()
-                            .setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
-                    controller.getTransportControls().playFromMediaId(MediaID.ID_MUSIC, null);
-                    mPlayerView.setExpanded(true);
-                }
-            }
-        });
+        mViewModel.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL);
+        mViewModel.playFromMediaId(MediaID.ID_MUSIC);
     }
 
     @Override

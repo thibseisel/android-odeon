@@ -46,7 +46,8 @@ dependencies {
     compile "com.android.support:preference-v14:${supportLibVersion}"
     compile "com.android.support.constraint:constraint-layout:${constraintVersion}"
 
-    // Android Room
+    // Android Arch Components
+    compile "android.arch.lifecycle:extensions:${archVersion}"
     compile "android.arch.persistence.room:runtime:${archVersion}"
     compile "android.arch.persistence.room:rxjava2:${archVersion}"
     kapt "android.arch.persistence.room:compiler:${archVersion}"

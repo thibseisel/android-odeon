@@ -21,11 +21,11 @@ import fr.nihilus.music.ui.albums.AlbumDetailActivity;
 abstract class ActivityBindingModule {
 
     @ActivityScoped
-    @ContributesAndroidInjector(modules = MusicLibraryModule.class)
+    @ContributesAndroidInjector(modules = {MusicLibraryModule.class, ViewModelModule.class})
     abstract HomeActivity contributeHomeActivity();
 
     @ActivityScoped
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = {ViewModelModule.class})
     abstract AlbumDetailActivity contributeAlbumDetailActivity();
 
     @ActivityScoped
