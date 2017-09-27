@@ -12,7 +12,7 @@
         android:required="true"/>
 
     <application
-        android:name="fr.nihilus.music.MyApplication"
+        android:name="fr.nihilus.music.NihilusMusicApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup"
         android:icon="@mipmap/ic_launcher"
