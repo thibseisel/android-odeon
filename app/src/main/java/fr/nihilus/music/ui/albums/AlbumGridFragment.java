@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.albums;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,24 +16,19 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
 
 @ActivityScoped
 public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter.OnAlbumSelectedListener {
-
     private static final String TAG = "AlbumGridFragment";
-    private static final String KEY_ITEMS = "Albums";
 
     private AlbumsAdapter mAdapter;
-
-    @Inject MediaBrowserConnection mBrowserConnection;
+    private BrowserViewModel mViewModel;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -55,6 +51,7 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
 
         mAdapter = new AlbumsAdapter(this);
         mAdapter.setOnAlbumSelectedListener(this);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @NonNull
@@ -85,13 +82,12 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_albums);
-        mBrowserConnection.subscribe(MediaID.ID_ALBUMS, mCallback);
-        Log.d(TAG, "Subscribed, waiting for items...");
+        mViewModel.subscribe(MediaID.ID_ALBUMS, mCallback);
     }
 
     @Override
     public void onStop() {
-        mBrowserConnection.unsubscribe(MediaID.ID_ALBUMS);
+        mViewModel.unsubscribe(MediaID.ID_ALBUMS);
         super.onStop();
     }
 

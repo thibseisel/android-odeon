@@ -6,17 +6,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
@@ -26,7 +23,6 @@ import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -40,16 +36,16 @@ import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
 import fr.nihilus.music.view.AutoUpdateSeekBar.OnUpdateListener;
 
-@CoordinatorLayout.DefaultBehavior(BottomSheetBehavior.class)
-public class PlayerView extends ConstraintLayout implements View.OnClickListener, OnUpdateListener {
+public class PlayerView extends ConstraintLayout implements OnUpdateListener {
 
+    public static final int DEFAULT_ELEVATION = 8;
     private static final String TAG = "PlayerView";
-
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
+
     private RequestBuilder<Bitmap> mGlideRequest;
     private TextView mTitle;
-    private TextView mArtist;
+    private TextView mSubtitle;
     private ImageView mAlbumArt;
     private AutoUpdateSeekBar mProgress;
     private ImageView mPlayPauseButton;
@@ -57,44 +53,34 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
     private ImageView mNextButton;
     private ImageView mMasterPlayPause;
     private ImageView mBigArt;
-    private ImageView mRandomButton;
-    private MediaControllerCompat mController;
+    private ImageView mShuffleModeButton;
+    private ImageView mRepeatModeButton;
 
+    private EventListener mListener;
     private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
-            if (fromUser) seekTo(progress);
+            if (mListener != null && fromUser) {
+                mListener.onSeek(progress);
+            }
         }
 
         @Override
         public void onStartTrackingTouch(SeekBar view) {
-            // Do nothing
+            // Nothing to do
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar view) {
-            // Do nothing
+            // Nothing to do
         }
     };
 
+    private boolean mExpanded = false;
+    private int mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
     private PlaybackStateCompat mLastPlaybackState;
-    private boolean mIsPlaying;
-
-    private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
-        @Override
-        public void onPlaybackStateChanged(PlaybackStateCompat newState) {
-            updatePlaybackState(newState);
-        }
-
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            updateMetadata(metadata);
-        }
-    };
-
+    private MediaMetadataCompat mMetadata;
     private Transition mOpenTransition;
-
-    private BottomSheetBehavior<PlayerView> mBehavior;
 
     public PlayerView(Context context) {
         this(context, null, 0);
@@ -109,8 +95,8 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         View.inflate(context, R.layout.view_player, this);
 
         // Make this view appear above AppbarLayout
-        ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, 4));
-        // Prevent from dispatching touches to the view behind
+        ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, DEFAULT_ELEVATION));
+        // Prevent from dispatching touches to views behind
         setClickable(true);
 
         if (isInEditMode()) {
@@ -133,57 +119,28 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         // Do not dispatch pressed event to View children
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        /* Starting from this point, PlayerView is attached to its parent.
-         * Initialize BottomSheetBehavior only if the parent is a CoordinatorLayout.
-         */
-        ViewGroup.LayoutParams params = getLayoutParams();
-        if (params instanceof CoordinatorLayout.LayoutParams) {
-            mBehavior = BottomSheetBehavior.from(this);
-            mBehavior.setBottomSheetCallback(new BottomSheetCallback());
-            if (mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
-                onClose(false);
-            } else if (mBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                onOpen(false);
-            }
-        }
-    }
-
-    public void setMediaController(@Nullable MediaControllerCompat controller) {
-        Log.d(TAG, "setMediaController() called with: controller = [" + controller + "]");
-        if (controller != null) {
-            controller.registerCallback(mControllerCallback);
-            updateMetadata(controller.getMetadata());
-            updatePlaybackState(controller.getPlaybackState());
-        } else if (mController != null) {
-            mController.unregisterCallback(mControllerCallback);
-        }
-        mController = controller;
-    }
-
     /**
      * Expand or collapse the PlayerView with an animation.
      * When expanded, it is drawn above the main content view.
      * When collapsed, only the top is visible.
      * If the playerView is not a direct child of CoordinatorLayout, this method will do nothing.
+     *
      * @param expanded true to expand the PlayerView, false to collapse
      */
     public void setExpanded(boolean expanded) {
-        if (mBehavior != null) {
-            mBehavior.setState(expanded
-                    ? BottomSheetBehavior.STATE_EXPANDED
-                    : BottomSheetBehavior.STATE_COLLAPSED);
+        if (mExpanded != expanded) {
+            if (expanded) onOpen(true);
+            else onClose(true);
+            mExpanded = expanded;
         }
     }
 
-    private void updateMetadata(MediaMetadataCompat metadata) {
+    public void updateMetadata(@Nullable MediaMetadataCompat metadata) {
         if (metadata != null) {
+            mMetadata = metadata;
             MediaDescriptionCompat media = metadata.getDescription();
             mTitle.setText(media.getTitle());
-            mArtist.setText(media.getSubtitle());
+            mSubtitle.setText(media.getSubtitle());
             mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
             mGlideRequest.load(media.getIconUri()).into(mBigArt);
             int max = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
@@ -192,19 +149,24 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         }
     }
 
-    private void updatePlaybackState(@NonNull PlaybackStateCompat newState) {
+    public void updatePlaybackState(@Nullable PlaybackStateCompat newState) {
+        if (newState == null) {
+            // TODO Reset to default state
+            return;
+        }
+
         boolean hasChanged = (mLastPlaybackState == null)
                 || (mLastPlaybackState.getState() != newState.getState());
         Log.d(TAG, "updatePlaybackState: hasChanged=[" + hasChanged + "]");
 
         toggleControls(newState.getActions());
-        mIsPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
+        boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
         onUpdate(mProgress);
         if (hasChanged) {
-            togglePlayPauseButton(mPlayPauseButton, mIsPlaying);
-            togglePlayPauseButton(mMasterPlayPause, mIsPlaying);
-            if (mIsPlaying) mProgress.startUpdate();
+            togglePlayPauseButton(mPlayPauseButton, isPlaying);
+            togglePlayPauseButton(mMasterPlayPause, isPlaying);
+            if (isPlaying) mProgress.startUpdate();
             else mProgress.stopUpdate();
         }
     }
@@ -226,12 +188,6 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
 
         mAlbumArt.setPadding(0, 0, 0, 0);
         mPlayPauseButton.setVisibility(View.VISIBLE);
-    }
-
-    private void seekTo(int position) {
-        if (mController != null) {
-            mController.getTransportControls().seekTo(position);
-        }
     }
 
     private void togglePlayPauseButton(ImageView button, boolean isPlaying) {
@@ -259,43 +215,6 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
         mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
         mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
-
-        if (mController != null) {
-            mRandomButton.setActivated(
-                    mController.getShuffleMode() != PlaybackStateCompat.SHUFFLE_MODE_NONE);
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        /*if (view.getId() == R.id.textContainer) {
-            setExpanded(mBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED);
-            //return;
-        }*/
-
-        if (mController != null) {
-            MediaControllerCompat.TransportControls controls = mController.getTransportControls();
-            switch (view.getId()) {
-                case R.id.main_play_pause:
-                case R.id.btn_play_pause:
-                    if (mIsPlaying) {
-                        controls.pause();
-                    } else controls.play();
-                    break;
-                case R.id.btn_previous:
-                    controls.skipToPrevious();
-                    break;
-                case R.id.btn_next:
-                    controls.skipToNext();
-                    break;
-                case R.id.btn_random:
-                    int shuffleMode = mRandomButton.isActivated()
-                            ? PlaybackStateCompat.SHUFFLE_MODE_NONE
-                            : PlaybackStateCompat.SHUFFLE_MODE_ALL;
-                    controls.setShuffleMode(shuffleMode);
-                    break;
-            }
-        }
     }
 
     @Override
@@ -304,7 +223,7 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
 
         mAlbumArt = findViewById(R.id.cover);
         mTitle = findViewById(R.id.title);
-        mArtist = findViewById(R.id.subtitle);
+        mSubtitle = findViewById(R.id.subtitle);
         mProgress = findViewById(R.id.progress);
         mProgress.setOnUpdateListener(this);
         mProgress.setOnSeekBarChangeListener(mSeekListener);
@@ -314,21 +233,25 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         mBigArt = findViewById(R.id.bigArt);
 
         mPlayPauseButton = findViewById(R.id.btn_play_pause);
-        mPlayPauseButton.setOnClickListener(this);
         mPreviousButton = findViewById(R.id.btn_previous);
-        mPreviousButton.setOnClickListener(this);
         mNextButton = findViewById(R.id.btn_next);
-        mNextButton.setOnClickListener(this);
         mMasterPlayPause = findViewById(R.id.main_play_pause);
-        mMasterPlayPause.setOnClickListener(this);
 
-        mRandomButton = findViewById(R.id.btn_random);
+        mShuffleModeButton = findViewById(R.id.btn_shuffle);
         ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
                 R.color.activation_state_list);
-        Drawable wrapDrawable = DrawableCompat.wrap(mRandomButton.getDrawable());
+        Drawable wrapDrawable = DrawableCompat.wrap(mShuffleModeButton.getDrawable());
         DrawableCompat.setTintList(wrapDrawable, colorStateList);
-        mRandomButton.setImageDrawable(wrapDrawable);
-        mRandomButton.setOnClickListener(this);
+        mShuffleModeButton.setImageDrawable(wrapDrawable);
+        mRepeatModeButton = findViewById(R.id.btn_repeat);
+
+        OnClickListener clickListener = new WidgetClickListener();
+        mPlayPauseButton.setOnClickListener(clickListener);
+        mRepeatModeButton.setOnClickListener(clickListener);
+        mPreviousButton.setOnClickListener(clickListener);
+        mMasterPlayPause.setOnClickListener(clickListener);
+        mNextButton.setOnClickListener(clickListener);
+        mShuffleModeButton.setOnClickListener(clickListener);
 
         // Transitions of the top of the PlayerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -337,22 +260,148 @@ public class PlayerView extends ConstraintLayout implements View.OnClickListener
         }
     }
 
-    /**
-     * Class that contains callback to execute when this view's BottomSheet state changes.
-     */
-    private class BottomSheetCallback extends BottomSheetBehavior.BottomSheetCallback {
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                onClose(true);
-            } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                onOpen(true);
+    public void setRepeatMode(@PlaybackStateCompat.RepeatMode int mode) {
+        mRepeatModeButton.setImageLevel(mode);
+        mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_ONE);
+    }
+
+    public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int mode) {
+        mShuffleModeButton.setActivated(mode != PlaybackStateCompat.SHUFFLE_MODE_NONE);
+    }
+
+    public void setEventListener(EventListener listener) {
+        mListener = listener;
+    }
+
+    public interface EventListener {
+        void onActionPlay();
+
+        void onActionPause();
+
+        void onSeek(long position);
+
+        void onSkipToPrevious();
+
+        void onSkipToNext();
+
+        void onRepeatModeChanged(int newMode);
+
+        void onShuffleModeChanged(int newMode);
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        SavedState savedState = new SavedState(superState);
+        savedState.lastPlaybackState = mLastPlaybackState;
+        savedState.metadata = mMetadata;
+        savedState.repeatMode = mRepeatMode;
+        savedState.expanded = mExpanded;
+        return savedState;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState);
+
+        mLastPlaybackState = savedState.lastPlaybackState;
+        mMetadata = savedState.metadata;
+        mRepeatMode = savedState.repeatMode;
+        mExpanded = savedState.expanded;
+    }
+
+    private class WidgetClickListener implements OnClickListener {
+        private void handlePlayPauseClick() {
+            int currentState = mLastPlaybackState.getState();
+            if (currentState == PlaybackStateCompat.STATE_PLAYING) {
+                mListener.onActionPause();
+            } else {
+                mListener.onActionPlay();
             }
         }
 
         @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            // Do nothing
+        public void onClick(View view) {
+            if (mListener != null) {
+                switch (view.getId()) {
+                    case R.id.main_play_pause:
+                    case R.id.btn_play_pause:
+                        handlePlayPauseClick();
+                        break;
+                    case R.id.btn_previous:
+                        mListener.onSkipToPrevious();
+                        break;
+                    case R.id.btn_next:
+                        mListener.onSkipToNext();
+                        break;
+                    case R.id.btn_shuffle:
+                        mListener.onShuffleModeChanged(mShuffleModeButton.isActivated()
+                                ? PlaybackStateCompat.SHUFFLE_MODE_NONE
+                                : PlaybackStateCompat.SHUFFLE_MODE_ALL);
+                        break;
+                    case R.id.btn_repeat:
+                        mRepeatMode = (mRepeatMode + 1) % 3;
+                        mListener.onRepeatModeChanged(mRepeatMode);
+                        break;
+                }
+
+            }
         }
+    }
+
+    private void reset() {
+        mAlbumArt.setImageDrawable(null);
+        mBigArt.setImageDrawable(null);
+        mTitle.setText(null);
+        mSubtitle.setText(null);
+
+        mProgress.setProgress(0);
+        mProgress.setMax(0);
+    }
+
+    private static class SavedState extends BaseSavedState {
+        PlaybackStateCompat lastPlaybackState;
+        MediaMetadataCompat metadata;
+        int repeatMode;
+        boolean expanded;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        SavedState(Parcel in) {
+            super(in);
+            lastPlaybackState = PlaybackStateCompat.CREATOR.createFromParcel(in);
+            metadata = MediaMetadataCompat.CREATOR.createFromParcel(in);
+            repeatMode = in.readInt();
+            expanded = in.readInt() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeParcelable(lastPlaybackState, flags);
+            out.writeParcelable(metadata, flags);
+            out.writeInt(repeatMode);
+            out.writeInt(expanded ? 1 : 0);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 }

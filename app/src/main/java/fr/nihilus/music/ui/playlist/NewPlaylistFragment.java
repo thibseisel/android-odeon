@@ -30,7 +30,7 @@ import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.database.Playlist;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.playlists.PlaylistRepository;
 import fr.nihilus.music.ui.songs.SongAdapter;
 import fr.nihilus.music.utils.MediaID;
@@ -53,7 +53,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
     private SongAdapter mAdapter;
 
-    @Inject MediaBrowserConnection mBrowserConnection;
+    private BrowserViewModel mViewModel;
     @Inject PlaylistRepository mRepo;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
@@ -114,12 +114,12 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     @Override
     public void onStart() {
         super.onStart();
-        mBrowserConnection.subscribe(MediaID.ID_MUSIC, mCallback);
+        mViewModel.subscribe(MediaID.ID_MUSIC, mCallback);
     }
 
     @Override
     public void onStop() {
-        mBrowserConnection.unsubscribe(MediaID.ID_MUSIC);
+        mViewModel.unsubscribe(MediaID.ID_MUSIC);
         super.onStop();
     }
 

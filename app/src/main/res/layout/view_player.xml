@@ -14,36 +14,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="@dimen/playerview_height"
-        tools:layout_editor_absoluteY="64dp"
-        tools:layout_editor_absoluteX="0dp"/>
+        app:layout_constraintGuide_begin="@dimen/playerview_height"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/start_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="16dp"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="16dp"/>
+        app:layout_constraintGuide_begin="16dp"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="16dp"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="395dp"/>
+        app:layout_constraintGuide_end="16dp"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/bottom_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.85"
-        tools:layout_editor_absoluteY="560dp"
-        tools:layout_editor_absoluteX="0dp"/>
+        app:layout_constraintGuide_percent="0.85"/>
 
     <ImageView
         android:id="@+id/cover"
@@ -53,7 +45,6 @@
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp"
         tools:src="@android:color/black"/>
 
     <fr.nihilus.music.view.AutoUpdateSeekBar
@@ -128,8 +119,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:src="@drawable/ic_audiotrack_24dp"
-        app:layout_constraintTop_toTopOf="@+id/top_guideline"
-        tools:layout_editor_absoluteX="0dp"/>
+        app:layout_constraintTop_toTopOf="@+id/top_guideline"/>
 
     <!-- Bouton d'actions -->
     <ImageView
@@ -144,7 +134,7 @@
         app:layout_constraintEnd_toStartOf="@+id/btn_previous"
         app:layout_constraintRight_toLeftOf="@+id/btn_previous"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_repeat_24dp"
+        app:srcCompat="@drawable/ic_level_repeat"
         app:layout_constraintLeft_toLeftOf="@+id/start_guideline"
         app:layout_constraintTop_toTopOf="@+id/bottom_guideline"/>
 
@@ -186,13 +176,13 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/main_play_pause"
-        app:layout_constraintRight_toLeftOf="@+id/btn_random"
+        app:layout_constraintRight_toLeftOf="@+id/btn_shuffle"
         app:layout_constraintStart_toEndOf="@+id/main_play_pause"
         app:srcCompat="@drawable/ic_skip_next_24dp"
         app:layout_constraintTop_toTopOf="@+id/bottom_guideline"/>
 
     <ImageView
-        android:id="@+id/btn_random"
+        android:id="@+id/btn_shuffle"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:background="?selectableItemBackgroundBorderless"

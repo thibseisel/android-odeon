@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.artists;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,19 +10,16 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.ui.albums.AlbumDetailActivity;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
 
@@ -38,7 +36,7 @@ public class ArtistDetailFragment extends RecyclerFragment
     private MediaItem mPickedArtist;
     private ArtistDetailAdapter mAdapter;
 
-    @Inject MediaBrowserConnection mBrowserConnection;
+    private BrowserViewModel mViewModel;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -74,6 +72,7 @@ public class ArtistDetailFragment extends RecyclerFragment
 
         mAdapter = new ArtistDetailAdapter(this);
         mAdapter.setOnMediaItemSelectedListener(this);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
@@ -107,12 +106,12 @@ public class ArtistDetailFragment extends RecyclerFragment
     public void onStart() {
         super.onStart();
         getActivity().setTitle(mPickedArtist.getDescription().getTitle());
-        mBrowserConnection.subscribe(mPickedArtist.getMediaId(), mCallback);
+        mViewModel.subscribe(mPickedArtist.getMediaId(), mCallback);
     }
 
     @Override
     public void onStop() {
-        mBrowserConnection.unsubscribe(mPickedArtist.getMediaId());
+        mViewModel.unsubscribe(mPickedArtist.getMediaId());
         super.onStop();
     }
 
@@ -128,9 +127,11 @@ public class ArtistDetailFragment extends RecyclerFragment
 
     @Override
     public void onTrackSelected(ArtistDetailAdapter.TrackHolder holder, MediaItem track) {
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(getActivity());
-        if (controller != null) {
-            controller.getTransportControls().playFromMediaId(track.getMediaId(), null);
+        String mediaId = track.getMediaId();
+        if (mediaId == null) {
+            throw new AssertionError("Track should have a mediaId");
         }
+
+        mViewModel.playFromMediaId(track.getMediaId());
     }
 }

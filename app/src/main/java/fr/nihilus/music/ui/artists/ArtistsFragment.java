@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.artists;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,7 +19,7 @@ import javax.inject.Inject;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.library.NavigationController;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
@@ -29,8 +30,8 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     private static final String TAG = "ArtistsFragment";
 
     private ArtistAdapter mAdapter;
+    private BrowserViewModel mViewModel;
 
-    @Inject MediaBrowserConnection mBrowserConnection;
     @Inject NavigationController mNavigation;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
@@ -53,6 +54,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
         super.onCreate(savedInstanceState);
         mAdapter = new ArtistAdapter(this);
         mAdapter.setOnArtistSelectedListener(this);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @NonNull
@@ -72,7 +74,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.action_artists);
-        mBrowserConnection.subscribe(MediaID.ID_ARTISTS, mCallback);
+        mViewModel.subscribe(MediaID.ID_ARTISTS, mCallback);
     }
 
     @Override
@@ -87,7 +89,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
 
     @Override
     public void onStop() {
-        mBrowserConnection.unsubscribe(MediaID.ID_ARTISTS);
+        mViewModel.unsubscribe(MediaID.ID_ARTISTS);
         super.onStop();
     }
 

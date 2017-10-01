@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.songs;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -30,11 +31,9 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.utils.MediaID;
 
 import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
@@ -44,7 +43,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         AdapterView.OnItemLongClickListener {
 
     private static final String TAG = "SongListFragment";
-    private static final String KEY_SONGS = "MediaItems";
     private static final String KEY_SCROLL = "ScrollY";
 
     private ListView mListView;
@@ -52,7 +50,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     private SongAdapter mAdapter;
     private ContentLoadingProgressBar mProgressBar;
 
-    @Inject MediaBrowserConnection mBrowserConnection;
+    private BrowserViewModel mViewModel;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -75,6 +73,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mAdapter = new SongAdapter(this);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
@@ -82,7 +81,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_songlist, menu);
         final SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        // TODO Search and filtering functionalities
+        // TODO Search and filtering features
     }
 
     @Override
@@ -121,7 +120,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     public void onStart() {
         super.onStart();
         getActivity().setTitle(R.string.all_music);
-        mBrowserConnection.subscribe(MediaID.ID_MUSIC, mCallback);
+        mViewModel.subscribe(MediaID.ID_MUSIC, mCallback);
     }
 
     @Override
@@ -133,7 +132,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onStop() {
-        mBrowserConnection.unsubscribe(MediaID.ID_MUSIC);
+        mViewModel.unsubscribe(MediaID.ID_MUSIC);
         super.onStop();
     }
 

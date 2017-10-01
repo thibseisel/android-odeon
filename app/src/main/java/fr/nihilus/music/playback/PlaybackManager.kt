@@ -140,7 +140,7 @@ class PlaybackManager
     internal val mediaSessionCallback = object : MediaSessionCompat.Callback() {
 
         override fun onPlay() {
-            Log.d(TAG, "onPlay")
+            Log.d(TAG, "onActionPlay")
             if (mQueueManager.currentMusic == null) {
                 Log.d(TAG, "Playing without a queue. Play last played media id")
                 val lastPlayedMediaId = prefs.lastPlayedMediaId ?: MediaID.ID_MUSIC
@@ -168,7 +168,7 @@ class PlaybackManager
         }
 
         override fun onPause() {
-            Log.d(TAG, "onPause")
+            Log.d(TAG, "onActionPause")
             handlePauseRequest()
         }
 

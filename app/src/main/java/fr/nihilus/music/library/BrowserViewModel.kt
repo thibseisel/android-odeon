@@ -10,6 +10,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import android.view.KeyEvent
 import fr.nihilus.music.service.MusicService
 import javax.inject.Inject
 
@@ -34,6 +35,7 @@ class BrowserViewModel
 
     fun connect() {
         if (!mBrowser.isConnected) {
+            Log.d(TAG, "Connecting...")
             mBrowser.connect()
         }
     }
@@ -48,6 +50,12 @@ class BrowserViewModel
         if (mBrowser.isConnected) {
             Log.d(TAG, "Disconnecting from service")
             mBrowser.disconnect()
+        }
+    }
+
+    fun dispatchMediaButtonEvent(keyEvent: KeyEvent) {
+        if (mController != null) {
+            mController!!.dispatchMediaButtonEvent(keyEvent)
         }
     }
 
@@ -66,15 +74,31 @@ class BrowserViewModel
     }
 
     fun setShuffleMode(@PlaybackStateCompat.ShuffleMode mode: Int) {
-        if (mController != null) {
-            mController!!.transportControls.setShuffleMode(mode)
-        }
+        mController?.transportControls?.setShuffleMode(mode)
     }
 
     fun setRepeatMode(@PlaybackStateCompat.RepeatMode mode: Int) {
-        if (mController != null) {
-            mController!!.transportControls.setRepeatMode(mode)
-        }
+        mController?.transportControls?.setRepeatMode(mode)
+    }
+
+    fun play() {
+        mController?.transportControls?.play()
+    }
+
+    fun pause() {
+        mController?.transportControls?.pause()
+    }
+
+    fun seekTo(position: Long) {
+        mController?.transportControls?.seekTo(position)
+    }
+
+    fun skipToPrevious() {
+        mController?.transportControls?.skipToPrevious()
+    }
+
+    fun skipToNext() {
+        mController?.transportControls?.skipToNext()
     }
 
     override fun onCleared() {
@@ -88,6 +112,10 @@ class BrowserViewModel
                 val controller = MediaControllerCompat(context, mBrowser.sessionToken)
                 controller.registerCallback(mControllerCallback)
                 mController = controller
+                playbackState.value = controller.playbackState
+                currentMetadata.value = controller.metadata
+                shuffleMode.value = controller.shuffleMode
+                repeatMode.value = controller.repeatMode
             } catch (re: RemoteException) {
                 Log.e(TAG, "onConnected: cannot create MediaController", re)
             }
@@ -122,7 +150,7 @@ class BrowserViewModel
         }
 
         override fun onSessionDestroyed() {
-            Log.e(TAG, "onSessionDestroyed")
+            Log.w(TAG, "onSessionDestroyed")
         }
     }
 }

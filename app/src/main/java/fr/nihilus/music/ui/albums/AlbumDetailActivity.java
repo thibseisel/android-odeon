@@ -1,5 +1,7 @@
 package fr.nihilus.music.ui.albums;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -11,8 +13,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaControllerCompat.Callback;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,11 +32,11 @@ import javax.inject.Inject;
 
 import dagger.android.AndroidInjection;
 import fr.nihilus.music.R;
-import fr.nihilus.music.library.MediaBrowserConnection;
+import fr.nihilus.music.library.BrowserViewModel;
+import fr.nihilus.music.library.ViewModelFactory;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.ViewUtils;
 import fr.nihilus.music.view.CurrentlyPlayingDecoration;
-import io.reactivex.functions.Consumer;
 
 public class AlbumDetailActivity extends AppCompatActivity
         implements View.OnClickListener, TrackAdapter.OnTrackSelectedListener {
@@ -57,7 +57,8 @@ public class AlbumDetailActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private CurrentlyPlayingDecoration mDecoration;
 
-    @Inject MediaBrowserConnection mBrowserConnection;
+    private BrowserViewModel mViewModel;
+    @Inject ViewModelFactory mFactory;
 
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
@@ -68,16 +69,6 @@ public class AlbumDetailActivity extends AppCompatActivity
             mAdapter.updateTracks(children);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
-    };
-
-    private final Callback mControllerCallback = new MediaControllerCompat.Callback() {
-
-        @Override
-        public void onMetadataChanged(MediaMetadataCompat metadata) {
-            // FIXME Display of playing track does not update correctly
-            decoratePlayingTrack(metadata);
-        }
-
     };
 
     @Override
@@ -108,16 +99,12 @@ public class AlbumDetailActivity extends AppCompatActivity
         setupTrackList();
         applyPaletteTheme(callingActivity.getIntArrayExtra(ARG_PALETTE));
 
-        mBrowserConnection.connect();
-        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
+        mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel.class);
+        mViewModel.connect();
+        mViewModel.getCurrentMetadata().observe(this, new Observer<MediaMetadataCompat>() {
             @Override
-            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
-                MediaControllerCompat.setMediaController(AlbumDetailActivity.this, controller);
-                if (controller != null) {
-                    Log.d(TAG, "onConnected: register controller callback.");
-                    controller.registerCallback(mControllerCallback);
-                    decoratePlayingTrack(controller.getMetadata());
-                }
+            public void onChanged(@Nullable MediaMetadataCompat metadata) {
+                decoratePlayingTrack(metadata);
             }
         });
     }
@@ -125,27 +112,13 @@ public class AlbumDetailActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        mBrowserConnection.subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
+        mViewModel.subscribe(mPickedAlbum.getMediaId(), mSubscriptionCallback);
     }
 
     @Override
     protected void onStop() {
-        mBrowserConnection.unsubscribe(mPickedAlbum.getMediaId());
+        mViewModel.unsubscribe(mPickedAlbum.getMediaId());
         super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        mBrowserConnection.getMediaController().subscribe(new Consumer<MediaControllerCompat>() {
-            @Override
-            public void accept(@Nullable MediaControllerCompat controller) throws Exception {
-                if (controller != null) {
-                    controller.unregisterCallback(mControllerCallback);
-                }
-            }
-        });
-        mBrowserConnection.release();
-        super.onDestroy();
     }
 
     @Override
@@ -216,10 +189,7 @@ public class AlbumDetailActivity extends AppCompatActivity
     }
 
     private void playMediaItem(MediaItem item) {
-        MediaControllerCompat controller = MediaControllerCompat.getMediaController(this);
-        if (controller != null && item.isPlayable()) {
-            controller.getTransportControls().playFromMediaId(item.getMediaId(), null);
-        }
+        mViewModel.playFromMediaId(item.getMediaId());
     }
 
     /**
