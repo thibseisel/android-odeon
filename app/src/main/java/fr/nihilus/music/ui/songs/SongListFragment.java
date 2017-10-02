@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -36,7 +35,6 @@ import fr.nihilus.music.R;
 import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.utils.MediaID;
 
-import static android.support.v4.media.session.MediaControllerCompat.getMediaController;
 import static fr.nihilus.music.utils.MediaID.ID_MUSIC;
 
 public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener,
@@ -73,7 +71,6 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         mAdapter = new SongAdapter(this);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
@@ -113,7 +110,12 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         } else {
             mListView.setSelectionFromTop(savedInstanceState.getInt(KEY_SCROLL), 0);
         }
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override

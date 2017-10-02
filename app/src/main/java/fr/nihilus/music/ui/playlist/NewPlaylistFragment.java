@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.playlist;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -109,7 +110,12 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
         mAdapter = new SongAdapter(this);
         setStyle(AppCompatDialogFragment.STYLE_NO_TITLE, R.style.AppTheme_DialogWhenLarge);
-		mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override

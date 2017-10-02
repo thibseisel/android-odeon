@@ -57,12 +57,12 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
 
         mAdapter = new PlaylistsAdapter(this);
         mAdapter.setOnPlaylistSelectedListener(this);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
 
         setAdapter(mAdapter);
         if (savedInstanceState == null) {

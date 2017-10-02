@@ -54,7 +54,6 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
         super.onCreate(savedInstanceState);
         mAdapter = new ArtistAdapter(this);
         mAdapter.setOnArtistSelectedListener(this);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @NonNull
@@ -80,6 +79,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
 
         setAdapter(mAdapter);
         if (savedInstanceState == null) {

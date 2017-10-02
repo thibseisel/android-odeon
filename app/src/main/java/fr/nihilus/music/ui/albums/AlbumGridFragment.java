@@ -51,7 +51,6 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
 
         mAdapter = new AlbumsAdapter(this);
         mAdapter.setOnAlbumSelectedListener(this);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @NonNull
@@ -70,6 +69,7 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
 
         setAdapter(mAdapter);
         if (savedInstanceState == null) {

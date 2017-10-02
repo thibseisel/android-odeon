@@ -72,7 +72,6 @@ public class ArtistDetailFragment extends RecyclerFragment
 
         mAdapter = new ArtistDetailAdapter(this);
         mAdapter.setOnMediaItemSelectedListener(this);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
@@ -99,6 +98,7 @@ public class ArtistDetailFragment extends RecyclerFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
         setAdapter(mAdapter);
     }
 

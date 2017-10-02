@@ -143,8 +143,8 @@ class HomeActivity : AppCompatActivity(),
         mPlayerView = findViewById(R.id.playerView)
         mPlayerView.setEventListener(this)
 
-        mViewModel.currentMetadata.observe(this, Observer { mPlayerView.updateMetadata(it) })
-        mViewModel.playbackState.observe(this, Observer { mPlayerView.updatePlaybackState(it) })
+        mViewModel.currentMetadata.observe(this, Observer(mPlayerView::updateMetadata))
+        mViewModel.playbackState.observe(this, Observer(mPlayerView::updatePlaybackState))
         mViewModel.shuffleMode.observe(this, Observer {
             mPlayerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
         })
@@ -266,7 +266,7 @@ class HomeActivity : AppCompatActivity(),
 
     override fun supportFragmentInjector() = dispatchingFragmentInjector
 
-    companion object {
+    private companion object {
         private const val REQUEST_SETTINGS = 42
         private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
         private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
