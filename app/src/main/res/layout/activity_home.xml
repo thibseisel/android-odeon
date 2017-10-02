@@ -37,11 +37,12 @@
             android:paddingBottom="@dimen/playerview_height"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-        <!-- Ombre de la bottomsheet -->
+        <!-- Bottomsheet's top shadow -->
         <View
             android:id="@+id/shadow"
             android:layout_width="match_parent"
             android:layout_height="8dp"
+            app:elevation="@dimen/playerview_elevation"
             android:background="@drawable/shape_top_shadow"
             app:layout_anchor="@+id/playerView"/>
 
@@ -51,7 +52,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/bottom_sheet_behavior"/>
+            app:layout_behavior="@string/playerview_behavior"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->

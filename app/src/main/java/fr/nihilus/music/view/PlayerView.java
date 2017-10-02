@@ -38,7 +38,6 @@ import fr.nihilus.music.view.AutoUpdateSeekBar.OnUpdateListener;
 
 public class PlayerView extends ConstraintLayout implements OnUpdateListener {
 
-    public static final int DEFAULT_ELEVATION = 8;
     private static final String TAG = "PlayerView";
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
@@ -95,7 +94,7 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
         View.inflate(context, R.layout.view_player, this);
 
         // Make this view appear above AppbarLayout
-        ViewCompat.setElevation(this, ViewUtils.dipToPixels(context, DEFAULT_ELEVATION));
+        ViewCompat.setElevation(this, getResources().getDimensionPixelSize(R.dimen.playerview_elevation));
         // Prevent from dispatching touches to views behind
         setClickable(true);
 

@@ -7,8 +7,10 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
+import android.support.v4.math.MathUtils
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -29,6 +31,7 @@ import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionUtil
 import fr.nihilus.music.view.PlayerView
+import fr.nihilus.music.view.ScrimBottomSheetBehavior
 import javax.inject.Inject
 
 class HomeActivity : AppCompatActivity(),
@@ -45,7 +48,9 @@ class HomeActivity : AppCompatActivity(),
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
     private lateinit var mNavigationView: NavigationView
     private lateinit var mPlayerView: PlayerView
+    private lateinit var mCoordinator: CoordinatorLayout
 
+    private lateinit var mBottomSheet: ScrimBottomSheetBehavior<PlayerView>
     private lateinit var mViewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +58,7 @@ class HomeActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        mCoordinator = findViewById(R.id.coordinatorLayout)
         setSupportActionBar(findViewById(R.id.toolbar))
         setupNavigationDrawer()
 
@@ -142,6 +148,7 @@ class HomeActivity : AppCompatActivity(),
     private fun setupPlayerView() {
         mPlayerView = findViewById(R.id.playerView)
         mPlayerView.setEventListener(this)
+        mBottomSheet = ScrimBottomSheetBehavior.from(mPlayerView)
 
         mViewModel.currentMetadata.observe(this, Observer(mPlayerView::updateMetadata))
         mViewModel.playbackState.observe(this, Observer(mPlayerView::updatePlaybackState))
@@ -155,7 +162,12 @@ class HomeActivity : AppCompatActivity(),
 
         BottomSheetBehavior.from(mPlayerView)
                 .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                    override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                        val opacity = MathUtils.clamp(slideOffset, 0.0f, 1.0f)
+                        mBottomSheet.scrimOpacity = opacity * 0.5f
+                        mCoordinator.requestLayout()
+                    }
+
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
                         when (newState) {
                             BottomSheetBehavior.STATE_COLLAPSED -> mPlayerView.setExpanded(false)
