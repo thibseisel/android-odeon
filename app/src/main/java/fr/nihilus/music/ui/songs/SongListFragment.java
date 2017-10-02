@@ -155,17 +155,14 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        MediaControllerCompat controller = getMediaController(getActivity());
-        if (controller != null) {
-            if (position == 0) {
-                controller.getTransportControls().setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
-                controller.getTransportControls().playFromMediaId(MediaID.createMediaID(null, ID_MUSIC), null);
-            } else {
-                // Offset the position as the header is considered at position 0
-                MediaItem clickedItem = mAdapter.getItem(position - 1);
-                controller.getTransportControls().playFromMediaId(clickedItem.getMediaId(), null);
-            }
-        }
+		if (position == 0) {
+			mViewModel.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
+			mViewModel.playFromMediaId(MediaID.createMediaID(null, ID_MUSIC));
+		} else {
+			// Offset the position as the header is considered at position 0
+			MediaItem clickedItem = mAdapter.getItem(position - 1);
+			mViewModel.playFromMediaId(clickedItem.getMediaId());
+		}
     }
 
     @Override
