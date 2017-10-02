@@ -109,6 +109,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
         mAdapter = new SongAdapter(this);
         setStyle(AppCompatDialogFragment.STYLE_NO_TITLE, R.style.AppTheme_DialogWhenLarge);
+		mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
