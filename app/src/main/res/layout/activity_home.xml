@@ -43,6 +43,8 @@
             android:layout_width="match_parent"
             android:layout_height="8dp"
             app:elevation="@dimen/playerview_elevation"
+            android:maxWidth="480dp"
+            android:layout_gravity="center"
             android:background="@drawable/shape_top_shadow"
             app:layout_anchor="@+id/playerView"/>
 
@@ -51,6 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
+            android:layout_gravity="center"
+            android:maxWidth="480dp"
             app:behavior_peekHeight="@dimen/playerview_height"
             app:layout_behavior="@string/playerview_behavior"/>
     </android.support.design.widget.CoordinatorLayout>

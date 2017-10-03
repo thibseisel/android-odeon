@@ -27,6 +27,9 @@ interface MusicDao {
      */
     fun getAllTracks(): Observable<List<MediaMetadataCompat>>
 
+    fun getTracks(whereClause: String?, whereArgs: Array<out String>?,
+                  sorting: String?): Observable<List<MediaMetadataCompat>>
+
     /**
      * Retrieve a single track's metadata from a given datastore.
      * The metadata properties may vary depending on the implementation.

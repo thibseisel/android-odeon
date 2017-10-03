@@ -63,4 +63,8 @@
     <string name="ok">OK</string>
     <string name="no_thanks">Non merci</string>
     <string name="repeat">Répéter</string>
+    <string name="action_play">Lire</string>
+    <string name="action_delete_playlist">Supprimer la playlist</string>
+    <string name="action_edit_playlist">Modifier la playlist</string>
+    <string name="last_added">Derniers ajouts</string>
 </resources>

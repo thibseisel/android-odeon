@@ -5,6 +5,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
+import fr.nihilus.music.media.builtin.BuiltinItem
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
@@ -25,7 +26,8 @@ internal class CachedMusicRepository
 @Inject constructor(
         private val mediaDao: MusicDao,
         private val musicCache: MusicCache,
-        private val playlistDao: PlaylistDao
+        private val playlistDao: PlaylistDao,
+        private val builtIns: Map<String, BuiltinItem>
 ) : MusicRepository {
 
     private val metadatas = mediaDao.getAllTracks()
@@ -56,7 +58,13 @@ internal class CachedMusicRepository
                 if (parentHierarchy.size > 1) getPlaylistMembers(parentHierarchy[1])
                 else getPlaylists()
             }
-            else -> Single.error(::UnsupportedOperationException)
+            else -> {
+                // Search the root media id in built-in items
+                // Notify an error if no built-in is found
+                val builtIn = builtIns.get(parentHierarchy[0])
+                        ?: return Single.error(::UnsupportedOperationException)
+                return builtIn.getChildren()
+            }
         }
 
         return items.doOnSuccess { musicCache.putItems(trueParent, it) }

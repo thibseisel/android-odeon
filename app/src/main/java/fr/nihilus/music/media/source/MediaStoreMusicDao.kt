@@ -89,6 +89,13 @@ internal class MediaStoreMusicDao
         //.concatWith(mediaChanges)
     }
 
+    override fun getTracks(whereClause: String?, whereArgs: Array<out String>?,
+                           sorting: String?): Observable<List<MediaMetadataCompat>> {
+        return Observable.fromCallable {
+            loadMetadata(whereClause, whereArgs, sorting)
+        }
+    }
+
     override fun getTrack(musicId: String): Maybe<MediaMetadataCompat> {
         return Maybe.fromCallable {
             val trackList = loadMetadata(SELECTION_TRACK_BY_ID,
@@ -98,7 +105,7 @@ internal class MediaStoreMusicDao
         }
     }
 
-    private fun loadMetadata(selection: String?, selectionArgs: Array<String>?,
+    private fun loadMetadata(selection: String?, selectionArgs: Array<out String>?,
                              sortOrder: String?): List<MediaMetadataCompat> {
         val whereClause = StringBuilder(MEDIA_SELECTION_CLAUSE)
         if (selection != null) {

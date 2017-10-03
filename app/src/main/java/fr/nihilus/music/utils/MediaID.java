@@ -25,29 +25,29 @@ public final class MediaID {
 
     public static final String ID_ROOT = "ROOT";
     /**
-     * La chanson du jour est tirée au sort parmi tous les titres de la bibliothèque musicale.
+     * The song of the day is randomly picked from all tracks.
      */
     public static final String ID_DAILY = "SONG_OF_THE_DAY";
     /**
-     * Classement des titres par genre musical, tel que "Rock".
-     */
-    public static final String ID_GENRES = "GENRES";
-    /**
-     * La totalité des titres de la bibliothèque musicale.
+     * The whole music library composed of all available tracks.
      */
     public static final String ID_MUSIC = "MUSIC";
     /**
-     * Classement des titres par albums.
+     * All available music albums.
      */
     public static final String ID_ALBUMS = "ALBUMS";
     /**
-     * Classement des titres par artistes.
+     * All artists that produced the available songs.
      */
     public static final String ID_ARTISTS = "ARTISTS";
     /**
-     * Playlists définies par l'utilisateur.
+     * All user-defined playlists.
      */
     public static final String ID_PLAYLISTS = "PLAYLISTS";
+    /**
+     * A special selection of the most recently added songs.
+     */
+    public static final String ID_MOST_RECENT = "RECENT";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';

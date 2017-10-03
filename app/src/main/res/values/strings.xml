@@ -74,4 +74,5 @@
     <string name="action_delete_playlist">Delete playlist</string>
     <string name="action_play">Play</string>
     <string name="playerview_behavior" translatable="false">fr.nihilus.music.view.ScrimBottomSheetBehavior</string>
+    <string name="last_added">Last added</string>
 </resources>
