@@ -23,23 +23,18 @@
         <item name="windowActionBar">false</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.Neutral">
-        <item name="colorPrimary">?android:attr/colorBackground</item>
-        <item name="colorAccent">@android:color/white</item>
-        <item name="colorControlActivated">@color/mtrl_blue_a400</item>
-        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay.Neutral</item>
-    </style>
-
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
         <item name="colorPrimary">@color/mtrl_grey_100</item>
+    </style>
+
+    <!-- Toolbar theme variant that has colored title text and icons -->
+    <style name="AppTheme.AppBarOverlay.Colored">
         <item name="android:textColorPrimary">@color/mtrl_deeppurple_500</item>
         <item name="android:textColorSecondary">@color/mtrl_deeppurple_500</item>
     </style>
-
-    <style name="AppTheme.AppBarOverlay.Neutral" parent="ThemeOverlay.AppCompat.Light"/>
 
     <style name="Widget.AppTheme.ProgressBar" parent="Widget.AppCompat.SeekBar">
         <item name="android:minHeight">0dp</item>

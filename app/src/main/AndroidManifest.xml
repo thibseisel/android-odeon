@@ -43,7 +43,7 @@
         <activity
             android:name="fr.nihilus.music.ui.albums.AlbumDetailActivity"
             android:parentActivityName="fr.nihilus.music.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar.Neutral">
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
         <activity
