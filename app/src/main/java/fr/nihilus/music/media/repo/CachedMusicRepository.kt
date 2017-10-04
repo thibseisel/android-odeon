@@ -27,7 +27,7 @@ internal class CachedMusicRepository
         private val mediaDao: MusicDao,
         private val musicCache: MusicCache,
         private val playlistDao: PlaylistDao,
-        private val builtIns: Map<String, BuiltinItem>
+        private val builtIns: Map<String, @JvmSuppressWildcards BuiltinItem>
 ) : MusicRepository {
 
     private val metadatas = mediaDao.getAllTracks()

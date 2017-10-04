@@ -43,7 +43,7 @@ class CachedMusicRepositoryTest {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         metadataSubject = PublishSubject.create()
-        subject = CachedMusicRepository(dao, cache, playlistDao)
+        subject = CachedMusicRepository(dao, cache, playlistDao, emptyMap())
     }
 
     /**
