@@ -376,8 +376,9 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
 
         SavedState(Parcel in) {
             super(in);
-            lastPlaybackState = PlaybackStateCompat.CREATOR.createFromParcel(in);
-            metadata = MediaMetadataCompat.CREATOR.createFromParcel(in);
+            Log.d(TAG, "Restoring from parcel");
+            lastPlaybackState = in.readParcelable(PlaybackStateCompat.class.getClassLoader());
+            metadata = in.readParcelable(MediaMetadataCompat.class.getClassLoader());
             repeatMode = in.readInt();
             expanded = in.readInt() != 0;
         }
