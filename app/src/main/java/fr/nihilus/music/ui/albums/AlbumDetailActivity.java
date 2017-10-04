@@ -3,6 +3,7 @@ package fr.nihilus.music.ui.albums;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.Media;
@@ -10,6 +11,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 import android.support.v4.media.MediaMetadataCompat;
@@ -25,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,29 +48,24 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     private static final String TAG = "AlbumDetailActivity";
     private static final String KEY_ITEMS = "tracks";
-
+    @Inject ViewModelFactory mFactory;
     private TrackAdapter mAdapter;
-    private ArrayList<MediaItem> mTracks;
     private MediaItem mPickedAlbum;
     private CollapsingToolbarLayout mCollapsingToolbar;
     private TextView mAlbumTitle;
     private TextView mAlbumArtist;
     private RecyclerView mRecyclerView;
-    private CurrentlyPlayingDecoration mDecoration;
-
-    private BrowserViewModel mViewModel;
-    @Inject ViewModelFactory mFactory;
-
     private final SubscriptionCallback mSubscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
             Log.d(TAG, "onChildrenLoaded: loaded " + children.size() + " tracks");
-            mTracks.clear();
-            mTracks.addAll(children);
             mAdapter.updateTracks(children);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     };
+    private FloatingActionButton mPlayFab;
+    private CurrentlyPlayingDecoration mDecoration;
+    private BrowserViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,16 +79,13 @@ public class AlbumDetailActivity extends AppCompatActivity
             throw new IllegalStateException("Calling activity must specify the album to display.");
         }
 
-        if (savedInstanceState != null) {
-            mTracks = savedInstanceState.getParcelableArrayList(KEY_ITEMS);
-        } else mTracks = new ArrayList<>();
-
         mAlbumTitle = findViewById(R.id.title);
         mAlbumTitle.setText(mPickedAlbum.getDescription().getTitle());
         mAlbumArtist = findViewById(R.id.subtitle);
         mAlbumArtist.setText(mPickedAlbum.getDescription().getSubtitle());
 
-        findViewById(R.id.action_play).setOnClickListener(this);
+        mPlayFab = findViewById(R.id.action_play);
+        mPlayFab.setOnClickListener(this);
 
         setupToolbar();
         setupAlbumArt();
@@ -121,12 +114,6 @@ public class AlbumDetailActivity extends AppCompatActivity
         super.onStop();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(KEY_ITEMS, mTracks);
-    }
-
     private void setupAlbumArt() {
         ImageView albumArtView = findViewById(R.id.cover);
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME);
@@ -146,7 +133,7 @@ public class AlbumDetailActivity extends AppCompatActivity
         mDecoration = new CurrentlyPlayingDecoration(this);
         mRecyclerView.addItemDecoration(mDecoration);
 
-        mAdapter = new TrackAdapter(mTracks);
+        mAdapter = new TrackAdapter();
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnTrackSelectedListener(this);
     }
@@ -160,12 +147,13 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     /**
      * Apply colors picked from the album art on the user interface.
+     *
      * @param colors array of colors containing the following :
      *               <ul>
-     *                   <li>[0] Primary Color</li>
-     *                   <li>[1] Accent Color</li>
-     *                   <li>[2] Title text color</li>
-     *                   <li>[3] Body text color</li>
+     *               <li>[0] Primary Color</li>
+     *               <li>[1] Accent Color</li>
+     *               <li>[2] Title text color</li>
+     *               <li>[3] Body text color</li>
      *               </ul>
      */
     private void applyPaletteTheme(@ColorInt int[] colors) {
@@ -176,6 +164,7 @@ public class AlbumDetailActivity extends AppCompatActivity
         mAlbumTitle.setTextColor(colors[2]);
         mAlbumArtist.setTextColor(colors[3]);
         mDecoration.setIconColor(colors[1]);
+        mPlayFab.setBackgroundTintList(ColorStateList.valueOf(colors[1]));
         if (ViewUtils.isColorBright(statusBarColor)) {
             ViewUtils.setLightStatusBar(mCollapsingToolbar, true);
         }
@@ -194,14 +183,15 @@ public class AlbumDetailActivity extends AppCompatActivity
 
     /**
      * Adds an {@link CurrentlyPlayingDecoration} to a track of this album if it's currently playing.
+     *
      * @param playingTrack the currently playing track
      */
     private void decoratePlayingTrack(@Nullable MediaMetadataCompat playingTrack) {
         if (playingTrack != null) {
             String musicId = playingTrack.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
             Log.d(TAG, "onMetadataChanged: musicId is " + musicId);
-            for (int i = 0; i < mTracks.size(); i++) {
-                final String trackMediaId = mTracks.get(i).getMediaId();
+            for (int i = 0; i < mAdapter.getItemCount(); i++) {
+                final String trackMediaId = mAdapter.get(i).getMediaId();
                 Log.d(TAG, "onMetadataChanged: compating with " + trackMediaId);
                 if (MediaID.extractMusicID(trackMediaId).equals(musicId)) {
                     mDecoration.setDecoratedItemPosition(i);

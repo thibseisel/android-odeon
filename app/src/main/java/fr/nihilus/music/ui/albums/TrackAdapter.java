@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.nihilus.music.R;
@@ -21,14 +22,8 @@ import fr.nihilus.music.utils.MediaItemDiffCallback;
 
 class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
 
-    private static final String TAG = "TrackAdapter";
-
-    private List<MediaItem> mTracks;
+    private final List<MediaItem> mTracks = new ArrayList<>();
     private OnTrackSelectedListener mListener;
-
-    TrackAdapter(List<MediaItem> tracks) {
-        mTracks = tracks;
-    }
 
     @Override
     public TrackHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -70,7 +65,7 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
 
     @Override
     public long getItemId(int position) {
-        if (hasStableIds() && mTracks != null) {
+        if (hasStableIds()) {
             final String mediaId = mTracks.get(position).getMediaId();
             return Long.parseLong(MediaID.extractMusicID(mediaId));
         }
@@ -80,13 +75,18 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     void updateTracks(List<MediaItem> tracks) {
         MediaItemDiffCallback callback = new MediaItemDiffCallback(mTracks, tracks);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
-        mTracks = tracks;
+        mTracks.clear();
+        mTracks.addAll(tracks);
         result.dispatchUpdatesTo(this);
     }
 
     @Override
     public int getItemCount() {
-        return mTracks != null ? mTracks.size() : 0;
+        return mTracks.size();
+    }
+
+    public MediaItem get(int position) {
+        return mTracks.get(position);
     }
 
     void setOnTrackSelectedListener(OnTrackSelectedListener listener) {

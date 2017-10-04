@@ -6,6 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context="fr.nihilus.music.ui.albums.AlbumDetailActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -27,7 +28,6 @@
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.8">
 
@@ -37,7 +37,7 @@
                     android:layout_height="0dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintDimensionRatio="16:9"
                     android:contentDescription="@string/album_art"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
@@ -111,6 +111,7 @@
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
         app:layout_anchor="@id/band"
+        app:backgroundTint="?colorBackgroundFloating"
         app:layout_anchorGravity="top|end"
         app:srcCompat="@drawable/ic_play_arrow"/>
 
