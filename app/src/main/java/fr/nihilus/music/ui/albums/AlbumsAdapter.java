@@ -63,7 +63,8 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
         mGlideRequest = GlideApp.with(fragment).as(PaletteBitmap.class)
                 .centerCrop()
-                .error(dummyAlbumArt);
+                .error(dummyAlbumArt)
+                .region(0f, .75f, 1f, 1f);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package fr.nihilus.music.glide
 
-import android.graphics.Rect
+import android.graphics.RectF
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.request.RequestOptions
@@ -18,8 +18,8 @@ object PaletteExtensions {
     }
 
     @GlideOption
-    @JvmStatic fun region(options: RequestOptions, left: Int, top: Int, right: Int, bottom: Int) {
-        val rect = Rect(left, top, right, bottom)
-        options.set(PaletteBitmapTranscoder.PALETTE_REGION, rect)
+    @JvmStatic fun region(options: RequestOptions, left: Float, top: Float, right: Float, bottom: Float) {
+        val rect = RectF(left, top, right, bottom)
+        options.set(PaletteBitmapTranscoder.PALETTE_RELATIVE_REGION, rect)
     }
 }

@@ -63,7 +63,8 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp);
         mPaletteLoader = GlideApp.with(fragment).as(PaletteBitmap.class)
                 .centerCrop()
-                .error(dummyAlbumArt);
+                .error(dummyAlbumArt)
+                .region(0f, .75f, 1f, 1f);
         mBitmapLoader = GlideApp.with(fragment).asBitmap()
                 .centerCrop()
                 .error(dummyAlbumArt);
