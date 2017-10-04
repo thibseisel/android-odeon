@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?colorBackgroundFloating"
+    tools:ignore="Overdraw">
+
+    <!-- Top of the bottom sheet that appears when collapsed -->
+    <android.support.constraint.Guideline
+        android:id="@+id/top_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="@dimen/playerview_height"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/start_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="16dp"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/end_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="16dp"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/bottom_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.80"/>
+
+    <ImageView
+        android:id="@+id/cover"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:contentDescription="@string/album_art"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@android:color/black"/>
+
+    <fr.nihilus.music.view.AutoUpdateSeekBar
+        android:id="@+id/progress"
+        style="@style/Widget.AppTheme.ProgressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingBottom="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cover"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:progress="100"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintBottom_toTopOf="@+id/subtitle"
+        app:layout_constraintLeft_toRightOf="@+id/cover"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mini_previous"
+        app:layout_constraintTop_toBottomOf="@+id/progress"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Title of the song"/>
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="?android:attr/textColorTertiary"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mini_previous"
+        app:layout_constraintStart_toEndOf="@id/cover"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="Artist name"/>
+
+    <ImageView
+        android:id="@+id/btn_mini_previous"
+        android:layout_width="48dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/play_or_pause"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
+        app:layout_constraintRight_toLeftOf="@+id/btn_play_pause"
+        app:layout_constraintTop_toBottomOf="@+id/progress"
+        app:srcCompat="@drawable/ic_skip_previous_24dp"/>
+
+    <ImageView
+        android:id="@+id/btn_play_pause"
+        android:layout_width="48dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/play_or_pause"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
+        app:layout_constraintRight_toLeftOf="@+id/btn_mini_next"
+        app:layout_constraintTop_toBottomOf="@+id/progress"
+        app:srcCompat="@drawable/level_play_pause"/>
+
+    <ImageView
+        android:id="@+id/btn_mini_next"
+        android:layout_width="48dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/skip_next"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
+        app:layout_constraintRight_toLeftOf="@id/end_guideline"
+        app:layout_constraintTop_toBottomOf="@+id/progress"
+        app:srcCompat="@drawable/ic_skip_next_24dp"/>
+
+    <ImageView
+        android:id="@+id/bigArt"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@string/album_art"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/top_guideline"
+        tools:src="@drawable/ic_audiotrack_24dp"/>
+
+    <!-- Bouton d'actions -->
+    <ImageView
+        android:id="@+id/btn_repeat"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/repeat"
+        android:enabled="true"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_previous"
+        app:layout_constraintLeft_toLeftOf="@+id/start_guideline"
+        app:layout_constraintRight_toLeftOf="@+id/btn_previous"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bottom_guideline"
+        app:srcCompat="@drawable/ic_level_repeat"/>
+
+    <ImageView
+        android:id="@+id/btn_previous"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/skip_previous"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/main_play_pause"
+        app:layout_constraintLeft_toRightOf="@+id/btn_repeat"
+        app:layout_constraintRight_toLeftOf="@+id/main_play_pause"
+        app:layout_constraintStart_toEndOf="@+id/btn_repeat"
+        app:layout_constraintTop_toTopOf="@+id/bottom_guideline"
+        app:srcCompat="@drawable/ic_skip_previous_24dp"/>
+
+    <ImageView
+        android:id="@+id/main_play_pause"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/play_or_pause"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_next"
+        app:layout_constraintLeft_toRightOf="@+id/btn_previous"
+        app:layout_constraintRight_toLeftOf="@+id/btn_next"
+        app:layout_constraintStart_toEndOf="@+id/btn_previous"
+        app:layout_constraintTop_toTopOf="@+id/bottom_guideline"
+        app:srcCompat="@drawable/level_play_pause_filled"/>
+
+    <ImageView
+        android:id="@+id/btn_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/skip_next"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/main_play_pause"
+        app:layout_constraintRight_toLeftOf="@+id/btn_shuffle"
+        app:layout_constraintStart_toEndOf="@+id/main_play_pause"
+        app:layout_constraintTop_toTopOf="@+id/bottom_guideline"
+        app:srcCompat="@drawable/ic_skip_next_24dp"/>
+
+    <ImageView
+        android:id="@+id/btn_shuffle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_random"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/btn_next"
+        app:layout_constraintRight_toLeftOf="@+id/end_guideline"
+        app:layout_constraintStart_toEndOf="@+id/btn_next"
+        app:layout_constraintTop_toTopOf="@+id/bottom_guideline"
+        app:srcCompat="@drawable/ic_shuffle_24dp"/>
+
+</android.support.constraint.ConstraintLayout>

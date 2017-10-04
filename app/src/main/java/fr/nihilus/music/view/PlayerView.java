@@ -252,6 +252,13 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
         mNextButton.setOnClickListener(clickListener);
         mShuffleModeButton.setOnClickListener(clickListener);
 
+        ImageView miniPrevious = findViewById(R.id.btn_mini_previous);
+        ImageView miniNext = findViewById(R.id.btn_mini_next);
+        if (miniPrevious != null && miniNext != null) {
+            miniPrevious.setOnClickListener(clickListener);
+            miniNext.setOnClickListener(clickListener);
+        }
+
         // Transitions of the top of the PlayerView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mOpenTransition = TransitionInflater.from(getContext())
@@ -334,9 +341,11 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
                         handlePlayPauseClick();
                         break;
                     case R.id.btn_previous:
+                    case R.id.btn_mini_previous:
                         mListener.onSkipToPrevious();
                         break;
                     case R.id.btn_next:
+                    case R.id.btn_mini_next:
                         mListener.onSkipToNext();
                         break;
                     case R.id.btn_shuffle:
