@@ -1,10 +1,12 @@
 package fr.nihilus.music.playback
 
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.os.SystemClock
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
@@ -19,7 +21,8 @@ class PlaybackManager
         service: MusicService,
         queueManager: QueueManager,
         val musicPlayer: MusicPlayer,
-        val prefs: PreferenceDao
+        val prefs: PreferenceDao,
+        val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
 ) : MusicPlayer.Callback {
 
     private val mServiceCallback: ServiceCallback = service
@@ -161,10 +164,12 @@ class PlaybackManager
             musicPlayer.seekTo(position)
         }
 
-        override fun onPlayFromMediaId(mediaId: String, extras: Bundle?) {
+        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
             Log.d(TAG, "onPlayFromMediaId: mediaId=$mediaId, extras=$extras")
-            mQueueManager.loadQueueFromMusic(mediaId)
-            handlePlayRequest()
+            if (mediaId != null) {
+                mQueueManager.loadQueueFromMusic(mediaId)
+                handlePlayRequest()
+            }
         }
 
         override fun onPause() {
@@ -193,12 +198,12 @@ class PlaybackManager
             mQueueManager.updateMetadata()
         }
 
-        override fun onCustomAction(action: String, extras: Bundle?) {
+        override fun onCustomAction(action: String?, extras: Bundle?) {
             Log.d(TAG, "onCustomAction: action=$action, extras=$extras")
             Log.w(TAG, "Unhandled custom action: $action")
         }
 
-        override fun onPlayFromSearch(query: String, extras: Bundle?) {
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
             Log.d(TAG, "onPlayFromSearch: query=$query, extras=$extras")
             val searchSuccessful = mQueueManager.loadQueueFromSearch(query, extras)
             if (searchSuccessful) {
@@ -215,6 +220,11 @@ class PlaybackManager
             mQueueManager.shuffleMode = shuffleMode
             mServiceCallback.onShuffleModeChanged(shuffleMode)
             updatePlaybackState(null)
+        }
+
+        override fun onCommand(commandName: String?, extras: Bundle?, cb: ResultReceiver?) {
+            commands[commandName]?.handle(extras, cb)
+                    ?: cb?.send(MediaSessionCommand.CODE_UNKNOWN_COMMAND, null)
         }
     }
 

@@ -179,6 +179,11 @@ class MusicService : MediaBrowserServiceCompat(),
         mSession.setQueue(newQueue)
     }
 
+    override fun notifyChildrenChanged(parentId: String) {
+        repository.clear()
+        super.notifyChildrenChanged(parentId)
+    }
+
     companion object {
         const val ACTION_CMD = "fr.nihilus.music.ACTION_CMD"
         const val CMD_NAME = "CMD_NAME"

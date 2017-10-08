@@ -116,7 +116,7 @@ class QueueManager
 
     fun canSkip(steps: Int): Boolean = isIndexPlayable(mCurrentIndex + steps, mPlayingQueue)
 
-    fun loadQueueFromSearch(query: String, extras: Bundle?): Boolean {
+    fun loadQueueFromSearch(query: String?, extras: Bundle?): Boolean {
         TODO("Implement search logic in CachedMusicRepository and retrieve queue from it")
     }
 

@@ -24,7 +24,7 @@ public interface PlaylistDao {
     Flowable<List<PlaylistTrack>> getPlaylistTracks(long id);
 
     @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.FAIL)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     Long savePlaylist(Playlist playlist);
 
     @WorkerThread
