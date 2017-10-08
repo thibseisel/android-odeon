@@ -3,7 +3,6 @@ package fr.nihilus.music.ui.songs;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +25,7 @@ import java.util.List;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
+import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemIndexer;
 
@@ -82,9 +82,8 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         final Context context = holder.title.getContext();
         final MediaDescriptionCompat song = mSongs.get(pos).getDescription();
 
-        // TODO Stocker la durée formattée dans les extras et la récupérer ici au lieu de la calculer
         //noinspection ConstantConditions
-        final long millis = song.getExtras().getLong(MediaStore.Audio.AudioColumns.DURATION);
+        final long millis = song.getExtras().getLong(MediaItems.EXTRA_DURATION);
         final CharSequence duration = DateUtils.formatElapsedTime(millis / 1000);
         String subtitle = context.getString(R.string.song_item_subtitle, song.getSubtitle(), duration);
 
