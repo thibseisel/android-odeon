@@ -5,7 +5,7 @@ import android.support.v7.util.DiffUtil
 import android.text.TextUtils
 
 class MediaItemDiffCallback(
-        private val mOld: List<MediaItem>, 
+        private val mOld: List<MediaItem>,
         private val mNew: List<MediaItem>
 ) : DiffUtil.Callback() {
 

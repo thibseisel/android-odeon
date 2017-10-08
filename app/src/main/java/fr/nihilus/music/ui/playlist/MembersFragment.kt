@@ -2,6 +2,8 @@ package fr.nihilus.music.ui.playlist
 
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
@@ -17,6 +19,7 @@ import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.library.BrowserViewModel
 import fr.nihilus.music.library.NavigationController
+import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject
@@ -51,7 +54,11 @@ class MembersFragment : RecyclerFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
-                deleteThisPlaylist()
+                ConfirmDialogFragment.newInstance(this, REQUEST_DELETE_PLAYLIST,
+                        title = R.string.delete_playlist_dialog_title,
+                        positiveButton = R.string.ok,
+                        negativeButton = R.string.cancel)
+                        .show(fragmentManager, null)
                 return true
             }
         }
@@ -74,6 +81,12 @@ class MembersFragment : RecyclerFragment() {
         activity.title = mPlaylist.description.title
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_DELETE_PLAYLIST && resultCode == DialogInterface.BUTTON_POSITIVE) {
+            deleteThisPlaylist()
+        }
+    }
+
     private fun deleteThisPlaylist() {
         val playlistId = MediaID.extractBrowseCategoryValueFromMediaID(mPlaylist.mediaId!!).toLong()
         val params = Bundle(1)
@@ -92,6 +105,7 @@ class MembersFragment : RecyclerFragment() {
     companion object {
         private const val TAG = "MembersFragment"
         private const val ARG_PLAYLIST = "playlist"
+        private const val REQUEST_DELETE_PLAYLIST = 66
 
         @JvmStatic
         fun newInstance(playlist: MediaBrowserCompat.MediaItem): MembersFragment {
