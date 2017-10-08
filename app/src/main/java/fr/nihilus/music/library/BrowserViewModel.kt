@@ -4,7 +4,9 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
 import android.os.RemoteException
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -99,6 +101,10 @@ class BrowserViewModel
 
     fun skipToNext() {
         mController?.transportControls?.skipToNext()
+    }
+
+    fun sendCommand(command: String, params: Bundle?, cb: ResultReceiver) {
+        mController?.sendCommand(command, params, cb)
     }
 
     override fun onCleared() {

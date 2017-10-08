@@ -3,6 +3,8 @@ package fr.nihilus.music.ui.playlist;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
@@ -25,19 +27,14 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
-import fr.nihilus.music.database.Playlist;
+import fr.nihilus.music.command.MediaSessionCommand;
+import fr.nihilus.music.command.NewPlaylistCommand;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.BrowserViewModel;
-import fr.nihilus.music.playlists.PlaylistRepository;
 import fr.nihilus.music.ui.songs.SongAdapter;
 import fr.nihilus.music.utils.MediaID;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.schedulers.Schedulers;
 
 @ActivityScoped
 public class NewPlaylistFragment extends AppCompatDialogFragment
@@ -55,7 +52,6 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private SongAdapter mAdapter;
 
     private BrowserViewModel mViewModel;
-    @Inject PlaylistRepository mRepo;
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -204,18 +200,26 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         }
 
         mMessage.setText(R.string.saving_playlist);
-        // TODO Move the actual saving of the Playlist to the service
-        // This allow the service to notify of a change in browsed playlists
-        Playlist newPlaylist = Playlist.create(playlistTitle);
-        mRepo.saveNewPlaylist(newPlaylist, trackIds)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        dismiss();
-                    }
-                });
+
+        Bundle params = new Bundle(2);
+        params.putString(NewPlaylistCommand.PARAM_TITLE, playlistTitle.toString());
+        params.putLongArray(NewPlaylistCommand.PARAM_TRACK_IDS, trackIds);
+
+        mViewModel.sendCommand(NewPlaylistCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                switch (resultCode) {
+                    case MediaSessionCommand.CODE_SUCCESS:
+                        NewPlaylistFragment.this.dismiss();
+                        break;
+                    case NewPlaylistCommand.CODE_ERROR_TITLE_ALREADY_EXISTS:
+                        // TODO Error message : "Name already in use"
+                        break;
+                    default:
+                        Log.e(TAG, "Unhandled result code: " + resultCode);
+                }
+            }
+        });
     }
 
     @Override
@@ -228,4 +232,5 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                 .getQuantityString(R.plurals.selected_song_count, checkedItemCount, checkedItemCount);
         mMessage.setText(selectedMessage);
     }
+
 }

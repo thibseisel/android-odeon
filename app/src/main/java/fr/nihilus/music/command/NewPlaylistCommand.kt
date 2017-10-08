@@ -1,7 +1,11 @@
 package fr.nihilus.music.command
 
+import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
 import android.os.ResultReceiver
+import android.util.Log
+import fr.nihilus.music.command.MediaSessionCommand.Companion.CODE_SUCCESS
+import fr.nihilus.music.command.MediaSessionCommand.Companion.CODE_UNEXPECTED_ERROR
 import fr.nihilus.music.database.Playlist
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
@@ -9,8 +13,12 @@ import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
+/**
+ * A custom command that adds a new user-specified playlist to the music library.
+ */
 @ServiceScoped
 class NewPlaylistCommand
 @Inject internal constructor(
@@ -19,6 +27,7 @@ class NewPlaylistCommand
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
+        Log.d(TAG, "Handling NewPlaylistCommand...")
         params ?: throw IllegalArgumentException("This command has parameters.")
         val playlistTitle = params.getString(PARAM_TITLE) ?:
                 throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
@@ -26,16 +35,20 @@ class NewPlaylistCommand
         val trackIds = params.getLongArray(PARAM_TRACK_IDS) ?: longArrayOf()
 
         Single.fromCallable { savePlaylist(playlist) }
+                .subscribeOn(Schedulers.io())
                 .doOnSuccess { service.notifyChildrenChanged(MediaID.ID_PLAYLISTS) }
                 .map { playlistId ->
                     trackIds.map { musicId ->
                         PlaylistTrack(playlistId, musicId)
                     }
                 }
-                .doOnSuccess { playlistDao.addTracks(it) }
+                .map { playlistDao.addTracks(it) }
                 .subscribe(
-                        { _ -> onSuccess(cb) },
-                        { error -> onError(error, cb) }
+                        { onSuccess(cb) },
+                        { error ->
+                            Log.i(TAG, "An error occurred while creating playlist", error)
+                            onError(error, cb)
+                        }
                 )
     }
 
@@ -52,14 +65,16 @@ class NewPlaylistCommand
     }
 
     private fun onError(error: Throwable?, cb: ResultReceiver?) {
-        if (error is IllegalArgumentException) {
+        if (error is SQLiteConstraintException) {
             cb?.send(CODE_ERROR_TITLE_ALREADY_EXISTS, null)
-        } else {
-            cb?.send(CODE_UNKNWON_ERROR, null)
+        }
+        else {
+            cb?.send(CODE_UNEXPECTED_ERROR, null)
         }
     }
 
     companion object {
+        private const val TAG = "NewPlaylistCmd"
 
         /**
          * The name of this command.
@@ -82,8 +97,6 @@ class NewPlaylistCommand
          */
         const val PARAM_TRACK_IDS = "track_ids"
 
-        const val CODE_SUCCESS = 0
-        const val CODE_UNKNWON_ERROR = -1
         const val CODE_ERROR_TITLE_ALREADY_EXISTS = -2
     }
 }
