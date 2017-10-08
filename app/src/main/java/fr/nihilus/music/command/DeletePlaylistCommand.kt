@@ -20,11 +20,10 @@ class DeletePlaylistCommand
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
-        Log.d(TAG, "Delete playlist command.")
-        params ?: throw IllegalArgumentException("This command should have parameters.")
+        params ?: throw IllegalArgumentException("This command should have parameters")
         val playlistId = params.getLong(PARAM_PLAYLIST_ID, -1L)
         if (playlistId == -1L) {
-            throw IllegalArgumentException("Missing parameter: PLAYLIST_ID")
+            throw IllegalArgumentException("Missing parameter: PARAM_PLAYLIST_ID")
         }
 
         Single.fromCallable { playlistDao.deletePlaylist(playlistId) }

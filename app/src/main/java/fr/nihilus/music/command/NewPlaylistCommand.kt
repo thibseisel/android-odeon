@@ -13,6 +13,7 @@ import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -27,8 +28,7 @@ class NewPlaylistCommand
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
-        Log.d(TAG, "Handling NewPlaylistCommand...")
-        params ?: throw IllegalArgumentException("This command has parameters.")
+        params ?: throw IllegalArgumentException("This command should have parameters")
         val playlistTitle = params.getString(PARAM_TITLE) ?:
                 throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
         val playlist = Playlist.create(playlistTitle)
@@ -42,7 +42,8 @@ class NewPlaylistCommand
                         PlaylistTrack(playlistId, musicId)
                     }
                 }
-                .map { playlistDao.addTracks(it) }
+                .doOnSuccess { playlistDao.addTracks(it) }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { onSuccess(cb) },
                         { error ->
