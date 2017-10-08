@@ -30,7 +30,7 @@ public class MediaItemDiffCallback extends DiffUtil.Callback {
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         String oldId = mOld.get(oldItemPosition).getMediaId();
-        String newId = mNew.get(oldItemPosition).getMediaId();
+        String newId = mNew.get(newItemPosition).getMediaId();
         return oldId != null ? oldId.equals(newId) : (newId == null);
     }
 
