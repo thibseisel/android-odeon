@@ -17,4 +17,8 @@
         <item name="colorAccent">@color/mtrl_blue_a100</item>
     </style>
 
+    <style name="AppTheme.AppBarOverlay.Colored">
+        <!-- White text color when action bar is dark, which is the theme's default -->
+    </style>
+
 </resources>
