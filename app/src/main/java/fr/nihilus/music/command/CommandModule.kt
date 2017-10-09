@@ -17,4 +17,9 @@ abstract class CommandModule {
     @IntoMap
     @StringKey(DeletePlaylistCommand.CMD_NAME)
     abstract fun bindDeletePlaylistCommand(cmd: DeletePlaylistCommand): MediaSessionCommand
+
+    @Binds
+    @IntoMap
+    @StringKey(DeleteTracksCommand.CMD_NAME)
+    abstract fun bindDeleteTracksCommand(cmd: DeleteTracksCommand): MediaSessionCommand
 }

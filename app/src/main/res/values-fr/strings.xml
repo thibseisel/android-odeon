@@ -41,8 +41,8 @@
         <item quantity="other">Ces %d morceaux seront effacés de votre appareil.</item>
     </plurals>
     <plurals name="deleted_songs_confirmation">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Le morceau a été effacé.</item>
-        <item quantity="other">Ces %d morceaux ont été effacés.</item>
+        <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau a été supprimé.</item>
+        <item quantity="other">Ces morceaux ont été supprimés.</item>
     </plurals>
     <plurals name="selected_song_count">
         <item quantity="one">%d morceau sélectionné</item>
@@ -67,5 +67,5 @@
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="last_added">Derniers ajouts</string>
-    <string name="delete_playlist_dialog_title">Supprimer cette playlist ?</string>
+    <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
 </resources>

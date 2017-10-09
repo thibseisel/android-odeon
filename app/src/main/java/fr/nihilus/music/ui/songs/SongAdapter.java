@@ -59,6 +59,11 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
     }
 
     @Override
+    public boolean hasStableIds() {
+        return true;
+    }
+
+    @Override
     public long getItemId(int pos) {
         if (hasStableIds()) {
             String mediaId = mSongs.get(pos).getMediaId();

@@ -2,8 +2,12 @@ package fr.nihilus.music.ui.songs;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -27,12 +31,16 @@ import android.widget.AbsListView.MultiChoiceModeListener;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
+import fr.nihilus.music.command.DeleteTracksCommand;
+import fr.nihilus.music.command.MediaSessionCommand;
 import fr.nihilus.music.library.BrowserViewModel;
+import fr.nihilus.music.utils.ConfirmDialogFragment;
 import fr.nihilus.music.utils.MediaID;
 
 import static fr.nihilus.music.utils.MediaID.ID_MUSIC;
@@ -42,6 +50,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     private static final String TAG = "SongListFragment";
     private static final String KEY_SCROLL = "ScrollY";
+    private static final int REQUEST_CODE_DELETE_TRACKS = 21;
 
     private ListView mListView;
     private View mListContainer;
@@ -49,6 +58,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
     private ContentLoadingProgressBar mProgressBar;
 
     private BrowserViewModel mViewModel;
+    private final SongListActionMode mActionMode = new SongListActionMode();
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
@@ -99,7 +109,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         mListView.setOnItemClickListener(this);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        mListView.setMultiChoiceModeListener(new SongListActionMode());
+        mListView.setMultiChoiceModeListener(mActionMode);
         ViewCompat.setNestedScrollingEnabled(mListView, true);
 
         mProgressBar = view.findViewById(android.R.id.progress);
@@ -172,24 +182,57 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         return false;
     }
 
-    private void handleDeleteSongs() {
+    private void showDeleteDialog() {
+        String dialogMessage = getResources().getQuantityString(R.plurals.delete_dialog_message,
+                mListView.getCheckedItemCount(), mListView.getCheckedItemCount());
+
+        ConfirmDialogFragment confirm = ConfirmDialogFragment.newInstance(this, 21,
+                getString(R.string.delete_dialog_title), dialogMessage,
+                R.string.action_delete, R.string.cancel, 0);
+        confirm.show(getFragmentManager(), null);
+    }
+
+    private void deleteSelectedTracks() {
         int index = 0;
         SparseBooleanArray checked = mListView.getCheckedItemPositions();
-        MediaItem[] toDelete = new MediaItem[mListView.getCheckedItemCount()];
+        final long[] toDelete = new long[mListView.getCheckedItemCount()];
         for (int i = 0; i < checked.size(); i++) {
             if (checked.valueAt(i)) {
                 int pos = checked.keyAt(i);
-                toDelete[index++] = mAdapter.getItem(pos - 1);
+                toDelete[index++] = mAdapter.getItemId(pos - 1);
             }
         }
-        ConfirmDeleteDialog dialog = ConfirmDeleteDialog.newInstance(toDelete);
-        dialog.show(getFragmentManager(), ConfirmDeleteDialog.TAG);
+
+        Bundle params = new Bundle(1);
+        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, toDelete);
+        mViewModel.sendCommand(DeleteTracksCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
+
+            @Override
+            protected void onReceiveResult(int resultCode, Bundle resultData) {
+                View rootView = getView();
+                if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
+                    String message = getResources()
+                            .getQuantityString(R.plurals.deleted_songs_confirmation, toDelete.length);
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_DELETE_TRACKS
+                && resultCode == DialogInterface.BUTTON_POSITIVE) {
+            deleteSelectedTracks();
+            mActionMode.finish();
+        }
     }
 
     /**
      * An ActionMode that handles multiple item selection inside the song ListView.
      */
     private class SongListActionMode implements MultiChoiceModeListener {
+        ActionMode mActionMode;
 
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
@@ -199,6 +242,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mode.getMenuInflater().inflate(R.menu.actionmode_songlist, menu);
+            mActionMode = mode;
             return true;
         }
 
@@ -211,8 +255,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_delete:
-                    handleDeleteSongs();
-                    mode.finish();
+                    showDeleteDialog();
                     return true;
                 case R.id.action_playlist:
                     // TODO Ouvrir écran des playlists
@@ -225,7 +268,14 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
             // By default, deselect items
+        }
+
+        void finish() {
+            if (mActionMode != null) {
+                mActionMode.finish();
+            }
         }
     }
 }

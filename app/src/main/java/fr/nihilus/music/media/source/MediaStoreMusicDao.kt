@@ -329,9 +329,9 @@ internal class MediaStoreMusicDao
     }
 
     /**
-     * Return an observable dataset of albums that are produced by a given artist.
+     * Return an observable data set of albums that are produced by a given artist.
      * @param artistId unique identifier of the artist
-     * @return informations of albums from this artist sorted by descending release date
+     * @return information of albums from this artist sorted by descending release date
      */
     override fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>> {
         return Observable.fromCallable {

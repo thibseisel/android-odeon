@@ -53,8 +53,8 @@
         <item quantity="other">These %d songs will disappear from your device.</item>
     </plurals>
     <plurals name="deleted_songs_confirmation">
-        <item quantity="one">%d song has been deleted.</item>
-        <item quantity="other">%d songs has been deleted.</item>
+        <item quantity="one">The track has been deleted.</item>
+        <item quantity="other">Those tracks have been deleted.</item>
     </plurals>
     <plurals name="selected_song_count">
         <item quantity="one">%d song selected</item>
@@ -75,5 +75,5 @@
     <string name="action_play">Play</string>
     <string name="playerview_behavior" translatable="false">fr.nihilus.music.view.ScrimBottomSheetBehavior</string>
     <string name="last_added">Last added</string>
-    <string name="delete_playlist_dialog_title">Delete this playlist ?</string>
+    <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
 </resources>

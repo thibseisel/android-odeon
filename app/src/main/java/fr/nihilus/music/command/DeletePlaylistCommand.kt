@@ -41,6 +41,12 @@ class DeletePlaylistCommand
     companion object {
         private const val TAG = "DeletePlaylistCmd"
 
+        /**
+         * The name of this command.
+         *
+         * Required parameters:
+         * - [PARAM_PLAYLIST_ID]
+         */
         const val CMD_NAME = "fr.nihilus.music.command.DeletePlaylistCommand"
         const val PARAM_PLAYLIST_ID = "playlist_id"
     }

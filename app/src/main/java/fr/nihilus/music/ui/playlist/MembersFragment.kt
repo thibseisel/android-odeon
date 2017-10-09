@@ -54,8 +54,10 @@ class MembersFragment : RecyclerFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
+                val dialogTitle = getString(R.string.delete_playlist_dialog_title,
+                        mPlaylist.description.title)
                 ConfirmDialogFragment.newInstance(this, REQUEST_DELETE_PLAYLIST,
-                        title = R.string.delete_playlist_dialog_title,
+                        title = dialogTitle,
                         positiveButton = R.string.ok,
                         negativeButton = R.string.cancel)
                         .show(fragmentManager, null)

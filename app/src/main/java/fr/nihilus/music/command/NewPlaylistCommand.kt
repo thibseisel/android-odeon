@@ -79,8 +79,12 @@ class NewPlaylistCommand
 
         /**
          * The name of this command.
+         *
+         * Required parameters:
+         * - [PARAM_TITLE]
+         * - [PARAM_TRACK_IDS]
          */
-        const val CMD_NAME = "new_playlist"
+        const val CMD_NAME = "fr.nihilus.music.command.NewPlaylistCommand"
 
         /**
          * The title of the new playlist to create, as a String value.
