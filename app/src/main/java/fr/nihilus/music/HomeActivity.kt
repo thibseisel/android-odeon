@@ -188,10 +188,9 @@ class HomeActivity : AppCompatActivity(),
      * This allows this activity to recreate itself if a preference that changed
      * in [SettingsActivity] affects the visual state (such as the nightmode preference).
      */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_SETTINGS && resultCode == Activity.RESULT_OK) {
-            // SettingsActivity asks this activity to restart in order to apply preference changes.
-            recreate()
+            delegate.applyDayNight()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

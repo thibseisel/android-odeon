@@ -2,6 +2,7 @@ package fr.nihilus.music.settings
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -46,6 +47,10 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
     private fun onNightModeChanged(@AppCompatDelegate.NightMode newMode: Int) {
         AppCompatDelegate.setDefaultNightMode(newMode)
         (activity as AppCompatActivity).delegate.applyDayNight()
-        activity.setResult(Activity.RESULT_OK)
+
+        val intent = Intent()
+        intent.putExtra("night_mode", newMode)
+
+        activity.setResult(Activity.RESULT_OK, intent)
     }
 }
