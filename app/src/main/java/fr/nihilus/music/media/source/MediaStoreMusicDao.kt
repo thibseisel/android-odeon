@@ -21,28 +21,6 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "MediaStoreMusicDao"
-private const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
-
-private const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
-private const val SELECTION_ALBUM_TRACKS = "${Media.ALBUM_ID} = ?"
-private const val SELECTION_ARTIST_TRACKS = "${Media.ARTIST_ID} = ?"
-private const val ARTIST_ALBUMS_ORDER = "${Artists.Albums.LAST_YEAR} DESC"
-
-/**
- * ORDER BY clause to use when querying for albums associated with an artist.
- */
-private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
-private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
-private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
-        Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
-        Media.ARTIST_ID, Media.DATA)
-private val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-        Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
-
-private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
-        Artists.NUMBER_OF_TRACKS)
-
 /**
  * A music datasource that fetches its items from the Android mediastore.
  * Items represents files that are stored on the device's external storage.
@@ -381,5 +359,29 @@ internal class MediaStoreMusicDao
                 resolver.delete(deletedUri, null, null)
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "MediaStoreMusicDao"
+        private const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
+
+        private const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
+        private const val SELECTION_ALBUM_TRACKS = "${Media.ALBUM_ID} = ?"
+        private const val SELECTION_ARTIST_TRACKS = "${Media.ARTIST_ID} = ?"
+        private const val ARTIST_ALBUMS_ORDER = "${Artists.Albums.LAST_YEAR} DESC"
+
+        /**
+         * ORDER BY clause to use when querying for albums associated with an artist.
+         */
+        private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
+        private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
+        private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
+                Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
+                Media.ARTIST_ID, Media.DATA)
+        private val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
+                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+
+        private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
+                Artists.NUMBER_OF_TRACKS)
     }
 }
