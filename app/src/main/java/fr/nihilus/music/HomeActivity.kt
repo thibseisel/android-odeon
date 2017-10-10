@@ -1,6 +1,5 @@
 package fr.nihilus.music
 
-import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
@@ -189,10 +188,10 @@ class HomeActivity : AppCompatActivity(),
      * in [SettingsActivity] affects the visual state (such as the nightmode preference).
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_SETTINGS && resultCode == Activity.RESULT_OK) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_SETTINGS) {
             delegate.applyDayNight()
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     /**

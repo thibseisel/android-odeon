@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "fr.nihilus.music"
         minSdkVersion 16
@@ -26,6 +26,14 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+task (type: org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+    kotlinReleaseCompile {
+        kotlinOptions {
+            freeCompilerArgs = ['Xno-param-assertions']
         }
     }
 }
@@ -80,11 +88,4 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude group: 'com.google.code.findbugs'
     })
-
-    // Kotlin bytecode optimizations when building releases
-    compileReleaseKotlin {
-        kotlinOptions {
-            freeCompilerArgs = ['Xno-param-assertions']
-        }
-    }
 }
