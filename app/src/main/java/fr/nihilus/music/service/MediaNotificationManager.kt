@@ -178,12 +178,12 @@ class MediaNotificationManager
         if (mMetadata == null || mPlaybackState == null) return null
 
         val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
-        notificationBuilder.addAction(R.drawable.ic_skip_previous_24dp,
+        notificationBuilder.addAction(R.drawable.ic_skip_previous_48dp,
                 service.getString(R.string.action_previous), mPreviousIntent)
 
         addPlayPauseButton(notificationBuilder)
 
-        notificationBuilder.addAction(R.drawable.ic_skip_next_24dp,
+        notificationBuilder.addAction(R.drawable.ic_skip_next_48dp,
                 service.getString(R.string.action_next), mNextIntent)
 
         val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
@@ -226,11 +226,11 @@ class MediaNotificationManager
 
         if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING) {
             label = "Pause"
-            icon = R.drawable.ic_pause
+            icon = R.drawable.ic_pause_48dp
             intent = mPauseIntent
         } else {
             label = "Play"
-            icon = R.drawable.ic_play_arrow
+            icon = R.drawable.ic_play_arrow_48dp
             intent = mPlayIntent
         }
 
