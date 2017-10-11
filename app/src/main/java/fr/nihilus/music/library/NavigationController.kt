@@ -8,6 +8,7 @@ import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.ui.HomeFragment
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -26,6 +27,11 @@ class NavigationController
     private val mFm: FragmentManager = activity.supportFragmentManager
     @IdRes private val mContainerId: Int = R.id.container
     private lateinit var mFirstTag: String
+
+    fun navigateToHome() {
+        val fragment = findOrCreateFragment(MediaID.ID_AUTO, ::HomeFragment)
+        showFragment(MediaID.ID_AUTO, fragment)
+    }
 
     fun navigateToAllSongs() {
         val fragment = findOrCreateFragment(MediaID.ID_MUSIC, ::SongListFragment)

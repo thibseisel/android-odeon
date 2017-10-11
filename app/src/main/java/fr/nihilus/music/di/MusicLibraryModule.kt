@@ -2,6 +2,7 @@ package fr.nihilus.music.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.ui.HomeFragment
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -40,4 +41,8 @@ abstract class MusicLibraryModule {
     @FragmentScoped
     @ContributesAndroidInjector
     abstract fun contributeMembersFragment(): MembersFragment
+
+    @FragmentScoped
+    @ContributesAndroidInjector
+    abstract fun contributeHomeFragment(): HomeFragment
 }

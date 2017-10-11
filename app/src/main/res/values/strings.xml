@@ -76,4 +76,6 @@
     <string name="playerview_behavior" translatable="false">fr.nihilus.music.view.ScrimBottomSheetBehavior</string>
     <string name="last_added">Last added</string>
     <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
+    <string name="title_automatic_playlists">Automatic playlists</string>
+    <string name="home">Home</string>
 </resources>

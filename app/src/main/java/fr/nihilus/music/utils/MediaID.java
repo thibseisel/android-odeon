@@ -48,6 +48,10 @@ public final class MediaID {
      * A special selection of the most recently added songs.
      */
     public static final String ID_MOST_RECENT = "RECENT";
+    /**
+     * Automatic playlists.
+     */
+    public static final String ID_AUTO = "AUTO";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';

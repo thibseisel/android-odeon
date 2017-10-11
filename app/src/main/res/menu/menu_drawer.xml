@@ -7,6 +7,11 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
+                    android:id="@+id/action_home"
+                    android:icon="@drawable/ic_home_24dp"
+                    android:title="@string/home" />
+
+                <item
                     android:id="@+id/action_all"
                     android:icon="@drawable/ic_library_music_24dp"
                     android:title="@string/all_music"/>

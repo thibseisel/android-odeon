@@ -68,4 +68,6 @@
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="last_added">Derniers ajouts</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
+    <string name="home">Accueil</string>
+    <string name="title_automatic_playlists">Playlists automatiques</string>
 </resources>

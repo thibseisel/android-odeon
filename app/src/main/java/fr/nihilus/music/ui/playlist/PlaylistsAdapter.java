@@ -27,13 +27,13 @@ import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 
-class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
+public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder> {
     private final List<MediaItem> mItems = new ArrayList<>();
     private final RequestBuilder<Bitmap> mGlideRequest;
     private final Fragment mFragment;
     private OnPlaylistSelectedListener mListener;
 
-    PlaylistsAdapter(@NonNull Fragment fragment) {
+    public PlaylistsAdapter(@NonNull Fragment fragment) {
         mFragment = fragment;
         final Context ctx = fragment.getContext();
         Drawable dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_playlist_24dp);
@@ -95,11 +95,11 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
         super.onViewRecycled(holder);
     }
 
-    void setOnPlaylistSelectedListener(OnPlaylistSelectedListener listener) {
+    public void setOnPlaylistSelectedListener(OnPlaylistSelectedListener listener) {
         mListener = listener;
     }
 
-    void update(List<MediaItem> newItems) {
+    public void update(List<MediaItem> newItems) {
         MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, newItems);
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
         mItems.clear();
@@ -107,7 +107,7 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
         result.dispatchUpdatesTo(this);
     }
 
-    static class PlaylistHolder extends RecyclerView.ViewHolder {
+    public static class PlaylistHolder extends RecyclerView.ViewHolder {
         final TextView title;
         final ImageView image;
         final View actionPlay;
@@ -120,8 +120,8 @@ class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.PlaylistHol
         }
     }
 
-    interface OnPlaylistSelectedListener {
-        void onPlaylistSelected(PlaylistHolder holder, MediaItem playlist);
-        void onPlay(MediaItem playlist);
+    public interface OnPlaylistSelectedListener {
+        void onPlaylistSelected(@NonNull PlaylistHolder holder, @NonNull MediaItem playlist);
+        void onPlay(@NonNull MediaItem playlist);
     }
 }

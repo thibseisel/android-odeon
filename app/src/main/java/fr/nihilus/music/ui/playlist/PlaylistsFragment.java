@@ -105,12 +105,12 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
     }
 
     @Override
-    public void onPlaylistSelected(PlaylistsAdapter.PlaylistHolder holder, MediaItem playlist) {
+    public void onPlaylistSelected(@NonNull PlaylistsAdapter.PlaylistHolder holder, @NonNull MediaItem playlist) {
         mRouter.navigateToPlaylistDetails(playlist);
     }
 
     @Override
-    public void onPlay(final MediaItem playlist) {
+    public void onPlay(@NonNull final MediaItem playlist) {
         String mediaId = playlist.getMediaId();
         if (mediaId == null) {
             throw new AssertionError("Playlists should have a MediaId");
