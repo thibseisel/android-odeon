@@ -70,4 +70,7 @@
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
     <string name="home">Accueil</string>
     <string name="title_automatic_playlists">Playlists automatiques</string>
+    <string name="action_pause">Pause</string>
+    <string name="channel_mediasession">Lecteur musical</string>
+    <string name="channel_mediasession_description">Contrôle du lecteur musical</string>
 </resources>

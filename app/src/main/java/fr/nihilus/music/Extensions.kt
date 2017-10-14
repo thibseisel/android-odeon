@@ -30,11 +30,13 @@ fun MediaMetadataCompat.asMediaDescription(
     extras.putLong(MediaItems.EXTRA_TRACK_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER))
     extras.putLong(MediaItems.EXTRA_DISC_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER))
     val artUri = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
+    val bitmapArt = getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
 
     val mediaId = MediaID.createMediaId(categories, musicId)
     builder.setMediaId(mediaId)
             .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
             .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
+            .setIconBitmap(bitmapArt)
             .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendEncodedPath(musicId)
                     .build())

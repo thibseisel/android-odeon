@@ -1,7 +1,6 @@
 package fr.nihilus.music.playback
 
 import android.os.Bundle
-import android.support.annotation.VisibleForTesting
 import android.support.v4.math.MathUtils
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -10,11 +9,10 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
-import io.reactivex.SingleObserver
-import io.reactivex.disposables.Disposable
 import java.util.*
 import javax.inject.Inject
 
@@ -24,6 +22,7 @@ private const val TAG = "QueueManager"
 class QueueManager
 @Inject constructor(
         service: MusicService,
+        private val artLoader: AlbumArtLoader,
         private val repository: MusicRepository
 ) {
     private val mResources = service.resources
@@ -55,7 +54,6 @@ class QueueManager
      * Indicates if a [mediaId] belongs to the same hierarchy
      * as the one whose items are loaded into the queue.
      */
-    @VisibleForTesting
     internal fun isSameBrowsingCategory(mediaId: String): Boolean {
         val newBrowseHierarchy = MediaID.getHierarchy(mediaId)
         val current = currentMusic ?: return false
@@ -99,7 +97,6 @@ class QueueManager
      * @return whether the move succeeded
      */
     fun skipPosition(steps: Int): Boolean {
-        // TODO Implement cycling capabilities
         var index = mCurrentIndex + steps
         index = MathUtils.clamp(index, 0, mPlayingQueue.size)
 
@@ -163,12 +160,10 @@ class QueueManager
         val musicId = MediaID.extractMusicID(currentMusic.description.mediaId)
                 ?: throw IllegalStateException("Queue item should have a media ID")
 
-        // TODO Chain with another Single to load album art if needed
-        repository.getMetadata(musicId).subscribe(object : SingleObserver<MediaMetadataCompat> {
-            override fun onSubscribe(d: Disposable) {}
-            override fun onSuccess(metadata: MediaMetadataCompat) = mListener.onMetadataChanged(metadata)
-            override fun onError(e: Throwable) = mListener.onMetadataRetrieveError()
-        })
+        repository.getMetadata(musicId)
+                .flatMap(artLoader::loadIntoMetadata)
+                .subscribe(mListener::onMetadataChanged)
+                { mListener.onMetadataRetrieveError() }
     }
 
     private fun getQueueTitle(mediaId: String?): String {
@@ -176,7 +171,6 @@ class QueueManager
         return "Playing queue"
     }
 
-    @VisibleForTesting
     internal fun setCurrentQueue(title: String, newQueue: List<MediaSessionCompat.QueueItem>,
                                  initialMediaId: String? = null) {
         // Clear queue only if its content is not the same

@@ -105,7 +105,7 @@ class MusicService : MediaBrowserServiceCompat(),
     }
 
     override fun onLoadChildren(parentId: String, result: MediaItemsResult) {
-        Log.d(TAG, "Loading children for ID: $parentId")
+        Log.v(TAG, "Loading children for ID: $parentId")
         result.detach()
         repository.getMediaItems(parentId)
                 .subscribeOn(Schedulers.io())
@@ -114,7 +114,7 @@ class MusicService : MediaBrowserServiceCompat(),
                     override fun onSubscribe(d: Disposable) {}
 
                     override fun onSuccess(items: List<MediaBrowserCompat.MediaItem>) {
-                        Log.d(TAG, "Loaded items for $parentId: size=${items.size}")
+                        Log.v(TAG, "Loaded items for $parentId: size=${items.size}")
                         result.sendResult(items)
                     }
 

@@ -119,7 +119,8 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
             mTitle.setText(media.getTitle());
             mSubtitle.setText(media.getSubtitle());
             mAlbumArt.setImageBitmap(media.getIconBitmap());
-            mGlideRequest.load(media.getMediaUri()).into(mBigArt);
+
+            mGlideRequest.load(media.getIconUri()).into(mBigArt);
             mProgress.setMetadata(metadata);
         }
     }
