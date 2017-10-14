@@ -118,8 +118,8 @@ class BrowserViewModel
                 val controller = MediaControllerCompat(context, mBrowser.sessionToken)
                 controller.registerCallback(mControllerCallback)
                 mController = controller
-                playbackState.value = controller.playbackState
                 currentMetadata.value = controller.metadata
+                playbackState.value = controller.playbackState
                 shuffleMode.value = controller.shuffleMode
                 repeatMode.value = controller.repeatMode
             } catch (re: RemoteException) {
