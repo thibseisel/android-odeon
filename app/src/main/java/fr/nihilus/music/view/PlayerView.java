@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -24,8 +23,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestBuilder;
@@ -34,9 +31,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
-import fr.nihilus.music.view.AutoUpdateSeekBar.OnUpdateListener;
 
-public class PlayerView extends ConstraintLayout implements OnUpdateListener {
+public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekListener {
 
     private static final String TAG = "PlayerView";
     private static final int LEVEL_PLAYING = 1;
@@ -46,7 +42,7 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
     private TextView mTitle;
     private TextView mSubtitle;
     private ImageView mAlbumArt;
-    private AutoUpdateSeekBar mProgress;
+    private MediaSeekBar mProgress;
     private ImageView mPlayPauseButton;
     private ImageView mPreviousButton;
     private ImageView mNextButton;
@@ -56,24 +52,6 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
     private ImageView mRepeatModeButton;
 
     private EventListener mListener;
-    private final OnSeekBarChangeListener mSeekListener = new OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar view, int progress, boolean fromUser) {
-            if (mListener != null && fromUser) {
-                mListener.onSeek(progress);
-            }
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar view) {
-            // Nothing to do
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar view) {
-            // Nothing to do
-        }
-    };
 
     private boolean mExpanded = false;
     private int mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
@@ -140,11 +118,9 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
             MediaDescriptionCompat media = metadata.getDescription();
             mTitle.setText(media.getTitle());
             mSubtitle.setText(media.getSubtitle());
-            mGlideRequest.load(media.getIconUri()).into(mAlbumArt);
-            mGlideRequest.load(media.getIconUri()).into(mBigArt);
-            int max = (int) metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
-            mProgress.setMax(Math.max(max, 0));
-            onUpdate(mProgress);
+            mAlbumArt.setImageBitmap(media.getIconBitmap());
+            mGlideRequest.load(media.getMediaUri()).into(mBigArt);
+            mProgress.setMetadata(metadata);
         }
     }
 
@@ -158,15 +134,14 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
                 || (mLastPlaybackState.getState() != newState.getState());
         Log.d(TAG, "updatePlaybackState: hasChanged=[" + hasChanged + "]");
 
+        mProgress.setPlaybackState(newState);
         toggleControls(newState.getActions());
         boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
-        onUpdate(mProgress);
+
         if (hasChanged) {
             togglePlayPauseButton(mPlayPauseButton, isPlaying);
             togglePlayPauseButton(mMasterPlayPause, isPlaying);
-            if (isPlaying) mProgress.startUpdate();
-            else mProgress.stopUpdate();
         }
     }
 
@@ -197,18 +172,6 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
         }
     }
 
-    @Override
-    public void onUpdate(AutoUpdateSeekBar view) {
-        if (mLastPlaybackState != null) {
-            long currentPosition = mLastPlaybackState.getPosition();
-            if (mLastPlaybackState.getState() != PlaybackStateCompat.STATE_PAUSED) {
-                long timeDelda = SystemClock.elapsedRealtime() - mLastPlaybackState.getLastPositionUpdateTime();
-                currentPosition += (int) timeDelda * mLastPlaybackState.getPlaybackSpeed();
-            }
-            view.setProgress((int) currentPosition);
-        }
-    }
-
     private void toggleControls(long actions) {
         mMasterPlayPause.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
         mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
@@ -224,8 +187,7 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
         mTitle = findViewById(R.id.title);
         mSubtitle = findViewById(R.id.subtitle);
         mProgress = findViewById(R.id.progress);
-        mProgress.setOnUpdateListener(this);
-        mProgress.setOnSeekBarChangeListener(mSeekListener);
+        mProgress.setOnSeekListener(this);
 
         //findViewById(R.id.textContainer).setOnClickListener(this);
 
@@ -277,6 +239,11 @@ public class PlayerView extends ConstraintLayout implements OnUpdateListener {
 
     public void setEventListener(EventListener listener) {
         mListener = listener;
+    }
+
+    @Override
+    public void onSeek(int newPosition) {
+        mListener.onSeek(newPosition);
     }
 
     public interface EventListener {

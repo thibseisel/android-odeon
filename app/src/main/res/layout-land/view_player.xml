@@ -47,7 +47,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@android:color/black"/>
 
-    <fr.nihilus.music.view.AutoUpdateSeekBar
+    <fr.nihilus.music.view.MediaSeekBar
         android:id="@+id/progress"
         style="@style/Widget.AppTheme.ProgressBar"
         android:layout_width="0dp"
