@@ -8,7 +8,6 @@
     </string-array>
 
     <string-array name="pref_entries_home_screen">
-        <item>Par défaut</item>
         <item>@string/all_music</item>
         <item>@string/action_albums</item>
         <item>@string/action_artists</item>

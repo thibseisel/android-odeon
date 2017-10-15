@@ -36,6 +36,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import dagger.android.support.AndroidSupportInjection;
+import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
 import fr.nihilus.music.command.DeleteTracksCommand;
 import fr.nihilus.music.command.MediaSessionCommand;
@@ -59,6 +60,14 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     private BrowserViewModel mViewModel;
     private final SongListActionMode mActionMode = new SongListActionMode();
+
+    public static SongListFragment newInstance() {
+        Bundle args = new Bundle(1);
+        args.putInt(Constants.FRAGMENT_ID, R.id.action_all);
+        SongListFragment fragment = new SongListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override

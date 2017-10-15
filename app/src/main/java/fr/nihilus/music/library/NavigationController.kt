@@ -1,11 +1,11 @@
 package fr.nihilus.music.library
 
 import android.os.Bundle
-import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.media.MediaBrowserCompat
+import fr.nihilus.music.Constants
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ActivityScoped
@@ -33,14 +33,31 @@ class NavigationController
 @Inject constructor(activity: HomeActivity) {
 
     private val mFm: FragmentManager = activity.supportFragmentManager
-    @IdRes private val mContainerId: Int = R.id.container
+    private val mContainerId: Int = R.id.container
     private var mFirstTag: String? = null
+
+    /**
+     * An event that notifies when the currently shown fragment changes.
+     *
+     * The provided function has an argument that is the id of the fragment.
+     */
+    var routeChangeListener: (Int) -> Unit = {}
+
+    init {
+        mFm.addOnBackStackChangedListener {
+            // Listen for back stack changes and emits an event with the id of the displayed fragment
+            mFm.findFragmentById(mContainerId)?.let { fragment ->
+                val fragmentId = fragment.arguments.getInt(Constants.FRAGMENT_ID)
+                routeChangeListener(fragmentId)
+            }
+        }
+    }
 
     /**
      * Shows the home screen.
      */
     fun navigateToHome() {
-        val fragment = findOrCreateFragment(MediaID.ID_AUTO, ::HomeFragment)
+        val fragment = findOrCreateFragment(MediaID.ID_AUTO, HomeFragment.Factory::newInstance)
         showFragment(MediaID.ID_AUTO, fragment)
     }
 
@@ -48,7 +65,7 @@ class NavigationController
      * Shows the list of all tracks available.
      */
     fun navigateToAllSongs() {
-        val fragment = findOrCreateFragment(MediaID.ID_MUSIC, ::SongListFragment)
+        val fragment = findOrCreateFragment(MediaID.ID_MUSIC, SongListFragment::newInstance)
         showFragment(MediaID.ID_MUSIC, fragment)
     }
 
@@ -56,7 +73,7 @@ class NavigationController
      * Shows the list of all albums.
      */
     fun navigateToAlbums() {
-        val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, ::AlbumGridFragment)
+        val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment::newInstance)
         showFragment(MediaID.ID_ALBUMS, fragment)
     }
 
@@ -64,7 +81,7 @@ class NavigationController
      * Shows the list of all artists.
      */
     fun navigateToArtists() {
-        val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ::ArtistsFragment)
+        val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment::newInstance)
         showFragment(MediaID.ID_ARTISTS, fragment)
     }
 
@@ -88,7 +105,7 @@ class NavigationController
      * Shows the list of user defined playlists.
      */
     fun navigateToPlaylists() {
-        val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, ::PlaylistsFragment)
+        val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment::newInstance)
         showFragment(MediaID.ID_PLAYLISTS, fragment)
     }
 
@@ -112,6 +129,23 @@ class NavigationController
      * This is the same as pressing the back button except that the application won't be closed.
      */
     fun navigateBack() = mFm.popBackStack()
+
+    /**
+     * Shows the view that correspond to a specific media id.
+     *
+     * @param mediaId The media id that represents the screen to display
+     */
+    fun navigateToMediaId(mediaId: String) {
+        val root = MediaID.getHierarchy(mediaId)[0]
+        when (root) {
+            MediaID.ID_AUTO -> navigateToHome()
+            MediaID.ID_MUSIC -> navigateToAllSongs()
+            MediaID.ID_ALBUMS -> navigateToAlbums()
+            MediaID.ID_ARTISTS -> navigateToArtists()
+            MediaID.ID_PLAYLISTS -> navigateToPlaylists()
+            else -> throw UnsupportedOperationException("Unsupported media ID: $mediaId")
+        }
+    }
 
     /**
      * Saves this navigation controller's state into the activity state.
@@ -190,6 +224,9 @@ class NavigationController
             mFm.beginTransaction()
                     .add(mContainerId, fragment, tag)
                     .commit()
+
+            val fragmentId = fragment.arguments.getInt(Constants.FRAGMENT_ID)
+            routeChangeListener(fragmentId)
         }
     }
 }

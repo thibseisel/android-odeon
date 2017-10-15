@@ -7,6 +7,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.widget.GridLayoutManager
 import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.library.BrowserViewModel
@@ -19,7 +20,7 @@ import javax.inject.Inject
 @ActivityScoped
 class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedListener {
 
-    private  lateinit var mAdapter: PlaylistsAdapter
+    private lateinit var mAdapter: PlaylistsAdapter
     private lateinit var mViewModel: BrowserViewModel
 
     @Inject lateinit var mRouter: NavigationController
@@ -72,5 +73,15 @@ class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedList
 
     override fun onPlay(playlist: MediaItem) {
         mViewModel.playFromMediaId(playlist.mediaId!!)
+    }
+
+    companion object Factory {
+        fun newInstance(): HomeFragment {
+            val args = Bundle(1)
+            args.putInt(Constants.FRAGMENT_ID, R.id.action_home)
+            val fragment = HomeFragment()
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

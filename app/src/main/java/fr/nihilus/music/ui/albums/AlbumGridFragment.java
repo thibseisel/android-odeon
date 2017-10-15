@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import dagger.android.support.AndroidSupportInjection;
+import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.BrowserViewModel;
@@ -29,6 +30,14 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
 
     private AlbumsAdapter mAdapter;
     private BrowserViewModel mViewModel;
+
+    public static AlbumGridFragment newInstance() {
+        Bundle args = new Bundle(1);
+        args.putInt(Constants.FRAGMENT_ID, R.id.action_albums);
+        AlbumGridFragment fragment = new AlbumGridFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override

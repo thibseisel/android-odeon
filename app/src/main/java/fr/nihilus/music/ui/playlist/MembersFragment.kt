@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.command.DeletePlaylistCommand
 import fr.nihilus.music.command.MediaSessionCommand
@@ -104,14 +105,14 @@ class MembersFragment : RecyclerFragment() {
         })
     }
 
-    companion object {
+    companion object Factory {
         private const val TAG = "MembersFragment"
         private const val ARG_PLAYLIST = "playlist"
         private const val REQUEST_DELETE_PLAYLIST = 66
 
-        @JvmStatic
         fun newInstance(playlist: MediaBrowserCompat.MediaItem): MembersFragment {
-            val args = Bundle(1)
+            val args = Bundle(2)
+            args.putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
             args.putParcelable(ARG_PLAYLIST, playlist)
             val fragment = MembersFragment()
             fragment.arguments = args

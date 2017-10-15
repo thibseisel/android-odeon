@@ -20,6 +20,7 @@ public class PreferenceDao {
     private static final String KEY_DAILY_UPDATE = "last_daily_update";
     private static final String KEY_LAST_PLAYED = "last_played";
     private static final String KEY_DB_SETUP = "db_setup";
+    private static final String KEY_STARTUP_SCREEN = "startup_screen";
 
     private final Context mAppContext;
     private final SharedPreferences mPrefs;
@@ -44,6 +45,11 @@ public class PreferenceDao {
 
     public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
         mPrefs.edit().putInt(KEY_RANDOM_PLAYING, shuffleMode).apply();
+    }
+
+    public String getStartupScreenMediaId() {
+        return mPrefs.getString(KEY_STARTUP_SCREEN,
+                mAppContext.getString(R.string.pref_default_startup_screen));
     }
 
     public long getDailySongId() {

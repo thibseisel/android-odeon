@@ -17,6 +17,7 @@ import android.view.View;
 import java.util.List;
 
 import dagger.android.support.AndroidSupportInjection;
+import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.BrowserViewModel;
@@ -48,7 +49,8 @@ public class ArtistDetailFragment extends RecyclerFragment
     };
 
     public static ArtistDetailFragment newInstance(MediaItem artist) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(2);
+        args.putInt(Constants.FRAGMENT_ID, R.id.action_artists);
         args.putParcelable(KEY_ARTIST, artist);
         ArtistDetailFragment fragment = new ArtistDetailFragment();
         fragment.setArguments(args);

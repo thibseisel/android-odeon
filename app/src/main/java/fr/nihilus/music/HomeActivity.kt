@@ -71,14 +71,13 @@ class HomeActivity : AppCompatActivity(),
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(intent)) {
                     // If intent is not handled, load default fragment
-                    mNavigationView.setCheckedItem(R.id.action_all)
-                    mRouter.navigateToAllSongs()
+                    showHomeScreen()
                 }
             } else PermissionUtil.requestExternalStoragePermission(this)
         }
     }
 
-    public override fun onPostCreate(savedInstanceState: Bundle?) {
+    override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         mDrawerToggle.syncState()
     }
@@ -146,6 +145,10 @@ class HomeActivity : AppCompatActivity(),
 
         mNavigationView = findViewById(R.id.navDrawer)
         mNavigationView.setNavigationItemSelectedListener(this)
+
+        mRouter.routeChangeListener = { fragmentId ->
+            mNavigationView.setCheckedItem(fragmentId)
+        }
     }
 
     private fun setupPlayerView() {
@@ -214,10 +217,15 @@ class HomeActivity : AppCompatActivity(),
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(intent)) {
-                mNavigationView.setCheckedItem(R.id.action_all)
-                mRouter.navigateToAllSongs()
+                showHomeScreen()
             }
         }
+    }
+
+    private fun showHomeScreen() {
+        // Load the startup fragment defined in shared preferences
+        val mediaId = mPrefs.startupScreenMediaId
+        mRouter.navigateToMediaId(mediaId)
     }
 
     /**

@@ -17,6 +17,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
+import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.BrowserViewModel;
@@ -33,6 +34,14 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
     private BrowserViewModel mViewModel;
 
     @Inject NavigationController mNavigation;
+
+    public static ArtistsFragment newInstance() {
+        Bundle args = new Bundle(1);
+        args.putInt(Constants.FRAGMENT_ID, R.id.action_artists);
+        ArtistsFragment fragment = new ArtistsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override

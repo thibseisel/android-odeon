@@ -14,11 +14,11 @@
     <PreferenceCategory android:title="@string/pref_category_behavior">
 
         <ListPreference
-            android:defaultValue="AUTO"
+            android:defaultValue="@string/pref_default_startup_screen"
             android:entries="@array/pref_entries_home_screen"
             android:entryValues="@array/pref_values_home_screen"
-            android:title="@string/pref_title_home_screen"
-            android:key="@string/pref_home_screen"
+            android:title="@string/pref_title_startup_screen"
+            android:key="@string/pref_startup_screen"
             android:summary="%s" />
     </PreferenceCategory>
 </PreferenceScreen>

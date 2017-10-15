@@ -20,6 +20,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
+import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
 import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.library.BrowserViewModel;
@@ -34,6 +35,8 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
 
     @Inject NavigationController mRouter;
     private PlaylistsAdapter mAdapter;
+    private BrowserViewModel mViewModel;
+
     private final SubscriptionCallback mCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
@@ -42,7 +45,14 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
             setRecyclerShown(true);
         }
     };
-    private BrowserViewModel mViewModel;
+
+    public static PlaylistsFragment newInstance() {
+        Bundle args = new Bundle();
+        args.putInt(Constants.FRAGMENT_ID, R.id.action_playlist);
+        PlaylistsFragment fragment = new PlaylistsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onAttach(Context context) {
