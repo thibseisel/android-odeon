@@ -245,6 +245,16 @@ class HomeActivity : AppCompatActivity(),
         return false
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        mRouter.saveState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        mRouter.restoreState(savedInstanceState)
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
     private fun startRandomMix() {
         mViewModel.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
         mViewModel.playFromMediaId(MediaID.ID_MUSIC)

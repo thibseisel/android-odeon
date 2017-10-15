@@ -1,5 +1,6 @@
 package fr.nihilus.music.library
 
+import android.os.Bundle
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -19,37 +20,62 @@ import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
 private const val TAG = "NavigationControl"
+private const val KEY_FIRST_TAG = "first_tag"
 
+/**
+ * Manages the navigation between screens in [HomeActivity].
+ *
+ * Clients are required to save and restore this navigation controller's state
+ * on configuration changes with the [saveState] and [restoreState].
+ */
 @ActivityScoped
 class NavigationController
 @Inject constructor(activity: HomeActivity) {
 
     private val mFm: FragmentManager = activity.supportFragmentManager
     @IdRes private val mContainerId: Int = R.id.container
-    private lateinit var mFirstTag: String
+    private var mFirstTag: String? = null
 
+    /**
+     * Shows the home screen.
+     */
     fun navigateToHome() {
         val fragment = findOrCreateFragment(MediaID.ID_AUTO, ::HomeFragment)
         showFragment(MediaID.ID_AUTO, fragment)
     }
 
+    /**
+     * Shows the list of all tracks available.
+     */
     fun navigateToAllSongs() {
         val fragment = findOrCreateFragment(MediaID.ID_MUSIC, ::SongListFragment)
         showFragment(MediaID.ID_MUSIC, fragment)
     }
 
+    /**
+     * Shows the list of all albums.
+     */
     fun navigateToAlbums() {
         val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, ::AlbumGridFragment)
         showFragment(MediaID.ID_ALBUMS, fragment)
     }
 
+    /**
+     * Shows the list of all artists.
+     */
     fun navigateToArtists() {
         val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ::ArtistsFragment)
         showFragment(MediaID.ID_ARTISTS, fragment)
     }
 
+    /**
+     * Shows the detail of a specific artist.
+     * This includes its produced albums and tracks.
+     *
+     * @param artist The artist from whose details are to be displayed
+     */
     fun navigateToArtistDetail(artist: MediaBrowserCompat.MediaItem) {
-        val tag = artist.mediaId!!
+        val tag = artist.mediaId ?: throw IllegalArgumentException("Artist should have a mediaId")
         val fragment = findOrCreateFragment(tag) {
             ArtistDetailFragment.newInstance(artist)
         }
@@ -58,13 +84,21 @@ class NavigationController
 
     }
 
+    /**
+     * Shows the list of user defined playlists.
+     */
     fun navigateToPlaylists() {
         val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, ::PlaylistsFragment)
         showFragment(MediaID.ID_PLAYLISTS, fragment)
     }
 
+    /**
+     * Shows the list of tracks that are part of a specific playlist.
+     *
+     * @param playlist the playlist from whose tracks are to be displayed
+     */
     fun navigateToPlaylistDetails(playlist: MediaBrowserCompat.MediaItem) {
-        val tag = playlist.mediaId!!
+        val tag = playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
         val fragment = findOrCreateFragment(tag) {
             MembersFragment.newInstance(playlist)
         }
@@ -72,8 +106,31 @@ class NavigationController
         showFragment(tag, fragment)
     }
 
-    fun navigateBack() {
-        mFm.popBackStack()
+    /**
+     * Manually go back to the previous screen, if any.
+     *
+     * This is the same as pressing the back button except that the application won't be closed.
+     */
+    fun navigateBack() = mFm.popBackStack()
+
+    /**
+     * Saves this navigation controller's state into the activity state.
+     * This is necessary to ensure that the first displayed screen is properly restored after
+     * a configuration change.
+     *
+     * @param outState The bundle from [android.app.Activity.onSaveInstanceState]
+     */
+    fun saveState(outState: Bundle?) {
+        outState?.putString(KEY_FIRST_TAG, mFirstTag)
+    }
+
+    /**
+     * Restores the state of this navigation controller from the specified bundle.
+     *
+     * @param savedInstanceState The bundle from [android.app.Activity.onRestoreInstanceState]
+     */
+    fun restoreState(savedInstanceState: Bundle?) {
+        mFirstTag = savedInstanceState?.getString(KEY_FIRST_TAG)
     }
 
     /**
@@ -84,7 +141,7 @@ class NavigationController
      * @return the retrieved fragment, or the provided one if not in fragment manager
      */
     private inline fun findOrCreateFragment(tag: String, provider: () -> Fragment) =
-            mFm.findFragmentByTag(tag) ?: provider.invoke()
+            mFm.findFragmentByTag(tag) ?: provider()
 
     /**
      * Display a given fragment in the main container view.
@@ -115,8 +172,7 @@ class NavigationController
             if (mFm.findFragmentByTag(tag) != null) {
                 if (tag == mFirstTag) {
                     // Pop all transactions if the fragment to show is the first one added
-                    val firstEntry = mFm.getBackStackEntryAt(0)
-                    mFm.popBackStack(firstEntry.name, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    mFm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 } else {
                     // Pop until showing the fragment
                     mFm.popBackStack(tag, 0)
