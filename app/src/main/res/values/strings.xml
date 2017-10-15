@@ -81,4 +81,6 @@
     <string name="action_pause">Pause</string>
     <string name="channel_mediasession">Media player</string>
     <string name="channel_mediasession_description">Media playback control</string>
+    <string name="pref_category_behavior">Behavior</string>
+    <string name="pref_title_home_screen">Home screen</string>
 </resources>

@@ -73,4 +73,6 @@
     <string name="action_pause">Pause</string>
     <string name="channel_mediasession">Lecteur musical</string>
     <string name="channel_mediasession_description">Contrôle du lecteur musical</string>
+    <string name="pref_category_behavior">Comportement</string>
+    <string name="pref_title_home_screen">Écran d\'accueil</string>
 </resources>

@@ -13,4 +13,20 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string-array name="pref_entries_home_screen">
+        <item>Default</item>
+        <item>@string/all_music</item>
+        <item>@string/action_albums</item>
+        <item>@string/action_artists</item>
+        <item>@string/action_playlists</item>
+    </string-array>
+
+    <string-array name="pref_values_home_screen" translatable="false">
+        <item>AUTO</item>
+        <item>MUSIC</item>
+        <item>ALBUMS</item>
+        <item>ARTISTS</item>
+        <item>PLAYLISTS</item>
+    </string-array>
 </resources>

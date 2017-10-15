@@ -6,9 +6,19 @@
             android:defaultValue="-1"
             android:entries="@array/prefs_entries_night_mode"
             android:entryValues="@array/prefs_values_night_mode"
-            android:icon="@drawable/ic_night_mode_24dp"
             android:summary="%s"
             android:key="@string/pref_night_mode"
             android:title="@string/night_mode"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_behavior">
+
+        <ListPreference
+            android:defaultValue="AUTO"
+            android:entries="@array/pref_entries_home_screen"
+            android:entryValues="@array/pref_values_home_screen"
+            android:title="@string/pref_title_home_screen"
+            android:key="@string/pref_home_screen"
+            android:summary="%s" />
     </PreferenceCategory>
 </PreferenceScreen>
