@@ -56,7 +56,7 @@ class NewPlaylistCommand
     private fun savePlaylist(playlist: Playlist): Long {
         return playlistDao.savePlaylist(playlist).also {
             if (it == -1L) {
-                throw IllegalArgumentException("A playlist with this title already exists.")
+                throw IllegalStateException()
             }
         }
     }

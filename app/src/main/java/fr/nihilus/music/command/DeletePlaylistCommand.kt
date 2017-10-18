@@ -22,9 +22,7 @@ class DeletePlaylistCommand
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
         params ?: throw IllegalArgumentException("This command should have parameters")
         val playlistId = params.getLong(PARAM_PLAYLIST_ID, -1L)
-        if (playlistId == -1L) {
-            throw IllegalArgumentException("Missing parameter: PARAM_PLAYLIST_ID")
-        }
+        require (playlistId != -1L) { "Missing parameter: PARAM_PLAYLIST_ID" }
 
         Single.fromCallable { playlistDao.deletePlaylist(playlistId) }
                 .subscribeOn(Schedulers.io())
