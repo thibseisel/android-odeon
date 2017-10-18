@@ -5,7 +5,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.content.res.AppCompatResources
-import android.util.Log
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -17,6 +16,7 @@ import io.reactivex.Single
 import javax.inject.Inject
 
 private const val TAG = "AlbumArtLoader"
+private const val ART_MAX_SIZE = 320
 
 @ServiceScoped
 class AlbumArtLoader
@@ -25,11 +25,10 @@ class AlbumArtLoader
     private val mGlide: GlideRequest<Bitmap>
 
     init {
-        val maxSize = service.resources.getDimensionPixelSize(R.dimen.max_metadata_art_size)
         val errorDrawable = AppCompatResources.getDrawable(service, R.drawable.dummy_album_art)
         mGlide = GlideApp.with(service).asBitmap()
                 .downsample(DownsampleStrategy.AT_MOST)
-                .override(320)
+                .override(ART_MAX_SIZE)
                 .error(errorDrawable)
     }
 
@@ -42,7 +41,6 @@ class AlbumArtLoader
 
                     override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
                         // Emits a new metadata with an album art
-                        Log.d(TAG, "Loaded resource. Size = ${resource?.width}")
                         val newMeta = MediaMetadataCompat.Builder(metadata)
                                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)
                                 .build()

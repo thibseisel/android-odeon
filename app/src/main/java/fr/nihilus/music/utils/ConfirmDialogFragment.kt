@@ -24,23 +24,27 @@ import android.support.v7.app.AlertDialog
 class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(context)
-                .setTitle(arguments.getString(ARG_TITLE))
+        val args = checkNotNull(arguments) {
+            "This fragment must be created by the newInstance method"
+        }
 
-        val message = arguments.getString(ARG_MESSAGE)
+        val builder = AlertDialog.Builder(context)
+                .setTitle(args.getString(ARG_TITLE))
+
+        val message = args.getString(ARG_MESSAGE)
         builder.setMessage(message)
 
-        val positive = arguments.getInt(ARG_POSITIVE)
+        val positive = args.getInt(ARG_POSITIVE)
         if (positive != 0) {
             builder.setPositiveButton(positive, this)
         }
 
-        val negative = arguments.getInt(ARG_NEGATIVE)
+        val negative = args.getInt(ARG_NEGATIVE)
         if (negative != 0) {
             builder.setNegativeButton(negative, this)
         }
 
-        val neutral = arguments.getInt(ARG_NEUTRAL)
+        val neutral = args.getInt(ARG_NEUTRAL)
         if (neutral != 0) {
             builder.setNeutralButton(neutral, this)
         }

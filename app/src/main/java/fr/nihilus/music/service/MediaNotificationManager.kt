@@ -79,8 +79,7 @@ class MediaNotificationManager
             val channelDescription = service.getString(R.string.channel_mediasession_description)
             val importance = NotificationManager.IMPORTANCE_LOW
 
-            val channel = NotificationChannel(CHANNEL_ID, name, importance)
-            with(channel) {
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = channelDescription
                 enableLights(true)
                 lightColor = Color.GREEN
@@ -221,7 +220,6 @@ class MediaNotificationManager
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             mPlaybackState = state
-            Log.v(TAG, "Received new playback state $state")
 
             if (state == null
                     || state.state == PlaybackStateCompat.STATE_STOPPED
@@ -237,9 +235,6 @@ class MediaNotificationManager
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             mMetadata = metadata
-            Log.v(TAG, "Received new metadata $metadata")
-
-            val bitmap = metadata?.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
 
             val notification = createNotification()
             if (notification != null) {

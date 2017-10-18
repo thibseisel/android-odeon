@@ -12,6 +12,7 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
+import fr.nihilus.music.assert
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Completable
@@ -138,6 +139,10 @@ internal class MediaStoreMusicDao
             allTracks.add(metadata)
         }
 
+        assert(cursor.count == allTracks.size) {
+            "Bad number of metadata. Expecting ${cursor.count}, found ${allTracks.size}"
+        }
+
         cursor.close()
         return allTracks
     }
@@ -202,6 +207,10 @@ internal class MediaStoreMusicDao
             albums.add(builder.build())
         }
 
+        assert(cursor.count == albums.size) {
+            "Bad number of albums. Expecting ${cursor.count}, found ${albums.size}"
+        }
+
         return albums
     }
 
@@ -248,8 +257,31 @@ internal class MediaStoreMusicDao
 
             // We need to find the most recent album for each artist to display its album art
             while (!artistsCursor.isAfterLast && !albumsCursor.isAfterLast) {
-                val artistName = artistsCursor.getString(colArtistName)
+                var artistName = artistsCursor.getString(colArtistName)
                 val artistInAlbum = albumsCursor.getString(colArtistAlbum)
+
+                if (artistName < artistInAlbum) {
+                    // Albums are ahead of artists. This might happen when no album is associated
+                    // to this artist. We add it without an album art and move to the next.
+
+                    val artistId = artistsCursor.getLong(colId)
+                    val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
+
+                    val extras = Bundle(2).apply {
+                        putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
+                        putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
+                    }
+
+                    builder.setMediaId(mediaId)
+                            .setTitle(artistsCursor.getString(colArtistName))
+                            .setIconUri(null)
+                            .setExtras(extras)
+
+                    artists.add(builder.build())
+
+                    artistsCursor.moveToNext()
+                    artistName = artistsCursor.getString(colArtistName)
+                }
 
                 if (artistName == artistInAlbum) {
                     // As albums are sorted by descending release year, the first album to match
@@ -258,9 +290,10 @@ internal class MediaStoreMusicDao
                     val albumId = albumsCursor.getLong(colAlbumId)
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
 
-                    val extras = Bundle(2)
-                    extras.putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
-                    extras.putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
+                    val extras = Bundle(2).apply {
+                        putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
+                        putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
+                    }
 
                     builder.setMediaId(mediaId)
                             .setTitle(artistsCursor.getString(colArtistName))
@@ -275,6 +308,10 @@ internal class MediaStoreMusicDao
 
                 // Whether it is matching or not, move to the next album
                 albumsCursor.moveToNext()
+            }
+
+            assert(artistsCursor.count == artists.size) {
+                "Bad number of artists. Expecting ${artistsCursor.count}, found ${artists.size}"
             }
 
             artistsCursor.close()

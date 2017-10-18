@@ -13,7 +13,6 @@ import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -137,20 +136,6 @@ internal class CachedMusicRepository
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
         val fromusicCache: Maybe<MediaMetadataCompat> = Maybe.fromCallable { musicCache.getMetadata(musicId) }
         return fromusicCache.concatWith(mediaDao.getTrack(musicId)).firstOrError()
-    }
-
-    /**
-     * An Observable that notify observers when a change is detected in the music library.
-     * It emits the parent media id of the collection of items that have change.
-     *
-     * Clients are then advised to call [getMediaItems] to fetch up-to-date items.
-     *
-     * When done observing changes, clients __must__ dispose their observers
-     * through [Disposable.dispose] to avoid memory leaks.
-     */
-    val mediaChanges: Observable<String> by lazy {
-        // TODO Add any other media that are subject to changes
-        metadatas.map { _ -> MediaID.ID_MUSIC }
     }
 
     override fun clear() = musicCache.clear()

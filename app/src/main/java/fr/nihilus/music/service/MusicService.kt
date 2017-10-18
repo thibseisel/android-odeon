@@ -119,7 +119,11 @@ class MusicService : MediaBrowserServiceCompat(),
                     }
 
                     override fun onError(e: Throwable) {
-                        Log.e(TAG, "Error while loading from $parentId: $e")
+                        if (e !is UnsupportedOperationException) {
+                            throw AssertionError("Unexpected error", e)
+                        }
+
+                        Log.w(TAG, "Unsupported parent id: $parentId")
                         result.sendResult(null)
                     }
                 })
