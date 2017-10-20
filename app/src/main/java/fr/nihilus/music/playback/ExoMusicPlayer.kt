@@ -156,6 +156,7 @@ internal class ExoMusicPlayer
         // Pause player and cancel the foreground service state.
         Log.d(TAG, "pause called")
         mExoPlayer?.playWhenReady = false
+        mPlayOnFocusGain = false
 
         releaseResources(false)
         unregisterAudioNoisyReceiver()
