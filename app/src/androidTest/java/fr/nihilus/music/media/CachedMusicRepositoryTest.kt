@@ -15,7 +15,6 @@ import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertThat
@@ -48,7 +47,7 @@ class CachedMusicRepositoryTest {
 
     /**
      * Check proper transformation of a MediaMetadataCompat into a MediaItem via
-     * the [CachedMusicRepository.asMediaDescription] extension function.
+     * the [asMediaDescription] extension function.
      */
     @Test
     fun mediaMetadataToMediaDescription() {
@@ -132,46 +131,6 @@ class CachedMusicRepositoryTest {
         subject.getMetadata("3").test()
                 .assertError(RuntimeException::class.java)
                 .assertTerminated()
-    }
-
-    /**
-     * Assert that events from [CachedMusicRepository.mediaChanges] are shared
-     * between multiple observers.
-     */
-    @Test
-    fun mediaChanges_sharedSubscription() {
-        val firstMeta = sampleToMetadata(METADATA[0])
-        val secondMeta = sampleToMetadata(METADATA[1])
-
-        val firstObserver = subject.mediaChanges.test()
-        metadataSubject.onNext(listOf(firstMeta))
-        firstObserver.assertValueCount(1)
-
-        val secondObserver = subject.mediaChanges.test()
-        metadataSubject.onNext(listOf(secondMeta))
-        firstObserver.assertValueCount(2)
-        secondObserver.assertValueCount(1)
-        assertThat(firstObserver.values()[1] === secondObserver.values()[0], `is`(true))
-
-        firstObserver.dispose()
-        metadataSubject.onNext(listOf(firstMeta))
-        firstObserver.assertValueCount(2)
-        secondObserver.assertValueCount(2)
-
-        secondObserver.dispose()
-    }
-
-    /**
-     * Assert that a change in track metadata in the repository
-     * triggers a notification with [MediaID.ID_MUSIC].
-     */
-    @Test
-    fun mediaChanges_notifyChangeInTracks() {
-        val testObserver = subject.mediaChanges.test()
-        metadataSubject.onNext(emptyList())
-        testObserver.assertValue(MediaID.ID_MUSIC)
-
-        testObserver.dispose()
     }
 
     @After

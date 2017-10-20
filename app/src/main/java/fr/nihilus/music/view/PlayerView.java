@@ -28,6 +28,8 @@ import android.widget.TextView;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import org.jetbrains.annotations.NotNull;
+
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
@@ -249,7 +251,7 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
     }
 
     @Override
-    public void onSeek(int newPosition) {
+    public void onSeek(@NotNull MediaSeekBar view, int newPosition) {
         mListener.onSeek(newPosition);
     }
 

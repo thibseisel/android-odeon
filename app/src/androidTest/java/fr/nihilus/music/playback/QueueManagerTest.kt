@@ -3,7 +3,8 @@ package fr.nihilus.music.playback
 import android.content.res.Resources
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.session.MediaSessionCompat
-import fr.nihilus.music.media.repo.CachedMusicRepository
+import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MusicService
 import org.hamcrest.Matchers.`is`
 import org.junit.Assert.*
@@ -18,7 +19,8 @@ import org.mockito.MockitoAnnotations
 class QueueManagerTest {
 
     @Mock private lateinit var mockService: MusicService
-    @Mock private lateinit var mockRepo: CachedMusicRepository
+    @Mock private lateinit var mockLoader: AlbumArtLoader
+    @Mock private lateinit var mockRepo: MusicRepository
 
     private lateinit var subject: QueueManager
 
@@ -26,7 +28,7 @@ class QueueManagerTest {
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         configureMockResources()
-        subject = QueueManager(mockService, mockRepo)
+        subject = QueueManager(mockService, mockLoader, mockRepo)
     }
 
     private fun configureMockResources() {

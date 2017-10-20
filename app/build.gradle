@@ -21,6 +21,11 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -30,13 +35,15 @@ android {
     }
 }
 
-task (type: org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinReleaseCompile {
-        kotlinOptions {
-            freeCompilerArgs = ['Xno-param-assertions']
-        }
+/*compileReleaseKotlin {
+    kotlinOptions {
+        freeCompilerArgs = [
+                'Xno-param-assertions',
+                'Xno-call-assertions',
+                'Xno-receiver-assertions'
+        ]
     }
-}
+}*/
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
