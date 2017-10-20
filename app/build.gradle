@@ -45,19 +45,18 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            // Configure Kotlin compiler optimisations for releases
+            kotlinOptions {
+                freeCompilerArgs = [
+                        'Xno-param-assertions',
+                        'Xno-call-assertions',
+                        'Xno-receiver-assertions'
+                ]
+            }
         }
     }
 }
-
-/*compileReleaseKotlin {
-    kotlinOptions {
-        freeCompilerArgs = [
-                'Xno-param-assertions',
-                'Xno-call-assertions',
-                'Xno-receiver-assertions'
-        ]
-    }
-}*/
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
