@@ -83,5 +83,5 @@
     <string name="channel_mediasession_description">Media playback control</string>
     <string name="pref_category_behavior">Behavior</string>
     <string name="pref_title_startup_screen">Startup screen</string>
-    <string name="pref_default_startup_screen">MUSIC</string>
+    <string name="pref_default_startup_screen" translatable="false">MUSIC</string>
 </resources>

@@ -11,3 +11,6 @@
 .externalNativeBuild
 /projectFilesBackup
 app/schemas
+
+# Keystore file should stay private
+keystore.properties

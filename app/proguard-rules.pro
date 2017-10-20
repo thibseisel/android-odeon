@@ -25,3 +25,5 @@
     **[] $VALUES;
     public *;
 }
+
+-dontwarn com.google.errorprone.annotations.*
