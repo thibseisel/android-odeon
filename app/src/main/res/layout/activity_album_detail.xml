@@ -52,57 +52,46 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
         </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <fr.nihilus.music.view.NestedScrollingLinearLayout
+        <LinearLayout
+            android:id="@+id/band"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:theme="?actionBarTheme"
+            app:layout_scrollFlags="scroll">
 
-            <LinearLayout
-                android:id="@+id/band"
+            <TextView
+                android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="32dp"
-                android:theme="?actionBarTheme">
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="Title de l'album"/>
 
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-                    android:textColor="?android:attr/textColorPrimary"
-                    tools:text="Title de l'album"/>
-
-                <TextView
-                    android:id="@+id/subtitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    tools:text="Nom de l'artiste de l'album"/>
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@android:id/list"
+            <TextView
+                android:id="@+id/subtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingBottom="8dp"
-                android:paddingTop="8dp"
-                tools:listitem="@layout/album_track_item"/>
-        </fr.nihilus.music.view.NestedScrollingLinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                tools:text="Nom de l'artiste de l'album"/>
+        </LinearLayout>
+    </android.support.design.widget.AppBarLayout>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/album_track_item"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/action_play"
@@ -110,9 +99,9 @@
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
-        app:layout_anchor="@id/band"
+        app:layout_anchor="@id/collapsingToolbar"
         app:backgroundTint="?colorBackgroundFloating"
-        app:layout_anchorGravity="top|end"
+        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_play_arrow"/>
 
 </android.support.design.widget.CoordinatorLayout>

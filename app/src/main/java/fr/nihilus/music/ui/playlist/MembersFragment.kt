@@ -74,6 +74,7 @@ class MembersFragment : RecyclerFragment() {
 
         mViewModel = ViewModelProviders.of(activity)[BrowserViewModel::class.java]
         adapter = mAdapter
+        recyclerView.setHasFixedSize(true)
         if (savedInstanceState == null) {
             //setRecyclerShown(false);
         }

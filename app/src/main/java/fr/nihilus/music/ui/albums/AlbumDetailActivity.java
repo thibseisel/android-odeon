@@ -129,7 +129,6 @@ public class AlbumDetailActivity extends AppCompatActivity
     private void setupTrackList() {
         mRecyclerView = findViewById(android.R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ViewCompat.setNestedScrollingEnabled(mRecyclerView, false);
         mDecoration = new CurrentlyPlayingDecoration(this);
         mRecyclerView.addItemDecoration(mDecoration);
 

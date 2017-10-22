@@ -49,6 +49,7 @@ class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedList
         mViewModel = ViewModelProviders.of(activity).get(BrowserViewModel::class.java)
         val spanCount = resources.getInteger(R.integer.album_grid_span_count)
         recyclerView.layoutManager = GridLayoutManager(context, spanCount)
+        recyclerView.setHasFixedSize(true)
 
         adapter = mAdapter
         if (savedInstanceState == null) {

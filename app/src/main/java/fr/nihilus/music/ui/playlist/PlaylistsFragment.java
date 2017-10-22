@@ -74,6 +74,8 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
 
+        getRecyclerView().setHasFixedSize(true);
+
         setAdapter(mAdapter);
         if (savedInstanceState == null) {
             setRecyclerShown(false);

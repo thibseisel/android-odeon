@@ -91,6 +91,7 @@ public class ArtistsFragment extends RecyclerFragment implements ArtistAdapter.O
         mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
 
         setAdapter(mAdapter);
+        getRecyclerView().setHasFixedSize(true);
         if (savedInstanceState == null) {
             setRecyclerShown(false);
         }
