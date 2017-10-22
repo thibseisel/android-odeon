@@ -48,6 +48,7 @@ class HomeActivity : AppCompatActivity(),
     private lateinit var mNavigationView: NavigationView
     private lateinit var mPlayerView: PlayerView
     private lateinit var mCoordinator: CoordinatorLayout
+    private lateinit var mContainer: View
 
     private lateinit var mBottomSheet: ScrimBottomSheetBehavior<PlayerView>
     private lateinit var mViewModel: BrowserViewModel
@@ -64,6 +65,7 @@ class HomeActivity : AppCompatActivity(),
         mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
         mViewModel.connect()
 
+        mContainer = findViewById(R.id.container)
         setupPlayerView()
 
         if (savedInstanceState == null) {
@@ -157,13 +159,17 @@ class HomeActivity : AppCompatActivity(),
         mBottomSheet = ScrimBottomSheetBehavior.from(mPlayerView)
 
         mViewModel.currentMetadata.observe(this, Observer(mPlayerView::updateMetadata))
-        mViewModel.playbackState.observe(this, Observer(mPlayerView::updatePlaybackState))
         mViewModel.shuffleMode.observe(this, Observer {
             mPlayerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
         })
 
         mViewModel.repeatMode.observe(this, Observer {
             mPlayerView.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
+        })
+
+        mViewModel.playbackState.observe(this, Observer { newState ->
+            mPlayerView.updatePlaybackState(newState)
+            togglePlayerVisibility(newState)
         })
 
         BottomSheetBehavior.from(mPlayerView)
@@ -190,6 +196,16 @@ class HomeActivity : AppCompatActivity(),
         onOptionsItemSelected(item)
         mDrawerLayout.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onBackPressed() {
+        if (mBottomSheet.state != BottomSheetBehavior.STATE_EXPANDED) {
+            super.onBackPressed()
+        } else {
+            // Collapses the player view if expanded
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
     }
 
     /**
@@ -229,6 +245,26 @@ class HomeActivity : AppCompatActivity(),
         // Load the startup fragment defined in shared preferences
         val mediaId = mPrefs.startupScreenMediaId
         mRouter.navigateToMediaId(mediaId)
+    }
+
+    /**
+     * Show or hide the player view depending on the passed playback state.
+     * If the playback state s undefined or stopped, the player view will be hidden.
+     *
+     * @param state The most recent playback state
+     */
+    private fun togglePlayerVisibility(state: PlaybackStateCompat?) {
+        if (state == null
+                || state.state == PlaybackStateCompat.STATE_NONE
+                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            mBottomSheet.isHideable = true
+            mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+            mContainer.setPadding(0, 0, 0, 0)
+        } else {
+            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            mBottomSheet.isHideable = false
+            mContainer.setPadding(0, 0, 0, resources.getDimensionPixelSize(R.dimen.playerview_height))
+        }
     }
 
     /**

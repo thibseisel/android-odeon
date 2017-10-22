@@ -53,6 +53,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:layout_gravity="center"
+            app:elevation="@dimen/playerview_elevation"
             app:behavior_peekHeight="@dimen/playerview_height"
             app:layout_behavior="@string/playerview_behavior"/>
     </android.support.design.widget.CoordinatorLayout>
