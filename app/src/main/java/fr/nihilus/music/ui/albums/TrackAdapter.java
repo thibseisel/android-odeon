@@ -80,6 +80,10 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
         result.dispatchUpdatesTo(this);
     }
 
+    public List<MediaItem> getItems() {
+        return mTracks;
+    }
+
     @Override
     public int getItemCount() {
         return mTracks.size();
