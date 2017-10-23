@@ -260,7 +260,9 @@ class HomeActivity : AppCompatActivity(),
             mBottomSheet.isHideable = true
             mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             mContainer.setPadding(0, 0, 0, 0)
-        } else {
+
+        } else if (mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN) {
+            // Take action to show BottomSheet only if it is hidden
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             mBottomSheet.isHideable = false
             mContainer.setPadding(0, 0, 0, resources.getDimensionPixelSize(R.dimen.playerview_height))
