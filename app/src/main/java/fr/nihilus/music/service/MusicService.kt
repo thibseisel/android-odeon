@@ -194,6 +194,10 @@ class MusicService : MediaBrowserServiceCompat(),
         const val CMD_PAUSE = "CMD_PAUSE"
     }
 
+    /**
+     * Automatically stops the music service if it is inactive for [STOP_DELAY] milliseconds.
+     * This allow the service to be stopped when no client is bound to it.
+     */
     private class DelayedStopHandler(service: MusicService) : Handler() {
         private val mServiceRef = WeakReference(service)
 
@@ -209,5 +213,4 @@ class MusicService : MediaBrowserServiceCompat(),
             }
         }
     }
-
 }
