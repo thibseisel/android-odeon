@@ -48,6 +48,9 @@ class AlbumDetailActivity : AppCompatActivity(),
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
             mAdapter.updateTracks(children)
             mRecyclerView.swapAdapter(mAdapter, false)
+
+            val currentMetadata = mViewModel.currentMetadata.value
+            decoratePlayingTrack(currentMetadata)
         }
     }
 
