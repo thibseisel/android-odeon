@@ -15,8 +15,8 @@ import javax.inject.Inject
 /**
  * A built-in item that groups tracks that have been added to the music library recently.
  */
-class MostRecentTracks
-@Inject internal constructor(
+internal class MostRecentTracks
+@Inject constructor(
         context: Context,
         private val dao: MusicDao
 ) : BuiltinItem {

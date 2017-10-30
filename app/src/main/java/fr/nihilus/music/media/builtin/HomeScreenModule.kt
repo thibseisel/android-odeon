@@ -10,7 +10,7 @@ import dagger.multibindings.IntoSet
  * All items placed into the set should be displayed together as part of the main screen of the UI.
  */
 @Module
-abstract class HomeScreenModule {
+internal abstract class HomeScreenModule {
 
     @Binds @IntoSet
     abstract fun bindMostRecents(playlist: MostRecentTracks): BuiltinItem

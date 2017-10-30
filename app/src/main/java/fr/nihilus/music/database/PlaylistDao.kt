@@ -8,7 +8,7 @@ import io.reactivex.Flowable
 interface PlaylistDao {
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    fun playlists(): Flowable<List<Playlist>>
+    fun getPlaylists(): Flowable<List<Playlist>>
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
     fun playlistsWithTracks(): Flowable<List<PlaylistWithTracks>>

@@ -7,7 +7,11 @@ import dagger.multibindings.StringKey
 import fr.nihilus.music.utils.MediaID
 
 @Module(includes = arrayOf(HomeScreenModule::class))
-abstract class BuiltinModule {
+internal abstract class BuiltinModule {
+
+    @Binds @IntoMap
+    @StringKey(MediaID.ID_MUSIC)
+    abstract fun bindAllTracks(builtIn: AllTracks): BuiltinItem
 
     @Binds @IntoMap
     @StringKey(MediaID.ID_MOST_RECENT)

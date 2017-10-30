@@ -41,7 +41,7 @@ public final class MediaID {
      */
     public static final String ID_ARTISTS = "ARTISTS";
     /**
-     * All user-defined playlists.
+     * All user-defined getPlaylists.
      */
     public static final String ID_PLAYLISTS = "PLAYLISTS";
     /**
@@ -49,7 +49,7 @@ public final class MediaID {
      */
     public static final String ID_MOST_RECENT = "RECENT";
     /**
-     * Automatic playlists.
+     * Automatic getPlaylists.
      */
     public static final String ID_AUTO = "AUTO";
 

@@ -8,8 +8,8 @@ import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
 import javax.inject.Inject
 
-class HomeScreen
-@Inject internal constructor(
+internal class HomeScreen
+@Inject constructor(
         private val context: Context,
         private val playlists: Set<@JvmSuppressWildcards BuiltinItem>
 ): BuiltinItem {
