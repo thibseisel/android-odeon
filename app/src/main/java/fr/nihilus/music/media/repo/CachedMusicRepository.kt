@@ -57,7 +57,7 @@ internal class CachedMusicRepository
                 // Notify an error if no built-in is found
                 val builtIn = builtIns.get(parentHierarchy[0])
                         ?: return Single.error(::UnsupportedOperationException)
-                return builtIn.getChildren()
+                builtIn.getChildren()
             }
         }
 
