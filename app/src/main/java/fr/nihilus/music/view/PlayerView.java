@@ -290,7 +290,7 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
         }
 
         SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(savedState);
+        super.onRestoreInstanceState(savedState.getSuperState());
 
         mLastPlaybackState = savedState.lastPlaybackState;
         mMetadata = savedState.metadata;
