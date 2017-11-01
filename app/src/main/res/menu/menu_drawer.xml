@@ -6,10 +6,10 @@
         android:title="@string/music_library">
         <menu>
             <group android:checkableBehavior="single">
-                <item
+                <!--<item
                     android:id="@+id/action_home"
                     android:icon="@drawable/ic_home_24dp"
-                    android:title="@string/home" />
+                    android:title="@string/home" />-->
 
                 <item
                     android:id="@+id/action_all"

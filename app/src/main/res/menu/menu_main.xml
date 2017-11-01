@@ -3,5 +3,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".HomeActivity">
 
-    <!-- Menu is corrently empty -->
+    <!-- Menu is currently empty -->
 </menu>
