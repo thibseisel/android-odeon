@@ -34,23 +34,20 @@ class MembersAdapter(fragment: Fragment) : RecyclerView.Adapter<MembersHolder>()
         mItems.addAll(newItems)
         result.dispatchUpdatesTo(this)
     }
-
-    fun moveTo(from: Int, to: Int) {
-
-    }
 }
 
 class MembersHolder(parent: ViewGroup, private val artLoader: GlideRequest<Bitmap>)
     : RecyclerView.ViewHolder(parent.inflate(R.layout.song_list_item)) {
 
-    private val albumArt: ImageView = itemView.findViewById(R.id.albumArt)
+    private val albumArt: ImageView = itemView.findViewById(R.id.cover)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
 
     fun bind(item: MediaBrowserCompat.MediaItem) {
-        val descr = item.description
-        title.text = descr.title
-        subtitle.text = descr.subtitle
-        artLoader.load(descr.mediaUri).into(albumArt)
+        item.description.also {
+            title.text = it.title
+            subtitle.text = it.subtitle
+            artLoader.load(it.iconUri).into(albumArt)
+        }
     }
 }

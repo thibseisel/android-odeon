@@ -50,20 +50,26 @@ public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.Play
 
     @Override
     public void onBindViewHolder(final PlaylistHolder holder, int position) {
-        MediaDescriptionCompat item = mItems.get(position).getDescription();
-        holder.title.setText(item.getTitle());
-        mGlideRequest.load(item.getIconUri()).into(holder.image);
+        MediaItem item = mItems.get(position);
+        MediaDescriptionCompat description = mItems.get(position).getDescription();
+        holder.title.setText(description.getTitle());
+        mGlideRequest.load(description.getIconUri()).into(holder.image);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mListener != null) {
                     MediaItem clickedItem = mItems.get(holder.getAdapterPosition());
-                    mListener.onPlaylistSelected(holder, clickedItem);
+                    if (clickedItem.isBrowsable()) {
+                        // Only browsable items show their content
+                        mListener.onPlaylistSelected(holder, clickedItem);
+                    }
                 }
             }
         });
 
+        // The play button is only shown if the item is playable
+        holder.actionPlay.setVisibility(item.isPlayable() ? View.VISIBLE : View.GONE);
         holder.actionPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

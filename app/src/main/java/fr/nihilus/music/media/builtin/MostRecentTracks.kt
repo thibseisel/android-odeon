@@ -17,19 +17,17 @@ import javax.inject.Inject
  */
 internal class MostRecentTracks
 @Inject constructor(
-        context: Context,
+        private val context: Context,
         private val dao: MusicDao
 ) : BuiltinItem {
-
-    private val resources = context.resources
 
     override fun asMediaItem(): MediaItem {
         val builder = MediaDescriptionCompat.Builder()
         val description = builder
                 .setMediaId(MediaID.ID_MOST_RECENT)
-                .setTitle(resources.getText(R.string.last_added))
+                .setTitle(context.getText(R.string.last_added))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
+        return MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
     override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {

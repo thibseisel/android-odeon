@@ -117,7 +117,9 @@ class NavigationController
     fun navigateToPlaylistDetails(playlist: MediaBrowserCompat.MediaItem) {
         val tag = playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
         val fragment = findOrCreateFragment(tag) {
-            MembersFragment.newInstance(playlist)
+            // Only user-defined playlists should be deletable
+            val rootId = MediaID.getHierarchy(tag)[0]
+            MembersFragment.newInstance(playlist, deletable = MediaID.ID_PLAYLISTS == rootId)
         }
 
         showFragment(tag, fragment)

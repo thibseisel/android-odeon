@@ -34,6 +34,14 @@ class MembersFragment : RecyclerFragment() {
 
     @Inject lateinit var mRouter: NavigationController
 
+    private val mSubscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
+
+        override fun onChildrenLoaded(parentId: String, children: List<MediaBrowserCompat.MediaItem>) {
+            mAdapter.update(children)
+            setRecyclerShown(true)
+        }
+    }
+
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -44,12 +52,13 @@ class MembersFragment : RecyclerFragment() {
         setHasOptionsMenu(true)
 
         mAdapter = MembersAdapter(this)
-        mPlaylist = arguments.getParcelable(ARG_PLAYLIST)
+        mPlaylist = arguments?.getParcelable(ARG_PLAYLIST)
                 ?: throw IllegalStateException("Fragment must be instantiated with newInstance")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_playlist_details, menu)
+        menu.findItem(R.id.action_delete).isVisible = arguments.getBoolean(ARG_DELETABLE)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -83,6 +92,12 @@ class MembersFragment : RecyclerFragment() {
     override fun onStart() {
         super.onStart()
         activity.title = mPlaylist.description.title
+        mViewModel.subscribe(mPlaylist.mediaId!!, mSubscriptionCallback)
+    }
+
+    override fun onStop() {
+        mViewModel.unsubscribe(mPlaylist.mediaId!!)
+        super.onStop()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -109,15 +124,17 @@ class MembersFragment : RecyclerFragment() {
     companion object Factory {
         private const val TAG = "MembersFragment"
         private const val ARG_PLAYLIST = "playlist"
+        private const val ARG_DELETABLE = "deletable"
         private const val REQUEST_DELETE_PLAYLIST = 66
 
-        fun newInstance(playlist: MediaBrowserCompat.MediaItem): MembersFragment {
-            val args = Bundle(2)
-            args.putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
-            args.putParcelable(ARG_PLAYLIST, playlist)
-            val fragment = MembersFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance(playlist: MediaBrowserCompat.MediaItem, deletable: Boolean): MembersFragment {
+            return MembersFragment().apply {
+                arguments = Bundle(3).apply {
+                    putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
+                    putParcelable(ARG_PLAYLIST, playlist)
+                    putBoolean(ARG_DELETABLE, deletable)
+                }
+            }
         }
     }
 }
