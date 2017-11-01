@@ -3,7 +3,7 @@ package fr.nihilus.music.media
 import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.builtin.BuiltinModule
-import fr.nihilus.music.media.cache.LruMusicCache
+import fr.nihilus.music.media.cache.LruMemoryCache
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.repo.MusicRepository
@@ -17,15 +17,16 @@ import fr.nihilus.music.media.source.MusicDao
  * Binds annotated methods are used by Dagger to know which implementation
  * should be injected when asking for an abstract type.
  */
+@Suppress("unused")
 @Module(includes = arrayOf(BuiltinModule::class))
-abstract class MediaModule {
+internal abstract class MediaModule {
 
     @Binds
-    internal abstract fun bindsMusicCache(cacheImpl: LruMusicCache): MusicCache
+    abstract fun bindsMusicCache(cacheImpl: LruMemoryCache): MusicCache
 
     @Binds
-    internal abstract fun bindsMusicDao(daoImpl: MediaStoreMusicDao): MusicDao
+    abstract fun bindsMusicDao(daoImpl: MediaStoreMusicDao): MusicDao
 
     @Binds
-    internal abstract fun bindsMusicRepository(repoImpl: CachedMusicRepository): MusicRepository
+    abstract fun bindsMusicRepository(repoImpl: CachedMusicRepository): MusicRepository
 }

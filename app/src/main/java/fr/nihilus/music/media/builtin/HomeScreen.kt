@@ -22,7 +22,7 @@ internal class HomeScreen
         return MediaItem(description, MediaItem.FLAG_BROWSABLE)
     }
 
-    override fun getChildren(): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
         return Single.fromCallable {
             playlists.map { it.asMediaItem() }
         }

@@ -12,8 +12,9 @@ import javax.inject.Singleton
  * but keep all metadata.
  */
 @Singleton
-internal class LruMusicCache
+internal class LruMemoryCache
 @Inject constructor() : MusicCache {
+
     private val mItemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
     private val mMetadataCache = ArrayMap<String, MediaMetadataCompat>()
 

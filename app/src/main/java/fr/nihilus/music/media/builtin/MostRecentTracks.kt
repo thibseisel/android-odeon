@@ -32,7 +32,7 @@ internal class MostRecentTracks
         return MediaItem(description, MediaItem.FLAG_BROWSABLE)
     }
 
-    override fun getChildren(): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
         return dao.getTracks(null, null, "${Media.DATE_ADDED} DESC").take(1)
                 .flatMap { Observable.fromIterable(it) }

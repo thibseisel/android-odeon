@@ -3,12 +3,22 @@ package fr.nihilus.music.media.cache
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 
+/**
+ * A cache that stores media items and metadata for a later use.
+ * Using a cache is a convenient way to decrease overall loading times when the cached data
+ * comes from storage or network.
+ *
+ * Implementations can use any underlying storage (in-memory, disk...)
+ * or caching strategy (eviction, cache-aside...)
+ * provided it is faster than fetching items from their original source.
+ */
 interface MusicCache {
 
     /**
-     * Put media items in the cache. Those items could then be retrieved with [getItems].
+     * Put media items in the cache. Those items could then be retrieved via `getItems(mediaId)`.
      * Depending on the cache implementation, older items may be removed
      * as other set of media items are put into the cache.
+     *
      * @param mediaId unique identifier of the parent that contains the media items
      */
     fun putItems(mediaId: String, items: List<MediaBrowserCompat.MediaItem>)
@@ -26,17 +36,20 @@ interface MusicCache {
 
     /**
      * Put a metadata in the cache.
+     *
      * @param musicId the id the metadata to be stored
      * @param metadata the metadata to store, whose id is [musicId]
      */
     fun putMetadata(musicId: String, metadata: MediaMetadataCompat)
 
     /**
-     * Retrieve a metadata for the given [musicId] from the cache.
+     * Retrieve a metadata for the given `musicId` from the cache.
      * Depending on the cache implementation, the requested item may or may not be in the cache
      * at a later time ; if it has been removed or if it has never been in the cache, the returned
      * metadata will be null.
+     *
      * @param musicId the id of the requested metadata
+     * @return metadata corresponding to `musicId`, or `null` if not in the cache
      */
     fun getMetadata(musicId: String): MediaMetadataCompat?
 

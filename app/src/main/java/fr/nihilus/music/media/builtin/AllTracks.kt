@@ -13,9 +13,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
-/**
- *
- */
 internal class AllTracks
 @Inject constructor(
         private val context: Context,
@@ -31,7 +28,7 @@ internal class AllTracks
         return MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
     }
 
-    override fun getChildren(): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getAllTracks()
                 .flatMap { Observable.fromIterable(it) }

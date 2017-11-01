@@ -29,7 +29,9 @@ interface BuiltinItem {
      * plus an extra part specific to each child, except if children are built-in items themselves.
      * In this case the have their own root id.
      *
+     * @param parentMediaId The Media ID of the parent item.
+     *
      * @return an observable list of media item children of this built-in item
      */
-    fun getChildren(): Single<List<MediaBrowserCompat.MediaItem>>
+    fun getChildren(parentMediaId: String): Single<List<MediaBrowserCompat.MediaItem>>
 }

@@ -21,7 +21,7 @@ interface MusicRepository {
     /**
      * Build a set of items suitable for display composed of children of a given Media ID.
      *
-     * The returned [Observable] will emit the requested items or an error
+     * The returned [Observable] will emit the requested items or an [UnsupportedOperationException]
      * if [parentMediaId] is unsupported.
      *
      * @param parentMediaId the media id that identifies the requested medias
