@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -16,6 +18,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
+import android.text.format.DateUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
@@ -23,22 +26,28 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
 
-public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekListener {
+public class PlayerView extends ConstraintLayout {
 
     private static final String TAG = "PlayerView";
     private static final int LEVEL_PLAYING = 1;
     private static final int LEVEL_PAUSED = 0;
+    private static final int PROGRESS_UPDATE_INITIAL_DELAY = 100;
+    private static final int PROGRESS_UPDATE_PERIOD = 1000;
 
     private RequestBuilder<Bitmap> mGlideRequest;
     private TextView mTitle;
@@ -53,6 +62,9 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
     private ImageView mShuffleModeButton;
     private ImageView mRepeatModeButton;
 
+    private TextView mSeekPosition;
+    private TextView mSeekDuration;
+
     private EventListener mListener;
 
     private boolean mExpanded = false;
@@ -60,6 +72,20 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
     private PlaybackStateCompat mLastPlaybackState;
     private MediaMetadataCompat mMetadata;
     private Transition mOpenTransition;
+    private final StringBuilder mDurationBuilder = new StringBuilder();
+
+    private final Handler mHandler = new Handler();
+    private final ScheduledExecutorService mExecutorService =
+            Executors.newSingleThreadScheduledExecutor();
+
+    private final Runnable mUpdateProgressTask = new Runnable() {
+        @Override
+        public void run() {
+            updateProgress();
+        }
+    };
+
+    private ScheduledFuture<?> mScheduleFuture;
 
     public PlayerView(Context context) {
         this(context, null, 0);
@@ -130,12 +156,16 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
 
             mGlideRequest.load(media.getIconUri()).into(mBigArt);
             mProgress.setMetadata(metadata);
+
+            String durationText = DateUtils.formatElapsedTime(mDurationBuilder,
+                    metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) / 1000L);
+            mSeekDuration.setText(durationText);
         }
     }
 
     public void updatePlaybackState(@Nullable PlaybackStateCompat newState) {
         if (newState == null) {
-            // TODO Reset to default state
+            reset();
             return;
         }
 
@@ -148,9 +178,18 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
         boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
 
+        String position = DateUtils.formatElapsedTime(mDurationBuilder, newState.getPosition() / 1000L);
+        mSeekPosition.setText(position);
+
         if (hasChanged) {
             togglePlayPauseButton(mPlayPauseButton, isPlaying);
             togglePlayPauseButton(mMasterPlayPause, isPlaying);
+        }
+
+        if (isPlaying) {
+            scheduleProgressUpdate();
+        } else {
+            stopProgressUpdate();
         }
     }
 
@@ -188,6 +227,26 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
         mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
     }
 
+
+    private void updateProgress() {
+        if (mLastPlaybackState != null) {
+            long currentPosition = mLastPlaybackState.getPosition();
+            if (mLastPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+
+                // Calculate the elapsed time between the last position update and now and unless
+                // paused, we can assume (delta * speed) + current position is approximately the
+                // latest position. This ensure that we do not repeatedly call the getPlaybackState()
+                // on MediaControllerCompat.
+
+                long timeDelta = SystemClock.elapsedRealtime() -
+                        mLastPlaybackState.getLastPositionUpdateTime();
+                currentPosition += (int) timeDelta * mLastPlaybackState.getPlaybackSpeed();
+            }
+
+            mProgress.setProgress((int) currentPosition);
+        }
+    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -195,10 +254,28 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
         mAlbumArt = findViewById(R.id.cover);
         mTitle = findViewById(R.id.title);
         mSubtitle = findViewById(R.id.subtitle);
-        mProgress = findViewById(R.id.progress);
-        mProgress.setOnSeekListener(this);
+        mProgress = findViewById(R.id.seekbar);
+        mProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-        //findViewById(R.id.textContainer).setOnClickListener(this);
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mSeekPosition.setText(DateUtils.formatElapsedTime(mDurationBuilder, progress / 1000));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                stopProgressUpdate();
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mListener.onSeek(seekBar.getProgress());
+                scheduleProgressUpdate();
+            }
+        });
+
+        mSeekPosition = findViewById(R.id.seek_position);
+        mSeekDuration = findViewById(R.id.seek_duration);
 
         mBigArt = findViewById(R.id.bigArt);
 
@@ -237,6 +314,25 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
         }
     }
 
+    private void scheduleProgressUpdate() {
+        stopProgressUpdate();
+        if (!mExecutorService.isShutdown()) {
+            mScheduleFuture = mExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    mHandler.post(mUpdateProgressTask);
+                }
+            }, PROGRESS_UPDATE_INITIAL_DELAY,
+                    PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void stopProgressUpdate() {
+        if (mScheduleFuture != null) {
+            mScheduleFuture.cancel(false);
+        }
+    }
+
     public void setRepeatMode(@PlaybackStateCompat.RepeatMode int mode) {
         mRepeatModeButton.setImageLevel(mode);
         mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_ONE);
@@ -248,11 +344,6 @@ public class PlayerView extends ConstraintLayout implements MediaSeekBar.OnSeekL
 
     public void setEventListener(EventListener listener) {
         mListener = listener;
-    }
-
-    @Override
-    public void onSeek(@NotNull MediaSeekBar view, int newPosition) {
-        mListener.onSeek(newPosition);
     }
 
     public interface EventListener {

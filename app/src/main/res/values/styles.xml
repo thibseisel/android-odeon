@@ -38,8 +38,6 @@
 
     <style name="Widget.AppTheme.ProgressBar" parent="Widget.AppCompat.SeekBar">
         <item name="android:minHeight">0dp</item>
-        <item name="android:progressDrawable">@drawable/my_seekbar_track</item>
-        <item name="android:thumb">@drawable/my_seekbar_thumb</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>
         <item name="paddingStart">0dp</item>

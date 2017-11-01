@@ -26,9 +26,9 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_toEndOf="@id/albumArt"
-        android:layout_toLeftOf="@+id/duration"
+        android:layout_toLeftOf="@+id/seek_duration"
         android:layout_toRightOf="@id/trackNo"
-        android:layout_toStartOf="@+id/duration"
+        android:layout_toStartOf="@+id/seek_duration"
         android:ellipsize="end"
         android:gravity="center_vertical|start"
         android:maxLines="1"
@@ -37,7 +37,7 @@
         tools:text="Super longue chanson de Metallica"/>
 
     <TextView
-        android:id="@+id/duration"
+        android:id="@+id/seek_duration"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
