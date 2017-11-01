@@ -6,9 +6,10 @@
         android:viewportHeight="24.0"
         android:viewportWidth="24.0">
 
-    <!-- Le pathData a été redéfini pour être compatible avec celui de ic_pause -->
+    <!-- pathData has been redefined to be compatible for a path morph with ic_play_arrow -->
     <path
-        android:name="play"
+        android:name="pause"
         android:fillColor="#ff000000"
-        android:pathData="@string/path_play"/>
+        android:pathData="@string/path_pause"/>
+
 </vector>

@@ -137,7 +137,7 @@ class MediaNotificationManager
         val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
 
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
-            R.drawable.ic_play_arrow else R.drawable.ic_pause
+            R.drawable.notif_play_arrow else R.drawable.notif_pause
 
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(mSessionToken)

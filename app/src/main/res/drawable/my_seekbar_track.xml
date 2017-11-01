@@ -3,7 +3,7 @@
     <item
         android:id="@android:id/background"
         android:gravity="center_vertical|fill_horizontal">
-        <!-- Le background est transparent -->
+        <!-- Background is transparent -->
         <shape
             android:shape="rectangle"
             android:tint="?colorControlNormal">

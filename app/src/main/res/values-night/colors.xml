@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_control_activated_compat">#33ffffff</color>
+    <color name="color_control_activated_compat">@color/mtrl_blue_a100</color>
+
+    <color name="control_normal_compat_disabled">#7fffffff</color>
+    <color name="control_normal_compat">#ffffffff</color>
 </resources>

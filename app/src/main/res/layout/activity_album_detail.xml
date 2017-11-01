@@ -102,6 +102,6 @@
         app:layout_anchor="@id/collapsingToolbar"
         app:backgroundTint="?colorBackgroundFloating"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_play_arrow"/>
+        app:srcCompat="@drawable/ic_play_arrow_24dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

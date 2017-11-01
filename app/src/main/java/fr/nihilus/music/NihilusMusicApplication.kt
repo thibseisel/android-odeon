@@ -25,17 +25,17 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
     override fun onCreate() {
         super.onCreate()
 
+        // Allow inflating vector drawables on API < 21 via the support library
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        }
+
         DaggerAppComponent.builder()
                 .application(this)
                 .build()
                 .inject(this)
 
         AppCompatDelegate.setDefaultNightMode(mPrefs.nightMode)
-
-        // Permet d'inflater des VectorDrawable pour API < 21. Peut causer des problèmes.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        }
     }
 
     override fun activityInjector() = dispatchingActivityInjector

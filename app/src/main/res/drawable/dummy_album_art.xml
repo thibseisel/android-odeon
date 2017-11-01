@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <color android:color="?colorControlNormal"/>
+        <color android:color="@color/color_control_normal_compat"/>
     </item>
     <item android:drawable="@drawable/ic_audiotrack_24dp"/>
 </layer-list>

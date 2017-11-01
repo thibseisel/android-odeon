@@ -3,7 +3,7 @@
     <item android:state_activated="true">
         <layer-list>
             <item>
-                <color android:color="?colorControlActivated"/>
+                <color android:color="@color/color_control_activated_compat"/>
             </item>
             <item>
                 <inset
