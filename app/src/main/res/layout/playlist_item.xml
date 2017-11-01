@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    android:id="@+id/card"
-    style="@style/Widget.AppTheme.CardView.Animated"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    style="@style/Widget.AppTheme.CardView.Animated"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -23,7 +22,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/dummy_album"/>
+            tools:src="@drawable/ic_playlist_24dp" />
 
         <TextView
             android:id="@+id/title"
@@ -33,25 +32,25 @@
             android:layout_margin="16dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/action_play"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/action_play"
             app:layout_constraintTop_toBottomOf="@+id/albumArt"
-            tools:text="Titre de l'album"/>
+            tools:text="Playlist's title" />
 
         <ImageView
             android:id="@+id/action_play"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            app:srcCompat="@drawable/ic_play_arrow_24dp"
             android:layout_margin="16dp"
             android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_play"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/albumArt"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:contentDescription="@string/action_play"/>
+            app:srcCompat="@drawable/ic_play_arrow_24dp" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

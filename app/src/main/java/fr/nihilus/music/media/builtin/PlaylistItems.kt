@@ -13,6 +13,7 @@ import fr.nihilus.music.utils.MediaID
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import javax.inject.Inject
 
 internal class PlaylistItems
@@ -20,7 +21,8 @@ internal class PlaylistItems
         private val context: Context,
         private val playlistDao: PlaylistDao,
         private val musicCache: MusicCache,
-        private val musicDao: MusicDao
+        private val musicDao: MusicDao,
+        private val mostRecentTracks: MostRecentTracks
 ) : BuiltinItem {
 
     override fun asMediaItem(): MediaItem {
@@ -37,7 +39,18 @@ internal class PlaylistItems
             val playlistId = hierarchy[1]
             fetchPlaylistMembers(playlistId)
         } else {
-            fetchUserPlaylists()
+            Single.zip(fetchBuiltInPlaylists(), fetchUserPlaylists(), BiFunction { builtin, userDefined ->
+                ArrayList<MediaItem>(builtin.size + userDefined.size).apply {
+                    addAll(builtin)
+                    addAll(userDefined)
+                }
+            })
+        }
+    }
+
+    private fun fetchBuiltInPlaylists(): Single<List<MediaItem>> {
+        return Single.fromCallable {
+            listOf(mostRecentTracks.asMediaItem())
         }
     }
 
