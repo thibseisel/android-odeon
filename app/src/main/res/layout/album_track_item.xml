@@ -39,7 +39,7 @@
         tools:text="Super longue chanson de Metallica"/>
 
     <TextView
-        android:id="@+id/seek_duration"
+        android:id="@+id/duration"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
