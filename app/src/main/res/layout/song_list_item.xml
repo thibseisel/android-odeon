@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/song_item_height"
-                android:background="@drawable/item_background_activated"
-                android:checkable="true"
-                android:paddingEnd="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/song_item_height"
+    android:background="@drawable/item_background_activated"
+    android:checkable="true"
+    android:paddingEnd="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingStart="16dp">
 
-    <FrameLayout
+    <ImageView
+        android:id="@+id/cover"
         android:layout_width="@dimen/album_art_item_side"
         android:layout_height="@dimen/album_art_item_side"
-        android:foreground="@drawable/selected_tick_mark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        android:layout_centerVertical="true">
-
-        <ImageView
-            android:id="@+id/cover"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/album_art"
-            tools:src="@android:color/black"/>
-    </FrameLayout>
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/album_art"
+        tools:src="@drawable/selected_tick_mark" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,7 +35,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat"
             android:textSize="@dimen/song_title_size"
-            tools:text="All Theses Things I Hate (Revolve Around Me)"/>
+            tools:text="All Theses Things I Hate (Revolve Around Me)" />
 
         <TextView
             android:id="@+id/subtitle"
@@ -53,7 +46,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
             android:textSize="@dimen/song_subtitle_size"
-            tools:text="Bullet For My Valentine &#8226; 3:46"/>
+            tools:text="Bullet For My Valentine &#8226; 3:46" />
 
     </LinearLayout>
 

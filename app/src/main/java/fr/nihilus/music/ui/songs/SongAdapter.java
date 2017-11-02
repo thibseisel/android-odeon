@@ -1,13 +1,14 @@
 package fr.nihilus.music.ui.songs;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v7.content.res.AppCompatResources;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,7 +34,7 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
     private static final String TAG = "SongAdapter";
 
-    private final RequestBuilder<Bitmap> mGlideRequest;
+    private final RequestBuilder<StateListDrawable> mGlideRequest;
     private final MediaItemIndexer mIndexer;
     private final List<MediaBrowserCompat.MediaItem> mSongs = new ArrayList<>();
 
@@ -43,8 +44,12 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
         Drawable dummyAlbumArt = ContextCompat.getDrawable(fragment.getContext(),
                 R.drawable.dummy_album_art);
 
-        mGlideRequest = GlideApp.with(fragment).asBitmap()
+        Drawable tickMark = AppCompatResources.getDrawable(fragment.getContext(),
+                R.drawable.selected_tick_mark);
+
+        mGlideRequest = GlideApp.with(fragment).as(StateListDrawable.class)
                 .error(dummyAlbumArt)
+                .activatedDrawable(tickMark)
                 .fitCenter();
     }
 
@@ -89,12 +94,14 @@ public class SongAdapter extends BaseAdapter implements SectionIndexer {
 
         //noinspection ConstantConditions
         final long millis = song.getExtras().getLong(MediaItems.EXTRA_DURATION);
-        final CharSequence duration = DateUtils.formatElapsedTime(millis / 1000);
+        final CharSequence duration = DateUtils.formatElapsedTime(millis / 1000L);
         String subtitle = context.getString(R.string.song_item_subtitle, song.getSubtitle(), duration);
 
         holder.title.setText(song.getTitle());
         holder.subtitle.setText(subtitle);
-        mGlideRequest.load(song.getIconUri()).into(holder.albumArt);
+        mGlideRequest
+                .load(song.getIconUri())
+                .into(holder.albumArt);
 
         return convertView;
     }
