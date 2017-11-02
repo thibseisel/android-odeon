@@ -27,7 +27,7 @@ internal class MostRecentTracks
                 .setMediaId(MediaID.ID_MOST_RECENT)
                 .setTitle(context.getText(R.string.last_added))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_PLAYABLE)
+        return MediaItem(description, MediaItem.FLAG_PLAYABLE or MediaItem.FLAG_BROWSABLE)
     }
 
     override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
