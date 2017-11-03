@@ -137,13 +137,13 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_new_playlist, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mTitleLayout = view.findViewById(R.id.titleLayout);
         mTitleInput = mTitleLayout.findViewById(R.id.title);
@@ -162,12 +162,9 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         // Add a dismiss button to the toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.inflateMenu(R.menu.menu_dialog);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_close) dismiss();
-                return true;
-            }
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_close) dismiss();
+            return true;
         });
     }
 

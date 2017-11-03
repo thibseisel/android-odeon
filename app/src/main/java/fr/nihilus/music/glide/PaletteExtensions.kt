@@ -2,7 +2,6 @@ package fr.nihilus.music.glide
 
 import android.annotation.SuppressLint
 import android.graphics.RectF
-import android.graphics.drawable.Drawable
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.request.RequestOptions
@@ -24,12 +23,5 @@ object PaletteExtensions {
 
         val rect = RectF(left, top, right, bottom)
         options.set(PaletteBitmapTranscoder.PALETTE_RELATIVE_REGION, rect)
-    }
-
-    @GlideOption
-    @JvmStatic fun activatedDrawable(options: RequestOptions, drawable: Drawable?) {
-        if (drawable != null) {
-            options.set(StateListDrawableTranscoder.ACTIVATED_DRAWABLE, drawable)
-        }
     }
 }

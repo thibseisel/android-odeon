@@ -1,5 +1,6 @@
 package fr.nihilus.music.ui.songs
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.support.v4.app.Fragment
@@ -23,7 +24,7 @@ import java.util.*
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
-    private val mGlideRequest: GlideRequest<StateListDrawable>
+    private val mGlideRequest: GlideRequest<Bitmap>
     private val mIndexer: MediaItemIndexer
     private val mSongs = ArrayList<MediaBrowserCompat.MediaItem>()
 
@@ -33,11 +34,8 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
         mIndexer = MediaItemIndexer(mSongs)
         registerDataSetObserver(mIndexer)
 
-        val tickMark = AppCompatResources.getDrawable(context, R.drawable.selected_tick_mark)
-
-        mGlideRequest = GlideApp.with(fragment).`as`(StateListDrawable::class.java)
+        mGlideRequest = GlideApp.with(fragment).asBitmap()
                 .error(R.drawable.default_selectable_album_art)
-                .activatedDrawable(tickMark)
                 .fitCenter()
     }
 
@@ -94,7 +92,7 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
         private val mSubtitle: TextView = itemView.findViewById(R.id.subtitle)
         private val mCover: ImageView = itemView.findViewById(R.id.cover)
 
-        fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<out Drawable>) {
+        fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
             with(item.description) {
                 mTitle.text = title
                 bindSubtitle(mSubtitle, subtitle, extras!!.getLong(MediaItems.EXTRA_DURATION))
