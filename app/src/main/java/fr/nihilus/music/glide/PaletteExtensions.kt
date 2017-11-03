@@ -27,7 +27,9 @@ object PaletteExtensions {
     }
 
     @GlideOption
-    @JvmStatic fun activatedDrawable(options: RequestOptions, drawable: Drawable) {
-        options.set(StateListDrawableTranscoder.ACTIVATED_DRAWABLE, drawable)
+    @JvmStatic fun activatedDrawable(options: RequestOptions, drawable: Drawable?) {
+        if (drawable != null) {
+            options.set(StateListDrawableTranscoder.ACTIVATED_DRAWABLE, drawable)
+        }
     }
 }

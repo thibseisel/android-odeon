@@ -1,20 +1,26 @@
 package fr.nihilus.music.glide
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
+import android.util.Log
 import android.util.StateSet
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 
-class StateListDrawableTranscoder : ResourceTranscoder<Drawable, StateListDrawable> {
+class StateListDrawableTranscoder(
+        private val context: Context
+) : ResourceTranscoder<Drawable, StateListDrawable> {
 
     override fun transcode(toTranscode: Resource<Drawable>, options: Options): Resource<StateListDrawable> {
         val stateList = StateListDrawable().apply {
             addState(ACTIVATED_STATE, options[ACTIVATED_DRAWABLE])
-            addState(StateSet.NOTHING, toTranscode.get())
+            addState(StateSet.WILD_CARD, toTranscode.get())
         }
+
+        Log.d("SLDTranscoder", "StateListDrawable: $stateList")
 
         return StateListDrawableResource(stateList)
     }
@@ -25,8 +31,7 @@ class StateListDrawableTranscoder : ResourceTranscoder<Drawable, StateListDrawab
         /**
          * The drawable to display when the containing View is in the "activated" state.
          */
-        @JvmStatic
-        val ACTIVATED_DRAWABLE: Option<Drawable> =
+        @JvmField val ACTIVATED_DRAWABLE: Option<Drawable?> =
                 Option.memory("fr.nihilus.music.StateListDrawableTranscoder.activatedDrawable")
     }
 }

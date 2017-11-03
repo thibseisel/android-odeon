@@ -25,7 +25,7 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.prefs_main)
-        mKeyNightMode = context.getString(R.string.pref_night_mode)
+        mKeyNightMode = context!!.getString(R.string.pref_night_mode)
     }
 
     override fun onResume() {
@@ -51,6 +51,6 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
         val intent = Intent()
         intent.putExtra("night_mode", newMode)
 
-        activity.setResult(Activity.RESULT_OK, intent)
+        activity!!.setResult(Activity.RESULT_OK, intent)
     }
 }

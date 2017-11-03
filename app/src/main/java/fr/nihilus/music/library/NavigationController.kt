@@ -47,7 +47,7 @@ class NavigationController
         mFm.addOnBackStackChangedListener {
             // Listen for back stack changes and emits an event with the id of the displayed fragment
             mFm.findFragmentById(mContainerId)?.let { fragment ->
-                val fragmentId = fragment.arguments.getInt(Constants.FRAGMENT_ID)
+                val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
                 routeChangeListener(fragmentId)
             }
         }
@@ -227,7 +227,7 @@ class NavigationController
                     .add(mContainerId, fragment, tag)
                     .commit()
 
-            val fragmentId = fragment.arguments.getInt(Constants.FRAGMENT_ID)
+            val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
             routeChangeListener(fragmentId)
         }
     }

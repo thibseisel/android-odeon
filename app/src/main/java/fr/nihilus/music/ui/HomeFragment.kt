@@ -46,7 +46,7 @@ class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedList
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        mViewModel = ViewModelProviders.of(activity).get(BrowserViewModel::class.java)
+        mViewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
         val spanCount = resources.getInteger(R.integer.album_grid_span_count)
         recyclerView.layoutManager = GridLayoutManager(context, spanCount)
         recyclerView.setHasFixedSize(true)
@@ -59,7 +59,7 @@ class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedList
 
     override fun onStart() {
         super.onStart()
-        activity.setTitle(R.string.home)
+        activity!!.setTitle(R.string.home)
         mViewModel.subscribe(MediaID.ID_AUTO, mSubscriptionCallback)
     }
 

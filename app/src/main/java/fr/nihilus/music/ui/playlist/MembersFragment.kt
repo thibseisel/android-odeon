@@ -58,7 +58,7 @@ class MembersFragment : RecyclerFragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_playlist_details, menu)
-        menu.findItem(R.id.action_delete).isVisible = arguments.getBoolean(ARG_DELETABLE)
+        menu.findItem(R.id.action_delete).isVisible = arguments!!.getBoolean(ARG_DELETABLE)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -81,7 +81,7 @@ class MembersFragment : RecyclerFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        mViewModel = ViewModelProviders.of(activity)[BrowserViewModel::class.java]
+        mViewModel = ViewModelProviders.of(activity!!)[BrowserViewModel::class.java]
         adapter = mAdapter
         recyclerView.setHasFixedSize(true)
         if (savedInstanceState == null) {
@@ -91,7 +91,7 @@ class MembersFragment : RecyclerFragment() {
 
     override fun onStart() {
         super.onStart()
-        activity.title = mPlaylist.description.title
+        activity!!.title = mPlaylist.description.title
         mViewModel.subscribe(mPlaylist.mediaId!!, mSubscriptionCallback)
     }
 

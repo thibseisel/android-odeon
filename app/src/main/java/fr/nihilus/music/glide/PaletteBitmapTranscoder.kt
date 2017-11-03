@@ -47,10 +47,10 @@ class PaletteBitmapTranscoder(
          * The maximum number of colors to use for the palette generation.
          * Must be a positive number.
          */
-        @JvmStatic val MAX_COLOR_COUNT: Option<Int> =
+        @JvmField val MAX_COLOR_COUNT: Option<Int> =
                 Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.maxColorCount", 16)
 
-        @JvmStatic val PALETTE_RELATIVE_REGION: Option<RectF?> =
+        @JvmField val PALETTE_RELATIVE_REGION: Option<RectF?> =
                 Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.relativeRegion")
     }
 }

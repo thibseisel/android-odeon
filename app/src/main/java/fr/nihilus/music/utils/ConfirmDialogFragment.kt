@@ -28,7 +28,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
             "This fragment must be created by the newInstance method"
         }
 
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(context!!)
                 .setTitle(args.getString(ARG_TITLE))
 
         val message = args.getString(ARG_MESSAGE)
@@ -53,12 +53,12 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
     }
 
     override fun onDismiss(dialog: DialogInterface?) {
-        targetFragment.onActivityResult(targetRequestCode, RESULT_DISMISSED, null)
+        targetFragment?.onActivityResult(targetRequestCode, RESULT_DISMISSED, null)
         super.onDismiss(dialog)
     }
 
     override fun onClick(dialog: DialogInterface, which: Int) {
-        targetFragment.onActivityResult(targetRequestCode, which, null)
+        targetFragment?.onActivityResult(targetRequestCode, which, null)
     }
 
     companion object {

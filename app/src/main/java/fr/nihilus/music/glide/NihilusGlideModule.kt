@@ -14,15 +14,19 @@ class NihilusGlideModule : AppGlideModule() {
     override fun isManifestParsingEnabled() = false
 
     override fun registerComponents(context: Context?, glide: Glide?, registry: Registry?) {
-        if (registry != null && glide != null) {
+        if (registry != null) {
 
-            // Calculate the color Palette associated with the loaded Bitmap
-            registry.register(Bitmap::class.java, PaletteBitmap::class.java,
-                    PaletteBitmapTranscoder(glide.bitmapPool))
+            if (glide != null) {
+                // Calculate the color Palette associated with the loaded Bitmap
+                registry.register(Bitmap::class.java, PaletteBitmap::class.java,
+                        PaletteBitmapTranscoder(glide.bitmapPool))
+            }
 
-            // Wrap the loaded Drawable in a StateListDrawable
-            registry.register(Drawable::class.java, StateListDrawable::class.java,
-                    StateListDrawableTranscoder())
+            if (context != null) {
+                // Wrap the loaded Drawable in a StateListDrawable
+                registry.register(Drawable::class.java, StateListDrawable::class.java,
+                        StateListDrawableTranscoder(context))
+            }
         }
     }
 }
