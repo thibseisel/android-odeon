@@ -1,4 +1,4 @@
-package fr.nihilus.music.glide
+package fr.nihilus.music.glide.palette
 
 import android.annotation.SuppressLint
 import com.bumptech.glide.load.engine.Resource

@@ -1,9 +1,10 @@
-package fr.nihilus.music.glide
+package fr.nihilus.music.glide.palette
 
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import android.support.v7.graphics.Palette
+import android.util.Log
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.engine.Resource
@@ -15,6 +16,7 @@ class PaletteBitmapTranscoder(
 ) : ResourceTranscoder<Bitmap, PaletteBitmap> {
 
     override fun transcode(toTranscode: Resource<Bitmap>, options: Options): Resource<PaletteBitmap> {
+        Log.d("PaletteBmpTranscoder", "Generating a new palette")
         val bitmap = toTranscode.get()
         val palette = onGeneratePalette(bitmap, options)
         val result = PaletteBitmap(palette, bitmap)

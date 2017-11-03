@@ -33,7 +33,7 @@ import java.util.List;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
-import fr.nihilus.music.glide.PaletteBitmap;
+import fr.nihilus.music.glide.palette.PaletteBitmap;
 import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;

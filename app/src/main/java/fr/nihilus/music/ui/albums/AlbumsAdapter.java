@@ -26,17 +26,15 @@ import com.bumptech.glide.request.target.ImageViewTarget;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
-import fr.nihilus.music.glide.PaletteBitmap;
+import fr.nihilus.music.glide.palette.PaletteBitmap;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
@@ -99,13 +97,10 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                     }
                 });
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    final int clickedPosition = holder.getAdapterPosition();
-                    mListener.onAlbumSelected(holder, mAlbums.get(clickedPosition));
-                }
+        holder.itemView.setOnClickListener(view -> {
+            if (mListener != null) {
+                final int clickedPosition = holder.getAdapterPosition();
+                mListener.onAlbumSelected(holder, mAlbums.get(clickedPosition));
             }
         });
     }
@@ -135,22 +130,16 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     }
 
     void updateAlbums(final List<MediaItem> newAlbums) {
-        Single.fromCallable(new Callable<DiffUtil.DiffResult>() {
-            @Override
-            public DiffUtil.DiffResult call() throws Exception {
-                MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
-                return DiffUtil.calculateDiff(callback, false);
-            }
+        Single.fromCallable(() -> {
+            MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
+            return DiffUtil.calculateDiff(callback, false);
         })
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<DiffUtil.DiffResult>() {
-                    @Override
-                    public void accept(DiffUtil.DiffResult result) throws Exception {
-                        mAlbums.clear();
-                        mAlbums.addAll(newAlbums);
-                        result.dispatchUpdatesTo(AlbumsAdapter.this);
-                    }
+                .subscribe(result -> {
+                    mAlbums.clear();
+                    mAlbums.addAll(newAlbums);
+                    result.dispatchUpdatesTo(AlbumsAdapter.this);
                 });
     }
 
@@ -173,10 +162,6 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             albumArt = itemView.findViewById(R.id.cover);
             title = itemView.findViewById(R.id.title);
             artist = itemView.findViewById(R.id.artist);
-        }
-
-        public void bind(MediaItem item) {
-
         }
 
         void setColors(@ColorInt int primary, @ColorInt int accent, @ColorInt int title,

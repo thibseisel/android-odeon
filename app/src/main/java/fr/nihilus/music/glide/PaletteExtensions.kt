@@ -5,6 +5,7 @@ import android.graphics.RectF
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.request.RequestOptions
+import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 
 @SuppressLint("CheckResult")
 @GlideExtension
