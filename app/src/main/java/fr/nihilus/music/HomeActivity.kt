@@ -289,6 +289,16 @@ class HomeActivity : AppCompatActivity(),
                     mRouter.navigateToAlbums()
                     return true
                 }
+                ACTION_ARTISTS -> {
+                    mNavigationView.setCheckedItem(R.id.action_artists)
+                    mRouter.navigateToArtists()
+                    return true
+                }
+                ACTION_PLAYLISTS -> {
+                    mNavigationView.setCheckedItem(R.id.action_playlist)
+                    mRouter.navigateToPlaylists()
+                    return true
+                }
             }
         }
         return false
@@ -343,6 +353,8 @@ class HomeActivity : AppCompatActivity(),
         private const val REQUEST_SETTINGS = 42
         private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
         private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
+        private const val ACTION_ARTISTS = "fr.nihilus.music.ACTION_ARTISTS"
+        private const val ACTION_PLAYLISTS = "fr.nihilus.music.ACTION_PLAYLISTS"
         private const val TAG = "HomeActivity"
     }
 }
