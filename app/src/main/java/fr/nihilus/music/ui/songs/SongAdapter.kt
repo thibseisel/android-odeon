@@ -1,11 +1,8 @@
 package fr.nihilus.music.ui.songs
 
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.StateListDrawable
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.content.res.AppCompatResources
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +17,6 @@ import fr.nihilus.music.inflate
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.MediaItemIndexer
-import java.util.*
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
@@ -29,8 +25,6 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     private val mSongs = ArrayList<MediaBrowserCompat.MediaItem>()
 
     init {
-        val context = requireNotNull(fragment.context) { "Fragment has no context" }
-
         mIndexer = MediaItemIndexer(mSongs)
         registerDataSetObserver(mIndexer)
 
@@ -48,7 +42,7 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     override fun getItemId(pos: Int): Long {
         if (hasStableIds()) {
             val mediaId = mSongs[pos].mediaId
-            return java.lang.Long.parseLong(MediaID.extractMusicID(mediaId))
+            return MediaID.extractMusicID(mediaId)!!.toLong()
         }
         return -1L
     }

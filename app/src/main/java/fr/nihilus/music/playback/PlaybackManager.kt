@@ -185,17 +185,25 @@ class PlaybackManager
 
         override fun onSkipToPrevious() {
             Log.d(TAG, "onSkipToPrevious")
-            if (mQueueManager.skipPosition(-1))
-                if (musicPlayer.isPlaying) handlePlayRequest()
-            else handleStopRequest("Cannot skip to previous")
-            mQueueManager.updateMetadata()
+
+            if (musicPlayer.currentPosition < 3000L) {
+                // Skip to previous if not playing for more than 3 seconds
+                if (mQueueManager.skipPosition(-1)) {
+                    if (musicPlayer.isPlaying) handlePlayRequest()
+                } else handleStopRequest("Cannot skip to previous")
+                mQueueManager.updateMetadata()
+            } else {
+                // If more than 3 seconds, restarts this track at 0
+                musicPlayer.seekTo(0L)
+            }
+
         }
 
         override fun onSkipToNext() {
             Log.d(TAG, "onSkipToNext")
-            if (mQueueManager.skipPosition(1))
+            if (mQueueManager.skipPosition(1)) {
                 if (musicPlayer.isPlaying) handlePlayRequest()
-            else handleStopRequest("Cannot skip to next")
+            } else handleStopRequest("Cannot skip to next")
             mQueueManager.updateMetadata()
         }
 
