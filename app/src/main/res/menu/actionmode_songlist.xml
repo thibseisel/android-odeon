@@ -6,7 +6,8 @@
         android:id="@+id/action_playlist"
         android:icon="@drawable/ic_playlist_add_24dp"
         android:title="@string/add_to_playlist"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
 
     <item
         android:id="@+id/action_delete"

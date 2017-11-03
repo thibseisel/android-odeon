@@ -267,7 +267,7 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
                     showDeleteDialog();
                     return true;
                 case R.id.action_playlist:
-                    // TODO Ouvrir écran des playlists
+                    // TODO Prepare a playlist with the selected items
                     mode.finish();
                     return true;
                 default:
