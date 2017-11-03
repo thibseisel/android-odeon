@@ -32,13 +32,13 @@
             android:layout_margin="16dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textAppearance="@style/TextAppearance.AppCompat"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/action_play"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/albumArt"
-            tools:text="Playlist's title" />
+            tools:text="Playlist's title that spread up to the second line without any problem" />
 
         <ImageView
             android:id="@+id/action_play"

@@ -22,6 +22,7 @@ internal class PlaylistItems
         private val playlistDao: PlaylistDao,
         private val musicCache: MusicCache,
         private val musicDao: MusicDao,
+        private val random: AllTracksRandom,
         private val mostRecentTracks: MostRecentTracks
 ) : BuiltinItem {
 
@@ -50,7 +51,10 @@ internal class PlaylistItems
 
     private fun fetchBuiltInPlaylists(): Single<List<MediaItem>> {
         return Single.fromCallable {
-            listOf(mostRecentTracks.asMediaItem())
+            listOf(
+                    mostRecentTracks.asMediaItem(),
+                    random.asMediaItem()
+            )
         }
     }
 

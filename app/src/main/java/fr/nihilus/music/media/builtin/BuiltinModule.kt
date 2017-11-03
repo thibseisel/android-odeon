@@ -35,6 +35,10 @@ internal abstract class BuiltinModule {
     abstract fun bindPlaylists(impl: PlaylistItems): BuiltinItem
 
     @Binds @IntoMap
+    @StringKey(MediaID.ID_RANDOM)
+    abstract fun bindRandom(impl: AllTracksRandom): BuiltinItem
+
+    @Binds @IntoMap
     @StringKey(MediaID.ID_MOST_RECENT)
     abstract fun bindMostRecentTracks(impl: MostRecentTracks): BuiltinItem
 }
