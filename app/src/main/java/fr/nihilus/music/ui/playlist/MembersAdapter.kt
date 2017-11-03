@@ -17,6 +17,7 @@ import fr.nihilus.music.utils.MediaItemDiffCallback
 class MembersAdapter(fragment: Fragment) : RecyclerView.Adapter<MembersHolder>() {
     private val mItems: MutableList<MediaBrowserCompat.MediaItem> = ArrayList()
     private val glideRequest = GlideApp.with(fragment).asBitmap()
+            .error(R.drawable.dummy_album_art)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
             MembersHolder(parent, glideRequest)
