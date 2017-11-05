@@ -4,9 +4,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:background="?attr/selectableItemBackground"
-                android:paddingEnd="32dp"
+                android:paddingEnd="16dp"
                 android:paddingLeft="16dp"
-                android:paddingRight="32dp"
+                android:paddingRight="16dp"
                 android:paddingStart="16dp">
 
     <TextView
@@ -28,15 +28,15 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_toEndOf="@id/trackNo"
-        android:layout_toLeftOf="@+id/seek_duration"
+        android:layout_toLeftOf="@+id/duration"
         android:layout_toRightOf="@id/trackNo"
-        android:layout_toStartOf="@+id/seek_duration"
+        android:layout_toStartOf="@+id/duration"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="16sp"
-        tools:text="Super longue chanson de Metallica"/>
+        tools:text="Track title"/>
 
     <TextView
         android:id="@+id/duration"
