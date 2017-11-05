@@ -13,13 +13,18 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.KeyEvent
+import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 private const val TAG = "BrowserViewModel"
 
+/**
+ * A ViewModel that abstracts the connection to a MediaBrowserService.
+ */
 class BrowserViewModel
-@Inject constructor(private val context: Context) : ViewModel() {
+@Inject constructor(context: Context) : ViewModel() {
 
     private val mBrowser: MediaBrowserCompat
     private var mController: MediaControllerCompat? = null
@@ -32,7 +37,8 @@ class BrowserViewModel
 
     init {
         val componentName = ComponentName(context, MusicService::class.java)
-        mBrowser = MediaBrowserCompat(context, componentName, ConnectionCallback(), null)
+        val connectionCallback = ConnectionCallback(context)
+        mBrowser = MediaBrowserCompat(context, componentName, connectionCallback, null)
     }
 
     fun connect() {
@@ -42,12 +48,18 @@ class BrowserViewModel
         }
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.playFromMediaId
+     */
     fun playFromMediaId(mediaId: String) {
         if (mBrowser.isConnected) {
             mController!!.transportControls.playFromMediaId(mediaId, null)
         }
     }
 
+    /**
+     * @see MediaBrowserCompat.disconnect
+     */
     fun disconnect() {
         if (mBrowser.isConnected) {
             Log.d(TAG, "Disconnecting from service")
@@ -55,54 +67,79 @@ class BrowserViewModel
         }
     }
 
+    /**
+     * @see MediaControllerCompat.dispatchMediaButtonEvent
+     */
     fun dispatchMediaButtonEvent(keyEvent: KeyEvent) {
-        if (mController != null) {
-            mController!!.dispatchMediaButtonEvent(keyEvent)
-        }
+        mController?.run { dispatchMediaButtonEvent(keyEvent) }
     }
 
     /**
-     *
+     * @see MediaBrowserCompat.subscribe
      */
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         mBrowser.subscribe(parentId, callback)
     }
 
     /**
-     *
+     * @see MediaBrowserCompat.unsubscribe
      */
     fun unsubscribe(parentId: String) {
         mBrowser.unsubscribe(parentId)
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.setShuffleMode
+     */
     fun setShuffleMode(@PlaybackStateCompat.ShuffleMode mode: Int) {
         mController?.transportControls?.setShuffleMode(mode)
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.setRepeatMode
+     */
     fun setRepeatMode(@PlaybackStateCompat.RepeatMode mode: Int) {
         mController?.transportControls?.setRepeatMode(mode)
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.play
+     */
     fun play() {
         mController?.transportControls?.play()
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.pause
+     */
     fun pause() {
         mController?.transportControls?.pause()
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.seekTo
+     */
     fun seekTo(position: Long) {
         mController?.transportControls?.seekTo(position)
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.skipToPrevious
+     */
     fun skipToPrevious() {
         mController?.transportControls?.skipToPrevious()
     }
 
+    /**
+     * @see MediaControllerCompat.TransportControls.skipToNext
+     */
     fun skipToNext() {
         mController?.transportControls?.skipToNext()
     }
 
+    /**
+     * @see MediaControllerCompat.sendCommand
+     */
     fun sendCommand(command: String, params: Bundle?, cb: ResultReceiver) {
         mController?.sendCommand(command, params, cb)
     }
@@ -111,17 +148,21 @@ class BrowserViewModel
         disconnect()
     }
 
-    private inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
+    private inner class ConnectionCallback(context: Context) : MediaBrowserCompat.ConnectionCallback() {
+        private val contextRef = WeakReference<Context>(context)
+
         override fun onConnected() {
             try {
-                Log.v(TAG, "onConnected: browser is now connected to MediaBrowserService.")
-                val controller = MediaControllerCompat(context, mBrowser.sessionToken)
-                controller.registerCallback(mControllerCallback)
-                mController = controller
-                currentMetadata.value = controller.metadata
-                playbackState.value = controller.playbackState
-                shuffleMode.value = controller.shuffleMode
-                repeatMode.value = controller.repeatMode
+                contextRef.doIfPresent {
+                    Log.v(TAG, "onConnected: browser is now connected to MediaBrowserService.")
+                    val controller = MediaControllerCompat(it, mBrowser.sessionToken)
+                    controller.registerCallback(mControllerCallback)
+                    mController = controller
+                    currentMetadata.value = controller.metadata
+                    playbackState.value = controller.playbackState
+                    shuffleMode.value = controller.shuffleMode
+                    repeatMode.value = controller.repeatMode
+                }
             } catch (re: RemoteException) {
                 Log.e(TAG, "onConnected: cannot create MediaController", re)
             }

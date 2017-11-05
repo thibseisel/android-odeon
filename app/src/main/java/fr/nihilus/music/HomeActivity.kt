@@ -158,6 +158,9 @@ class HomeActivity : AppCompatActivity(),
         mPlayerView.setEventListener(this)
         mBottomSheet = ScrimBottomSheetBehavior.from(mPlayerView)
 
+        // Show / hide BottomSheet on startup without an animation
+        setInitialBottomSheetVisibility(mViewModel.playbackState.value)
+
         mViewModel.currentMetadata.observe(this, Observer(mPlayerView::updateMetadata))
         mViewModel.shuffleMode.observe(this, Observer {
             mPlayerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
@@ -249,7 +252,21 @@ class HomeActivity : AppCompatActivity(),
 
     /**
      * Show or hide the player view depending on the passed playback state.
-     * If the playback state s undefined or stopped, the player view will be hidden.
+     * This method is meant to be called only once to show or hide player view without animation.
+     */
+    private fun setInitialBottomSheetVisibility(state: PlaybackStateCompat?) {
+        mBottomSheet.peekHeight = if (state == null
+                || state.state == PlaybackStateCompat.STATE_NONE
+                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+        } else {
+            resources.getDimensionPixelSize(R.dimen.playerview_height)
+        }
+    }
+
+    /**
+     * Show or hide the player view depending on the passed playback state.
+     * If the playback state is undefined or stopped, the player view will be hidden.
      *
      * @param state The most recent playback state
      */
@@ -260,12 +277,16 @@ class HomeActivity : AppCompatActivity(),
             mBottomSheet.isHideable = true
             mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             mContainer.setPadding(0, 0, 0, 0)
+            mBottomSheet.peekHeight = 0
 
-        } else if (mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN) {
+        } else if (mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN
+                || mBottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             mPlayerView.post { mBottomSheet.isHideable = false }
-            mContainer.setPadding(0, 0, 0, resources.getDimensionPixelSize(R.dimen.playerview_height))
+            val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
+            mContainer.setPadding(0, 0, 0, playerViewHeight)
+            mBottomSheet.peekHeight = playerViewHeight
         }
     }
 

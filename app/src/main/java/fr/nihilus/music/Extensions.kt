@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
+import java.lang.ref.WeakReference
 
 /**
  * Convert this [MediaMetadataCompat] into its [MediaDescriptionCompat] equivalent.
@@ -58,3 +59,10 @@ fun MediaMetadataCompat.asMediaDescription(
  */
 fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
         LayoutInflater.from(context).inflate(resource, this, attach)
+
+/**
+ * Helper extension function
+ */
+inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
+    get()?.let(action)
+}

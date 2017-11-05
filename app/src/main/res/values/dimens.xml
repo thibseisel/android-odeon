@@ -7,6 +7,7 @@
     <dimen name="mtrl_drawer_maxwidth">280dp</dimen>
     <dimen name="mtrl_drawer_marginEnd">56dp</dimen>
     <dimen name="playerview_height">64dp</dimen>
+    <dimen name="playerview_hidden_height">0dp</dimen>
     <fraction name="album_detail_ratio">100%</fraction>
     <dimen name="list_item_horizontal_padding">16dp</dimen>
     <dimen name="card_max_elevation">8dp</dimen>

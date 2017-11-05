@@ -206,6 +206,8 @@ internal class ExoMusicPlayer
         Log.d(TAG, "configurePlayerState. mCurrentAudioFocus=$mCurrentAudioFocus")
         if (mCurrentAudioFocus == AUDIO_NO_FOCUS_NO_DUCK) {
             // We don't have audio focus and can't duck, so we have to pause
+            // FIXME Service and notification stays foreground
+            // This should be fixed on the exoplayer-ext branch
             pause()
         } else {
             registerAudioNoisyReceiver()

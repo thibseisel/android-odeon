@@ -3,6 +3,7 @@ package fr.nihilus.music.ui.songs
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v7.content.res.AppCompatResources
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
@@ -28,8 +29,11 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
         mIndexer = MediaItemIndexer(mSongs)
         registerDataSetObserver(mIndexer)
 
+        val defaultAlbumArt = AppCompatResources.getDrawable(fragment.context!!,
+                R.drawable.dummy_album_art)
+
         mGlideRequest = GlideApp.with(fragment).asBitmap()
-                .error(R.drawable.default_selectable_album_art)
+                .error(defaultAlbumArt)
                 .fitCenter()
     }
 
