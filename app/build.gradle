@@ -9,7 +9,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.0"
+    buildToolsVersion "27.0.1"
     defaultConfig {
         applicationId "fr.nihilus.music"
         minSdkVersion 16
@@ -59,53 +59,51 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
 
     // Support library dependencies
-    compile "com.android.support:appcompat-v7:${supportLibVersion}"
-    compile "com.android.support:design:${supportLibVersion}"
-    compile "com.android.support:cardview-v7:${supportLibVersion}"
-    compile "com.android.support:support-v4:${supportLibVersion}"
-    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
-    compile "com.android.support:support-vector-drawable:${supportLibVersion}"
-    compile "com.android.support:palette-v7:${supportLibVersion}"
-    compile "com.android.support:preference-v7:${supportLibVersion}"
-    compile "com.android.support:preference-v14:${supportLibVersion}"
-    compile "com.android.support.constraint:constraint-layout:${constraintVersion}"
+    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    implementation "com.android.support:design:${supportLibVersion}"
+    implementation "com.android.support:cardview-v7:${supportLibVersion}"
+    implementation "com.android.support:support-v4:${supportLibVersion}"
+    implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
+    implementation "com.android.support:support-vector-drawable:${supportLibVersion}"
+    implementation "com.android.support:palette-v7:${supportLibVersion}"
+    implementation "com.android.support:preference-v7:${supportLibVersion}"
+    implementation "com.android.support:preference-v14:${supportLibVersion}"
+    implementation "com.android.support.constraint:constraint-layout:${constraintVersion}"
 
     // Android Arch Components
-    compile "android.arch.lifecycle:extensions:${archVersion}"
-    compile "android.arch.persistence.room:runtime:${archVersion}"
-    compile "android.arch.persistence.room:rxjava2:${archVersion}"
+    implementation "android.arch.lifecycle:extensions:${archVersion}"
+    implementation "android.arch.persistence.room:runtime:${archVersion}"
+    implementation "android.arch.persistence.room:rxjava2:${archVersion}"
     kapt "android.arch.persistence.room:compiler:${archVersion}"
 
-    compile "com.github.bumptech.glide:glide:${glideVersion}"
+    implementation "com.github.bumptech.glide:glide:${glideVersion}"
     kapt "com.github.bumptech.glide:compiler:${glideVersion}"
 
-    compile "fr.nihilus:recyclerfragment:${recyclerVersion}"
+    implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
 
-    compile "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
+    implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
 
     // Dagger
-    compile "com.google.dagger:dagger:${daggerVersion}"
-    compile "com.google.dagger:dagger-android:${daggerVersion}"
-    compile "com.google.dagger:dagger-android-support:${daggerVersion}"
+    implementation "com.google.dagger:dagger:${daggerVersion}"
+    implementation "com.google.dagger:dagger-android:${daggerVersion}"
+    implementation "com.google.dagger:dagger-android-support:${daggerVersion}"
     kapt "com.google.dagger:dagger-compiler:${daggerVersion}"
     kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
 
     // ReactiveX
-    compile "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    compile "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
+    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
 
     // Test dependencies
-    testCompile "junit:junit:${junitVersion}"
-    testCompile "org.hamcrest:hamcrest-all:${hamcrestVersion}"
-    testCompile "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test:${kotlinVersion}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
 
-    androidTestCompile "org.mockito:mockito-android:${mockitoVersion}"
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-        exclude group: 'com.google.code.findbugs'
-    })
+    androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
