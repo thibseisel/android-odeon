@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.nihilus.music.media.source
 
 import android.content.ContentResolver
@@ -398,27 +414,27 @@ internal class MediaStoreMusicDao
         }
     }
 
-    companion object {
-        private const val TAG = "MediaStoreMusicDao"
-        private const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
+    private companion object {
+        const val TAG = "MediaStoreMusicDao"
+        const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
 
-        private const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
-        private const val SELECTION_ALBUM_TRACKS = "${Media.ALBUM_ID} = ?"
-        private const val SELECTION_ARTIST_TRACKS = "${Media.ARTIST_ID} = ?"
-        private const val ARTIST_ALBUMS_ORDER = "${Artists.Albums.LAST_YEAR} DESC"
+        const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
+        const val SELECTION_ALBUM_TRACKS = "${Media.ALBUM_ID} = ?"
+        const val SELECTION_ARTIST_TRACKS = "${Media.ARTIST_ID} = ?"
+        const val ARTIST_ALBUMS_ORDER = "${Artists.Albums.LAST_YEAR} DESC"
 
         /**
          * ORDER BY clause to use when querying for albums associated with an artist.
          */
-        private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
-        private val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
-        private val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
+        const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
+        @JvmField val ALBUM_ART_URI = Uri.parse("content://media/external/audio/albumart")
+        @JvmField val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
                 Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
                 Media.ARTIST_ID, Media.DATA)
-        private val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
+        @JvmField val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
                 Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
 
-        private val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
+        @JvmField val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
                 Artists.NUMBER_OF_TRACKS)
     }
 }

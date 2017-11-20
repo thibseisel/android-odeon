@@ -1,7 +1,22 @@
+/*
+ * Copyright 2017 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.nihilus.music.playback
 
 import android.os.Bundle
-import android.support.v4.math.MathUtils
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -11,6 +26,7 @@ import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.service.VoiceSearchParams
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import java.util.*
@@ -98,12 +114,14 @@ class QueueManager
      */
     fun skipPosition(steps: Int): Boolean {
         var index = mCurrentIndex + steps
-        index = MathUtils.clamp(index, 0, mPlayingQueue.size)
+        index = index.coerceIn(0, mPlayingQueue.size)
 
         if (!isIndexPlayable(index, mPlayingQueue)) {
-            Log.e(TAG, """Cannot increment queue index by $steps steps.
-                |Current index = $mCurrentIndex, queue length = ${mPlayingQueue.size}
-                |This was never supposed to happen.""".trimMargin())
+            Log.e(TAG, """
+                Cannot increment queue index by $steps steps.
+                Current index = $mCurrentIndex, queue length = ${mPlayingQueue.size}
+                This was never supposed to happen.
+                """.trimIndent())
             return false
         }
 
@@ -114,7 +132,14 @@ class QueueManager
     fun canSkip(steps: Int): Boolean = isIndexPlayable(mCurrentIndex + steps, mPlayingQueue)
 
     fun loadQueueFromSearch(query: String?, extras: Bundle?): Boolean {
-        TODO("Implement search logic in CachedMusicRepository and retrieve queue from it")
+
+        val params = VoiceSearchParams(query, extras)
+        if (params.isAny) {
+            loadQueueFromMusic(MediaID.ID_RANDOM)
+            return true
+        }
+
+        TODO("Should be best to handle that in a search method of MusicRepository")
     }
 
     /**

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.nihilus.music.media.source
 
 import android.support.v4.media.MediaDescriptionCompat
@@ -44,7 +60,7 @@ interface MusicDao {
      * - [MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER]
      * - [MediaMetadataCompat.METADATA_KEY_MEDIA_URI]
      *
-     * The following properties are optionnal:
+     * The following properties are optional:
      * - [MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI]
      * - [MusicDao.CUSTOM_META_TITLE_KEY]
      * - [MusicDao.CUSTOM_META_ALBUM_ID]
@@ -106,7 +122,7 @@ interface MusicDao {
     /**
      * Retrieve albums that are produced by a given artist.
      * @param artistId unique identifier of the artist
-     * @return informations of albums from this artist sorted by descending release date
+     * @return information on albums from this artist sorted by descending release date
      */
     fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>>
 
