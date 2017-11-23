@@ -235,7 +235,7 @@ class PlaybackManager
                 handlePlayRequest()
                 mQueueManager.updateMetadata()
             } else {
-                updatePlaybackState("No queue could be build from the query: $query")
+                updatePlaybackState("No queue could be built from the query: $query")
             }
         }
 
