@@ -16,28 +16,34 @@
 
 package fr.nihilus.music.media.source
 
+import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.MediaItems
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 
 /**
- * Gives access to music items stored on a given datastore.
+ * Provides information on collections of music items such as songs, albums and artists
+ * that are available from a given data store.
+ * Depending on the implementation, metadata could be retrieved from the network
+ * or the device's storage.
  *
  * Because retrieving data can be long running especially from the network,
- * this API use ReactiveX `Observable` classes to represent deferred computations:
- * if there's no item corresponding to the request, implementations should emit an empty list
- * (or no item for operations that returns only one).
- * Furthermore, if an operation is not supported, then the returned `Observable`
- * should emit an error notification with an [UnsupportedOperationException].
+ * this API use ReactiveX `Observable` classes to represent metadata as a stream of values that
+ * are available at a later time through callbacks.
+ *
+ * To improve subsequent loading times, implementations may implement its own caching logic.
+ * If that's the case, they are also responsible for refreshing cached data whenever metadata
+ * has changed and notify clients.
  */
 interface MusicDao {
 
     /**
      * Retrieve all tracks from a given datastore.
-     * See [getTrack] for a list of metadata properties that implementations
+     * See [findTrack] for a list of metadata properties that implementations
      * should define for each track.
      * @return an observable that emits a list of all tracks
      */
@@ -47,10 +53,11 @@ interface MusicDao {
                   sorting: String?): Observable<List<MediaMetadataCompat>>
 
     /**
-     * Retrieve a single track's metadata from a given datastore.
-     * The metadata properties may vary depending on the implementation.
+     * Retrieve a single track's metadata from this implementation's data store.
      *
-     * Implementations **must** define the following properties for each track:
+     * Every track should have an unique id allowing clients to pick specific tracks to compose
+     * their own playlist.
+     * Implementations **must** also define the following properties for each track:
      * - [MediaMetadataCompat.METADATA_KEY_MEDIA_ID]
      * - [MediaMetadataCompat.METADATA_KEY_TITLE]
      * - [MediaMetadataCompat.METADATA_KEY_ALBUM]
@@ -66,13 +73,14 @@ interface MusicDao {
      * - [MusicDao.CUSTOM_META_ALBUM_ID]
      * - [MusicDao.CUSTOM_META_ARTIST_ID]
      *
-     * The returned observable may complete without returning a value, indicating that the
-     * requested track does not exist on this datastore.
-     * @param musicId the unique numeric identifier of the track to retrieve
+     * The returned `Maybe` may complete without returning a value, indicating that the
+     * requested track does not exist on this implementation's data store.
+     *
+     * @param musicId the unique identifier of the track to retrieve
      * @return an observable that emits the requested item
      * or completes without emitting if it does not exist.
      */
-    fun getTrack(musicId: String): Maybe<MediaMetadataCompat>
+    fun findTrack(musicId: String): Maybe<MediaMetadataCompat>
 
     /**
      * Return an observable dataset of albums featuring music stored on this device.
@@ -107,6 +115,7 @@ interface MusicDao {
 
     /**
      * Retrieve tracks that are part of a given album.
+     *
      * @param albumId unique identifier of the album
      * @return track metadatas from this album sorted by track number
      */
@@ -114,22 +123,30 @@ interface MusicDao {
 
     /**
      * Retrieve tracks that are produced by a given artist.
+     *
      * @param artistId unique identifier of the artist
-     * @return track metadatas from this artist sorted by track name
+     * @return track metadata from this artist sorted by track name
      */
     fun getArtistTracks(artistId: String): Observable<List<MediaMetadataCompat>>
 
     /**
      * Retrieve albums that are produced by a given artist.
+     *
      * @param artistId unique identifier of the artist
      * @return information on albums from this artist sorted by descending release date
      */
     fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>>
 
     /**
-     * Delete the track with the specified [trackId] from a given datastore.
-     * If no track exist with this id, the operation will terminate without an error.
-     * @return the task to execute
+     * Searches for tracks metadata that matches a given query.
+     */
+    fun search(query: String?, extras: Bundle?): Single<List<MediaMetadataCompat>>
+
+    /**
+     * Delete the track with the specified [trackId] from this implementation's data store.
+     * If no track exists with this id, the operation will terminate without an error.
+     *
+     * @return The deferred deletion task.
      */
     fun deleteTrack(trackId: String): Completable
 

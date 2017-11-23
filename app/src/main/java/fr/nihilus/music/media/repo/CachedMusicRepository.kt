@@ -60,7 +60,7 @@ internal class CachedMusicRepository
 
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
         return Maybe.fromCallable<MediaMetadataCompat> { musicCache.getMetadata(musicId) }
-                .concatWith(mediaDao.getTrack(musicId))
+                .concatWith(mediaDao.findTrack(musicId))
                 .firstOrError()
     }
 

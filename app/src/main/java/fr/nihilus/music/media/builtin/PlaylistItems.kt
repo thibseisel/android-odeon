@@ -97,7 +97,7 @@ internal class PlaylistItems
 
     private fun fetchMetadata(musicId: String): Single<MediaMetadataCompat> {
         return Maybe.fromCallable<MediaMetadataCompat> { musicCache.getMetadata(musicId) }
-                .concatWith { musicDao.getTrack(musicId) }
+                .concatWith { musicDao.findTrack(musicId) }
                 .firstOrError()
     }
 

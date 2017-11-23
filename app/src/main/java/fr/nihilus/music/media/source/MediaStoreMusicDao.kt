@@ -34,6 +34,7 @@ import fr.nihilus.music.utils.MediaID
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -91,7 +92,7 @@ internal class MediaStoreMusicDao
         }
     }
 
-    override fun getTrack(musicId: String): Maybe<MediaMetadataCompat> {
+    override fun findTrack(musicId: String): Maybe<MediaMetadataCompat> {
         return Maybe.fromCallable {
             val trackList = loadMetadata(SELECTION_TRACK_BY_ID,
                     arrayOf(musicId), Media.DEFAULT_SORT_ORDER)
@@ -378,6 +379,10 @@ internal class MediaStoreMusicDao
                 extractAlbums(it)
             }
         }
+    }
+
+    override fun search(query: String?, extras: Bundle?): Single<List<MediaMetadataCompat>> {
+        TODO("not implemented")
     }
 
     /**
