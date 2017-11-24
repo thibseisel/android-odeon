@@ -37,19 +37,42 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <!-- Main activity for music browsing. -->
         <activity
             android:name="fr.nihilus.music.HomeActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
+
+            <!-- Make this Activity visible in launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <!-- Make this activity available as the default music app. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.APP_MUSIC" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.APP_MUSIC"/>
-                <data android:mimeType="audio/*"/>
+                <!-- See Mediastore.INTENT_ACTION_MUSIC_PLAYER for deprecation notice -->
+                <action android:name="android.intent.action.MUSIC_PLAYER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Make this activity available when opening an audio file from explorer. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" android:mimeType="audio/*" />
+            </intent-filter>
+
+            <!-- Intent filter that enables voice searches, such as "Play the Beatles" -->
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <meta-data
@@ -60,29 +83,40 @@
                 android:resource="@xml/shortcuts"/>
         </activity>
 
+        <!-- Activity showing detail and tracks of an album. -->
         <activity
-            android:name="fr.nihilus.music.ui.albums.AlbumDetailActivity"
+            android:name=".ui.albums.AlbumDetailActivity"
             android:parentActivityName="fr.nihilus.music.HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
+        <!-- Activity for toggling user preferences. -->
         <activity
-            android:name="fr.nihilus.music.settings.SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName="fr.nihilus.music.HomeActivity">
         </activity>
 
+        <!--
+            Main music service, provides media browsing and media playback services to
+            consumers through MediaBrowserService and MediaSession. Consumers connect to it through
+            MediaBrowser (for browsing) and MediaController (for play session control)
+         -->
         <service
-            android:name="fr.nihilus.music.service.MusicService"
-            android:enabled="true"
-            android:exported="false"
+            android:name=".service.MusicService"
+            android:exported="true"
             android:label="@string/playback_service_label"
-            android:process=":musicplayer">
+            android:process=":musicplayer"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
 
+        <!--
+            A receiver that will receive media buttons and send as intents to MusicService.
+            Required on pre-Lollipop.
+         -->
         <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
