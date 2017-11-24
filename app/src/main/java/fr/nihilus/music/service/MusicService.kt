@@ -31,7 +31,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
@@ -63,7 +62,7 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject internal lateinit var queueManager: MediaQueueManager
     @Inject internal lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
-    private val mPackageValidator = PackageValidator(this)
+    private lateinit var mPackageValidator: PackageValidator
     private val mDelayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
 
@@ -85,10 +84,11 @@ class MusicService : MediaBrowserServiceCompat() {
         session.setSessionActivity(pi)
         session.setRatingType(RatingCompat.RATING_NONE)
 
+        mPackageValidator = PackageValidator(this)
         val repeatAction = RepeatModeActionProvider(this, player)
 
         // Configure MediaSessionConnector with player and session
-        MediaSessionConnector(session, DefaultPlaybackController(), false).apply {
+        MediaSessionConnector(session).apply {
             setPlayer(player, queueManager, repeatAction)
             setQueueNavigator(queueManager)
             setErrorMessageProvider(errorHandler)
