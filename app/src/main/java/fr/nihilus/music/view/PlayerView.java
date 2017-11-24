@@ -94,13 +94,6 @@ public class PlayerView extends ConstraintLayout {
     private final ScheduledExecutorService mExecutorService =
             Executors.newSingleThreadScheduledExecutor();
 
-    private final Runnable mUpdateProgressTask = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-        }
-    };
-
     private ScheduledFuture<?> mScheduleFuture;
 
     public PlayerView(Context context) {
@@ -333,12 +326,8 @@ public class PlayerView extends ConstraintLayout {
     private void scheduleProgressUpdate() {
         stopProgressUpdate();
         if (!mExecutorService.isShutdown()) {
-            mScheduleFuture = mExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    mHandler.post(mUpdateProgressTask);
-                }
-            }, PROGRESS_UPDATE_INITIAL_DELAY,
+            mScheduleFuture = mExecutorService.scheduleAtFixedRate(
+                    () -> mHandler.post(this::updateProgress), PROGRESS_UPDATE_INITIAL_DELAY,
                     PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS);
         }
     }
@@ -351,7 +340,6 @@ public class PlayerView extends ConstraintLayout {
 
     public void setRepeatMode(@PlaybackStateCompat.RepeatMode int mode) {
         mRepeatModeButton.setImageLevel(mode);
-        mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_ONE);
     }
 
     public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int mode) {

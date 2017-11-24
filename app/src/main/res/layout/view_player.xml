@@ -108,7 +108,6 @@
         android:layout_height="24dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/repeat"
-        android:enabled="true"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_previous"
