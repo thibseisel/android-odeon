@@ -4,8 +4,7 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
 
 fun assertMediaDescription(descr: MediaDescriptionCompat,
                            mediaId: String? = null,
@@ -30,5 +29,21 @@ fun assertMediaDescription(descr: MediaDescriptionCompat,
         }
     } else {
         assertNull(descr.extras)
+    }
+}
+
+/**
+ * Assert that the executed block function throws a given `Exception` subclass.
+ *
+ * @param T The type of the expected exception.
+ */
+inline fun <reified T : Exception> assertThrows(block: () -> Unit) {
+    try {
+        block()
+        fail("Exception of type ${T::class} should have been thrown")
+    } catch (thr: Throwable) {
+        if (thr !is T) {
+            fail("Unexpected exception: $thr")
+        }
     }
 }

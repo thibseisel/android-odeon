@@ -23,6 +23,7 @@ import android.support.v4.media.MediaMetadataCompat
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import fr.nihilus.music.copy
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.glide.GlideApp
 import io.reactivex.Single
@@ -48,10 +49,9 @@ class AlbumArtLoader
 
                     override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
                         // Emits a new metadata with an album art
-                        val newMeta = MediaMetadataCompat.Builder(metadata)
-                                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)
-                                .build()
-                        emitter.onSuccess(newMeta)
+                        emitter.onSuccess(metadata.copy {
+                            putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)
+                        })
                     }
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {

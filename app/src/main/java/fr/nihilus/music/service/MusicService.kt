@@ -24,17 +24,23 @@ import android.os.Message
 import android.support.v4.content.ContextCompat.startForegroundService
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.RatingCompat
+import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
+import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
+import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.MediaItemsResult
+import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.repo.MusicRepository
-import fr.nihilus.music.playback.PlaybackManager
-import fr.nihilus.music.playback.QueueManager
+import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -48,52 +54,50 @@ private const val TAG = "MusicService"
 /** Number of milliseconds to wait until the service stops itself when not playing. */
 private const val STOP_DELAY = 30000L
 
-class MusicService : MediaBrowserServiceCompat(),
-        PlaybackManager.ServiceCallback, QueueManager.MetadataUpdateListener {
+class MusicService : MediaBrowserServiceCompat() {
 
     @Inject internal lateinit var repository: MusicRepository
-    @Inject internal lateinit var playbackMgr: PlaybackManager
     @Inject internal lateinit var notificationMgr: MediaNotificationManager
 
-    private lateinit var mSession: MediaSessionCompat
+    @Inject internal lateinit var player: ExoPlayer
+    @Inject internal lateinit var queueManager: MediaQueueManager
+    @Inject internal lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
+
     private val mDelayedStopHandler = DelayedStopHandler(this)
+    private val playbackStateListener = PlaybackStateListener()
+
+    internal lateinit var session: MediaSessionCompat
 
     override fun onCreate() {
-        AndroidInjection.inject(this)
         super.onCreate()
 
-        mSession = MediaSessionCompat(this, TAG)
-        sessionToken = mSession.sessionToken
-        mSession.setCallback(playbackMgr.mediaSessionCallback)
-        mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
-                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        session = MediaSessionCompat(this, TAG)
+        sessionToken = session.sessionToken
+
+        // Inject dependencies only after MediaSession is instantiated
+        AndroidInjection.inject(this)
 
         val appContext = applicationContext
         val uiIntent = Intent(appContext, HomeActivity::class.java)
         val pi = PendingIntent.getActivity(appContext, 99,
                 uiIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        mSession.setSessionActivity(pi)
-        mSession.setRatingType(RatingCompat.RATING_NONE)
+        session.setSessionActivity(pi)
+        session.setRatingType(RatingCompat.RATING_NONE)
 
-        playbackMgr.init()
-        playbackMgr.updatePlaybackState(null)
+        val repeatAction = RepeatModeActionProvider(this, player)
+
+        // Configure MediaSessionConnector with player and session
+        MediaSessionConnector(session, DefaultPlaybackController(), false).apply {
+            setPlayer(player, queueManager, repeatAction)
+            setQueueNavigator(queueManager)
+            setErrorMessageProvider(errorHandler)
+        }
 
         notificationMgr.init()
-
-        Log.i(TAG, "Service fully initialized")
-        mSession.isActive = true
+        session.controller.registerCallback(playbackStateListener)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent != null) {
-            if (ACTION_CMD == intent.action) {
-                val cmd = intent.getStringExtra(CMD_NAME)
-                if (CMD_PAUSE == cmd) {
-                    playbackMgr.handlePauseRequest()
-                }
-            }
-        }
-
         Log.i(TAG, "Service is now started.")
 
         mDelayedStopHandler.removeCallbacksAndMessages(null)
@@ -103,11 +107,11 @@ class MusicService : MediaBrowserServiceCompat(),
 
     override fun onDestroy() {
         Log.i(TAG, "Destroying service.")
-        playbackMgr.handleStopRequest(null)
         notificationMgr.stopNotification()
+        session.controller.unregisterCallback(playbackStateListener)
 
         mDelayedStopHandler.removeCallbacksAndMessages(null)
-        mSession.release()
+        session.release()
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
@@ -147,8 +151,8 @@ class MusicService : MediaBrowserServiceCompat(),
                 })
     }
 
-    override fun onPlaybackStart() {
-        mSession.isActive = true
+    internal fun onPlaybackStart() {
+        session.isActive = true
         mDelayedStopHandler.removeCallbacksAndMessages(null)
 
         // The service must continue running even after the bound client (usually a MediaController)
@@ -157,10 +161,15 @@ class MusicService : MediaBrowserServiceCompat(),
 
         Log.i(TAG, "Starting service to keep it running while playing")
         startForegroundService(this, Intent(applicationContext, MusicService::class.java))
+        notificationMgr.startNotification()
     }
 
-    override fun onPlaybackStop() {
-        mSession.isActive = false
+    internal fun onPlaybackPaused() {
+        stopForeground(false)
+    }
+
+    internal fun onPlaybackStop() {
+        session.isActive = false
         // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
         // potentially stopping the service.
         mDelayedStopHandler.removeCallbacksAndMessages(null)
@@ -168,37 +177,7 @@ class MusicService : MediaBrowserServiceCompat(),
 
         Log.i(TAG, "FOREGROUND: false")
         stopForeground(false)
-    }
-
-    override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode shuffleMode: Int) {
-        mSession.setShuffleMode(shuffleMode)
-    }
-
-    override fun onNotificationRequired() {
-        Log.i(TAG, "Require a notification")
-        notificationMgr.startNotification()
-    }
-
-    override fun onPlaybackStateUpdated(newState: PlaybackStateCompat) {
-        mSession.setPlaybackState(newState)
-    }
-
-    override fun onMetadataChanged(metadata: MediaMetadataCompat) {
-        mSession.setMetadata(metadata)
-    }
-
-    override fun onMetadataRetrieveError() {
-        Log.e(TAG, "MetadataRetrieveError")
-        playbackMgr.updatePlaybackState("No metadata")
-    }
-
-    override fun onCurrentQueueIndexUpdated(queueIndex: Int) {
-        playbackMgr.handlePlayRequest()
-    }
-
-    override fun onQueueUpdated(title: String, newQueue: List<MediaSessionCompat.QueueItem>) {
-        mSession.setQueueTitle(title)
-        mSession.setQueue(newQueue)
+        notificationMgr.stopNotification()
     }
 
     override fun notifyChildrenChanged(parentId: String) {
@@ -206,10 +185,16 @@ class MusicService : MediaBrowserServiceCompat(),
         super.notifyChildrenChanged(parentId)
     }
 
-    companion object {
-        const val ACTION_CMD = "fr.nihilus.music.ACTION_CMD"
-        const val CMD_NAME = "CMD_NAME"
-        const val CMD_PAUSE = "CMD_PAUSE"
+    private inner class PlaybackStateListener : MediaControllerCompat.Callback() {
+
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            val newState = state?.state ?: return
+            when (newState) {
+                PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
+                PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
+                PlaybackStateCompat.STATE_STOPPED -> onPlaybackStop()
+            }
+        }
     }
 
     /**
@@ -220,14 +205,14 @@ class MusicService : MediaBrowserServiceCompat(),
         private val mServiceRef = WeakReference(service)
 
         override fun handleMessage(msg: Message?) {
-            mServiceRef.get()?.let {
-                if (it.playbackMgr.musicPlayer.isPlaying) {
+            mServiceRef.doIfPresent { service ->
+                if (service.player.playWhenReady) {
                     Log.d(TAG, "Ignoring delayed stop since the media player is in use.")
                     return
                 }
 
                 Log.i(TAG, "Stopping service with delay handler")
-                it.stopSelf()
+                service.stopSelf()
             }
         }
     }

@@ -31,9 +31,6 @@ allprojects {
     repositories {
         jcenter()
         google()
-        maven {
-            url 'https://dl.bintray.com/nihilus/maven/'
-        }
     }
 }
 
@@ -47,7 +44,7 @@ ext {
     archVersion = '1.0.0'
     rxJavaVersion = '2.1.6'
     rxAndroidVersion = '2.0.1'
-    exoplayerVersion = 'r2.5.4'
+    exoplayerVersion = '2.6.0'
     constraintVersion = '1.0.2'
     recyclerVersion = '1.1.2'
 }

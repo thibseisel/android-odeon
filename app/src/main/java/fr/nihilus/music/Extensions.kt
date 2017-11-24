@@ -22,6 +22,7 @@ import android.provider.MediaStore
 import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -83,3 +84,28 @@ fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
 inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
     get()?.let(action)
 }
+
+/**
+ * Makes a copy of this MediaMetadataCompat, adding or overriding some of its fields.
+ *
+ * @receiver The MediaMetadataCompat instance to copy
+ * @param rewriter A function block allowing to override some values from the source metadata.
+ * This block will be called with a [MediaMetadataCompat.Builder] instance as its receiver.
+ * @return a copy of the original metadata with some of its fields added or overridden.
+ */
+inline fun MediaMetadataCompat.copy(
+        rewriter: MediaMetadataCompat.Builder.() -> Unit): MediaMetadataCompat {
+
+    val builder = MediaMetadataCompat.Builder(this)
+    rewriter(builder)
+    return builder.build()
+}
+
+/**
+ * Helper extension function that creates an [android.util.Pair] the same way Kotlin does for
+ * [kotlin.Pair].
+ * @receiver The first object of the pair
+ * @param other The second object of the pair
+ * @return A pair made of this object and the one passed in parameter.
+ */
+infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
