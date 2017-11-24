@@ -27,7 +27,6 @@ import android.os.Build
 import android.os.RemoteException
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
@@ -36,7 +35,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
-import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.di.ServiceScoped
 import javax.inject.Inject
 
@@ -150,7 +148,7 @@ class MediaNotificationManager
 
         val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
 
-        val description = mMetadata!!.asMediaDescription(MediaDescriptionCompat.Builder())
+        val description = mMetadata!!.description
 
         val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.notif_play_arrow else R.drawable.notif_pause

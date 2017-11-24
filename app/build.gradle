@@ -107,6 +107,7 @@ dependencies {
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
+    implementation "com.google.android.exoplayer:extension-mediasession:${exoplayerVersion}"
 
     // Dagger
     implementation "com.google.dagger:dagger:${daggerVersion}"

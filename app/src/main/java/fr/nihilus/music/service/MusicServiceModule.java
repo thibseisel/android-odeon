@@ -16,13 +16,24 @@
 
 package fr.nihilus.music.service;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.util.ErrorMessageProvider;
+
 import dagger.Binds;
 import dagger.Module;
+import dagger.Provides;
 import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.music.command.CommandModule;
 import fr.nihilus.music.di.ServiceScoped;
-import fr.nihilus.music.playback.ExoMusicPlayer;
-import fr.nihilus.music.playback.MusicPlayer;
+import fr.nihilus.music.playback.AudioFocusAwarePlayer;
+import fr.nihilus.music.playback.ErrorHandler;
 
 @Module(includes = {CommandModule.class})
 public abstract class MusicServiceModule {
@@ -31,6 +42,14 @@ public abstract class MusicServiceModule {
     @ContributesAndroidInjector
     abstract MusicService contributeMusicService();
 
+    @Provides
+    static SimpleExoPlayer provideExoPlayer(@NonNull Context context) {
+        return ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
+    }
+
     @Binds
-    abstract MusicPlayer bindsExoPlayback(ExoMusicPlayer exoPlayback);
+    abstract ExoPlayer bindsExoPlayer(AudioFocusAwarePlayer playerImpl);
+
+    @Binds
+    abstract ErrorMessageProvider<ExoPlaybackException> bindsErrorProvider(ErrorHandler handler);
 }
