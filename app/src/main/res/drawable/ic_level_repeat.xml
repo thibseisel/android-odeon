@@ -23,6 +23,6 @@
         android:drawable="@drawable/ic_repeat_one_24dp"
         android:maxLevel="1"/>
     <item
-        android:drawable="@drawable/ic_repeat_24dp"
+        android:drawable="@drawable/ic_repeat_activated_24dp"
         android:maxLevel="2"/>
 </level-list>
