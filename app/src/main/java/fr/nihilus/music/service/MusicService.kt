@@ -63,6 +63,7 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject internal lateinit var queueManager: MediaQueueManager
     @Inject internal lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
+    private val mPackageValidator = PackageValidator(this)
     private val mDelayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
 
@@ -115,10 +116,9 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
-        val thisApplicationPackage = application.packageName
-        if (clientPackageName != thisApplicationPackage) {
-            // The media session this app holds is private.
-            // We deny access to any app trying to connect to it.
+
+        if (!mPackageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
+            // If the request comes from an untrusted package, return null to prevent connection.
             Log.w(TAG, "onGetRoot: IGNORING request from untrusted package $clientPackageName")
             return null
         }
