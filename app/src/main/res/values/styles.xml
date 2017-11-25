@@ -83,4 +83,10 @@
         <item name="android:windowExitAnimation">@anim/dialog_exit_anim</item>
     </style>
 
+    <style name="AppTheme.FileViewer" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/mtrl_deeppurple_500</item>
+        <item name="colorAccent">@color/mtrl_blue_a400</item>
+    </style>
 </resources>
