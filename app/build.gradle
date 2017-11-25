@@ -93,6 +93,7 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:${archVersion}"
     implementation "android.arch.persistence.room:runtime:${archVersion}"
     implementation "android.arch.persistence.room:rxjava2:${archVersion}"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     kapt "android.arch.persistence.room:compiler:${archVersion}"
 
     // Glide
@@ -127,3 +128,4 @@ dependencies {
     androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+apply plugin: 'kotlin-android-extensions'
