@@ -178,6 +178,13 @@ class BrowserViewModel
                     playbackState.value = controller.playbackState
                     shuffleMode.value = controller.shuffleMode
                     repeatMode.value = controller.repeatMode
+
+                    // Prepare playback. The service chooses what to prepare.
+                    val state = controller.playbackState.state
+                    if (state == PlaybackStateCompat.STATE_NONE ||
+                            state == PlaybackStateCompat.STATE_STOPPED) {
+                        controller.transportControls.prepare()
+                    }
                 }
             } catch (re: RemoteException) {
                 Log.e(TAG, "onConnected: cannot create MediaController", re)
