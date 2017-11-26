@@ -39,6 +39,7 @@ import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
@@ -46,6 +47,7 @@ import javax.inject.Inject
 class MediaQueueManager
 @Inject constructor(
         service: MusicService,
+        private val prefs: PreferenceDao,
         private val repository: MusicRepository,
         private val player: ExoPlayer,
         private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
@@ -70,8 +72,8 @@ class MediaQueueManager
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        // TODO Retrieve last playing Media ID
-        onPrepareFromMediaId(MediaID.ID_MUSIC, null)
+        val lastPlayedMediaId = prefs.lastPlayedMediaId ?: MediaID.ID_MUSIC
+        onPrepareFromMediaId(lastPlayedMediaId, null)
     }
 
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
