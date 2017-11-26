@@ -31,6 +31,7 @@ import android.util.Log
 import fr.nihilus.music.assert
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.utils.PermissionUtil
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -45,7 +46,8 @@ import javax.inject.Singleton
  */
 @Singleton
 internal class MediaStoreMusicDao
-@Inject constructor(context: Context) : MusicDao {
+@Inject constructor(private val context: Context) : MusicDao {
+
     private val resolver: ContentResolver = context.contentResolver
 
     /**
@@ -103,6 +105,12 @@ internal class MediaStoreMusicDao
 
     private fun loadMetadata(selection: String?, selectionArgs: Array<out String>?,
                              sortOrder: String?): List<MediaMetadataCompat> {
+
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "No permission to access external storage.")
+            return emptyList()
+        }
+
         val whereClause = StringBuilder(MEDIA_SELECTION_CLAUSE)
         if (selection != null) {
             whereClause.append(" AND ")
@@ -179,6 +187,11 @@ internal class MediaStoreMusicDao
      * Albums are sorted by name by default.
      */
     override fun getAlbums(): Observable<List<MediaDescriptionCompat>> {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not load albums : no permission to access external storage.")
+            return Observable.just(emptyList())
+        }
+
         return Observable.fromCallable {
             val cursor = resolver.query(Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
                     null, null, Albums.DEFAULT_SORT_ORDER)
@@ -245,6 +258,11 @@ internal class MediaStoreMusicDao
      * Artists are sorted by name by default.
      */
     override fun getArtists(): Observable<List<MediaDescriptionCompat>> {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not load artists: no permission to access external storage.")
+            return Observable.just(emptyList())
+        }
+
         return Observable.fromCallable {
             val artistsCursor = resolver.query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
                     null, null, Artists.ARTIST)
@@ -344,6 +362,11 @@ internal class MediaStoreMusicDao
      * @return track metadatas from this album sorted by track number
      */
     override fun getAlbumTracks(albumId: String): Observable<List<MediaMetadataCompat>> {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not load album tracks: no permission to access external storage.")
+            return Observable.just(emptyList())
+        }
+
         return Observable.fromCallable {
             loadMetadata(SELECTION_ALBUM_TRACKS, arrayOf(albumId), Media.TRACK)
         }
@@ -355,6 +378,11 @@ internal class MediaStoreMusicDao
      * @return track metadatas from this artist sorted by track name
      */
     override fun getArtistTracks(artistId: String): Observable<List<MediaMetadataCompat>> {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not load artists tracks: no permission to access external storage.")
+            return Observable.just(emptyList())
+        }
+
         return Observable.fromCallable {
             loadMetadata(SELECTION_ARTIST_TRACKS, arrayOf(artistId), Media.TITLE_KEY)
         }
@@ -366,6 +394,11 @@ internal class MediaStoreMusicDao
      * @return information of albums from this artist sorted by descending release date
      */
     override fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>> {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not load artists items: no permission to access external storage.")
+            return Observable.just(emptyList())
+        }
+
         return Observable.fromCallable {
             val cursor = resolver.query(Artists.Albums.getContentUri("external", artistId.toLong()),
                     ALBUM_PROJECTION, null, null, ARTIST_ALBUMS_ORDER)
@@ -390,6 +423,11 @@ internal class MediaStoreMusicDao
      * If no track exist with this id, the operation will terminate without an error.
      */
     override fun deleteTrack(trackId: String): Completable {
+        if (!PermissionUtil.hasExternalStoragePermission(context)) {
+            Log.i(TAG, "Could not delete track: no permission to access external storage.")
+            return Completable.complete()
+        }
+
         return Completable.fromAction {
             val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, arrayOf(Media.DATA),
                     SELECTION_TRACK_BY_ID, arrayOf(trackId), null)

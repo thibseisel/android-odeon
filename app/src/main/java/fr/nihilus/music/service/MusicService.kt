@@ -30,6 +30,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import dagger.android.AndroidInjection
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.MediaItemsResult
 import fr.nihilus.music.media.repo.MusicRepository
@@ -137,8 +138,9 @@ class MusicService : MediaBrowserServiceCompat(),
                     }
 
                     override fun onError(e: Throwable) {
-                        if (e !is UnsupportedOperationException) {
-                            throw AssertionError("Unexpected error", e)
+                        if (e !is UnsupportedOperationException && BuildConfig.DEBUG) {
+                            // Rethrow unexpected errors in debug builds
+                            throw e
                         }
 
                         Log.w(TAG, "Unsupported parent id: $parentId")
