@@ -343,7 +343,15 @@ internal class ExoMusicPlayer
         callback?.onError("ExoPlayer error $what")
     }
 
-    override fun onPositionDiscontinuity() {
+    override fun onPositionDiscontinuity(reason: Int) {
+        // Nothing to do.
+    }
+
+    override fun onSeekProcessed() {
+        // Nothing to do.
+    }
+
+    override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
         // Nothing to do.
     }
 

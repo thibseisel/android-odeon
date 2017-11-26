@@ -98,7 +98,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     /**
      * Create a new instance of a dialog that allow to choose songs to add to a new playlist.
      *
-     * @param songIds optionnal ids of songs to select for addition in the new playlist.
+     * @param songIds optional ids of songs to select for addition in the new playlist.
      * @return new fragment instance
      */
     public static NewPlaylistFragment newInstance(@Nullable long... songIds) {
@@ -225,7 +225,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                         NewPlaylistFragment.this.dismiss();
                         break;
                     case NewPlaylistCommand.CODE_ERROR_TITLE_ALREADY_EXISTS:
-                        // TODO Error message : "Name already in use"
+                        mMessage.setText(R.string.error_playlist_already_exists);
                         break;
                     default:
                         Log.e(TAG, "Unhandled result code: " + resultCode);

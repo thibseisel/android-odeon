@@ -18,7 +18,7 @@ package fr.nihilus.music.command
 
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.util.Log
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
@@ -37,8 +37,9 @@ class DeletePlaylistCommand
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
         params ?: throw IllegalArgumentException("This command should have parameters")
-        val playlistId = params.getLong(PARAM_PLAYLIST_ID, -1L)
-        require (playlistId != -1L) { "Missing parameter: PARAM_PLAYLIST_ID" }
+
+        require(params.containsKey(PARAM_PLAYLIST_ID))
+        val playlistId = params.getLong(PARAM_PLAYLIST_ID)
 
         Single.fromCallable { playlistDao.deletePlaylist(playlistId) }
                 .subscribeOn(Schedulers.io())
@@ -47,8 +48,10 @@ class DeletePlaylistCommand
                     service.notifyChildrenChanged(MediaID.ID_PLAYLISTS)
                     cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
                 }, { error ->
-                    Log.e(TAG, "Unexpected error while deleting playlist", error)
-                    cb?.send(MediaSessionCommand.CODE_UNEXPECTED_ERROR, null)
+                    if (BuildConfig.DEBUG) {
+                        // Rethrow unexpected errors on debug builds
+                        throw error
+                    }
                 })
     }
 
@@ -62,6 +65,12 @@ class DeletePlaylistCommand
          * - [PARAM_PLAYLIST_ID]
          */
         const val CMD_NAME = "fr.nihilus.music.command.DeletePlaylistCommand"
+
+        /**
+         * The unique identifier of the playlist to delete.
+         *
+         * Type: Long
+         */
         const val PARAM_PLAYLIST_ID = "playlist_id"
     }
 }

@@ -17,20 +17,28 @@
 package fr.nihilus.music.command
 
 import android.database.sqlite.SQLiteConstraintException
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
-import fr.nihilus.music.command.MediaSessionCommand.Companion.CODE_SUCCESS
-import fr.nihilus.music.command.MediaSessionCommand.Companion.CODE_UNEXPECTED_ERROR
+import com.github.thibseisel.kdenticon.Identicon
+import com.github.thibseisel.kdenticon.IdenticonStyle
+import com.github.thibseisel.kdenticon.android.drawToBitmap
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.database.Playlist
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.utils.PermissionUtil
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -47,8 +55,13 @@ class NewPlaylistCommand
         params ?: throw IllegalArgumentException("This command should have parameters")
         val playlistTitle = params.getString(PARAM_TITLE) ?:
                 throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
-        val playlist = Playlist.create(playlistTitle)
-        val trackIds = params.getLongArray(PARAM_TRACK_IDS) ?: longArrayOf()
+        val trackIds = params.getLongArray(PARAM_TRACK_IDS) ?: LongArray(0)
+
+        val playlist = Playlist().apply {
+            title = playlistTitle
+            artUri = generateIcon(playlistTitle)
+            created = Date()
+        }
 
         Single.fromCallable { savePlaylist(playlist) }
                 .subscribeOn(Schedulers.io())
@@ -78,16 +91,48 @@ class NewPlaylistCommand
     }
 
     private fun onSuccess(cb: ResultReceiver?) {
-        cb?.send(CODE_SUCCESS, null)
+        cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
     }
 
-    private fun onError(error: Throwable?, cb: ResultReceiver?) {
+    private fun onError(error: Throwable, cb: ResultReceiver?) {
         if (error is SQLiteConstraintException) {
             cb?.send(CODE_ERROR_TITLE_ALREADY_EXISTS, null)
+        } else if (BuildConfig.DEBUG) {
+            // Rethrow unexpected errors on debug builds
+            throw error
         }
-        else {
-            cb?.send(CODE_UNEXPECTED_ERROR, null)
+    }
+
+    private fun generateIcon(seed: CharSequence): Uri {
+        if (PermissionUtil.hasExternalStoragePermission(service)) {
+
+            val bitmap = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888)
+            Identicon.fromValue(seed, 320).apply {
+                style = IdenticonStyle(
+                        backgroundColor = Color.TRANSPARENT,
+                        padding = 0f
+                )
+            }.drawToBitmap(bitmap)
+
+            // Create the directory that stores generated identicons in internal storage
+            val iconsDirectory = File(service.filesDir, "identicons")
+            if (!iconsDirectory.exists()) {
+                iconsDirectory.mkdir()
+            }
+
+            // Remove spaces from the seed to make a filename without spaces
+            val fileName = seed.replace("\\s".toRegex(), "_")
+            val iconFile = File(iconsDirectory, "$fileName.png")
+
+            val successful = iconFile.outputStream().use { os ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, os)
+            }
+
+            return if (successful) Uri.fromFile(iconFile) else Uri.EMPTY
         }
+
+        Log.i(TAG, "Cannot create icon: no permission to write to external storage.")
+        return Uri.EMPTY
     }
 
     companion object {
@@ -118,6 +163,10 @@ class NewPlaylistCommand
          */
         const val PARAM_TRACK_IDS = "track_ids"
 
+        /**
+         * An error code that denotes that the attempt to create a playlist has failed
+         * because a playlist with that title already exists.
+         */
         const val CODE_ERROR_TITLE_ALREADY_EXISTS = -2
     }
 }

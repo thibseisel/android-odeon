@@ -33,14 +33,11 @@ public interface PlaylistDao {
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
     Flowable<List<Playlist>> getPlaylists();
 
-    @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    Flowable<List<PlaylistWithTracks>> getPlaylistsWithTracks();
-
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :id ORDER BY position ASC")
     Flowable<List<PlaylistTrack>> getPlaylistTracks(long id);
 
     @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.FAIL)
     Long savePlaylist(Playlist playlist);
 
     @WorkerThread

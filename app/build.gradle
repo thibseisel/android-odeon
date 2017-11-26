@@ -101,9 +101,9 @@ dependencies {
 
     // My libraries
     implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
-    implementation "com.github.thibseisel:kdenticon-android:1.0.0-alpha3"
+    implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
 
-    // Exoplayer
+    // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
 
     // Dagger

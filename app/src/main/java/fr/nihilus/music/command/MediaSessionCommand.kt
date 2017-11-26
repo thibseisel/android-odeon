@@ -31,18 +31,32 @@ interface MediaSessionCommand {
      * Handle the custom command.
      *
      * Commands may have parameters. If they do, they must check themselves the presence
-     * and the validity of those parameters.
-     * Also, if an error occurred while handling the command, this handler must notify the client
-     * of an error by passing a specific error code to [cb].
+     * and validity of those parameters, throwing an [IllegalArgumentException]
+     * if a parameter is missing or incorrect.
+     *
+     * Also, if an error occurred while handling the command, this handler must notify clients
+     * of an error by passing a specific error code to [the result receiver][cb].
+     *
+     * @param params Parameters that may be needed to execute the command.
      */
     fun handle(params: Bundle?, cb: ResultReceiver?)
 
-    companion object {
+    /**
+     * Holds result codes passed to [ResultReceiver.onReceiveResult]
+     * after a command has been executed, denoting success or describing an error.
+     */
+    companion object ResultCode {
+
         /**
-         * Code supplied by [android.support.v4.media.session.MediaControllerCompat.sendCommand]
+         * Indicates that the command successfully completed.
+         * Every implementation of MediaSessionCommand should send this code upon success.
          */
         const val CODE_SUCCESS = 0
-        const val CODE_UNEXPECTED_ERROR = -1
+
+        /**
+         * Indicates that a command can't be handled because it is not supported.
+         * This code should not be used by `MediaSessionCommand` implementations.
+         */
         const val CODE_UNKNOWN_COMMAND = -99
     }
 }

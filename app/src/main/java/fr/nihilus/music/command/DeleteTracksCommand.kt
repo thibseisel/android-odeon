@@ -18,7 +18,7 @@ package fr.nihilus.music.command
 
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.util.Log
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.service.MusicService
@@ -45,17 +45,17 @@ class DeleteTracksCommand
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { onSuccess(cb) },
-                        { error -> onError(error, cb) })
+                        { error ->
+                            if (BuildConfig.DEBUG) {
+                                // Rethrow unexpected errors on debug builds
+                                throw error
+                            }
+                        })
     }
 
     private fun onSuccess(cb: ResultReceiver?) {
         service.notifyChildrenChanged(MediaID.ID_MUSIC)
         cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
-    }
-
-    private fun onError(error: Throwable, cb: ResultReceiver?) {
-        Log.e(TAG, "Unexpected error while deleting tracks", error)
-        cb?.send(MediaSessionCommand.CODE_UNEXPECTED_ERROR, null)
     }
 
     companion object {
