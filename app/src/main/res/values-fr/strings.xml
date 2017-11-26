@@ -93,4 +93,6 @@
     <string name="pref_title_startup_screen">Ecran affiché au démarrage</string>
     <string name="pref_title_app_shortcuts">Configurer les raccourcis</string>
     <string name="error_playlist_already_exists">Une playlist porte déjà ce nom.</string>
+    <string name="player_unknown_error">Une erreur inattendue s\'est produite.</string>
+    <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
 </resources>

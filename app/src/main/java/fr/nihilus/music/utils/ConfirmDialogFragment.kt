@@ -106,9 +106,9 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
          * to display in the neutral button. If absent, no neutral button will be shown.
          */
         @JvmStatic fun newInstance(
-                caller: Fragment,
+                caller: Fragment?,
                 requestCode: Int,
-                title: String,
+                title: String? = null,
                 message: String? = null,
                 @StringRes positiveButton: Int = 0,
                 @StringRes negativeButton: Int = 0,

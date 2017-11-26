@@ -16,14 +16,17 @@
 
 package fr.nihilus.music
 
+import android.Manifest
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.math.MathUtils
 import android.support.v4.media.session.PlaybackStateCompat
@@ -43,6 +46,7 @@ import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.library.ViewModelFactory
 import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.settings.SettingsActivity
+import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionUtil
 import fr.nihilus.music.view.PlayerView
@@ -235,6 +239,7 @@ class HomeActivity : AppCompatActivity(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SETTINGS) {
+            // FIXME Not called after returning to activity
             delegate.applyDayNight()
         }
     }
@@ -253,9 +258,21 @@ class HomeActivity : AppCompatActivity(),
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
                                             grantResults: IntArray) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
+
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(intent)) {
                 showHomeScreen()
+            }
+
+            // Show an informative dialog message if permission is not granted
+            // and user has not checked "Don't ask again".
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED &&
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                ConfirmDialogFragment.newInstance(null, 0,
+                        message = getString(R.string.external_storage_permission_rationale),
+                        positiveButton = R.string.ok
+                ).show(supportFragmentManager, null)
             }
         }
     }

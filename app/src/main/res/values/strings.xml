@@ -102,5 +102,6 @@
     <string name="pref_default_startup_screen" translatable="false">MUSIC</string>
     <string name="pref_title_app_shortcuts">Configure app shortcuts</string>
     <string name="error_playlist_already_exists">An existing playlist already uses that title.</string>
-    <string name="player_unknown_error">An unknown erorr occurred.</string>
+    <string name="player_unknown_error">An unknown error occurred.</string>
+    <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
 </resources>
