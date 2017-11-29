@@ -38,6 +38,7 @@ import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
+import org.jetbrains.annotations.TestOnly
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -45,13 +46,29 @@ import javax.inject.Singleton
 /**
  * A music datasource that fetches its items from the Android mediastore.
  * Items represents files that are stored on the device's external storage.
+ *
+ * @constructor
+ * Instantiate this MusicDao implementation with the provided metadata cache.
+ * This constructor should only be used as a way to manually inject cache for testing purposes.
+ *
+ * @param context The application context
+ * @param metadataCache The cache into which this object stores its metadata.
  */
 @Singleton
-internal class MediaStoreMusicDao
-@Inject constructor(private val context: Context) : MusicDao {
+class MediaStoreMusicDao
+@TestOnly internal constructor(
+        private val context: Context,
+        private val metadataCache: LongSparseArray<MediaMetadataCompat>
+) : MusicDao {
+
+    /**
+     * Instantiate this MusicDao implementation.
+     *
+     * @param context The application context
+     */
+    @Inject constructor(context: Context) : this(context, LongSparseArray())
 
     private val resolver: ContentResolver = context.contentResolver
-    private val metadataCache = LongSparseArray<MediaMetadataCompat>()
 
     /**
      * Translates sortable metadata keys into their MediaStore equivalent.

@@ -1,4 +1,4 @@
-package fr.nihilus.music.media.datasource
+package fr.nihilus.music.media.source
 
 import android.content.ContentResolver
 import android.content.Context
@@ -14,7 +14,6 @@ import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.artUriOf
 import fr.nihilus.music.media.assertMetadata
 import fr.nihilus.music.media.mock.MockCursorProvider
-import fr.nihilus.music.media.source.MediaStoreMusicDao
 import fr.nihilus.music.utils.MediaID
 import org.hamcrest.Matchers.*
 import org.junit.Assert.assertThat

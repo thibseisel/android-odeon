@@ -4,8 +4,10 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
+import org.mockito.Mockito
+import kotlin.test.assertNull
+import kotlin.test.fail
 
 fun assertMediaDescription(descr: MediaDescriptionCompat,
                            mediaId: String? = null,
@@ -32,3 +34,24 @@ fun assertMediaDescription(descr: MediaDescriptionCompat,
         assertNull(descr.extras)
     }
 }
+
+/**
+ * Assert that the following block function throws a given [Exception].
+ *
+ * @param T The type of the expected exception
+ */
+inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
+    try {
+        block()
+        fail("An ${T::class.java.name} should have been thrown")
+    } catch (thr: Throwable) {
+        if (thr !is T) {
+            fail("Unexpected exception: $thr")
+        }
+    }
+}
+
+/**
+ * Helper function to mock objects using Mockito with a more readable syntax.
+ */
+inline fun <reified T> mock() = Mockito.mock(T::class.java)

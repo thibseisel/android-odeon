@@ -1,6 +1,6 @@
 package fr.nihilus.music.media
 
-import fr.nihilus.music.media.datasource.MediaStoreMusicDaoTest
+import fr.nihilus.music.media.source.MediaStoreMusicDaoTest
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 
