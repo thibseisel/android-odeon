@@ -600,7 +600,7 @@ class MediaStoreMusicDao
         @JvmField
         val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
                 Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
-                Media.ARTIST_ID, Media.DATA)
+                Media.ARTIST_ID)
         @JvmField
         val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
                 Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
