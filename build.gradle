@@ -49,6 +49,8 @@ ext {
     constraintVersion = '1.0.2'
     recyclerVersion = '1.1.2'
     kdenticonVersion = '1.0.0-alpha4'
+    androidTestVersion = '1.0.1'
+    espressoVersion = '3.0.1'
 }
 
 task clean(type: Delete) {

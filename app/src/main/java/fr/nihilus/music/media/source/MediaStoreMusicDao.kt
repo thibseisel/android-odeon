@@ -257,7 +257,6 @@ class MediaStoreMusicDao
         val colTitleKey = cursor.getColumnIndexOrThrow(Media.TITLE_KEY)
         val colAlbumId = cursor.getColumnIndexOrThrow(Media.ALBUM_ID)
         val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-        //val colFilePath = cursor.getColumnIndexOrThrow(Media.DATA);
 
         val allTracks = ArrayList<MediaMetadataCompat>(cursor.count)
         val builder = MediaMetadataCompat.Builder()
@@ -275,8 +274,8 @@ class MediaStoreMusicDao
                     .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, cursor.getString(colAlbum))
                     .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, cursor.getString(colArtist))
                     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, cursor.getLong(colDuration))
-                    .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 100)
-                    .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 100)
+                    .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
                     .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, artUri.toString())
                     .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
                     .putString(MusicDao.CUSTOM_META_TITLE_KEY, cursor.getString(colTitleKey))
@@ -353,7 +352,7 @@ class MediaStoreMusicDao
 
             builder.setMediaId(mediaId)
                     .setTitle(cursor.getString(colTitle))
-                    .setSubtitle(cursor.getString(colArtist)) // artiste
+                    .setSubtitle(cursor.getString(colArtist)) // artist
                     .setIconUri(artUri)
                     .setExtras(extras)
 
@@ -572,10 +571,13 @@ class MediaStoreMusicDao
             }
 
             if (file.delete()) {
+                val musicId = trackId.toLong()
                 // Delete from MediaStore only if the file has been successfully deleted
-                val deletedUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI,
-                        trackId.toLong())
+                val deletedUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId)
                 resolver.delete(deletedUri, null, null)
+
+                // Also remove this track from the cache if successfully deleted
+                metadataCache.remove(musicId)
             }
         }
     }

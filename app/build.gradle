@@ -75,7 +75,7 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlinVersion}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlinVersion}"
 
     // Support library dependencies
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
@@ -125,8 +125,8 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${kotlinVersion}"
 
     androidTestCompile "com.android.support:support-annotations:${supportLibVersion}"
-    androidTestCompile "com.android.support.test:rules:1.0.1"
-    androidTestCompile "com.android.support.test:runner:1.0.1"
-    androidTestCompile "com.android.support.test.espresso:espresso-core:3.0.1"
+    androidTestCompile "com.android.support.test:rules:${androidTestVersion}"
+    androidTestCompile "com.android.support.test:runner:${androidTestVersion}"
+    androidTestCompile "com.android.support.test.espresso:espresso-core:${espressoVersion}"
     androidTestCompile "org.mockito:mockito-android:${mockitoVersion}"
 }
