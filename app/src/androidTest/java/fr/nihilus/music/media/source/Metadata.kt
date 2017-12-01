@@ -100,11 +100,12 @@ fun mockTracksCursor(vararg indexes: Int): Cursor {
     return cursor
 }
 
+// ALBUMS
 private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
                 Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
 
 private val mediastoreAlbums = arrayOf(
-        arrayOf(40, "The 2nd Law", """TODO"""", "Muse", 2012, 1),
+        arrayOf(40, "The 2nd Law", """TODO""", "Muse", 2012, 1),
         arrayOf(65, "Sunset on the Golden Age", """TODO""", "Alestorm", 2014, 1),
         arrayOf(102, "Concrete and Gold", """TODO""", "Foo Fighters", 2017, 2),
         arrayOf(7, "Greatests Hits 30 Anniversary Edition", """TODO""", "AC/DC", 2010, 2),
