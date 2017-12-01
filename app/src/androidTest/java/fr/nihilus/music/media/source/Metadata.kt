@@ -21,11 +21,15 @@ import android.database.Cursor
 import android.database.MatrixCursor
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.Media
+import android.provider.MediaStore.Audio.AlbumColumns
 import android.support.v4.media.MediaMetadataCompat
 
 private val mediaStoreColumns = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
         Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
         Media.ARTIST_ID)
+
+private val artistMediaStoreColumns = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
+                Artists.NUMBER_OF_TRACKS)
 
 /**
  * A representative sample of 10 songs metadata.
@@ -60,6 +64,20 @@ private val mediastoreTracks = arrayOf(
         arrayOf(477, "Run", "Concrete and Gold", "Foo Fighters", 323424L, 1002, """KQC""", 102, 13)
 )
 
+private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
+                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+
+private val mediastoreAlbums = arrayOf(
+        arrayOf(40, "The 2nd Law", """TODO"""", "Muse", 2012, 1),
+        arrayOf(65, "Sunset on the Golden Age", """TODO""", "Alestorm", 2014, 1),
+        arrayOf(102, "Concrete and Gold", """TODO""", "Foo Fighters", 2017, 2),
+        arrayOf(7, "Greatests Hits 30 Anniversary Edition", """TODO""", "AC/DC", 2010, 2),
+        arrayOf(38, "Black Holes and Revelations", """TODO""", "Muse", 2006, 1),
+        arrayOf(26, "Wasting Light", """TODO""", "Foo Fighters", 2011, 1),
+        arrayOf(6, "Nightname", """TODO""", "Avenged Sevenfold", 2010, 1),
+        arrayOf(95, "Echoes, Silence, Patience & Grace", """TODO""", "Foo Fighters", 2007, 1)
+)
+
 /**
  * An array containing representative metadata for tracks.
  */
@@ -92,6 +110,12 @@ val mockMetadata = arrayOf<MediaMetadataCompat>(
 fun mockTracksCursor(vararg indexes: Int): Cursor {
     val cursor = MatrixCursor(mediaStoreColumns, indexes.size)
     indexes.map { mediastoreTracks[it] }.forEach(cursor::addRow)
+    return cursor
+}
+
+fun mockAlbumCursor(vararg indexes: Int): Cursor {
+    val cursor = MatrixCursor(albumMediaStoreColumns, indexes.size)
+    indexes.map { mediastoreAlbums[it] }.forEach(cursor::addRow)
     return cursor
 }
 
