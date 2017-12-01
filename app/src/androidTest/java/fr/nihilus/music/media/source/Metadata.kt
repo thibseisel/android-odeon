@@ -22,14 +22,12 @@ import android.database.MatrixCursor
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.Media
 import android.provider.MediaStore.Audio.AlbumColumns
+import android.provider.MediaStore.Audio.ArtistColumns
 import android.support.v4.media.MediaMetadataCompat
 
 private val mediaStoreColumns = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
         Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_KEY, Media.ALBUM_ID,
         Media.ARTIST_ID)
-
-private val artistMediaStoreColumns = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
-                Artists.NUMBER_OF_TRACKS)
 
 /**
  * A representative sample of 10 songs metadata.
@@ -64,20 +62,6 @@ private val mediastoreTracks = arrayOf(
         arrayOf(477, "Run", "Concrete and Gold", "Foo Fighters", 323424L, 1002, """KQC""", 102, 13)
 )
 
-private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
-
-private val mediastoreAlbums = arrayOf(
-        arrayOf(40, "The 2nd Law", """TODO"""", "Muse", 2012, 1),
-        arrayOf(65, "Sunset on the Golden Age", """TODO""", "Alestorm", 2014, 1),
-        arrayOf(102, "Concrete and Gold", """TODO""", "Foo Fighters", 2017, 2),
-        arrayOf(7, "Greatests Hits 30 Anniversary Edition", """TODO""", "AC/DC", 2010, 2),
-        arrayOf(38, "Black Holes and Revelations", """TODO""", "Muse", 2006, 1),
-        arrayOf(26, "Wasting Light", """TODO""", "Foo Fighters", 2011, 1),
-        arrayOf(6, "Nightname", """TODO""", "Avenged Sevenfold", 2010, 1),
-        arrayOf(95, "Echoes, Silence, Patience & Grace", """TODO""", "Foo Fighters", 2007, 1)
-)
-
 /**
  * An array containing representative metadata for tracks.
  */
@@ -106,6 +90,9 @@ val mockMetadata = arrayOf<MediaMetadataCompat>(
 
 /**
  * Creates a cursor whose tracks information are picked in order from a set of 10 representative tracks.
+ *
+ * @param indexes Index of tracks to pick from the set in order. All values must be below 10.
+ * @return a cursor containing the picked tracks sorted in the order of index declaration.
  */
 fun mockTracksCursor(vararg indexes: Int): Cursor {
     val cursor = MatrixCursor(mediaStoreColumns, indexes.size)
@@ -113,9 +100,57 @@ fun mockTracksCursor(vararg indexes: Int): Cursor {
     return cursor
 }
 
+private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
+                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+
+private val mediastoreAlbums = arrayOf(
+        arrayOf(40, "The 2nd Law", """TODO"""", "Muse", 2012, 1),
+        arrayOf(65, "Sunset on the Golden Age", """TODO""", "Alestorm", 2014, 1),
+        arrayOf(102, "Concrete and Gold", """TODO""", "Foo Fighters", 2017, 2),
+        arrayOf(7, "Greatests Hits 30 Anniversary Edition", """TODO""", "AC/DC", 2010, 2),
+        arrayOf(38, "Black Holes and Revelations", """TODO""", "Muse", 2006, 1),
+        arrayOf(26, "Wasting Light", """TODO""", "Foo Fighters", 2011, 1),
+        arrayOf(6, "Nightname", """TODO""", "Avenged Sevenfold", 2010, 1),
+        arrayOf(95, "Echoes, Silence, Patience & Grace", """TODO""", "Foo Fighters", 2007, 1)
+)
+
+/**
+ * Creates a custor containing albums whose informations are picked in order from a set of
+ * 8 representative albums.
+ * Album metadata are coherent with track metadata: each track has a corresponding album in this set.
+ * 
+ * @param indexes Index of albums to pick from the set in order. All values must be below 8.
+ * @return a cursor containing the picked albums sorted in the order of index declaration.
+ */
 fun mockAlbumCursor(vararg indexes: Int): Cursor {
     val cursor = MatrixCursor(albumMediaStoreColumns, indexes.size)
     indexes.map { mediastoreAlbums[it] }.forEach(cursor::addRow)
+    return cursor
+}
+
+// ARTISTS
+private val artistMediaStoreColumns = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
+                Artists.NUMBER_OF_TRACKS)
+        
+private val mediastoreArtists = arrayOf(
+        arrayOf(26, "Alestorm", """TODO""", 1),
+        arrayOf(18, "Muse", """TODO""", 2),
+        arrayOf(13, "Foo Fighters", """TODO""", 4),
+        arrayOf(5, "AC/DC", """TODO""", 2),
+        arrayOf(4, "Avenged Sevenfold", """TODO""", 1)
+)
+
+/**
+ * Creates a custor containing artists whose informations are picked in order from a set of
+ * 5 representative artists.
+ * Artist metadata are coherent with track metadata: each track has a corresponding artist in this set.
+ * 
+ * @param indexes Index of artists to pick from the set in order. All values must be below 5.
+ * @return a cursor containing the picked artists sorted in the order of index declaration. 
+ */
+fun mockArtistCursor(vararg indexes: Int): Cursor {
+    val cursor = MatrixCursor(artistMediaStoreColumns, indexes.size)
+    indexes.map { mediastoreArtists[it] }.forEach(cursor::addRow)
     return cursor
 }
 
