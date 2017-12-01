@@ -20,9 +20,7 @@ import android.content.ContentUris
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.provider.BaseColumns
-import android.provider.MediaStore.Audio.Media
-import android.provider.MediaStore.Audio.AlbumColumns
-import android.provider.MediaStore.Audio.ArtistColumns
+import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaMetadataCompat
 
 private val mediaStoreColumns = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
@@ -105,14 +103,16 @@ private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.AL
                 Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
 
 private val mediastoreAlbums = arrayOf(
-        arrayOf(40, "The 2nd Law", """TODO""", "Muse", 2012, 1),
-        arrayOf(65, "Sunset on the Golden Age", """TODO""", "Alestorm", 2014, 1),
-        arrayOf(102, "Concrete and Gold", """TODO""", "Foo Fighters", 2017, 2),
-        arrayOf(7, "Greatests Hits 30 Anniversary Edition", """TODO""", "AC/DC", 2010, 2),
-        arrayOf(38, "Black Holes and Revelations", """TODO""", "Muse", 2006, 1),
-        arrayOf(26, "Wasting Light", """TODO""", "Foo Fighters", 2011, 1),
-        arrayOf(6, "Nightname", """TODO""", "Avenged Sevenfold", 2010, 1),
-        arrayOf(95, "Echoes, Silence, Patience & Grace", """TODO""", "Foo Fighters", 2007, 1)
+        arrayOf(40, "The 2nd Law", """C/?)U""", "Muse", 2012, 1),
+        arrayOf(65, "Sunset on the Golden Age", """MQCM1OECO715E?/1C)51""", "Alestorm", 2014, 1),
+        arrayOf(102, "Concrete and Gold", """-EC-K1O1)C/5E?/""", "Foo Fighters", 2017, 2),
+        arrayOf(7, "Greatests Hits 30 Anniversary Edition", """5K1)O1MOM79OM)CC9S1KM)KY1/9O9EC""",
+                "AC/DC", 2010, 2),
+        arrayOf(38, "Black Holes and Revelations", """+?)-=7E?1M)C/K1S1?)O9ECM""", "Muse", 2006, 1),
+        arrayOf(26, "Wasting Light", """U)MO9C5?957O""", "Foo Fighters", 2011, 1),
+        arrayOf(6, "Nightname", """C957OA)K1""", "Avenged Sevenfold", 2010, 1),
+        arrayOf(95, "Echoes, Silence, Patience & Grace", """1-7E1MM9?1C-1G)O91C-1
+       5K)-1""", "Foo Fighters", 2007, 1)
 )
 
 /**
@@ -134,11 +134,12 @@ private val artistMediaStoreColumns = arrayOf(Artists._ID, Artists.ARTIST, Artis
                 Artists.NUMBER_OF_TRACKS)
         
 private val mediastoreArtists = arrayOf(
-        arrayOf(26, "Alestorm", """TODO""", 1),
-        arrayOf(18, "Muse", """TODO""", 2),
-        arrayOf(13, "Foo Fighters", """TODO""", 4),
-        arrayOf(5, "AC/DC", """TODO""", 2),
-        arrayOf(4, "Avenged Sevenfold", """TODO""", 1)
+        arrayOf(26, "Alestorm", """)?1MOEKA""", 1),
+        arrayOf(18, "Muse", """AQM1""", 2),
+        arrayOf(13, "Foo Fighters", """3EE3957O1KM""", 4),
+        arrayOf(5, "AC/DC", """)-
+                      /-""", 2),
+        arrayOf(4, "Avenged Sevenfold", """)S1C51/M1S1C3E?/""", 1)
 )
 
 /**
