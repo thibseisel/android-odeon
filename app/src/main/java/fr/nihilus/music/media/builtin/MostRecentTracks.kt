@@ -17,14 +17,13 @@
 package fr.nihilus.music.media.builtin
 
 import android.content.Context
-import android.provider.MediaStore.Audio.Media
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -48,12 +47,10 @@ internal class MostRecentTracks
 
     override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return dao.getTracks(null, null, "${Media.DATE_ADDED} DESC").take(1)
-                .flatMap { Observable.fromIterable(it) }
+        return dao.getTracks(null, "${MediaMetadataCompat.METADATA_KEY_DATE} DESC").take(50)
                 .map {
                     val description = it.asMediaDescription(builder, MediaID.ID_MOST_RECENT)
                     MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }.take(50)
-                .toList()
+                }.toList()
     }
 }

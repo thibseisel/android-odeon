@@ -47,10 +47,7 @@ interface MusicDao {
      * should define for each track.
      * @return an observable that emits a list of all tracks
      */
-    fun getAllTracks(): Observable<List<MediaMetadataCompat>>
-
-    fun getTracks(whereClause: String?, whereArgs: Array<out String>?,
-                  sorting: String?): Observable<List<MediaMetadataCompat>>
+    fun getTracks(criteria: Map<String, Any>?, sorting: String?): Observable<MediaMetadataCompat>
 
     /**
      * Retrieve a single track's metadata from this implementation's data store.
@@ -96,7 +93,7 @@ interface MusicDao {
      *
      * Albums are sorted by name by default.
      */
-    fun getAlbums(): Observable<List<MediaDescriptionCompat>>
+    fun getAlbums(criteria: Map<String, Any>?, sorting: String?): Observable<MediaDescriptionCompat>
 
     /**
      * Return an observable dataset of artists that participated to composing
@@ -112,30 +109,6 @@ interface MusicDao {
      * Artists are sorted by name by default.
      */
     fun getArtists(): Observable<List<MediaDescriptionCompat>>
-
-    /**
-     * Retrieve tracks that are part of a given album.
-     *
-     * @param albumId unique identifier of the album
-     * @return track metadatas from this album sorted by track number
-     */
-    fun getAlbumTracks(albumId: String): Observable<List<MediaMetadataCompat>>
-
-    /**
-     * Retrieve tracks that are produced by a given artist.
-     *
-     * @param artistId unique identifier of the artist
-     * @return track metadata from this artist sorted by track name
-     */
-    fun getArtistTracks(artistId: String): Observable<List<MediaMetadataCompat>>
-
-    /**
-     * Retrieve albums that are produced by a given artist.
-     *
-     * @param artistId unique identifier of the artist
-     * @return information on albums from this artist sorted by descending release date
-     */
-    fun getArtistAlbums(artistId: String): Observable<List<MediaDescriptionCompat>>
 
     /**
      * Searches for tracks metadata that matches a given query.
@@ -154,5 +127,6 @@ interface MusicDao {
         const val CUSTOM_META_TITLE_KEY = "title_key"
         const val CUSTOM_META_ALBUM_ID = "album_id"
         const val CUSTOM_META_ARTIST_ID = "artist_id"
+        const val METADATA_DATE_ADDED = "fr.nihilus.music.DATE_ADDED"
     }
 }

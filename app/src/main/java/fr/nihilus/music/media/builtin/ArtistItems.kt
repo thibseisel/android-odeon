@@ -19,6 +19,7 @@ package fr.nihilus.music.media.builtin
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
@@ -59,11 +60,12 @@ internal class ArtistItems
 
     private fun fetchArtistChildren(artistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        val albums = musicDao.getArtistAlbums(artistId)
-                .flatMap { Observable.fromIterable(it) }
+        val albumSorting = "${MediaMetadataCompat.METADATA_KEY_YEAR} DESC"
+
+        val albums = musicDao.getAlbums(mapOf(MusicDao.CUSTOM_META_ARTIST_ID to artistId), albumSorting)
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
-        val tracks = musicDao.getArtistTracks(artistId)
-                .flatMap { Observable.fromIterable(it) }
+
+        val tracks = musicDao.getTracks(mapOf(MusicDao.CUSTOM_META_ARTIST_ID to artistId), null)
                 .map { it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
         return Observable.concat(albums, tracks).toList()

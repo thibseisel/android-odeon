@@ -23,11 +23,9 @@ import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
-import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import javax.inject.Inject
@@ -36,7 +34,6 @@ internal class PlaylistItems
 @Inject constructor(
         private val context: Context,
         private val playlistDao: PlaylistDao,
-        private val musicCache: MusicCache,
         private val musicDao: MusicDao,
         private val random: AllTracksRandom,
         private val mostRecentTracks: MostRecentTracks
@@ -95,10 +92,7 @@ internal class PlaylistItems
                 }.toList()
     }
 
-    private fun fetchMetadata(musicId: String): Single<MediaMetadataCompat> {
-        return Maybe.fromCallable<MediaMetadataCompat> { musicCache.getMetadata(musicId) }
-                .concatWith { musicDao.findTrack(musicId) }
-                .firstOrError()
-    }
+    private fun fetchMetadata(musicId: String): Single<MediaMetadataCompat> =
+            musicDao.findTrack(musicId).toSingle()
 
 }

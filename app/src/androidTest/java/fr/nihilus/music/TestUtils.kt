@@ -4,10 +4,8 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertThat
+import org.junit.Assert.*
 import org.mockito.Mockito
-import kotlin.test.assertNull
-import kotlin.test.fail
 
 fun assertMediaDescription(descr: MediaDescriptionCompat,
                            mediaId: String? = null,
@@ -54,4 +52,4 @@ inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
 /**
  * Helper function to mock objects using Mockito with a more readable syntax.
  */
-inline fun <reified T> mock() = Mockito.mock(T::class.java)
+inline fun <reified T> mock(): T = Mockito.mock(T::class.java)

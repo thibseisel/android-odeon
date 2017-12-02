@@ -21,8 +21,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 
 @SmallTest
@@ -136,11 +134,11 @@ class CachedMusicRepositoryTest {
         subject.clear()
     }
 
-    private fun provideMockDao(): MediaStoreMusicDao {
+    /*private fun provideMockDao(): MediaStoreMusicDao {
         val mock = mock(MediaStoreMusicDao::class.java)
         `when`(mock.getAllTracks()).thenReturn(metadataSubject)
         return mock
-    }
+    }*/
 
 }
 

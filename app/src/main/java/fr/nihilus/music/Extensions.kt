@@ -29,7 +29,6 @@ import android.view.ViewGroup
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import io.reactivex.Observable
 import java.lang.ref.WeakReference
 
 /**
@@ -86,11 +85,16 @@ inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
     get()?.let(action)
 }
 
-fun <T> LongSparseArray<T>.asObservable(): Observable<T> = Observable.create { emitter ->
-    for (index in 0 until this.size()) {
-        if (emitter.isDisposed) return@create
-        emitter.onNext(this.valueAt(index))
-    }
+/**
+ * Copy values from this sparse array to an array.
+ * Items are inserted in the array in ascending key order.
+ *
+ * @return a copy of values from the sparse array as an array.
+ */
+inline fun <reified T> LongSparseArray<T>.toArray() = Array(this.size(), this::valueAt)
 
-    emitter.onComplete()
-}
+/**
+ * Returns a comparator that imposes the reverse ordering of this comparator.
+ * @return a comparator that imposes the reverse ordering of this comparator.
+ */
+fun <T> Comparator<T>.inReversedOrder() = Comparator<T> { a, b -> this.compare(b, a) }

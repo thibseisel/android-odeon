@@ -19,11 +19,11 @@ package fr.nihilus.music.media.builtin
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -52,15 +52,15 @@ internal class AlbumItems
     }
 
     private fun fetchAllAlbums(): Single<List<MediaItem>> {
-        return musicDao.getAlbums().flatMap { Observable.fromIterable(it) }
+        return musicDao.getAlbums(null, null)
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }
 
     private fun fetchAlbumTracks(albumId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return musicDao.getAlbumTracks(albumId)
-                .flatMap { Observable.fromIterable(it) }
+        return musicDao.getTracks(mapOf(MusicDao.CUSTOM_META_ALBUM_ID to albumId.toLong()),
+                MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
                 .map { it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
                 .toList()
