@@ -174,12 +174,12 @@ private fun metadataOf(mediaId: String, title: String, album: String, artist: St
         .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
         .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, discNumber)
         .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
-        .putString(MusicDao.CUSTOM_META_TITLE_KEY, titleKey)
+        .putString(MusicDao.METADATA_KEY_TITLE_KEY, titleKey)
         .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
                 "content://media/external/audio/albumart/$albumId")
         .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
                 mediaUriOf(mediaId).toString())
-        .putLong(MusicDao.CUSTOM_META_ALBUM_ID, albumId)
-        .putLong(MusicDao.CUSTOM_META_ARTIST_ID, artistId)
-        .putLong(MusicDao.METADATA_DATE_ADDED, dateAdded)
+        .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
+        .putLong(MusicDao.METADATA_KEY_ARTIST_ID, artistId)
+        .putLong(MusicDao.METADATA_KEY_DATE_ADDED, dateAdded)
         .build()

@@ -23,9 +23,9 @@ class ExtensionTest {
                 .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, 1L)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, "content://path/to/art")
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, "content://path/to/file")
-                .putString(MusicDao.CUSTOM_META_TITLE_KEY, "Thunderstruck")
-                .putLong(MusicDao.CUSTOM_META_ALBUM_ID, 12L)
-                .putLong(MusicDao.CUSTOM_META_ARTIST_ID, 6L)
+                .putString(MusicDao.METADATA_KEY_TITLE_KEY, "Thunderstruck")
+                .putLong(MusicDao.METADATA_KEY_ALBUM_ID, 12L)
+                .putLong(MusicDao.METADATA_KEY_ARTIST_ID, 6L)
                 .build()
 
         val desc = metadata.asMediaDescription(MediaDescriptionCompat.Builder(), "Music")

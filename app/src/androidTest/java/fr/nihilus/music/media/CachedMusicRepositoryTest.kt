@@ -166,8 +166,8 @@ private fun sampleToMetadata(values: Array<Any>): MediaMetadataCompat {
             .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, values[6] as Long)
             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, values[7] as String)
             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, values[8] as String)
-            .putString(MusicDao.CUSTOM_META_TITLE_KEY, values[9] as String)
-            .putLong(MusicDao.CUSTOM_META_ALBUM_ID, values[10] as Long)
-            .putLong(MusicDao.CUSTOM_META_ARTIST_ID, values[11] as Long)
+            .putString(MusicDao.METADATA_KEY_TITLE_KEY, values[9] as String)
+            .putLong(MusicDao.METADATA_KEY_ALBUM_ID, values[10] as Long)
+            .putLong(MusicDao.METADATA_KEY_ARTIST_ID, values[11] as Long)
             .build()
 }

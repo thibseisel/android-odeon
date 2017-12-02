@@ -28,9 +28,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.util.Log
 import android.util.LongSparseArray
 import fr.nihilus.music.assert
-import fr.nihilus.music.inReversedOrder
 import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.toArray
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionUtil
 import io.reactivex.Completable
@@ -80,97 +78,54 @@ class MediaStoreMusicDao
         put(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, Media.TRACK)
         put(MediaMetadataCompat.METADATA_KEY_DURATION, Media.DURATION)
         put(MediaMetadataCompat.METADATA_KEY_YEAR, Albums.LAST_YEAR)
-        put(MusicDao.METADATA_DATE_ADDED, Media.DATE_ADDED)
+        put(MusicDao.METADATA_KEY_DATE_ADDED, Media.DATE_ADDED)
     }
 
     /**
-     * Metadata sorting supported by this MusicDao implementation.
+     * Given an sorting clause of format "`KEY1 (ASC | DESC), KEY2 (ASC | DESC) ...`",
+     * replaces keys expressed as media metadata keys by their MediaStore equivalent, if exists.
+     * The result is sanitized and may be used as a SQL ORDER BY clause to query MediaStore.
+     *
+     * @param sorting A sorting clause of the format "`KEY1 (ASC | DESC), KEY2 (ASC | DESC) ...`",
+     * where keys are standard `MediaMetadataCompat.METADATA_KEY_*` keys or `MusicDao.*` ones.
+     *
+     * @return The corresponding sorting clause to be used in `MediaStore` queries.
      */
-    private val supportedSorting = HashMap<String, Comparator<MediaMetadataCompat>>().apply {
-        put(MediaMetadataCompat.METADATA_KEY_TITLE, SORT_TITLE_KEY)
-        put(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, SORT_TRACK_NUMBER)
-        put(MusicDao.METADATA_DATE_ADDED, SORT_DATE_ADDED)
-        put(MusicDao.CUSTOM_META_TITLE_KEY, SORT_TITLE_KEY)
+    internal fun translateSortingClause(sorting: String): String {
+        // Split conditions, and rebuild them sanitized and with keys replaced by media store columns
+        return sorting.split(", ").joinToString(", ") { condition ->
+            val splitCond = condition.trim().split(' ')
+            val metadataKey = splitCond[0].trim()
+
+            val mediaStoreKey = keyMapper[metadataKey]
+                    ?: throw UnsupportedOperationException("Unsupported sort key: $metadataKey")
+
+            if (splitCond.size > 1 && splitCond[1].contains("DESC")) {
+                mediaStoreKey + " DESC"
+            } else mediaStoreKey
+        }
     }
 
     override fun getTracks(criteria: Map<String, Any>?,
                            sorting: String?): Observable<MediaMetadataCompat> {
 
-        // Translate the client's sorting instruction to a MediaStore column
-        val (sortKey, sortDescending) = translateSorting(sorting, Media.DEFAULT_SORT_ORDER)
+        // Translate the client's sorting clause to a MediaStore ORDER BY clause.
+        val orderByClause = sorting?.let(this::translateSortingClause) ?: Media.DEFAULT_SORT_ORDER
 
-        // Fetch from the MediaStore only if the memory cache is empty.
-        val allTracks = Observable.defer {
-            if (metadataCache.size() == 0) {
-
-                val mediaStoreTrackSorting = if (sortDescending) (sortKey + " DESC") else sortKey
-
-                // Load all metadata from MediaStore and put them all in memory cache for faster reuse
-                loadFromMediaStore(mediaStoreTrackSorting).doOnNext { metadata ->
-                    val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
-                    metadataCache.put(musicId, metadata)
-                }
-            } else {
-                // All metadata are already in memory cache. Sort them according to 'sorting'.
-
-                // Extract the metadata key from the sorting instruction
-                val metadataSortingKey = sorting?.let {
-                    it.split(' ')[0].trim()
-                } ?: MusicDao.CUSTOM_META_TITLE_KEY
-
-                // Create a defensive copy of the cache to allow sorting and prevent threading problems
-                val cacheCopy = metadataCache.toArray()
-                var sortingAlgorithm = supportedSorting.getOrElse(metadataSortingKey) {
-                    throw UnsupportedOperationException("Unsupported sorting key: $metadataSortingKey")
-                }
-
-                // Reverse if sorting in descending order
-                if (sortDescending) {
-                    sortingAlgorithm = sortingAlgorithm.inReversedOrder()
-                }
-
-                cacheCopy.sortWith(sortingAlgorithm)
-                Observable.fromArray(*cacheCopy)
-            }
+        // Load all metadata from MediaStore and put them all in memory cache for faster reuse
+        val trackStream = loadFromMediaStore(orderByClause).doOnNext { metadata ->
+            val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
+            metadataCache.put(musicId, metadata)
         }
 
-        return if (criteria == null) allTracks else {
-            allTracks.filter { metadata ->
-                criteria.all { (key, value) -> metadata.bundle.get(key) == value }
-            }
-        }
-    }
-
-    /**
-     * Convert a sorting instruction to a column name from MediaStore.
-     * The provided default column name will be used if not mapping exists.
-     *
-     * @param sorting The sorting instruction issued by the client.
-     * It is composed of the name of the metadata on which records should be sorted,
-     * plus an optional `ASC` or `DESC` keyword to sort in ascending or descending order.
-     * If none of those keywords is specified, this defaults to ASC.
-     * @param defaultColumn The default MediaStore column to use for sorting if none is specified
-     * or is unsupported.
-     *
-     * @return The translated key and a boolean whose value is `true`
-     * if records should be sorted in descending order.
-     */
-    private fun translateSorting(sorting: String?, defaultColumn: String): Pair<String, Boolean> {
-        if (sorting == null) {
-            return defaultColumn to false
+        if (criteria == null) {
+            return trackStream
         }
 
-        // Separate the key from its optional direction: ASC (ascending) or DESC (descending)
-        val splitKey = sorting.split(' ')
-        val metadataKey = splitKey[0].trim()
-        val isDescending = splitKey.size > 1 && splitKey[1].contains("DESC", ignoreCase = true)
-
-        val translatedKey = keyMapper.getOrElse(metadataKey) {
-            Log.w(TAG, "No corresponding key for \"$metadataKey\" has been found. Using default.")
-            defaultColumn
+        // Apply selection criteria, if any.
+        return trackStream.filter { metadata ->
+            criteria.all { (key, value) -> metadata.bundle.get(key) == value }
         }
-
-        return translatedKey to isDescending
     }
 
     private fun loadFromMediaStore(sorting: String): Observable<MediaMetadataCompat> {
@@ -212,14 +167,14 @@ class MediaStoreMusicDao
                             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it.getString(colAlbum))
                             .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, it.getString(colArtist))
                             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.getLong(colDuration))
-                            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 100)
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 100)
+                            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
+                            .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
                             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, artUri.toString())
                             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
-                            .putLong(MusicDao.METADATA_DATE_ADDED, it.getLong(colDateAdded))
-                            .putString(MusicDao.CUSTOM_META_TITLE_KEY, it.getString(colTitleKey))
-                            .putLong(MusicDao.CUSTOM_META_ALBUM_ID, albumId)
-                            .putLong(MusicDao.CUSTOM_META_ARTIST_ID, it.getLong(colArtistId))
+                            .putLong(MusicDao.METADATA_KEY_DATE_ADDED, it.getLong(colDateAdded))
+                            .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
+                            .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
+                            .putLong(MusicDao.METADATA_KEY_ARTIST_ID, it.getLong(colArtistId))
 
                     val metadata = builder.build()
                     emitter.onNext(metadata)
@@ -271,14 +226,16 @@ class MediaStoreMusicDao
 
         return Observable.create { emitter ->
 
+            // Translate criteria filtering into WHERE clause
             val whereClause = criteria?.keys?.joinToString(", ")
             val whereArgs = criteria?.values?.map(Any::toString)?.toTypedArray()
 
-            val (column, sortDescending) = translateSorting(sorting, Albums.DEFAULT_SORT_ORDER)
-            val orderBy = if (sortDescending) column + " DESC" else column
+            // Translate sorting clause to an SQL ORDER BY clause with MediaStore keys
+            val orderByClause = if (sorting != null) translateSortingClause(sorting) else
+                Albums.DEFAULT_SORT_ORDER
 
             val cursor = resolver.query(Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
-                    whereClause, whereArgs, orderBy)
+                    whereClause, whereArgs, orderByClause)
 
             cursor?.use {
                 // Memorize cursor column indexes for faster lookup
@@ -499,26 +456,5 @@ class MediaStoreMusicDao
         @JvmField
         val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
                 Artists.NUMBER_OF_TRACKS)
-
-        @JvmField
-        val SORT_TITLE_KEY = Comparator<MediaMetadataCompat> { a, b ->
-            a.getString(MusicDao.CUSTOM_META_TITLE_KEY).compareTo(
-                    b.getString(MusicDao.CUSTOM_META_TITLE_KEY))
-        }
-
-        @JvmField
-        val SORT_TRACK_NUMBER = Comparator<MediaMetadataCompat> { a, b ->
-            val aTrack = a.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER) * 1000L +
-                    a.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-            val bTrack = b.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER) * 1000L +
-                    b.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-            (aTrack - bTrack).toInt()
-        }
-
-        @JvmField
-        val SORT_DATE_ADDED = Comparator<MediaMetadataCompat> { a, b ->
-            (a.getLong(MediaMetadataCompat.METADATA_KEY_DATE) -
-                    b.getLong(MediaMetadataCompat.METADATA_KEY_DATE)).toInt()
-        }
     }
 }

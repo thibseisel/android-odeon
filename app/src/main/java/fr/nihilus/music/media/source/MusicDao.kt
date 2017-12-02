@@ -33,19 +33,40 @@ import io.reactivex.Single
  *
  * Because retrieving data can be long running especially from the network,
  * this API use ReactiveX `Observable` classes to represent metadata as a stream of values that
- * are available at a later time through callbacks.
+ * are emitted as they become available through callbacks.
  *
- * To improve subsequent loading times, implementations may implement its own caching logic.
+ * To improve subsequent loading times, implementations may implement their own caching logic.
  * If that's the case, they are also responsible for refreshing cached data whenever metadata
  * has changed and notify clients.
  */
 interface MusicDao {
 
     /**
-     * Retrieve all tracks from a given datastore.
+     * Retrieve songs from this data store.
+     * Each song must be described by a set of metadata.
      * See [findTrack] for a list of metadata properties that implementations
      * should define for each track.
-     * @return an observable that emits a list of all tracks
+     *
+     * Clients may filter results with criteria based on the value of media metadata keys.
+     * For example, the criterion `MediaMetadataCompat.METADATA_KEY_ALBUM -> "Thriller"`
+     * returns all songs whose album name matches exactly "Thriller".
+     *
+     * They may also sort results on one or more metadata key by specifying a sorting clause
+     * of the given format `KEY_1 (ASC | DESC), KEY_2 (ASC | DESC), ..., KEY_N (ASC | DESC)`
+     * where `KEY_N` is a metadata key and `(ASC | DESC)` the optional order in which results
+     * are sorted: ascending or descending (if absent, it is assumed ascending).
+     *
+     * @param criteria A map whose keys are standard media metadata key from
+     * `MediaMetadataCompat.METADATA_KEY_*` or custom `MusicDao.METADATA_KEY_*` ones,
+     * and whose values must be matched exactly by songs. If `null`, all songs are returned.
+     *
+     * @param sorting The sorting clause that defines the order in which songs are emitted.
+     * If `null`, implementations should use a default sort order they define.
+     *
+     * @return a stream of songs that match the specified criteria and emitted in order.
+     *
+     * @throws UnsupportedOperationException If a metadata key that can't be used
+     * for filtering or sorting is specified.
      */
     fun getTracks(criteria: Map<String, Any>?, sorting: String?): Observable<MediaMetadataCompat>
 
@@ -66,32 +87,35 @@ interface MusicDao {
      *
      * The following properties are optional:
      * - [MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI]
-     * - [MusicDao.CUSTOM_META_TITLE_KEY]
-     * - [MusicDao.CUSTOM_META_ALBUM_ID]
-     * - [MusicDao.CUSTOM_META_ARTIST_ID]
+     * - [MusicDao.METADATA_KEY_TITLE_KEY]
+     * - [MusicDao.METADATA_KEY_ALBUM_ID]
+     * - [MusicDao.METADATA_KEY_ARTIST_ID]
      *
      * The returned `Maybe` may complete without returning a value, indicating that the
-     * requested track does not exist on this implementation's data store.
+     * requested track does not exist on this data store.
      *
-     * @param musicId the unique identifier of the track to retrieve
-     * @return an observable that emits the requested item
-     * or completes without emitting if it does not exist.
+     * @param musicId the unique identifier of the track to retrieve.
+     * The format depends on implementation.
+     *
+     * @return an observable that emits the requested track
+     * or completes without emitting if no track matches the provided id.
      */
     fun findTrack(musicId: String): Maybe<MediaMetadataCompat>
 
     /**
-     * Return an observable dataset of albums featuring music stored on this device.
+     * Retrieve albums from this data store.
      *
-     * Each album is composed of :
+     * Each album should be composed of :
      * - a media id
      * - a title
-     * - a subtitle, which is the name of the artist that composed it
-     * - a content URI pointing to the album art
+     * - a subtitle, which may be the name of the artist that composed it
+     * - an URI pointing to the album art
      * - the year at which it was released ([MediaItems.EXTRA_YEAR])
      * - the number of songs it featured ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
      * - a key used for alphabetic sorting ([MediaItems.EXTRA_TITLE_KEY]).
      *
-     * Albums are sorted by name by default.
+     *
+     *
      */
     fun getAlbums(criteria: Map<String, Any>?, sorting: String?): Observable<MediaDescriptionCompat>
 
@@ -124,9 +148,9 @@ interface MusicDao {
     fun deleteTrack(trackId: String): Completable
 
     companion object {
-        const val CUSTOM_META_TITLE_KEY = "title_key"
-        const val CUSTOM_META_ALBUM_ID = "album_id"
-        const val CUSTOM_META_ARTIST_ID = "artist_id"
-        const val METADATA_DATE_ADDED = "fr.nihilus.music.DATE_ADDED"
+        const val METADATA_KEY_TITLE_KEY = "fr.nihilus.music.TITLE_KEY"
+        const val METADATA_KEY_ALBUM_ID = "fr.nihilus.music.ALBUM_ID"
+        const val METADATA_KEY_ARTIST_ID = "fr.nihilus.music.ARTIST_ID"
+        const val METADATA_KEY_DATE_ADDED = "fr.nihilus.music.DATE_ADDED"
     }
 }

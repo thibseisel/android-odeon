@@ -59,7 +59,7 @@ internal class AlbumItems
 
     private fun fetchAlbumTracks(albumId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return musicDao.getTracks(mapOf(MusicDao.CUSTOM_META_ALBUM_ID to albumId.toLong()),
+        return musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ALBUM_ID to albumId.toLong()),
                 MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
                 .map { it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }

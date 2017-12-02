@@ -8,6 +8,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import android.util.LongSparseArray
+import fr.nihilus.music.assertMetadataKeyEquals
 import fr.nihilus.music.media.mock.MockCursorProvider
 import fr.nihilus.music.mock
 import fr.nihilus.music.utils.PermissionUtil
@@ -61,7 +62,7 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
-    fun getTracks_whenCacheEmpty_emitItemsfromStore() {
+    fun getTracks_emitItemsfromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
@@ -82,6 +83,35 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
+    fun getTracks_translatesRequiredMetadataKey() {
+        val cursor = mockTracksCursor(0, 1, 2)
+        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+
+        val observer = subject.getTracks(null, null).test()
+        with(observer) {
+            assertValueCount(3)
+
+            observer.values().forEachIndexed { index, actual ->
+                val expected = mockMetadata[index]
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_TITLE)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_ALBUM)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_ARTIST)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_DURATION)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
+                assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_TITLE_KEY)
+                assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_DATE_ADDED)
+                assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_ARTIST_ID)
+                assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_ALBUM_ID)
+            }
+
+        }
+    }
+
+    @Test
     fun getTracks_whenCacheEmpty_fillCacheFromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
@@ -94,29 +124,6 @@ class MediaStoreMusicDaoTest {
             cursor.getLong(0)
         }.forEach { musicId ->
             assertTrue(metadataCache.get(musicId) != null)
-        }
-    }
-
-    @Test
-    fun getTracks_whenCacheFull_retrieveFromCache() {
-        // Fill cache with metadata from the representative test set
-        mockMetadata.forEach {
-            val musicId = it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
-            metadataCache.put(musicId, it)
-        }
-
-        val observer = subject.getTracks(null, null).test()
-        with(observer) {
-            assertValueCount(mockMetadata.size)
-            assertComplete()
-        }
-
-        // Check that each track appear in order with the correct id
-        val expectedIds = mockMetadata.map { it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
-        val actualIds = observer.values().map { it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
-
-        expectedIds.zip(actualIds).forEach { (expected, actual) ->
-            assertEquals(expected, actual)
         }
     }
 
@@ -142,7 +149,7 @@ class MediaStoreMusicDaoTest {
         val cursor = mockTracksCursor(2, 9, 4)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
-        val sorting = "${MusicDao.METADATA_DATE_ADDED} DESC"
+        val sorting = "${MusicDao.METADATA_KEY_DATE_ADDED} DESC"
         val observer = subject.getTracks(null, sorting).test()
         with(observer) {
             assertValueCount(3)
@@ -152,29 +159,6 @@ class MediaStoreMusicDaoTest {
         arrayOf(2, 9, 4)
                 .map { mockMetadata[it].getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
                 .zip(observer.values()) { expectedId, actual ->
-                    val actualId = actual.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-                    assertEquals(expectedId, actualId)
-                }
-    }
-
-    @Test
-    fun getTracks_withSorting_emitsFromCacheInOrder() {
-        with(metadataCache) {
-            put(481L, mockMetadata[2])
-            put(477L, mockMetadata[9])
-            put(125L, mockMetadata[4])
-        }
-
-        val sorting = "${MusicDao.METADATA_DATE_ADDED} DESC"
-        val observer = subject.getTracks(null, sorting).test()
-        with(observer) {
-            assertValueCount(3)
-            assertComplete()
-        }
-
-        arrayOf(2, 9, 4)
-                .map { mockMetadata[it].getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) }
-                .zip(observer.values()) {expectedId, actual ->
                     val actualId = actual.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
                     assertEquals(expectedId, actualId)
                 }

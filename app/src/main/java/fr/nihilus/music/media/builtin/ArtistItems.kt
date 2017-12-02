@@ -62,10 +62,10 @@ internal class ArtistItems
         val builder = MediaDescriptionCompat.Builder()
         val albumSorting = "${MediaMetadataCompat.METADATA_KEY_YEAR} DESC"
 
-        val albums = musicDao.getAlbums(mapOf(MusicDao.CUSTOM_META_ARTIST_ID to artistId), albumSorting)
+        val albums = musicDao.getAlbums(mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId), albumSorting)
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
 
-        val tracks = musicDao.getTracks(mapOf(MusicDao.CUSTOM_META_ARTIST_ID to artistId), null)
+        val tracks = musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId), null)
                 .map { it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId) }
                 .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
         return Observable.concat(albums, tracks).toList()
