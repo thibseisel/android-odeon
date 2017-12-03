@@ -22,7 +22,6 @@ import fr.nihilus.music.media.builtin.BuiltinItem
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import io.reactivex.Maybe
 import io.reactivex.Single
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,11 +57,8 @@ internal class CachedMusicRepository
         return items.doOnSuccess { musicCache.putItems(trueParent, it) }
     }
 
-    override fun getMetadata(musicId: String): Single<MediaMetadataCompat> {
-        return Maybe.fromCallable<MediaMetadataCompat> { musicCache.getMetadata(musicId) }
-                .concatWith(mediaDao.findTrack(musicId))
-                .firstOrError()
-    }
+    override fun getMetadata(musicId: String): Single<MediaMetadataCompat> =
+            mediaDao.findTrack(musicId).toSingle()
 
     override fun clear() = musicCache.clear()
 }
