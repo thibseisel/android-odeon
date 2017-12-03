@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="KotlinCommonCompilerArguments">
+    <option name="freeArgs">
+      <list>
+        <option value="Xno-param-assertions" />
+        <option value="Xno-call-assertions" />
+        <option value="Xno-receiver-assertions" />
+      </list>
+    </option>
+  </component>
+</project>

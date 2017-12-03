@@ -65,7 +65,7 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
-    fun getTracks_emitItemsfromStore() {
+    fun getTracks_emitItemsFromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 

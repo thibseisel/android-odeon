@@ -17,7 +17,8 @@
 
 <menu
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".HomeActivity">
+    tools:context=".HomeActivity"
+    tools:keep="@menu/menu_main">
 
     <!-- Menu is currently empty -->
 </menu>

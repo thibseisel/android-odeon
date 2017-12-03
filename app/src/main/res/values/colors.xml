@@ -16,23 +16,8 @@
   -->
 
 <resources>
-    <color name="mtrl_indigo_500">#3f51b5</color>
-    <color name="mtrl_indigo_700">#303f9f</color>
-    <color name="mtrl_blue_500">#2196f3</color>
-    <color name="mtrl_blue_700">#1976d2</color>
-    <color name="mtrl_amber_a200">#ffd740</color>
-    <color name="mtrl_amber_a400">#ffc400</color>
     <color name="mtrl_grey_900">#212121</color>
-    <color name="mtrl_teal_a200">#64ffda</color>
-    <color name="mtrl_teal_a400">#1de9b6</color>
-    <color name="mtrl_orange_500">#ff9800</color>
-    <color name="mtrl_orange_700">#f57c00</color>
-    <color name="mtrl_deeporange_500">#ff5722</color>
-    <color name="mtrl_deeporange_700">#e64a19</color>
-    <color name="mtrl_red_500">#f44336</color>
-    <color name="mtrl_red_700">#d32f2f</color>
     <color name="mtrl_blue_a100">#82b1ff</color>
-    <color name="mtrl_blue_a200">#448aff</color>
     <color name="mtrl_blue_a400">#2979ff</color>
     <color name="mtrl_deeppurple_300">#9575cd</color>
     <color name="mtrl_deeppurple_500">#673ab7</color>
@@ -46,5 +31,4 @@
     <color name="control_normal_compat_disabled">#42000000</color>
     <color name="control_normal_compat">#b2000000</color>
 
-    <color name="notif_action_icon_color">@android:color/white</color>
 </resources>

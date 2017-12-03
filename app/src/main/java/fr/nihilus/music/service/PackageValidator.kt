@@ -49,7 +49,7 @@ class PackageValidator(context: Context) {
 
                     val info = CallerInfo(name, packageName, isRelease)
 
-                    var infos = validCertificates.get(certificate)
+                    var infos = validCertificates[certificate]
                     if (infos == null) {
                         infos = ArrayList()
                         validCertificates.put(certificate, infos)

@@ -25,11 +25,7 @@ import fr.nihilus.music.service.MusicServiceModule
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = arrayOf(
-        AndroidInjectionModule::class,
-        AppModule::class,
-        ActivityBindingModule::class,
-        MusicServiceModule::class))
+@Component(modules = [(AndroidInjectionModule::class), (AppModule::class), (ActivityBindingModule::class), (MusicServiceModule::class)])
 interface AppComponent {
 
     @Component.Builder

@@ -44,11 +44,8 @@ import fr.nihilus.recyclerfragment.RecyclerFragment;
 public class ArtistDetailFragment extends RecyclerFragment
         implements ArtistDetailAdapter.OnMediaItemSelectedListener {
 
-    public static final String BACKSTACK_ENTRY = "artist_detail";
-
     private static final String TAG = "ArtistDetailFragment";
     private static final String KEY_ARTIST = "artist";
-    private static final String KEY_ARTIST_DETAIL = "artist_detail";
 
     private MediaItem mPickedArtist;
     private ArtistDetailAdapter mAdapter;

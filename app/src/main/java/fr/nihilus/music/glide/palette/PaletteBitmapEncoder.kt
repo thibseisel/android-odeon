@@ -53,7 +53,7 @@ internal class PaletteBitmapEncoder(
     private fun writePalette(palette: Palette, file: File): Boolean {
 
         val fos = FileOutputStream(file, true)
-        try {
+        return try {
             DataOutputStream(fos).use {
                 for (swatch in palette.swatches) {
                     it.writeInt(swatch.rgb)
@@ -61,10 +61,10 @@ internal class PaletteBitmapEncoder(
                 }
             }
 
-            return true
+            true
         } catch (ioe: IOException) {
             Log.w("PaletteBitmapEncoder", "Failed to encode PaletteBitmap", ioe)
-            return false
+            false
         }
     }
 }
