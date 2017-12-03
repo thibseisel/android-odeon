@@ -21,6 +21,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import dagger.multibindings.StringKey
 
+@Suppress("unused")
 @Module
 abstract class CommandModule {
 

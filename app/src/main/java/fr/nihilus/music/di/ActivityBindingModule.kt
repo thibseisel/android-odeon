@@ -35,6 +35,7 @@ import fr.nihilus.music.ui.albums.AlbumDetailActivity
  *
  * When Dagger.Android annotation processor runs it will create 3 subcomponents for us.
  */
+@Suppress("unused")
 @Module
 abstract class ActivityBindingModule {
 

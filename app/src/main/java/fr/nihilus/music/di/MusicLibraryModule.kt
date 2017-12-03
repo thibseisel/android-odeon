@@ -27,6 +27,7 @@ import fr.nihilus.music.ui.playlist.NewPlaylistFragment
 import fr.nihilus.music.ui.playlist.PlaylistsFragment
 import fr.nihilus.music.ui.songs.SongListFragment
 
+@Suppress("unused")
 @Module
 abstract class MusicLibraryModule {
 
