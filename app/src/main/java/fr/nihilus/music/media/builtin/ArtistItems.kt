@@ -53,7 +53,7 @@ internal class ArtistItems
     }
 
     private fun fetchAllArtists(): Single<List<MediaItem>> {
-        return musicDao.getArtists().flatMap { Observable.fromIterable(it) }
+        return musicDao.getArtists()
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
                 .toList()
     }

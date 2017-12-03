@@ -111,17 +111,18 @@ interface MusicDao {
      * - a subtitle, which may be the name of the artist that composed it
      * - an URI pointing to the album art
      * - the year at which it was released ([MediaItems.EXTRA_YEAR])
-     * - the number of songs it featured ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
+     * - the number of songs it features ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
      * - a key used for alphabetic sorting ([MediaItems.EXTRA_TITLE_KEY]).
      *
+     * @param criteria
+     * @param sorting
      *
-     *
+     * @return a stream of albums that match the specified criteria and emitted in order.
      */
     fun getAlbums(criteria: Map<String, Any>?, sorting: String?): Observable<MediaDescriptionCompat>
 
     /**
-     * Return an observable dataset of artists that participated to composing
-     * music stored on this device.
+     * Retrieve artists from this data store.
      *
      * Each artist is composed of :
      * - a media id
@@ -130,9 +131,11 @@ interface MusicDao {
      * - the number of songs it composed ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
      * - a key used for alphabeting sorting ([MediaItems.EXTRA_TITLE_KEY]).
      *
-     * Artists are sorted by name by default.
+     * Artists are sorted by name.
+     *
+     * @return a stream of all artists available.
      */
-    fun getArtists(): Observable<List<MediaDescriptionCompat>>
+    fun getArtists(): Observable<MediaDescriptionCompat>
 
     /**
      * Searches for tracks metadata that matches a given query.
@@ -141,16 +144,46 @@ interface MusicDao {
 
     /**
      * Delete the track with the specified [trackId] from this implementation's data store.
-     * If no track exists with this id, the operation will terminate without an error.
+     * If no track exists with this id, the operation should complete without an error.
      *
      * @return The deferred deletion task.
      */
     fun deleteTrack(trackId: String): Completable
 
-    companion object {
+    /**
+     * Defines a set of custom metadata keys for MediaMetadataCompat.
+     */
+    companion object CustomKeys {
+
+        /**
+         * A non-human readable key based on the title used for sorting and searching.
+         *
+         * Type: `String`
+         */
         const val METADATA_KEY_TITLE_KEY = "fr.nihilus.music.TITLE_KEY"
+
+        /**
+         * The unique identifier of the album this metadata belongs to.
+         *
+         * Type: `Long`
+         */
         const val METADATA_KEY_ALBUM_ID = "fr.nihilus.music.ALBUM_ID"
+
+        /**
+         * The unique identifier of the artist this metadata belongs to.
+         *
+         * Type: `Long`
+         */
         const val METADATA_KEY_ARTIST_ID = "fr.nihilus.music.ARTIST_ID"
+
+        /**
+         * The number of seconds elapsed since 1st January 1970 representing the time at which
+         * this track has been made available on the data store.
+         * This key is used as a replacement of [MediaMetadataCompat.METADATA_KEY_DATE],
+         * as it does not impose any formatting and make comparisons faster.
+         *
+         * Type: `Long`
+         */
         const val METADATA_KEY_DATE_ADDED = "fr.nihilus.music.DATE_ADDED"
     }
 }

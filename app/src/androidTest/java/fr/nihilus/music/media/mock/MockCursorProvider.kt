@@ -7,7 +7,8 @@ import android.test.mock.MockContentProvider
 
 /**
  * A mock [android.content.ContentProvider] used for testing.
- * When queried, it returns cursors associated with an Uri with the [registerQueryResult] method.
+ * When queried, it returns cursors associated with an Uri with the [registerQueryResult] method,
+ * without applying any transformation of verification.
  *
  * When done testing, you may [reset] this provider so that its instance can be reused
  * for other tests, removing the need to create new instances for each test.
@@ -18,8 +19,7 @@ class MockCursorProvider : MockContentProvider() {
     private val queryMap = ArrayMap<Uri, Cursor?>()
 
     override fun query(uri: Uri?, projection: Array<out String>?, selection: String?,
-                       selectionArgs: Array<out String>?, sortOrder: String?) =
-            queryMap[uri]
+                       selectionArgs: Array<out String>?, sortOrder: String?) = queryMap[uri]
 
     /**
      * Associate a Cursor to an Uri,

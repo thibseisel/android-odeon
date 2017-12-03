@@ -16,21 +16,6 @@
 
 package fr.nihilus.music
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
-
 class ExtensionsTest {
 
-    @Test
-    fun comparatorInReversedOrder() {
-        val numbers = arrayOf(6, 19, 3, 0, 13, 12, 1)
-        val sortAscending = Comparator<Int> { a, b -> a - b }
-
-        val reversedSorting = sortAscending.inReversedOrder()
-        numbers.sortWith(reversedSorting)
-
-        arrayOf(19, 13, 12, 6, 3, 1, 0).forEachIndexed { index, expected ->
-            assertEquals(expected, numbers[index])
-        }
-    }
 }

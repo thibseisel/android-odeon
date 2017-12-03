@@ -92,9 +92,3 @@ inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
  * @return a copy of values from the sparse array as an array.
  */
 inline fun <reified T> LongSparseArray<T>.toArray() = Array(this.size(), this::valueAt)
-
-/**
- * Returns a comparator that imposes the reverse ordering of this comparator.
- * @return a comparator that imposes the reverse ordering of this comparator.
- */
-fun <T> Comparator<T>.inReversedOrder() = Comparator<T> { a, b -> this.compare(b, a) }

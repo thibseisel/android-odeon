@@ -19,12 +19,15 @@ package fr.nihilus.music.media.source
 import android.content.ContentUris
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.net.Uri
+import android.os.Bundle
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 
 private val mediaStoreColumns = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
-        Media.DURATION, Media.TRACK, Media.TITLE_KEY,  Media.ALBUM_ID, Media.ARTIST_ID,
+        Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_ID, Media.ARTIST_ID,
         Media.DATE_ADDED)
 
 /**
@@ -88,7 +91,7 @@ val mockMetadata = arrayOf<MediaMetadataCompat>(
 )
 
 /**
- * Creates a cursor whose tracks information are picked in order from a set of 10 representative tracks.
+ * Creates a cursor whose tracks information is picked in order from a set of 10 representative tracks.
  *
  * @param indexes Index of tracks to pick from the set in order. All values must be below 10.
  * @return a cursor containing the picked tracks sorted in the order of index declaration.
@@ -101,7 +104,7 @@ fun mockTracksCursor(vararg indexes: Int): Cursor {
 
 // ALBUMS
 private val albumMediaStoreColumns = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+        Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
 
 private val mediaStoreAlbums = arrayOf(
         arrayOf(40L, "The 2nd Law", """C/?)U""", "Muse", 2012, 1),
@@ -117,48 +120,51 @@ private val mediaStoreAlbums = arrayOf(
 )
 
 /**
- * Creates a custor containing albums whose informations are picked in order from a set of
+ * Creates a cursor containing albums whose information is picked in order from a set of
  * 8 representative albums.
  * Album metadata are coherent with track metadata: each track has a corresponding album in this set.
- * 
+ *
  * @param indexes Index of albums to pick from the set in order. All values must be below 8.
  * @return a cursor containing the picked albums sorted in the order of index declaration.
  */
 fun mockAlbumCursor(vararg indexes: Int): Cursor {
     val cursor = MatrixCursor(albumMediaStoreColumns, indexes.size)
-    indexes.map { mediaStoreAlbums[it] }.forEach(cursor::addRow)
+    indexes.map(mediaStoreAlbums::get).forEach(cursor::addRow)
     return cursor
 }
 
 // ARTISTS
 private val artistMediaStoreColumns = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
-                Artists.NUMBER_OF_TRACKS)
-        
+        Artists.NUMBER_OF_TRACKS)
+
 private val mediaStoreArtists = arrayOf(
-        arrayOf(26L, "Alestorm", """)?1MOEKA""", 1),
-        arrayOf(18L, "Muse", """AQM1""", 2),
-        arrayOf(13L, "Foo Fighters", """3EE3957O1KM""", 4),
         arrayOf(5L, "AC/DC", """)-
                       /-""", 2),
-        arrayOf(4L, "Avenged Sevenfold", """)S1C51/M1S1C3E?/""", 1)
+        arrayOf(26L, "Alestorm", """)?1MOEKA""", 1),
+        arrayOf(4L, "Avenged Sevenfold", """)S1C51/M1S1C3E?/""", 1),
+        arrayOf(13L, "Foo Fighters", """3EE3957O1KM""", 4),
+        arrayOf(18L, "Muse", """AQM1""", 2)
 )
 
 /**
  * Creates a custor containing artists whose informations are picked in order from a set of
  * 5 representative artists.
  * Artist metadata are coherent with track metadata: each track has a corresponding artist in this set.
- * 
+ *
  * @param indexes Index of artists to pick from the set in order. All values must be below 5.
- * @return a cursor containing the picked artists sorted in the order of index declaration. 
+ * @return a cursor containing the picked artists sorted in the order of index declaration.
  */
 fun mockArtistCursor(vararg indexes: Int): Cursor {
     val cursor = MatrixCursor(artistMediaStoreColumns, indexes.size)
-    indexes.map { mediaStoreArtists[it] }.forEach(cursor::addRow)
+    indexes.map(mediaStoreArtists::get).forEach(cursor::addRow)
     return cursor
 }
 
-private fun mediaUriOf(musicId: String)
+fun mediaUriOf(musicId: String)
         = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId.toLong())
+
+fun artUriOf(albumId: Long)
+        = Uri.parse("content://media/external/audio/albumart/$albumId")
 
 /**
  * Helper function to create a metadata.
@@ -182,4 +188,15 @@ private fun metadataOf(mediaId: String, title: String, album: String, artist: St
         .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
         .putLong(MusicDao.METADATA_KEY_ARTIST_ID, artistId)
         .putLong(MusicDao.METADATA_KEY_DATE_ADDED, dateAdded)
+        .build()
+
+private fun mediaDescriptionOf(mediaId: String, title: String, subtitle: String,
+                               description: String?, iconUri: Uri?, extras: Bundle?
+) = MediaDescriptionCompat.Builder()
+        .setMediaId(mediaId)
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setDescription(description)
+        .setIconUri(iconUri)
+        .setExtras(extras)
         .build()

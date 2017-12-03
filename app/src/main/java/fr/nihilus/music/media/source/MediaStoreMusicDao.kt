@@ -204,20 +204,6 @@ class MediaStoreMusicDao
         }
     }
 
-    /**
-     * Return an observable dataset of albums featuring music stored on this device.
-     *
-     * Each album is composed of :
-     * - a media id
-     * - a title
-     * - a subtitle, which is the name of the artist that composed it
-     * - a content URI pointing to the album art
-     * - the year at which it was released ([MediaItems.EXTRA_YEAR])
-     * - the number of songs it featured ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
-     * - a key used for alphabetic sorting ([MediaItems.EXTRA_TITLE_KEY]).
-     *
-     * Albums are sorted by name by default.
-     */
     override fun getAlbums(criteria: Map<String, Any>?, sorting: String?): Observable<MediaDescriptionCompat> {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.i(TAG, "Could not load albums : no permission to access external storage.")
@@ -273,26 +259,14 @@ class MediaStoreMusicDao
         }
     }
 
-    /**
-     * Return an observable dataset of artists that participated to composing
-     * music stored on this device.
-     *
-     * Each artist is composed of :
-     * - a media id
-     * - its name
-     * - a content URI pointing to the album art of the most recent album
-     * - the number of songs it composed ([MediaItems.EXTRA_NUMBER_OF_TRACKS])
-     * - a key used for alphabeting sorting ([MediaItems.EXTRA_TITLE_KEY]).
-     *
-     * Artists are sorted by name by default.
-     */
-    override fun getArtists(): Observable<List<MediaDescriptionCompat>> {
+    override fun getArtists(): Observable<MediaDescriptionCompat> {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.i(TAG, "Could not load artists: no permission to access external storage.")
-            return Observable.just(emptyList())
+            return Observable.empty()
         }
 
-        return Observable.fromCallable {
+        // Accumulate artists in a list before emitting them in order to sort results
+        return Observable.fromCallable<List<MediaDescriptionCompat>> {
             val artistsCursor = resolver.query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
                     null, null, Artists.ARTIST)
 
@@ -302,7 +276,7 @@ class MediaStoreMusicDao
 
             if (artistsCursor == null || albumsCursor == null) {
                 Log.e(TAG, "Query for artists failed. Returning an empty list.")
-                return@fromCallable emptyList<MediaDescriptionCompat>()
+                return@fromCallable emptyList()
             }
 
             val colId = artistsCursor.getColumnIndexOrThrow(Artists._ID)
@@ -344,7 +318,10 @@ class MediaStoreMusicDao
                     artists.add(builder.build())
 
                     artistsCursor.moveToNext()
-                    artistName = artistsCursor.getString(colArtistName)
+                    if (!artistsCursor.isAfterLast) {
+                        // Proceed to the next artist only if possible
+                        artistName = artistsCursor.getString(colArtistName)
+                    }
                 }
 
                 if (artistName == artistInAlbum) {
@@ -382,7 +359,8 @@ class MediaStoreMusicDao
             albumsCursor.close()
 
             artists.sortedBy { it.extras!!.getString(MediaItems.EXTRA_TITLE_KEY) }
-        }
+
+        }.flatMap { Observable.fromIterable(it) }
     }
 
     override fun search(query: String?, extras: Bundle?): Single<List<MediaMetadataCompat>> {
