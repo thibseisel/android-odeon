@@ -184,6 +184,6 @@ interface MusicDao {
          *
          * Type: `Long`
          */
-        const val METADATA_KEY_DATE_ADDED = "fr.nihilus.music.DATE_ADDED"
+        const val METADATA_KEY_DATE = "fr.nihilus.music.DATE_ADDED"
     }
 }

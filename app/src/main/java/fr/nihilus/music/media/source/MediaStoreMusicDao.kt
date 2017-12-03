@@ -41,7 +41,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * A music datasource that fetches its items from the Android mediastore.
+ * A data source that fetches its items from the Android MediaStore.
  * Items represents files that are stored on the device's external storage.
  *
  * @constructor
@@ -78,7 +78,9 @@ class MediaStoreMusicDao
         put(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, Media.TRACK)
         put(MediaMetadataCompat.METADATA_KEY_DURATION, Media.DURATION)
         put(MediaMetadataCompat.METADATA_KEY_YEAR, Albums.LAST_YEAR)
-        put(MusicDao.METADATA_KEY_DATE_ADDED, Media.DATE_ADDED)
+        put(MusicDao.METADATA_KEY_DATE, Media.DATE_ADDED)
+        put(MusicDao.METADATA_KEY_ARTIST_ID, Media.ARTIST_ID)
+        put(MusicDao.METADATA_KEY_ALBUM_ID, Media.ALBUM_ID)
     }
 
     /**
@@ -91,7 +93,7 @@ class MediaStoreMusicDao
      *
      * @return The corresponding sorting clause to be used in `MediaStore` queries.
      */
-    internal fun translateSortingClause(sorting: String): String {
+    private fun translateSortingClause(sorting: String): String {
         // Split conditions, and rebuild them sanitized and with keys replaced by media store columns
         return sorting.split(", ").joinToString(", ") { condition ->
             val splitCond = condition.trim().split(' ')
@@ -109,26 +111,28 @@ class MediaStoreMusicDao
     override fun getTracks(criteria: Map<String, Any>?,
                            sorting: String?): Observable<MediaMetadataCompat> {
 
+        // Translate criteria filtering into WHERE clause with ? parameters
+        val whereArgs = criteria?.values?.map(Any::toString)?.toTypedArray()
+
+        val whereClause = criteria?.keys?.joinToString(", ") { key ->
+            val mediaStoreKey = keyMapper[key]
+                    ?: throw UnsupportedOperationException("Unsupported filter key: $key")
+            mediaStoreKey + " = ?"
+        }
+
         // Translate the client's sorting clause to a MediaStore ORDER BY clause.
         val orderByClause = sorting?.let(this::translateSortingClause) ?: Media.DEFAULT_SORT_ORDER
 
         // Load all metadata from MediaStore and put them all in memory cache for faster reuse
-        val trackStream = loadFromMediaStore(orderByClause).doOnNext { metadata ->
+        return loadFromMediaStore(whereClause, whereArgs, orderByClause).doOnNext { metadata ->
             val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
             metadataCache.put(musicId, metadata)
         }
-
-        if (criteria == null) {
-            return trackStream
-        }
-
-        // Apply selection criteria, if any.
-        return trackStream.filter { metadata ->
-            criteria.all { (key, value) -> metadata.bundle.get(key) == value }
-        }
     }
 
-    private fun loadFromMediaStore(sorting: String): Observable<MediaMetadataCompat> {
+    private fun loadFromMediaStore(whereClause: String?, whereArgs: Array<String>?,
+                                   sorting: String?): Observable<MediaMetadataCompat> {
+
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.i(TAG, "No permission to access external storage.")
             return Observable.empty()
@@ -136,8 +140,13 @@ class MediaStoreMusicDao
 
         return Observable.create { emitter ->
 
+            // Restricts SQL WHERE clause to only music
+            val clause = if (whereClause != null) {
+                whereClause + " AND " + MEDIA_SELECTION_CLAUSE
+            } else MEDIA_SELECTION_CLAUSE
+
             val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
-                    MEDIA_SELECTION_CLAUSE, null, sorting)
+                    clause, whereArgs, sorting)
 
             cursor?.use {
                 // Memorize cursor column indexes for faster lookup
@@ -171,7 +180,7 @@ class MediaStoreMusicDao
                             .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
                             .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, artUri.toString())
                             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
-                            .putLong(MusicDao.METADATA_KEY_DATE_ADDED, it.getLong(colDateAdded))
+                            .putLong(MusicDao.METADATA_KEY_DATE, it.getLong(colDateAdded))
                             .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
                             .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
                             .putLong(MusicDao.METADATA_KEY_ARTIST_ID, it.getLong(colArtistId))
@@ -186,21 +195,20 @@ class MediaStoreMusicDao
         }
     }
 
-    override fun findTrack(musicId: String): Maybe<MediaMetadataCompat> {
-        return Maybe.defer {
+    override fun findTrack(musicId: String): Maybe<MediaMetadataCompat> = Maybe.defer {
+        // Search the value in the cache. If found emit it immediately.
+        // Otherwise, read it from MediaStore and cache it.
+        // Note that cache lookups are deferred until subscription to always have the latest data.
+        val cachedMetadata: MediaMetadataCompat? = metadataCache.get(musicId.toLong())
 
-            if (metadataCache.size() == 0) {
-
-                // Cache is not initialized, fill it before searching for a track
-                loadFromMediaStore(Media.DEFAULT_SORT_ORDER).doOnNext { metadata ->
-                    val id = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
-                    metadataCache.put(id, metadata)
-                }
-            }
-
-            // Search the value in the cache. if not found, it will not be emitted.
-            val cachedMetadata: MediaMetadataCompat? = metadataCache.get(musicId.toLong())
+        if (cachedMetadata != null) {
             Maybe.just(cachedMetadata)
+        } else {
+            loadFromMediaStore(SELECTION_TRACK_BY_ID, arrayOf(musicId), null)
+                    .firstElement()
+                    .doOnSuccess { track ->
+                        metadataCache.put(musicId.toLong(), track)
+                    }
         }
     }
 
@@ -212,9 +220,14 @@ class MediaStoreMusicDao
 
         return Observable.create { emitter ->
 
-            // Translate criteria filtering into WHERE clause
-            val whereClause = criteria?.keys?.joinToString(", ")
+            // Translate criteria filtering into WHERE clause with ? parameters
             val whereArgs = criteria?.values?.map(Any::toString)?.toTypedArray()
+
+            val whereClause = criteria?.keys?.joinToString(", ") { key ->
+                val mediaStoreKey = keyMapper[key]
+                        ?: throw UnsupportedOperationException("Unsupported filter key: $key")
+                mediaStoreKey + " = ?"
+            }
 
             // Translate sorting clause to an SQL ORDER BY clause with MediaStore keys
             val orderByClause = if (sorting != null) translateSortingClause(sorting) else

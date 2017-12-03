@@ -187,7 +187,7 @@ private fun metadataOf(mediaId: String, title: String, album: String, artist: St
                 mediaUriOf(mediaId).toString())
         .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
         .putLong(MusicDao.METADATA_KEY_ARTIST_ID, artistId)
-        .putLong(MusicDao.METADATA_KEY_DATE_ADDED, dateAdded)
+        .putLong(MusicDao.METADATA_KEY_DATE, dateAdded)
         .build()
 
 private fun mediaDescriptionOf(mediaId: String, title: String, subtitle: String,

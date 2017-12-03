@@ -109,7 +109,7 @@ class MediaStoreMusicDaoTest {
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
             assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_TITLE_KEY)
-            assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_DATE_ADDED)
+            assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_DATE)
             assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_ARTIST_ID)
             assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_ALBUM_ID)
         }
@@ -164,13 +164,13 @@ class MediaStoreMusicDaoTest {
         val cursor = mockTracksCursor(2, 9, 4)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
-        val sorting = "${MusicDao.METADATA_KEY_DATE_ADDED} DESC"
+        val sorting = "${MusicDao.METADATA_KEY_DATE} DESC"
         val observer = subject.getTracks(null, sorting).test()
                 .assertNoErrors()
                 .assertValueCount(3)
                 .assertComplete()
 
-        arrayOf(2, 9, 4).map { mockMetadata[it] }
+        arrayOf(2, 9, 4).map(mockMetadata::get)
                 .zip(observer.values())
                 .forEach { (expected, actual) ->
                     assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
@@ -179,7 +179,7 @@ class MediaStoreMusicDaoTest {
 
     @Test
     fun getTracks_withStringCriterion_emitsOnlyMatching() {
-        val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        val cursor = mockTracksCursor(2, 6, 8, 9)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         val criteria = mapOf(MediaMetadataCompat.METADATA_KEY_ARTIST to "Foo Fighters")
@@ -198,7 +198,7 @@ class MediaStoreMusicDaoTest {
 
     @Test
     fun getTracks_withLongCriterion_emitsOnlyMatching() {
-        val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        val cursor = mockTracksCursor(2, 6, 8, 9)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         val criteria = mapOf(MusicDao.METADATA_KEY_ARTIST_ID to 13L)
