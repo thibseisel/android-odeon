@@ -241,7 +241,7 @@ class NavigationController
             mFirstTag = tag
             mFm.beginTransaction()
                     .add(mContainerId, fragment, tag)
-                    .commit()
+                    .commitAllowingStateLoss()
 
             val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
             routeChangeListener(fragmentId)
