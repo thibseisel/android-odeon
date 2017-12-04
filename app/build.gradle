@@ -101,7 +101,9 @@ dependencies {
 
     // My libraries
     implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
-    implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
+    implementation ("com.github.thibseisel:kdenticon-android:${kdenticonVersion}") {
+        exclude group: 'org.jetbrains.kotlin'
+    }
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"

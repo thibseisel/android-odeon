@@ -35,9 +35,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import dagger.android.AndroidInjection
 import fr.nihilus.music.R
+import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.library.BrowserViewModel
-import fr.nihilus.music.library.ViewModelFactory
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.ViewUtils
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
@@ -166,7 +166,9 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     private fun playMediaItem(item: MediaItem) {
-        mViewModel.playFromMediaId(item.mediaId!!)
+        mViewModel.post {
+            it.transportControls.playFromMediaId(item.mediaId, null)
+        }
     }
 
     /**

@@ -44,12 +44,13 @@ import java.util.List;
 
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.R;
+import fr.nihilus.music.client.BrowserViewModel;
 import fr.nihilus.music.command.MediaSessionCommand;
 import fr.nihilus.music.command.NewPlaylistCommand;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.ui.songs.SongAdapter;
 import fr.nihilus.music.utils.MediaID;
+import kotlin.Unit;
 
 @ActivityScoped
 public class NewPlaylistFragment extends AppCompatDialogFragment
@@ -217,20 +218,24 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
         params.putString(NewPlaylistCommand.PARAM_TITLE, playlistTitle.toString());
         params.putLongArray(NewPlaylistCommand.PARAM_TRACK_IDS, trackIds);
 
-        mViewModel.sendCommand(NewPlaylistCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                switch (resultCode) {
-                    case MediaSessionCommand.CODE_SUCCESS:
-                        NewPlaylistFragment.this.dismiss();
-                        break;
-                    case NewPlaylistCommand.CODE_ERROR_TITLE_ALREADY_EXISTS:
-                        mMessage.setText(R.string.error_playlist_already_exists);
-                        break;
-                    default:
-                        Log.e(TAG, "Unhandled result code: " + resultCode);
+        mViewModel.post(controller -> {
+            controller.sendCommand(NewPlaylistCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    switch (resultCode) {
+                        case MediaSessionCommand.CODE_SUCCESS:
+                            NewPlaylistFragment.this.dismiss();
+                            break;
+                        case NewPlaylistCommand.CODE_ERROR_TITLE_ALREADY_EXISTS:
+                            mMessage.setText(R.string.error_playlist_already_exists);
+                            break;
+                        default:
+                            Log.e(TAG, "Unhandled result code: " + resultCode);
+                    }
                 }
-            }
+            });
+
+            return Unit.INSTANCE;
         });
     }
 

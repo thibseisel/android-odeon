@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
@@ -54,13 +55,12 @@ import java.util.List;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
+import fr.nihilus.music.client.BrowserViewModel;
 import fr.nihilus.music.command.DeleteTracksCommand;
 import fr.nihilus.music.command.MediaSessionCommand;
-import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.utils.ConfirmDialogFragment;
 import fr.nihilus.music.utils.MediaID;
-
-import static fr.nihilus.music.utils.MediaID.ID_MUSIC;
+import kotlin.Unit;
 
 public class SongListFragment extends Fragment implements AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
@@ -192,14 +192,20 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-		if (position == 0) {
-			mViewModel.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
-			mViewModel.playFromMediaId(MediaID.createMediaID(null, ID_MUSIC));
-		} else {
-			// Offset the position as the header is considered at position 0
-			MediaItem clickedItem = mAdapter.getItem(position - 1);
-			mViewModel.playFromMediaId(clickedItem.getMediaId());
-		}
+        mViewModel.post(controller -> {
+            MediaControllerCompat.TransportControls controls = controller.getTransportControls();
+            if (position == 0) {
+                controls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL);
+                controls.playFromMediaId(MediaID.ID_MUSIC, null);
+            } else {
+                // Offset the position as the header is considered at position 0
+                MediaItem clickedItem = mAdapter.getItem(position - 1);
+                controls.playFromMediaId(clickedItem.getMediaId(), null);
+            }
+
+            return Unit.INSTANCE;
+        });
+
     }
 
     @Override
@@ -230,17 +236,21 @@ public class SongListFragment extends Fragment implements AdapterView.OnItemClic
 
         Bundle params = new Bundle(1);
         params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, toDelete);
-        mViewModel.sendCommand(DeleteTracksCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
+        mViewModel.post(controller -> {
+            controller.sendCommand(DeleteTracksCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
 
-            @Override
-            protected void onReceiveResult(int resultCode, Bundle resultData) {
-                View rootView = getView();
-                if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
-                    String message = getResources()
-                            .getQuantityString(R.plurals.deleted_songs_confirmation, toDelete.length);
-                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                @Override
+                protected void onReceiveResult(int resultCode, Bundle resultData) {
+                    View rootView = getView();
+                    if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
+                        String message = getResources()
+                                .getQuantityString(R.plurals.deleted_songs_confirmation, toDelete.length);
+                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
+            });
+
+            return Unit.INSTANCE;
         });
     }
 

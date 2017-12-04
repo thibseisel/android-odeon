@@ -35,10 +35,11 @@ import java.util.List;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
+import fr.nihilus.music.client.BrowserViewModel;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.BrowserViewModel;
 import fr.nihilus.music.ui.albums.AlbumDetailActivity;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
+import kotlin.Unit;
 
 @ActivityScoped
 public class ArtistDetailFragment extends RecyclerFragment
@@ -147,6 +148,9 @@ public class ArtistDetailFragment extends RecyclerFragment
             throw new AssertionError("Track should have a mediaId");
         }
 
-        mViewModel.playFromMediaId(track.getMediaId());
+        mViewModel.post(controller -> {
+            controller.getTransportControls().playFromMediaId(track.getMediaId(), null);
+            return Unit.INSTANCE;
+        });
     }
 }

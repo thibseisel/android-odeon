@@ -373,9 +373,9 @@ public class PlayerView extends ConstraintLayout {
 
         void onSkipToNext();
 
-        void onRepeatModeChanged(int newMode);
+        void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int newMode);
 
-        void onShuffleModeChanged(int newMode);
+        void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode int newMode);
     }
 
     @Override

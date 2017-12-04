@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library
+package fr.nihilus.music.client
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.ComponentName
 import android.content.Context
-import android.os.Bundle
 import android.os.RemoteException
-import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import android.view.KeyEvent
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
 import java.lang.ref.WeakReference
+import java.util.*
 import javax.inject.Inject
 
 private const val TAG = "BrowserViewModel"
@@ -43,13 +41,16 @@ class BrowserViewModel
 @Inject constructor(context: Context) : ViewModel() {
 
     private val mBrowser: MediaBrowserCompat
-    private var mController: MediaControllerCompat? = null
     private val mControllerCallback = ControllerCallback()
 
     val playbackState = MutableLiveData<PlaybackStateCompat>()
     val currentMetadata = MutableLiveData<MediaMetadataCompat>()
     val repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
     val shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
+
+    val requestQueue: Queue<(MediaControllerCompat) -> Unit> = LinkedList()
+    private lateinit var mController: MediaControllerCompat
+
 
     init {
         val componentName = ComponentName(context, MusicService::class.java)
@@ -65,12 +66,25 @@ class BrowserViewModel
     }
 
     /**
-     * @see MediaControllerCompat.TransportControls.playFromMediaId
+     * Post a request to execute instructions on a media controller.
+     * If the media browser is not actually connected to its service, requests are delayed
+     * then processed in order whenever the media browser (re)connects.
+     *
+     * The provided controller instance is guaranteed to be connected to the service
+     * at the time this method is called, but should not be cached as it may become
+     * invalid at a later time.
+     *
+     * @param request The request to issue.
      */
-    fun playFromMediaId(mediaId: String) {
+    fun post(request: (MediaControllerCompat) -> Unit) {
         if (mBrowser.isConnected) {
-            mController!!.transportControls.playFromMediaId(mediaId, null)
+            // If connected, satisfy request immediately
+            request.invoke(mController)
+            return
         }
+
+        // Otherwise, enqueue the request until media browser is connected
+        requestQueue.offer(request)
     }
 
     /**
@@ -81,13 +95,6 @@ class BrowserViewModel
             Log.d(TAG, "Disconnecting from service")
             mBrowser.disconnect()
         }
-    }
-
-    /**
-     * @see MediaControllerCompat.dispatchMediaButtonEvent
-     */
-    fun dispatchMediaButtonEvent(keyEvent: KeyEvent) {
-        mController?.run { dispatchMediaButtonEvent(keyEvent) }
     }
 
     /**
@@ -102,62 +109,6 @@ class BrowserViewModel
      */
     fun unsubscribe(parentId: String) {
         mBrowser.unsubscribe(parentId)
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.setShuffleMode
-     */
-    fun setShuffleMode(@PlaybackStateCompat.ShuffleMode mode: Int) {
-        mController?.transportControls?.setShuffleMode(mode)
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.setRepeatMode
-     */
-    fun setRepeatMode(@PlaybackStateCompat.RepeatMode mode: Int) {
-        mController?.transportControls?.setRepeatMode(mode)
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.play
-     */
-    fun play() {
-        mController?.transportControls?.play()
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.pause
-     */
-    fun pause() {
-        mController?.transportControls?.pause()
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.seekTo
-     */
-    fun seekTo(position: Long) {
-        mController?.transportControls?.seekTo(position)
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.skipToPrevious
-     */
-    fun skipToPrevious() {
-        mController?.transportControls?.skipToPrevious()
-    }
-
-    /**
-     * @see MediaControllerCompat.TransportControls.skipToNext
-     */
-    fun skipToNext() {
-        mController?.transportControls?.skipToNext()
-    }
-
-    /**
-     * @see MediaControllerCompat.sendCommand
-     */
-    fun sendCommand(command: String, params: Bundle?, cb: ResultReceiver) {
-        mController?.sendCommand(command, params, cb)
     }
 
     override fun onCleared() {
@@ -178,6 +129,11 @@ class BrowserViewModel
                     playbackState.value = controller.playbackState
                     shuffleMode.value = controller.shuffleMode
                     repeatMode.value = controller.repeatMode
+
+                    while (requestQueue.isNotEmpty()) {
+                        val request = requestQueue.poll()
+                        request.invoke(controller)
+                    }
                 }
             } catch (re: RemoteException) {
                 Log.e(TAG, "onConnected: cannot create MediaController", re)
@@ -186,12 +142,11 @@ class BrowserViewModel
 
         override fun onConnectionSuspended() {
             Log.w(TAG, "onConnectionSuspended: disconnected from MediaBrowserService.")
-            mController?.unregisterCallback(mControllerCallback)
-            mController = null
+            mController.unregisterCallback(mControllerCallback)
         }
 
         override fun onConnectionFailed() {
-            Log.wtf(TAG, "onConnectionFailed: cannot connect to MediaBrowserService.")
+            Log.e(TAG, "onConnectionFailed: can't connect to MediaBrowserService.")
         }
     }
 
@@ -208,7 +163,7 @@ class BrowserViewModel
             repeatMode.value = mode
         }
 
-        override fun onShuffleModeChanged(mode: Int) {
+        override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode mode: Int) {
             shuffleMode.value = mode
         }
 

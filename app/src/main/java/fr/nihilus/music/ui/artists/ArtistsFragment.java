@@ -35,9 +35,9 @@ import javax.inject.Inject;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
+import fr.nihilus.music.client.BrowserViewModel;
+import fr.nihilus.music.client.NavigationController;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.BrowserViewModel;
-import fr.nihilus.music.library.NavigationController;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
 

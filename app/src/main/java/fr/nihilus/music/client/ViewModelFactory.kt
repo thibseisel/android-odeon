@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library
+package fr.nihilus.music.client
 
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider

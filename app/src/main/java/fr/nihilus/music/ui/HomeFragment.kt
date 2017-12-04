@@ -25,9 +25,9 @@ import android.support.v7.widget.GridLayoutManager
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.Constants
 import fr.nihilus.music.R
+import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.library.BrowserViewModel
-import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.ui.playlist.PlaylistsAdapter
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
@@ -89,7 +89,9 @@ class HomeFragment : RecyclerFragment(), PlaylistsAdapter.OnPlaylistSelectedList
     }
 
     override fun onPlay(playlist: MediaItem) {
-        mViewModel.playFromMediaId(playlist.mediaId!!)
+        mViewModel.post {
+            it.transportControls.playFromMediaId(playlist.mediaId, null)
+        }
     }
 
     companion object Factory {

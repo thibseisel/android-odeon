@@ -41,9 +41,9 @@ import android.view.View
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
-import fr.nihilus.music.library.BrowserViewModel
-import fr.nihilus.music.library.NavigationController
-import fr.nihilus.music.library.ViewModelFactory
+import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.NavigationController
+import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.utils.ConfirmDialogFragment
@@ -114,7 +114,9 @@ class HomeActivity : AppCompatActivity(),
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY -> mViewModel.dispatchMediaButtonEvent(event)
+            KeyEvent.KEYCODE_MEDIA_PLAY -> mViewModel.post { controller ->
+                controller.dispatchMediaButtonEvent(event)
+            }
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -234,7 +236,7 @@ class HomeActivity : AppCompatActivity(),
     /**
      * Called when an activity launched by this one exits and returns a result.
      * This allows this activity to recreate itself if a preference that changed
-     * in [SettingsActivity] affects the visual state (such as the nightmode preference).
+     * in [SettingsActivity] affects the visual state (such as the night mode preference).
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -368,36 +370,37 @@ class HomeActivity : AppCompatActivity(),
     }
 
     private fun startRandomMix() {
-        mViewModel.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ALL)
-        mViewModel.playFromMediaId(MediaID.ID_MUSIC)
+        mViewModel.post { controller ->
+            controller.transportControls.playFromMediaId(MediaID.ID_RANDOM, null)
+        }
     }
 
     override fun onActionPlay() {
-        mViewModel.play()
+        mViewModel.post { it.transportControls.play() }
     }
 
     override fun onActionPause() {
-        mViewModel.pause()
+        mViewModel.post { it.transportControls.pause() }
     }
 
     override fun onSeek(position: Long) {
-        mViewModel.seekTo(position)
+        mViewModel.post { it.transportControls.seekTo(position) }
     }
 
     override fun onSkipToPrevious() {
-        mViewModel.skipToPrevious()
+        mViewModel.post { it.transportControls.skipToPrevious() }
     }
 
     override fun onSkipToNext() {
-        mViewModel.skipToNext()
+        mViewModel.post { it.transportControls.skipToNext() }
     }
 
     override fun onRepeatModeChanged(newMode: Int) {
-        mViewModel.setRepeatMode(newMode)
+        mViewModel.post { it.transportControls.setRepeatMode(newMode) }
     }
 
     override fun onShuffleModeChanged(newMode: Int) {
-        mViewModel.setShuffleMode(newMode)
+        mViewModel.post { it.transportControls.setShuffleMode(newMode) }
     }
 
     override fun supportFragmentInjector() = dispatchingFragmentInjector

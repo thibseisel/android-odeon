@@ -38,11 +38,12 @@ import javax.inject.Inject;
 import dagger.android.support.AndroidSupportInjection;
 import fr.nihilus.music.Constants;
 import fr.nihilus.music.R;
+import fr.nihilus.music.client.BrowserViewModel;
+import fr.nihilus.music.client.NavigationController;
 import fr.nihilus.music.di.ActivityScoped;
-import fr.nihilus.music.library.BrowserViewModel;
-import fr.nihilus.music.library.NavigationController;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.recyclerfragment.RecyclerFragment;
+import kotlin.Unit;
 
 @ActivityScoped
 public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdapter.OnPlaylistSelectedListener {
@@ -144,6 +145,9 @@ public class PlaylistsFragment extends RecyclerFragment implements PlaylistsAdap
             throw new AssertionError("Playlists should have a MediaId");
         }
 
-        mViewModel.playFromMediaId(playlist.getMediaId());
+        mViewModel.post(controller -> {
+            controller.getTransportControls().playFromMediaId(playlist.getMediaId(), null);
+            return Unit.INSTANCE;
+        });
     }
 }
