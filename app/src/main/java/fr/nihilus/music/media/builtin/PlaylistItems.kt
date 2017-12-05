@@ -19,13 +19,12 @@ package fr.nihilus.music.media.builtin
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
 import javax.inject.Inject
@@ -35,7 +34,6 @@ internal class PlaylistItems
         private val context: Context,
         private val playlistDao: PlaylistDao,
         private val musicDao: MusicDao,
-        private val random: AllTracksRandom,
         private val mostRecentTracks: MostRecentTracks
 ) : BuiltinItem {
 
@@ -65,16 +63,15 @@ internal class PlaylistItems
     private fun fetchBuiltInPlaylists(): Single<List<MediaItem>> {
         return Single.fromCallable {
             listOf(
-                    mostRecentTracks.asMediaItem(),
-                    random.asMediaItem()
+                    mostRecentTracks.asMediaItem()
             )
         }
     }
 
     private fun fetchUserPlaylists(): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return playlistDao.playlists.take(1)
-                .flatMap { Flowable.fromIterable(it) }
+        return playlistDao.playlists
+                .flatMapObservable { Observable.fromIterable(it) }
                 .map { playlist ->
                     val description = playlist.asMediaDescription(builder)
                     MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
@@ -83,16 +80,13 @@ internal class PlaylistItems
 
     private fun fetchPlaylistMembers(playlistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
-        return playlistDao.getPlaylistTracks(playlistId.toLong()).take(1)
-                .flatMap { Flowable.fromIterable(it) }
-                .flatMapSingle { fetchMetadata(it.musicId.toString()) }
+        return playlistDao.getPlaylistTracks(playlistId.toLong())
+                .flatMapObservable { Observable.fromIterable(it) }
+                .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
                 .map { member ->
                     val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
                     MediaItem(descr, MediaItem.FLAG_PLAYABLE)
                 }.toList()
     }
-
-    private fun fetchMetadata(musicId: String): Single<MediaMetadataCompat> =
-            musicDao.findTrack(musicId).toSingle()
 
 }

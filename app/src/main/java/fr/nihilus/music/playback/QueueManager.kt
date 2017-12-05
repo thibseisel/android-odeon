@@ -135,7 +135,7 @@ class QueueManager
 
         val params = VoiceSearchParams(query, extras)
         if (params.isAny) {
-            loadQueueFromMusic(MediaID.ID_RANDOM)
+            loadQueueFromMusic(MediaID.ID_MUSIC)
             return true
         }
 
