@@ -94,12 +94,7 @@ public class PlayerView extends ConstraintLayout {
     private final ScheduledExecutorService mExecutorService =
             Executors.newSingleThreadScheduledExecutor();
 
-    private final Runnable mUpdateProgressTask = new Runnable() {
-        @Override
-        public void run() {
-            updateProgress();
-        }
-    };
+    private final Runnable mUpdateProgressTask = this::updateProgress;
 
     private ScheduledFuture<?> mScheduleFuture;
 
@@ -333,12 +328,8 @@ public class PlayerView extends ConstraintLayout {
     private void scheduleProgressUpdate() {
         stopProgressUpdate();
         if (!mExecutorService.isShutdown()) {
-            mScheduleFuture = mExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    mHandler.post(mUpdateProgressTask);
-                }
-            }, PROGRESS_UPDATE_INITIAL_DELAY,
+            mScheduleFuture = mExecutorService.scheduleAtFixedRate(
+                    () -> mHandler.post(mUpdateProgressTask), PROGRESS_UPDATE_INITIAL_DELAY,
                     PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS);
         }
     }

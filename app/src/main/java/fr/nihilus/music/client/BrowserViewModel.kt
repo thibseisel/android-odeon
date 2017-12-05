@@ -40,17 +40,16 @@ private const val TAG = "BrowserViewModel"
 class BrowserViewModel
 @Inject constructor(context: Context) : ViewModel() {
 
-    private val mBrowser: MediaBrowserCompat
-    private val mControllerCallback = ControllerCallback()
-
     val playbackState = MutableLiveData<PlaybackStateCompat>()
     val currentMetadata = MutableLiveData<MediaMetadataCompat>()
     val repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
     val shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
 
-    val requestQueue: Queue<(MediaControllerCompat) -> Unit> = LinkedList()
-    private lateinit var mController: MediaControllerCompat
+    private val mBrowser: MediaBrowserCompat
+    private val mControllerCallback = ControllerCallback()
 
+    private val requestQueue: Queue<(MediaControllerCompat) -> Unit> = LinkedList()
+    private lateinit var mController: MediaControllerCompat
 
     init {
         val componentName = ComponentName(context, MusicService::class.java)

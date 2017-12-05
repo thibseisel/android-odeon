@@ -49,9 +49,6 @@ import fr.nihilus.music.glide.palette.PaletteBitmap;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
 import fr.nihilus.music.utils.ViewUtils;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
@@ -146,17 +143,18 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     }
 
     void updateAlbums(final List<MediaItem> newAlbums) {
-        Single.fromCallable(() -> {
-            MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
-            return DiffUtil.calculateDiff(callback, false);
-        })
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    mAlbums.clear();
-                    mAlbums.addAll(newAlbums);
-                    result.dispatchUpdatesTo(AlbumsAdapter.this);
-                });
+        if (newAlbums.isEmpty() && mAlbums.isEmpty()) {
+            // Dispatch a general change notification to update RecyclerFragment's empty state
+            notifyDataSetChanged();
+        } else {
+            // Calculate diff and dispatch individual changes
+                MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
+                DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
+                mAlbums.clear();
+                mAlbums.addAll(newAlbums);
+                result.dispatchUpdatesTo(AlbumsAdapter.this);
+        }
+
     }
 
     interface OnAlbumSelectedListener {

@@ -28,7 +28,6 @@ import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.math.MathUtils
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
@@ -201,7 +200,7 @@ class HomeActivity : AppCompatActivity(),
                 .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onSlide(bottomSheet: View, slideOffset: Float) {
                         mBottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
-                        view.invalidate()
+                        bottomSheet.requestLayout()
                     }
 
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -370,7 +369,10 @@ class HomeActivity : AppCompatActivity(),
 
     private fun startRandomMix() {
         mViewModel.post { controller ->
-            controller.transportControls.playFromMediaId(MediaID.ID_RANDOM, null)
+            with(controller.transportControls) {
+                setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                playFromMediaId(MediaID.ID_MUSIC, null)
+            }
         }
     }
 

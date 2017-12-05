@@ -5,6 +5,7 @@
 /.idea/libraries
 /.idea/icon.png
 /.idea/icon_dark.png
+/.idea/kotlinc.xml
 .DS_Store
 /build
 /captures

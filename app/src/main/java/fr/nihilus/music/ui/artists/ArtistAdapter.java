@@ -36,17 +36,12 @@ import com.bumptech.glide.RequestBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.media.MediaItems;
 import fr.nihilus.music.utils.MediaID;
 import fr.nihilus.music.utils.MediaItemDiffCallback;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
 
@@ -85,12 +80,9 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
             holder.subtitle.setText(subtitle);
         }
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    mListener.onArtistSelected(holder, mItems.get(holder.getAdapterPosition()));
-                }
+        holder.itemView.setOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onArtistSelected(holder, mItems.get(holder.getAdapterPosition()));
             }
         });
     }
@@ -120,22 +112,17 @@ class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistHolder> {
     }
 
     void updateArtists(final List<MediaItem> artists) {
-        Single.fromCallable(new Callable<DiffUtil.DiffResult>() {
-            @Override
-            public DiffUtil.DiffResult call() throws Exception {
-                MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, artists);
-                return DiffUtil.calculateDiff(diffCallback, false);
-            }
-        }).subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<DiffUtil.DiffResult>() {
-                    @Override
-                    public void accept(DiffUtil.DiffResult result) throws Exception {
-                        mItems.clear();
-                        mItems.addAll(artists);
-                        result.dispatchUpdatesTo(ArtistAdapter.this);
-                    }
-                });
+        if (artists.isEmpty() && mItems.isEmpty()) {
+            // Dispatch a general change notification to update RecyclerFragment's empty state
+            notifyDataSetChanged();
+        } else {
+            // Calculate diff and dispatch individual change notifications
+            MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, artists);
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
+            mItems.clear();
+            mItems.addAll(artists);
+            result.dispatchUpdatesTo(this);
+        }
     }
 
     interface OnArtistSelectedListener {

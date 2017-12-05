@@ -86,13 +86,10 @@ public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.Play
 
         // The play button is only shown if the item is playable
         holder.actionPlay.setVisibility(item.isPlayable() ? View.VISIBLE : View.GONE);
-        holder.actionPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    MediaItem clickedItem = mItems.get(holder.getAdapterPosition());
-                    mListener.onPlay(clickedItem);
-                }
+        holder.actionPlay.setOnClickListener(view -> {
+            if (mListener != null) {
+                MediaItem clickedItem = mItems.get(holder.getAdapterPosition());
+                mListener.onPlay(clickedItem);
             }
         });
     }
@@ -122,11 +119,16 @@ public class PlaylistsAdapter extends RecyclerView.Adapter<PlaylistsAdapter.Play
     }
 
     public void update(List<MediaItem> newItems) {
-        MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, newItems);
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
-        mItems.clear();
-        mItems.addAll(newItems);
-        result.dispatchUpdatesTo(this);
+        if (newItems.isEmpty() && mItems.isEmpty()) {
+            // Dispatch a general change notification to update RecyclerFragment's empty state
+            notifyDataSetChanged();
+        } else {
+            MediaItemDiffCallback diffCallback = new MediaItemDiffCallback(mItems, newItems);
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, false);
+            mItems.clear();
+            mItems.addAll(newItems);
+            result.dispatchUpdatesTo(this);
+        }
     }
 
     public static class PlaylistHolder extends RecyclerView.ViewHolder {
