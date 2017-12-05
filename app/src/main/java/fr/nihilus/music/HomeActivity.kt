@@ -200,9 +200,8 @@ class HomeActivity : AppCompatActivity(),
         BottomSheetBehavior.from(mPlayerView)
                 .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                     override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                        val opacity = MathUtils.clamp(slideOffset, 0.0f, 1.0f)
-                        mBottomSheet.scrimOpacity = opacity * 0.5f
-                        mCoordinator.requestLayout()
+                        mBottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
+                        view.invalidate()
                     }
 
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
