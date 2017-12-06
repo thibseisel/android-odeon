@@ -26,6 +26,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
 import java.lang.ref.WeakReference
@@ -48,7 +49,7 @@ class BrowserViewModel
     private val mBrowser: MediaBrowserCompat
     private val mControllerCallback = ControllerCallback()
 
-    private val requestQueue: Queue<(MediaControllerCompat) -> Unit> = LinkedList()
+    private val requestQueue: Queue<MediaControllerRequest> = LinkedList()
     private lateinit var mController: MediaControllerCompat
 
     init {
@@ -75,7 +76,7 @@ class BrowserViewModel
      *
      * @param request The request to issue.
      */
-    fun post(request: (MediaControllerCompat) -> Unit) {
+    fun post(request: MediaControllerRequest) {
         if (mBrowser.isConnected) {
             // If connected, satisfy request immediately
             request.invoke(mController)

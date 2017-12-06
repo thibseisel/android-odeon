@@ -24,6 +24,7 @@ import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.Constants
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
+import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.HomeFragment
 import fr.nihilus.music.ui.albums.AlbumGridFragment
@@ -57,7 +58,7 @@ class NavigationController
      *
      * The provided function has an argument that is the id of the fragment.
      */
-    var routeChangeListener: (Int) -> Unit = {}
+    var routeChangeListener: RouteChangeListener = {}
 
     init {
         mFm.addOnBackStackChangedListener {

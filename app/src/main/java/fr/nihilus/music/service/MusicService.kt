@@ -32,7 +32,7 @@ import android.util.Log
 import dagger.android.AndroidInjection
 import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.MediaItemsResult
+import fr.nihilus.music.MediaItemResult
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.PlaybackManager
 import fr.nihilus.music.playback.QueueManager
@@ -123,7 +123,7 @@ class MusicService : MediaBrowserServiceCompat(),
         return BrowserRoot(MediaID.ID_ROOT, null)
     }
 
-    override fun onLoadChildren(parentId: String, result: MediaItemsResult) {
+    override fun onLoadChildren(parentId: String, result: MediaItemResult) {
         Log.v(TAG, "Loading children for ID: $parentId")
         result.detach()
         repository.getMediaItems(parentId)
