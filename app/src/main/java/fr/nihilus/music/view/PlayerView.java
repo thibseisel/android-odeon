@@ -145,8 +145,8 @@ public class PlayerView extends ConstraintLayout {
      */
     public void setExpanded(boolean expanded) {
         if (mExpanded != expanded) {
-            if (expanded) onOpen(true);
-            else onClose(true);
+            if (expanded) onOpen();
+            else onClose();
             mExpanded = expanded;
         }
     }
@@ -204,8 +204,8 @@ public class PlayerView extends ConstraintLayout {
         }
     }
 
-    private void onOpen(boolean animate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
+    private void onOpen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TransitionManager.beginDelayedTransition(this, mOpenTransition);
         }
 
@@ -214,8 +214,8 @@ public class PlayerView extends ConstraintLayout {
         mPlayPauseButton.setVisibility(View.GONE);
     }
 
-    private void onClose(boolean animate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && animate) {
+    private void onClose() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             TransitionManager.beginDelayedTransition(this, mOpenTransition);
         }
 
@@ -262,6 +262,7 @@ public class PlayerView extends ConstraintLayout {
     protected void onFinishInflate() {
         super.onFinishInflate();
 
+        // Retrieve reference to views from top
         mAlbumArt = findViewById(R.id.cover);
         mTitle = findViewById(R.id.title);
         mSubtitle = findViewById(R.id.subtitle);
@@ -325,6 +326,9 @@ public class PlayerView extends ConstraintLayout {
         }
     }
 
+    /**
+     * Make this PlayerView's progress auto-update every second.
+     */
     private void scheduleProgressUpdate() {
         stopProgressUpdate();
         if (!mExecutorService.isShutdown()) {
@@ -334,6 +338,9 @@ public class PlayerView extends ConstraintLayout {
         }
     }
 
+    /**
+     * Cancel auto-updating of progress.
+     */
     private void stopProgressUpdate() {
         if (mScheduleFuture != null) {
             mScheduleFuture.cancel(false);
@@ -349,23 +356,54 @@ public class PlayerView extends ConstraintLayout {
         mShuffleModeButton.setActivated(mode != PlaybackStateCompat.SHUFFLE_MODE_NONE);
     }
 
+    /**
+     * Listens for events triggered by interactions with this PlayerView.
+     */
     public void setEventListener(EventListener listener) {
         mListener = listener;
     }
 
+    /**
+     * Listens for events produced by user interactions with the PlayerView.
+     */
     public interface EventListener {
+
+        /**
+         * Called to handle a request to start or resume playback of the currently selected track.
+         */
         void onActionPlay();
 
+        /**
+         * Called to handle a request to pause playback of the currently selected track.
+         */
         void onActionPause();
 
+        /**
+         * Called when user moved the progress cursor to a new position.
+         * @param position The new position of the progress cursor
+         */
         void onSeek(long position);
 
+        /**
+         * Called to handle a request to move to the previous track in playlist.
+         */
         void onSkipToPrevious();
 
+        /**
+         * Called to handle a request to move to the next track in playlist.
+         */
         void onSkipToNext();
 
+        /**
+         * Called to handle a request to change the current repeat mode.
+         * @param newMode The new repeat mode.
+         */
         void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int newMode);
 
+        /**
+         * Called to handle a request to change the current shuffle mode.
+         * @param newMode The new shuffle mode.
+         */
         void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode int newMode);
     }
 
@@ -396,6 +434,9 @@ public class PlayerView extends ConstraintLayout {
         mExpanded = savedState.expanded;
     }
 
+    /**
+     * Listens for click events on interactive views that compose a PlayerView.
+     */
     private class WidgetClickListener implements OnClickListener {
         private void handlePlayPauseClick() {
             int currentState = mLastPlaybackState.getState();
@@ -447,6 +488,9 @@ public class PlayerView extends ConstraintLayout {
         mProgress.setMax(0);
     }
 
+    /**
+     * A parcelable object that saves the internal state of a PlayerView.
+     */
     private static class SavedState extends BaseSavedState {
         PlaybackStateCompat lastPlaybackState;
         MediaMetadataCompat metadata;
