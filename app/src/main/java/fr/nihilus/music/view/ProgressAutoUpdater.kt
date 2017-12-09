@@ -61,8 +61,13 @@ class ProgressAutoUpdater(
     private val executorService = Executors.newSingleThreadScheduledExecutor()
     private val handler = Handler()
 
+    private val uiThreadUpdate = Runnable(this::updateProgress)
+    private val scheduledUpdate = Runnable {
+        handler.post(uiThreadUpdate)
+    }
+
     private var currentState: PlaybackStateCompat? = null
-    private var updateTask: ScheduledFuture<*>? = null
+    private var updateFuture: ScheduledFuture<*>? = null
 
     /**
      * Updates the media metadata for this SeekBar. It will be used to define the maximum progress
@@ -81,6 +86,8 @@ class ProgressAutoUpdater(
     /**
      * Updates the playback state for this SeekBar.
      * Automatic updates will only be done if playback is active.
+     *
+     * @param state The current playback state for this media session.
      */
     fun setPlaybackState(state: PlaybackStateCompat?) {
         currentState = state
@@ -110,13 +117,12 @@ class ProgressAutoUpdater(
     }
 
     private fun scheduleProgressUpdate() {
-        executorService.scheduleAtFixedRate({
-            handler.post(::updateProgress)
-        }, PROGRESS_UPDATE_INITIAL_DELAY, PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS)
+        updateFuture = executorService.scheduleAtFixedRate(scheduledUpdate,
+                PROGRESS_UPDATE_INITIAL_DELAY, PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS)
     }
 
     private fun stopProgressUpdate() {
-        updateTask?.cancel(false)
+        updateFuture?.cancel(false)
     }
 
     private fun updateProgress() {
@@ -124,11 +130,9 @@ class ProgressAutoUpdater(
             var currentPosition = state.position
             if (state.state == PlaybackStateCompat.STATE_PLAYING) {
 
-                // Calculate the elapsed time between the last position update and now and unless
-                // paused, we can assume (delta * speed) + current position is approximately the
-                // latest position. This ensure that we do not repeatedly call the getPlaybackState()
-                // on MediaControllerCompat.
-
+                /* Calculate the elapsed time between the last position update and now
+                 * and unless paused, we can assume (delta * speed) + current position
+                 * is approximately the latest position. */
                 val timeDelta = SystemClock.elapsedRealtime() - state.lastPositionUpdateTime
                 currentPosition += (timeDelta.toInt() * state.playbackSpeed).toLong()
             }
