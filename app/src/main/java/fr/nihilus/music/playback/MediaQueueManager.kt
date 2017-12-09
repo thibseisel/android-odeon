@@ -43,6 +43,9 @@ import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
+/**
+ *
+ */
 @ServiceScoped
 class MediaQueueManager
 @Inject constructor(
@@ -92,6 +95,36 @@ class MediaQueueManager
 
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
         TODO("Implement the searching API.")
+    }
+
+    /**
+     * Called when skipping to the previous song in timeline.
+     * When repeat mode is REPEAT_ONE, allow skipping to previous item by temporarily setting
+     * player's repeat mode to REPEAT_ALL.
+     */
+    override fun onSkipToPrevious(player: Player?) {
+        if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
+            player.repeatMode = Player.REPEAT_MODE_ALL
+            super.onSkipToPrevious(player)
+            player.repeatMode = Player.REPEAT_MODE_ONE
+        } else {
+            super.onSkipToPrevious(player)
+        }
+    }
+
+    /**
+     * Called when skipping to the next song in timeline.
+     * When repeat mode is REPEAT_ONE, allow skipping to next item by temporarily setting
+     * player's repeat mode to REPEAT_ALL.
+     */
+    override fun onSkipToNext(player: Player?) {
+        if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
+            player.repeatMode = Player.REPEAT_MODE_ALL
+            super.onSkipToNext(player)
+            player.repeatMode = Player.REPEAT_MODE_ONE
+        } else {
+            super.onSkipToNext(player)
+        }
     }
 
     override fun getMediaDescription(windowIndex: Int): MediaDescriptionCompat {
