@@ -67,7 +67,6 @@ class MediaNotificationManager
     private val mControllerCallback = ControllerCallback()
 
     private var mController: MediaControllerCompat? = null
-    private var mTransportControls: MediaControllerCompat.TransportControls? = null
 
     private var mSessionToken: MediaSessionCompat.Token? = null
     private var mPlaybackState: PlaybackStateCompat? = null
@@ -113,7 +112,6 @@ class MediaNotificationManager
             mSessionToken = freshToken
             if (mSessionToken != null) {
                 mController = MediaControllerCompat(service, mSessionToken!!)
-                mTransportControls = mController!!.transportControls
                 if (mStarted) {
                     mController!!.registerCallback(mControllerCallback)
                 }
