@@ -41,6 +41,7 @@ import fr.nihilus.music.MediaItemResult
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
+import fr.nihilus.music.playback.PlaybackController
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -60,6 +61,7 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject internal lateinit var notificationMgr: MediaNotificationManager
 
     @Inject internal lateinit var player: ExoPlayer
+    @Inject internal lateinit var playbackController: PlaybackController
     @Inject internal lateinit var queueManager: MediaQueueManager
     @Inject internal lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
@@ -88,8 +90,10 @@ class MusicService : MediaBrowserServiceCompat() {
         mPackageValidator = PackageValidator(this)
         val repeatAction = RepeatModeActionProvider(this, player)
 
+        playbackController.restoreStateFromPreferences(player, session)
+
         // Configure MediaSessionConnector with player and session
-        MediaSessionConnector(session).apply {
+        MediaSessionConnector(session, playbackController).apply {
             setPlayer(player, queueManager, repeatAction)
             setQueueNavigator(queueManager)
             setErrorMessageProvider(errorHandler)

@@ -35,6 +35,7 @@ import fr.nihilus.music.di.ServiceScoped;
 import fr.nihilus.music.playback.AudioFocusAwarePlayer;
 import fr.nihilus.music.playback.ErrorHandler;
 
+@SuppressWarnings("unused")
 @Module(includes = {CommandModule.class})
 public abstract class MusicServiceModule {
 

@@ -31,11 +31,11 @@ import fr.nihilus.music.R;
 @Singleton
 public class PreferenceDao {
     private static final String DEFAULT_NIGHT_MODE = "-1";
-    private static final String KEY_RANDOM_PLAYING = "random_playing_enabled";
+    private static final String KEY_SHUFFLE_MODE = "shuffle_mode";
+    private static final String KEY_REPEAT_MODE = "repeat_mode";
     private static final String KEY_DAILY_SONG = "daily_song_id";
     private static final String KEY_DAILY_UPDATE = "last_daily_update";
     private static final String KEY_LAST_PLAYED = "last_played";
-    private static final String KEY_DB_SETUP = "db_setup";
     private static final String KEY_STARTUP_SCREEN = "startup_screen";
 
     private final Context mAppContext;
@@ -56,11 +56,20 @@ public class PreferenceDao {
 
     @PlaybackStateCompat.ShuffleMode
     public int getShuffleMode() {
-        return mPrefs.getInt(KEY_RANDOM_PLAYING, PlaybackStateCompat.SHUFFLE_MODE_NONE);
+        return mPrefs.getInt(KEY_SHUFFLE_MODE, PlaybackStateCompat.SHUFFLE_MODE_NONE);
     }
 
     public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int shuffleMode) {
-        mPrefs.edit().putInt(KEY_RANDOM_PLAYING, shuffleMode).apply();
+        mPrefs.edit().putInt(KEY_SHUFFLE_MODE, shuffleMode).apply();
+    }
+
+    @PlaybackStateCompat.RepeatMode
+    public int getRepeatMode() {
+        return mPrefs.getInt(KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_NONE);
+    }
+
+    public void setRepeatMode(@PlaybackStateCompat.RepeatMode int repeatMode) {
+        mPrefs.edit().putInt(KEY_REPEAT_MODE, repeatMode).apply();
     }
 
     public String getStartupScreenMediaId() {
