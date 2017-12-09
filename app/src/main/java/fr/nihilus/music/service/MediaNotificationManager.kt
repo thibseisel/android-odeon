@@ -230,18 +230,22 @@ class MediaNotificationManager
      */
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
             mPlaybackState = state
 
-            if (state == null
-                    || state.state == PlaybackStateCompat.STATE_STOPPED
-                    || state.state == PlaybackStateCompat.STATE_NONE) {
-                stopNotification()
-            } else {
-                val notification = createNotification()
-                if (notification != null) {
-                    mNotificationManager.notify(NOTIFICATION_ID, notification)
+            when (state.state) {
+                PlaybackStateCompat.STATE_NONE,
+                PlaybackStateCompat.STATE_STOPPED -> stopNotification()
+
+                PlaybackStateCompat.STATE_PAUSED,
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    val notification = createNotification()
+                    if (notification != null) {
+                        mNotificationManager.notify(NOTIFICATION_ID, notification)
+                    }
                 }
+
+                PlaybackStateCompat.STATE_ERROR -> Log.w(TAG, "STATE_ERROR in notification")
             }
         }
 
