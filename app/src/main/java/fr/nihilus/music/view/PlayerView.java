@@ -214,14 +214,20 @@ public class PlayerView extends ConstraintLayout {
         mPreviousButton = findViewById(R.id.btn_previous);
         mNextButton = findViewById(R.id.btn_next);
         mMasterPlayPause = findViewById(R.id.main_play_pause);
-
         mShuffleModeButton = findViewById(R.id.btn_shuffle);
-        ColorStateList colorStateList = AppCompatResources.getColorStateList(getContext(),
-                R.color.activation_state_list);
-        Drawable wrapDrawable = DrawableCompat.wrap(mShuffleModeButton.getDrawable());
-        DrawableCompat.setTintList(wrapDrawable, colorStateList);
-        mShuffleModeButton.setImageDrawable(wrapDrawable);
         mRepeatModeButton = findViewById(R.id.btn_repeat);
+
+        // Change color when shuffle mode and repeat mode buttons are activated
+        ColorStateList activationStateList = AppCompatResources.getColorStateList(getContext(),
+                R.color.activation_state_list);
+
+        Drawable shuffleDrawable = DrawableCompat.wrap(mShuffleModeButton.getDrawable());
+        DrawableCompat.setTintList(shuffleDrawable, activationStateList);
+        mShuffleModeButton.setImageDrawable(shuffleDrawable);
+
+        Drawable repeatDrawable = DrawableCompat.wrap(mRepeatModeButton.getDrawable());
+        DrawableCompat.setTintList(repeatDrawable, activationStateList);
+        mRepeatModeButton.setImageDrawable(repeatDrawable);
 
         OnClickListener clickListener = new WidgetClickListener();
         mPlayPauseButton.setOnClickListener(clickListener);
@@ -247,7 +253,7 @@ public class PlayerView extends ConstraintLayout {
 
     public void setRepeatMode(@PlaybackStateCompat.RepeatMode int mode) {
         mRepeatModeButton.setImageLevel(mode);
-        mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_ONE);
+        mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_NONE);
     }
 
     public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int mode) {
