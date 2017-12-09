@@ -27,6 +27,10 @@ import fr.nihilus.music.ui.playlist.NewPlaylistFragment
 import fr.nihilus.music.ui.playlist.PlaylistsFragment
 import fr.nihilus.music.ui.songs.SongListFragment
 
+/**
+ * Enable dependency injection for Fragments attached to the main activity.
+ * Every fragment defines its own scope by creating a subcomponent.
+ */
 @Suppress("unused")
 @Module
 abstract class MusicLibraryModule {

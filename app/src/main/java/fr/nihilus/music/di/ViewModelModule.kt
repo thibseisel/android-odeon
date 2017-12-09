@@ -17,12 +17,18 @@
 package fr.nihilus.music.di
 
 import android.arch.lifecycle.ViewModel
-
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.ViewModelFactory
 
+/**
+ * Every ViewModel subclass that can be created with [ViewModelFactory]
+ * must be registered in this module via a Map Multibinding.
+ *
+ * The key must be the actual subclass of ViewModel.
+ */
 @Suppress("unused")
 @Module
 abstract class ViewModelModule {

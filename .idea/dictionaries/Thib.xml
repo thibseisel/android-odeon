@@ -2,6 +2,8 @@
   <dictionary name="Thib">
     <words>
       <w>nihilus</w>
+      <w>subcomponent</w>
+      <w>unsubscribe</w>
     </words>
   </dictionary>
 </component>

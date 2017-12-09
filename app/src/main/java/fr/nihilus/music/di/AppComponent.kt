@@ -24,6 +24,10 @@ import fr.nihilus.music.NihilusMusicApplication
 import fr.nihilus.music.service.MusicServiceModule
 import javax.inject.Singleton
 
+/**
+ * The top-level component for this application.
+ * Every injectable object annotated with `Singleton` is bound to it.
+ */
 @Singleton
 @Component(modules = [
     AndroidInjectionModule::class,
@@ -33,13 +37,27 @@ import javax.inject.Singleton
 ])
 interface AppComponent {
 
+    /**
+     * Generate a builder for the application component.
+     * This builder binds instance of the Android Application to the newly created component in
+     * order to provide it as a dependency to any other object.
+     */
     @Component.Builder
     interface Builder {
+
+        /**
+         * Attach the instance of the application to the component to be created,
+         * allowing it to be injected into other objects.
+         */
         @BindsInstance
         fun application(app: Application): Builder
 
         fun build(): AppComponent
     }
 
+    /**
+     * Inject dependencies into the Android application.
+     * After this call, fields annotated with `Inject` will be initialized.
+     */
     fun inject(app: NihilusMusicApplication)
 }

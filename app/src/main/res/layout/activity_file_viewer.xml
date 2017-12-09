@@ -75,7 +75,7 @@
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="Artist name" />
 
-    <ImageView
+    <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/btn_play_pause"
         android:layout_width="40dp"
         android:layout_height="40dp"

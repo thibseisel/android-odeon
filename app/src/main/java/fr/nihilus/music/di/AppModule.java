@@ -33,6 +33,11 @@ import fr.nihilus.music.database.MusicInfoDao;
 import fr.nihilus.music.database.PlaylistDao;
 import fr.nihilus.music.media.MediaModule;
 
+/**
+ * The main module for this application.
+ * It defines dependencies that cannot be instantiated with a constructor,
+ * such as implementations for abstract types or calls to factory methods.
+ */
 @SuppressWarnings("unused")
 @Module(includes = {MediaModule.class})
 abstract class AppModule {

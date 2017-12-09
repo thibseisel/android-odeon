@@ -195,7 +195,6 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     companion object {
-        private const val TAG = "AlbumDetailActivity"
         const val ALBUM_ART_TRANSITION_NAME = "albumArt"
         const val ARG_PALETTE = "palette"
         const val ARG_PICKED_ALBUM = "pickedAlbum"

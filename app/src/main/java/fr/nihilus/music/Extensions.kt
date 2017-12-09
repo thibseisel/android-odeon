@@ -89,15 +89,15 @@ inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
  * Makes a copy of this MediaMetadataCompat, adding or overriding some of its fields.
  *
  * @receiver The MediaMetadataCompat instance to copy
- * @param rewriter A function block allowing to override some values from the source metadata.
+ * @param reWriter A function block allowing to override some values from the source metadata.
  * This block will be called with a [MediaMetadataCompat.Builder] instance as its receiver.
  * @return a copy of the original metadata with some of its fields added or overridden.
  */
 inline fun MediaMetadataCompat.copy(
-        rewriter: MediaMetadataCompat.Builder.() -> Unit): MediaMetadataCompat {
-
+        reWriter: MediaMetadataCompat.Builder.() -> Unit
+): MediaMetadataCompat {
     val builder = MediaMetadataCompat.Builder(this)
-    rewriter(builder)
+    reWriter(builder)
     return builder.build()
 }
 

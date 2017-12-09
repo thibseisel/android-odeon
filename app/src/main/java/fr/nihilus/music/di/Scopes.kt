@@ -37,6 +37,10 @@ annotation class ActivityScoped
 @Retention(AnnotationRetention.RUNTIME)
 annotation class ServiceScoped
 
+/**
+ * Denote that the annotated class or component is alive as long the enclosing
+ * fragment instance is alive.
+ */
 @Scope
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)

@@ -24,8 +24,7 @@ import android.support.v7.widget.AppCompatSeekBar
 import android.util.AttributeSet
 
 /**
- * SeekBar that can be used with a [MediaSessionCompat] to track and seek in playing
- * media.
+ * SeekBar that can be used with a [MediaSessionCompat] to track and seek in playing media.
  *
  * @constructor
  * @param context The context of the activity that holds this view

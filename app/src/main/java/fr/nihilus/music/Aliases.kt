@@ -26,7 +26,7 @@ import android.support.v4.media.session.MediaControllerCompat
 typealias MediaItemResult = MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>>
 
 /**
- * A group of tasks to be executed on a [MediaControllerCompat].
+ * Defines a task to be executed on a [MediaControllerCompat].
  */
 typealias MediaControllerRequest = (MediaControllerCompat) -> Unit
 

@@ -19,9 +19,15 @@ package fr.nihilus.music.client
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 
+import fr.nihilus.music.di.ViewModelModule
+
 import javax.inject.Inject
 import javax.inject.Provider
 
+/**
+ * Creates instances of ViewModel subclasses that are registered in [ViewModelModule].
+ * This enables dependency injection into the created ViewModels.
+ */
 class ViewModelFactory
 @Inject internal constructor(
         private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
