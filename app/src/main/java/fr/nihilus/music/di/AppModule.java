@@ -33,6 +33,7 @@ import fr.nihilus.music.database.MusicInfoDao;
 import fr.nihilus.music.database.PlaylistDao;
 import fr.nihilus.music.media.MediaModule;
 
+@SuppressWarnings("unused")
 @Module(includes = {MediaModule.class})
 abstract class AppModule {
 

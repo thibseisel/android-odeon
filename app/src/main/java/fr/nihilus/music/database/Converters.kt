@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.database;
+package fr.nihilus.music.database
 
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.support.annotation.WorkerThread;
+import android.arch.persistence.room.TypeConverter
+import android.net.Uri
+import java.util.*
 
-@Dao
-public interface MusicInfoDao {
+internal class Converters {
 
-    @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void addStats(Iterable<MusicInfo> infos);
+    @TypeConverter
+    fun fromTimestamp(value: Long?) = if (value != null) Date(value) else null
+
+    @TypeConverter
+    fun dateToTimestamp(date: Date?) = date?.time
+
+    @TypeConverter
+    fun fromString(str: String?): Uri = if (str != null) Uri.parse(str) else Uri.EMPTY
+
+    @TypeConverter
+    fun toUriString(uri: Uri?) = uri?.toString()
+
 }

@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music
+package fr.nihilus.music.database
 
-class ExtensionsTest {
+import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy
+import android.support.annotation.WorkerThread
 
+@Dao
+interface MusicInfoDao {
+
+    @WorkerThread
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun addStats(stats: Iterable<MusicInfo>)
 }
