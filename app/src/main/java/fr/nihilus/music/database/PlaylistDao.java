@@ -25,16 +25,16 @@ import android.support.annotation.WorkerThread;
 
 import java.util.List;
 
-import io.reactivex.Single;
+import io.reactivex.Flowable;
 
 @Dao
 public interface PlaylistDao {
 
     @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
-    Single<List<Playlist>> getPlaylists();
+    Flowable<List<Playlist>> getPlaylists();
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :id ORDER BY position ASC")
-    Single<List<PlaylistTrack>> getPlaylistTracks(long id);
+    Flowable<List<PlaylistTrack>> getPlaylistTracks(long id);
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.FAIL)

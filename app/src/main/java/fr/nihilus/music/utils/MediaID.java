@@ -48,6 +48,8 @@ public final class MediaID {
      * A special selection of the most recently added songs.
      */
     public static final String ID_MOST_RECENT = "RECENT";
+
+    public static final String ID_RANDOM = "RANDOM";
     /**
      * Automatic getPlaylists.
      */
