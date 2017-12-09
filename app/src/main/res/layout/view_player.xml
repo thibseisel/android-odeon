@@ -68,7 +68,7 @@
         app:layout_constraintTop_toTopOf="@+id/top_guideline"/>
 
     <!-- Progress bar -->
-    <fr.nihilus.music.view.MediaSeekBar
+    <SeekBar
         style="@style/Widget.AppTheme.ProgressBar"
         android:id="@+id/seekbar"
         android:layout_width="0dp"

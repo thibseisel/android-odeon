@@ -21,10 +21,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -33,7 +31,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
-import android.text.format.DateUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
@@ -47,28 +44,20 @@ import android.widget.TextView;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import org.jetbrains.annotations.Contract;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import fr.nihilus.music.R;
 import fr.nihilus.music.glide.GlideApp;
 import fr.nihilus.music.utils.ViewUtils;
+import kotlin.Unit;
 
 public class PlayerView extends ConstraintLayout {
 
     private static final String TAG = "PlayerView";
-    private static final int PROGRESS_UPDATE_INITIAL_DELAY = 100;
-    private static final int PROGRESS_UPDATE_PERIOD = 1000;
 
     private RequestBuilder<Bitmap> mGlideRequest;
     private TextView mTitle;
     private TextView mSubtitle;
     private ImageView mAlbumArt;
-    private MediaSeekBar mProgress;
+    private SeekBar mProgress;
     private PlayPauseButton mPlayPauseButton;
     private ImageView mPreviousButton;
     private ImageView mNextButton;
@@ -77,9 +66,6 @@ public class PlayerView extends ConstraintLayout {
     private ImageView mShuffleModeButton;
     private ImageView mRepeatModeButton;
 
-    private TextView mSeekPosition;
-    private TextView mSeekDuration;
-
     private EventListener mListener;
 
     private boolean mExpanded = false;
@@ -87,15 +73,8 @@ public class PlayerView extends ConstraintLayout {
     private PlaybackStateCompat mLastPlaybackState;
     private MediaMetadataCompat mMetadata;
     private Transition mOpenTransition;
-    private final StringBuilder mDurationBuilder = new StringBuilder();
 
-    private final Handler mHandler = new Handler();
-    private final ScheduledExecutorService mExecutorService =
-            Executors.newSingleThreadScheduledExecutor();
-
-    private final Runnable mUpdateProgressTask = this::updateProgress;
-
-    private ScheduledFuture<?> mScheduleFuture;
+    private ProgressAutoUpdater mAutoUpdater;
 
     public PlayerView(Context context) {
         this(context, null, 0);
@@ -123,11 +102,6 @@ public class PlayerView extends ConstraintLayout {
                 .fitCenter()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
-    }
-
-    @Contract(pure = true)
-    private static boolean hasFlag(long actions, long flag) {
-        return (actions & flag) == flag;
     }
 
     @Override
@@ -166,11 +140,7 @@ public class PlayerView extends ConstraintLayout {
             }
 
             mGlideRequest.load(media.getIconUri()).into(mBigArt);
-            mProgress.setMetadata(metadata);
-
-            String durationText = DateUtils.formatElapsedTime(mDurationBuilder,
-                    metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) / 1000L);
-            mSeekDuration.setText(durationText);
+            mAutoUpdater.setMetadata(metadata);
         }
     }
 
@@ -180,22 +150,13 @@ public class PlayerView extends ConstraintLayout {
             return;
         }
 
-        mProgress.setPlaybackState(newState);
         toggleControls(newState.getActions());
         mLastPlaybackState = newState;
-
-        String position = DateUtils.formatElapsedTime(mDurationBuilder, newState.getPosition() / 1000L);
-        mSeekPosition.setText(position);
+        mAutoUpdater.setPlaybackState(newState);
 
         boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mPlayPauseButton.setPlaying(isPlaying);
         mMasterPlayPause.setPlaying(isPlaying);
-
-        if (isPlaying) {
-            scheduleProgressUpdate();
-        } else {
-            stopProgressUpdate();
-        }
     }
 
     private void onOpen() {
@@ -218,30 +179,10 @@ public class PlayerView extends ConstraintLayout {
     }
 
     private void toggleControls(long actions) {
-        mMasterPlayPause.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
-        mPlayPauseButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_PLAY_PAUSE));
-        mPreviousButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS));
-        mNextButton.setEnabled(hasFlag(actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT));
-    }
-
-
-    private void updateProgress() {
-        if (mLastPlaybackState != null) {
-            long currentPosition = mLastPlaybackState.getPosition();
-            if (mLastPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-
-                // Calculate the elapsed time between the last position update and now and unless
-                // paused, we can assume (delta * speed) + current position is approximately the
-                // latest position. This ensure that we do not repeatedly call the getPlaybackState()
-                // on MediaControllerCompat.
-
-                long timeDelta = SystemClock.elapsedRealtime() -
-                        mLastPlaybackState.getLastPositionUpdateTime();
-                currentPosition += (int) timeDelta * mLastPlaybackState.getPlaybackSpeed();
-            }
-
-            mProgress.setProgress((int) currentPosition);
-        }
+        mMasterPlayPause.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
+        mPlayPauseButton.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
+        mPreviousButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0);
+        mNextButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0);
     }
 
     @Override
@@ -253,27 +194,19 @@ public class PlayerView extends ConstraintLayout {
         mTitle = findViewById(R.id.title);
         mSubtitle = findViewById(R.id.subtitle);
         mProgress = findViewById(R.id.seekbar);
-        mProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mSeekPosition.setText(DateUtils.formatElapsedTime(mDurationBuilder, progress / 1000));
-            }
+        // Configure playback position auto-updater
+        final TextView seekPosition = findViewById(R.id.seek_position);
+        final TextView seekDuration = findViewById(R.id.seek_duration);
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                stopProgressUpdate();
+        mAutoUpdater = new ProgressAutoUpdater(mProgress, seekPosition, seekDuration, (position) -> {
+            if (mListener != null) {
+                mListener.onSeek(position);
             }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                mListener.onSeek(seekBar.getProgress());
-                scheduleProgressUpdate();
-            }
+            return Unit.INSTANCE;
         });
 
-        mSeekPosition = findViewById(R.id.seek_position);
-        mSeekDuration = findViewById(R.id.seek_duration);
+        mProgress.setOnSeekBarChangeListener(mAutoUpdater);
 
         mBigArt = findViewById(R.id.bigArt);
 
@@ -309,27 +242,6 @@ public class PlayerView extends ConstraintLayout {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mOpenTransition = TransitionInflater.from(getContext())
                     .inflateTransition(R.transition.playerview_header_transition);
-        }
-    }
-
-    /**
-     * Make this PlayerView's progress auto-update every second.
-     */
-    private void scheduleProgressUpdate() {
-        stopProgressUpdate();
-        if (!mExecutorService.isShutdown()) {
-            mScheduleFuture = mExecutorService.scheduleAtFixedRate(
-                    () -> mHandler.post(mUpdateProgressTask), PROGRESS_UPDATE_INITIAL_DELAY,
-                    PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    /**
-     * Cancel auto-updating of progress.
-     */
-    private void stopProgressUpdate() {
-        if (mScheduleFuture != null) {
-            mScheduleFuture.cancel(false);
         }
     }
 
