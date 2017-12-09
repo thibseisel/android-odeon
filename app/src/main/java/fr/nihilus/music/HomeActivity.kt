@@ -33,7 +33,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
@@ -93,6 +92,16 @@ class HomeActivity : AppCompatActivity(),
                 if (!handleIntent(intent)) {
                     // If intent is not handled, load default fragment
                     showHomeScreen()
+
+                    // Prepare playback when connection is established.
+                    mViewModel.post { controller ->
+                        val playbackState = controller.playbackState
+                        if (playbackState == null
+                                || playbackState.state == PlaybackStateCompat.STATE_NONE
+                                || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
+                            //controller.transportControls.prepare()
+                        }
+                    }
                 }
             } else PermissionUtil.requestExternalStoragePermission(this)
         }
@@ -330,11 +339,11 @@ class HomeActivity : AppCompatActivity(),
      * @return true if intent was handled, false otherwise
      */
     private fun handleIntent(intent: Intent?): Boolean {
-        Log.d(TAG, "handleIntent: " + intent?.action)
         if (intent != null && intent.action != null) {
             when (intent.action) {
                 ACTION_RANDOM -> {
                     startRandomMix()
+                    // Intent is purposely marked as not handled to trigger home screen display
                     return false
                 }
                 ACTION_ALBUMS -> {
@@ -354,6 +363,7 @@ class HomeActivity : AppCompatActivity(),
                 }
             }
         }
+
         return false
     }
 

@@ -37,9 +37,8 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
 import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.MediaItemsResult
-import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.MediaItemResult
+import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.utils.MediaID
@@ -190,9 +189,8 @@ class MusicService : MediaBrowserServiceCompat() {
 
     private inner class PlaybackStateListener : MediaControllerCompat.Callback() {
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            val newState = state?.state ?: return
-            when (newState) {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            when (state.state) {
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
                 PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
                 PlaybackStateCompat.STATE_STOPPED -> onPlaybackStop()

@@ -77,7 +77,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
         targetFragment?.onActivityResult(targetRequestCode, which, null)
     }
 
-    companion object {
+    companion object Factory {
         private const val ARG_TITLE = "title"
         private const val ARG_MESSAGE = "message"
         private const val ARG_POSITIVE = "positive_button"

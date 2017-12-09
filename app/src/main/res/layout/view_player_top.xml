@@ -66,7 +66,7 @@
         tools:text="Artist name"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline" />
 
-    <ImageView
+    <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/btn_play_pause"
         android:layout_width="40dp"
         android:layout_height="0dp"

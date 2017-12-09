@@ -19,7 +19,6 @@ package fr.nihilus.music.view;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -48,6 +47,8 @@ import android.widget.TextView;
 import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -60,8 +61,6 @@ import fr.nihilus.music.utils.ViewUtils;
 public class PlayerView extends ConstraintLayout {
 
     private static final String TAG = "PlayerView";
-    private static final int LEVEL_PLAYING = 1;
-    private static final int LEVEL_PAUSED = 0;
     private static final int PROGRESS_UPDATE_INITIAL_DELAY = 100;
     private static final int PROGRESS_UPDATE_PERIOD = 1000;
 
@@ -70,10 +69,10 @@ public class PlayerView extends ConstraintLayout {
     private TextView mSubtitle;
     private ImageView mAlbumArt;
     private MediaSeekBar mProgress;
-    private ImageView mPlayPauseButton;
+    private PlayPauseButton mPlayPauseButton;
     private ImageView mPreviousButton;
     private ImageView mNextButton;
-    private ImageView mMasterPlayPause;
+    private PlayPauseButton mMasterPlayPause;
     private ImageView mBigArt;
     private ImageView mShuffleModeButton;
     private ImageView mRepeatModeButton;
@@ -126,6 +125,7 @@ public class PlayerView extends ConstraintLayout {
                 .diskCacheStrategy(DiskCacheStrategy.NONE);
     }
 
+    @Contract(pure = true)
     private static boolean hasFlag(long actions, long flag) {
         return (actions & flag) == flag;
     }
@@ -180,22 +180,16 @@ public class PlayerView extends ConstraintLayout {
             return;
         }
 
-        boolean hasChanged = (mLastPlaybackState == null)
-                || (mLastPlaybackState.getState() != newState.getState());
-        Log.d(TAG, "updatePlaybackState: hasChanged=[" + hasChanged + "]");
-
         mProgress.setPlaybackState(newState);
         toggleControls(newState.getActions());
-        boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
         mLastPlaybackState = newState;
 
         String position = DateUtils.formatElapsedTime(mDurationBuilder, newState.getPosition() / 1000L);
         mSeekPosition.setText(position);
 
-        if (hasChanged) {
-            togglePlayPauseButton(mPlayPauseButton, isPlaying);
-            togglePlayPauseButton(mMasterPlayPause, isPlaying);
-        }
+        boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
+        mPlayPauseButton.setPlaying(isPlaying);
+        mMasterPlayPause.setPlaying(isPlaying);
 
         if (isPlaying) {
             scheduleProgressUpdate();
@@ -221,14 +215,6 @@ public class PlayerView extends ConstraintLayout {
 
         mAlbumArt.setPadding(0, 0, 0, 0);
         mPlayPauseButton.setVisibility(View.VISIBLE);
-    }
-
-    private void togglePlayPauseButton(ImageView button, boolean isPlaying) {
-        button.setImageLevel(isPlaying ? LEVEL_PLAYING : LEVEL_PAUSED);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Animatable avd = (Animatable) button.getDrawable().getCurrent();
-            avd.start();
-        }
     }
 
     private void toggleControls(long actions) {
