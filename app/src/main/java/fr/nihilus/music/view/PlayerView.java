@@ -105,87 +105,6 @@ public class PlayerView extends ConstraintLayout {
     }
 
     @Override
-    protected void dispatchSetPressed(boolean pressed) {
-        // Do not dispatch pressed event to View children
-    }
-
-    /**
-     * Expand or collapse the PlayerView with an animation.
-     * When expanded, it is drawn above the main content view.
-     * When collapsed, only the top is visible.
-     * If the playerView is not a direct child of CoordinatorLayout, this method will do nothing.
-     *
-     * @param expanded true to expand the PlayerView, false to collapse
-     */
-    public void setExpanded(boolean expanded) {
-        if (mExpanded != expanded) {
-            if (expanded) onOpen();
-            else onClose();
-            mExpanded = expanded;
-        }
-    }
-
-    public void updateMetadata(@Nullable MediaMetadataCompat metadata) {
-        if (metadata != null) {
-            mMetadata = metadata;
-            MediaDescriptionCompat media = metadata.getDescription();
-            mTitle.setText(media.getTitle());
-            mSubtitle.setText(media.getSubtitle());
-
-            Bitmap bitmap = media.getIconBitmap();
-            if (bitmap != null) {
-                mAlbumArt.setImageBitmap(media.getIconBitmap());
-            } else {
-                mAlbumArt.setImageResource(R.drawable.dummy_album_art);
-            }
-
-            mGlideRequest.load(media.getIconUri()).into(mBigArt);
-            mAutoUpdater.setMetadata(metadata);
-        }
-    }
-
-    public void updatePlaybackState(@Nullable PlaybackStateCompat newState) {
-        if (newState == null) {
-            reset();
-            return;
-        }
-
-        toggleControls(newState.getActions());
-        mLastPlaybackState = newState;
-        mAutoUpdater.setPlaybackState(newState);
-
-        boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
-        mPlayPauseButton.setPlaying(isPlaying);
-        mMasterPlayPause.setPlaying(isPlaying);
-    }
-
-    private void onOpen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionManager.beginDelayedTransition(this, mOpenTransition);
-        }
-
-        int eightDps = ViewUtils.dipToPixels(getContext(), 8);
-        mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
-        mPlayPauseButton.setVisibility(View.GONE);
-    }
-
-    private void onClose() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionManager.beginDelayedTransition(this, mOpenTransition);
-        }
-
-        mAlbumArt.setPadding(0, 0, 0, 0);
-        mPlayPauseButton.setVisibility(View.VISIBLE);
-    }
-
-    private void toggleControls(long actions) {
-        mMasterPlayPause.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
-        mPlayPauseButton.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
-        mPreviousButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0);
-        mNextButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0);
-    }
-
-    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
@@ -251,11 +170,131 @@ public class PlayerView extends ConstraintLayout {
         }
     }
 
+    @Override
+    protected void dispatchSetPressed(boolean pressed) {
+        // Do not dispatch pressed event to View children
+    }
+
+    /**
+     * Expand or collapse the PlayerView with an animation.
+     * When expanded, it is drawn above the main content view.
+     * When collapsed, only the top is visible.
+     * If the playerView is not a direct child of CoordinatorLayout, this method will do nothing.
+     *
+     * @param expanded true to expand the PlayerView, false to collapse
+     */
+    public void setExpanded(boolean expanded) {
+        if (mExpanded != expanded) {
+            if (expanded) onOpen();
+            else onClose();
+            mExpanded = expanded;
+        }
+    }
+
+    /**
+     * Updates the track's metadata currently represented by this PlayerView.
+     * @param metadata the currently focused track metadata.
+     */
+    public void updateMetadata(@Nullable MediaMetadataCompat metadata) {
+        if (metadata != null) {
+            mMetadata = metadata;
+            MediaDescriptionCompat media = metadata.getDescription();
+            mTitle.setText(media.getTitle());
+            mSubtitle.setText(media.getSubtitle());
+
+            Bitmap bitmap = media.getIconBitmap();
+            if (bitmap != null) {
+                mAlbumArt.setImageBitmap(media.getIconBitmap());
+            } else {
+                mAlbumArt.setImageResource(R.drawable.dummy_album_art);
+            }
+
+            mGlideRequest.load(media.getIconUri()).into(mBigArt);
+            mAutoUpdater.setMetadata(metadata);
+        }
+    }
+
+    /**
+     * Updates the playback state currently represented by this PlayerView.
+     * Playback state describes what actions are available.
+     *
+     * @param newState The last playback state.
+     */
+    public void updatePlaybackState(@Nullable PlaybackStateCompat newState) {
+        if (newState != null) {
+            mLastPlaybackState = newState;
+            toggleControls(newState.getActions());
+            mAutoUpdater.setPlaybackState(newState);
+
+            boolean isPlaying = newState.getState() == PlaybackStateCompat.STATE_PLAYING;
+            mPlayPauseButton.setPlaying(isPlaying);
+            mMasterPlayPause.setPlaying(isPlaying);
+
+        } else {
+
+            mAlbumArt.setImageDrawable(null);
+            mBigArt.setImageDrawable(null);
+            mTitle.setText(null);
+            mSubtitle.setText(null);
+
+            mProgress.setProgress(0);
+            mProgress.setMax(0);
+        }
+    }
+
+    /**
+     * Enables or disables actions depending on parameters provided by the current playback state.
+     * If an action is disabled, its associated view is also disabled and does not react to clicks.
+     *
+     * @param actions A set of flags describing what actions are available on this media session.
+     */
+    private void toggleControls(long actions) {
+        mMasterPlayPause.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
+        mPlayPauseButton.setEnabled((actions & PlaybackStateCompat.ACTION_PLAY_PAUSE) != 0);
+        mPreviousButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0);
+        mNextButton.setEnabled((actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0);
+        mRepeatModeButton.setEnabled((actions & PlaybackStateCompat.ACTION_SET_REPEAT_MODE) != 0);
+        mShuffleModeButton.setEnabled((actions & PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE) != 0);
+    }
+
+    private void onOpen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionManager.beginDelayedTransition(this, mOpenTransition);
+        }
+
+        int eightDps = ViewUtils.dipToPixels(getContext(), 8);
+        mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
+        mPlayPauseButton.setVisibility(View.GONE);
+    }
+
+    private void onClose() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            TransitionManager.beginDelayedTransition(this, mOpenTransition);
+        }
+
+        mAlbumArt.setPadding(0, 0, 0, 0);
+        mPlayPauseButton.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Updates display of the shuffle mode of this PlayerView.
+     * For requests to change the shuffle mode to be accurate, this value should always
+     * be in sync with the media session's.
+     *
+     * @param mode The current shuffle mode for this media session.
+     */
     public void setRepeatMode(@PlaybackStateCompat.RepeatMode int mode) {
         mRepeatModeButton.setImageLevel(mode);
         mRepeatModeButton.setActivated(mode != PlaybackStateCompat.REPEAT_MODE_NONE);
     }
 
+    /**
+     * Updates display of the repeat mode of this PlayerView.
+     * For requests to change the repeat mode to be accurate, this value should always
+     * be in sync with the media session's.
+     *
+     * @param mode The current repeat mode for this media session.
+     */
     public void setShuffleMode(@PlaybackStateCompat.ShuffleMode int mode) {
         mShuffleModeButton.setActivated(mode != PlaybackStateCompat.SHUFFLE_MODE_NONE);
     }
@@ -268,7 +307,7 @@ public class PlayerView extends ConstraintLayout {
     }
 
     /**
-     * Listens for events produced by user interactions with the PlayerView.
+     * Listens for events triggered by user interactions with the PlayerView.
      */
     public interface EventListener {
 
@@ -303,12 +342,12 @@ public class PlayerView extends ConstraintLayout {
          * @param newMode The new repeat mode.
          */
         void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode int newMode);
-
         /**
          * Called to handle a request to change the current shuffle mode.
          * @param newMode The new shuffle mode.
          */
         void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode int newMode);
+
     }
 
     @Override
@@ -337,11 +376,8 @@ public class PlayerView extends ConstraintLayout {
         mRepeatMode = savedState.repeatMode;
         mExpanded = savedState.expanded;
     }
-
-    /**
-     * Listens for click events on interactive views that compose a PlayerView.
-     */
     private class WidgetClickListener implements OnClickListener {
+
         private void handlePlayPauseClick() {
             int currentState = mLastPlaybackState.getState();
             if (currentState == PlaybackStateCompat.STATE_PLAYING) {
@@ -350,7 +386,6 @@ public class PlayerView extends ConstraintLayout {
                 mListener.onActionPlay();
             }
         }
-
         @Override
         public void onClick(View view) {
             if (mListener != null) {
@@ -380,16 +415,7 @@ public class PlayerView extends ConstraintLayout {
 
             }
         }
-    }
 
-    private void reset() {
-        mAlbumArt.setImageDrawable(null);
-        mBigArt.setImageDrawable(null);
-        mTitle.setText(null);
-        mSubtitle.setText(null);
-
-        mProgress.setProgress(0);
-        mProgress.setMax(0);
     }
 
     /**

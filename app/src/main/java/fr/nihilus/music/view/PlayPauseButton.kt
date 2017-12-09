@@ -47,6 +47,9 @@ class PlayPauseButton
         defStyleAttr: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttr) {
 
+    /**
+     * Whether this button should display its "playing" state.
+     */
     var isPlaying: Boolean = false
         set(value) {
             if (field != value) {
