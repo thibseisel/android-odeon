@@ -25,7 +25,7 @@ keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.1"
+    buildToolsVersion "27.0.2"
     defaultConfig {
         applicationId "fr.nihilus.music"
         minSdkVersion 16
@@ -101,9 +101,7 @@ dependencies {
 
     // My libraries
     implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
-    implementation ("com.github.thibseisel:kdenticon-android:${kdenticonVersion}") {
-        exclude group: 'org.jetbrains.kotlin'
-    }
+    implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
