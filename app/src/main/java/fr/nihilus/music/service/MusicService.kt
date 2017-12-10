@@ -194,6 +194,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     internal fun onUpdateMetadata() {
+        // FIXME Metadata are not always in sync with the currently playing track
         val currentQueueId = queueManager.getActiveQueueItemId(player)
         val queueItem = session.controller.queue.find { it.queueId == currentQueueId }
         if (queueItem != null) {
