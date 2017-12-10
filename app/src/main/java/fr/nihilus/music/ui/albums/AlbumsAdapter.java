@@ -63,7 +63,12 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
 
     AlbumsAdapter(@NonNull Fragment fragment) {
         mFragment = fragment;
+
         final Context ctx = fragment.getContext();
+        if (ctx == null) {
+            throw new IllegalStateException("Fragment is not attached");
+        }
+
         mDefaultColors = new int[]{
                 ContextCompat.getColor(ctx, R.color.album_band_default),
                 ViewUtils.resolveThemeColor(ctx, R.attr.colorAccent),
@@ -82,7 +87,16 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
     public AlbumHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.album_grid_item, parent, false);
-        return new AlbumHolder(v);
+
+        AlbumHolder holder = new AlbumHolder(v);
+        holder.itemView.setOnClickListener(view -> {
+            if (mListener != null) {
+                final int clickedPosition = holder.getAdapterPosition();
+                mListener.onAlbumSelected(holder, mAlbums.get(clickedPosition));
+            }
+        });
+
+        return holder;
     }
 
     @Override
@@ -109,13 +123,6 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
                         }
                     }
                 });
-
-        holder.itemView.setOnClickListener(view -> {
-            if (mListener != null) {
-                final int clickedPosition = holder.getAdapterPosition();
-                mListener.onAlbumSelected(holder, mAlbums.get(clickedPosition));
-            }
-        });
     }
 
     @Override
@@ -148,11 +155,11 @@ class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumHolder> {
             notifyDataSetChanged();
         } else {
             // Calculate diff and dispatch individual changes
-                MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
-                DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
-                mAlbums.clear();
-                mAlbums.addAll(newAlbums);
-                result.dispatchUpdatesTo(AlbumsAdapter.this);
+            MediaItemDiffCallback callback = new MediaItemDiffCallback(mAlbums, newAlbums);
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback, false);
+            mAlbums.clear();
+            mAlbums.addAll(newAlbums);
+            result.dispatchUpdatesTo(AlbumsAdapter.this);
         }
 
     }

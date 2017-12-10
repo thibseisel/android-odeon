@@ -38,7 +38,7 @@ class PlaylistsAdapter(
         fragment: Fragment
 ) : RecyclerView.Adapter<PlaylistsAdapter.PlaylistHolder>() {
 
-    private val mItems = ArrayList<MediaItem>()
+    private val mPlaylists = ArrayList<MediaItem>()
     private val mGlideRequest: RequestBuilder<Bitmap>
     private var mListener: OnPlaylistSelectedListener? = null
 
@@ -52,36 +52,39 @@ class PlaylistsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {
         val inflater = LayoutInflater.from(parent.context)
         val v = inflater.inflate(R.layout.playlist_item, parent, false)
-        return PlaylistHolder(v)
-    }
 
-    override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
-        val item = mItems[position]
-        holder.bind(item, mGlideRequest)
+        return PlaylistHolder(v).also { holder ->
 
-        holder.itemView.setOnClickListener {
-            mListener?.let {
-                val clickedItem = mItems[holder.adapterPosition]
-                if (clickedItem.isBrowsable) {
-                    // Only browsable items show their content
-                    it.onPlaylistSelected(holder, clickedItem)
+            // Dispatch clicks on the whole item
+            holder.itemView.setOnClickListener { _ ->
+                mListener?.let {
+                    val clickedItem = mPlaylists[holder.adapterPosition]
+                    if (clickedItem.isBrowsable) {
+                        // Only browsable items show their content
+                        it.onPlaylistSelected(holder, clickedItem)
+                    }
+                }
+            }
+
+            // Dispatch clicks on the play action
+            holder.actionPlay.setOnClickListener { _ ->
+                mListener?.let {
+                    val clickedItem = mPlaylists[holder.adapterPosition]
+                    it.onPlay(clickedItem)
                 }
             }
         }
-
-        holder.actionPlay.setOnClickListener { _ ->
-            mListener?.let {
-                val clickedItem = mItems[holder.adapterPosition]
-                it.onPlay(clickedItem)
-            }
-        }
     }
 
-    override fun getItemCount() = mItems.size
+    override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
+        holder.bind(mPlaylists[position], mGlideRequest)
+    }
+
+    override fun getItemCount() = mPlaylists.size
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = mItems[position].mediaId
+            val mediaId = mPlaylists[position].mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
 
@@ -93,14 +96,14 @@ class PlaylistsAdapter(
     }
 
     fun update(newItems: List<MediaItem>) {
-        if (newItems.isEmpty() && mItems.isEmpty()) {
+        if (newItems.isEmpty() && mPlaylists.isEmpty()) {
             // Dispatch a general change notification to update RecyclerFragment's empty state
             notifyDataSetChanged()
         } else {
-            val diffCallback = MediaItemDiffCallback(mItems, newItems)
+            val diffCallback = MediaItemDiffCallback(mPlaylists, newItems)
             val result = DiffUtil.calculateDiff(diffCallback, false)
-            mItems.clear()
-            mItems.addAll(newItems)
+            mPlaylists.clear()
+            mPlaylists.addAll(newItems)
             result.dispatchUpdatesTo(this)
         }
     }

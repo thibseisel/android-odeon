@@ -67,7 +67,12 @@ class MembersFragment : RecyclerFragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        mAdapter = MembersAdapter(this)
+        mAdapter = MembersAdapter(this) { member ->
+            mViewModel.post { controller ->
+                controller.transportControls.playFromMediaId(member.mediaId, null)
+            }
+        }
+
         mPlaylist = arguments?.getParcelable(ARG_PLAYLIST)
                 ?: throw IllegalStateException("Fragment must be instantiated with newInstance")
     }
@@ -100,8 +105,9 @@ class MembersFragment : RecyclerFragment() {
         mViewModel = ViewModelProviders.of(activity!!)[BrowserViewModel::class.java]
         adapter = mAdapter
         recyclerView.setHasFixedSize(true)
+
         if (savedInstanceState == null) {
-            //setRecyclerShown(false);
+            setRecyclerShown(false)
         }
     }
 

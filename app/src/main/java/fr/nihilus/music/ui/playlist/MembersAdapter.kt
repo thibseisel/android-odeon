@@ -24,19 +24,30 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import fr.nihilus.music.ItemSelectedListener
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.utils.MediaItemDiffCallback
 
-class MembersAdapter(fragment: Fragment) : RecyclerView.Adapter<MembersHolder>() {
+class MembersAdapter(
+        fragment: Fragment,
+        private val itemListener: ItemSelectedListener
+) : RecyclerView.Adapter<MembersHolder>() {
+
     private val mItems: MutableList<MediaBrowserCompat.MediaItem> = ArrayList()
     private val glideRequest = GlideApp.with(fragment).asBitmap()
             .error(R.drawable.dummy_album_art)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
-            MembersHolder(parent, glideRequest)
+            MembersHolder(parent, glideRequest).also { holder ->
+                // Dispatch click events
+                holder.itemView.setOnClickListener {
+                    val clickedItem = mItems[holder.adapterPosition]
+                    itemListener.invoke(clickedItem)
+                }
+            }
 
     override fun onBindViewHolder(holder: MembersHolder, position: Int) {
         holder.bind(mItems[position])
@@ -53,18 +64,19 @@ class MembersAdapter(fragment: Fragment) : RecyclerView.Adapter<MembersHolder>()
     }
 }
 
-class MembersHolder(parent: ViewGroup, private val artLoader: GlideRequest<Bitmap>)
-    : RecyclerView.ViewHolder(parent.inflate(R.layout.song_list_item)) {
+class MembersHolder(
+        parent: ViewGroup,
+        private val artLoader: GlideRequest<Bitmap>
+) : RecyclerView.ViewHolder(parent.inflate(R.layout.song_list_item)) {
 
     private val albumArt: ImageView = itemView.findViewById(R.id.cover)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
 
     fun bind(item: MediaBrowserCompat.MediaItem) {
-        item.description.let {
-            title.text = it.title
-            subtitle.text = it.subtitle
-            artLoader.load(it.iconUri).into(albumArt)
-        }
+        val description = item.description
+        title.text = description.title
+        subtitle.text = description.subtitle
+        artLoader.load(description.iconUri).into(albumArt)
     }
 }

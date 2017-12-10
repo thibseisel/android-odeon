@@ -35,3 +35,8 @@ typealias MediaControllerRequest = (MediaControllerCompat) -> Unit
  * This accepts an [Int] parameter giving hints on the new location.
  */
 typealias RouteChangeListener = (Int) -> Unit
+
+/**
+ * Listens to selection events from a set of media items.
+ */
+typealias ItemSelectedListener = (MediaBrowserCompat.MediaItem) -> Unit

@@ -76,15 +76,15 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
         return itemView
     }
 
-    private fun bindViewHolder(holder: ViewHolder, position: Int) {
-        val item = mSongs[position]
-        holder.bind(item, mGlideRequest)
-    }
-
     private fun createItemView(parent: ViewGroup): View {
         return parent.inflate(R.layout.song_list_item, false).also {
             it.tag = ViewHolder(it)
         }
+    }
+
+    private fun bindViewHolder(holder: ViewHolder, position: Int) {
+        val item = mSongs[position]
+        holder.bind(item, mGlideRequest)
     }
 
     override fun getSections(): Array<out Any> = mIndexer.sections

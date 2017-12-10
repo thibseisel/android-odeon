@@ -45,7 +45,16 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
     public TrackHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View v = inflater.inflate(R.layout.album_track_item, parent, false);
-        return new TrackHolder(v);
+
+        TrackHolder holder = new TrackHolder(v);
+        holder.itemView.setOnClickListener(view -> {
+            if (mListener != null) {
+                int position1 = holder.getAdapterPosition();
+                mListener.onTrackSelected(mTracks.get(position1));
+            }
+        });
+
+        return holder;
     }
 
     @Override
@@ -63,16 +72,6 @@ class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackHolder> {
             long trackNumber = extras.getLong(MediaItems.EXTRA_TRACK_NUMBER);
             holder.trackNo.setText(String.valueOf(trackNumber));
         }
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mListener != null) {
-                    int position = holder.getAdapterPosition();
-                    mListener.onTrackSelected(mTracks.get(position));
-                }
-            }
-        });
     }
 
     private static String formatDuration(long duration) {

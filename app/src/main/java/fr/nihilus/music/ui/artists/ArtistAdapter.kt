@@ -39,7 +39,7 @@ internal class ArtistAdapter(
         fragment: Fragment
 ) : RecyclerView.Adapter<ArtistAdapter.ArtistHolder>() {
 
-    private val mItems = ArrayList<MediaItem>()
+    private val mArtists = ArrayList<MediaItem>()
     private val mGlide: RequestBuilder<Bitmap>
     private var mListener: OnArtistSelectedListener? = null
 
@@ -55,42 +55,43 @@ internal class ArtistAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {
         val v = LayoutInflater.from(parent.context)
                 .inflate(R.layout.artist_grid_item, parent, false)
-        return ArtistHolder(v)
+
+        return ArtistHolder(v).also { holder ->
+            // Configure event to be dispatched when an artist is clicked
+            holder.itemView.setOnClickListener { _ ->
+                mListener?.onArtistSelected(holder, mArtists[holder.adapterPosition])
+            }
+        }
     }
 
     override fun onBindViewHolder(holder: ArtistHolder, position: Int) {
-        val artist = mItems[position]
-        holder.bind(artist, mGlide)
-
-        holder.itemView.setOnClickListener { _ ->
-            mListener?.onArtistSelected(holder, mItems[holder.adapterPosition])
-        }
+        holder.bind(mArtists[position], mGlide)
     }
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = mItems[position].mediaId
-            return java.lang.Long.parseLong(MediaID.extractMusicID(mediaId))
+            val mediaId = mArtists[position].mediaId
+            return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
         return RecyclerView.NO_ID
     }
 
-    override fun getItemCount() = mItems.size
+    override fun getItemCount() = mArtists.size
 
     fun setOnArtistSelectedListener(listener: OnArtistSelectedListener) {
         mListener = listener
     }
 
     fun updateArtists(artists: List<MediaItem>) {
-        if (artists.isEmpty() && mItems.isEmpty()) {
+        if (artists.isEmpty() && mArtists.isEmpty()) {
             // Dispatch a general change notification to update RecyclerFragment's empty state
             notifyDataSetChanged()
         } else {
             // Calculate diff and dispatch individual change notifications
-            val diffCallback = MediaItemDiffCallback(mItems, artists)
+            val diffCallback = MediaItemDiffCallback(mArtists, artists)
             val result = DiffUtil.calculateDiff(diffCallback, false)
-            mItems.clear()
-            mItems.addAll(artists)
+            mArtists.clear()
+            mArtists.addAll(artists)
             result.dispatchUpdatesTo(this)
         }
     }
