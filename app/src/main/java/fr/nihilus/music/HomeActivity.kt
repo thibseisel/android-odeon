@@ -33,6 +33,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
@@ -313,6 +314,7 @@ class HomeActivity : AppCompatActivity(),
      * @param state The most recent playback state
      */
     private fun togglePlayerVisibility(state: PlaybackStateCompat?) {
+        Log.d(TAG, "Is Hidden ? ${mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN}")
         if (state == null
                 || state.state == PlaybackStateCompat.STATE_NONE
                 || state.state == PlaybackStateCompat.STATE_STOPPED) {
@@ -320,7 +322,7 @@ class HomeActivity : AppCompatActivity(),
             mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             mContainer.setPadding(0, 0, 0, 0)
 
-        } else if (mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN
+        } else if (mBottomSheet.isHideable
                 || mBottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED

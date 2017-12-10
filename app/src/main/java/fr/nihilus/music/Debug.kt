@@ -54,10 +54,16 @@ private val playbackStates = arrayOf(
  * Log a playback state code as its equivalent `PlaybackStateCompat.STATE_*` constant string.
  * Logs are not printed in production builds unless it is an error state.
  */
-fun logPlaybackState(tag: String, state: Int) {
-    if (state == PlaybackStateCompat.STATE_ERROR) {
-        Log.e(tag, "PlaybackState: ERROR")
-    } else if (BuildConfig.DEBUG) {
-        Log.d(tag, "PlaybackState: ${playbackStates[state]}")
+fun logPlaybackState(tag: String, state: PlaybackStateCompat?) {
+    if (state == null && BuildConfig.DEBUG) {
+        Log.d(tag, "PlaybackState: Null")
+    } else if (state != null) {
+        val status = state.state
+        if (status == PlaybackStateCompat.STATE_ERROR) {
+            Log.e(tag, "PlaybackState: ERROR")
+        } else if (BuildConfig.DEBUG) {
+            Log.d(tag, "PlaybackState: ${playbackStates[status]}")
+        }
     }
+
 }

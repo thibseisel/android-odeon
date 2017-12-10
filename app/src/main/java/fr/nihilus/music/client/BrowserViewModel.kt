@@ -28,7 +28,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.doIfPresent
-import fr.nihilus.music.logPlaybackState
 import fr.nihilus.music.service.MusicService
 import java.lang.ref.WeakReference
 import java.util.*
@@ -158,7 +157,6 @@ class BrowserViewModel
             // Only report for interesting statuses.
             // Transient statuses such as SKIPPING, BUFFERING are ignored for UI display
             if (state.state in meaningfulStatuses) {
-                logPlaybackState(TAG, state.state)
                 playbackState.value = state
             }
         }
