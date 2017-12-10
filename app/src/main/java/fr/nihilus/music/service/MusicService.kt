@@ -202,6 +202,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
             repository.getMetadata(musicId)
                     .flatMap { albumArtLoader.loadIntoMetadata(it) }
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { metadata, error ->
                         session.setMetadata(if (error == null) metadata else null)
                     }

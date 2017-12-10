@@ -27,6 +27,7 @@ import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 internal class PlaylistItems
@@ -62,9 +63,7 @@ internal class PlaylistItems
 
     private fun fetchBuiltInPlaylists(): Single<List<MediaItem>> {
         return Single.fromCallable {
-            listOf(
-                    mostRecentTracks.asMediaItem()
-            )
+            listOf(mostRecentTracks.asMediaItem())
         }
     }
 
@@ -81,6 +80,7 @@ internal class PlaylistItems
     private fun fetchPlaylistMembers(playlistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylistTracks(playlistId.toLong())
+                .subscribeOn(Schedulers.io())
                 .flatMapObservable { Observable.fromIterable(it) }
                 .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
                 .map { member ->
