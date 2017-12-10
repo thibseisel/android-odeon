@@ -43,9 +43,6 @@ import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
-/**
- *
- */
 @ServiceScoped
 class MediaQueueManager
 @Inject constructor(
@@ -138,7 +135,6 @@ class MediaQueueManager
     override fun getCommands() = commands.keys.toTypedArray()
 
     override fun onCommand(player: Player?, command: String?, extras: Bundle?, cb: ResultReceiver?) {
-        //
         commands[command]?.handle(extras, cb)
                 ?: cb?.send(MediaSessionCommand.CODE_UNKNOWN_COMMAND, null)
     }
@@ -148,8 +144,10 @@ class MediaQueueManager
                 .mapTo(currentQueue) { it.description }
 
         val mediaSources = Array(playableItems.size) {
-            val sourceUri = playableItems[it].mediaUri
-                    ?: throw IllegalStateException("Every item should have an Uri.")
+            val sourceUri = checkNotNull(playableItems[it].mediaUri) {
+                "Every item should have an Uri."
+            }
+
             ExtractorMediaSource(sourceUri, dataSourceFactory, extractorsFactory, null, null)
         }
 
