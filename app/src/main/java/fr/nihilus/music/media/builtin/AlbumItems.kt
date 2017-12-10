@@ -61,8 +61,9 @@ internal class AlbumItems
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ALBUM_ID to albumId.toLong()),
                 MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-                .map { it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId) }
-                .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
-                .toList()
+                .map {
+                    val description = it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId)
+                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
+                }.toList()
     }
 }

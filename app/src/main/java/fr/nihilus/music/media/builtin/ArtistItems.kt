@@ -54,20 +54,24 @@ internal class ArtistItems
 
     private fun fetchAllArtists(): Single<List<MediaItem>> {
         return musicDao.getArtists()
-                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
+                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
                 .toList()
     }
 
     private fun fetchArtistChildren(artistId: String): Single<List<MediaItem>> {
         val builder = MediaDescriptionCompat.Builder()
+
+        val criteria = mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId)
         val albumSorting = "${MediaMetadataCompat.METADATA_KEY_YEAR} DESC"
 
-        val albums = musicDao.getAlbums(mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId), albumSorting)
+        val albums = musicDao.getAlbums(criteria, albumSorting)
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
 
-        val tracks = musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId), null)
-                .map { it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId) }
-                .map { MediaItem(it, MediaItem.FLAG_PLAYABLE) }
+        val tracks = musicDao.getTracks(criteria, null)
+                .map {
+                    val description = it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId)
+                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
+                }
         return Observable.concat(albums, tracks).toList()
     }
 }

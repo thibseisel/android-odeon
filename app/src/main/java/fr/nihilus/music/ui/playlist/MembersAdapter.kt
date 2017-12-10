@@ -61,7 +61,7 @@ class MembersHolder(parent: ViewGroup, private val artLoader: GlideRequest<Bitma
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
 
     fun bind(item: MediaBrowserCompat.MediaItem) {
-        item.description.also {
+        item.description.let {
             title.text = it.title
             subtitle.text = it.subtitle
             artLoader.load(it.iconUri).into(albumArt)

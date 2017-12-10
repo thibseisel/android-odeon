@@ -30,8 +30,8 @@ class MediaItemDiffCallback(
     override fun getNewListSize() = mNew.size
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldId = mOld[oldItemPosition].mediaId!!
-        val newId = mNew[newItemPosition].mediaId!!
+        val oldId = mOld[oldItemPosition].mediaId
+        val newId = mNew[newItemPosition].mediaId
         return oldId == newId
     }
 

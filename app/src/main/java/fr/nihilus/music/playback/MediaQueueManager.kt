@@ -81,6 +81,7 @@ class MediaQueueManager
 
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         if (mediaId != null) {
+            prefs.lastPlayedMediaId = mediaId
             repository.getMediaItems(mediaId).subscribe { items ->
                 currentQueue.clear()
                 setupMediaSource(mediaId, items)

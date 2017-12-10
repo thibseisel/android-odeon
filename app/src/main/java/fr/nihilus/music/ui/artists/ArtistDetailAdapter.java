@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.MediaStore.Audio.AlbumColumns;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -69,6 +68,11 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     ArtistDetailAdapter(@NonNull Fragment fragment) {
         mFragment = fragment;
         Context ctx = fragment.getContext();
+
+        if (ctx == null) {
+            throw new IllegalStateException("Fragment is not attached");
+        }
+
         mDefaultColors = new int[]{
                 ContextCompat.getColor(ctx, R.color.album_band_default),
                 ViewUtils.resolveThemeColor(ctx, R.attr.colorAccent),
@@ -109,12 +113,8 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
-        Bundle extras = mItems.get(position).getDescription().getExtras();
-        if (extras != null) {
-            boolean isAlbum = extras.getString(AlbumColumns.ALBUM_KEY, null) != null;
-            return isAlbum ? TYPE_ALBUM : TYPE_TRACK;
-        }
-        return TYPE_TRACK;
+        MediaItem item = mItems.get(position);
+        return item.isBrowsable() ? TYPE_ALBUM : TYPE_TRACK;
     }
 
     @Override
@@ -177,13 +177,10 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
         });
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    int position = holder.getAdapterPosition();
-                    mListener.onAlbumSelected(holder, mItems.get(position));
-                }
+        holder.itemView.setOnClickListener(v -> {
+            if (mListener != null) {
+                int position1 = holder.getAdapterPosition();
+                mListener.onAlbumSelected(holder, mItems.get(position1));
             }
         });
     }
@@ -200,13 +197,10 @@ class ArtistDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         mBitmapLoader.load(item.getIconUri()).into(holder.albumArt);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mListener != null) {
-                    int position = holder.getAdapterPosition();
-                    mListener.onTrackSelected(holder, mItems.get(position));
-                }
+        holder.itemView.setOnClickListener(v -> {
+            if (mListener != null) {
+                int position1 = holder.getAdapterPosition();
+                mListener.onTrackSelected(holder, mItems.get(position1));
             }
         });
     }

@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.settings;
+package fr.nihilus.music.settings
 
-import dagger.Module;
-import dagger.android.ContributesAndroidInjector;
-import fr.nihilus.music.di.FragmentScoped;
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.di.FragmentScoped
 
+@Suppress("unused")
 @Module
-public abstract class SettingsModule {
+abstract class SettingsModule {
 
     @FragmentScoped
     @ContributesAndroidInjector
-    abstract MainPreferenceFragment contributeMainPreferenceFragment();
+    abstract fun contributeMainPreferenceFragment(): MainPreferenceFragment
 }
