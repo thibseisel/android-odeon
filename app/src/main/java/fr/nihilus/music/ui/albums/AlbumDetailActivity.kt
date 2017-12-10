@@ -38,14 +38,11 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.darker
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import javax.inject.Inject
 
-class AlbumDetailActivity : AppCompatActivity(),
-        View.OnClickListener,
-        TrackAdapter.OnTrackSelectedListener {
+class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var mAdapter: TrackAdapter
     private lateinit var mPickedAlbum: MediaItem
@@ -80,9 +77,12 @@ class AlbumDetailActivity : AppCompatActivity(),
         }
 
         mAlbumTitle = findViewById(R.id.title)
-        mAlbumTitle.text = mPickedAlbum.description.title
         mAlbumArtist = findViewById(R.id.subtitle)
-        mAlbumArtist.text = mPickedAlbum.description.subtitle
+
+        with(mPickedAlbum.description) {
+            mAlbumTitle.text = title
+            mAlbumArtist.text = subtitle
+        }
 
         mPlayFab = findViewById(R.id.action_play)
         mPlayFab.setOnClickListener(this)
@@ -94,6 +94,8 @@ class AlbumDetailActivity : AppCompatActivity(),
 
         mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
         mViewModel.connect()
+
+        // Change the decorated item when metadata changes
         mViewModel.currentMetadata.observe(this, Observer(this::decoratePlayingTrack))
     }
 
@@ -108,7 +110,7 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     private fun setupAlbumArt() {
-        val albumArtView = findViewById<ImageView>(R.id.cover)
+        val albumArtView: ImageView = findViewById(R.id.cover)
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME)
         GlideApp.with(this).load(mPickedAlbum.description.iconUri).into(albumArtView)
     }
@@ -117,14 +119,14 @@ class AlbumDetailActivity : AppCompatActivity(),
         mRecyclerView = findViewById(android.R.id.list)
         mRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        mAdapter = TrackAdapter()
+        mAdapter = TrackAdapter(this::playMediaItem)
         mRecyclerView.adapter = mAdapter
-        mAdapter.setOnTrackSelectedListener(this)
     }
 
     private fun setupToolbar() {
         setSupportActionBar(findViewById(R.id.toolbar))
         mCollapsingToolbar = findViewById(R.id.collapsingToolbar)
+
         supportActionBar!!.apply {
             setDisplayHomeAsUpEnabled(true)
             title = null
@@ -172,26 +174,19 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     /**
-     * Adds an [CurrentlyPlayingDecoration] to a track of this album if it's currently playing.
+     * Adds an [CurrentlyPlayingDecoration] to a track of this album if it is currently playing.
      *
-     * @param playingTrack the currently playing track
+     * @param playingTrack the currently playing track.
      */
     private fun decoratePlayingTrack(playingTrack: MediaMetadataCompat?) {
         if (playingTrack != null) {
-            val musicId = playingTrack.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-            val position = mAdapter.items.indexOfFirst {
-                musicId == MediaID.extractMusicID(it.mediaId)
-            }
+            val position = mAdapter.indexOf(playingTrack)
 
             if (position != -1) {
                 mDecoration.setDecoratedItemPosition(position)
                 mRecyclerView.invalidateItemDecorations()
             }
         }
-    }
-
-    override fun onTrackSelected(track: MediaItem) {
-        playMediaItem(track)
     }
 
     companion object {
