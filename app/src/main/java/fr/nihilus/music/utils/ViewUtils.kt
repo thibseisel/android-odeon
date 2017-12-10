@@ -19,8 +19,10 @@
 package fr.nihilus.music.utils
 
 import android.content.Context
+import android.graphics.Color
 import android.support.annotation.AttrRes
 import android.support.annotation.ColorInt
+import android.support.annotation.FloatRange
 import android.support.annotation.Px
 import android.util.TypedValue
 
@@ -28,6 +30,17 @@ import android.util.TypedValue
 fun dipToPixels(context: Context, dp: Float): Int {
     val metrics = context.resources.displayMetrics
     return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics))
+}
+
+/**
+ * Produce a darker shade of this color by a given factor.
+ */
+@ColorInt
+fun darker(@ColorInt color: Int, @FloatRange(from = 0.0, to = 1.0) factor: Float): Int {
+    val hsv = FloatArray(3)
+    Color.colorToHSV(color, hsv)
+    hsv[2] *= factor
+    return Color.HSVToColor(hsv)
 }
 
 /**

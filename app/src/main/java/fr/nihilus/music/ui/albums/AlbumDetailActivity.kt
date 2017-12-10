@@ -39,7 +39,7 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.ViewUtils
+import fr.nihilus.music.utils.darker
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import javax.inject.Inject
 
@@ -143,7 +143,7 @@ class AlbumDetailActivity : AppCompatActivity(),
      *
      */
     private fun applyPaletteTheme(@ColorInt colors: IntArray) {
-        val statusBarColor = ViewUtils.darker(colors[0], 0.8f)
+        val statusBarColor = darker(colors[0], 0.8f)
         mCollapsingToolbar.setStatusBarScrimColor(statusBarColor)
         mCollapsingToolbar.setContentScrimColor(colors[0])
         findViewById<View>(R.id.band).setBackgroundColor(colors[0])
