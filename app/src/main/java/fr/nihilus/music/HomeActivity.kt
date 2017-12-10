@@ -204,7 +204,8 @@ class HomeActivity : AppCompatActivity(),
                     }
 
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                        if (newState != BottomSheetBehavior.STATE_COLLAPSED
+                                && newState != BottomSheetBehavior.STATE_HIDDEN) {
                             mPlayerView.setExpanded(true)
                             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                         } else {

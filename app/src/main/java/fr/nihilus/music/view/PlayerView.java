@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -31,9 +30,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.content.res.AppCompatResources;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
-import android.transition.TransitionManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -58,7 +54,6 @@ public class PlayerView extends ConstraintLayout {
     private TextView mSubtitle;
     private ImageView mAlbumArt;
     private SeekBar mProgress;
-    private PlayPauseButton mPlayPauseButton;
     private ImageView mPreviousButton;
     private ImageView mNextButton;
     private PlayPauseButton mMasterPlayPause;
@@ -66,13 +61,16 @@ public class PlayerView extends ConstraintLayout {
     private ImageView mShuffleModeButton;
     private ImageView mRepeatModeButton;
 
+    private PlayPauseButton mPlayPauseButton;
+    private ImageView mMiniPrevious;
+    private ImageView mMiniNext;
+
     private EventListener mListener;
 
     private boolean mExpanded = false;
     private int mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE;
     private PlaybackStateCompat mLastPlaybackState;
     private MediaMetadataCompat mMetadata;
-    private Transition mOpenTransition;
 
     private ProgressAutoUpdater mAutoUpdater;
 
@@ -130,6 +128,9 @@ public class PlayerView extends ConstraintLayout {
         mBigArt = findViewById(R.id.bigArt);
 
         mPlayPauseButton = findViewById(R.id.btn_play_pause);
+        mMiniPrevious = findViewById(R.id.btn_mini_previous);
+        mMiniNext = findViewById(R.id.btn_mini_next);
+
         mPreviousButton = findViewById(R.id.btn_previous);
         mNextButton = findViewById(R.id.btn_next);
         mMasterPlayPause = findViewById(R.id.main_play_pause);
@@ -156,17 +157,9 @@ public class PlayerView extends ConstraintLayout {
         mNextButton.setOnClickListener(clickListener);
         mShuffleModeButton.setOnClickListener(clickListener);
 
-        ImageView miniPrevious = findViewById(R.id.btn_mini_previous);
-        ImageView miniNext = findViewById(R.id.btn_mini_next);
-        if (miniPrevious != null && miniNext != null) {
-            miniPrevious.setOnClickListener(clickListener);
-            miniNext.setOnClickListener(clickListener);
-        }
-
-        // Transitions of the top of the PlayerView
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mOpenTransition = TransitionInflater.from(getContext())
-                    .inflateTransition(R.transition.playerview_header_transition);
+        if (mMiniPrevious != null && mMiniNext != null) {
+            mMiniPrevious.setOnClickListener(clickListener);
+            mMiniNext.setOnClickListener(clickListener);
         }
     }
 
@@ -258,22 +251,26 @@ public class PlayerView extends ConstraintLayout {
     }
 
     private void onOpen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionManager.beginDelayedTransition(this, mOpenTransition);
-        }
-
         int eightDps = ViewUtils.dipToPixels(getContext(), 8);
         mAlbumArt.setPadding(eightDps, eightDps, eightDps, eightDps);
         mPlayPauseButton.setVisibility(View.GONE);
+
+        if (mMiniPrevious != null && mMiniNext != null) {
+            // We assume we are in landscape mode
+            mMiniPrevious.setVisibility(View.GONE);
+            mMiniNext.setVisibility(View.GONE);
+        }
     }
 
     private void onClose() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            TransitionManager.beginDelayedTransition(this, mOpenTransition);
-        }
-
         mAlbumArt.setPadding(0, 0, 0, 0);
         mPlayPauseButton.setVisibility(View.VISIBLE);
+
+        if (mMiniPrevious != null && mMiniNext != null) {
+            // We assume we are in landscape mode
+            mMiniPrevious.setVisibility(View.VISIBLE);
+            mMiniNext.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
