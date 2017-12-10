@@ -93,16 +93,6 @@ class HomeActivity : AppCompatActivity(),
                 if (!handleIntent(intent)) {
                     // If intent is not handled, load default fragment
                     showHomeScreen()
-
-                    // Prepare playback when connection is established.
-                    mViewModel.post { controller ->
-                        val playbackState = controller.playbackState
-                        if (playbackState == null
-                                || playbackState.state == PlaybackStateCompat.STATE_NONE
-                                || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
-                            //controller.transportControls.prepare()
-                        }
-                    }
                 }
             } else PermissionUtil.requestExternalStoragePermission(this)
         }
@@ -362,6 +352,18 @@ class HomeActivity : AppCompatActivity(),
                     mNavigationView.setCheckedItem(R.id.action_playlist)
                     mRouter.navigateToPlaylists()
                     return true
+                }
+                Intent.ACTION_MAIN -> {
+                    // Activity has been started normally from the launcher.
+                    // Prepare playback when connection is established.
+                    mViewModel.post { controller ->
+                        val playbackState = controller.playbackState
+                        if (playbackState == null
+                                || playbackState.state == PlaybackStateCompat.STATE_NONE
+                                || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
+                            controller.transportControls.prepare()
+                        }
+                    }
                 }
             }
         }
