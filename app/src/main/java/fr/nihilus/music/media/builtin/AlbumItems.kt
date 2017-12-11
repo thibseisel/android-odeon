@@ -24,6 +24,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
+import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -33,15 +34,15 @@ internal class AlbumItems
         private val musicDao: MusicDao
 ): BuiltinItem {
 
-    override fun asMediaItem(): MediaItem {
+    override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(MediaID.ID_ALBUMS)
                 .setTitle(context.getString(R.string.action_albums))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
+        return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
     }
 
-    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val hierarchy = MediaID.getHierarchy(parentMediaId)
         return if (hierarchy.size > 1) {
             val albumId = hierarchy[1]
@@ -51,19 +52,18 @@ internal class AlbumItems
         }
     }
 
-    private fun fetchAllAlbums(): Single<List<MediaItem>> {
+    private fun fetchAllAlbums(): Observable<MediaItem> {
         return musicDao.getAlbums(null, null)
                 .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
-                .toList()
     }
 
-    private fun fetchAlbumTracks(albumId: String): Single<List<MediaItem>> {
+    private fun fetchAlbumTracks(albumId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ALBUM_ID to albumId.toLong()),
                 MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
                 .map {
                     val description = it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId)
                     MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }.toList()
+                }
     }
 }

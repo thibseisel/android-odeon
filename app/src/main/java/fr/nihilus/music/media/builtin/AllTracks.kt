@@ -23,6 +23,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
+import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -32,20 +33,21 @@ internal class AllTracks
         private val musicDao: MusicDao
 ) : BuiltinItem {
 
-    override fun asMediaItem(): MediaItem {
+    override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(MediaID.ID_MUSIC)
                 .setTitle(context.getString(R.string.all_music))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
+        val item = MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
+        return Single.just(item)
     }
 
-    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getTracks(null, null)
                 .map { metadata ->
                     val description = metadata.asMediaDescription(builder, MediaID.ID_MUSIC)
                     MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }.toList()
+                }
     }
 }

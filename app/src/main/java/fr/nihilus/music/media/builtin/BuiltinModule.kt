@@ -31,7 +31,7 @@ import fr.nihilus.music.utils.MediaID
  * of a [BuiltinItem] and binds it to the map with the root media id it represents as the key.
  */
 @Suppress("unused")
-@Module(includes = [HomeScreenModule::class])
+@Module
 internal abstract class BuiltinModule {
 
     @Binds @IntoMap

@@ -26,7 +26,6 @@ import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -38,46 +37,40 @@ internal class PlaylistItems
         private val mostRecentTracks: MostRecentTracks
 ) : BuiltinItem {
 
-    override fun asMediaItem(): MediaItem {
+    override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(MediaID.ID_PLAYLISTS)
                 .setTitle(context.getString(R.string.action_playlists))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
+        return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
     }
 
-    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val hierarchy = MediaID.getHierarchy(parentMediaId)
         return if (hierarchy.size > 1) {
             val playlistId = hierarchy[1]
             fetchPlaylistMembers(playlistId)
         } else {
-            Single.zip(fetchBuiltInPlaylists(), fetchUserPlaylists(), BiFunction { builtin, userDefined ->
-                ArrayList<MediaItem>(builtin.size + userDefined.size).apply {
-                    addAll(builtin)
-                    addAll(userDefined)
-                }
-            })
+            Observable.concat(fetchBuiltInPlaylists(), fetchUserPlaylists())
         }
     }
 
-    private fun fetchBuiltInPlaylists(): Single<List<MediaItem>> {
-        return Single.fromCallable {
-            listOf(mostRecentTracks.asMediaItem())
-        }
+    private fun fetchBuiltInPlaylists(): Observable<MediaItem> {
+        // As the number of predefined playlists grow, use Single.concat(item1, item2...)
+        return mostRecentTracks.asMediaItem().toObservable()
     }
 
-    private fun fetchUserPlaylists(): Single<List<MediaItem>> {
+    private fun fetchUserPlaylists(): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylists()
                 .flatMapObservable { Observable.fromIterable(it) }
                 .map { playlist ->
                     val description = playlist.asMediaDescription(builder)
                     MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
-                }.toList()
+                }
     }
 
-    private fun fetchPlaylistMembers(playlistId: String): Single<List<MediaItem>> {
+    private fun fetchPlaylistMembers(playlistId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylistTracks(playlistId.toLong())
                 .subscribeOn(Schedulers.io())
@@ -86,7 +79,7 @@ internal class PlaylistItems
                 .map { member ->
                     val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
                     MediaItem(descr, MediaItem.FLAG_PLAYABLE)
-                }.toList()
+                }
     }
 
 }

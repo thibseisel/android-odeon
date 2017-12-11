@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.builtin
 
 import android.support.v4.media.MediaBrowserCompat
+import io.reactivex.Observable
 import io.reactivex.Single
 
 /**
@@ -36,7 +37,7 @@ interface BuiltinItem {
      *
      * @return a media item representing this built-in item
      */
-    fun asMediaItem(): MediaBrowserCompat.MediaItem
+    fun asMediaItem(): Single<MediaBrowserCompat.MediaItem>
 
     /**
      * Provides the children media items of this built-in element.
@@ -49,5 +50,5 @@ interface BuiltinItem {
      *
      * @return an observable list of media item children of this built-in item
      */
-    fun getChildren(parentMediaId: String): Single<List<MediaBrowserCompat.MediaItem>>
+    fun getChildren(parentMediaId: String): Observable<MediaBrowserCompat.MediaItem>
 }

@@ -52,9 +52,11 @@ internal class CachedMusicRepository
         // Notify an error if no built-in is found
         val builtIn = builtIns[parentHierarchy[0]]
                 ?: return Single.error(::UnsupportedOperationException)
-        val items = builtIn.getChildren(trueParent)
+        val items = builtIn.getChildren(trueParent).toList()
 
-        return items.doOnSuccess { musicCache.putItems(trueParent, it) }
+        return items.doOnSuccess {
+            musicCache.putItems(trueParent, it)
+        }
     }
 
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> =

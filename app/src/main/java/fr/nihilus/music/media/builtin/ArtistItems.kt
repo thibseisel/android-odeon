@@ -34,15 +34,16 @@ internal class ArtistItems
         private val musicDao: MusicDao
 ) : BuiltinItem {
 
-    override fun asMediaItem(): MediaItem {
+    override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(MediaID.ID_ARTISTS)
                 .setTitle(context.getString(R.string.action_artists))
                 .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
+        val item = MediaItem(description, MediaItem.FLAG_BROWSABLE)
+        return Single.just(item)
     }
 
-    override fun getChildren(parentMediaId: String): Single<List<MediaItem>> {
+    override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val hierarchy = MediaID.getHierarchy(parentMediaId)
         return if (hierarchy.size > 1) {
             val artistId = hierarchy[1]
@@ -52,13 +53,10 @@ internal class ArtistItems
         }
     }
 
-    private fun fetchAllArtists(): Single<List<MediaItem>> {
-        return musicDao.getArtists()
-                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
-                .toList()
-    }
+    private fun fetchAllArtists(): Observable<MediaItem> =
+            musicDao.getArtists().map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
 
-    private fun fetchArtistChildren(artistId: String): Single<List<MediaItem>> {
+    private fun fetchArtistChildren(artistId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
         val criteria = mapOf(MusicDao.METADATA_KEY_ARTIST_ID to artistId)
@@ -72,6 +70,6 @@ internal class ArtistItems
                     val description = it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId)
                     MediaItem(description, MediaItem.FLAG_PLAYABLE)
                 }
-        return Observable.concat(albums, tracks).toList()
+        return Observable.concat(albums, tracks)
     }
 }
