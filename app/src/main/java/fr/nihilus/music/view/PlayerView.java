@@ -107,14 +107,14 @@ public class PlayerView extends ConstraintLayout {
         super.onFinishInflate();
 
         // Retrieve reference to views from top
-        mAlbumArt = findViewById(R.id.cover);
-        mTitle = findViewById(R.id.title);
-        mSubtitle = findViewById(R.id.subtitle);
-        mProgress = findViewById(R.id.seekbar);
+        mAlbumArt = findViewById(R.id.iconView);
+        mTitle = findViewById(R.id.titleView);
+        mSubtitle = findViewById(R.id.subtitleView);
+        mProgress = findViewById(R.id.seekBar);
 
         // Configure playback position auto-updater
-        final TextView seekPosition = findViewById(R.id.seek_position);
-        final TextView seekDuration = findViewById(R.id.seek_duration);
+        final TextView seekPosition = findViewById(R.id.textTimePosition);
+        final TextView seekDuration = findViewById(R.id.textTimeDuration);
 
         mAutoUpdater = new ProgressAutoUpdater(mProgress, seekPosition, seekDuration, (position) -> {
             if (mListener != null) {
@@ -125,17 +125,17 @@ public class PlayerView extends ConstraintLayout {
 
         mProgress.setOnSeekBarChangeListener(mAutoUpdater);
 
-        mBigArt = findViewById(R.id.bigArt);
+        mBigArt = findViewById(R.id.albumArtView);
 
-        mPlayPauseButton = findViewById(R.id.btn_play_pause);
-        mMiniPrevious = findViewById(R.id.btn_mini_previous);
-        mMiniNext = findViewById(R.id.btn_mini_next);
+        mPlayPauseButton = findViewById(R.id.playPauseButton);
+        mMiniPrevious = findViewById(R.id.miniPrevButton);
+        mMiniNext = findViewById(R.id.miniNextButton);
 
-        mPreviousButton = findViewById(R.id.btn_previous);
-        mNextButton = findViewById(R.id.btn_next);
-        mMasterPlayPause = findViewById(R.id.main_play_pause);
-        mShuffleModeButton = findViewById(R.id.btn_shuffle);
-        mRepeatModeButton = findViewById(R.id.btn_repeat);
+        mPreviousButton = findViewById(R.id.skipPrevButton);
+        mNextButton = findViewById(R.id.skipNextButton);
+        mMasterPlayPause = findViewById(R.id.masterPlayPause);
+        mShuffleModeButton = findViewById(R.id.shuffleButton);
+        mRepeatModeButton = findViewById(R.id.repeatButton);
 
         // Change color when shuffle mode and repeat mode buttons are activated
         ColorStateList activationStateList = AppCompatResources.getColorStateList(getContext(),
@@ -387,24 +387,24 @@ public class PlayerView extends ConstraintLayout {
         public void onClick(View view) {
             if (mListener != null) {
                 switch (view.getId()) {
-                    case R.id.main_play_pause:
-                    case R.id.btn_play_pause:
+                    case R.id.masterPlayPause:
+                    case R.id.playPauseButton:
                         handlePlayPauseClick();
                         break;
-                    case R.id.btn_previous:
-                    case R.id.btn_mini_previous:
+                    case R.id.skipPrevButton:
+                    case R.id.miniPrevButton:
                         mListener.onSkipToPrevious();
                         break;
-                    case R.id.btn_next:
-                    case R.id.btn_mini_next:
+                    case R.id.skipNextButton:
+                    case R.id.miniNextButton:
                         mListener.onSkipToNext();
                         break;
-                    case R.id.btn_shuffle:
+                    case R.id.shuffleButton:
                         mListener.onShuffleModeChanged(mShuffleModeButton.isActivated()
                                 ? PlaybackStateCompat.SHUFFLE_MODE_NONE
                                 : PlaybackStateCompat.SHUFFLE_MODE_ALL);
                         break;
-                    case R.id.btn_repeat:
+                    case R.id.repeatButton:
                         mRepeatMode = (mRepeatMode + 1) % 3;
                         mListener.onRepeatModeChanged(mRepeatMode);
                         break;

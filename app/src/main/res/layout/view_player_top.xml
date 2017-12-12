@@ -21,7 +21,7 @@
     tools:showIn="@layout/view_player">
 
     <ImageView
-        android:id="@+id/cover"
+        android:id="@+id/iconView"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:contentDescription="@string/album_art"
@@ -31,7 +31,7 @@
         tools:src="?colorAccent" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/titleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -41,15 +41,15 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintLeft_toRightOf="@+id/cover"
-        app:layout_constraintRight_toLeftOf="@+id/btn_play_pause"
+        app:layout_constraintLeft_toRightOf="@+id/iconView"
+        app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Title of the song"
-        app:layout_constraintBottom_toTopOf="@+id/subtitle"
+        app:layout_constraintBottom_toTopOf="@+id/subtitleView"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/subtitle"
+        android:id="@+id/subtitleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -60,14 +60,14 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorTertiary"
-        app:layout_constraintRight_toLeftOf="@+id/btn_play_pause"
-        app:layout_constraintStart_toEndOf="@id/cover"
-        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
+        app:layout_constraintStart_toEndOf="@id/iconView"
+        app:layout_constraintTop_toBottomOf="@id/titleView"
         tools:text="Artist name"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline" />
 
     <fr.nihilus.music.view.PlayPauseButton
-        android:id="@+id/btn_play_pause"
+        android:id="@+id/playPauseButton"
         android:layout_width="40dp"
         android:layout_height="0dp"
         android:background="?selectableItemBackgroundBorderless"
