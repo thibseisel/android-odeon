@@ -193,13 +193,15 @@ class HomeActivity : AppCompatActivity(),
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState != BottomSheetBehavior.STATE_COLLAPSED
-                        && newState != BottomSheetBehavior.STATE_HIDDEN) {
-                    playerView.setExpanded(true)
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                } else {
-                    playerView.setExpanded(false)
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
+                        && newState != BottomSheetBehavior.STATE_HIDDEN
+
+                playerView.setExpanded(isExpandedOrExpanding)
+                with(drawerLayout) {
+                    requestDisallowInterceptTouchEvent(isExpandedOrExpanding)
+                    setDrawerLockMode(
+                            if (isExpandedOrExpanding) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                            else DrawerLayout.LOCK_MODE_UNLOCKED)
                 }
             }
         })
