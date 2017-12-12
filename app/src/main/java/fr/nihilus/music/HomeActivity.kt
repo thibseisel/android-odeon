@@ -24,7 +24,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
@@ -33,7 +32,6 @@ import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
@@ -50,6 +48,7 @@ import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionUtil
 import fr.nihilus.music.view.PlayerView
 import fr.nihilus.music.view.ScrimBottomSheetBehavior
+import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
 class HomeActivity : AppCompatActivity(),
@@ -62,12 +61,7 @@ class HomeActivity : AppCompatActivity(),
     @Inject lateinit var mRouter: NavigationController
     @Inject lateinit var mFactory: ViewModelFactory
 
-    private lateinit var mDrawerLayout: DrawerLayout
     private lateinit var mDrawerToggle: ActionBarDrawerToggle
-    private lateinit var mNavigationView: NavigationView
-    private lateinit var mPlayerView: PlayerView
-    private lateinit var mCoordinator: CoordinatorLayout
-    private lateinit var mContainer: View
 
     private lateinit var mBottomSheet: ScrimBottomSheetBehavior<PlayerView>
     private lateinit var mViewModel: BrowserViewModel
@@ -77,14 +71,14 @@ class HomeActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        mCoordinator = findViewById(R.id.coordinatorLayout)
-        setSupportActionBar(findViewById(R.id.toolbar))
+        setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
         setupNavigationDrawer()
 
         mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
         mViewModel.connect()
 
-        mContainer = findViewById(R.id.container)
         setupPlayerView()
 
         if (savedInstanceState == null) {
@@ -160,76 +154,72 @@ class HomeActivity : AppCompatActivity(),
      * Create and populate the Navigation Drawer.
      */
     private fun setupNavigationDrawer() {
-        mDrawerLayout = findViewById(R.id.drawerLayout)
-        mDrawerToggle = ActionBarDrawerToggle(this, mDrawerLayout,
+        mDrawerToggle = ActionBarDrawerToggle(this, drawerLayout,
                 R.string.drawer_opened, R.string.drawer_closed)
-        mDrawerLayout.addDrawerListener(mDrawerToggle)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        drawerLayout.addDrawerListener(mDrawerToggle)
 
-        mNavigationView = findViewById(R.id.navDrawer)
-        mNavigationView.setNavigationItemSelectedListener(this)
+        navDrawer.setNavigationItemSelectedListener(this)
 
         mRouter.routeChangeListener = { fragmentId ->
-            mNavigationView.setCheckedItem(fragmentId)
+            navDrawer.setCheckedItem(fragmentId)
         }
     }
 
     private fun setupPlayerView() {
-        mPlayerView = findViewById(R.id.playerView)
-        mPlayerView.setEventListener(this)
-        mBottomSheet = ScrimBottomSheetBehavior.from(mPlayerView)
+        playerView.setEventListener(this)
+        mBottomSheet = ScrimBottomSheetBehavior.from(playerView)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(mViewModel.playbackState.value)
 
-        mViewModel.currentMetadata.observe(this, Observer(mPlayerView::updateMetadata))
+        mViewModel.currentMetadata.observe(this, Observer(playerView::updateMetadata))
         mViewModel.shuffleMode.observe(this, Observer {
-            mPlayerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
+            playerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
         })
 
         mViewModel.repeatMode.observe(this, Observer {
-            mPlayerView.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
+            playerView.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
         })
 
         mViewModel.playbackState.observe(this, Observer { newState ->
-            mPlayerView.updatePlaybackState(newState)
+            playerView.updatePlaybackState(newState)
             togglePlayerVisibility(newState)
         })
 
-        BottomSheetBehavior.from(mPlayerView)
-                .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                        mBottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
-                        bottomSheet.requestLayout()
-                    }
+        mBottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                mBottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
+                bottomSheet.requestLayout()
+            }
 
-                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        if (newState != BottomSheetBehavior.STATE_COLLAPSED
-                                && newState != BottomSheetBehavior.STATE_HIDDEN) {
-                            mPlayerView.setExpanded(true)
-                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                        } else {
-                            mPlayerView.setExpanded(false)
-                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                        }
-                    }
-                })
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState != BottomSheetBehavior.STATE_COLLAPSED
+                        && newState != BottomSheetBehavior.STATE_HIDDEN) {
+                    playerView.setExpanded(true)
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                } else {
+                    playerView.setExpanded(false)
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                }
+            }
+        })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         onOptionsItemSelected(item)
-        mDrawerLayout.closeDrawer(GravityCompat.START)
+        drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
 
+    /**
+     * Collapses the BottomSheet using the back button if it is expanded.
+     */
     override fun onBackPressed() {
         if (mBottomSheet.state != BottomSheetBehavior.STATE_EXPANDED) {
             super.onBackPressed()
         } else {
-            // Collapses the player view if expanded
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
-
     }
 
     /**
@@ -305,21 +295,20 @@ class HomeActivity : AppCompatActivity(),
      * @param state The most recent playback state
      */
     private fun togglePlayerVisibility(state: PlaybackStateCompat?) {
-        Log.d(TAG, "Is Hidden ? ${mBottomSheet.state == BottomSheetBehavior.STATE_HIDDEN}")
         if (state == null
                 || state.state == PlaybackStateCompat.STATE_NONE
                 || state.state == PlaybackStateCompat.STATE_STOPPED) {
             mBottomSheet.isHideable = true
             mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-            mContainer.setPadding(0, 0, 0, 0)
+            container.setPadding(0, 0, 0, 0)
 
         } else if (mBottomSheet.isHideable
                 || mBottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            mPlayerView.post { mBottomSheet.isHideable = false }
+            playerView.post { mBottomSheet.isHideable = false }
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
-            mContainer.setPadding(0, 0, 0, playerViewHeight)
+            container.setPadding(0, 0, 0, playerViewHeight)
             mBottomSheet.peekHeight = playerViewHeight
         }
     }
@@ -340,17 +329,17 @@ class HomeActivity : AppCompatActivity(),
                     return false
                 }
                 ACTION_ALBUMS -> {
-                    mNavigationView.setCheckedItem(R.id.action_albums)
+                    navDrawer.setCheckedItem(R.id.action_albums)
                     mRouter.navigateToAlbums()
                     return true
                 }
                 ACTION_ARTISTS -> {
-                    mNavigationView.setCheckedItem(R.id.action_artists)
+                    navDrawer.setCheckedItem(R.id.action_artists)
                     mRouter.navigateToArtists()
                     return true
                 }
                 ACTION_PLAYLISTS -> {
-                    mNavigationView.setCheckedItem(R.id.action_playlist)
+                    navDrawer.setCheckedItem(R.id.action_playlist)
                     mRouter.navigateToPlaylists()
                     return true
                 }
