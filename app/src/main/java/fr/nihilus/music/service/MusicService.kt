@@ -73,6 +73,8 @@ class MusicService : MediaBrowserServiceCompat() {
     private val playbackStateListener = PlaybackStateListener()
     private val metadataUpdater = MetadataUpdater()
 
+    private var isStarted = false
+
     lateinit var session: MediaSessionCompat
 
     override fun onCreate() {
@@ -112,6 +114,7 @@ class MusicService : MediaBrowserServiceCompat() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "Service is now started.")
 
+        isStarted = true
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
         return START_NOT_STICKY
@@ -122,6 +125,7 @@ class MusicService : MediaBrowserServiceCompat() {
         notificationMgr.stopNotification()
         session.controller.unregisterCallback(playbackStateListener)
         player.removeListener(metadataUpdater)
+        isStarted = false
 
         mDelayedStopHandler.removeCallbacksAndMessages(null)
         session.release()
@@ -172,9 +176,12 @@ class MusicService : MediaBrowserServiceCompat() {
         // disconnects, otherwise the music playback will stop.
         // Calling startService(Intent) will keep the service running until it is explicitly killed.
 
-        Log.i(TAG, "Starting service to keep it running while playing")
-        startForegroundService(this, Intent(applicationContext, MusicService::class.java))
         notificationMgr.startNotification()
+
+        if (!isStarted) {
+            Log.i(TAG, "Starting service to keep it running while playing")
+            startForegroundService(this, Intent(applicationContext, MusicService::class.java))
+        }
     }
 
     internal fun onPlaybackPaused() {
@@ -194,7 +201,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     internal fun onUpdateMetadata() {
-        // FIXME Metadata are not always in sync with the currently playing track
+        // FIXME Metadata are not always in sync with the currently playing track ?
         val currentQueueId = queueManager.getActiveQueueItemId(player)
         val queueItem = session.controller.queue.find { it.queueId == currentQueueId }
         if (queueItem != null) {
@@ -205,6 +212,7 @@ class MusicService : MediaBrowserServiceCompat() {
                     .flatMap { albumArtLoader.loadIntoMetadata(it) }
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { metadata, error ->
+                        Log.d(TAG, "Error: $error")
                         session.setMetadata(if (error == null) metadata else null)
                     }
         }
