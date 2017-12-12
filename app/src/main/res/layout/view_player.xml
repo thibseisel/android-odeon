@@ -80,7 +80,7 @@
         tools:progress="100" />
 
     <TextView
-        android:id="@+id/textTimePosition"
+        android:id="@+id/seekPosition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
@@ -91,7 +91,7 @@
         android:layout_margin="8dp" />
 
     <TextView
-        android:id="@+id/textTimeDuration"
+        android:id="@+id/seekDuration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
