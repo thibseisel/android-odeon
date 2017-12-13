@@ -37,16 +37,15 @@ import fr.nihilus.music.utils.MediaItemIndexer
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
-    private val mGlideRequest: GlideRequest<Bitmap>
-    private val mIndexer: MediaItemIndexer
     private val mSongs = ArrayList<MediaBrowserCompat.MediaItem>()
+    private val mIndexer = MediaItemIndexer(mSongs)
+    private val mGlideRequest: GlideRequest<Bitmap>
 
     init {
-        mIndexer = MediaItemIndexer(mSongs)
         registerDataSetObserver(mIndexer)
 
-        val defaultAlbumArt = AppCompatResources.getDrawable(fragment.context!!,
-                R.drawable.dummy_album_art)
+        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
+        val defaultAlbumArt = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art)
 
         mGlideRequest = GlideApp.with(fragment).asBitmap()
                 .error(defaultAlbumArt)
@@ -62,7 +61,7 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     override fun getItemId(pos: Int): Long {
         if (hasStableIds()) {
             val mediaId = mSongs[pos].mediaId
-            return MediaID.extractMusicID(mediaId)!!.toLong()
+            return MediaID.extractMusicID(mediaId)?.toLong() ?: -1L
         }
         return -1L
     }
@@ -77,8 +76,8 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     }
 
     private fun createItemView(parent: ViewGroup): View {
-        return parent.inflate(R.layout.song_list_item, false).also {
-            it.tag = ViewHolder(it)
+        return parent.inflate(R.layout.song_list_item, false).apply {
+            tag = ViewHolder(this)
         }
     }
 
@@ -102,20 +101,20 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     }
 
     private class ViewHolder(itemView: View) {
-        private val mTitle: TextView = itemView.findViewById(R.id.title)
-        private val mSubtitle: TextView = itemView.findViewById(R.id.subtitle)
-        private val mCover: ImageView = itemView.findViewById(R.id.cover)
+        private val titleView: TextView = itemView.findViewById(R.id.title)
+        private val subtitleView: TextView = itemView.findViewById(R.id.subtitle)
+        private val cover: ImageView = itemView.findViewById(R.id.cover)
 
         fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
             with(item.description) {
-                mTitle.text = title
-                bindSubtitle(mSubtitle, subtitle, extras!!.getLong(MediaItems.EXTRA_DURATION))
-                glide.load(iconUri).into(mCover)
+                glide.load(iconUri).into(cover)
+                titleView.text = title
+                bindSubtitle(subtitleView, subtitle, extras!!.getLong(MediaItems.EXTRA_DURATION))
             }
         }
 
         private fun bindSubtitle(textView: TextView, text: CharSequence?, durationMillis: Long) {
-            val duration = DateUtils.formatElapsedTime(durationMillis / 1000)
+            val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
             val subtitle = textView.context.getString(R.string.song_item_subtitle, text, duration)
             textView.text = subtitle
         }

@@ -43,17 +43,17 @@ class PlayerView
         defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val mGlideRequest: RequestBuilder<Bitmap>
+    private val glideRequest: RequestBuilder<Bitmap>
 
-    private lateinit var mAutoUpdater: ProgressAutoUpdater
+    private lateinit var autoUpdater: ProgressAutoUpdater
 
-    private var mExpanded = false
-    private var mRepeatMode = PlaybackStateCompat.REPEAT_MODE_NONE
+    private var isExpanded = false
+    private var repeatMode = PlaybackStateCompat.REPEAT_MODE_NONE
 
-    private var mLastPlaybackState: PlaybackStateCompat? = null
-    private var mMetadata: MediaMetadataCompat? = null
+    private var lastPlaybackState: PlaybackStateCompat? = null
+    private var metadata: MediaMetadataCompat? = null
 
-    private var mListener: EventListener? = null
+    private var listener: EventListener? = null
 
     init {
         View.inflate(context, R.layout.view_player, this)
@@ -64,7 +64,7 @@ class PlayerView
         isClickable = true
 
         val dummyAlbumArt = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
-        mGlideRequest = GlideApp.with(context).asBitmap()
+        glideRequest = GlideApp.with(context).asBitmap()
                 .fitCenter()
                 .error(dummyAlbumArt)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -74,11 +74,11 @@ class PlayerView
         super.onFinishInflate()
 
         // Configure auto-update for SeekBar update and associated TextViews
-        mAutoUpdater = ProgressAutoUpdater(seekBar, seekPosition, seekDuration) { position ->
-            mListener?.onSeek(position)
+        autoUpdater = ProgressAutoUpdater(seekBar, seekPosition, seekDuration) { position ->
+            listener?.onSeek(position)
         }
 
-        seekBar.setOnSeekBarChangeListener(mAutoUpdater)
+        seekBar.setOnSeekBarChangeListener(autoUpdater)
 
         // Change color when shuffle mode and repeat mode buttons are activated
         val activationStateList = AppCompatResources.getColorStateList(context,
@@ -127,12 +127,12 @@ class PlayerView
      * @param expanded true to expand the PlayerView, false to collapse
      */
     fun setExpanded(expanded: Boolean) {
-        if (mExpanded != expanded) {
+        if (isExpanded != expanded) {
             if (expanded)
                 onOpen()
             else
                 onClose()
-            mExpanded = expanded
+            isExpanded = expanded
         }
     }
 
@@ -141,7 +141,7 @@ class PlayerView
      * @param metadata the currently focused track metadata.
      */
     fun updateMetadata(metadata: MediaMetadataCompat?) {
-        mMetadata = metadata
+        this.metadata = metadata
 
         if (metadata != null) {
             val media = metadata.description
@@ -155,8 +155,8 @@ class PlayerView
                 iconView.setImageResource(R.drawable.dummy_album_art)
             }
 
-            mGlideRequest.load(media.iconUri).into(albumArtView)
-            mAutoUpdater.setMetadata(metadata)
+            glideRequest.load(media.iconUri).into(albumArtView)
+            autoUpdater.setMetadata(metadata)
         }
     }
 
@@ -167,11 +167,11 @@ class PlayerView
      * @param newState The last playback state.
      */
     fun updatePlaybackState(newState: PlaybackStateCompat?) {
-        mLastPlaybackState = newState
+        lastPlaybackState = newState
 
         if (newState != null) {
             toggleControls(newState.actions)
-            mAutoUpdater.setPlaybackState(newState)
+            autoUpdater.setPlaybackState(newState)
 
             val isPlaying = newState.state == PlaybackStateCompat.STATE_PLAYING
             playPauseButton.isPlaying = isPlaying
@@ -256,16 +256,16 @@ class PlayerView
      * Listens for events triggered by interactions with this PlayerView.
      */
     fun setEventListener(listener: EventListener) {
-        mListener = listener
+        this.listener = listener
     }
 
     override fun onSaveInstanceState(): Parcelable? {
         val superState = super.onSaveInstanceState()
         val savedState = SavedState(superState)
-        savedState.lastPlaybackState = mLastPlaybackState
-        savedState.metadata = mMetadata
-        savedState.repeatMode = mRepeatMode
-        savedState.expanded = mExpanded
+        savedState.lastPlaybackState = lastPlaybackState
+        savedState.metadata = metadata
+        savedState.repeatMode = repeatMode
+        savedState.expanded = isExpanded
         return savedState
     }
 
@@ -277,10 +277,10 @@ class PlayerView
 
         super.onRestoreInstanceState(state.superState)
 
-        mLastPlaybackState = state.lastPlaybackState
-        mMetadata = state.metadata
-        mRepeatMode = state.repeatMode
-        mExpanded = state.expanded
+        lastPlaybackState = state.lastPlaybackState
+        metadata = state.metadata
+        repeatMode = state.repeatMode
+        isExpanded = state.expanded
     }
 
     /**
@@ -331,10 +331,10 @@ class PlayerView
     private inner class WidgetClickListener : View.OnClickListener {
 
         override fun onClick(view: View) {
-            mListener?.also {
+            listener?.also {
                 when (view.id) {
                     R.id.masterPlayPause, R.id.playPauseButton -> {
-                        if (mLastPlaybackState?.state == PlaybackStateCompat.STATE_PLAYING) {
+                        if (lastPlaybackState?.state == PlaybackStateCompat.STATE_PLAYING) {
                             it.onActionPause()
                         } else {
                             it.onActionPlay()
@@ -346,8 +346,8 @@ class PlayerView
                             if (shuffleButton.isActivated) PlaybackStateCompat.SHUFFLE_MODE_NONE
                             else PlaybackStateCompat.SHUFFLE_MODE_ALL)
                     R.id.repeatButton -> {
-                        mRepeatMode = (mRepeatMode + 1) % 3
-                        it.onRepeatModeChanged(mRepeatMode)
+                        repeatMode = (repeatMode + 1) % 3
+                        it.onRepeatModeChanged(repeatMode)
                     }
                 }
             }

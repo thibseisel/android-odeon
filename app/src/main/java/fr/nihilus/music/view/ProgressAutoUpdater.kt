@@ -134,7 +134,7 @@ class ProgressAutoUpdater(
                  * and unless paused, we can assume (delta * speed) + current position
                  * is approximately the latest position. */
                 val timeDelta = SystemClock.elapsedRealtime() - state.lastPositionUpdateTime
-                currentPosition += (timeDelta.toInt() * state.playbackSpeed).toLong()
+                currentPosition += (timeDelta * state.playbackSpeed).toLong()
             }
 
             seekBar.progress = currentPosition.toInt()
