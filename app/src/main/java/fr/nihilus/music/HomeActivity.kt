@@ -120,10 +120,6 @@ class HomeActivity : AppCompatActivity(),
         }
 
         when (item.itemId) {
-            R.id.action_home -> {
-                mRouter.navigateToHome()
-                return true
-            }
             R.id.action_all -> {
                 mRouter.navigateToAllSongs()
                 return true

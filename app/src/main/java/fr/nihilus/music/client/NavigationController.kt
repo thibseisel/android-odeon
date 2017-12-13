@@ -26,7 +26,6 @@ import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.ui.HomeFragment
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -71,18 +70,10 @@ class NavigationController
     }
 
     /**
-     * Shows the home screen.
-     */
-    fun navigateToHome() {
-        val fragment = findOrCreateFragment(MediaID.ID_AUTO, HomeFragment.Factory::newInstance)
-        showFragment(MediaID.ID_AUTO, fragment)
-    }
-
-    /**
      * Shows the list of all tracks available.
      */
     fun navigateToAllSongs() {
-        val fragment = findOrCreateFragment(MediaID.ID_MUSIC, SongListFragment::newInstance)
+        val fragment = findOrCreateFragment(MediaID.ID_MUSIC, SongListFragment.Factory::newInstance)
         showFragment(MediaID.ID_MUSIC, fragment)
     }
 
@@ -157,7 +148,6 @@ class NavigationController
     fun navigateToMediaId(mediaId: String) {
         val root = MediaID.getHierarchy(mediaId)[0]
         when (root) {
-            MediaID.ID_AUTO -> navigateToHome()
             MediaID.ID_MUSIC -> navigateToAllSongs()
             MediaID.ID_ALBUMS -> navigateToAlbums()
             MediaID.ID_ARTISTS -> navigateToArtists()
