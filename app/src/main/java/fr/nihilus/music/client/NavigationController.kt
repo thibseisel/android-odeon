@@ -89,7 +89,7 @@ class NavigationController
      * Shows the list of all artists.
      */
     fun navigateToArtists() {
-        val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment::newInstance)
+        val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment.Factory::newInstance)
         showFragment(MediaID.ID_ARTISTS, fragment)
     }
 
@@ -113,7 +113,7 @@ class NavigationController
      * Shows the list of user defined playlists.
      */
     fun navigateToPlaylists() {
-        val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment::newInstance)
+        val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
         showFragment(MediaID.ID_PLAYLISTS, fragment)
     }
 
@@ -127,7 +127,7 @@ class NavigationController
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
             val rootId = MediaID.getHierarchy(tag)[0]
-            MembersFragment.newInstance(playlist, deletable = MediaID.ID_PLAYLISTS == rootId)
+            MembersFragment.newInstance(playlist, deletable = (MediaID.ID_PLAYLISTS == rootId))
         }
 
         showFragment(tag, fragment)

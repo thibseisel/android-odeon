@@ -24,6 +24,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
@@ -36,24 +37,24 @@ import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.command.DeletePlaylistCommand
 import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject
 
 @ActivityScoped
-class MembersFragment : RecyclerFragment() {
+class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
-    private lateinit var mAdapter: MembersAdapter
-    private lateinit var mPlaylist: MediaBrowserCompat.MediaItem
-    private lateinit var mViewModel: BrowserViewModel
+    private lateinit var adapter: MembersAdapter
+    private lateinit var playlist: MediaItem
+    private lateinit var viewModel: BrowserViewModel
 
-    @Inject lateinit var mRouter: NavigationController
+    @Inject lateinit var router: NavigationController
 
-    private val mSubscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
-
-        override fun onChildrenLoaded(parentId: String, children: List<MediaBrowserCompat.MediaItem>) {
-            mAdapter.update(children)
+    private val subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
+        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
+            adapter.update(children)
             setRecyclerShown(true)
         }
     }
@@ -67,13 +68,9 @@ class MembersFragment : RecyclerFragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        mAdapter = MembersAdapter(this) { member ->
-            mViewModel.post { controller ->
-                controller.transportControls.playFromMediaId(member.mediaId, null)
-            }
-        }
+        adapter = MembersAdapter(this, this)
 
-        mPlaylist = arguments?.getParcelable(ARG_PLAYLIST)
+        playlist = arguments?.getParcelable(ARG_PLAYLIST)
                 ?: throw IllegalStateException("Fragment must be instantiated with newInstance")
     }
 
@@ -86,7 +83,7 @@ class MembersFragment : RecyclerFragment() {
         when (item.itemId) {
             R.id.action_delete -> {
                 val dialogTitle = getString(R.string.delete_playlist_dialog_title,
-                        mPlaylist.description.title)
+                        playlist.description.title)
                 ConfirmDialogFragment.newInstance(this, REQUEST_DELETE_PLAYLIST,
                         title = dialogTitle,
                         positiveButton = R.string.ok,
@@ -102,8 +99,8 @@ class MembersFragment : RecyclerFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        mViewModel = ViewModelProviders.of(activity!!)[BrowserViewModel::class.java]
-        adapter = mAdapter
+        viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+        setAdapter(adapter)
         recyclerView.setHasFixedSize(true)
 
         if (savedInstanceState == null) {
@@ -113,13 +110,20 @@ class MembersFragment : RecyclerFragment() {
 
     override fun onStart() {
         super.onStart()
-        activity!!.title = mPlaylist.description.title
-        mViewModel.subscribe(mPlaylist.mediaId!!, mSubscriptionCallback)
+        activity!!.title = playlist.description.title
+        viewModel.subscribe(playlist.mediaId!!, subscriptionCallback)
     }
 
     override fun onStop() {
-        mViewModel.unsubscribe(mPlaylist.mediaId!!)
+        viewModel.unsubscribe(playlist.mediaId!!)
         super.onStop()
+    }
+
+    override fun onItemSelected(position: Int, action: Int) {
+        val member = adapter[position]
+        viewModel.post { controller ->
+            controller.transportControls.playFromMediaId(member.mediaId, null)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -129,15 +133,15 @@ class MembersFragment : RecyclerFragment() {
     }
 
     private fun deleteThisPlaylist() {
-        val playlistId = MediaID.extractBrowseCategoryValueFromMediaID(mPlaylist.mediaId!!).toLong()
+        val playlistId = MediaID.extractBrowseCategoryValueFromMediaID(playlist.mediaId!!).toLong()
         val params = Bundle(1)
         params.putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
 
-        mViewModel.post {
+        viewModel.post {
             it.sendCommand(DeletePlaylistCommand.CMD_NAME, params, object : ResultReceiver(Handler()) {
                 override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                     when (resultCode) {
-                        MediaSessionCommand.CODE_SUCCESS -> mRouter.navigateBack()
+                        MediaSessionCommand.CODE_SUCCESS -> router.navigateBack()
                         else -> Log.e(TAG, "Delete playlist: unexpected resultCode = $resultCode")
                     }
                 }
@@ -151,7 +155,7 @@ class MembersFragment : RecyclerFragment() {
         private const val ARG_DELETABLE = "deletable"
         private const val REQUEST_DELETE_PLAYLIST = 66
 
-        fun newInstance(playlist: MediaBrowserCompat.MediaItem, deletable: Boolean): MembersFragment {
+        fun newInstance(playlist: MediaItem, deletable: Boolean): MembersFragment {
             return MembersFragment().apply {
                 arguments = Bundle(3).apply {
                     putInt(Constants.FRAGMENT_ID, R.id.action_playlist)

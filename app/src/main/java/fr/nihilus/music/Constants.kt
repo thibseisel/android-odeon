@@ -30,4 +30,15 @@ object Constants {
      * Type: Int
      */
     const val FRAGMENT_ID = "fragment_id"
+
+    /**
+     * Defines the action to explore the content of a specific item.
+     */
+    const val ACTION_BROWSE = 1
+
+    /**
+     * Defines the action to start playback of a specific item.
+     */
+    const val ACTION_PLAY = 2
+
 }

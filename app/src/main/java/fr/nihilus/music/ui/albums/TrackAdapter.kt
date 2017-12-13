@@ -18,47 +18,32 @@ package fr.nihilus.music.ui.albums
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.text.format.DateUtils
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import fr.nihilus.music.ItemSelectedListener
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.MediaItemDiffCallback
-import java.util.*
 
-internal class TrackAdapter(
-        private val itemListener: ItemSelectedListener
-) : RecyclerView.Adapter<TrackAdapter.TrackHolder>() {
-
-    private val mTracks = ArrayList<MediaItem>()
+class TrackAdapter(
+        private val listener: BaseAdapter.OnItemSelectedListener
+) : BaseAdapter<TrackAdapter.TrackHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val v = inflater.inflate(R.layout.album_track_item, parent, false)
-
-        return TrackHolder(v).also { holder ->
-            holder.itemView.setOnClickListener { _ ->
-                val position = holder.adapterPosition
-                itemListener.invoke(mTracks[position])
-            }
+        return TrackHolder(parent).also { holder ->
+            holder.onAttachListeners(listener)
         }
-    }
-
-    override fun onBindViewHolder(holder: TrackHolder, position: Int) {
-        holder.bind(mTracks[position])
     }
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = mTracks[position].mediaId
+            val mediaId = items[position].mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
+
         return RecyclerView.NO_ID
     }
 
@@ -73,28 +58,24 @@ internal class TrackAdapter(
         val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
         val searchedMediaId = MediaID.createMediaID(musicId, MediaID.ID_ALBUMS)
 
-        return mTracks.indexOfFirst { searchedMediaId == it.mediaId }
+        return items.indexOfFirst { searchedMediaId == it.mediaId }
     }
 
-    fun updateTracks(tracks: List<MediaItem>) {
-        val callback = MediaItemDiffCallback(mTracks, tracks)
-        val result = DiffUtil.calculateDiff(callback, false)
-        mTracks.clear()
-        mTracks.addAll(tracks)
-        result.dispatchUpdatesTo(this)
-    }
-
-    override fun getItemCount() = mTracks.size
-
-    internal class TrackHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class TrackHolder(parent: ViewGroup) : BaseAdapter.ViewHolder(parent, R.layout.album_track_item) {
         private val trackNo: TextView = itemView.findViewById(R.id.trackNo)
         private val title: TextView = itemView.findViewById(R.id.title)
         private val duration: TextView = itemView.findViewById(R.id.duration)
 
         private val timeBuilder = StringBuilder()
 
-        fun bind(track: MediaItem) {
-            val description = track.description
+        override fun onAttachListeners(client: OnItemSelectedListener) {
+            itemView.setOnClickListener { _ ->
+                client.onItemSelected(adapterPosition, Constants.ACTION_PLAY)
+            }
+        }
+
+        override fun onBind(item: MediaItem) {
+            val description = item.description
             title.text = description.title
 
             description.extras?.let {
@@ -103,6 +84,5 @@ internal class TrackAdapter(
                 duration.text = DateUtils.formatElapsedTime(timeBuilder, durationMillis / 1000L)
             }
         }
-
     }
 }

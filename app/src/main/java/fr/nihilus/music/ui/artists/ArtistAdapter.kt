@@ -20,96 +20,71 @@ import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.content.res.AppCompatResources
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.MediaItemDiffCallback
-import java.util.*
 
 internal class ArtistAdapter(
-        fragment: Fragment
-) : RecyclerView.Adapter<ArtistAdapter.ArtistHolder>() {
+        fragment: Fragment,
+        private val listener: BaseAdapter.OnItemSelectedListener
+) : BaseAdapter<ArtistAdapter.ArtistHolder>() {
 
-    private val mArtists = ArrayList<MediaItem>()
-    private val mGlide: RequestBuilder<Bitmap>
-    private var mListener: OnArtistSelectedListener? = null
+    private val glide: RequestBuilder<Bitmap>
 
     init {
         val ctx = checkNotNull(fragment.context) { "Fragment is not attached" }
         val dummyCover = AppCompatResources.getDrawable(ctx, R.drawable.ic_person_24dp)
 
-        mGlide = GlideApp.with(fragment).asBitmap()
+        glide = GlideApp.with(fragment).asBitmap()
                 .error(dummyCover)
                 .centerCrop()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {
-        val v = LayoutInflater.from(parent.context)
-                .inflate(R.layout.artist_grid_item, parent, false)
-
-        return ArtistHolder(v).also { holder ->
-            // Configure event to be dispatched when an artist is clicked
-            holder.itemView.setOnClickListener { _ ->
-                mListener?.onArtistSelected(holder, mArtists[holder.adapterPosition])
-            }
+        return ArtistHolder(parent, glide).also { holder ->
+            holder.onAttachListeners(listener)
         }
-    }
-
-    override fun onBindViewHolder(holder: ArtistHolder, position: Int) {
-        holder.bind(mArtists[position], mGlide)
     }
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = mArtists[position].mediaId
+            val mediaId = items[position].mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
         return RecyclerView.NO_ID
     }
 
-    override fun getItemCount() = mArtists.size
+    /**
+     * Display an artist as a floating 16:9 card.
+     */
+    internal class ArtistHolder(
+            parent: ViewGroup,
+            private val glide: RequestBuilder<Bitmap>
+    ) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
 
-    fun setOnArtistSelectedListener(listener: OnArtistSelectedListener) {
-        mListener = listener
-    }
-
-    fun updateArtists(artists: List<MediaItem>) {
-        if (artists.isEmpty() && mArtists.isEmpty()) {
-            // Dispatch a general change notification to update RecyclerFragment's empty state
-            notifyDataSetChanged()
-        } else {
-            // Calculate diff and dispatch individual change notifications
-            val diffCallback = MediaItemDiffCallback(mArtists, artists)
-            val result = DiffUtil.calculateDiff(diffCallback, false)
-            mArtists.clear()
-            mArtists.addAll(artists)
-            result.dispatchUpdatesTo(this)
-        }
-    }
-
-    interface OnArtistSelectedListener {
-        fun onArtistSelected(holder: ArtistHolder, artist: MediaItem)
-    }
-
-    internal class ArtistHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val artistName: TextView = itemView.findViewById(R.id.artistName)
         private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
         private val cover: ImageView = itemView.findViewById(R.id.cover)
 
-        fun bind(artist: MediaItem, glide: RequestBuilder<*>) {
-            artistName.text = artist.description.title
-            glide.load(artist.description.iconUri).into(cover)
+        override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+            itemView.setOnClickListener { _ ->
+                client.onItemSelected(adapterPosition, Constants.ACTION_BROWSE)
+            }
+        }
 
-            artist.description.extras?.let {
+        override fun onBind(item: MediaItem) {
+            artistName.text = item.description.title
+            glide.load(item.description.iconUri).into(cover)
+
+            item.description.extras?.let {
                 val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
                 subtitle.text = subtitle.resources.getQuantityString(R.plurals.number_of_tracks,
                         trackCount, trackCount)

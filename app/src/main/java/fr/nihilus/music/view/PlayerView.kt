@@ -59,7 +59,7 @@ class PlayerView
         View.inflate(context, R.layout.view_player, this)
 
         // Make this view appear above AppbarLayout
-        ViewCompat.setElevation(this, resources.getDimensionPixelSize(R.dimen.playerview_elevation).toFloat())
+        ViewCompat.setElevation(this, resources.getDimension(R.dimen.playerview_elevation))
         // Prevent from dispatching touches to views behind
         isClickable = true
 

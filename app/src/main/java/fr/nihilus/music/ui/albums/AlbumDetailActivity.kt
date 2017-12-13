@@ -38,29 +38,32 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.darker
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import javax.inject.Inject
 
-class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
+class AlbumDetailActivity : AppCompatActivity(),
+        View.OnClickListener,
+        BaseAdapter.OnItemSelectedListener {
 
-    private lateinit var mAdapter: TrackAdapter
-    private lateinit var mPickedAlbum: MediaItem
+    private lateinit var adapter: TrackAdapter
+    private lateinit var pickedAlbum: MediaItem
 
-    private lateinit var mCollapsingToolbar: CollapsingToolbarLayout
-    private lateinit var mAlbumTitle: TextView
-    private lateinit var mAlbumArtist: TextView
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mPlayFab: FloatingActionButton
-    private lateinit var mDecoration: CurrentlyPlayingDecoration
+    private lateinit var collapsingToolbar: CollapsingToolbarLayout
+    private lateinit var albumTitle: TextView
+    private lateinit var albumArtist: TextView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var playFab: FloatingActionButton
+    private lateinit var decoration: CurrentlyPlayingDecoration
 
     @Inject lateinit var mFactory: ViewModelFactory
     private lateinit var mViewModel: BrowserViewModel
 
     private val mSubscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            mAdapter.updateTracks(children)
-            mRecyclerView.swapAdapter(mAdapter, false)
+            adapter.update(children)
+            recyclerView.swapAdapter(adapter, false)
 
             val currentMetadata = mViewModel.currentMetadata.value
             decoratePlayingTrack(currentMetadata)
@@ -72,20 +75,20 @@ class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_detail)
 
-        mPickedAlbum = checkNotNull(intent.getParcelableExtra(ARG_PICKED_ALBUM)) {
+        pickedAlbum = checkNotNull(intent.getParcelableExtra(ARG_PICKED_ALBUM)) {
             "Calling activity must specify the album to display."
         }
 
-        mAlbumTitle = findViewById(R.id.title)
-        mAlbumArtist = findViewById(R.id.subtitle)
+        albumTitle = findViewById(R.id.title)
+        albumArtist = findViewById(R.id.subtitle)
 
-        with(mPickedAlbum.description) {
-            mAlbumTitle.text = title
-            mAlbumArtist.text = subtitle
+        with(pickedAlbum.description) {
+            albumTitle.text = title
+            albumArtist.text = subtitle
         }
 
-        mPlayFab = findViewById(R.id.action_play)
-        mPlayFab.setOnClickListener(this)
+        playFab = findViewById(R.id.action_play)
+        playFab.setOnClickListener(this)
 
         setupToolbar()
         setupAlbumArt()
@@ -101,31 +104,31 @@ class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        mViewModel.subscribe(mPickedAlbum.mediaId!!, mSubscriptionCallback)
+        mViewModel.subscribe(pickedAlbum.mediaId!!, mSubscriptionCallback)
     }
 
     override fun onStop() {
-        mViewModel.unsubscribe(mPickedAlbum.mediaId!!)
+        mViewModel.unsubscribe(pickedAlbum.mediaId!!)
         super.onStop()
     }
 
     private fun setupAlbumArt() {
         val albumArtView: ImageView = findViewById(R.id.cover)
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME)
-        GlideApp.with(this).load(mPickedAlbum.description.iconUri).into(albumArtView)
+        GlideApp.with(this).load(pickedAlbum.description.iconUri).into(albumArtView)
     }
 
     private fun setupTrackList() {
-        mRecyclerView = findViewById(android.R.id.list)
-        mRecyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView = findViewById(android.R.id.list)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        mAdapter = TrackAdapter(this::playMediaItem)
-        mRecyclerView.adapter = mAdapter
+        adapter = TrackAdapter(this)
+        recyclerView.adapter = adapter
     }
 
     private fun setupToolbar() {
         setSupportActionBar(findViewById(R.id.toolbar))
-        mCollapsingToolbar = findViewById(R.id.collapsingToolbar)
+        collapsingToolbar = findViewById(R.id.collapsingToolbar)
 
         supportActionBar!!.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -146,25 +149,30 @@ class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
      */
     private fun applyPaletteTheme(@ColorInt colors: IntArray) {
         val statusBarColor = darker(colors[0], 0.8f)
-        mCollapsingToolbar.setStatusBarScrimColor(statusBarColor)
-        mCollapsingToolbar.setContentScrimColor(colors[0])
+        collapsingToolbar.setStatusBarScrimColor(statusBarColor)
+        collapsingToolbar.setContentScrimColor(colors[0])
         findViewById<View>(R.id.band).setBackgroundColor(colors[0])
-        mAlbumTitle.setTextColor(colors[2])
-        mAlbumArtist.setTextColor(colors[3])
-        mPlayFab.backgroundTintList = ColorStateList.valueOf(colors[1])
+        albumTitle.setTextColor(colors[2])
+        albumArtist.setTextColor(colors[3])
+        playFab.backgroundTintList = ColorStateList.valueOf(colors[1])
 
-        mDecoration = CurrentlyPlayingDecoration(this, colors[1])
-        mRecyclerView.addItemDecoration(mDecoration)
+        decoration = CurrentlyPlayingDecoration(this, colors[1])
+        recyclerView.addItemDecoration(decoration)
 
         /*if (ViewUtils.isColorBright(statusBarColor)) {
-            ViewUtils.setLightStatusBar(mCollapsingToolbar, true);
+            ViewUtils.setLightStatusBar(collapsingToolbar, true);
         }*/
     }
 
     override fun onClick(view: View) {
         if (R.id.action_play == view.id) {
-            playMediaItem(mPickedAlbum)
+            playMediaItem(pickedAlbum)
         }
+    }
+
+    override fun onItemSelected(position: Int, action: Int) {
+        val selectedTrack = adapter[position]
+        playMediaItem(selectedTrack)
     }
 
     private fun playMediaItem(item: MediaItem) {
@@ -180,11 +188,11 @@ class AlbumDetailActivity : AppCompatActivity(), View.OnClickListener {
      */
     private fun decoratePlayingTrack(playingTrack: MediaMetadataCompat?) {
         if (playingTrack != null) {
-            val position = mAdapter.indexOf(playingTrack)
+            val position = adapter.indexOf(playingTrack)
 
             if (position != -1) {
-                mDecoration.setDecoratedItemPosition(position)
-                mRecyclerView.invalidateItemDecorations()
+                decoration.setDecoratedItemPosition(position)
+                recyclerView.invalidateItemDecorations()
             }
         }
     }

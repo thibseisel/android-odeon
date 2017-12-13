@@ -80,7 +80,7 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
 
     @NonNull
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_albums, container, false);
     }
@@ -117,12 +117,12 @@ public class AlbumGridFragment extends RecyclerFragment implements AlbumsAdapter
     }
 
     @Override
-    public void onAlbumSelected(AlbumsAdapter.AlbumHolder holder, MediaItem album) {
+    public void onAlbumSelected(@NonNull AlbumsAdapter.AlbumHolder holder, @NonNull MediaItem album) {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                getActivity(), holder.albumArt, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME);
+                getActivity(), holder.getAlbumArt(), AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME);
         Intent albumDetailIntent = new Intent(getContext(), AlbumDetailActivity.class);
         albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album);
-        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors);
+        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.getColors());
         startActivity(albumDetailIntent, options.toBundle());
     }
 }

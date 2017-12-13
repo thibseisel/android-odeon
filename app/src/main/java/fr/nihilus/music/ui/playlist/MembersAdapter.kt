@@ -19,64 +19,61 @@ package fr.nihilus.music.ui.playlist
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import fr.nihilus.music.ItemSelectedListener
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.inflate
-import fr.nihilus.music.utils.MediaItemDiffCallback
+import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.utils.MediaID
 
 class MembersAdapter(
         fragment: Fragment,
-        private val itemListener: ItemSelectedListener
-) : RecyclerView.Adapter<MembersHolder>() {
+        private val listener: BaseAdapter.OnItemSelectedListener
+) : BaseAdapter<MembersAdapter.MembersHolder>() {
 
-    private val mItems: MutableList<MediaBrowserCompat.MediaItem> = ArrayList()
     private val glideRequest = GlideApp.with(fragment).asBitmap()
             .error(R.drawable.dummy_album_art)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
             MembersHolder(parent, glideRequest).also { holder ->
-                // Dispatch click events
-                holder.itemView.setOnClickListener {
-                    val clickedItem = mItems[holder.adapterPosition]
-                    itemListener.invoke(clickedItem)
-                }
+                holder.onAttachListeners(listener)
             }
 
-    override fun onBindViewHolder(holder: MembersHolder, position: Int) {
-        holder.bind(mItems[position])
+    override fun getItemId(position: Int): Long {
+        return if (hasStableIds()) {
+            val mediaId = items[position].mediaId!!
+            MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
+        } else RecyclerView.NO_ID
     }
 
-    override fun getItemCount() = mItems.size
+    /**
+     * Display a playlist's track.
+     */
+    class MembersHolder(
+            parent: ViewGroup,
+            private val glide: GlideRequest<Bitmap>
+    ) : BaseAdapter.ViewHolder(parent, R.layout.song_list_item) {
 
-    fun update(newItems: List<MediaBrowserCompat.MediaItem>) {
-        val diffCallback = MediaItemDiffCallback(mItems, newItems)
-        val result = DiffUtil.calculateDiff(diffCallback)
-        mItems.clear()
-        mItems.addAll(newItems)
-        result.dispatchUpdatesTo(this)
+        private val albumArt: ImageView = itemView.findViewById(R.id.cover)
+        private val title: TextView = itemView.findViewById(R.id.title)
+        private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
+
+        override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+            itemView.setOnClickListener { _ ->
+                client.onItemSelected(adapterPosition, Constants.ACTION_PLAY)
+            }
+        }
+
+        override fun onBind(item: MediaBrowserCompat.MediaItem) {
+            val description = item.description
+            title.text = description.title
+            subtitle.text = description.subtitle
+            glide.load(description.iconUri).into(albumArt)
+        }
     }
-}
 
-class MembersHolder(
-        parent: ViewGroup,
-        private val artLoader: GlideRequest<Bitmap>
-) : RecyclerView.ViewHolder(parent.inflate(R.layout.song_list_item)) {
-
-    private val albumArt: ImageView = itemView.findViewById(R.id.cover)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
-
-    fun bind(item: MediaBrowserCompat.MediaItem) {
-        val description = item.description
-        title.text = description.title
-        subtitle.text = description.subtitle
-        artLoader.load(description.iconUri).into(albumArt)
-    }
 }
