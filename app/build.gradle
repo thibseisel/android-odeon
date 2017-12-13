@@ -127,6 +127,6 @@ dependencies {
     androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
     androidTestImplementation "com.android.support.test:rules:${androidTestVersion}"
     androidTestImplementation "com.android.support.test:runner:${androidTestVersion}"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoVersion}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${buildToolsVersion}"
     androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
 }

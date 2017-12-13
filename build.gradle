@@ -17,13 +17,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlinVersion = '1.2.0'
+    ext.kotlinVersion = '1.2.10'
+    ext.buildToolsVersion = '3.0.1'
     repositories {
         jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath "com.android.tools.build:gradle:${buildToolsVersion}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
     }
 }
@@ -51,7 +52,6 @@ ext {
     recyclerVersion = '1.1.4'
     kdenticonVersion = '1.0.0-alpha5'
     androidTestVersion = '1.0.1'
-    espressoVersion = '3.0.1'
 }
 
 task clean(type: Delete) {
