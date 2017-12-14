@@ -102,8 +102,8 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     private class ViewHolder(itemView: View) {
         private val titleView: TextView = itemView.findViewById(R.id.title)
-        private val subtitleView: TextView = itemView.findViewById(R.id.subtitle)
-        private val cover: ImageView = itemView.findViewById(R.id.cover)
+        private val subtitleView: TextView = itemView.findViewById(R.id.subtitleView)
+        private val cover: ImageView = itemView.findViewById(R.id.albumArtView)
 
         fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
             with(item.description) {

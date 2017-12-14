@@ -34,7 +34,7 @@
         android:layout_centerVertical="true">
 
         <ImageView
-            android:id="@+id/cover"
+            android:id="@+id/albumArtView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:contentDescription="@string/album_art"
@@ -61,7 +61,7 @@
             tools:text="All Theses Things I Hate (Revolve Around Me)"/>
 
         <TextView
-            android:id="@+id/subtitle"
+            android:id="@+id/subtitleView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

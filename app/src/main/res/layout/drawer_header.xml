@@ -25,7 +25,7 @@
     tools:keep="@layout/drawer_header">
 
     <ImageView
-        android:id="@+id/cover"
+        android:id="@+id/albumArtView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:contentDescription="@string/album_art"
@@ -43,7 +43,7 @@
         android:background="@color/album_band_default"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cover"/>
+        app:layout_constraintTop_toBottomOf="@id/albumArtView"/>
 
     <TextView
         android:id="@+id/title"
@@ -54,7 +54,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toTopOf="@+id/subtitle"
+        app:layout_constraintBottom_toTopOf="@+id/subtitleView"
         app:layout_constraintEnd_toEndOf="@id/background"
         app:layout_constraintStart_toStartOf="@id/background"
         app:layout_constraintTop_toTopOf="@id/background"
@@ -62,7 +62,7 @@
         tools:text="Song of the day"/>
 
     <TextView
-        android:id="@+id/subtitle"
+        android:id="@+id/subtitleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

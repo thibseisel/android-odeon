@@ -127,9 +127,9 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
          *
          * @param position The position of the selected item in the adapter.
          * You may retrieve a reference to this item using [BaseAdapter.get].
-         * @param action A unique code describing the action clients should trigger
+         * @param actionId A unique code describing the action clients should trigger
          * as a result for selecting this item.
          */
-        fun onItemSelected(position: Int, action: Int)
+        fun onItemSelected(position: Int, actionId: Int)
     }
 }

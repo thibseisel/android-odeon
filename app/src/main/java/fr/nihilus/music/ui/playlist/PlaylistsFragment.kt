@@ -55,7 +55,6 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
         adapter = PlaylistsAdapter(this, this)
     }
 
@@ -98,11 +97,11 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
                               savedInstanceState: Bundle?): View =
             inflater.inflate(R.layout.fragment_playlist, container, false)
 
-    override fun onItemSelected(position: Int, action: Int) {
+    override fun onItemSelected(position: Int, actionId: Int) {
         val selectedPlaylist = adapter[position]
-        when (action) {
-            Constants.ACTION_BROWSE -> router.navigateToPlaylistDetails(selectedPlaylist)
-            Constants.ACTION_PLAY -> onPlay(selectedPlaylist)
+        when (actionId) {
+            R.id.action_browse_item -> router.navigateToPlaylistDetails(selectedPlaylist)
+            R.id.action_play_item -> onPlay(selectedPlaylist)
         }
     }
 
@@ -115,12 +114,10 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
     companion object Factory {
 
-        fun newInstance(): PlaylistsFragment {
-            val args = Bundle()
-            args.putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
-            val fragment = PlaylistsFragment()
-            fragment.arguments = args
-            return fragment
+        fun newInstance() = PlaylistsFragment().apply {
+            arguments = Bundle(1).apply {
+                putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
+            }
         }
     }
 }

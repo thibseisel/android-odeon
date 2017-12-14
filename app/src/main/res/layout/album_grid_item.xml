@@ -30,7 +30,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/cover"
+            android:id="@+id/albumArtView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="@string/album_art"
@@ -54,7 +54,7 @@
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cover"
+            app:layout_constraintTop_toBottomOf="@+id/albumArtView"
             tools:text="Scream Aim Fire"/>
 
         <TextView

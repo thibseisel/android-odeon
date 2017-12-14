@@ -16,24 +16,19 @@
 
 package fr.nihilus.music.ui.albums
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.widget.RecyclerView
-import android.text.format.DateUtils
 import android.view.ViewGroup
-import android.widget.TextView
-import fr.nihilus.music.Constants
-import fr.nihilus.music.R
-import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.holder.AlbumTrackHolder
 import fr.nihilus.music.utils.MediaID
 
-class TrackAdapter(
+internal class TrackAdapter(
         private val listener: BaseAdapter.OnItemSelectedListener
-) : BaseAdapter<TrackAdapter.TrackHolder>() {
+) : BaseAdapter<AlbumTrackHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrackHolder {
-        return TrackHolder(parent).also { holder ->
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumTrackHolder {
+        return AlbumTrackHolder(parent).also { holder ->
             holder.onAttachListeners(listener)
         }
     }
@@ -61,28 +56,4 @@ class TrackAdapter(
         return items.indexOfFirst { searchedMediaId == it.mediaId }
     }
 
-    class TrackHolder(parent: ViewGroup) : BaseAdapter.ViewHolder(parent, R.layout.album_track_item) {
-        private val trackNo: TextView = itemView.findViewById(R.id.trackNo)
-        private val title: TextView = itemView.findViewById(R.id.title)
-        private val duration: TextView = itemView.findViewById(R.id.duration)
-
-        private val timeBuilder = StringBuilder()
-
-        override fun onAttachListeners(client: OnItemSelectedListener) {
-            itemView.setOnClickListener { _ ->
-                client.onItemSelected(adapterPosition, Constants.ACTION_PLAY)
-            }
-        }
-
-        override fun onBind(item: MediaItem) {
-            val description = item.description
-            title.text = description.title
-
-            description.extras?.let {
-                trackNo.text = it.getLong(MediaItems.EXTRA_TRACK_NUMBER).toString()
-                val durationMillis = it.getLong(MediaItems.EXTRA_DURATION)
-                duration.text = DateUtils.formatElapsedTime(timeBuilder, durationMillis / 1000L)
-            }
-        }
-    }
 }

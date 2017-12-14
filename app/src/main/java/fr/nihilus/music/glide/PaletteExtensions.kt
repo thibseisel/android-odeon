@@ -18,23 +18,68 @@ package fr.nihilus.music.glide
 
 import android.annotation.SuppressLint
 import android.graphics.RectF
+import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
+import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.request.RequestOptions
+import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 
+/**
+ * Extends Glide API with Android Palette generation abilities.
+ */
 @SuppressLint("CheckResult")
 @GlideExtension
 object PaletteExtensions {
 
+    private val DECODE_TYPE_PALETTE = GlideOptions.decodeTypeOf(PaletteBitmap::class.java).lock()
+
+    /**
+     * Load this resource as a Bitmap and generate a color palette from it.
+     */
+    @GlideType(PaletteBitmap::class)
+    @JvmStatic
+    fun asPaletteBitmap(requestBuilder: RequestBuilder<PaletteBitmap>) {
+        requestBuilder.apply(DECODE_TYPE_PALETTE)
+    }
+
+    /**
+     * Set the maximum number of colors to use for the Palette generation.
+     * The more color are used to generate a palette, the more accurate it is but the more time it
+     * takes to generate it.
+     * @param maxColorCount maximum number of colors. Must be strictly positive.
+     */
     @GlideOption
-    @JvmStatic fun maxColorCount(options: RequestOptions, maxColorCount: Int) {
+    @JvmStatic
+    fun maxColorCount(options: RequestOptions, maxColorCount: Int) {
         require(maxColorCount > 0) { "Invalid maxColorCount: $maxColorCount" }
         options.set(PaletteBitmapTranscoder.MAX_COLOR_COUNT, maxColorCount)
     }
 
+    /**
+     * Define a region of the bitmap from which colors are eligible to generate a Palette.
+     * As the bitmap size may not be known in advance, this region is defined relative to the
+     * loaded bitmap's width and height. All parameters are expected to fit in `[0 ; 1]`.
+     *
+     * If this option is not set, the whole bitmap will be used as the region.
+     *
+     * @param left Position of the left edge of the region rectangle
+     * relative to the width of the loaded bitmap.
+     * @param top Position of the top edge of the region rectangle,
+     * relative to the height of the loaded bitmap.
+     * @param right Position of the right edge of the region rectangle
+     * relative to the width of the loaded bitmap. Must be greater or equal to `left`.
+     * @param bottom Position of the bottom edge of the region rectangle,
+     * relative to the height of the loaded bitmap. Must be greater or equ to `top`.
+     */
     @GlideOption
-    @JvmStatic fun region(options: RequestOptions, left: Float, top: Float, right: Float, bottom: Float) {
+    @JvmStatic
+    fun region(options: RequestOptions, left: Float, top: Float, right: Float, bottom: Float) {
+        require(left in 0f..1f)
+        require(top in 0f..1f)
+        require(right in 0f..1f)
+        require(bottom in 0f..1f)
         require(left <= right) { "Invalid rectangle: X-coordinate of left > right" }
         require(top <= bottom) { "Invalid rectangle: Y-coordinate of top > bottom" }
 

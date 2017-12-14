@@ -18,24 +18,20 @@ package fr.nihilus.music.ui.artists
 
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
-import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.holder.ArtistHolder
 import fr.nihilus.music.utils.MediaID
 
 internal class ArtistAdapter(
         fragment: Fragment,
         private val listener: BaseAdapter.OnItemSelectedListener
-) : BaseAdapter<ArtistAdapter.ArtistHolder>() {
+) : BaseAdapter<ArtistHolder>() {
 
     private val glide: RequestBuilder<Bitmap>
 
@@ -62,33 +58,4 @@ internal class ArtistAdapter(
         return RecyclerView.NO_ID
     }
 
-    /**
-     * Display an artist as a floating 16:9 card.
-     */
-    internal class ArtistHolder(
-            parent: ViewGroup,
-            private val glide: RequestBuilder<Bitmap>
-    ) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
-
-        private val artistName: TextView = itemView.findViewById(R.id.artistName)
-        private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
-        private val cover: ImageView = itemView.findViewById(R.id.cover)
-
-        override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-            itemView.setOnClickListener { _ ->
-                client.onItemSelected(adapterPosition, Constants.ACTION_BROWSE)
-            }
-        }
-
-        override fun onBind(item: MediaItem) {
-            artistName.text = item.description.title
-            glide.load(item.description.iconUri).into(cover)
-
-            item.description.extras?.let {
-                val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-                subtitle.text = subtitle.resources.getQuantityString(R.plurals.number_of_tracks,
-                        trackCount, trackCount)
-            }
-        }
-    }
 }

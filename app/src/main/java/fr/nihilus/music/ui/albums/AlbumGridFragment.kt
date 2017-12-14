@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.artists
+package fr.nihilus.music.ui.albums
 
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.view.LayoutInflater
@@ -28,24 +30,21 @@ import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
-import javax.inject.Inject
 
 @ActivityScoped
-class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
+class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var router: NavigationController
-
-    private lateinit var adapter: ArtistAdapter
+    private lateinit var adapter: AlbumsAdapter
     private lateinit var viewModel: BrowserViewModel
 
     private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, artists: List<MediaItem>) {
-            adapter.update(artists)
+        override fun onChildrenLoaded(parentId: String, albums: List<MediaItem>) {
+            adapter.update(albums)
             setRecyclerShown(true)
         }
     }
@@ -57,18 +56,12 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ArtistAdapter(this, this)
+        adapter = AlbumsAdapter(this, this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_artists, container, false)
-
-    override fun onStart() {
-        super.onStart()
-        activity!!.setTitle(R.string.action_artists)
-        viewModel.subscribe(MediaID.ID_ARTISTS, subscriptionCallback)
-    }
+            inflater.inflate(R.layout.fragment_albums, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -78,26 +71,42 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         recyclerView.setHasFixedSize(true)
 
         if (savedInstanceState == null) {
+            // Show progress indicator while loading album items
             setRecyclerShown(false)
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        activity!!.setTitle(R.string.action_albums)
+        viewModel.subscribe(MediaID.ID_ALBUMS, subscriptionCallback)
+    }
+
     override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_ARTISTS)
+        viewModel.unsubscribe(MediaID.ID_ALBUMS)
         super.onStop()
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val artist = adapter[position]
-        router.navigateToArtistDetail(artist)
+        val album = adapter[position]
+        val holder = recyclerView.findViewHolderForAdapterPosition(position) as AlbumHolder
+
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME)
+        val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java)
+        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
+        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors)
+        startActivity(albumDetailIntent, options.toBundle())
     }
 
     companion object Factory {
 
-        fun newInstance() = ArtistsFragment().apply {
-            arguments = Bundle(1).apply {
-                putInt(Constants.FRAGMENT_ID, R.id.action_artists)
-            }
+        fun newInstance(): AlbumGridFragment {
+            val args = Bundle(1)
+            args.putInt(Constants.FRAGMENT_ID, R.id.action_albums)
+            val fragment = AlbumGridFragment()
+            fragment.arguments = args
+            return fragment
         }
     }
 }

@@ -119,7 +119,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         super.onStop()
     }
 
-    override fun onItemSelected(position: Int, action: Int) {
+    override fun onItemSelected(position: Int, actionId: Int) {
         val member = adapter[position]
         viewModel.post { controller ->
             controller.transportControls.playFromMediaId(member.mediaId, null)

@@ -33,33 +33,33 @@ import javax.inject.Inject
 
 class FileViewerActivity : AppCompatActivity() {
 
-    @Inject lateinit var mFactory: ViewModelFactory
-    lateinit var mViewModel: BrowserViewModel
+    @Inject lateinit var modelFactory: ViewModelFactory
+    private lateinit var viewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_viewer)
 
-        mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
-        mViewModel.connect()
+        viewModel = ViewModelProviders.of(this, modelFactory).get(BrowserViewModel::class.java)
+        viewModel.connect()
 
         with(intent) {
             check(action == Intent.ACTION_VIEW) {
                 "This activity should only be started by an Intent with action ACTION_VIEW."
             }
 
-            mViewModel.post { controller ->
+            viewModel.post { controller ->
                 controller.transportControls.playFromUri(data, null)
             }
         }
 
-        val albumArt = findViewById<ImageView>(R.id.cover)
-        val titleView = findViewById<TextView>(R.id.title)
-        val subtitleView = findViewById<TextView>(R.id.subtitle)
-        val playPauseButton = findViewById<PlayPauseButton>(R.id.btn_play_pause)
+        val albumArt = findViewById<ImageView>(R.id.albumArtView)
+        val titleView = findViewById<TextView>(R.id.titleView)
+        val subtitleView = findViewById<TextView>(R.id.subtitleView)
+        val playPauseButton = findViewById<PlayPauseButton>(R.id.playPauseButton)
         val seekBar = findViewById<SeekBar>(R.id.progress)
 
-        mViewModel.currentMetadata.observe(this, Observer { metadata ->
+        viewModel.currentMetadata.observe(this, Observer { metadata ->
             if (metadata != null) {
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
                 titleView.text = metadata.getText(MediaMetadataCompat.METADATA_KEY_TITLE)
@@ -73,7 +73,7 @@ class FileViewerActivity : AppCompatActivity() {
             }
         })
 
-        mViewModel.playbackState.observe(this, Observer { state ->
+        viewModel.playbackState.observe(this, Observer { state ->
             if (state != null && state.state < 4) {
                 seekBar.progress = state.position.toInt()
                 playPauseButton.isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
@@ -87,7 +87,7 @@ class FileViewerActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                mViewModel.post { controller ->
+                viewModel.post { controller ->
                     controller.transportControls.seekTo(seekBar.progress.toLong())
                 }
             }

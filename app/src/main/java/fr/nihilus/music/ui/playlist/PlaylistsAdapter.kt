@@ -21,25 +21,22 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.widget.RecyclerView
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
-import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.holder.PlaylistHolder
 import fr.nihilus.music.utils.MediaID
 import java.util.*
 
 /**
  * Display playlist media items as a grid of floating cards.
  */
-class PlaylistsAdapter(
+internal class PlaylistsAdapter(
         fragment: Fragment,
         private val listener: BaseAdapter.OnItemSelectedListener
-) : BaseAdapter<PlaylistsAdapter.PlaylistHolder>() {
+) : BaseAdapter<PlaylistHolder>() {
 
     private val playlists = ArrayList<MediaItem>()
     private val glideRequest: RequestBuilder<Bitmap>
@@ -64,37 +61,4 @@ class PlaylistsAdapter(
         } else RecyclerView.NO_ID
     }
 
-    /**
-     * Display a playlist as a floating grid item.
-     * Playlists that are marked as playable could be played by taping the play action icon.
-     */
-    class PlaylistHolder(
-            parent: ViewGroup,
-            private val glide: RequestBuilder<Bitmap>
-    ) : BaseAdapter.ViewHolder(parent, R.layout.playlist_item) {
-
-        private val title: TextView = itemView.findViewById(R.id.title)
-        private val image: ImageView = itemView.findViewById(R.id.albumArt)
-        private val actionPlay: View = itemView.findViewById(R.id.action_play)
-
-        override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-
-            itemView.setOnClickListener { _ ->
-                client.onItemSelected(adapterPosition, Constants.ACTION_BROWSE)
-            }
-
-            actionPlay.setOnClickListener { _ ->
-                client.onItemSelected(adapterPosition, Constants.ACTION_PLAY)
-            }
-        }
-
-        override fun onBind(item: MediaItem) {
-            val description = item.description
-            title.text = description.title
-            glide.load(description.iconUri).into(image)
-
-            // The play button is only shown if the item is playable
-            actionPlay.visibility = if (item.isPlayable) View.VISIBLE else View.GONE
-        }
-    }
 }

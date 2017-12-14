@@ -18,6 +18,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -40,13 +41,14 @@
             app:titleEnabled="false">
 
             <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.8">
 
                 <ImageView
-                    android:id="@+id/cover"
+                    android:id="@+id/albumArtView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +70,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
 
         <LinearLayout
-            android:id="@+id/band"
+            android:id="@+id/albumInfoLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -77,7 +79,7 @@
             app:layout_scrollFlags="scroll">
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/titleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -87,7 +89,7 @@
                 tools:text="Title de l'album"/>
 
             <TextView
-                android:id="@+id/subtitle"
+                android:id="@+id/subtitleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -98,7 +100,7 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@android:id/list"
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
@@ -108,7 +110,7 @@
         tools:listitem="@layout/album_track_item"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/action_play"
+        android:id="@+id/playFab"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"

@@ -81,7 +81,7 @@ class NavigationController
      * Shows the list of all albums.
      */
     fun navigateToAlbums() {
-        val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment::newInstance)
+        val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment.Factory::newInstance)
         showFragment(MediaID.ID_ALBUMS, fragment)
     }
 
