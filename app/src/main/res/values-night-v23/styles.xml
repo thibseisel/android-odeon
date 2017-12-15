@@ -18,7 +18,7 @@
 <resources>
 
     <style name="AppTheme" parent="Base.AppTheme">
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
         <item name="colorPrimary">@color/mtrl_deeppurple_300</item>
         <item name="colorPrimaryDark">@android:color/black</item>
         <item name="colorAccent">@color/mtrl_blue_a100</item>

@@ -19,8 +19,7 @@
 
     <style name="AppTheme" parent="Base.AppTheme">
         <!-- Use dark icons on light status bar -->
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="colorPrimaryDark">@color/mtrl_grey_300</item>
+        <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
 
         <!-- Enable window content transition -->
         <item name="android:windowContentTransitions">true</item>
@@ -30,7 +29,7 @@
     </style>
 
     <style name="AppTheme.DialogWhenLarge" parent="Base.AppTheme.DialogWhenLarge">
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
         <item name="colorPrimaryDark">@color/mtrl_grey_300</item>
     </style>
 </resources>

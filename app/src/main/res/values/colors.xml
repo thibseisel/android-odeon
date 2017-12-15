@@ -21,14 +21,21 @@
     <color name="mtrl_blue_a400">#2979ff</color>
     <color name="mtrl_deeppurple_300">#9575cd</color>
     <color name="mtrl_deeppurple_500">#673ab7</color>
+    <color name="mtrl_deeppurple_700">#7b1fa2</color>
 
     <color name="mtrl_grey_100">#f5f5f5</color>
     <color name="mtrl_grey_300">#e0e0e0</color>
     <color name="album_band_default">#4c4c4c</color>
 
+    <color name="color_primary">@color/mtrl_deeppurple_500</color>
+    <color name="color_primary_dark">@color/mtrl_grey_300</color>
+    <color name="color_accent">@color/mtrl_blue_a400</color>
+
     <color name="color_control_activated_compat">@color/mtrl_blue_a400</color>
 
     <color name="control_normal_compat_disabled">#42000000</color>
     <color name="control_normal_compat">#b2000000</color>
+
+    <color name="navigation_bar_color">@android:color/white</color>
 
 </resources>

@@ -17,8 +17,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
-        <item name="colorPrimary">@color/mtrl_deeppurple_500</item>
-        <item name="colorAccent">@color/mtrl_blue_a400</item>
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_accent</item>
 
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
