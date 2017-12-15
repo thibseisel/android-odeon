@@ -15,4 +15,17 @@
   ~ limitations under the License.
   -->
 
-<resources></resources>
+<resources>
+
+    <style name="AppTheme" parent="Base.AppTheme">
+        <!-- Enable window content transition -->
+        <item name="android:windowContentTransitions">true</item>
+
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+
+        <!-- Set a light navigation bar on API 27 on light theme -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowLightNavigationBar">@bool/is_light_theme</item>
+    </style>
+</resources>
