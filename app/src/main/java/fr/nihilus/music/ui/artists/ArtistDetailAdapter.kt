@@ -49,7 +49,7 @@ internal class ArtistDetailAdapter(
         )
 
         val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
-        paletteLoader = GlideApp.with(fragment).asPaletteBitmap()
+        paletteLoader = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
                 .centerCrop()
                 .error(dummyAlbumArt)
                 .region(0f, .75f, 1f, 1f)

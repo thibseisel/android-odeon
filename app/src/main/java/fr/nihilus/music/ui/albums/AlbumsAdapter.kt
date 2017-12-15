@@ -47,7 +47,7 @@ internal class AlbumsAdapter(
         )
 
         val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
-        glideRequest = GlideApp.with(fragment).asPaletteBitmap()
+        glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
                 .centerCrop()
                 .error(dummyAlbumArt)
                 .region(0f, .75f, 1f, 1f)
@@ -62,7 +62,7 @@ internal class AlbumsAdapter(
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
             val item = items[position]
-            return MediaID.extractMusicID(item.mediaId)?.toLong() ?: RecyclerView.NO_ID
+            MediaID.extractMusicID(item.mediaId)?.toLong() ?: RecyclerView.NO_ID
         } else RecyclerView.NO_ID
     }
 

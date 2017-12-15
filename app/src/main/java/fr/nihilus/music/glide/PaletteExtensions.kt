@@ -18,12 +18,9 @@ package fr.nihilus.music.glide
 
 import android.annotation.SuppressLint
 import android.graphics.RectF
-import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
-import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.request.RequestOptions
-import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 
 /**
@@ -32,17 +29,6 @@ import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 @SuppressLint("CheckResult")
 @GlideExtension
 object PaletteExtensions {
-
-    private val DECODE_TYPE_PALETTE = GlideOptions.decodeTypeOf(PaletteBitmap::class.java).lock()
-
-    /**
-     * Load this resource as a Bitmap and generate a color palette from it.
-     */
-    @GlideType(PaletteBitmap::class)
-    @JvmStatic
-    fun asPaletteBitmap(requestBuilder: RequestBuilder<PaletteBitmap>) {
-        requestBuilder.apply(DECODE_TYPE_PALETTE)
-    }
 
     /**
      * Set the maximum number of colors to use for the Palette generation.
