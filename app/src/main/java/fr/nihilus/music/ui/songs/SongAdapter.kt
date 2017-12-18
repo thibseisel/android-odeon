@@ -27,6 +27,8 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.SectionIndexer
 import android.widget.TextView
+import com.bumptech.glide.load.resource.bitmap.FitCenter
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -37,30 +39,31 @@ import fr.nihilus.music.utils.MediaItemIndexer
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
-    private val mSongs = ArrayList<MediaBrowserCompat.MediaItem>()
-    private val mIndexer = MediaItemIndexer(mSongs)
-    private val mGlideRequest: GlideRequest<Bitmap>
+    private val songs = ArrayList<MediaBrowserCompat.MediaItem>()
+    private val indexer = MediaItemIndexer(songs)
+    private val glideRequest: GlideRequest<Bitmap>
 
     init {
-        registerDataSetObserver(mIndexer)
+        registerDataSetObserver(indexer)
 
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
         val defaultAlbumArt = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art)
+        val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
-        mGlideRequest = GlideApp.with(fragment).asBitmap()
+        glideRequest = GlideApp.with(fragment).asBitmap()
+                .transforms(FitCenter(), RoundedCorners(cornerRadius))
                 .error(defaultAlbumArt)
-                .fitCenter()
     }
 
-    override fun getCount() = mSongs.size
+    override fun getCount() = songs.size
 
-    override fun getItem(pos: Int) = mSongs[pos]
+    override fun getItem(pos: Int) = songs[pos]
 
     override fun hasStableIds() = true
 
     override fun getItemId(pos: Int): Long {
         if (hasStableIds()) {
-            val mediaId = mSongs[pos].mediaId
+            val mediaId = songs[pos].mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: -1L
         }
         return -1L
@@ -82,21 +85,21 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     }
 
     private fun bindViewHolder(holder: ViewHolder, position: Int) {
-        val item = mSongs[position]
-        holder.bind(item, mGlideRequest)
+        val item = songs[position]
+        holder.bind(item, glideRequest)
     }
 
-    override fun getSections(): Array<out Any> = mIndexer.sections
+    override fun getSections(): Array<out Any> = indexer.sections
 
     override fun getPositionForSection(sectionIndex: Int) =
-            mIndexer.getPositionForSection(sectionIndex)
+            indexer.getPositionForSection(sectionIndex)
 
     override fun getSectionForPosition(position: Int) =
-            mIndexer.getSectionForPosition(position)
+            indexer.getSectionForPosition(position)
 
     fun updateItems(newItems: List<MediaBrowserCompat.MediaItem>) {
-        mSongs.clear()
-        mSongs.addAll(newItems)
+        songs.clear()
+        songs.addAll(newItems)
         notifyDataSetChanged()
     }
 
