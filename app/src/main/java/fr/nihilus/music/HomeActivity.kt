@@ -280,8 +280,10 @@ class HomeActivity : AppCompatActivity(),
         mBottomSheet.peekHeight = if (state == null
                 || state.state == PlaybackStateCompat.STATE_NONE
                 || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            playerShadow.visibility = View.GONE
             resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         } else {
+            playerShadow.visibility = View.VISIBLE
             resources.getDimensionPixelSize(R.dimen.playerview_height)
         }
     }
@@ -299,6 +301,7 @@ class HomeActivity : AppCompatActivity(),
             mBottomSheet.isHideable = true
             mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             container.setPadding(0, 0, 0, 0)
+            playerShadow.visibility = View.GONE
 
         } else if (mBottomSheet.isHideable
                 || mBottomSheet.peekHeight == 0) {
@@ -308,6 +311,7 @@ class HomeActivity : AppCompatActivity(),
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
             container.setPadding(0, 0, 0, playerViewHeight)
             mBottomSheet.peekHeight = playerViewHeight
+            playerShadow.visibility = View.VISIBLE
         }
     }
 
@@ -409,7 +413,6 @@ class HomeActivity : AppCompatActivity(),
     override fun supportFragmentInjector() = dispatchingFragmentInjector
 
     private companion object {
-        private const val TAG = "HomeActivity"
         private const val REQUEST_SETTINGS = 42
         private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
         private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
