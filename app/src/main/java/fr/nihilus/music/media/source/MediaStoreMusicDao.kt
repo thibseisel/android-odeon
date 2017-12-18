@@ -244,13 +244,17 @@ class MediaStoreMusicDao
                 val colArtist = it.getColumnIndexOrThrow(Albums.ARTIST)
                 val colYear = it.getColumnIndexOrThrow(Albums.LAST_YEAR)
                 val colSongCount = it.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
+                val colAlbumArt = it.getColumnIndexOrThrow(Albums.ALBUM_ART)
 
                 val builder = MediaDescriptionCompat.Builder()
 
                 while (it.moveToNext() && !emitter.isDisposed) {
                     val albumId = it.getLong(colId)
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
-                    val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
+                    val artUri = it.getString(colAlbumArt)?.let {
+                        val artThumbnailFile = File(it)
+                        Uri.fromFile(artThumbnailFile)
+                    }
 
                     val extras = Bundle(3).apply {
                         putString(MediaItems.EXTRA_ALBUM_KEY, it.getString(colKey))
@@ -442,7 +446,7 @@ class MediaStoreMusicDao
 
         @JvmField
         val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS)
+                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS, Albums.ALBUM_ART)
 
         @JvmField
         val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
