@@ -30,16 +30,64 @@ class SearchParams
  * @param query the query parameter from a voice search
  * @param extras the extras parameter from a voice search
  */
-(@JvmField val query: String?, extras: Bundle?) {
+(@JvmField val query: String?, private val extras: Bundle?) {
 
-    @JvmField val isAny: Boolean
-    @JvmField val isUnstructured: Boolean
-    @JvmField val isArtistFocus: Boolean
-    @JvmField val isAlbumFocus: Boolean
-    @JvmField val isSongFocus: Boolean
-    @JvmField val artist: String?
-    @JvmField val album: String?
-    @JvmField val song: String?
+    /**
+     * If `true`, the search query is unspecified and its result could be anything,
+     * provided the result is calculated based on a smart choice,
+     * for example the last playlist the user listened to.
+     */
+    @JvmField
+    val isAny: Boolean
+
+    /**
+     * If `true`, the search query gives no detail on what to search.
+     */
+    @JvmField
+    val isUnstructured: Boolean
+
+    /**
+     * If `true`, this search is artist-specific.
+     * That artist name is stored in [artist].
+     */
+    @JvmField
+    val isArtistFocus: Boolean
+
+    /**
+     * If `true`, this search is album-specific.
+     * The album name is stored in [album], and its related artist in [artist].
+     */
+    @JvmField
+    val isAlbumFocus: Boolean
+
+    /**
+     * If `true`, this search is song-specific.
+     * The song name is stored in [song].
+     * This query also provides the album and the artist of this song.
+     */
+    @JvmField
+    val isSongFocus: Boolean
+
+    /**
+     * Retrieve the artist name associated with this search.
+     * @throws IllegalStateException If this search does not provide such information.
+     */
+    val artist: String
+        get() = extras?.getString(MediaStore.EXTRA_MEDIA_ARTIST) ?: throw IllegalStateException()
+
+    /**
+     * Retrieve the name of album associated with this search.
+     * @throws IllegalStateException If this search does not provide such information.
+     */
+    val album: String
+        get() = extras?.getString(MediaStore.EXTRA_MEDIA_ALBUM) ?: throw IllegalStateException()
+
+    /**
+     * Retrieve the song name associated with this search.
+     * @throws IllegalStateException If this search does not provide such information.
+     */
+    val song: String
+        get() = extras?.getString(MediaStore.EXTRA_MEDIA_TITLE) ?: throw IllegalStateException()
 
     init {
         // Default values for each field
@@ -47,9 +95,6 @@ class SearchParams
         var isAlbumFocus = false
         var isArtistFocus = false
         var isSongFocus = false
-        var artist: String? = null
-        var album: String? = null
-        var song: String? = null
 
         // There's no query. The application should play music based on a smart choice.
         this.isAny = TextUtils.isEmpty(query)
@@ -63,25 +108,9 @@ class SearchParams
                 // Add more precision to the search by specifying the type of the searched item
                 val mediaFocus = extras.getString(MediaStore.EXTRA_MEDIA_FOCUS)
                 when (mediaFocus) {
-                    // for an Artist focused search, both artist and genre are set
-                    MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> {
-                        isArtistFocus = true
-                        artist = extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)
-                    }
-                    // for an Album focused search, album, artist and genre are set
-                    MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> {
-                        isAlbumFocus = true
-                        album = extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)
-                        artist = extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)
-                    }
-                    // for a Song focused search, title, album, artist and genre are set
-                    MediaStore.Audio.Media.ENTRY_CONTENT_TYPE -> {
-                        isSongFocus = true
-                        song = extras.getString(MediaStore.EXTRA_MEDIA_TITLE)
-                        album = extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)
-                        artist = extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)
-                    }
-                    // If we don't know the focus, treat it as an unstructured query
+                    MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> isArtistFocus = true
+                    MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> isAlbumFocus = true
+                    MediaStore.Audio.Media.ENTRY_CONTENT_TYPE -> isSongFocus = true
                     else -> isUnstructured = true
                 }
             }
@@ -91,9 +120,6 @@ class SearchParams
         this.isArtistFocus = isArtistFocus
         this.isAlbumFocus = isAlbumFocus
         this.isSongFocus = isSongFocus
-        this.artist = artist
-        this.album = album
-        this.song = song
     }
 
     override fun toString(): String {
