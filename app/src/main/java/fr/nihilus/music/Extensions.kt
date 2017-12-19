@@ -101,6 +101,21 @@ inline fun MediaMetadataCompat.copy(
     return builder.build()
 }
 
+inline fun MediaDescriptionCompat.copy(
+        reWriter: MediaDescriptionCompat.Builder.() -> Unit
+): MediaDescriptionCompat {
+    val builder = MediaDescriptionCompat.Builder()
+            .setTitle(title)
+            .setSubtitle(subtitle)
+            .setDescription(description)
+            .setIconUri(iconUri)
+            .setMediaUri(mediaUri)
+            .setIconBitmap(iconBitmap)
+            .setExtras(extras)
+    reWriter(builder)
+    return builder.build()
+}
+
 /**
  * Helper extension function that creates an [android.util.Pair] the same way Kotlin does for
  * [kotlin.Pair].

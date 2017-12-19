@@ -143,6 +143,10 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onLoadChildren(parentId: String, result: MediaItemResult) {
+        onLoadChildren(parentId, result, Bundle.EMPTY)
+    }
+
+    override fun onLoadChildren(parentId: String, result: MediaItemResult, options: Bundle) {
         Log.v(TAG, "Loading children for ID: $parentId")
         result.detach()
         repository.getMediaItems(parentId)
@@ -210,9 +214,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
             repository.getMetadata(musicId)
                     .flatMap { albumArtLoader.loadIntoMetadata(it) }
-                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { metadata, error ->
-                        Log.d(TAG, "Error: $error")
                         session.setMetadata(if (error == null) metadata else null)
                     }
         }

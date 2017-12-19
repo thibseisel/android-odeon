@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-@file:JvmName("ViewUtils")
+@file:JvmName("ResourceUtils")
 
 package fr.nihilus.music.utils
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.support.annotation.AttrRes
 import android.support.annotation.ColorInt
 import android.support.annotation.FloatRange
 import android.support.annotation.Px
+import android.support.v7.content.res.AppCompatResources
 import android.util.TypedValue
 
 @Px
@@ -55,4 +59,42 @@ fun resolveThemeColor(context: Context, @AttrRes themeAttr: Int): Int {
     val theme = context.theme
     theme.resolveAttribute(themeAttr, outValue, true)
     return outValue.data
+}
+
+/**
+ * Create a Bitmap from an Android Drawable Resource.
+ *
+ * @param context Context to access resources.
+ * @param resourceId The ID of the drawable to load from resources.
+ * @param desiredWidth Width of the resulting bitmap in pixels. Must be strictly positive.
+ * @param desiredHeight Height of the resulting bitmap in pixels. Must be strictly positive.
+ */
+fun loadResourceAsBitmap(
+        context: Context,
+        resourceId: Int,
+        desiredWidth: Int,
+        desiredHeight: Int
+): Bitmap {
+    val resource = AppCompatResources.getDrawable(context, resourceId)
+            ?: throw IllegalStateException("Unable to decode resource.")
+
+    // Short-circuit: the loaded drawable is already a bitmap resource
+    if (resource is BitmapDrawable) {
+        return resource.bitmap
+    }
+
+    // Otherwise, render the resource drawable onto a bitmap-baked canvas
+    return if (resource.intrinsicWidth <= 0 || resource.intrinsicHeight <= 0) {
+        // This kind of drawable has no dimension. Draw it with
+        Bitmap.createBitmap(desiredWidth, desiredHeight, Bitmap.Config.ARGB_8888)
+    } else {
+        // Constraint width and height by the provided maximums
+        val width = minOf(desiredWidth, resource.intrinsicWidth)
+        val height = minOf(desiredHeight, resource.intrinsicHeight)
+        Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    }.apply {
+        val canvas = Canvas(this)
+        resource.setBounds(0, 0, canvas.width, canvas.height)
+        resource.draw(canvas)
+    }
 }
