@@ -63,10 +63,10 @@ class PlayerView
         // Prevent from dispatching touches to views behind
         isClickable = true
 
-        val dummyAlbumArt = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
+        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         glideRequest = GlideApp.with(context).asBitmap()
                 .fitCenter()
-                .error(dummyAlbumArt)
+                .fallback(defaultIcon)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
     }
 

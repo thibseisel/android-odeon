@@ -44,19 +44,19 @@ class AlbumDetailActivity : AppCompatActivity(),
         View.OnClickListener,
         BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var mFactory: ViewModelFactory
+    @Inject lateinit var factory: ViewModelFactory
 
     private lateinit var adapter: TrackAdapter
     private lateinit var pickedAlbum: MediaItem
     private lateinit var decoration: CurrentlyPlayingDecoration
-    private lateinit var mViewModel: BrowserViewModel
+    private lateinit var viewModel: BrowserViewModel
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
             adapter.update(children)
             recycler.swapAdapter(adapter, false)
 
-            val currentMetadata = mViewModel.currentMetadata.value
+            val currentMetadata = viewModel.currentMetadata.value
             decoratePlayingTrack(currentMetadata)
         }
     }
@@ -82,20 +82,20 @@ class AlbumDetailActivity : AppCompatActivity(),
         setupTrackList()
         applyPaletteTheme(intent.getIntArrayExtra(ARG_PALETTE))
 
-        mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
-        mViewModel.connect()
+        viewModel = ViewModelProviders.of(this, factory).get(BrowserViewModel::class.java)
+        viewModel.connect()
 
         // Change the decorated item when metadata changes
-        mViewModel.currentMetadata.observe(this, Observer(this::decoratePlayingTrack))
+        viewModel.currentMetadata.observe(this, Observer(this::decoratePlayingTrack))
     }
 
     override fun onStart() {
         super.onStart()
-        mViewModel.subscribe(pickedAlbum.mediaId!!, subscriptionCallback)
+        viewModel.subscribe(pickedAlbum.mediaId!!, subscriptionCallback)
     }
 
     override fun onStop() {
-        mViewModel.unsubscribe(pickedAlbum.mediaId!!)
+        viewModel.unsubscribe(pickedAlbum.mediaId!!)
         super.onStop()
     }
 
@@ -158,7 +158,7 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     private fun playMediaItem(item: MediaItem) {
-        mViewModel.post {
+        viewModel.post {
             it.transportControls.playFromMediaId(item.mediaId, null)
         }
     }

@@ -56,7 +56,7 @@ internal class ArtistDetailAdapter(
                 .region(0f, .75f, 1f, 1f)
         bitmapLoader = GlideApp.with(fragment).asBitmap()
                 .centerCrop()
-                .error(defaultTrackIcon)
+                .fallback(defaultTrackIcon)
     }
 
     override fun getItemViewType(position: Int): Int {

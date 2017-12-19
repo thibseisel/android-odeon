@@ -145,6 +145,22 @@ class MediaStoreMusicDao
                 whereClause + " AND " + MEDIA_SELECTION_CLAUSE
             } else MEDIA_SELECTION_CLAUSE
 
+            // Preload art Uri for each album to associate them with tracks
+            val iconUris = LongSparseArray<String>()
+            resolver.query(Albums.EXTERNAL_CONTENT_URI, arrayOf(Albums._ID, Albums.ALBUM_ART),
+                    null, null, Albums.DEFAULT_SORT_ORDER)?.use { cursor ->
+
+                val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
+                val colFilePath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
+
+                while (cursor.moveToNext()) {
+                    cursor.getString(colFilePath)?.let { filepath ->
+                        val albumId = cursor.getLong(colAlbumId)
+                        iconUris.put(albumId, "file://$filepath")
+                    }
+                }
+            }
+
             val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
                     clause, whereArgs, sorting)
 
@@ -167,9 +183,9 @@ class MediaStoreMusicDao
                 while (cursor.moveToNext() && !emitter.isDisposed) {
                     val musicId = it.getLong(colId)
                     val albumId = it.getLong(colAlbumId)
-                    val artUri = ContentUris.withAppendedId(ALBUM_ART_URI, albumId)
                     val trackNo = it.getLong(colTrackNo)
                     val mediaUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId)
+                    val iconUri = iconUris[albumId]
 
                     builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, musicId.toString())
                             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, it.getString(colTitle))
@@ -178,7 +194,7 @@ class MediaStoreMusicDao
                             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.getLong(colDuration))
                             .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
                             .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, artUri.toString())
+                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUri)
                             .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
                             .putLong(MusicDao.METADATA_KEY_DATE, it.getLong(colDateAdded))
                             .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
@@ -251,9 +267,8 @@ class MediaStoreMusicDao
                 while (it.moveToNext() && !emitter.isDisposed) {
                     val albumId = it.getLong(colId)
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ALBUMS, albumId.toString())
-                    val artUri = it.getString(colAlbumArt)?.let {
-                        val artThumbnailFile = File(it)
-                        Uri.fromFile(artThumbnailFile)
+                    val artUri = it.getString(colAlbumArt)?.let { filepath ->
+                        Uri.parse("file://$filepath")
                     }
 
                     val extras = Bundle(3).apply {
@@ -348,8 +363,7 @@ class MediaStoreMusicDao
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
 
                     val artistIconUri = albumsCursor.getString(colAlbumArt)?.let { iconPath ->
-                        val iconFile = File(iconPath)
-                        Uri.fromFile(iconFile)
+                        Uri.parse("file://$iconPath")
                     }
 
                     val extras = Bundle(2).apply {
@@ -439,9 +453,6 @@ class MediaStoreMusicDao
          * ORDER BY clause to use when querying for albums associated with an artist.
          */
         private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
-
-        @JvmField
-        val ALBUM_ART_URI: Uri = Uri.parse("content://media/external/audio/albumart")
 
         @JvmField
         val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,

@@ -43,7 +43,7 @@ internal class MembersAdapter(
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
                 .transforms(FitCenter(), RoundedCorners(cornerRadius))
-                .error(defaultIcon)
+                .fallback(defaultIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
