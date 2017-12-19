@@ -16,11 +16,16 @@
 
 package fr.nihilus.music.ui.playlist
 
+import android.graphics.Bitmap
 import android.support.v4.app.Fragment
+import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import com.bumptech.glide.load.resource.bitmap.FitCenter
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.MembersHolder
 import fr.nihilus.music.utils.MediaID
@@ -30,8 +35,16 @@ internal class MembersAdapter(
         private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<MembersHolder>() {
 
-    private val glideRequest = GlideApp.with(fragment).asBitmap()
-            .error(R.drawable.dummy_album_art)
+    private val glideRequest: GlideRequest<Bitmap>
+
+    init {
+        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
+        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art)
+        val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
+        glideRequest = GlideApp.with(fragment).asBitmap()
+                .transforms(FitCenter(), RoundedCorners(cornerRadius))
+                .error(defaultIcon)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
             MembersHolder(parent, glideRequest).also { holder ->

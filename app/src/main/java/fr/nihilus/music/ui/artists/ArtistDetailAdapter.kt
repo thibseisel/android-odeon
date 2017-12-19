@@ -21,9 +21,9 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.ArtistAlbumHolder
@@ -35,27 +35,28 @@ internal class ArtistDetailAdapter(
         private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {
 
-    private val paletteLoader: RequestBuilder<PaletteBitmap>
-    private val bitmapLoader: RequestBuilder<Bitmap>
+    private val paletteLoader: GlideRequest<PaletteBitmap>
+    private val bitmapLoader: GlideRequest<Bitmap>
     private val defaultColors: IntArray
 
     init {
-        val ctx = fragment.context ?: throw IllegalStateException("Fragment is not attached")
+        val context = fragment.context ?: throw IllegalStateException("Fragment is not attached")
         defaultColors = intArrayOf(
-                ContextCompat.getColor(ctx, R.color.album_band_default),
-                resolveThemeColor(ctx, R.attr.colorAccent),
-                ContextCompat.getColor(ctx, android.R.color.white),
-                ContextCompat.getColor(ctx, android.R.color.white)
+                ContextCompat.getColor(context, R.color.album_band_default),
+                resolveThemeColor(context, R.attr.colorAccent),
+                ContextCompat.getColor(context, android.R.color.white),
+                ContextCompat.getColor(context, android.R.color.white)
         )
 
-        val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
+        val defaultAlbumIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
+        val defaultTrackIcon = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         paletteLoader = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
                 .centerCrop()
-                .error(dummyAlbumArt)
+                .fallback(defaultAlbumIcon)
                 .region(0f, .75f, 1f, 1f)
         bitmapLoader = GlideApp.with(fragment).asBitmap()
                 .centerCrop()
-                .error(dummyAlbumArt)
+                .error(defaultTrackIcon)
     }
 
     override fun getItemViewType(position: Int): Int {

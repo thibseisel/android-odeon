@@ -42,10 +42,10 @@ internal class PlaylistsAdapter(
     private val glideRequest: RequestBuilder<Bitmap>
 
     init {
-        val ctx = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_playlist_24dp)
+        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
+        val defaultIcon = ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp)
         glideRequest = GlideApp.with(fragment).asBitmap()
-                .error(dummyAlbumArt)
+                .fallback(defaultIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {

@@ -288,7 +288,7 @@ class MediaStoreMusicDao
                     null, null, Artists.ARTIST)
 
             val albumsCursor = resolver.query(Albums.EXTERNAL_CONTENT_URI,
-                    arrayOf(Albums._ID, Albums.ARTIST, Albums.LAST_YEAR),
+                    arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
                     null, null, ORDER_BY_MOST_RECENT)
 
             if (artistsCursor == null || albumsCursor == null) {
@@ -302,7 +302,7 @@ class MediaStoreMusicDao
             val colTrackCount = artistsCursor.getColumnIndexOrThrow(Artists.NUMBER_OF_TRACKS)
 
             val colArtistAlbum = albumsCursor.getColumnIndexOrThrow(Albums.ARTIST)
-            val colAlbumId = albumsCursor.getColumnIndexOrThrow(Albums._ID)
+            val colAlbumArt = albumsCursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
 
             val artists = ArrayList<MediaDescriptionCompat>(albumsCursor.count)
             val builder = MediaDescriptionCompat.Builder()
@@ -345,8 +345,12 @@ class MediaStoreMusicDao
                     // As albums are sorted by descending release year, the first album to match
                     // with the name of the artist is the most recent one.
                     val artistId = artistsCursor.getLong(colId)
-                    val albumId = albumsCursor.getLong(colAlbumId)
                     val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
+
+                    val artistIconUri = albumsCursor.getString(colAlbumArt)?.let { iconPath ->
+                        val iconFile = File(iconPath)
+                        Uri.fromFile(iconFile)
+                    }
 
                     val extras = Bundle(2).apply {
                         putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
@@ -355,7 +359,7 @@ class MediaStoreMusicDao
 
                     builder.setMediaId(mediaId)
                             .setTitle(artistsCursor.getString(colArtistName))
-                            .setIconUri(ContentUris.withAppendedId(ALBUM_ART_URI, albumId))
+                            .setIconUri(artistIconUri)
                             .setExtras(extras)
 
                     artists.add(builder.build())
@@ -434,7 +438,7 @@ class MediaStoreMusicDao
         /**
          * ORDER BY clause to use when querying for albums associated with an artist.
          */
-        const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
+        private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
 
         @JvmField
         val ALBUM_ART_URI: Uri = Uri.parse("content://media/external/audio/albumart")

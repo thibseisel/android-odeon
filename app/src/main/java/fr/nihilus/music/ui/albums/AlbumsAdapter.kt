@@ -49,7 +49,7 @@ internal class AlbumsAdapter(
         val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
         glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
                 .centerCrop()
-                .error(dummyAlbumArt)
+                .fallback(dummyAlbumArt)
                 .region(0f, .75f, 1f, 1f)
     }
 

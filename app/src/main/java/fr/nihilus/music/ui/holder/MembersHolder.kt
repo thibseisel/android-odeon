@@ -18,11 +18,13 @@ package fr.nihilus.music.ui.holder
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
+import android.text.format.DateUtils
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideRequest
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
 /**
@@ -37,6 +39,9 @@ internal class MembersHolder(
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitleView)
 
+    private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
+    private val durationBuilder = StringBuilder()
+
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
         itemView.setOnClickListener { _ ->
             client.onItemSelected(adapterPosition, R.id.action_play_item)
@@ -45,8 +50,12 @@ internal class MembersHolder(
 
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
-        title.text = description.title
-        subtitle.text = description.subtitle
         glide.load(description.iconUri).into(albumArt)
+        title.text = description.title
+
+        val millis = description.extras?.getLong(MediaItems.EXTRA_DURATION)
+                ?: throw IllegalStateException("Track should have extras")
+        subtitle.text = String.format(subtitleTemplate, description.subtitle,
+                DateUtils.formatElapsedTime(durationBuilder, millis / 1000L))
     }
 }
