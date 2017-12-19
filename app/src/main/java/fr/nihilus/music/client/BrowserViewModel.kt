@@ -50,7 +50,7 @@ class BrowserViewModel
     private val mControllerCallback = ControllerCallback()
 
     private val requestQueue: Queue<MediaControllerRequest> = LinkedList()
-    private lateinit var mController: MediaControllerCompat
+    private lateinit var controller: MediaControllerCompat
 
     init {
         val componentName = ComponentName(context, MusicService::class.java)
@@ -79,7 +79,7 @@ class BrowserViewModel
     fun post(request: MediaControllerRequest) {
         if (mBrowser.isConnected) {
             // If connected, satisfy request immediately
-            request.invoke(mController)
+            request.invoke(controller)
             return
         }
 
@@ -124,7 +124,7 @@ class BrowserViewModel
                     Log.v(TAG, "onConnected: browser is now connected to MediaBrowserService.")
                     val controller = MediaControllerCompat(it, mBrowser.sessionToken)
                     controller.registerCallback(mControllerCallback)
-                    mController = controller
+                    this@BrowserViewModel.controller = controller
                     currentMetadata.value = controller.metadata
                     playbackState.value = controller.playbackState
                     shuffleMode.value = controller.shuffleMode
@@ -142,7 +142,7 @@ class BrowserViewModel
 
         override fun onConnectionSuspended() {
             Log.w(TAG, "onConnectionSuspended: disconnected from MediaBrowserService.")
-            mController.unregisterCallback(mControllerCallback)
+            controller.unregisterCallback(mControllerCallback)
         }
 
         override fun onConnectionFailed() {
@@ -174,7 +174,7 @@ class BrowserViewModel
         }
 
         override fun onSessionDestroyed() {
-            Log.w(TAG, "onSessionDestroyed")
+            Log.i(TAG, "onSessionDestroyed")
         }
     }
 }

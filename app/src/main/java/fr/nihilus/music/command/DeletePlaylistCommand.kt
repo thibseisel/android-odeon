@@ -56,7 +56,6 @@ class DeletePlaylistCommand
     }
 
     companion object {
-        private const val TAG = "DeletePlaylistCmd"
 
         /**
          * The name of this command.

@@ -31,8 +31,8 @@ import javax.inject.Inject
 class MainPreferenceFragment : PreferenceFragmentCompat(),
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    @Inject lateinit var mPrefs: PreferenceDao
-    private lateinit var mKeyNightMode: String
+    @Inject lateinit var prefs: PreferenceDao
+    private lateinit var keyNightMode: String
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -41,7 +41,7 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.prefs_main)
-        mKeyNightMode = context!!.getString(R.string.pref_night_mode)
+        keyNightMode = context!!.getString(R.string.pref_night_mode)
     }
 
     override fun onResume() {
@@ -55,18 +55,19 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
     }
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String) {
-        if (mKeyNightMode == key) {
-            onNightModeChanged(mPrefs.nightMode)
+        if (keyNightMode == key) {
+            onNightModeChanged(this.prefs.nightMode)
         }
     }
 
     private fun onNightModeChanged(@AppCompatDelegate.NightMode newMode: Int) {
         AppCompatDelegate.setDefaultNightMode(newMode)
-        (activity as AppCompatActivity).delegate.applyDayNight()
+        val callingActivity = (activity as AppCompatActivity)
+        callingActivity.delegate.applyDayNight()
 
         val intent = Intent()
         intent.putExtra("night_mode", newMode)
 
-        activity!!.setResult(Activity.RESULT_OK, intent)
+        callingActivity.setResult(Activity.RESULT_OK, intent)
     }
 }

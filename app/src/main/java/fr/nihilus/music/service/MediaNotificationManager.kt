@@ -42,37 +42,37 @@ import javax.inject.Inject
 class MediaNotificationManager
 @Inject constructor(private val service: MusicService) {
 
-    private val mNotificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
+    private val notificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
             as NotificationManager
 
-    private val mPauseAction = NotificationCompat.Action(R.drawable.ic_pause_48dp,
+    private val pauseAction = NotificationCompat.Action(R.drawable.ic_pause_48dp,
             service.getString(R.string.action_pause),
             MediaButtonReceiver.buildMediaButtonPendingIntent(service,
                     PlaybackStateCompat.ACTION_PAUSE))
 
-    private val mPlayAction = NotificationCompat.Action(R.drawable.ic_play_arrow_48dp,
+    private val playAction = NotificationCompat.Action(R.drawable.ic_play_arrow_48dp,
             service.getString(R.string.action_play),
             MediaButtonReceiver.buildMediaButtonPendingIntent(service,
                     PlaybackStateCompat.ACTION_PLAY))
 
-    private val mPreviousAction = NotificationCompat.Action(R.drawable.ic_skip_previous_36dp,
+    private val previousAction = NotificationCompat.Action(R.drawable.ic_skip_previous_36dp,
             service.getString(R.string.action_previous), MediaButtonReceiver.buildMediaButtonPendingIntent(service,
             PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS))
 
-    private val mNextAction = NotificationCompat.Action(R.drawable.ic_skip_next_36dp,
+    private val nextAction = NotificationCompat.Action(R.drawable.ic_skip_next_36dp,
             service.getString(R.string.action_next),
             MediaButtonReceiver.buildMediaButtonPendingIntent(service,
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT))
 
-    private val mControllerCallback = ControllerCallback()
+    private val controllerCallback = ControllerCallback()
 
-    private var mController: MediaControllerCompat? = null
+    private var controller: MediaControllerCompat? = null
 
-    private var mSessionToken: MediaSessionCompat.Token? = null
-    private var mPlaybackState: PlaybackStateCompat? = null
+    private var sessionToken: MediaSessionCompat.Token? = null
+    private var playbackState: PlaybackStateCompat? = null
 
-    private var mMetadata: MediaMetadataCompat? = null
-    private var mStarted = false
+    private var metadata: MediaMetadataCompat? = null
+    private var isStarted = false
 
     fun init() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -80,13 +80,13 @@ class MediaNotificationManager
         }
         // Cancel all notifications to handle the case where the Service was killed
         // and restarted by the system.
-        mNotificationManager.cancelAll()
+        notificationManager.cancelAll()
         updateSessionToken()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel() {
-        if (mNotificationManager.getNotificationChannel(CHANNEL_ID) == null) {
+        if (notificationManager.getNotificationChannel(CHANNEL_ID) == null) {
 
             val name = service.getString(R.string.channel_mediasession)
             val channelDescription = service.getString(R.string.channel_mediasession_description)
@@ -100,36 +100,36 @@ class MediaNotificationManager
                 vibrationPattern = longArrayOf(100L, 200L, 300L, 400L, 500L, 400L, 300L, 200L, 400L)
             }
 
-            mNotificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel)
         }
     }
 
     private fun updateSessionToken() {
         val freshToken = service.sessionToken
-        if (mSessionToken == null && freshToken != null ||
-                mSessionToken != null && mSessionToken != freshToken) {
-            mController?.unregisterCallback(mControllerCallback)
-            mSessionToken = freshToken
-            if (mSessionToken != null) {
-                mController = MediaControllerCompat(service, mSessionToken!!)
-                if (mStarted) {
-                    mController!!.registerCallback(mControllerCallback)
+        if (sessionToken == null && freshToken != null ||
+                sessionToken != null && sessionToken != freshToken) {
+            controller?.unregisterCallback(controllerCallback)
+            sessionToken = freshToken
+            if (sessionToken != null) {
+                controller = MediaControllerCompat(service, sessionToken!!)
+                if (isStarted) {
+                    controller!!.registerCallback(controllerCallback)
                 }
             }
         }
     }
 
     fun startNotification() {
-        mMetadata = mController!!.metadata
-        mPlaybackState = mController!!.playbackState
+        metadata = controller!!.metadata
+        playbackState = controller!!.playbackState
 
         val notification = createNotification()
         if (notification != null) {
-            mController!!.registerCallback(mControllerCallback)
+            controller!!.registerCallback(controllerCallback)
 
             Log.i(TAG, "FOREGROUND: true")
             service.startForeground(NOTIFICATION_ID, notification)
-            mStarted = true
+            isStarted = true
         }
     }
 
@@ -141,18 +141,19 @@ class MediaNotificationManager
     }
 
     private fun createNotification(): Notification? {
-        Log.v(TAG, "updateNotificationMetadata: metadata=$mMetadata")
-        if (mMetadata == null || mPlaybackState == null) return null
+        Log.v(TAG, "updateNotificationMetadata: metadata=$metadata")
+        val currentMetadata = metadata ?: return null
+        val currentState = playbackState ?: return null
 
         val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
 
-        val description = mMetadata!!.description
+        val description = currentMetadata.description
 
-        val smallIcon = if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
+        val smallIcon = if (currentState.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.notif_play_arrow else R.drawable.notif_pause
 
         notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
-                .setMediaSession(mSessionToken)
+                .setMediaSession(sessionToken)
                 .setShowActionsInCompactView(0, 1, 2)
                 // For backwards compatibility with Android L and earlier
                 .setShowCancelButton(true)
@@ -174,30 +175,26 @@ class MediaNotificationManager
                 // Show controls on lock screen event when user hides sensitive content.
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        notificationBuilder.addAction(mPreviousAction)
-        addPlayPauseButton(notificationBuilder)
-        notificationBuilder.addAction(mNextAction)
+        notificationBuilder.addAction(previousAction)
+        notificationBuilder.addAction(
+                if (currentState.state == PlaybackStateCompat.STATE_PLAYING) pauseAction
+                else playAction
+        )
+        notificationBuilder.addAction(nextAction)
 
         setNotificationPlaybackState(notificationBuilder)
         return notificationBuilder.build()
     }
 
-    private fun addPlayPauseButton(builder: NotificationCompat.Builder) {
-        builder.addAction(
-                if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING) mPauseAction
-                else mPlayAction
-        )
-    }
-
     private fun setNotificationPlaybackState(builder: NotificationCompat.Builder) {
-        if (mPlaybackState == null || !mStarted) {
+        if (playbackState == null || !isStarted) {
             service.stopForeground(true)
             return
         }
 
-        if (mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING
-                && mPlaybackState!!.position >= 0) {
-            builder.setWhen(System.currentTimeMillis() - mPlaybackState!!.position)
+        if (playbackState!!.state == PlaybackStateCompat.STATE_PLAYING
+                && playbackState!!.position >= 0) {
+            builder.setWhen(System.currentTimeMillis() - playbackState!!.position)
                     .setShowWhen(true)
                     .setUsesChronometer(true)
         } else {
@@ -207,15 +204,15 @@ class MediaNotificationManager
         }
 
         // Make sure that the notification can be dismissed by the user when we are not playing
-        builder.setOngoing(mPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING)
+        builder.setOngoing(playbackState!!.state == PlaybackStateCompat.STATE_PLAYING)
     }
 
     fun stopNotification() {
-        if (mStarted) {
-            mStarted = false
-            mController!!.unregisterCallback(mControllerCallback)
+        if (isStarted) {
+            isStarted = false
+            controller!!.unregisterCallback(controllerCallback)
             try {
-                mNotificationManager.cancel(NOTIFICATION_ID)
+                notificationManager.cancel(NOTIFICATION_ID)
             } catch (e: IllegalArgumentException) {
                 // Ignore if the receiver is not registered.
             } finally {
@@ -231,7 +228,7 @@ class MediaNotificationManager
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            mPlaybackState = state
+            playbackState = state
 
             when (state.state) {
                 PlaybackStateCompat.STATE_NONE,
@@ -241,7 +238,7 @@ class MediaNotificationManager
                 PlaybackStateCompat.STATE_PLAYING -> {
                     val notification = createNotification()
                     if (notification != null) {
-                        mNotificationManager.notify(NOTIFICATION_ID, notification)
+                        notificationManager.notify(NOTIFICATION_ID, notification)
                     }
                 }
 
@@ -250,11 +247,11 @@ class MediaNotificationManager
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            mMetadata = metadata
+            this@MediaNotificationManager.metadata = metadata
 
             val notification = createNotification()
             if (notification != null) {
-                mNotificationManager.notify(NOTIFICATION_ID, notification)
+                notificationManager.notify(NOTIFICATION_ID, notification)
             }
         }
 

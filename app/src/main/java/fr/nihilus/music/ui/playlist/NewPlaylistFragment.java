@@ -59,20 +59,20 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     private static final String TAG = "NewPlaylistFragment";
     private static final String ARG_SONGS_IDS = "song_ids";
 
-    private TextInputLayout mTitleLayout;
-    private TextInputEditText mTitleInput;
-    private ListView mListView;
-    private TextView mMessage;
-    private Button mValidateButton;
+    private TextInputLayout titleLayout;
+    private TextInputEditText titleInput;
+    private ListView listView;
+    private TextView message;
+    private Button validateButton;
 
-    private SongAdapter mAdapter;
+    private SongAdapter adapter;
 
-    private BrowserViewModel mViewModel;
+    private BrowserViewModel viewModel;
 
-    private final SubscriptionCallback mCallback = new SubscriptionCallback() {
+    private final SubscriptionCallback subscriptionCallback = new SubscriptionCallback() {
         @Override
         public void onChildrenLoaded(@NonNull String parentId, @NonNull List<MediaItem> children) {
-            mAdapter.updateItems(children);
+            adapter.updateItems(children);
 
             // In case we have provided song ids as arguments
             Bundle args = getArguments();
@@ -87,11 +87,11 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                     long musicId = Long.parseLong(MediaID.extractMusicID(mediaId));
                     int index = Arrays.binarySearch(songIds, musicId);
                     if (index >= 0) {
-                        mListView.setItemChecked(i, true);
+                        listView.setItemChecked(i, true);
                     }
                 }
 
-                updateCheckCountMessage(mListView.getCheckedItemCount());
+                updateCheckCountMessage(listView.getCheckedItemCount());
             }
         }
     };
@@ -120,35 +120,35 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new SongAdapter(this);
+        adapter = new SongAdapter(this);
         setStyle(AppCompatDialogFragment.STYLE_NO_TITLE, R.style.AppTheme_DialogWhenLarge);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
+        viewModel = ViewModelProviders.of(getActivity()).get(BrowserViewModel.class);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mViewModel.subscribe(MediaID.ID_MUSIC, mCallback);
+        viewModel.subscribe(MediaID.ID_MUSIC, subscriptionCallback);
     }
 
     @Override
     public void onStop() {
-        mViewModel.unsubscribe(MediaID.ID_MUSIC);
+        viewModel.unsubscribe(MediaID.ID_MUSIC);
         super.onStop();
     }
 
     @Override
     public void onDestroyView() {
-        mTitleLayout = null;
-        mTitleInput = null;
-        mListView = null;
-        mMessage = null;
-        mValidateButton = null;
+        titleLayout = null;
+        titleInput = null;
+        listView = null;
+        message = null;
+        validateButton = null;
         super.onDestroyView();
     }
 
@@ -161,19 +161,19 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mTitleLayout = view.findViewById(R.id.titleLayout);
-        mTitleInput = mTitleLayout.findViewById(R.id.title);
+        titleLayout = view.findViewById(R.id.titleLayout);
+        titleInput = titleLayout.findViewById(R.id.title);
 
-        mValidateButton = view.findViewById(R.id.validate);
-        mValidateButton.setOnClickListener(this);
+        validateButton = view.findViewById(R.id.validate);
+        validateButton.setOnClickListener(this);
 
-        mMessage = view.findViewById(R.id.selected_songs);
-        mMessage.setText(R.string.new_playlist_help_message);
+        message = view.findViewById(R.id.selected_songs);
+        message.setText(R.string.new_playlist_help_message);
 
-        mListView = view.findViewById(android.R.id.list);
-        mListView.setAdapter(mAdapter);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        mListView.setOnItemClickListener(this);
+        listView = view.findViewById(android.R.id.list);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        listView.setOnItemClickListener(this);
 
         // Add a dismiss button to the toolbar
         Toolbar toolbar = view.findViewById(R.id.toolbar);
@@ -186,39 +186,39 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
     @Override
     public void onClick(View v) {
-        final CharSequence playlistTitle = mTitleInput.getText();
+        final CharSequence playlistTitle = titleInput.getText();
         if (playlistTitle.length() == 0) {
-            mTitleLayout.setError(getString(R.string.playlist_title_error));
-            mTitleInput.requestFocus();
+            titleLayout.setError(getString(R.string.playlist_title_error));
+            titleInput.requestFocus();
             return;
         }
 
-        int checkedItemCount = mListView.getCheckedItemCount();
+        int checkedItemCount = listView.getCheckedItemCount();
         if (checkedItemCount == 0) {
-            mMessage.setText(R.string.new_playlist_help_message);
+            message.setText(R.string.new_playlist_help_message);
             return;
         }
 
-        mTitleLayout.setError(null);
+        titleLayout.setError(null);
 
-        SparseBooleanArray selectedSongs = mListView.getCheckedItemPositions();
+        SparseBooleanArray selectedSongs = listView.getCheckedItemPositions();
         Log.d(TAG, "onClick: selected items = " + selectedSongs.toString());
 
         long[] trackIds = new long[checkedItemCount];
         for (int index = 0, position = 0; index < selectedSongs.size(); index++) {
             if (selectedSongs.valueAt(index)) {
-                MediaItem item = mAdapter.getItem(selectedSongs.keyAt(index));
+                MediaItem item = adapter.getItem(selectedSongs.keyAt(index));
                 trackIds[position++] = Long.parseLong(MediaID.extractMusicID(item.getMediaId()));
             }
         }
 
-        mMessage.setText(R.string.saving_playlist);
+        message.setText(R.string.saving_playlist);
 
         Bundle params = new Bundle(2);
         params.putString(NewPlaylistCommand.PARAM_TITLE, playlistTitle.toString());
         params.putLongArray(NewPlaylistCommand.PARAM_TRACK_IDS, trackIds);
 
-        mViewModel.post(controller -> {
+        viewModel.post(controller -> {
             controller.sendCommand(NewPlaylistCommand.CMD_NAME, params, new ResultReceiver(new Handler()) {
                 @Override
                 protected void onReceiveResult(int resultCode, Bundle resultData) {
@@ -227,7 +227,7 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
                             NewPlaylistFragment.this.dismiss();
                             break;
                         case NewPlaylistCommand.CODE_ERROR_TITLE_ALREADY_EXISTS:
-                            mMessage.setText(R.string.error_playlist_already_exists);
+                            message.setText(R.string.error_playlist_already_exists);
                             break;
                         default:
                             Log.e(TAG, "Unhandled result code: " + resultCode);
@@ -241,13 +241,13 @@ public class NewPlaylistFragment extends AppCompatDialogFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        updateCheckCountMessage(mListView.getCheckedItemCount());
+        updateCheckCountMessage(listView.getCheckedItemCount());
     }
 
     private void updateCheckCountMessage(int checkedItemCount) {
         CharSequence selectedMessage = getResources()
                 .getQuantityString(R.plurals.selected_song_count, checkedItemCount, checkedItemCount);
-        mMessage.setText(selectedMessage);
+        message.setText(selectedMessage);
     }
 
 }

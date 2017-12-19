@@ -35,15 +35,15 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
     private static final String[] ALPHABET = {"#", "A", "B", "C", "D", "E", "F", "G", "H", "I",
             "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
-    private List<MediaItem> mItems;
-    private final Collator mCollator;
-    private final SparseIntArray mAlphaMap;
+    private List<MediaItem> items;
+    private final Collator collator;
+    private final SparseIntArray alphaMap;
 
     public MediaItemIndexer(List<MediaItem> items) {
-        mItems = items;
-        mCollator = Collator.getInstance();
-        mCollator.setStrength(Collator.PRIMARY);
-        mAlphaMap = new SparseIntArray(ALPHABET.length);
+        this.items = items;
+        collator = Collator.getInstance();
+        collator.setStrength(Collator.PRIMARY);
+        alphaMap = new SparseIntArray(ALPHABET.length);
     }
 
     @Override
@@ -53,8 +53,8 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
 
     @Override
     public int getPositionForSection(int sectionIndex) {
-        final SparseIntArray alphaMap = mAlphaMap;
-        final List<MediaItem> items = mItems;
+        final SparseIntArray alphaMap = this.alphaMap;
+        final List<MediaItem> items = this.items;
         // Check items and bounds
         if (items == null || sectionIndex <= 0) {
             return 0;
@@ -134,7 +134,7 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
 
     @Override
     public int getSectionForPosition(int position) {
-        final MediaItem item = mItems.get(position);
+        final MediaItem item = items.get(position);
         CharSequence name = item.getDescription().getTitle();
         if (name == null) {
             Log.w(TAG, "getSectionForPosition: mediaItem has no name.");
@@ -152,8 +152,8 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
     }
 
     public void setItems(List<MediaItem> items) {
-        mItems = items;
-        mAlphaMap.clear();
+        this.items = items;
+        alphaMap.clear();
     }
 
     private int compare(String word, String letter) {
@@ -165,19 +165,19 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
             firstLetter = word.substring(0, 1);
         }
 
-        return mCollator.compare(firstLetter, letter);
+        return collator.compare(firstLetter, letter);
     }
 
     @Override
     public void onChanged() {
         super.onChanged();
-        mAlphaMap.clear();
+        alphaMap.clear();
     }
 
     @Override
     public void onInvalidated() {
         super.onInvalidated();
-        mAlphaMap.clear();
+        alphaMap.clear();
     }
 
     /**

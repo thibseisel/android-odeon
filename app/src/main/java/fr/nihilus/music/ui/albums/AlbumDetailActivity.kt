@@ -173,7 +173,7 @@ class AlbumDetailActivity : AppCompatActivity(),
             val position = adapter.indexOf(playingTrack)
 
             if (position != -1) {
-                decoration.setDecoratedItemPosition(position)
+                decoration.decoratedPosition = position
                 recycler.invalidateItemDecorations()
             }
         }

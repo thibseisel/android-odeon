@@ -68,8 +68,8 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject lateinit var queueManager: MediaQueueManager
     @Inject lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
-    private lateinit var mPackageValidator: PackageValidator
-    private val mDelayedStopHandler = DelayedStopHandler(this)
+    private lateinit var packageValidator: PackageValidator
+    private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
     private val metadataUpdater = MetadataUpdater()
 
@@ -93,7 +93,7 @@ class MusicService : MediaBrowserServiceCompat() {
         session.setSessionActivity(pi)
         session.setRatingType(RatingCompat.RATING_NONE)
 
-        mPackageValidator = PackageValidator(this)
+        packageValidator = PackageValidator(this)
         val repeatAction = RepeatModeActionProvider(this, player)
 
         playbackController.restoreStateFromPreferences(player, session)
@@ -115,8 +115,8 @@ class MusicService : MediaBrowserServiceCompat() {
         Log.i(TAG, "Service is now started.")
 
         isStarted = true
-        mDelayedStopHandler.removeCallbacksAndMessages(null)
-        mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
+        delayedStopHandler.removeCallbacksAndMessages(null)
+        delayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
         return START_NOT_STICKY
     }
 
@@ -127,13 +127,13 @@ class MusicService : MediaBrowserServiceCompat() {
         player.removeListener(metadataUpdater)
         isStarted = false
 
-        mDelayedStopHandler.removeCallbacksAndMessages(null)
+        delayedStopHandler.removeCallbacksAndMessages(null)
         session.release()
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
 
-        if (!mPackageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
+        if (!packageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
             // If the request comes from an untrusted package, return an empty BrowserRoot
             // so that every application can use mediaController in debug mode.
             // Release builds prevents untrusted packages from connecting.
@@ -176,7 +176,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     internal fun onPlaybackStart() {
         session.isActive = true
-        mDelayedStopHandler.removeCallbacksAndMessages(null)
+        delayedStopHandler.removeCallbacksAndMessages(null)
 
         // The service must continue running even after the bound client (usually a MediaController)
         // disconnects, otherwise the music playback will stop.
@@ -198,8 +198,8 @@ class MusicService : MediaBrowserServiceCompat() {
         session.isActive = false
         // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
         // potentially stopping the service.
-        mDelayedStopHandler.removeCallbacksAndMessages(null)
-        mDelayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
+        delayedStopHandler.removeCallbacksAndMessages(null)
+        delayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
 
         Log.i(TAG, "FOREGROUND: false")
         stopForeground(false)

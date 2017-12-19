@@ -47,13 +47,13 @@ class AudioFocusAwarePlayer
         private val exoPlayer: SimpleExoPlayer
 ) : ExoPlayer by exoPlayer, AudioManager.OnAudioFocusChangeListener {
 
-    private val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private var mCurrentFocus = AUDIO_NO_FOCUS_NO_DUCK
-    private var mFocusRequest: AudioFocusRequest? = null
-    private var mPlayOnFocusGain = false
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var currentFocus = AUDIO_NO_FOCUS_NO_DUCK
+    private var focusRequest: AudioFocusRequest? = null
+    private var playOnFocusGain = false
 
-    private val mAudioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-    private var mNoisyReceiverRegistered = false
+    private val audioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    private var noisyReceiverRegistered = false
 
     override fun setPlayWhenReady(playWhenReady: Boolean) {
         if (playWhenReady) onPlay()
@@ -65,7 +65,6 @@ class AudioFocusAwarePlayer
         if (focusGranted) {
             registerAudioNoisyReceiver()
             exoPlayer.playWhenReady = true
-            // FIXME Playback is automatically paused and should play
             configurePlayerState()
         }
     }
@@ -83,22 +82,22 @@ class AudioFocusAwarePlayer
 
     private fun requestAudioFocus(): Boolean {
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setAudioAttributes(androidAttributesOf(exoPlayer.audioAttributes))
                     .setOnAudioFocusChangeListener(this)
                     .build()
-            mAudioManager.requestAudioFocus(mFocusRequest)
+            audioManager.requestAudioFocus(focusRequest)
         } else {
             @Suppress("DEPRECATION")
-            mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                     AudioManager.AUDIOFOCUS_GAIN)
         }
 
-        mCurrentFocus =
+        currentFocus =
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) AUDIO_FOCUSED
                 else AUDIO_NO_FOCUS_NO_DUCK
 
-        mCurrentFocus =
+        currentFocus =
                 if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) AUDIO_FOCUSED
                 else AUDIO_NO_FOCUS_NO_DUCK
 
@@ -107,23 +106,23 @@ class AudioFocusAwarePlayer
 
     private fun giveUpAudioFocus(): Boolean {
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (mFocusRequest != null) {
-                mAudioManager.abandonAudioFocusRequest(mFocusRequest).also { mFocusRequest = null }
+            if (focusRequest != null) {
+                audioManager.abandonAudioFocusRequest(focusRequest).also { focusRequest = null }
             } else AudioManager.AUDIOFOCUS_REQUEST_FAILED
         } else {
             @Suppress("DEPRECATION")
-            mAudioManager.abandonAudioFocus(this)
+            audioManager.abandonAudioFocus(this)
         }
 
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
     override fun onAudioFocusChange(newFocus: Int) {
-        mCurrentFocus = when (newFocus) {
+        currentFocus = when (newFocus) {
             AudioManager.AUDIOFOCUS_GAIN -> AUDIO_FOCUSED
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> AUDIO_NO_FOCUS_CAN_DUCK
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                mPlayOnFocusGain = true
+                playOnFocusGain = true
                 AUDIO_NO_FOCUS_NO_DUCK
             }
             AudioManager.AUDIOFOCUS_LOSS -> AUDIO_NO_FOCUS_NO_DUCK
@@ -134,19 +133,19 @@ class AudioFocusAwarePlayer
     }
 
     private fun configurePlayerState() {
-        if (mCurrentFocus == AUDIO_NO_FOCUS_NO_DUCK) {
+        if (currentFocus == AUDIO_NO_FOCUS_NO_DUCK) {
             // We don't have audio focus and can't duck, so we have to pause
             this.playWhenReady = false
         } else {
             // We're permitted to play, but only if we "duck" (play quietly)
             exoPlayer.volume =
-                    if (mCurrentFocus == AUDIO_NO_FOCUS_CAN_DUCK) VOLUME_DUCK
+                    if (currentFocus == AUDIO_NO_FOCUS_CAN_DUCK) VOLUME_DUCK
                     else VOLUME_NORMAL
 
             // If we were playing when we lost focus, we need to resume playing.
-            if (mPlayOnFocusGain) {
+            if (playOnFocusGain) {
                 exoPlayer.playWhenReady = true
-                mPlayOnFocusGain = false
+                playOnFocusGain = false
             }
         }
     }
@@ -160,16 +159,16 @@ class AudioFocusAwarePlayer
     }
 
     private fun registerAudioNoisyReceiver() {
-        if (!mNoisyReceiverRegistered) {
-            context.registerReceiver(mAudioNoisyReceiver, mAudioNoisyIntentFilter)
-            mNoisyReceiverRegistered = true
+        if (!noisyReceiverRegistered) {
+            context.registerReceiver(mAudioNoisyReceiver, audioNoisyIntentFilter)
+            noisyReceiverRegistered = true
         }
     }
 
     private fun unregisterAudioNoisyReceiver() {
-        if (mNoisyReceiverRegistered) {
+        if (noisyReceiverRegistered) {
             context.unregisterReceiver(mAudioNoisyReceiver)
-            mNoisyReceiverRegistered = false
+            noisyReceiverRegistered = false
         }
     }
 

@@ -42,7 +42,7 @@ class AlbumArtLoader
     private val defaultIcon = loadResourceAsBitmap(context, R.drawable.ic_audiotrack_24dp,
             ART_MAX_SIZE, ART_MAX_SIZE)
 
-    private val mGlide = GlideApp.with(context).asBitmap()
+    private val glide = GlideApp.with(context).asBitmap()
             .downsample(DownsampleStrategy.AT_MOST)
 
     fun loadIntoMetadata(metadata: MediaMetadataCompat): Single<MediaMetadataCompat> {
@@ -50,7 +50,7 @@ class AlbumArtLoader
             val uriString = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
             if (uriString != null) {
                 val artUri = Uri.parse(uriString)
-                mGlide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
+                glide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
 
                     override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
                         // Emits a new metadata with an album art

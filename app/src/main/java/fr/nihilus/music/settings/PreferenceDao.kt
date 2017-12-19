@@ -38,14 +38,14 @@ private const val KEY_STARTUP_SCREEN = "startup_screen"
 class PreferenceDao
 @Inject constructor(app: Application, private val mPrefs: SharedPreferences) {
 
-    private val mAppContext: Context = app
+    private val appContext: Context = app
 
     /**
      * The current enabled/disabled state of the night mode setting.
      * This property value is always an `AppCompatDelegate.MODE_NIGHT_*` constant.
      */
     val nightMode: Int
-        get() = Integer.parseInt(mPrefs.getString(mAppContext.getString(R.string.pref_night_mode),
+        get() = Integer.parseInt(mPrefs.getString(appContext.getString(R.string.pref_night_mode),
                 DEFAULT_NIGHT_MODE))
 
     /**
@@ -71,7 +71,7 @@ class PreferenceDao
      */
     val startupScreenMediaId: String
         get() = mPrefs.getString(KEY_STARTUP_SCREEN,
-                mAppContext.getString(R.string.pref_default_startup_screen))
+                appContext.getString(R.string.pref_default_startup_screen))
 
     /**
      * The media ID of the last played item.

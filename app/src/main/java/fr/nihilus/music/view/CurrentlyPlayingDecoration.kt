@@ -29,33 +29,29 @@ class CurrentlyPlayingDecoration(
         iconColor: Int
 ) : RecyclerView.ItemDecoration() {
 
-    private val mIcon: Drawable
-    private val mPaddingStart = context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
-    private var mDecoratedPosition = RecyclerView.NO_POSITION
+    private val icon: Drawable
+    private val paddingStart = context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
+    var decoratedPosition = RecyclerView.NO_POSITION
 
     init {
         val notNullIcon = checkNotNull(AppCompatResources.getDrawable(context,
                 R.drawable.currently_playing_decoration)) { "Icon should not be null" }
-        mIcon = DrawableCompat.wrap(notNullIcon)
-        DrawableCompat.setTint(mIcon, iconColor)
+        icon = DrawableCompat.wrap(notNullIcon)
+        DrawableCompat.setTint(icon, iconColor)
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
-        if (mDecoratedPosition != RecyclerView.NO_POSITION) {
-            val child = parent.getChildAt(mDecoratedPosition)
+        if (decoratedPosition != RecyclerView.NO_POSITION) {
+            val child = parent.getChildAt(decoratedPosition)
             if (child != null) {
-                val left = mPaddingStart
-                val top = child.top + (child.height - mIcon.intrinsicHeight) / 2
-                val right = left + mIcon.intrinsicWidth
-                val bottom = top + mIcon.intrinsicHeight
+                val left = paddingStart
+                val top = child.top + (child.height - icon.intrinsicHeight) / 2
+                val right = left + icon.intrinsicWidth
+                val bottom = top + icon.intrinsicHeight
 
-                mIcon.setBounds(left, top, right, bottom)
-                mIcon.draw(c)
+                icon.setBounds(left, top, right, bottom)
+                icon.draw(c)
             }
         }
-    }
-
-    fun setDecoratedItemPosition(position: Int) {
-        mDecoratedPosition = position
     }
 }

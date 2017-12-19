@@ -57,14 +57,14 @@ class HomeActivity : AppCompatActivity(),
         PlayerView.EventListener {
 
     @Inject lateinit var dispatchingFragmentInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var mPrefs: PreferenceDao
-    @Inject lateinit var mRouter: NavigationController
-    @Inject lateinit var mFactory: ViewModelFactory
+    @Inject lateinit var prefs: PreferenceDao
+    @Inject lateinit var router: NavigationController
+    @Inject lateinit var vmFactory: ViewModelFactory
 
-    private lateinit var mDrawerToggle: ActionBarDrawerToggle
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var mBottomSheet: ScrimBottomSheetBehavior<PlayerView>
-    private lateinit var mViewModel: BrowserViewModel
+    private lateinit var bottomSheet: ScrimBottomSheetBehavior<PlayerView>
+    private lateinit var viewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -76,8 +76,8 @@ class HomeActivity : AppCompatActivity(),
 
         setupNavigationDrawer()
 
-        mViewModel = ViewModelProviders.of(this, mFactory).get(BrowserViewModel::class.java)
-        mViewModel.connect()
+        viewModel = ViewModelProviders.of(this, vmFactory).get(BrowserViewModel::class.java)
+        viewModel.connect()
 
         setupPlayerView()
 
@@ -94,12 +94,12 @@ class HomeActivity : AppCompatActivity(),
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        mDrawerToggle.syncState()
+        drawerToggle.syncState()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        mDrawerToggle.onConfigurationChanged(newConfig)
+        drawerToggle.onConfigurationChanged(newConfig)
     }
 
     /**
@@ -107,7 +107,7 @@ class HomeActivity : AppCompatActivity(),
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY -> mViewModel.post { controller ->
+            KeyEvent.KEYCODE_MEDIA_PLAY -> viewModel.post { controller ->
                 controller.dispatchMediaButtonEvent(event)
             }
         }
@@ -115,25 +115,25 @@ class HomeActivity : AppCompatActivity(),
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
             return true
         }
 
         when (item.itemId) {
             R.id.action_all -> {
-                mRouter.navigateToAllSongs()
+                router.navigateToAllSongs()
                 return true
             }
             R.id.action_albums -> {
-                mRouter.navigateToAlbums()
+                router.navigateToAlbums()
                 return true
             }
             R.id.action_artists -> {
-                mRouter.navigateToArtists()
+                router.navigateToArtists()
                 return true
             }
             R.id.action_playlist -> {
-                mRouter.navigateToPlaylists()
+                router.navigateToPlaylists()
                 return true
             }
             R.id.action_settings -> {
@@ -150,41 +150,41 @@ class HomeActivity : AppCompatActivity(),
      * Create and populate the Navigation Drawer.
      */
     private fun setupNavigationDrawer() {
-        mDrawerToggle = ActionBarDrawerToggle(this, drawerLayout,
+        drawerToggle = ActionBarDrawerToggle(this, drawerLayout,
                 R.string.drawer_opened, R.string.drawer_closed)
-        drawerLayout.addDrawerListener(mDrawerToggle)
+        drawerLayout.addDrawerListener(drawerToggle)
 
         navDrawer.setNavigationItemSelectedListener(this)
 
-        mRouter.routeChangeListener = { fragmentId ->
+        router.routeChangeListener = { fragmentId ->
             navDrawer.setCheckedItem(fragmentId)
         }
     }
 
     private fun setupPlayerView() {
         playerView.setEventListener(this)
-        mBottomSheet = ScrimBottomSheetBehavior.from(playerView)
+        bottomSheet = ScrimBottomSheetBehavior.from(playerView)
 
         // Show / hide BottomSheet on startup without an animation
-        setInitialBottomSheetVisibility(mViewModel.playbackState.value)
+        setInitialBottomSheetVisibility(viewModel.playbackState.value)
 
-        mViewModel.currentMetadata.observe(this, Observer(playerView::updateMetadata))
-        mViewModel.shuffleMode.observe(this, Observer {
+        viewModel.currentMetadata.observe(this, Observer(playerView::updateMetadata))
+        viewModel.shuffleMode.observe(this, Observer {
             playerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
         })
 
-        mViewModel.repeatMode.observe(this, Observer {
+        viewModel.repeatMode.observe(this, Observer {
             playerView.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
         })
 
-        mViewModel.playbackState.observe(this, Observer { newState ->
+        viewModel.playbackState.observe(this, Observer { newState ->
             playerView.updatePlaybackState(newState)
             togglePlayerVisibility(newState)
         })
 
-        mBottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+        bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                mBottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
+                this@HomeActivity.bottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
                 bottomSheet.requestLayout()
             }
 
@@ -213,10 +213,10 @@ class HomeActivity : AppCompatActivity(),
      * Collapses the BottomSheet using the back button if it is expanded.
      */
     override fun onBackPressed() {
-        if (mBottomSheet.state != BottomSheetBehavior.STATE_EXPANDED) {
+        if (bottomSheet.state != BottomSheetBehavior.STATE_EXPANDED) {
             super.onBackPressed()
         } else {
-            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
@@ -268,8 +268,8 @@ class HomeActivity : AppCompatActivity(),
 
     private fun showHomeScreen() {
         // Load the startup fragment defined in shared preferences
-        val mediaId = mPrefs.startupScreenMediaId
-        mRouter.navigateToMediaId(mediaId)
+        val mediaId = prefs.startupScreenMediaId
+        router.navigateToMediaId(mediaId)
     }
 
     /**
@@ -277,7 +277,7 @@ class HomeActivity : AppCompatActivity(),
      * This method is meant to be called only once to show or hide player view without animation.
      */
     private fun setInitialBottomSheetVisibility(state: PlaybackStateCompat?) {
-        mBottomSheet.peekHeight = if (state == null
+        bottomSheet.peekHeight = if (state == null
                 || state.state == PlaybackStateCompat.STATE_NONE
                 || state.state == PlaybackStateCompat.STATE_STOPPED) {
             playerShadow.visibility = View.GONE
@@ -298,19 +298,19 @@ class HomeActivity : AppCompatActivity(),
         if (state == null
                 || state.state == PlaybackStateCompat.STATE_NONE
                 || state.state == PlaybackStateCompat.STATE_STOPPED) {
-            mBottomSheet.isHideable = true
-            mBottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
+            bottomSheet.isHideable = true
+            bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             container.setPadding(0, 0, 0, 0)
             playerShadow.visibility = View.GONE
 
-        } else if (mBottomSheet.isHideable
-                || mBottomSheet.peekHeight == 0) {
+        } else if (bottomSheet.isHideable
+                || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
-            mBottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            playerView.post { mBottomSheet.isHideable = false }
+            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+            playerView.post { bottomSheet.isHideable = false }
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
             container.setPadding(0, 0, 0, playerViewHeight)
-            mBottomSheet.peekHeight = playerViewHeight
+            bottomSheet.peekHeight = playerViewHeight
             playerShadow.visibility = View.VISIBLE
         }
     }
@@ -332,23 +332,23 @@ class HomeActivity : AppCompatActivity(),
                 }
                 ACTION_ALBUMS -> {
                     navDrawer.setCheckedItem(R.id.action_albums)
-                    mRouter.navigateToAlbums()
+                    router.navigateToAlbums()
                     return true
                 }
                 ACTION_ARTISTS -> {
                     navDrawer.setCheckedItem(R.id.action_artists)
-                    mRouter.navigateToArtists()
+                    router.navigateToArtists()
                     return true
                 }
                 ACTION_PLAYLISTS -> {
                     navDrawer.setCheckedItem(R.id.action_playlist)
-                    mRouter.navigateToPlaylists()
+                    router.navigateToPlaylists()
                     return true
                 }
                 Intent.ACTION_MAIN -> {
                     // Activity has been started normally from the launcher.
                     // Prepare playback when connection is established.
-                    mViewModel.post { controller ->
+                    viewModel.post { controller ->
                         val playbackState = controller.playbackState
                         if (playbackState == null
                                 || playbackState.state == PlaybackStateCompat.STATE_NONE
@@ -365,16 +365,16 @@ class HomeActivity : AppCompatActivity(),
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        mRouter.saveState(outState)
+        router.saveState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        mRouter.restoreState(savedInstanceState)
+        router.restoreState(savedInstanceState)
         super.onRestoreInstanceState(savedInstanceState)
     }
 
     private fun startRandomMix() {
-        mViewModel.post { controller ->
+        viewModel.post { controller ->
             with(controller.transportControls) {
                 setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
                 playFromMediaId(MediaID.ID_MUSIC, null)
@@ -383,31 +383,31 @@ class HomeActivity : AppCompatActivity(),
     }
 
     override fun onActionPlay() {
-        mViewModel.post { it.transportControls.play() }
+        viewModel.post { it.transportControls.play() }
     }
 
     override fun onActionPause() {
-        mViewModel.post { it.transportControls.pause() }
+        viewModel.post { it.transportControls.pause() }
     }
 
     override fun onSeek(position: Long) {
-        mViewModel.post { it.transportControls.seekTo(position) }
+        viewModel.post { it.transportControls.seekTo(position) }
     }
 
     override fun onSkipToPrevious() {
-        mViewModel.post { it.transportControls.skipToPrevious() }
+        viewModel.post { it.transportControls.skipToPrevious() }
     }
 
     override fun onSkipToNext() {
-        mViewModel.post { it.transportControls.skipToNext() }
+        viewModel.post { it.transportControls.skipToNext() }
     }
 
     override fun onRepeatModeChanged(newMode: Int) {
-        mViewModel.post { it.transportControls.setRepeatMode(newMode) }
+        viewModel.post { it.transportControls.setRepeatMode(newMode) }
     }
 
     override fun onShuffleModeChanged(newMode: Int) {
-        mViewModel.post { it.transportControls.setShuffleMode(newMode) }
+        viewModel.post { it.transportControls.setShuffleMode(newMode) }
     }
 
     override fun supportFragmentInjector() = dispatchingFragmentInjector

@@ -48,9 +48,9 @@ private const val KEY_FIRST_TAG = "first_tag"
 class NavigationController
 @Inject constructor(activity: HomeActivity) {
 
-    private val mFm: FragmentManager = activity.supportFragmentManager
-    private val mContainerId: Int = R.id.container
-    private var mFirstTag: String? = null
+    private val fm: FragmentManager = activity.supportFragmentManager
+    private val containerId: Int = R.id.container
+    private var firstTag: String? = null
 
     /**
      * An event that notifies when the currently shown fragment changes.
@@ -60,9 +60,9 @@ class NavigationController
     var routeChangeListener: RouteChangeListener = {}
 
     init {
-        mFm.addOnBackStackChangedListener {
+        fm.addOnBackStackChangedListener {
             // Listen for back stack changes and emits an event with the id of the displayed fragment
-            mFm.findFragmentById(mContainerId)?.let { fragment ->
+            fm.findFragmentById(containerId)?.let { fragment ->
                 val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
                 routeChangeListener(fragmentId)
             }
@@ -138,7 +138,7 @@ class NavigationController
      *
      * This is the same as pressing the back button except that the application won't be closed.
      */
-    fun navigateBack() = mFm.popBackStack()
+    fun navigateBack() = fm.popBackStack()
 
     /**
      * Shows the view that correspond to a specific media id.
@@ -164,7 +164,7 @@ class NavigationController
      * @param outState The bundle from [android.app.Activity.onSaveInstanceState]
      */
     fun saveState(outState: Bundle?) {
-        outState?.putString(KEY_FIRST_TAG, mFirstTag)
+        outState?.putString(KEY_FIRST_TAG, firstTag)
     }
 
     /**
@@ -173,7 +173,7 @@ class NavigationController
      * @param savedInstanceState The bundle from [android.app.Activity.onRestoreInstanceState]
      */
     fun restoreState(savedInstanceState: Bundle?) {
-        mFirstTag = savedInstanceState?.getString(KEY_FIRST_TAG)
+        firstTag = savedInstanceState?.getString(KEY_FIRST_TAG)
     }
 
     /**
@@ -184,7 +184,7 @@ class NavigationController
      * @return the retrieved fragment, or the provided one if not in fragment manager
      */
     private inline fun findOrCreateFragment(tag: String, provider: () -> Fragment) =
-            mFm.findFragmentByTag(tag) ?: provider()
+            fm.findFragmentByTag(tag) ?: provider()
 
     /**
      * Display a given fragment in the main container view.
@@ -210,28 +210,28 @@ class NavigationController
      * @param fragment the fragment to show
      */
     private fun showFragment(tag: String, fragment: Fragment) {
-        if (mFm.findFragmentById(mContainerId) != null) {
+        if (fm.findFragmentById(containerId) != null) {
             // Is the fragment to show already on the back stack ?
-            if (mFm.findFragmentByTag(tag) != null) {
-                if (tag == mFirstTag) {
+            if (fm.findFragmentByTag(tag) != null) {
+                if (tag == firstTag) {
                     // Pop all transactions if the fragment to show is the first one added
-                    mFm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 } else {
                     // Pop until showing the fragment
-                    mFm.popBackStack(tag, 0)
+                    fm.popBackStack(tag, 0)
                 }
             } else {
-                mFm.beginTransaction()
-                        .replace(mContainerId, fragment, tag)
+                fm.beginTransaction()
+                        .replace(containerId, fragment, tag)
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                         .addToBackStack(tag)
                         .commit()
             }
         } else {
             // This is the first fragment to be shown. Just add it.
-            mFirstTag = tag
-            mFm.beginTransaction()
-                    .add(mContainerId, fragment, tag)
+            firstTag = tag
+            fm.beginTransaction()
+                    .add(containerId, fragment, tag)
                     .commitAllowingStateLoss()
 
             val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)

@@ -28,15 +28,15 @@ import javax.inject.Singleton
 internal class LruMemoryCache
 @Inject constructor() : MusicCache {
 
-    private val mItemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
+    private val itemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
 
     override fun putItems(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
-        mItemsCache.put(mediaId, items)
+        itemsCache.put(mediaId, items)
     }
 
-    override fun getItems(mediaId: String) = mItemsCache.get(mediaId) ?: emptyList()
+    override fun getItems(mediaId: String) = itemsCache.get(mediaId) ?: emptyList()
 
     override fun clear() {
-        mItemsCache.evictAll()
+        itemsCache.evictAll()
     }
 }

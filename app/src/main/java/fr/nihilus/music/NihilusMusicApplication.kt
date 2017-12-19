@@ -36,7 +36,7 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
 
     @Inject lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
     @Inject lateinit var dispatchingServiceInjector: DispatchingAndroidInjector<Service>
-    @Inject lateinit var mPrefs: PreferenceDao
+    @Inject lateinit var prefs: PreferenceDao
 
     override fun onCreate() {
         super.onCreate()
@@ -51,7 +51,7 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
                 .build()
                 .inject(this)
 
-        AppCompatDelegate.setDefaultNightMode(mPrefs.nightMode)
+        AppCompatDelegate.setDefaultNightMode(prefs.nightMode)
     }
 
     override fun activityInjector() = dispatchingActivityInjector
