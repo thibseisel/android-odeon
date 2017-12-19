@@ -134,9 +134,11 @@ class MusicService : MediaBrowserServiceCompat() {
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
 
         if (!mPackageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
-            // If the request comes from an untrusted package, return null to prevent connection.
+            // If the request comes from an untrusted package, return an empty BrowserRoot
+            // so that every application can use mediaController in debug mode.
+            // Release builds prevents untrusted packages from connecting.
             Log.w(TAG, "onGetRoot: IGNORING request from untrusted package $clientPackageName")
-            return null
+            return if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
         }
 
         return BrowserRoot(MediaID.ID_ROOT, null)

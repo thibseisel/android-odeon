@@ -23,11 +23,14 @@ import java.util.Arrays;
 
 public final class MediaID {
 
-    public static final String ID_ROOT = "ROOT";
     /**
-     * The song of the day is randomly picked from all tracks.
+     * The root of the MediaBrowser displayed to untrusted packages.
+     * This is only used for debug builds to allow interaction with the MediaControllerTest app.
      */
-    public static final String ID_DAILY = "SONG_OF_THE_DAY";
+    public static final String ID_EMPTY_ROOT = "EMPTY";
+
+    public static final String ID_ROOT = "ROOT";
+
     /**
      * The whole music library composed of all available tracks.
      */
@@ -49,19 +52,13 @@ public final class MediaID {
      */
     public static final String ID_MOST_RECENT = "RECENT";
 
-    public static final String ID_RANDOM = "RANDOM";
-    /**
-     * Automatic getPlaylists.
-     */
-    public static final String ID_AUTO = "AUTO";
-
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';
 
     /**
      * Create a String value that represents a playable or a browsable media.
      * <p>
-     * Encode the media browseable categories, if any, and the unique music ID, if any,
+     * Encode the media browsable categories, if any, and the unique music ID, if any,
      * into a single String mediaID.
      * <p>
      * MediaIDs are of the form <categoryType>/<categoryValue>|<musicUniqueId>, to make it easy
