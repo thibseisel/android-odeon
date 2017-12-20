@@ -36,6 +36,7 @@ import android.util.Log
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.utils.loadResourceAsBitmap
 import javax.inject.Inject
 
 @ServiceScoped
@@ -63,6 +64,9 @@ class MediaNotificationManager
             service.getString(R.string.action_next),
             MediaButtonReceiver.buildMediaButtonPendingIntent(service,
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT))
+
+    private val defaultLargeIcon = loadResourceAsBitmap(service, R.drawable.ic_default_icon,
+            320, 320)
 
     private val controllerCallback = ControllerCallback()
 
@@ -167,7 +171,7 @@ class MediaNotificationManager
                 .setContentTitle(description.title)
                 // Subtitle - usually Artist name.
                 .setContentText(description.subtitle)
-                .setLargeIcon(description.iconBitmap)
+                .setLargeIcon(description.iconBitmap ?: defaultLargeIcon)
                 // When notification is deleted (when playback is paused and notification
                 // can be deleted) fire MediaButtonPendingIntent with ACTION_STOP.
                 .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(

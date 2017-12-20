@@ -44,9 +44,8 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     private val glideRequest: GlideRequest<Bitmap>
 
     init {
-
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultTrackIcon = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art)
+        val defaultTrackIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
         registerDataSetObserver(indexer)

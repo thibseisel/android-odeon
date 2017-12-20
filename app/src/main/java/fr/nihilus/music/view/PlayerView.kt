@@ -152,7 +152,7 @@ class PlayerView
             if (bitmap != null) {
                 iconView.setImageBitmap(media.iconBitmap)
             } else {
-                iconView.setImageResource(R.drawable.dummy_album_art)
+                iconView.setImageResource(R.drawable.ic_audiotrack_24dp)
             }
 
             glideRequest.load(media.iconUri).into(albumArtView)

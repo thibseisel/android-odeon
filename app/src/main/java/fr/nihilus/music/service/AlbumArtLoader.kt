@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.service
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -24,23 +23,18 @@ import android.support.v4.media.MediaMetadataCompat
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import fr.nihilus.music.R
 import fr.nihilus.music.copy
+import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.utils.loadResourceAsBitmap
 import io.reactivex.Single
 import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "AlbumArtLoader"
 private const val ART_MAX_SIZE = 320
 
-@Singleton
+@ServiceScoped
 class AlbumArtLoader
-@Inject internal constructor(context: Context) {
-
-    private val defaultIcon = loadResourceAsBitmap(context, R.drawable.ic_audiotrack_24dp,
-            ART_MAX_SIZE, ART_MAX_SIZE)
+@Inject internal constructor(context: MusicService) {
 
     private val glide = GlideApp.with(context).asBitmap()
             .downsample(DownsampleStrategy.AT_MOST)
@@ -60,15 +54,13 @@ class AlbumArtLoader
                     }
 
                     override fun onLoadFailed(errorDrawable: Drawable?) {
-                        emitter.onSuccess(metadata.copy {
-                            putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, defaultIcon)
-                        })
+                        // Re-emit the same metadata without modifications in case of an error.
+                        emitter.onSuccess(metadata)
                     }
                 })
             } else {
-                emitter.onSuccess(metadata.copy {
-                    putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, defaultIcon)
-                })
+                // When there's no album art, ee-emit the same metadata without modifications.
+                emitter.onSuccess(metadata)
             }
         }
     }
