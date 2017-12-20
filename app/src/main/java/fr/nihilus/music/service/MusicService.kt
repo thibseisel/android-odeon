@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
@@ -99,10 +98,11 @@ class MusicService : MediaBrowserServiceCompat() {
         playbackController.restoreStateFromPreferences(player, session)
 
         // Configure MediaSessionConnector with player and session
-        MediaSessionConnector(session, playbackController, false).apply {
+        MediaSessionController(session, playbackController, true).apply {
             setPlayer(player, queueManager, repeatAction)
             setQueueNavigator(queueManager)
             setErrorMessageProvider(errorHandler)
+            setMetadataUpdater(queueManager)
         }
 
         player.addListener(metadataUpdater)

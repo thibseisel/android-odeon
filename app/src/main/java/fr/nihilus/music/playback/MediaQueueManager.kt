@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
@@ -38,6 +39,8 @@ import fr.nihilus.music.assert
 import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.service.AlbumArtLoader
+import fr.nihilus.music.service.MediaSessionController
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.utils.MediaID
@@ -50,8 +53,12 @@ class MediaQueueManager
         private val prefs: PreferenceDao,
         private val repository: MusicRepository,
         private val player: ExoPlayer,
+        private val iconLoader: AlbumArtLoader,
         private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
-) : TimelineQueueNavigator(service.session), MediaSessionConnector.PlaybackPreparer {
+
+) : TimelineQueueNavigator(service.session),
+        MediaSessionConnector.PlaybackPreparer,
+        MediaSessionController.SessionMetadataUpdater {
 
     private val extractorsFactory = DefaultExtractorsFactory()
     private val dataSourceFactory: DataSource.Factory
@@ -127,8 +134,6 @@ class MediaQueueManager
 
     override fun getMediaDescription(windowIndex: Int): MediaDescriptionCompat {
         assert(windowIndex in currentQueue.indices)
-
-        // TODO Album art may be prefetch at this point
         return currentQueue[windowIndex]
     }
 
@@ -156,12 +161,22 @@ class MediaQueueManager
         player.prepare(concatenatedSource)
 
         // Start at a given track if it is mentioned in the passed media id.
-        val startIndex = indexOnQueue(playableItems, mediaId)
+        val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
         if (startIndex != -1) {
             player.seekTo(startIndex, C.TIME_UNSET)
         }
     }
-}
 
-private fun indexOnQueue(queue: List<MediaDescriptionCompat>, mediaId: String) =
-        queue.indexOfFirst { it.mediaId == mediaId }
+    override fun onUpdateMediaSessionMetadata(session: MediaSessionCompat, player: Player?) {
+        val activeQueueId = this.getActiveQueueItemId(player)
+        val activeItem = session.controller.queue.find { it.queueId == activeQueueId }
+
+        if (activeItem != null) {
+            val musicId = MediaID.extractMusicID(activeItem.description.mediaId)
+                    ?: throw IllegalStateException("Track should have a musicId")
+            repository.getMetadata(musicId)
+                    .flatMap { iconLoader.loadIntoMetadata(it) }
+                    .subscribe { metadata -> session.setMetadata(metadata) }
+        }
+    }
+}
