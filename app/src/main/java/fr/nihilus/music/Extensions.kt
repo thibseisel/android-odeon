@@ -55,11 +55,11 @@ fun MediaMetadataCompat.asMediaDescription(
             .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
             .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
             .setIconBitmap(bitmapArt)
+            .setIconUri(if (artUri != null) Uri.parse(artUri) else null)
             .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendEncodedPath(musicId)
                     .build())
             .setExtras(extras)
-    artUri?.let { builder.setIconUri(Uri.parse(it)) }
 
     return builder.build()
 }
