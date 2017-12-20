@@ -181,7 +181,7 @@ class SongListFragment : Fragment(),
             controller.sendCommand(DeleteTracksCommand.CMD_NAME,
                     params, object : ResultReceiver(Handler()) {
 
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                     val rootView = view
                     if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
                         val message = resources
