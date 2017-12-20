@@ -62,12 +62,12 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
 
     private fun onNightModeChanged(@AppCompatDelegate.NightMode newMode: Int) {
         AppCompatDelegate.setDefaultNightMode(newMode)
-        val callingActivity = (activity as AppCompatActivity)
-        callingActivity.delegate.applyDayNight()
+        val hostActivity = (activity as AppCompatActivity)
+        hostActivity.delegate.applyDayNight()
 
         val intent = Intent()
         intent.putExtra("night_mode", newMode)
 
-        callingActivity.setResult(Activity.RESULT_OK, intent)
+        hostActivity.setResult(Activity.RESULT_OK, intent)
     }
 }

@@ -228,8 +228,7 @@ class HomeActivity : AppCompatActivity(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SETTINGS) {
-            // FIXME Not called after returning to activity
-            delegate.applyDayNight()
+            recreate()
         }
     }
 
