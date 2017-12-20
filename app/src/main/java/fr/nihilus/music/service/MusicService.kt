@@ -31,8 +31,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
@@ -60,7 +58,6 @@ class MusicService : MediaBrowserServiceCompat() {
 
     @Inject lateinit var repository: MusicRepository
     @Inject lateinit var notificationMgr: MediaNotificationManager
-    @Inject lateinit var albumArtLoader: AlbumArtLoader
 
     @Inject lateinit var player: ExoPlayer
     @Inject lateinit var playbackController: PlaybackController
@@ -70,7 +67,6 @@ class MusicService : MediaBrowserServiceCompat() {
     private lateinit var packageValidator: PackageValidator
     private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
-    private val metadataUpdater = MetadataUpdater()
 
     private var isStarted = false
 
@@ -105,8 +101,6 @@ class MusicService : MediaBrowserServiceCompat() {
             setMetadataUpdater(queueManager)
         }
 
-        player.addListener(metadataUpdater)
-
         notificationMgr.init()
         session.controller.registerCallback(playbackStateListener)
     }
@@ -124,7 +118,6 @@ class MusicService : MediaBrowserServiceCompat() {
         Log.i(TAG, "Destroying service.")
         notificationMgr.stopNotification()
         session.controller.unregisterCallback(playbackStateListener)
-        player.removeListener(metadataUpdater)
         isStarted = false
 
         delayedStopHandler.removeCallbacksAndMessages(null)
@@ -206,22 +199,6 @@ class MusicService : MediaBrowserServiceCompat() {
         notificationMgr.stopNotification()
     }
 
-    internal fun onUpdateMetadata() {
-        // FIXME Metadata are not always in sync with the currently playing track ?
-        val currentQueueId = queueManager.getActiveQueueItemId(player)
-        val queueItem = session.controller.queue.find { it.queueId == currentQueueId }
-        if (queueItem != null) {
-            val musicId = MediaID.extractMusicID(queueItem.description.mediaId)
-                    ?: throw IllegalStateException("Playable items should have a music id")
-
-            repository.getMetadata(musicId)
-                    .flatMap { albumArtLoader.loadIntoMetadata(it) }
-                    .subscribe { metadata, error ->
-                        session.setMetadata(if (error == null) metadata else null)
-                    }
-        }
-    }
-
     override fun notifyChildrenChanged(parentId: String) {
         repository.clear()
         super.notifyChildrenChanged(parentId)
@@ -234,22 +211,6 @@ class MusicService : MediaBrowserServiceCompat() {
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
                 PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
                 PlaybackStateCompat.STATE_STOPPED -> onPlaybackStop()
-            }
-        }
-    }
-
-    private inner class MetadataUpdater : Player.DefaultEventListener() {
-
-        private var currentWindowIndex: Int = 0
-
-        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?) {
-            currentWindowIndex = player.currentWindowIndex
-            onUpdateMetadata()
-        }
-
-        override fun onPositionDiscontinuity(reason: Int) {
-            if (currentWindowIndex != player.currentWindowIndex) {
-                onUpdateMetadata()
             }
         }
     }
