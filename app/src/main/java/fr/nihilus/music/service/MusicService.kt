@@ -101,7 +101,6 @@ class MusicService : MediaBrowserServiceCompat() {
             setMetadataUpdater(queueManager)
         }
 
-        notificationMgr.init()
         session.controller.registerCallback(playbackStateListener)
     }
 
@@ -210,7 +209,8 @@ class MusicService : MediaBrowserServiceCompat() {
             when (state.state) {
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
                 PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
-                PlaybackStateCompat.STATE_STOPPED -> onPlaybackStop()
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.STATE_NONE -> onPlaybackStop()
             }
         }
     }

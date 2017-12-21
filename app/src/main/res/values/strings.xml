@@ -32,12 +32,9 @@
     <string name="action_about">About</string>
     <string name="prefs_category_appearance">Appearance</string>
     <string name="night_mode">Night mode</string>
-    <string name="pref_night_mode" translatable="false">night_mode</string>
     <string name="search_music_hint">Search the music library</string>
     <string name="playback_service_label">Audio Playback Service</string>
     <string name="action_playlists">Playlists</string>
-    <string name="path_play" translatable="false">M8,5 L8,19 L13.5,15.5 L13.5,8.5z M13.5,8.5 L13.5,15.5 L19,12 L19,12z</string>
-    <string name="path_pause" translatable="false">M6,5 L6,19 L10,19 L10,5z M14,5 L14,19 L18,19 L18,5z</string>
     <string name="action_random">Random</string>
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
@@ -46,12 +43,9 @@
     <string name="now_playing">Now playing</string>
     <string name="skip_previous">Skip Previous</string>
     <string name="skip_next">Skip Next</string>
-    <string name="pref_startup_screen" translatable="false">startup_screen</string>
     <string name="home_screen">Home screen</string>
     <string name="empty_artist">No artist</string>
     <string name="random_mix">Random mix</string>
-    <string name="path_pause_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM9,8L11,8L11,16L9,16zM13,8 L15,8 L15,16 L13,16z</string>
-    <string name="path_play_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM10,7.5L13,9.75L13,14.25L10,16.5zM13,9.75L16,12L16,12L13,14.25z</string>
     <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library ?</string>
@@ -89,17 +83,15 @@
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
     <string name="action_play">Play</string>
-    <string name="playerview_behavior" translatable="false">fr.nihilus.music.view.ScrimBottomSheetBehavior</string>
     <string name="last_added">Last added</string>
     <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
     <string name="title_automatic_playlists">Automatic playlists</string>
     <string name="home">Home</string>
     <string name="action_pause">Pause</string>
-    <string name="channel_mediasession">Media player</string>
-    <string name="channel_mediasession_description">Media playback control</string>
+    <string name="channel_mediasession">Media playback</string>
+    <string name="channel_mediasession_description">Control media playback from the lock screen and the notification panel.</string>
     <string name="pref_category_behavior">Behavior</string>
     <string name="pref_title_startup_screen">Startup screen</string>
-    <string name="pref_default_startup_screen" translatable="false">MUSIC</string>
     <string name="pref_title_app_shortcuts">Configure app shortcuts</string>
     <string name="error_playlist_already_exists">An existing playlist already uses that title.</string>
     <string name="player_unknown_error">An unknown error occurred.</string>

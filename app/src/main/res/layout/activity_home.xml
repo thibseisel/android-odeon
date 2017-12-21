@@ -71,7 +71,7 @@
             android:layout_gravity="center"
             app:elevation="@dimen/playerview_elevation"
             app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/playerview_behavior"/>
+            app:layout_behavior="fr.nihilus.music.view.ScrimBottomSheetBehavior"/>
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->

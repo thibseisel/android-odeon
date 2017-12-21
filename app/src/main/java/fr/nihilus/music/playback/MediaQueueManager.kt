@@ -21,8 +21,10 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -176,7 +178,10 @@ class MediaQueueManager
                     ?: throw IllegalStateException("Track should have a musicId")
             repository.getMetadata(musicId)
                     .flatMap { iconLoader.loadIntoMetadata(it) }
-                    .subscribe { metadata -> session.setMetadata(metadata) }
+                    .subscribe { metadata ->
+                        Log.d("MediaQueueManager", "Update metadata. Title: ${metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
+                        session.setMetadata(metadata)
+                    }
         }
     }
 }

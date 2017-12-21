@@ -18,9 +18,6 @@
 
 package fr.nihilus.music
 
-import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
-
 /**
  * Throws an AssertionError if the value is false and this build is a debug build.
  * This method is a replacement for the `assert` keyword or [kotlin.assert]
@@ -45,25 +42,10 @@ inline fun assert(value: Boolean, lazyMessage: () -> Any) {
     }
 }
 
-private val playbackStates = arrayOf(
+/**
+ * Decode playback state code into their equivalent constant name.
+ */
+val playbackStates = arrayOf(
         "NONE", "STOPPED", "PAUSED", "PLAYING", "FAST_FORWARDING",
         "REWINDING", "BUFFERING", "ERROR", "CONNECTING",
         "SKIPPING_TO_PREVIOUS", "SKIPPING_TO_NEXT", "SKIPPING_TO_QUEUE_ITEM")
-
-/**
- * Log a playback state code as its equivalent `PlaybackStateCompat.STATE_*` constant string.
- * Logs are not printed in production builds unless it is an error state.
- */
-fun logPlaybackState(tag: String, state: PlaybackStateCompat?) {
-    if (state == null && BuildConfig.DEBUG) {
-        Log.d(tag, "PlaybackState: Null")
-    } else if (state != null) {
-        val status = state.state
-        if (status == PlaybackStateCompat.STATE_ERROR) {
-            Log.e(tag, "PlaybackState: ERROR")
-        } else if (BuildConfig.DEBUG) {
-            Log.d(tag, "PlaybackState: ${playbackStates[status]}")
-        }
-    }
-
-}

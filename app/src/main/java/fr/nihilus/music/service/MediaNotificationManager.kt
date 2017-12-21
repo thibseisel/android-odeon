@@ -28,6 +28,7 @@ import android.os.RemoteException
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -68,6 +69,11 @@ class MediaNotificationManager
     private val defaultLargeIcon = loadResourceAsBitmap(service, R.drawable.ic_default_icon,
             320, 320)
 
+    private val contentIntent = PendingIntent.getActivity(
+            service, REQUEST_CODE,
+            Intent(service, HomeActivity::class.java),
+            PendingIntent.FLAG_CANCEL_CURRENT)
+
     private val controllerCallback = ControllerCallback()
 
     private var controller: MediaControllerCompat? = null
@@ -78,7 +84,7 @@ class MediaNotificationManager
     private var metadata: MediaMetadataCompat? = null
     private var isStarted = false
 
-    fun init() {
+    init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel()
         }
@@ -100,8 +106,6 @@ class MediaNotificationManager
                 description = channelDescription
                 enableLights(true)
                 lightColor = Color.GREEN
-                enableVibration(true)
-                vibrationPattern = longArrayOf(100L, 200L, 300L, 400L, 500L, 400L, 300L, 200L, 400L)
             }
 
             notificationManager.createNotificationChannel(channel)
@@ -137,17 +141,14 @@ class MediaNotificationManager
         }
     }
 
-    private fun createContentIntent(): PendingIntent {
-        val openUi = Intent(service, HomeActivity::class.java)
-        openUi.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        return PendingIntent.getActivity(service, REQUEST_CODE, openUi,
-                PendingIntent.FLAG_CANCEL_CURRENT)
-    }
-
     private fun createNotification(): Notification? {
-        Log.v(TAG, "updateNotificationMetadata: metadata=$metadata")
         val currentMetadata = metadata ?: return null
         val currentState = playbackState ?: return null
+
+        /*Log.d(TAG, """createNotification.
+            Metadata = ${currentMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}
+            PlaybackState = ${playbackStates[currentState.state]}
+            """.trimIndent())*/
 
         val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
 
@@ -156,28 +157,30 @@ class MediaNotificationManager
         val smallIcon = if (currentState.state == PlaybackStateCompat.STATE_PLAYING)
             R.drawable.notif_play_arrow else R.drawable.notif_pause
 
-        notificationBuilder.setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
+        // Configure this notification for playback control of a MediaSession
+        val mediaStyle = MediaStyle()
                 .setMediaSession(sessionToken)
                 .setShowActionsInCompactView(0, 1, 2)
                 // For backwards compatibility with Android L and earlier
                 .setShowCancelButton(true)
-                .setCancelButtonIntent(
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                service, PlaybackStateCompat.ACTION_STOP)))
+                .setCancelButtonIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(service,
+                        PlaybackStateCompat.ACTION_STOP))
+
+        notificationBuilder
                 .setSmallIcon(smallIcon)
                 // Pending intent that is fired when user clicks on notification
-                .setContentIntent(createContentIntent())
+                .setContentIntent(contentIntent)
                 // Title - usually Song name.
                 .setContentTitle(description.title)
                 // Subtitle - usually Artist name.
                 .setContentText(description.subtitle)
                 .setLargeIcon(description.iconBitmap ?: defaultLargeIcon)
-                // When notification is deleted (when playback is paused and notification
-                // can be deleted) fire MediaButtonPendingIntent with ACTION_STOP.
+                // When notification is deleted fire an ACTION_STOP event.
                 .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
                         service, PlaybackStateCompat.ACTION_STOP))
                 // Show controls on lock screen event when user hides sensitive content.
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setStyle(mediaStyle)
 
         notificationBuilder.addAction(previousAction)
         notificationBuilder.addAction(
@@ -232,6 +235,7 @@ class MediaNotificationManager
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            //logPlaybackState(TAG, state)
             playbackState = state
 
             when (state.state) {
@@ -242,6 +246,7 @@ class MediaNotificationManager
                 PlaybackStateCompat.STATE_PLAYING -> {
                     val notification = createNotification()
                     if (notification != null) {
+                        //Log.d(TAG, "onPlaybackStateChanged: update notification")
                         notificationManager.notify(NOTIFICATION_ID, notification)
                     }
                 }
@@ -251,10 +256,12 @@ class MediaNotificationManager
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            //Log.d(TAG, "onMetadataChanged: title=${metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
             this@MediaNotificationManager.metadata = metadata
 
             val notification = createNotification()
             if (notification != null) {
+                //Log.d(TAG, "onMetadataChanged: update notification")
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }
         }

@@ -88,7 +88,7 @@
     <string name="title_automatic_playlists">Playlists automatiques</string>
     <string name="action_pause">Pause</string>
     <string name="channel_mediasession">Lecteur musical</string>
-    <string name="channel_mediasession_description">Contrôle du lecteur musical</string>
+    <string name="channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>
     <string name="pref_category_behavior">Comportement</string>
     <string name="pref_title_startup_screen">Ecran affiché au démarrage</string>
     <string name="pref_title_app_shortcuts">Configurer les raccourcis</string>
