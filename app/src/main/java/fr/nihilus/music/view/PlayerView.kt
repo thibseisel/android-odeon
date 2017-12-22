@@ -65,7 +65,7 @@ class PlayerView
 
         val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         glideRequest = GlideApp.with(context).asBitmap()
-                .fitCenter()
+                .centerCrop()
                 .fallback(defaultIcon)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
     }

@@ -37,6 +37,8 @@
             android:id="@+id/albumArtView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/album_art"
             tools:src="@android:color/black"/>
     </FrameLayout>
