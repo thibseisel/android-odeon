@@ -25,6 +25,7 @@ import android.support.v4.content.ContextCompat.startForegroundService
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
 import android.support.v4.media.RatingCompat
+import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -34,7 +35,10 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
-import fr.nihilus.music.*
+import fr.nihilus.music.BuildConfig
+import fr.nihilus.music.HomeActivity
+import fr.nihilus.music.MediaItemResult
+import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
@@ -103,6 +107,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "Service is now started.")
+        MediaButtonReceiver.handleIntent(session, intent)
 
         isStarted = true
         delayedStopHandler.removeCallbacksAndMessages(null)
@@ -112,7 +117,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     override fun onDestroy() {
         Log.i(TAG, "Destroying service.")
-        notificationMgr.stopNotification()
+        notificationMgr.stop(clearNotification = true)
         session.controller.unregisterCallback(playbackStateListener)
         isStarted = false
 
@@ -172,7 +177,7 @@ class MusicService : MediaBrowserServiceCompat() {
         // disconnects, otherwise the music playback will stop.
         // Calling startService(Intent) will keep the service running until it is explicitly killed.
 
-        notificationMgr.startNotification()
+        notificationMgr.start()
 
         if (!isStarted) {
             Log.i(TAG, "Starting service to keep it running while playing")
@@ -182,7 +187,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     internal fun onPlaybackPaused() {
         Log.v(TAG, "onPlaybackPause")
-        stopForeground(false)
+        notificationMgr.stop(clearNotification = false)
     }
 
     internal fun onPlaybackStop() {
@@ -193,9 +198,7 @@ class MusicService : MediaBrowserServiceCompat() {
         delayedStopHandler.removeCallbacksAndMessages(null)
         delayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
 
-        Log.i(TAG, "FOREGROUND: false")
-        stopForeground(false)
-        notificationMgr.stopNotification()
+        notificationMgr.stop(clearNotification = true)
     }
 
     override fun notifyChildrenChanged(parentId: String) {
@@ -206,7 +209,6 @@ class MusicService : MediaBrowserServiceCompat() {
     private inner class PlaybackStateListener : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            Log.v(TAG, "onPlaybackStateChanged: playbackState=${playbackStates[state.state]}")
             when (state.state) {
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
                 PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
@@ -232,6 +234,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
                 Log.i(TAG, "Stopping service with delay handler")
                 service.stopSelf()
+                service.isStarted = false
             }
         }
     }

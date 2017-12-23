@@ -24,20 +24,18 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import android.os.RemoteException
+import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
-import fr.nihilus.music.playbackStates
 import fr.nihilus.music.utils.loadResourceAsBitmap
 import javax.inject.Inject
 
@@ -50,6 +48,8 @@ class MediaNotificationManager
         const val REQUEST_CODE = 100
         private const val NOTIFICATION_ID = 42
         private const val CHANNEL_ID = "media_channel"
+        private const val UPDATE_DELAY = 10L
+        private const val ICON_SIZE = 320
     }
 
     private val notificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
@@ -75,7 +75,7 @@ class MediaNotificationManager
                     PlaybackStateCompat.ACTION_SKIP_TO_NEXT))
 
     private val defaultLargeIcon = loadResourceAsBitmap(service, R.drawable.ic_default_icon,
-            320, 320)
+            ICON_SIZE, ICON_SIZE)
 
     private val contentIntent = PendingIntent.getActivity(
             service, REQUEST_CODE,
@@ -83,14 +83,20 @@ class MediaNotificationManager
             PendingIntent.FLAG_CANCEL_CURRENT)
 
     private val controllerCallback = ControllerCallback()
+    private val publishHandler = Handler()
 
-    private var controller: MediaControllerCompat? = null
+    private var isForeground = false
 
-    private var sessionToken: MediaSessionCompat.Token? = null
-    private var playbackState: PlaybackStateCompat? = null
+    private val updateNotificationTask = Runnable {
+        Log.v(TAG, "updateNotificationTask: execute notification update")
+        val controller = service.session.controller
+        val metadata = controller.metadata
+        val state = controller.playbackState
 
-    private var metadata: MediaMetadataCompat? = null
-    private var isStarted = false
+        publishNotification(state, metadata) { notification ->
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        }
+    }
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -99,7 +105,6 @@ class MediaNotificationManager
         // Cancel all notifications to handle the case where the Service was killed
         // and restarted by the system.
         notificationManager.cancelAll()
-        updateSessionToken()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -120,125 +125,137 @@ class MediaNotificationManager
         }
     }
 
-    private fun updateSessionToken() {
-        Log.v(TAG, "updateSessionToken")
-        val freshToken = service.sessionToken
-        if (sessionToken == null && freshToken != null ||
-                sessionToken != null && sessionToken != freshToken) {
-            Log.v(TAG, "updateSessionToken: assign a new token")
-            controller?.unregisterCallback(controllerCallback)
-            sessionToken = freshToken
-            if (sessionToken != null) {
-                Log.v(TAG, "updateSessionToken: configure media controller")
-                controller = MediaControllerCompat(service, sessionToken!!)
-                if (isStarted) {
-                    controller!!.registerCallback(controllerCallback)
-                }
+    /**
+     * Start the display of a persistent notification with playback control abilities.
+     * This notification will immediately promote the music service to the foreground while playing,
+     * making it impossible to be destroyed when device is low on memory.
+     *
+     * While service stays on the foreground, notification will update automatically
+     * based on state and metadata updates forwarded by the media session.
+     */
+    fun start() {
+        if (!isForeground) {
+            // Immediately publish the notification so that the service is promoted to the foreground
+            val controller = service.session.controller
+            val metadata = controller.metadata
+            val playbackState = controller.playbackState
+
+            publishNotification(playbackState, metadata) { notification ->
+                // Make service foreground and listen to changes in metadata and playback state.
+                controller.registerCallback(controllerCallback)
+                service.startForeground(NOTIFICATION_ID, notification)
+                isForeground = true
             }
+
+        } else {
+            // Schedule a notification update
+            scheduleNotificationUpdate()
         }
     }
 
-    fun startNotification() {
-        Log.v(TAG, "startNotification")
-        metadata = controller!!.metadata
-        playbackState = controller!!.playbackState
+    /**
+     * Put the music service to the background, removing its foreground state.
+     *
+     * @param clearNotification Whether the notification should also be removed
+     * from the notification panel.
+     */
+    fun stop(clearNotification: Boolean) {
+        if (isForeground) {
+            Log.d(TAG, "clearNotification: FOREGROUND => false")
+            isForeground = false
+            service.stopForeground(clearNotification)
+        }
 
-        val notification = createNotification()
-        if (notification != null) {
-            controller!!.registerCallback(controllerCallback)
-
-            Log.i(TAG, "FOREGROUND: true")
-            service.startForeground(NOTIFICATION_ID, notification)
-            isStarted = true
+        if (clearNotification) {
+            publishHandler.removeCallbacks(updateNotificationTask)
+            service.session.controller.unregisterCallback(controllerCallback)
         }
     }
 
-    private fun createNotification(): Notification? {
-        val currentMetadata = metadata ?: return null
-        val currentState = playbackState ?: return null
+    /**
+     * Schedule a notification update, canceling any pending request.
+     * A delay is applied so that notifications are not updated too often (which causes UI lags).
+     */
+    private fun scheduleNotificationUpdate() {
+        publishHandler.removeCallbacks(updateNotificationTask)
+        publishHandler.postDelayed(updateNotificationTask, UPDATE_DELAY)
+    }
 
-        Log.d(TAG, """createNotification.
-            Metadata = ${currentMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}
-            PlaybackState = ${playbackStates[currentState.state]}
-            """.trimIndent())
+    /**
+     * Satisfy a request to publish a notification, updating its content if already visible or
+     * showing it otherwise.
+     *
+     * @param state The current playback state
+     * @param metadata The metadata of the currently playing track
+     * @param publisher An action to take when the notification is created. This action should
+     * take care of publishing the newly created notification.
+     */
+    private inline fun publishNotification(state: PlaybackStateCompat, metadata: MediaMetadataCompat,
+                                           publisher: (Notification) -> Unit) {
 
-        val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
+        if (state.state == PlaybackStateCompat.STATE_NONE
+                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            // Do not show a notification if playback is stopped.
+            Log.i(TAG, "No playback state. Clear notification.")
+            stop(clearNotification = true)
+            return
+        }
 
-        val description = currentMetadata.description
+        val builder = NotificationCompat.Builder(service, CHANNEL_ID)
+        configureNotification(builder, state, metadata)
+        val notification = builder.build()
+        publisher(notification)
+    }
 
-        val smallIcon = if (currentState.state == PlaybackStateCompat.STATE_PLAYING)
-            R.drawable.notif_play_arrow else R.drawable.notif_pause
+    /**
+     * Configure the newly displayed or updated notification
+     * based on the current playback state and metadata.
+     */
+    private fun configureNotification(builder: NotificationCompat.Builder,
+                                      state: PlaybackStateCompat, metadata: MediaMetadataCompat) {
 
-        // Configure this notification for playback control of a MediaSession
-        val mediaStyle = MediaStyle()
-                .setMediaSession(sessionToken)
+        val currentMedia = metadata.description
+        val isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
+
+        val mediaStyle = MediaStyle().setMediaSession(service.sessionToken)
                 .setShowActionsInCompactView(0, 1, 2)
                 // For backwards compatibility with Android L and earlier
                 .setShowCancelButton(true)
                 .setCancelButtonIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(service,
                         PlaybackStateCompat.ACTION_STOP))
 
-        notificationBuilder
-                .setSmallIcon(smallIcon)
+        builder.setSmallIcon(if (isPlaying) R.drawable.notif_play_arrow else R.drawable.notif_pause)
                 // Pending intent that is fired when user clicks on notification
                 .setContentIntent(contentIntent)
                 // Title - usually Song name.
-                .setContentTitle(description.title)
+                .setContentTitle(currentMedia.title)
                 // Subtitle - usually Artist name.
-                .setContentText(description.subtitle)
-                .setLargeIcon(description.iconBitmap ?: defaultLargeIcon)
+                .setContentText(currentMedia.subtitle)
+                .setLargeIcon(currentMedia.iconBitmap ?: defaultLargeIcon)
                 // When notification is deleted fire an ACTION_STOP event.
-                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(
-                        service, PlaybackStateCompat.ACTION_STOP))
+                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(service,
+                        PlaybackStateCompat.ACTION_STOP))
                 // Show controls on lock screen event when user hides sensitive content.
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setStyle(mediaStyle)
 
-        notificationBuilder.addAction(previousAction)
-        notificationBuilder.addAction(
-                if (currentState.state == PlaybackStateCompat.STATE_PLAYING) pauseAction
-                else playAction
-        )
-        notificationBuilder.addAction(nextAction)
+        // Add actions to control playback - skip previous, next and play/pause
+        builder.addAction(previousAction)
+        builder.addAction(if (isPlaying) pauseAction else playAction)
+        builder.addAction(nextAction)
 
-        setNotificationPlaybackState(notificationBuilder)
-        return notificationBuilder.build()
-    }
+        // Make the notification un-dismissible while playing
+        builder.setOngoing(isPlaying)
 
-    private fun setNotificationPlaybackState(builder: NotificationCompat.Builder) {
-        if (playbackState == null || !isStarted) {
-            service.stopForeground(true)
-            return
-        }
-
-        if (playbackState!!.state == PlaybackStateCompat.STATE_PLAYING
-                && playbackState!!.position >= 0) {
-            builder.setWhen(System.currentTimeMillis() - playbackState!!.position)
-                    .setShowWhen(true)
+        // Display current playback position as a chronometer
+        if (isPlaying && state.position >= 0) {
+            builder.setWhen(System.currentTimeMillis() - state.position)
                     .setUsesChronometer(true)
+                    .setShowWhen(true)
         } else {
             builder.setWhen(0)
-                    .setShowWhen(false)
                     .setUsesChronometer(false)
-        }
-
-        // Make sure that the notification can be dismissed by the user when we are not playing
-        builder.setOngoing(playbackState!!.state == PlaybackStateCompat.STATE_PLAYING)
-    }
-
-    fun stopNotification() {
-        Log.v(TAG, "stopNotification")
-        if (isStarted) {
-            isStarted = false
-            controller!!.unregisterCallback(controllerCallback)
-            try {
-                notificationManager.cancel(NOTIFICATION_ID)
-            } catch (e: IllegalArgumentException) {
-                // Ignore if the receiver is not registered.
-            } finally {
-                service.stopForeground(true)
-                Log.d(TAG, "stopNotification: service not foreground.")
-            }
+                    .setShowWhen(false)
         }
     }
 
@@ -249,20 +266,13 @@ class MediaNotificationManager
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            //logPlaybackState(TAG, state)
-            playbackState = state
-
             when (state.state) {
                 PlaybackStateCompat.STATE_NONE,
-                PlaybackStateCompat.STATE_STOPPED -> stopNotification()
+                PlaybackStateCompat.STATE_STOPPED -> stop(clearNotification = true)
 
                 PlaybackStateCompat.STATE_PAUSED,
                 PlaybackStateCompat.STATE_PLAYING -> {
-                    Log.v(TAG, "onPlaybackStateChanged: update notification, state=${playbackStates[state.state]}")
-                    val notification = createNotification()
-                    if (notification != null) {
-                        notificationManager.notify(NOTIFICATION_ID, notification)
-                    }
+                    scheduleNotificationUpdate()
                 }
 
                 PlaybackStateCompat.STATE_ERROR -> Log.w(TAG, "STATE_ERROR in notification")
@@ -270,22 +280,7 @@ class MediaNotificationManager
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            Log.d(TAG, "onMetadataChanged: metadata=${metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
-            this@MediaNotificationManager.metadata = metadata
-
-            val notification = createNotification()
-            if (notification != null) {
-                notificationManager.notify(NOTIFICATION_ID, notification)
-            }
-        }
-
-        override fun onSessionDestroyed() {
-            Log.v(TAG, "Session was destroyed, resetting to the new session token")
-            try {
-                updateSessionToken()
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Could not connect to MediaController", e)
-            }
+            scheduleNotificationUpdate()
         }
     }
 }
