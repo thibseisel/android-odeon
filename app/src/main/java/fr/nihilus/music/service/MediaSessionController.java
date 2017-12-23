@@ -29,6 +29,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -166,6 +167,7 @@ public final class MediaSessionController {
             player.addListener(exoPlayerEventListener);
         }
         updateMediaSessionPlaybackState();
+        Log.d("MSController", "setPlayer: should update metadata");
         updateMediaSessionMetadata();
     }
 
@@ -341,6 +343,7 @@ public final class MediaSessionController {
             }
             currentWindowCount = windowCount;
             currentWindowIndex = player.getCurrentWindowIndex();
+            Log.d("MSController", "onTimeLineChanged: should update metadata");
             updateMediaSessionMetadata();
         }
 
@@ -377,6 +380,7 @@ public final class MediaSessionController {
                     queueNavigator.onCurrentWindowIndexChanged(player);
                 }
                 currentWindowIndex = player.getCurrentWindowIndex();
+                Log.d("MSController", "onPositionDiscontinuity: should update metadata");
                 updateMediaSessionMetadata();
             }
             updateMediaSessionPlaybackState();

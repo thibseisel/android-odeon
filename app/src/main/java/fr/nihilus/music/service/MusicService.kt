@@ -34,10 +34,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
-import fr.nihilus.music.BuildConfig
-import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.MediaItemResult
-import fr.nihilus.music.doIfPresent
+import fr.nihilus.music.*
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
@@ -167,6 +164,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     internal fun onPlaybackStart() {
+        Log.v(TAG, "onPlaybackStart")
         session.isActive = true
         delayedStopHandler.removeCallbacksAndMessages(null)
 
@@ -183,10 +181,12 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     internal fun onPlaybackPaused() {
+        Log.v(TAG, "onPlaybackPause")
         stopForeground(false)
     }
 
     internal fun onPlaybackStop() {
+        Log.v(TAG, "onPlaybackStop")
         session.isActive = false
         // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
         // potentially stopping the service.
@@ -206,6 +206,7 @@ class MusicService : MediaBrowserServiceCompat() {
     private inner class PlaybackStateListener : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            Log.v(TAG, "onPlaybackStateChanged: playbackState=${playbackStates[state.state]}")
             when (state.state) {
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStart()
                 PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()

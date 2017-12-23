@@ -37,12 +37,20 @@ import android.util.Log
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.playbackStates
 import fr.nihilus.music.utils.loadResourceAsBitmap
 import javax.inject.Inject
 
 @ServiceScoped
 class MediaNotificationManager
 @Inject constructor(private val service: MusicService) {
+
+    companion object {
+        private const val TAG = "MediaNotifMgr"
+        const val REQUEST_CODE = 100
+        private const val NOTIFICATION_ID = 42
+        private const val CHANNEL_ID = "media_channel"
+    }
 
     private val notificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
             as NotificationManager
@@ -113,12 +121,15 @@ class MediaNotificationManager
     }
 
     private fun updateSessionToken() {
+        Log.v(TAG, "updateSessionToken")
         val freshToken = service.sessionToken
         if (sessionToken == null && freshToken != null ||
                 sessionToken != null && sessionToken != freshToken) {
+            Log.v(TAG, "updateSessionToken: assign a new token")
             controller?.unregisterCallback(controllerCallback)
             sessionToken = freshToken
             if (sessionToken != null) {
+                Log.v(TAG, "updateSessionToken: configure media controller")
                 controller = MediaControllerCompat(service, sessionToken!!)
                 if (isStarted) {
                     controller!!.registerCallback(controllerCallback)
@@ -128,6 +139,7 @@ class MediaNotificationManager
     }
 
     fun startNotification() {
+        Log.v(TAG, "startNotification")
         metadata = controller!!.metadata
         playbackState = controller!!.playbackState
 
@@ -145,10 +157,10 @@ class MediaNotificationManager
         val currentMetadata = metadata ?: return null
         val currentState = playbackState ?: return null
 
-        /*Log.d(TAG, """createNotification.
+        Log.d(TAG, """createNotification.
             Metadata = ${currentMetadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}
             PlaybackState = ${playbackStates[currentState.state]}
-            """.trimIndent())*/
+            """.trimIndent())
 
         val notificationBuilder = NotificationCompat.Builder(service, CHANNEL_ID)
 
@@ -215,6 +227,7 @@ class MediaNotificationManager
     }
 
     fun stopNotification() {
+        Log.v(TAG, "stopNotification")
         if (isStarted) {
             isStarted = false
             controller!!.unregisterCallback(controllerCallback)
@@ -224,6 +237,7 @@ class MediaNotificationManager
                 // Ignore if the receiver is not registered.
             } finally {
                 service.stopForeground(true)
+                Log.d(TAG, "stopNotification: service not foreground.")
             }
         }
     }
@@ -244,9 +258,9 @@ class MediaNotificationManager
 
                 PlaybackStateCompat.STATE_PAUSED,
                 PlaybackStateCompat.STATE_PLAYING -> {
+                    Log.v(TAG, "onPlaybackStateChanged: update notification, state=${playbackStates[state.state]}")
                     val notification = createNotification()
                     if (notification != null) {
-                        //Log.d(TAG, "onPlaybackStateChanged: update notification")
                         notificationManager.notify(NOTIFICATION_ID, notification)
                     }
                 }
@@ -256,12 +270,11 @@ class MediaNotificationManager
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            //Log.d(TAG, "onMetadataChanged: title=${metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
+            Log.d(TAG, "onMetadataChanged: metadata=${metadata?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
             this@MediaNotificationManager.metadata = metadata
 
             val notification = createNotification()
             if (notification != null) {
-                //Log.d(TAG, "onMetadataChanged: update notification")
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }
         }
@@ -274,12 +287,5 @@ class MediaNotificationManager
                 Log.e(TAG, "Could not connect to MediaController", e)
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "MediaNotifMgr"
-        const val REQUEST_CODE = 100
-        const val NOTIFICATION_ID = 42
-        const val CHANNEL_ID = "media_channel"
     }
 }
