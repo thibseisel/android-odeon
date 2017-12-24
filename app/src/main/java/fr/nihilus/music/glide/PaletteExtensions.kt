@@ -38,9 +38,9 @@ object PaletteExtensions {
      */
     @GlideOption
     @JvmStatic
-    fun maxColorCount(options: RequestOptions, maxColorCount: Int) {
+    fun maxColorCount(options: RequestOptions, maxColorCount: Int): RequestOptions {
         require(maxColorCount > 0) { "Invalid maxColorCount: $maxColorCount" }
-        options.set(PaletteBitmapTranscoder.MAX_COLOR_COUNT, maxColorCount)
+        return options.set(PaletteBitmapTranscoder.MAX_COLOR_COUNT, maxColorCount)
     }
 
     /**
@@ -61,7 +61,13 @@ object PaletteExtensions {
      */
     @GlideOption
     @JvmStatic
-    fun region(options: RequestOptions, left: Float, top: Float, right: Float, bottom: Float) {
+    fun region(
+            options: RequestOptions,
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float
+    ): RequestOptions {
         require(left in 0f..1f)
         require(top in 0f..1f)
         require(right in 0f..1f)
@@ -70,6 +76,6 @@ object PaletteExtensions {
         require(top <= bottom) { "Invalid rectangle: Y-coordinate of top > bottom" }
 
         val rect = RectF(left, top, right, bottom)
-        options.set(PaletteBitmapTranscoder.PALETTE_RELATIVE_REGION, rect)
+        return options.set(PaletteBitmapTranscoder.PALETTE_RELATIVE_REGION, rect)
     }
 }
