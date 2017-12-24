@@ -23,20 +23,25 @@ import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import dagger.android.AndroidInjection
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.view.PlayPauseButton
+import fr.nihilus.music.view.ProgressAutoUpdater
 import javax.inject.Inject
 
 class FileViewerActivity : AppCompatActivity() {
 
     @Inject lateinit var modelFactory: ViewModelFactory
     private lateinit var viewModel: BrowserViewModel
+    private lateinit var seekUpdater: ProgressAutoUpdater
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_viewer)
 
@@ -49,6 +54,7 @@ class FileViewerActivity : AppCompatActivity() {
             }
 
             viewModel.post { controller ->
+                Log.d("FVActivity", "File URI: $data")
                 controller.transportControls.playFromUri(data, null)
             }
         }
@@ -59,39 +65,31 @@ class FileViewerActivity : AppCompatActivity() {
         val playPauseButton = findViewById<PlayPauseButton>(R.id.playPauseButton)
         val seekBar = findViewById<SeekBar>(R.id.progress)
 
+        // Configure seekBar auto-updates
+        seekUpdater = ProgressAutoUpdater(seekBar) { position ->
+            viewModel.post { controller ->
+                controller.transportControls.seekTo(position)
+            }
+        }
+
         viewModel.currentMetadata.observe(this, Observer { metadata ->
+            seekUpdater.setMetadata(metadata)
             if (metadata != null) {
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))
                 titleView.text = metadata.getText(MediaMetadataCompat.METADATA_KEY_TITLE)
                 subtitleView.text = metadata.getText(MediaMetadataCompat.METADATA_KEY_ARTIST)
-                seekBar.max = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toInt()
             } else {
-                albumArt.setImageBitmap(null)
+                albumArt.setImageResource(R.drawable.ic_audiotrack_24dp)
                 titleView.text = null
                 subtitleView.text = null
-                seekBar.max = 0
             }
         })
 
         viewModel.playbackState.observe(this, Observer { state ->
             if (state != null && state.state < 4) {
-                seekBar.progress = state.position.toInt()
+                seekUpdater.setPlaybackState(state)
                 playPauseButton.isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
             }
-        })
-
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                viewModel.post { controller ->
-                    controller.transportControls.seekTo(seekBar.progress.toLong())
-                }
-            }
-
         })
     }
 }

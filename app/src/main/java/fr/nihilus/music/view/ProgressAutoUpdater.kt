@@ -52,10 +52,22 @@ private const val PROGRESS_UPDATE_PERIOD = 1000L
  */
 class ProgressAutoUpdater(
         private val seekBar: SeekBar,
-        private val seekPosition: TextView,
-        private val seekDuration: TextView,
+        private val seekPosition: TextView?,
+        private val seekDuration: TextView?,
         private val updateListener: (Long) -> Unit
 ) : SeekBar.OnSeekBarChangeListener {
+
+    /**
+     * Wrap a SeekBar into an auto-update controller.
+     *
+     * @param seekBar The seekBar whose position should be updated while playing.
+     * @param updateListener Callback executed when user changes progress of the seekBar.
+     * Parameter is the desired playback position in milliseconds.
+     */
+    constructor(
+            seekBar: SeekBar,
+            updateListener: (Long) -> Unit
+    ): this(seekBar, null, null, updateListener)
 
     private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
@@ -80,7 +92,7 @@ class ProgressAutoUpdater(
     fun setMetadata(metadata: MediaMetadataCompat?) {
         val maxProgress = metadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0L
         seekBar.max = maxProgress.toInt()
-        seekDuration.text = DateUtils.formatElapsedTime(builder, maxProgress / 1000L)
+        seekDuration?.text = DateUtils.formatElapsedTime(builder, maxProgress / 1000L)
     }
 
     /**
@@ -95,7 +107,7 @@ class ProgressAutoUpdater(
         if (state != null) {
             val isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
             seekBar.progress = state.position.toInt()
-            seekPosition.text = DateUtils.formatElapsedTime(builder, state.position / 1000L)
+            seekPosition?.text = DateUtils.formatElapsedTime(builder, state.position / 1000L)
 
             if (isPlaying) scheduleProgressUpdate()
             else stopProgressUpdate()
@@ -104,7 +116,7 @@ class ProgressAutoUpdater(
     }
 
     override fun onProgressChanged(view: SeekBar, progress: Int, fromUser: Boolean) {
-        seekPosition.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
+        seekPosition?.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
     }
 
     override fun onStartTrackingTouch(view: SeekBar) {
