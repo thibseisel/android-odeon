@@ -19,7 +19,7 @@ package fr.nihilus.music.view
 import android.content.Context
 import android.graphics.drawable.Animatable
 import android.os.Build
-import android.support.v7.widget.AppCompatImageView
+import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
 
 /**
@@ -33,19 +33,18 @@ private const val LEVEL_PLAYING = 1
 private const val LEVEL_PAUSED = 0
 
 /**
- * Extension of ImageView specialized for a play/pause button.
- * This makes sure that an animation between
+ * Extension of a FloatingActionButton specialized for a play/pause button.
  *
- * The drawable displayed by this ImageView must be a LevelListDrawable with 2 levels:
+ * The drawable displayed by this FloatingActionButton must be a LevelListDrawable with 2 levels:
  * - (0) is the drawable shown while playback is paused (play icon)
  * - (1) is the drawable shown while playing (pause icon)
  */
-class PlayPauseButton
+class FloatingPlayPauseButton
 @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
-) : AppCompatImageView(context, attrs, defStyleAttr) {
+): FloatingActionButton(context, attrs, defStyleAttr) {
 
     /**
      * Whether this button should display its "playing" state.

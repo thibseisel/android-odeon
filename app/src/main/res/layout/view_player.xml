@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2017 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -30,28 +28,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="@dimen/playerview_height"/>
+        app:layout_constraintGuide_begin="@dimen/playerview_height" />
 
     <android.support.constraint.Guideline
         android:id="@+id/start_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="16dp"/>
+        app:layout_constraintGuide_begin="16dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="16dp"/>
+        app:layout_constraintGuide_end="16dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/bottom_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="92dp"/>
+        app:layout_constraintGuide_end="92dp" />
 
     <include layout="@layout/view_player_top" />
 
@@ -64,18 +62,18 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:src="@drawable/ic_audiotrack_24dp"
-        app:layout_constraintTop_toTopOf="@+id/top_guideline"/>
+        app:layout_constraintTop_toTopOf="@+id/top_guideline"
+        tools:src="@drawable/ic_audiotrack_24dp" />
 
     <!-- Progress bar -->
     <SeekBar
-        style="@style/Widget.AppTheme.ProgressBar"
         android:id="@+id/seekBar"
+        style="@style/Widget.AppTheme.ProgressBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
         tools:progress="100" />
 
@@ -83,23 +81,23 @@
         android:id="@+id/seekPosition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="11:42"
         android:textSize="12sp"
-        android:layout_margin="8dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
+        tools:text="11:42" />
 
     <TextView
         android:id="@+id/seekDuration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:text="11:42"
         android:textSize="12sp"
-        android:layout_margin="8dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
+        tools:text="11:42" />
 
     <!-- Action buttons -->
     <ImageView
@@ -111,16 +109,16 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipPrevButton"
+        app:layout_constraintLeft_toLeftOf="@+id/start_guideline"
         app:layout_constraintRight_toLeftOf="@+id/skipPrevButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_level_repeat"
-        app:layout_constraintLeft_toLeftOf="@+id/start_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/ic_level_repeat" />
 
     <ImageView
         android:id="@+id/skipPrevButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_previous"
         android:scaleType="fitCenter"
@@ -129,27 +127,29 @@
         app:layout_constraintLeft_toRightOf="@+id/repeatButton"
         app:layout_constraintRight_toLeftOf="@+id/masterPlayPause"
         app:layout_constraintStart_toEndOf="@+id/repeatButton"
-        app:srcCompat="@drawable/ic_skip_previous_24dp"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/ic_skip_previous_24dp" />
 
-    <fr.nihilus.music.view.PlayPauseButton
+    <fr.nihilus.music.view.FloatingPlayPauseButton
+        style="@style/Widget.Design.FloatingActionButton"
         android:id="@+id/masterPlayPause"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:background="?selectableItemBackgroundBorderless"
+        app:fabSize="normal"
         android:contentDescription="@string/play_or_pause"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipNextButton"
         app:layout_constraintLeft_toRightOf="@+id/skipPrevButton"
         app:layout_constraintRight_toLeftOf="@+id/skipNextButton"
         app:layout_constraintStart_toEndOf="@+id/skipPrevButton"
-        app:srcCompat="@drawable/level_play_pause_filled"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:tint="@android:color/white"
+        app:srcCompat="@drawable/level_play_pause" />
 
     <ImageView
         android:id="@+id/skipNextButton"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
         android:scaleType="fitCenter"
@@ -157,8 +157,8 @@
         app:layout_constraintLeft_toRightOf="@+id/masterPlayPause"
         app:layout_constraintRight_toLeftOf="@+id/shuffleButton"
         app:layout_constraintStart_toEndOf="@+id/masterPlayPause"
-        app:srcCompat="@drawable/ic_skip_next_24dp"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/ic_skip_next_24dp" />
 
     <ImageView
         android:id="@+id/shuffleButton"
@@ -172,7 +172,7 @@
         app:layout_constraintLeft_toRightOf="@+id/skipNextButton"
         app:layout_constraintRight_toLeftOf="@+id/end_guideline"
         app:layout_constraintStart_toEndOf="@+id/skipNextButton"
-        app:srcCompat="@drawable/ic_shuffle_24dp"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/ic_shuffle_24dp" />
 
 </android.support.constraint.ConstraintLayout>

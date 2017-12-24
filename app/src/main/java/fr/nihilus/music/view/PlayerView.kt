@@ -184,6 +184,9 @@ class PlayerView
             titleView.text = null
             subtitleView.text = null
 
+            playPauseButton.isPlaying = false
+            masterPlayPause.isPlaying = false
+
             with(seekBar) {
                 progress = 0
                 max = 0
@@ -382,6 +385,7 @@ class PlayerView
 
         companion object {
 
+            @Suppress("unused")
             @JvmField val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
                 override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
