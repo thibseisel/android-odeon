@@ -131,20 +131,20 @@
         app:srcCompat="@drawable/ic_skip_previous_24dp" />
 
     <fr.nihilus.music.view.FloatingPlayPauseButton
-        style="@style/Widget.Design.FloatingActionButton"
         android:id="@+id/masterPlayPause"
+        style="@style/Widget.Design.FloatingActionButton"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        app:fabSize="normal"
         android:contentDescription="@string/play_or_pause"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipNextButton"
         app:layout_constraintLeft_toRightOf="@+id/skipPrevButton"
         app:layout_constraintRight_toLeftOf="@+id/skipNextButton"
         app:layout_constraintStart_toEndOf="@+id/skipPrevButton"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"
-        app:tint="@android:color/white"
-        app:srcCompat="@drawable/level_play_pause" />
+        app:srcCompat="@drawable/level_play_pause"
+        app:tint="@android:color/white" />
 
     <ImageView
         android:id="@+id/skipNextButton"
