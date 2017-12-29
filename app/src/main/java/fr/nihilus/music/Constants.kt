@@ -27,7 +27,15 @@ object Constants {
      * Multiple fragments may share the same id: in this case they should be considered the same,
      * for example they should belong to the same navigation hierarchy.
      *
-     * Type: Int
+     * Type: `Int`
      */
     const val FRAGMENT_ID = "fragment_id"
+
+    /**
+     * Extra for `prepareFrom*` and `playFrom*` methods of `MediaControllerCompat`.
+     * If supplied and `true`, shuffle mode will be enabled once media has been prepared.
+     *
+     * Type: `Boolean`
+     */
+    const val EXTRA_PLAY_SHUFFLED = "play_shuffled"
 }

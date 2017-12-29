@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.assert
 import fr.nihilus.music.command.MediaSessionCommand
@@ -87,10 +88,12 @@ class MediaQueueManager
 
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         if (mediaId != null) {
+            val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
             prefs.lastPlayedMediaId = mediaId
+
             repository.getMediaItems(mediaId).subscribe { items ->
-                currentQueue.clear()
                 setupMediaSource(mediaId, items)
+                player.shuffleModeEnabled = shuffleExtraEnabled || player.shuffleModeEnabled
             }
         }
     }
@@ -147,6 +150,7 @@ class MediaQueueManager
     }
 
     private fun setupMediaSource(mediaId: String, queue: List<MediaBrowserCompat.MediaItem>) {
+        currentQueue.clear()
         val playableItems = queue.filterNot { it.isBrowsable }
                 .mapTo(currentQueue) { it.description }
 

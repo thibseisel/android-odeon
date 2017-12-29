@@ -375,8 +375,9 @@ class HomeActivity : AppCompatActivity(),
     private fun startRandomMix() {
         viewModel.post { controller ->
             with(controller.transportControls) {
-                setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                playFromMediaId(MediaID.ID_MUSIC, null)
+                playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
+                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
+                })
             }
         }
     }
