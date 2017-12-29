@@ -39,7 +39,7 @@ internal class MembersAdapter(
 
     init {
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.dummy_album_art)
+        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
                 .transforms(FitCenter(), RoundedCorners(cornerRadius))

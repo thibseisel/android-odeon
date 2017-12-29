@@ -52,8 +52,14 @@ internal class PlaylistHolder(
 
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
+        val iconBitmap = description.iconBitmap
         title.text = description.title
-        glide.load(description.iconUri).into(image)
+
+        if (iconBitmap != null) {
+            image.setImageBitmap(iconBitmap)
+        } else {
+            glide.load(description.iconUri).into(image)
+        }
 
         // The play button is only shown if the item is playable
         actionPlay.visibility = if (item.isPlayable) View.VISIBLE else View.GONE
