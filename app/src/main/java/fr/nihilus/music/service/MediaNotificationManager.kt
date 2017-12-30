@@ -93,9 +93,15 @@ class MediaNotificationManager
         val metadata = controller.metadata
         val state = controller.playbackState
 
-        publishNotification(state, metadata) { notification ->
-            notificationManager.notify(NOTIFICATION_ID, notification)
+        if (state.state != PlaybackStateCompat.STATE_BUFFERING) {
+            // Only update notification content if state is not BUFFERING.
+            // This may change when audio resources are loaded from the network,
+            // as buffering time should be slightly longer.
+            publishNotification(state, metadata) { notification ->
+                notificationManager.notify(NOTIFICATION_ID, notification)
+            }
         }
+
     }
 
     init {
