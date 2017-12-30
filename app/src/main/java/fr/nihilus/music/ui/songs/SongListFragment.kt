@@ -26,7 +26,6 @@ import android.os.ResultReceiver
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
-import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.SearchView
@@ -45,6 +44,8 @@ import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.inflate
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.utils.resolveThemeColor
+import fr.nihilus.music.utils.tintedWith
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : Fragment(),
@@ -55,7 +56,7 @@ class SongListFragment : Fragment(),
     private lateinit var songAdapter: SongAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private val mCallback = object : SubscriptionCallback() {
+    private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, items: List<MediaItem>) {
             songAdapter.updateItems(items)
             progress.hide()
@@ -114,7 +115,7 @@ class SongListFragment : Fragment(),
     override fun onStart() {
         super.onStart()
         activity!!.setTitle(R.string.all_music)
-        viewModel.subscribe(MediaID.ID_MUSIC, mCallback)
+        viewModel.subscribe(MediaID.ID_MUSIC, subscriptionCallback)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -130,10 +131,16 @@ class SongListFragment : Fragment(),
 
     private fun setupListHeader() {
         val context = checkNotNull(context) { "Fragment is not attached" }
-        list.run {
+        with(list) {
             val headerView = inflate(R.layout.random_button)
-            val icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_primary)
-            headerView.findViewById<TextView>(R.id.text).setCompoundDrawables(icRandom, null, null, null)
+            val icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_24dp)
+                    ?.tintedWith(resolveThemeColor(context, R.attr.colorAccent))
+                    ?: throw AssertionError("Resource Drawable should have been found")
+
+            icRandom.setBounds(0, 0, icRandom.intrinsicWidth, icRandom.intrinsicHeight)
+            val shuffleText = headerView.findViewById<TextView>(R.id.text)
+            shuffleText.setCompoundDrawables(icRandom, null, null, null)
+
             addHeaderView(headerView)
         }
     }
@@ -142,8 +149,9 @@ class SongListFragment : Fragment(),
         viewModel.post { controller ->
             val controls = controller.transportControls
             if (position == 0) {
-                controls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                controls.playFromMediaId(MediaID.ID_MUSIC, null)
+                controls.playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
+                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
+                })
             } else {
                 // Offset the position as the header is considered at position 0
                 val clickedItem = songAdapter.getItem(position - 1)
@@ -177,6 +185,7 @@ class SongListFragment : Fragment(),
 
         val params = Bundle(1)
         params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, toDelete)
+
         viewModel.post { controller ->
             controller.sendCommand(DeleteTracksCommand.CMD_NAME,
                     params, object : ResultReceiver(Handler()) {
@@ -243,7 +252,6 @@ class SongListFragment : Fragment(),
 
     companion object Factory {
 
-        private val TAG = "SongListFragment"
         private val KEY_SCROLL = "ScrollY"
         private val REQUEST_CODE_DELETE_TRACKS = 21
 

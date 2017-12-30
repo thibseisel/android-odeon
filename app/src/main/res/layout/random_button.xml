@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2017 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,9 @@
   ~ limitations under the License.
   -->
 
-<android.support.v7.widget.CardView
-    style="@style/Widget.AppTheme.CardView"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.AppTheme.CardView"
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:foreground="?selectableItemBackground">
@@ -32,8 +30,9 @@
         android:gravity="center"
         android:maxLines="1"
         android:text="@string/play_all_shuffled"
+        android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         android:textColor="?colorAccent"
-        tools:drawableStart="@drawable/ic_shuffle_primary"
-        android:textAllCaps="true"/>
+        tools:drawableStart="@drawable/ic_shuffle_24dp"
+        tools:drawableTint="?colorAccent" />
 </android.support.v7.widget.CardView>
