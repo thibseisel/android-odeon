@@ -28,10 +28,11 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.content.res.AppCompatResources
 import android.util.AttributeSet
 import android.view.View
-import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.utils.dipToPixels
 import kotlinx.android.synthetic.main.view_player.view.*
 import kotlinx.android.synthetic.main.view_player_top.view.*
@@ -43,7 +44,7 @@ class PlayerView
         defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val glideRequest: RequestBuilder<Bitmap>
+    private val glideRequest: GlideRequest<Bitmap>
 
     private lateinit var autoUpdater: ProgressAutoUpdater
 
@@ -67,7 +68,7 @@ class PlayerView
         glideRequest = GlideApp.with(context).asBitmap()
                 .centerCrop()
                 .fallback(defaultIcon)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .transition(withCrossFade(100))
     }
 
     override fun onFinishInflate() {
@@ -155,7 +156,22 @@ class PlayerView
                 iconView.setImageResource(R.drawable.ic_audiotrack_24dp)
             }
 
-            glideRequest.load(media.iconUri).into(albumArtView)
+            with(albumArtView) {
+                // Use the previous art as placeholder for a smooth transition
+                val currentArt = this.drawable
+                glideRequest.load(media.iconUri)
+                        .placeholder(currentArt)
+                        .into(this)
+            }
+
+            autoUpdater.setMetadata(metadata)
+
+        } else {
+            // Reset views
+            titleView.text = null
+            subtitleView.text = null
+            iconView.setImageDrawable(null)
+            Glide.with(this).clear(albumArtView)
             autoUpdater.setMetadata(metadata)
         }
     }
@@ -169,29 +185,16 @@ class PlayerView
     fun updatePlaybackState(newState: PlaybackStateCompat?) {
         lastPlaybackState = newState
 
-        if (newState != null) {
-            toggleControls(newState.actions)
-            autoUpdater.setPlaybackState(newState)
+        // Enable/disable controls based on the state
+        toggleControls(newState?.actions ?: 0L)
 
-            val isPlaying = newState.state == PlaybackStateCompat.STATE_PLAYING
-            playPauseButton.isPlaying = isPlaying
-            masterPlayPause.isPlaying = isPlaying
+        // Mark play/pause toggles as playing based on the state
+        val isPlaying = newState?.state == PlaybackStateCompat.STATE_PLAYING
+        playPauseButton.isPlaying = isPlaying
+        masterPlayPause.isPlaying = isPlaying
 
-        } else {
-            // Reinitialize composing views to display nothing
-            iconView.setImageDrawable(null)
-            albumArtView.setImageDrawable(null)
-            titleView.text = null
-            subtitleView.text = null
-
-            playPauseButton.isPlaying = false
-            masterPlayPause.isPlaying = false
-
-            with(seekBar) {
-                progress = 0
-                max = 0
-            }
-        }
+        // Update playback state for seekBar region
+        autoUpdater.setPlaybackState(newState)
     }
 
     /**

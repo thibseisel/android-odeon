@@ -111,6 +111,11 @@ class ProgressAutoUpdater(
 
             if (isPlaying) scheduleProgressUpdate()
             else stopProgressUpdate()
+
+        } else {
+            seekBar.progress = 0
+            seekPosition?.text = DateUtils.formatElapsedTime(builder, 0L)
+            stopProgressUpdate()
         }
 
     }
