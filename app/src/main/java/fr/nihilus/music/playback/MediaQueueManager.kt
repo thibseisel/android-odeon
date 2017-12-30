@@ -67,6 +67,8 @@ class MediaQueueManager
     private val dataSourceFactory: DataSource.Factory
     private val currentQueue = ArrayList<MediaDescriptionCompat>()
 
+    private var lastMusicId: String? = null
+
     init {
         val userAgent = Util.getUserAgent(service, service.getString(R.string.app_name))
         dataSourceFactory = DefaultDataSourceFactory(service, userAgent)
@@ -180,12 +182,19 @@ class MediaQueueManager
         if (activeItem != null) {
             val musicId = MediaID.extractMusicID(activeItem.description.mediaId)
                     ?: throw IllegalStateException("Track should have a musicId")
-            repository.getMetadata(musicId)
-                    .flatMap { iconLoader.loadIntoMetadata(it) }
-                    .subscribe { metadata ->
-                        Log.d("MediaQueueManager", "Update metadata. Title: ${metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
-                        session.setMetadata(metadata)
-                    }
+
+            if (lastMusicId != musicId) {
+                // Only update metadata if it has really changed.
+                repository.getMetadata(musicId)
+                        .flatMap { iconLoader.loadIntoMetadata(it) }
+                        .subscribe { metadata ->
+                            Log.d("MediaQueueManager", "Update metadata. Title: ${metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
+                            session.setMetadata(metadata)
+                        }
+            }
+
+            // Remember the last change in metadata
+            lastMusicId = musicId
         }
     }
 }
