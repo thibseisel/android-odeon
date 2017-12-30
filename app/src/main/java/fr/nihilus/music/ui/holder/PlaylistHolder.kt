@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
 /**
@@ -52,11 +53,11 @@ internal class PlaylistHolder(
 
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
-        val iconBitmap = description.iconBitmap
+        val iconResId = description.extras?.getInt(MediaItems.EXTRA_ICON_ID, 0) ?: 0
         title.text = description.title
 
-        if (iconBitmap != null) {
-            image.setImageBitmap(iconBitmap)
+        if (iconResId != 0) {
+            image.setImageResource(iconResId)
         } else {
             glide.load(description.iconUri).into(image)
         }

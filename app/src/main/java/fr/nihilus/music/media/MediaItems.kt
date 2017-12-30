@@ -66,4 +66,12 @@ object MediaItems {
      * Type: integer
      */
     const val EXTRA_DISC_NUMBER = "discno"
+
+    /**
+     * The resource id to be used as a icon for `MediaDescriptionCompat`.
+     * If this extra is present, it should be preferred to `getIconBitmap` or `getIconUri`.
+     *
+     * Type: `Drawable resource`
+     */
+    const val EXTRA_ICON_ID = "ic_resource_id"
 }

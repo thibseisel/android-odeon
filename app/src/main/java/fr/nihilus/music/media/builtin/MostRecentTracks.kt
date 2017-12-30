@@ -17,13 +17,14 @@
 package fr.nihilus.music.media.builtin
 
 import android.content.Context
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.loadResourceAsBitmap
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -38,13 +39,13 @@ internal class MostRecentTracks
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
-        val recentIcon = loadResourceAsBitmap(context, R.drawable.ic_most_recent_128dp, 320, 320)
         val builder = MediaDescriptionCompat.Builder()
         val description = builder
                 .setMediaId(MediaID.ID_MOST_RECENT)
                 .setTitle(context.getText(R.string.last_added))
-                .setIconBitmap(recentIcon)
-                .build()
+                .setExtras(Bundle(1).apply {
+                    putInt(MediaItems.EXTRA_ICON_ID, R.drawable.ic_most_recent_128dp)
+                }).build()
         val item = MediaItem(description, MediaItem.FLAG_PLAYABLE or MediaItem.FLAG_BROWSABLE)
         return Single.just(item)
     }

@@ -29,6 +29,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -67,10 +68,11 @@ public final class MediaSessionController {
          * Called when the metadata for this media session should be updated
          * with the currently playing track.
          *
-         * @param session The media session to update.
+         * @param session The media session whose metadata are to be updated.
          * @param player The player associated with the media session.
          */
-        void onUpdateMediaSessionMetadata(@NonNull MediaSessionCompat session, @Nullable Player player);
+        void onUpdateMediaSessionMetadata(@NonNull MediaSessionCompat session,
+                                          @Nullable Player player);
     }
 
     /**
@@ -372,6 +374,7 @@ public final class MediaSessionController {
 
         @Override
         public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+            Log.d("MSController", "onPositionDiscontinuity: discontinuityReason = [" + reason + "]");
             if (currentWindowIndex != player.getCurrentWindowIndex()) {
                 if (queueNavigator != null) {
                     queueNavigator.onCurrentWindowIndexChanged(player);
@@ -394,6 +397,7 @@ public final class MediaSessionController {
         @Override
         public void onPlay() {
             if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_PLAY)) {
+                Log.d("MSController", "dispatching onPlay");
                 playbackController.onPlay(player);
             }
         }
@@ -435,7 +439,9 @@ public final class MediaSessionController {
 
         @Override
         public void onSetShuffleMode(int shuffleMode) {
+            Log.d("MSController", "onSetShuffleMode: shuffleMode = [" + shuffleMode + "]");
             if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
+                Log.d("MSController", "onSetShuffleMode: dispatching setShuffleMode.");
                 playbackController.onSetShuffleMode(player, shuffleMode);
             }
         }
