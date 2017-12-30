@@ -156,24 +156,38 @@ class PlayerView
                 iconView.setImageResource(R.drawable.ic_audiotrack_24dp)
             }
 
-            with(albumArtView) {
-                // Use the previous art as placeholder for a smooth transition
-                val currentArt = this.drawable
-                glideRequest.load(media.iconUri)
-                        .placeholder(currentArt)
-                        .into(this)
-            }
-
-            autoUpdater.setMetadata(metadata)
-
         } else {
             // Reset views
             titleView.text = null
             subtitleView.text = null
             iconView.setImageDrawable(null)
+        }
+
+        // Only update PlayerView bottom if it is currently visible
+        if (isExpanded) {
+            updateExpandedView(metadata)
+        }
+
+    }
+
+    private fun updateExpandedView(metadata: MediaMetadataCompat?) {
+
+        if (metadata != null) {
+            autoUpdater.setMetadata(metadata)
+
+            with(albumArtView) {
+                // Use the previous art as placeholder for a smooth transition
+                val currentArt = this.drawable
+                glideRequest.load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI))
+                        .placeholder(currentArt)
+                        .into(this)
+            }
+
+        } else {
             Glide.with(this).clear(albumArtView)
             autoUpdater.setMetadata(metadata)
         }
+
     }
 
     /**
@@ -223,6 +237,9 @@ class PlayerView
         playPauseButton.visibility = View.GONE
         miniPrevButton?.visibility = View.GONE
         miniNextButton?.visibility = View.GONE
+
+        // Update display of the hidden part of PlayerView as it is made visible
+        updateExpandedView(metadata)
     }
 
     private fun onClose() {
@@ -364,10 +381,14 @@ class PlayerView
      * A parcelable object that saves the internal state of a PlayerView.
      */
     private class SavedState : View.BaseSavedState {
-        @JvmField var lastPlaybackState: PlaybackStateCompat? = null
-        @JvmField var metadata: MediaMetadataCompat? = null
-        @JvmField var repeatMode: Int = 0
-        @JvmField var expanded: Boolean = false
+        @JvmField
+        var lastPlaybackState: PlaybackStateCompat? = null
+        @JvmField
+        var metadata: MediaMetadataCompat? = null
+        @JvmField
+        var repeatMode: Int = 0
+        @JvmField
+        var expanded: Boolean = false
 
         constructor(superState: Parcelable) : super(superState)
 
@@ -389,7 +410,8 @@ class PlayerView
         companion object {
 
             @Suppress("unused")
-            @JvmField val CREATOR = object : Parcelable.Creator<SavedState> {
+            @JvmField
+            val CREATOR = object : Parcelable.Creator<SavedState> {
                 override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
                 override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
             }
