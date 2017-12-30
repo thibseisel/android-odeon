@@ -48,7 +48,7 @@ class MediaNotificationManager
         const val REQUEST_CODE = 100
         private const val NOTIFICATION_ID = 42
         private const val CHANNEL_ID = "media_channel"
-        private const val UPDATE_DELAY = 10L
+        private const val UPDATE_DELAY = 100L
         private const val ICON_SIZE = 320
     }
 
@@ -88,18 +88,12 @@ class MediaNotificationManager
     private var isForeground = false
 
     private val updateNotificationTask = Runnable {
-        Log.v(TAG, "updateNotificationTask: execute notification update")
         val controller = service.session.controller
         val metadata = controller.metadata
         val state = controller.playbackState
 
-        if (state.state != PlaybackStateCompat.STATE_BUFFERING) {
-            // Only update notification content if state is not BUFFERING.
-            // This may change when audio resources are loaded from the network,
-            // as buffering time should be slightly longer.
-            publishNotification(state, metadata) { notification ->
-                notificationManager.notify(NOTIFICATION_ID, notification)
-            }
+        publishNotification(state, metadata) { notification ->
+            notificationManager.notify(NOTIFICATION_ID, notification)
         }
 
     }
