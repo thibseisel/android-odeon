@@ -177,9 +177,9 @@ class PlayerView
 
             with(albumArtView) {
                 // Use the previous art as placeholder for a smooth transition
-                val currentArt = this.drawable
-                glideRequest.load(metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI))
-                        .placeholder(currentArt)
+                val artUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
+                glideRequest.load(artUri)
+                        .placeholder(drawable)
                         .into(this)
             }
 
@@ -199,16 +199,21 @@ class PlayerView
     fun updatePlaybackState(newState: PlaybackStateCompat?) {
         lastPlaybackState = newState
 
-        // Enable/disable controls based on the state
-        toggleControls(newState?.actions ?: 0L)
-
-        // Mark play/pause toggles as playing based on the state
-        val isPlaying = newState?.state == PlaybackStateCompat.STATE_PLAYING
-        playPauseButton.isPlaying = isPlaying
-        masterPlayPause.isPlaying = isPlaying
-
         // Update playback state for seekBar region
         autoUpdater.setPlaybackState(newState)
+
+        if (newState != null) {
+            toggleControls(newState.actions)
+
+            val isPlaying = newState.state == PlaybackStateCompat.STATE_PLAYING
+            playPauseButton.isPlaying = isPlaying
+            masterPlayPause.isPlaying = isPlaying
+
+        } else {
+            toggleControls(0L)
+            playPauseButton.isPlaying = false
+            masterPlayPause.isPlaying = false
+        }
     }
 
     /**
