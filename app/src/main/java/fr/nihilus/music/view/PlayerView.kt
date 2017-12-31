@@ -18,6 +18,7 @@ package fr.nihilus.music.view
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.constraint.ConstraintLayout
@@ -177,9 +178,15 @@ class PlayerView
 
             with(albumArtView) {
                 // Use the previous art as placeholder for a smooth transition
+                // It should not be reused if already recycled.
+                // FIXME Brittle code: fails if a transition is used
+                val previousArt = this.drawable.takeUnless {
+                    it is BitmapDrawable && it.bitmap.isRecycled
+                }
+
                 val artUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
                 glideRequest.load(artUri)
-                        .placeholder(drawable)
+                        .placeholder(previousArt)
                         .into(this)
             }
 
