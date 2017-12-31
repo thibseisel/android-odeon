@@ -96,4 +96,5 @@
     <string name="error_playlist_already_exists">An existing playlist already uses that title.</string>
     <string name="player_unknown_error">An unknown error occurred.</string>
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
+    <string name="action_condensed_play_shuffled">Read shuffled</string>
 </resources>

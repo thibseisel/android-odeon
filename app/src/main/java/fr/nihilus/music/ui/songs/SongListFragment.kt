@@ -27,13 +27,11 @@ import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.view.ViewCompat
-import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
 import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.Constants
@@ -41,11 +39,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.DeleteTracksCommand
 import fr.nihilus.music.command.MediaSessionCommand
-import fr.nihilus.music.inflate
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.resolveThemeColor
-import fr.nihilus.music.utils.tintedWith
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : Fragment(),
@@ -82,6 +77,18 @@ class SongListFragment : Fragment(),
         // TODO Search and filtering features
     }
 
+    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
+        R.id.action_play_shuffled -> {
+            viewModel.post { controller ->
+                controller.transportControls.playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
+                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
+                })
+            }
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View =
             inflater.inflate(R.layout.fragment_songs, container, false)
@@ -89,7 +96,6 @@ class SongListFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupListHeader()
         with(list) {
             adapter = songAdapter
             onItemClickListener = this@SongListFragment
@@ -121,36 +127,12 @@ class SongListFragment : Fragment(),
         super.onStop()
     }
 
-    private fun setupListHeader() {
-        val context = checkNotNull(context) { "Fragment is not attached" }
-        with(list) {
-            val headerView = inflate(R.layout.random_button)
-            val icRandom = AppCompatResources.getDrawable(context, R.drawable.ic_shuffle_24dp)
-                    ?.tintedWith(resolveThemeColor(context, R.attr.colorAccent))
-                    ?: throw AssertionError("Resource Drawable should have been found")
-
-            icRandom.setBounds(0, 0, icRandom.intrinsicWidth, icRandom.intrinsicHeight)
-            val shuffleText = headerView.findViewById<TextView>(R.id.text)
-            shuffleText.setCompoundDrawables(icRandom, null, null, null)
-
-            addHeaderView(headerView)
-        }
-    }
-
     override fun onItemClick(listView: AdapterView<*>, view: View, position: Int, id: Long) {
         viewModel.post { controller ->
             val controls = controller.transportControls
-            if (position == 0) {
-                controls.playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
-                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
-                })
-            } else {
-                // Offset the position as the header is considered at position 0
-                val clickedItem = songAdapter.getItem(position - 1)
-                controls.playFromMediaId(clickedItem.mediaId, null)
-            }
+            val clickedItem = songAdapter.getItem(position)
+            controls.playFromMediaId(clickedItem.mediaId, null)
         }
-
     }
 
     private fun showDeleteDialog() {
@@ -171,7 +153,7 @@ class SongListFragment : Fragment(),
         for (i in 0 until checkedPositions.size()) {
             if (checkedPositions.valueAt(i)) {
                 val pos = checkedPositions.keyAt(i)
-                toDelete[index++] = songAdapter.getItemId(pos - 1)
+                toDelete[index++] = songAdapter.getItemId(pos)
             }
         }
 

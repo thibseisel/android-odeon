@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2017 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +15,23 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_24dp"
         android:imeOptions="actionSearch"
-        android:orderInCategory="1"
         android:menuCategory="container"
+        android:orderInCategory="1"
         android:title="@string/action_search"
+        android:visible="false"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="always|collapseActionView"
-        android:visible="false"/>
+        app:showAsAction="always|collapseActionView" />
+
+    <item
+        android:id="@+id/action_play_shuffled"
+        android:icon="@drawable/ic_shuffle_24dp"
+        android:title="@string/play_all_shuffled"
+        android:titleCondensed="@string/action_condensed_play_shuffled"
+        app:showAsAction="ifRoom" />
 </menu>
