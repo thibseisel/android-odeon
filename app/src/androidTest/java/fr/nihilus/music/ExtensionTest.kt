@@ -7,6 +7,7 @@ import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import org.junit.Test
+import kotlin.to
 
 @SmallTest
 class ExtensionTest {
