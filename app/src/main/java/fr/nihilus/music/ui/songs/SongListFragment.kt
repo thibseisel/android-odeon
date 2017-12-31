@@ -102,8 +102,6 @@ class SongListFragment : Fragment(),
         listContainer.visibility = View.GONE
         if (savedInstanceState == null) {
             progress.show()
-        } else {
-            list.setSelectionFromTop(savedInstanceState.getInt(KEY_SCROLL), 0)
         }
     }
 
@@ -116,12 +114,6 @@ class SongListFragment : Fragment(),
         super.onStart()
         activity!!.setTitle(R.string.all_music)
         viewModel.subscribe(MediaID.ID_MUSIC, subscriptionCallback)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        if (isVisible) {
-            outState.putInt(KEY_SCROLL, list.firstVisiblePosition)
-        }
     }
 
     override fun onStop() {
@@ -252,7 +244,6 @@ class SongListFragment : Fragment(),
 
     companion object Factory {
 
-        private val KEY_SCROLL = "ScrollY"
         private val REQUEST_CODE_DELETE_TRACKS = 21
 
         fun newInstance(): SongListFragment {
