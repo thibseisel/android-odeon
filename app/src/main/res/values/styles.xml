@@ -30,7 +30,7 @@
             @drawable/abc_ic_clear_material
         </item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeBackground">?colorControlActivated</item>
+        <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>
@@ -66,6 +66,7 @@
         <item name="cardCornerRadius">@dimen/cardview_default_radius</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
+
 
     <style name="Widget.AppTheme.CardView.Animated">
         <!-- Animation is available for API 21+ -->
