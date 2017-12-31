@@ -46,7 +46,10 @@ class ScrollPositionListView
         }
 
         super.onRestoreInstanceState(state.superState)
-        setSelectionFromTop(state.scrollPosition, 0)
+        val desiredPosition = state.scrollPosition
+        if (desiredPosition < count) {
+            setSelectionFromTop(desiredPosition, 0)
+        }
     }
 
     private class SavedState : BaseSavedState {
