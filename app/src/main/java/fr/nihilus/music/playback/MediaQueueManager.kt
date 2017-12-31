@@ -21,10 +21,8 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -91,8 +89,6 @@ class MediaQueueManager
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         if (mediaId != null) {
             val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
-            prefs.lastPlayedMediaId = mediaId
-
             repository.getMediaItems(mediaId).subscribe { items ->
                 setupMediaSource(mediaId, items)
                 player.shuffleModeEnabled = shuffleExtraEnabled || player.shuffleModeEnabled
@@ -180,7 +176,9 @@ class MediaQueueManager
         val activeItem = session.controller.queue.find { it.queueId == activeQueueId }
 
         if (activeItem != null) {
-            val musicId = MediaID.extractMusicID(activeItem.description.mediaId)
+            val activeMediaId = activeItem.description.mediaId
+            prefs.lastPlayedMediaId = activeMediaId
+            val musicId = MediaID.extractMusicID(activeMediaId)
                     ?: throw IllegalStateException("Track should have a musicId")
 
             if (lastMusicId != musicId) {
@@ -188,7 +186,6 @@ class MediaQueueManager
                 repository.getMetadata(musicId)
                         .flatMap { iconLoader.loadIntoMetadata(it) }
                         .subscribe { metadata ->
-                            Log.d("MediaQueueManager", "Update metadata. Title: ${metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)}")
                             session.setMetadata(metadata)
                         }
             }
