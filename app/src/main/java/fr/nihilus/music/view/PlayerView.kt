@@ -17,8 +17,7 @@
 package fr.nihilus.music.view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.constraint.ConstraintLayout
@@ -30,10 +29,11 @@ import android.support.v7.content.res.AppCompatResources
 import android.util.AttributeSet
 import android.view.View
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
+import fr.nihilus.music.glide.SwitcherTarget
 import fr.nihilus.music.utils.dipToPixels
 import kotlinx.android.synthetic.main.view_player.view.*
 import kotlinx.android.synthetic.main.view_player_top.view.*
@@ -45,9 +45,10 @@ class PlayerView
         defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val glideRequest: GlideRequest<Bitmap>
+    private val glideRequest: GlideRequest<Drawable>
 
     private lateinit var autoUpdater: ProgressAutoUpdater
+    private lateinit var albumArtTarget: SwitcherTarget
 
     private var isExpanded = false
     private var repeatMode = PlaybackStateCompat.REPEAT_MODE_NONE
@@ -66,14 +67,17 @@ class PlayerView
         isClickable = true
 
         val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
-        glideRequest = GlideApp.with(context).asBitmap()
+        glideRequest = GlideApp.with(context).asDrawable()
                 .centerCrop()
                 .fallback(defaultIcon)
-                .transition(withCrossFade(100))
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
     }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+
+        // Create target for loading album art into ImageSwitcher
+        albumArtTarget = SwitcherTarget(albumArtSwitcher)
 
         // Configure auto-update for SeekBar update and associated TextViews
         autoUpdater = ProgressAutoUpdater(seekBar, seekPosition, seekDuration) { position ->
@@ -130,10 +134,7 @@ class PlayerView
      */
     fun setExpanded(expanded: Boolean) {
         if (isExpanded != expanded) {
-            if (expanded)
-                onOpen()
-            else
-                onClose()
+            if (expanded) onOpen() else onClose()
             isExpanded = expanded
         }
     }
@@ -176,22 +177,11 @@ class PlayerView
         if (metadata != null) {
             autoUpdater.setMetadata(metadata)
 
-            with(albumArtView) {
-                // Use the previous art as placeholder for a smooth transition
-                // It should not be reused if already recycled.
-                // FIXME Brittle code: fails if a transition is used
-                val previousArt = this.drawable.takeUnless {
-                    it is BitmapDrawable && it.bitmap.isRecycled
-                }
-
-                val artUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
-                glideRequest.load(artUri)
-                        .placeholder(previousArt)
-                        .into(this)
-            }
+            val artUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
+            glideRequest.load(artUri).into(albumArtTarget)
 
         } else {
-            Glide.with(this).clear(albumArtView)
+            Glide.with(this).clear(albumArtTarget)
             autoUpdater.setMetadata(metadata)
         }
 

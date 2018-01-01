@@ -53,17 +53,32 @@
 
     <include layout="@layout/view_player_top" />
 
-    <ImageView
-        android:id="@+id/albumArtView"
+    <ImageSwitcher
+        android:id="@+id/albumArtSwitcher"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:contentDescription="@string/album_art"
-        android:scaleType="centerCrop"
+        android:animateFirstView="false"
         app:layout_constraintBottom_toTopOf="@+id/bottom_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/top_guideline"
-        tools:src="@drawable/ic_audiotrack_24dp" />
+        app:layout_constraintTop_toTopOf="@+id/top_guideline">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/ic_audiotrack_24dp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/ic_audiotrack_24dp"
+            tools:visibility="gone" />
+    </ImageSwitcher>
+
 
     <!-- Progress bar -->
     <SeekBar
