@@ -302,10 +302,11 @@ class PlayerView
 
         super.onRestoreInstanceState(state.superState)
 
-        lastPlaybackState = state.lastPlaybackState
-        metadata = state.metadata
         repeatMode = state.repeatMode
-        isExpanded = state.expanded
+
+        setExpanded(state.expanded)
+        updateMetadata(state.metadata)
+        updatePlaybackState(state.lastPlaybackState)
     }
 
     /**
