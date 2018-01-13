@@ -24,12 +24,10 @@ import android.arch.persistence.room.TypeConverters
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun musicInfoDao(): MusicInfoDao
-    abstract fun playlistDao(): PlaylistDao
+    abstract val musicInfoDao: MusicInfoDao
+    abstract val playlistDao: PlaylistDao
 
     companion object {
         const val NAME = "music.db"
     }
-
-    // TODO Setup when opened for the first time
 }

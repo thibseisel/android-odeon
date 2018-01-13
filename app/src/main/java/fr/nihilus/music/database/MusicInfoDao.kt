@@ -21,9 +21,18 @@ import android.arch.persistence.room.Insert
 import android.arch.persistence.room.OnConflictStrategy
 import android.support.annotation.WorkerThread
 
+/**
+ * Defines database interactions for storing statistics on tracks from the music library.
+ */
 @Dao
 interface MusicInfoDao {
 
+    /**
+     * Add new statistic records to the database.
+     * If a record already exists, it will not be replaced.
+     *
+     * @param stats Statistics of tracks from the music library.
+     */
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addStats(stats: Iterable<MusicInfo>)

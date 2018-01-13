@@ -29,6 +29,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import fr.nihilus.music.database.AppDatabase;
+import fr.nihilus.music.database.DatabaseInitCallback;
 import fr.nihilus.music.database.MusicInfoDao;
 import fr.nihilus.music.database.PlaylistDao;
 import fr.nihilus.music.media.MediaModule;
@@ -51,17 +52,19 @@ abstract class AppModule {
     }
 
     @Provides @Singleton
-    static AppDatabase provideDatabase(@NonNull Application app) {
-        return Room.databaseBuilder(app, AppDatabase.class, AppDatabase.NAME).build();
+    static AppDatabase provideDatabase(@NonNull Application app, @NonNull DatabaseInitCallback dbInit) {
+        return Room.databaseBuilder(app, AppDatabase.class, AppDatabase.NAME)
+                .addCallback(dbInit)
+                .build();
     }
 
     @Provides @Singleton
     static MusicInfoDao provideMusicInfoDao(@NonNull AppDatabase db) {
-        return db.musicInfoDao();
+        return db.getMusicInfoDao();
     }
 
     @Provides @Singleton
     static PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
-        return db.playlistDao();
+        return db.getPlaylistDao();
     }
 }

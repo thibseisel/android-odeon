@@ -30,6 +30,7 @@ private const val KEY_SHUFFLE_MODE = "shuffle_mode"
 private const val KEY_REPEAT_MODE = "repeat_mode"
 private const val KEY_LAST_PLAYED = "last_played"
 private const val KEY_STARTUP_SCREEN = "startup_screen"
+private const val KEY_DATABASE_INIT = "should_init_dabatase"
 
 /**
  * Centralizes access to properties saved to Android SharedPreferences.
@@ -80,4 +81,11 @@ class PreferenceDao
     var lastPlayedMediaId: String?
         get() = mPrefs.getString(KEY_LAST_PLAYED, null)
         set(mediaId) = mPrefs.edit().putString(KEY_LAST_PLAYED, mediaId).apply()
+
+    /**
+     * Whether database should be initialized after being created.
+     */
+    var shouldInitDatabase: Boolean
+        get() = mPrefs.getBoolean(KEY_DATABASE_INIT, true)
+        set(value) = mPrefs.edit().putBoolean(KEY_DATABASE_INIT, value).apply()
 }
