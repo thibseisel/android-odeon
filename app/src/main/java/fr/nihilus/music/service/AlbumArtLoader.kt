@@ -46,7 +46,7 @@ class AlbumArtLoader
                 val artUri = Uri.parse(uriString)
                 glide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
 
-                    override fun onResourceReady(resource: Bitmap?, transition: Transition<in Bitmap>?) {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                         // Emits a new metadata with an album art
                         emitter.onSuccess(metadata.copy {
                             putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)

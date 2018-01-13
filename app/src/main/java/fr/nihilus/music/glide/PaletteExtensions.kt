@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.glide
 
-import android.annotation.SuppressLint
 import android.graphics.RectF
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
@@ -26,7 +25,6 @@ import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 /**
  * Extends Glide API with Android Palette generation abilities.
  */
-@SuppressLint("CheckResult")
 @GlideExtension
 object PaletteExtensions {
 

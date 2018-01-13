@@ -29,11 +29,9 @@ import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
 class NihilusGlideModule : AppGlideModule() {
     override fun isManifestParsingEnabled() = false
 
-    override fun registerComponents(context: Context?, glide: Glide?, registry: Registry?) {
-        if (registry != null && glide != null) {
-            // Calculate the color Palette associated with the loaded Bitmap
-            registry.register(Bitmap::class.java, PaletteBitmap::class.java,
-                    PaletteBitmapTranscoder(glide.bitmapPool))
-        }
+    override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        // Calculate the color Palette associated with the loaded Bitmap
+        registry.register(Bitmap::class.java, PaletteBitmap::class.java,
+                PaletteBitmapTranscoder(glide.bitmapPool))
     }
 }

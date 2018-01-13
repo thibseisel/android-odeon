@@ -39,7 +39,7 @@ internal class PaletteBitmapEncoder(
 ) : ResourceEncoder<PaletteBitmap> {
     private val bitmapEncoder = BitmapEncoder()
 
-    override fun encode(data: Resource<PaletteBitmap>, file: File, options: Options?): Boolean {
+    override fun encode(data: Resource<PaletteBitmap>, file: File, options: Options): Boolean {
         val (palette: Palette, bitmap: Bitmap) = data.get()
         val bitmapRes = BitmapResource(bitmap, bitmapPool)
 
@@ -47,7 +47,7 @@ internal class PaletteBitmapEncoder(
                 && writePalette(palette, file)
     }
 
-    override fun getEncodeStrategy(options: Options?): EncodeStrategy =
+    override fun getEncodeStrategy(options: Options): EncodeStrategy =
             bitmapEncoder.getEncodeStrategy(options)
 
     private fun writePalette(palette: Palette, file: File): Boolean {

@@ -23,7 +23,7 @@ import com.bumptech.glide.request.transition.Transition
 
 class SwitcherTarget(switcher: ImageSwitcher) : ViewTarget<ImageSwitcher, Drawable>(switcher) {
 
-    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
         view.setImageDrawable(resource)
     }
 
