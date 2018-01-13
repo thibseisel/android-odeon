@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
@@ -61,7 +60,6 @@ class MediaQueueManager
         MediaSessionConnector.PlaybackPreparer,
         MediaSessionController.SessionMetadataUpdater {
 
-    private val extractorsFactory = DefaultExtractorsFactory()
     private val dataSourceFactory: DataSource.Factory
     private val currentQueue = ArrayList<MediaDescriptionCompat>()
 
@@ -152,12 +150,14 @@ class MediaQueueManager
         val playableItems = queue.filterNot { it.isBrowsable }
                 .mapTo(currentQueue) { it.description }
 
+        val mediaSourceFactory = ExtractorMediaSource.Factory(dataSourceFactory)
+
         val mediaSources = Array(playableItems.size) {
             val sourceUri = checkNotNull(playableItems[it].mediaUri) {
                 "Every item should have an Uri."
             }
 
-            ExtractorMediaSource(sourceUri, dataSourceFactory, extractorsFactory, null, null)
+            mediaSourceFactory.createMediaSource(sourceUri)
         }
 
         // Concatenate all media source to play them all in the same Timeline.
