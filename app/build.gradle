@@ -26,7 +26,7 @@ keystoreProperties.load(keystorePropertiesFile.newInputStream())
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.2"
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "fr.nihilus.music"
         minSdkVersion 16
@@ -71,6 +71,19 @@ android {
                         'Xno-receiver-assertions'
                 ]
             }
+        }
+
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+
+        // Beta build type make the application non-debuggable.
+        // This make the application start quickly while still printing logs.
+        beta {
+            initWith debug
+            applicationIdSuffix ".beta"
+            debuggable false
         }
     }
 }
