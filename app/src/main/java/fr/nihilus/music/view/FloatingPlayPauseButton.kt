@@ -17,20 +17,8 @@
 package fr.nihilus.music.view
 
 import android.content.Context
-import android.graphics.drawable.Animatable
-import android.os.Build
 import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
-
-/**
- * Show the pause icon while playing.
- */
-private const val LEVEL_PLAYING = 1
-
-/**
- * Show the play icon while not playing.
- */
-private const val LEVEL_PAUSED = 0
 
 /**
  * Extension of a FloatingActionButton specialized for a play/pause button.
@@ -46,21 +34,14 @@ class FloatingPlayPauseButton
         defStyleAttr: Int = 0
 ): FloatingActionButton(context, attrs, defStyleAttr) {
 
+    private val helper = PlayPauseHelper(this)
+
     /**
      * Whether this button should display its "playing" state.
      */
-    var isPlaying: Boolean = true
+    var isPlaying: Boolean
+        get() = helper.isPlaying
         set(value) {
-            if (field != value) {
-                field = value
-
-                // Change image level depending on the new state
-                setImageLevel(if (value) LEVEL_PLAYING else LEVEL_PAUSED)
-
-                // Apply AnimatedVectorDrawable animation for API 21+
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    (drawable?.current as? Animatable)?.start()
-                }
-            }
+            helper.isPlaying = value
         }
 }
