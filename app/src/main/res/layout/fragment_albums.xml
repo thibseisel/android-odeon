@@ -16,10 +16,10 @@
   -->
 
 <FrameLayout
-    android:id="@+id/parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -38,10 +38,9 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@id/recycler"
+            style="@style/FastScrollRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbarStyle="insideOverlay"
-            android:scrollbars="vertical"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:spanCount="@integer/album_grid_span_count"
             tools:listitem="@layout/album_grid_item"/>

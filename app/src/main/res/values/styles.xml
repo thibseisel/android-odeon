@@ -90,4 +90,13 @@
         <item name="colorPrimary">@color/mtrl_deeppurple_500</item>
         <item name="colorAccent">@color/mtrl_blue_a400</item>
     </style>
+
+    <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
+    <style name="FastScrollRecyclerView">
+        <item name="fastScrollEnabled">true</item>
+        <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
+        <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
+        <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
+        <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
+    </style>
 </resources>

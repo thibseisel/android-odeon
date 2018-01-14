@@ -36,10 +36,9 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@id/recycler"
+            style="@style/FastScrollRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:spanCount="@integer/artist_grid_span_count"
             tools:listitem="@layout/playlist_item"/>
@@ -51,7 +50,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:padding="64dp">
+            android:padding="64dp"
+            tools:visibility="gone">
 
             <ImageView
                 android:layout_width="match_parent"
