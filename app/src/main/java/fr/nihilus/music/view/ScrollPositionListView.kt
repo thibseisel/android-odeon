@@ -61,13 +61,9 @@ class ScrollPositionListView
             scrollPosition = source.readInt()
         }
 
-        companion object {
-
-            @Suppress("unused")
-            @JvmField val CREATOR = object : Parcelable.Creator<SavedState> {
-                override fun createFromParcel(source: Parcel) = SavedState(source)
-                override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
-            }
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(source: Parcel) = SavedState(source)
+            override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
         }
     }
 }

@@ -384,14 +384,10 @@ class PlayerView
      * A parcelable object that saves the internal state of a PlayerView.
      */
     private class SavedState : View.BaseSavedState {
-        @JvmField
-        var lastPlaybackState: PlaybackStateCompat? = null
-        @JvmField
-        var metadata: MediaMetadataCompat? = null
-        @JvmField
-        var repeatMode: Int = 0
-        @JvmField
-        var expanded: Boolean = false
+        @JvmField var lastPlaybackState: PlaybackStateCompat? = null
+        @JvmField var metadata: MediaMetadataCompat? = null
+        @JvmField var repeatMode: Int = 0
+        @JvmField var expanded: Boolean = false
 
         constructor(superState: Parcelable) : super(superState)
 
@@ -410,14 +406,9 @@ class PlayerView
             out.writeInt(if (expanded) 1 else 0)
         }
 
-        companion object {
-
-            @Suppress("unused")
-            @JvmField
-            val CREATOR = object : Parcelable.Creator<SavedState> {
-                override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
-                override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
-            }
+        companion object CREATOR : Parcelable.Creator<SavedState> {
+            override fun createFromParcel(parcel: Parcel) = SavedState(parcel)
+            override fun newArray(size: Int) = arrayOfNulls<SavedState>(size)
         }
     }
 }
