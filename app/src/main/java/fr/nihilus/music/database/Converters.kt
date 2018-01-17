@@ -18,6 +18,7 @@ package fr.nihilus.music.database
 
 import android.arch.persistence.room.TypeConverter
 import android.net.Uri
+import fr.nihilus.music.toUri
 import java.util.*
 
 internal class Converters {
@@ -29,7 +30,7 @@ internal class Converters {
     fun dateToTimestamp(date: Date?) = date?.time
 
     @TypeConverter
-    fun fromString(str: String?): Uri = if (str != null) Uri.parse(str) else Uri.EMPTY
+    fun fromString(str: String?): Uri = str?.toUri() ?: Uri.EMPTY
 
     @TypeConverter
     fun toUriString(uri: Uri?) = uri?.toString()

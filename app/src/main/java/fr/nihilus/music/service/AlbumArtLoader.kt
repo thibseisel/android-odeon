@@ -18,7 +18,6 @@ package fr.nihilus.music.service
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.SimpleTarget
@@ -26,6 +25,7 @@ import com.bumptech.glide.request.transition.Transition
 import fr.nihilus.music.copy
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.toUri
 import io.reactivex.Single
 import javax.inject.Inject
 
@@ -43,7 +43,7 @@ class AlbumArtLoader
         return Single.create { emitter ->
             val uriString = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
             if (uriString != null) {
-                val artUri = Uri.parse(uriString)
+                val artUri = uriString.toUri()
                 glide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
 
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {

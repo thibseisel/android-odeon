@@ -55,7 +55,7 @@ fun MediaMetadataCompat.asMediaDescription(
             .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
             .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
             .setIconBitmap(bitmapArt)
-            .setIconUri(if (artUri != null) Uri.parse(artUri) else null)
+            .setIconUri(artUri?.toUri())
             .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
                     .appendEncodedPath(musicId)
                     .build())
@@ -124,3 +124,11 @@ inline fun MediaDescriptionCompat.copy(
  * @return A pair made of this object and the one passed in parameter.
  */
 infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
+
+/**
+ * Create a Uri from this String.
+ *
+ * @receiver An RFC 2396-compliant, encoded URI
+ * @return An Uri from this String
+ */
+fun String.toUri(): Uri = Uri.parse(this)
