@@ -41,8 +41,10 @@ object PermissionUtil {
      * @return `true` if permission is granted
      */
     fun hasExternalStoragePermission(ctx: Context) =
-            ContextCompat.checkSelfPermission(ctx,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
 
     /**
      * Issue a request to grant permission to read/write the device's external storage.

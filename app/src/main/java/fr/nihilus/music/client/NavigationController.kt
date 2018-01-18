@@ -81,7 +81,8 @@ class NavigationController
      * Shows the list of all albums.
      */
     fun navigateToAlbums() {
-        val fragment = findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment.Factory::newInstance)
+        val fragment =
+            findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment.Factory::newInstance)
         showFragment(MediaID.ID_ALBUMS, fragment)
     }
 
@@ -89,7 +90,8 @@ class NavigationController
      * Shows the list of all artists.
      */
     fun navigateToArtists() {
-        val fragment = findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment.Factory::newInstance)
+        val fragment =
+            findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment.Factory::newInstance)
         showFragment(MediaID.ID_ARTISTS, fragment)
     }
 
@@ -113,7 +115,8 @@ class NavigationController
      * Shows the list of user defined playlists.
      */
     fun navigateToPlaylists() {
-        val fragment = findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
+        val fragment =
+            findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
         showFragment(MediaID.ID_PLAYLISTS, fragment)
     }
 
@@ -123,7 +126,8 @@ class NavigationController
      * @param playlist the playlist from whose tracks are to be displayed
      */
     fun navigateToPlaylistDetails(playlist: MediaBrowserCompat.MediaItem) {
-        val tag = playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
+        val tag =
+            playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
             val rootId = MediaID.getHierarchy(tag)[0]
@@ -184,7 +188,7 @@ class NavigationController
      * @return the retrieved fragment, or the provided one if not in fragment manager
      */
     private inline fun findOrCreateFragment(tag: String, provider: () -> Fragment) =
-            fm.findFragmentByTag(tag) ?: provider()
+        fm.findFragmentByTag(tag) ?: provider()
 
     /**
      * Display a given fragment in the main container view.
@@ -222,17 +226,17 @@ class NavigationController
                 }
             } else {
                 fm.beginTransaction()
-                        .replace(containerId, fragment, tag)
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .addToBackStack(tag)
-                        .commit()
+                    .replace(containerId, fragment, tag)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .addToBackStack(tag)
+                    .commit()
             }
         } else {
             // This is the first fragment to be shown. Just add it.
             firstTag = tag
             fm.beginTransaction()
-                    .add(containerId, fragment, tag)
-                    .commitAllowingStateLoss()
+                .add(containerId, fragment, tag)
+                .commitAllowingStateLoss()
 
             val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
             routeChangeListener(fragmentId)

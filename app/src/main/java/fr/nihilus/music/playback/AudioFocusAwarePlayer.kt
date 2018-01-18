@@ -43,8 +43,8 @@ private const val AUDIO_FOCUSED = 2
 @ServiceScoped
 class AudioFocusAwarePlayer
 @Inject constructor(
-        private val context: Context,
-        private val exoPlayer: SimpleExoPlayer
+    private val context: Context,
+    private val exoPlayer: SimpleExoPlayer
 ) : ExoPlayer by exoPlayer, AudioManager.OnAudioFocusChangeListener {
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -83,14 +83,16 @@ class AudioFocusAwarePlayer
     private fun requestAudioFocus(): Boolean {
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(androidAttributesOf(exoPlayer.audioAttributes))
-                    .setOnAudioFocusChangeListener(this)
-                    .build()
+                .setAudioAttributes(androidAttributesOf(exoPlayer.audioAttributes))
+                .setOnAudioFocusChangeListener(this)
+                .build()
             audioManager.requestAudioFocus(focusRequest)
         } else {
             @Suppress("DEPRECATION")
-            audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN)
+            audioManager.requestAudioFocus(
+                this, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN
+            )
         }
 
         currentFocus =
@@ -187,8 +189,8 @@ class AudioFocusAwarePlayer
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 private fun androidAttributesOf(attrs: AudioAttributes): android.media.AudioAttributes {
     return android.media.AudioAttributes.Builder()
-            .setUsage(attrs.usage)
-            .setContentType(attrs.contentType)
-            .setFlags(attrs.flags)
-            .build()
+        .setUsage(attrs.usage)
+        .setContentType(attrs.contentType)
+        .setFlags(attrs.flags)
+        .build()
 }

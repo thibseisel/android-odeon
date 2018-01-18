@@ -31,7 +31,9 @@ class NihilusGlideModule : AppGlideModule() {
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         // Calculate the color Palette associated with the loaded Bitmap
-        registry.register(Bitmap::class.java, PaletteBitmap::class.java,
-                PaletteBitmapTranscoder(glide.bitmapPool))
+        registry.register(
+            Bitmap::class.java, PaletteBitmap::class.java,
+            PaletteBitmapTranscoder(glide.bitmapPool)
+        )
     }
 }

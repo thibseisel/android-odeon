@@ -46,8 +46,12 @@ class PreferenceDao
      * This property value is always an `AppCompatDelegate.MODE_NIGHT_*` constant.
      */
     val nightMode: Int
-        get() = Integer.parseInt(mPrefs.getString(appContext.getString(R.string.pref_night_mode),
-                DEFAULT_NIGHT_MODE))
+        get() = Integer.parseInt(
+            mPrefs.getString(
+                appContext.getString(R.string.pref_night_mode),
+                DEFAULT_NIGHT_MODE
+            )
+        )
 
     /**
      * The last configured shuffle mode.
@@ -71,8 +75,10 @@ class PreferenceDao
      * Must be the media ID of the media item whose children should be shown on startup.
      */
     val startupScreenMediaId: String
-        get() = mPrefs.getString(KEY_STARTUP_SCREEN,
-                appContext.getString(R.string.pref_default_startup_screen))
+        get() = mPrefs.getString(
+            KEY_STARTUP_SCREEN,
+            appContext.getString(R.string.pref_default_startup_screen)
+        )
 
     /**
      * The media ID of the last played item.

@@ -50,7 +50,8 @@ class CachedMusicRepositoryTest {
         val values = METADATA[0]
         val metadata = sampleToMetadata(values)
 
-        val description = metadata.asMediaDescription(MediaDescriptionCompat.Builder(), MediaID.ID_MUSIC)
+        val description =
+            metadata.asMediaDescription(MediaDescriptionCompat.Builder(), MediaID.ID_MUSIC)
         assertThat(description.mediaId, equalTo("${MediaID.ID_MUSIC}|${values[0]}"))
         assertThat(description.title, equalTo(values[1] as CharSequence))
         assertThat(description.subtitle, equalTo(values[3] as CharSequence))
@@ -105,7 +106,7 @@ class CachedMusicRepositoryTest {
         metadataSubject.onNext(listOf(requestedMetadata, sampleToMetadata(METADATA[1])))
 
         testObserver.assertValue(requestedMetadata)
-                .assertComplete()
+            .assertComplete()
     }
 
     @Test
@@ -125,8 +126,8 @@ class CachedMusicRepositoryTest {
     @Test
     fun metadata_errorIfNotFound() {
         subject.getMetadata("3").test()
-                .assertError(RuntimeException::class.java)
-                .assertTerminated()
+            .assertError(RuntimeException::class.java)
+            .assertTerminated()
     }
 
     @After
@@ -144,10 +145,14 @@ class CachedMusicRepositoryTest {
 
 // Test materials
 private val METADATA = arrayOf(
-        arrayOf("1", "Title", "Album", "Artist", 12345L, 4L, 1L,
-                "content://path/to/album/art", mediaUriOf(1L), "TitleKey", 2L, 5L),
-        arrayOf("2", "Amerika", "Reise Reise", "Rammstein", 234567L, 6L, 1L,
-                "content://path/to/amerika", mediaUriOf(2L), "Amerika", 3L, 8L)
+    arrayOf(
+        "1", "Title", "Album", "Artist", 12345L, 4L, 1L,
+        "content://path/to/album/art", mediaUriOf(1L), "TitleKey", 2L, 5L
+    ),
+    arrayOf(
+        "2", "Amerika", "Reise Reise", "Rammstein", 234567L, 6L, 1L,
+        "content://path/to/amerika", mediaUriOf(2L), "Amerika", 3L, 8L
+    )
 )
 
 private fun mediaUriOf(musicId: Long) = "$EXTERNAL_CONTENT_URI/$musicId"
@@ -157,17 +162,17 @@ private fun mediaUriOf(musicId: Long) = "$EXTERNAL_CONTENT_URI/$musicId"
  */
 private fun sampleToMetadata(values: Array<Any>): MediaMetadataCompat {
     return MediaMetadataCompat.Builder()
-            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, values[0] as String)
-            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, values[1] as String)
-            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, values[2] as String)
-            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, values[3] as String)
-            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, values[4] as Long)
-            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, values[5] as Long)
-            .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, values[6] as Long)
-            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, values[7] as String)
-            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, values[8] as String)
-            .putString(MusicDao.METADATA_KEY_TITLE_KEY, values[9] as String)
-            .putLong(MusicDao.METADATA_KEY_ALBUM_ID, values[10] as Long)
-            .putLong(MusicDao.METADATA_KEY_ARTIST_ID, values[11] as Long)
-            .build()
+        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, values[0] as String)
+        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, values[1] as String)
+        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, values[2] as String)
+        .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, values[3] as String)
+        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, values[4] as Long)
+        .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, values[5] as Long)
+        .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, values[6] as Long)
+        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, values[7] as String)
+        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, values[8] as String)
+        .putString(MusicDao.METADATA_KEY_TITLE_KEY, values[9] as String)
+        .putLong(MusicDao.METADATA_KEY_ALBUM_ID, values[10] as Long)
+        .putLong(MusicDao.METADATA_KEY_ARTIST_ID, values[11] as Long)
+        .build()
 }

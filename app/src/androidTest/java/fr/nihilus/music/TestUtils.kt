@@ -8,14 +8,16 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.Assert.*
 import org.mockito.Mockito
 
-fun assertMediaDescription(descr: MediaDescriptionCompat,
-                           mediaId: String? = null,
-                           title: CharSequence? = null,
-                           subtitle: CharSequence? = null,
-                           description: CharSequence? = null,
-                           iconUri: Uri? = null,
-                           mediaUri: Uri? = null,
-                           extras: Map<String, Any>? = null) {
+fun assertMediaDescription(
+    descr: MediaDescriptionCompat,
+    mediaId: String? = null,
+    title: CharSequence? = null,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    iconUri: Uri? = null,
+    mediaUri: Uri? = null,
+    extras: Map<String, Any>? = null
+) {
 
     assertThat(descr.mediaId, equalTo(mediaId))
     assertThat(descr.title, equalTo(title))
@@ -34,8 +36,12 @@ fun assertMediaDescription(descr: MediaDescriptionCompat,
     }
 }
 
-fun assertMetadataKeyEquals(expected: MediaMetadataCompat, actual: MediaMetadataCompat, key: String) =
-        assertEquals(expected.bundle.get(key), actual.bundle.get(key))
+fun assertMetadataKeyEquals(
+    expected: MediaMetadataCompat,
+    actual: MediaMetadataCompat,
+    key: String
+) =
+    assertEquals(expected.bundle.get(key), actual.bundle.get(key))
 
 /**
  * Assert that the following block function throws a given [Exception].

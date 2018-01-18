@@ -34,8 +34,8 @@ import java.util.*
  * Display playlist media items as a grid of floating cards.
  */
 internal class PlaylistsAdapter(
-        fragment: Fragment,
-        private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<PlaylistHolder>() {
 
     private val playlists = ArrayList<MediaItem>()
@@ -45,7 +45,7 @@ internal class PlaylistsAdapter(
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
         val defaultIcon = ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp)
         glideRequest = GlideApp.with(fragment).asBitmap()
-                .fallback(defaultIcon)
+            .fallback(defaultIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {

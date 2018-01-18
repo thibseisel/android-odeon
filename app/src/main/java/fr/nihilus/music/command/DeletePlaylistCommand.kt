@@ -31,8 +31,8 @@ import javax.inject.Inject
 @ServiceScoped
 class DeletePlaylistCommand
 @Inject internal constructor(
-        private val service: MusicService,
-        private val playlistDao: PlaylistDao
+    private val service: MusicService,
+    private val playlistDao: PlaylistDao
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
@@ -42,17 +42,17 @@ class DeletePlaylistCommand
         val playlistId = params.getLong(PARAM_PLAYLIST_ID)
 
         Single.fromCallable { playlistDao.deletePlaylist(playlistId) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe ({
-                    service.notifyChildrenChanged(MediaID.ID_PLAYLISTS)
-                    cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
-                }, { error ->
-                    if (BuildConfig.DEBUG) {
-                        // Rethrow unexpected errors on debug builds
-                        throw error
-                    }
-                })
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                service.notifyChildrenChanged(MediaID.ID_PLAYLISTS)
+                cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
+            }, { error ->
+                if (BuildConfig.DEBUG) {
+                    // Rethrow unexpected errors on debug builds
+                    throw error
+                }
+            })
     }
 
     companion object {

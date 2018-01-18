@@ -33,9 +33,9 @@ import javax.inject.Singleton
 @Singleton
 internal class CachedMusicRepository
 @Inject constructor(
-        private val mediaDao: MusicDao,
-        private val musicCache: MusicCache,
-        private val builtIns: Map<String, @JvmSuppressWildcards BuiltinItem>
+    private val mediaDao: MusicDao,
+    private val musicCache: MusicCache,
+    private val builtIns: Map<String, @JvmSuppressWildcards BuiltinItem>
 ) : MusicRepository {
 
     override fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
@@ -60,7 +60,7 @@ internal class CachedMusicRepository
     }
 
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> =
-            mediaDao.findTrack(musicId).toSingle()
+        mediaDao.findTrack(musicId).toSingle()
 
     override fun clear() = musicCache.clear()
 }

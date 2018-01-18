@@ -38,28 +38,36 @@ import java.lang.ref.WeakReference
  * @return a media description created from this track metadatas
  */
 fun MediaMetadataCompat.asMediaDescription(
-        builder: MediaDescriptionCompat.Builder,
-        vararg categories: String
+    builder: MediaDescriptionCompat.Builder,
+    vararg categories: String
 ): MediaDescriptionCompat {
     val musicId = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
     val extras = Bundle(4)
     extras.putString(MediaItems.EXTRA_TITLE_KEY, getString(MusicDao.METADATA_KEY_TITLE_KEY))
     extras.putLong(MediaItems.EXTRA_DURATION, getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
-    extras.putLong(MediaItems.EXTRA_TRACK_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER))
-    extras.putLong(MediaItems.EXTRA_DISC_NUMBER, getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER))
+    extras.putLong(
+        MediaItems.EXTRA_TRACK_NUMBER,
+        getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
+    )
+    extras.putLong(
+        MediaItems.EXTRA_DISC_NUMBER,
+        getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
+    )
     val artUri = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
     val bitmapArt = getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
 
     val mediaId = MediaID.createMediaId(categories, musicId)
     builder.setMediaId(mediaId)
-            .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
-            .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
-            .setIconBitmap(bitmapArt)
-            .setIconUri(artUri?.toUri())
-            .setMediaUri(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
-                    .appendEncodedPath(musicId)
-                    .build())
-            .setExtras(extras)
+        .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
+        .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
+        .setIconBitmap(bitmapArt)
+        .setIconUri(artUri?.toUri())
+        .setMediaUri(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
+                .appendEncodedPath(musicId)
+                .build()
+        )
+        .setExtras(extras)
 
     return builder.build()
 }
@@ -75,7 +83,7 @@ fun MediaMetadataCompat.asMediaDescription(
  * this will be this view group, otherwise the root of the inflated XML file.
  */
 fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
-        LayoutInflater.from(context).inflate(resource, this, attach)
+    LayoutInflater.from(context).inflate(resource, this, attach)
 
 /**
  * Helper extension function to execute a block of instructions only if
@@ -94,7 +102,7 @@ inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
  * @return a copy of the original metadata with some of its fields added or overridden.
  */
 inline fun MediaMetadataCompat.copy(
-        reWriter: MediaMetadataCompat.Builder.() -> Unit
+    reWriter: MediaMetadataCompat.Builder.() -> Unit
 ): MediaMetadataCompat {
     val builder = MediaMetadataCompat.Builder(this)
     reWriter(builder)
@@ -102,16 +110,16 @@ inline fun MediaMetadataCompat.copy(
 }
 
 inline fun MediaDescriptionCompat.copy(
-        reWriter: MediaDescriptionCompat.Builder.() -> Unit
+    reWriter: MediaDescriptionCompat.Builder.() -> Unit
 ): MediaDescriptionCompat {
     val builder = MediaDescriptionCompat.Builder()
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setDescription(description)
-            .setIconUri(iconUri)
-            .setMediaUri(mediaUri)
-            .setIconBitmap(iconBitmap)
-            .setExtras(extras)
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setDescription(description)
+        .setIconUri(iconUri)
+        .setMediaUri(mediaUri)
+        .setIconBitmap(iconBitmap)
+        .setExtras(extras)
     reWriter(builder)
     return builder.build()
 }

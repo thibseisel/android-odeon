@@ -27,10 +27,13 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 
 class PaletteBitmapTranscoder(
-        private val bitmapPool: BitmapPool
+    private val bitmapPool: BitmapPool
 ) : ResourceTranscoder<Bitmap, PaletteBitmap> {
 
-    override fun transcode(toTranscode: Resource<Bitmap>, options: Options): Resource<PaletteBitmap> {
+    override fun transcode(
+        toTranscode: Resource<Bitmap>,
+        options: Options
+    ): Resource<PaletteBitmap> {
         val bitmap = toTranscode.get()
         val palette = onGeneratePalette(bitmap, options)
         val result = PaletteBitmap(palette, bitmap)
@@ -40,9 +43,9 @@ class PaletteBitmapTranscoder(
     private fun onGeneratePalette(bitmap: Bitmap, options: Options): Palette {
         val region = getRegionFromRelative(bitmap, options[PALETTE_RELATIVE_REGION])
         return Palette.from(bitmap)
-                .setRegion(region.left, region.top, region.right, region.bottom)
-                .maximumColorCount(options[MAX_COLOR_COUNT])
-                .generate()
+            .setRegion(region.left, region.top, region.right, region.bottom)
+            .maximumColorCount(options[MAX_COLOR_COUNT])
+            .generate()
     }
 
     private fun getRegionFromRelative(bitmap: Bitmap, relativeRegion: RectF?): Rect {
@@ -51,10 +54,10 @@ class PaletteBitmapTranscoder(
         }
 
         return Rect(
-                (bitmap.width * relativeRegion.left).toInt(),
-                (bitmap.height * relativeRegion.top).toInt(),
-                (bitmap.width * relativeRegion.right).toInt(),
-                (bitmap.height * relativeRegion.bottom).toInt()
+            (bitmap.width * relativeRegion.left).toInt(),
+            (bitmap.height * relativeRegion.top).toInt(),
+            (bitmap.width * relativeRegion.right).toInt(),
+            (bitmap.height * relativeRegion.bottom).toInt()
         )
     }
 
@@ -64,9 +67,9 @@ class PaletteBitmapTranscoder(
          * Must be a positive number.
          */
         @JvmField val MAX_COLOR_COUNT: Option<Int> =
-                Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.maxColorCount", 16)
+            Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.maxColorCount", 16)
 
         @JvmField val PALETTE_RELATIVE_REGION: Option<RectF?> =
-                Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.relativeRegion")
+            Option.memory("fr.nihilus.glidepalette.PaletteBitmapTranscoder.relativeRegion")
     }
 }

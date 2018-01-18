@@ -60,9 +60,11 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         adapter = ArtistAdapter(this, this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_artists, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        inflater.inflate(R.layout.fragment_artists, container, false)
 
     override fun onStart() {
         super.onStart()

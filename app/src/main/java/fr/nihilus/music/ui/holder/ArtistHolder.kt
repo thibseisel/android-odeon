@@ -30,8 +30,8 @@ import fr.nihilus.music.ui.BaseAdapter
  * Display an artist as a floating 16:9 card.
  */
 internal class ArtistHolder(
-        parent: ViewGroup,
-        private val glide: RequestBuilder<Bitmap>
+    parent: ViewGroup,
+    private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
 
     private val artistName: TextView = itemView.findViewById(R.id.artistName)
@@ -50,8 +50,10 @@ internal class ArtistHolder(
 
         item.description.extras?.let {
             val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-            subtitle.text = subtitle.resources.getQuantityString(R.plurals.number_of_tracks,
-                    trackCount, trackCount)
+            subtitle.text = subtitle.resources.getQuantityString(
+                R.plurals.number_of_tracks,
+                trackCount, trackCount
+            )
         }
     }
 }

@@ -28,14 +28,14 @@ import javax.inject.Inject
  * to shared preferences when any of them changes.
  */
 @ServiceScoped
-class PlaybackController 
+class PlaybackController
 @Inject constructor(
-        private val prefs: PreferenceDao
+    private val prefs: PreferenceDao
 ) : DefaultPlaybackController() {
 
     override fun onSetShuffleMode(player: Player?, shuffleMode: Int) {
         super.onSetShuffleMode(player, shuffleMode)
-        
+
         // Save last shuffle mode to preferences
         prefs.shuffleMode = shuffleMode
     }

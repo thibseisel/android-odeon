@@ -40,9 +40,9 @@ import kotlinx.android.synthetic.main.view_player_top.view.*
 
 class PlayerView
 @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
     private val glideRequest: GlideRequest<Drawable>
@@ -68,9 +68,9 @@ class PlayerView
 
         val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         glideRequest = GlideApp.with(context).asDrawable()
-                .centerCrop()
-                .fallback(defaultIcon)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .centerCrop()
+            .fallback(defaultIcon)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
     }
 
     override fun onFinishInflate() {
@@ -87,8 +87,10 @@ class PlayerView
         seekBar.setOnSeekBarChangeListener(autoUpdater)
 
         // Change color when shuffle mode and repeat mode buttons are activated
-        val activationStateList = AppCompatResources.getColorStateList(context,
-                R.color.activation_state_list)
+        val activationStateList = AppCompatResources.getColorStateList(
+            context,
+            R.color.activation_state_list
+        )
         with(shuffleButton) {
             val shuffleDrawable = DrawableCompat.wrap(this.drawable)
             DrawableCompat.setTintList(shuffleDrawable, activationStateList)
@@ -369,8 +371,9 @@ class PlayerView
                     R.id.skipPrevButton, R.id.miniPrevButton -> it.onSkipToPrevious()
                     R.id.skipNextButton, R.id.miniNextButton -> it.onSkipToNext()
                     R.id.shuffleButton -> it.onShuffleModeChanged(
-                            if (shuffleButton.isActivated) PlaybackStateCompat.SHUFFLE_MODE_NONE
-                            else PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                        if (shuffleButton.isActivated) PlaybackStateCompat.SHUFFLE_MODE_NONE
+                        else PlaybackStateCompat.SHUFFLE_MODE_ALL
+                    )
                     R.id.repeatButton -> {
                         repeatMode = (repeatMode + 1) % 3
                         it.onRepeatModeChanged(repeatMode)

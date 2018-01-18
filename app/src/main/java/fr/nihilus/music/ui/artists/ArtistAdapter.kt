@@ -29,8 +29,8 @@ import fr.nihilus.music.ui.holder.ArtistHolder
 import fr.nihilus.music.utils.MediaID
 
 internal class ArtistAdapter(
-        fragment: Fragment,
-        private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<ArtistHolder>() {
 
     private val glide: GlideRequest<Bitmap>
@@ -40,8 +40,8 @@ internal class ArtistAdapter(
         val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_person_24dp)
 
         glide = GlideApp.with(fragment).asBitmap()
-                .centerCrop()
-                .fallback(defaultIcon)
+            .centerCrop()
+            .fallback(defaultIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {

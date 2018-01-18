@@ -31,8 +31,8 @@ import fr.nihilus.music.ui.BaseAdapter
  *
  */
 internal class TrackHolder(
-        parent: ViewGroup,
-        private val glide: RequestBuilder<Bitmap>
+    parent: ViewGroup,
+    private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_track_item) {
 
     val albumArt: ImageView = itemView.findViewById(R.id.albumArt)

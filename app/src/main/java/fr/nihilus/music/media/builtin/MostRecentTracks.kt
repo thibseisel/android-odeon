@@ -34,18 +34,18 @@ import javax.inject.Inject
  */
 internal class MostRecentTracks
 @Inject constructor(
-        private val context: Context,
-        private val dao: MusicDao
+    private val context: Context,
+    private val dao: MusicDao
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         val description = builder
-                .setMediaId(MediaID.ID_MOST_RECENT)
-                .setTitle(context.getText(R.string.last_added))
-                .setExtras(Bundle(1).apply {
-                    putInt(MediaItems.EXTRA_ICON_ID, R.drawable.ic_most_recent_128dp)
-                }).build()
+            .setMediaId(MediaID.ID_MOST_RECENT)
+            .setTitle(context.getText(R.string.last_added))
+            .setExtras(Bundle(1).apply {
+                putInt(MediaItems.EXTRA_ICON_ID, R.drawable.ic_most_recent_128dp)
+            }).build()
         val item = MediaItem(description, MediaItem.FLAG_PLAYABLE or MediaItem.FLAG_BROWSABLE)
         return Single.just(item)
     }
@@ -53,9 +53,9 @@ internal class MostRecentTracks
     override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return dao.getTracks(null, "${MusicDao.METADATA_KEY_DATE} DESC").take(50)
-                .map {
-                    val description = it.asMediaDescription(builder, MediaID.ID_MOST_RECENT)
-                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }
+            .map {
+                val description = it.asMediaDescription(builder, MediaID.ID_MOST_RECENT)
+                MediaItem(description, MediaItem.FLAG_PLAYABLE)
+            }
     }
 }

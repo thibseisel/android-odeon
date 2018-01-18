@@ -47,9 +47,9 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
         }
 
         DaggerAppComponent.builder()
-                .application(this)
-                .build()
-                .inject(this)
+            .application(this)
+            .build()
+            .inject(this)
 
         AppCompatDelegate.setDefaultNightMode(prefs.nightMode)
     }

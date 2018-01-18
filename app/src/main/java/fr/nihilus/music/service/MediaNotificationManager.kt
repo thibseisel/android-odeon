@@ -55,32 +55,52 @@ class MediaNotificationManager
     private val notificationManager = service.getSystemService(Context.NOTIFICATION_SERVICE)
             as NotificationManager
 
-    private val pauseAction = NotificationCompat.Action(R.drawable.ic_pause_48dp,
-            service.getString(R.string.action_pause),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-                    PlaybackStateCompat.ACTION_PAUSE))
+    private val pauseAction = NotificationCompat.Action(
+        R.drawable.ic_pause_48dp,
+        service.getString(R.string.action_pause),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            service,
+            PlaybackStateCompat.ACTION_PAUSE
+        )
+    )
 
-    private val playAction = NotificationCompat.Action(R.drawable.ic_play_arrow_48dp,
-            service.getString(R.string.action_play),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-                    PlaybackStateCompat.ACTION_PLAY))
+    private val playAction = NotificationCompat.Action(
+        R.drawable.ic_play_arrow_48dp,
+        service.getString(R.string.action_play),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            service,
+            PlaybackStateCompat.ACTION_PLAY
+        )
+    )
 
-    private val previousAction = NotificationCompat.Action(R.drawable.ic_skip_previous_36dp,
-            service.getString(R.string.action_previous), MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS))
+    private val previousAction = NotificationCompat.Action(
+        R.drawable.ic_skip_previous_36dp,
+        service.getString(R.string.action_previous),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            service,
+            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        )
+    )
 
-    private val nextAction = NotificationCompat.Action(R.drawable.ic_skip_next_36dp,
-            service.getString(R.string.action_next),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT))
+    private val nextAction = NotificationCompat.Action(
+        R.drawable.ic_skip_next_36dp,
+        service.getString(R.string.action_next),
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            service,
+            PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+        )
+    )
 
-    private val defaultLargeIcon = loadResourceAsBitmap(service, R.drawable.ic_default_icon,
-            ICON_SIZE, ICON_SIZE)
+    private val defaultLargeIcon = loadResourceAsBitmap(
+        service, R.drawable.ic_default_icon,
+        ICON_SIZE, ICON_SIZE
+    )
 
     private val contentIntent = PendingIntent.getActivity(
-            service, REQUEST_CODE,
-            Intent(service, HomeActivity::class.java),
-            PendingIntent.FLAG_CANCEL_CURRENT)
+        service, REQUEST_CODE,
+        Intent(service, HomeActivity::class.java),
+        PendingIntent.FLAG_CANCEL_CURRENT
+    )
 
     private val controllerCallback = ControllerCallback()
     private val publishHandler = Handler()
@@ -190,11 +210,13 @@ class MediaNotificationManager
      * @param publisher An action to take when the notification is created. This action should
      * take care of publishing the newly created notification.
      */
-    private inline fun publishNotification(state: PlaybackStateCompat, metadata: MediaMetadataCompat,
-                                           publisher: (Notification) -> Unit) {
+    private inline fun publishNotification(
+        state: PlaybackStateCompat, metadata: MediaMetadataCompat,
+        publisher: (Notification) -> Unit
+    ) {
 
         if (state.state == PlaybackStateCompat.STATE_NONE
-                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            || state.state == PlaybackStateCompat.STATE_STOPPED) {
             // Do not show a notification if playback is stopped.
             Log.i(TAG, "No playback state. Clear notification.")
             stop(clearNotification = true)
@@ -211,33 +233,43 @@ class MediaNotificationManager
      * Configure the newly displayed or updated notification
      * based on the current playback state and metadata.
      */
-    private fun configureNotification(builder: NotificationCompat.Builder,
-                                      state: PlaybackStateCompat, metadata: MediaMetadataCompat) {
+    private fun configureNotification(
+        builder: NotificationCompat.Builder,
+        state: PlaybackStateCompat, metadata: MediaMetadataCompat
+    ) {
 
         val currentMedia = metadata.description
         val isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
 
         val mediaStyle = MediaStyle().setMediaSession(service.sessionToken)
-                .setShowActionsInCompactView(0, 1, 2)
-                // For backwards compatibility with Android L and earlier
-                .setShowCancelButton(true)
-                .setCancelButtonIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-                        PlaybackStateCompat.ACTION_STOP))
+            .setShowActionsInCompactView(0, 1, 2)
+            // For backwards compatibility with Android L and earlier
+            .setShowCancelButton(true)
+            .setCancelButtonIntent(
+                MediaButtonReceiver.buildMediaButtonPendingIntent(
+                    service,
+                    PlaybackStateCompat.ACTION_STOP
+                )
+            )
 
         builder.setSmallIcon(if (isPlaying) R.drawable.notif_play_arrow else R.drawable.notif_pause)
-                // Pending intent that is fired when user clicks on notification
-                .setContentIntent(contentIntent)
-                // Title - usually Song name.
-                .setContentTitle(currentMedia.title)
-                // Subtitle - usually Artist name.
-                .setContentText(currentMedia.subtitle)
-                .setLargeIcon(currentMedia.iconBitmap ?: defaultLargeIcon)
-                // When notification is deleted fire an ACTION_STOP event.
-                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(service,
-                        PlaybackStateCompat.ACTION_STOP))
-                // Show controls on lock screen event when user hides sensitive content.
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setStyle(mediaStyle)
+            // Pending intent that is fired when user clicks on notification
+            .setContentIntent(contentIntent)
+            // Title - usually Song name.
+            .setContentTitle(currentMedia.title)
+            // Subtitle - usually Artist name.
+            .setContentText(currentMedia.subtitle)
+            .setLargeIcon(currentMedia.iconBitmap ?: defaultLargeIcon)
+            // When notification is deleted fire an ACTION_STOP event.
+            .setDeleteIntent(
+                MediaButtonReceiver.buildMediaButtonPendingIntent(
+                    service,
+                    PlaybackStateCompat.ACTION_STOP
+                )
+            )
+            // Show controls on lock screen event when user hides sensitive content.
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setStyle(mediaStyle)
 
         // Add actions to control playback - skip previous, next and play/pause
         builder.addAction(previousAction)
@@ -250,12 +282,12 @@ class MediaNotificationManager
         // Display current playback position as a chronometer
         if (isPlaying && state.position >= 0) {
             builder.setWhen(System.currentTimeMillis() - state.position)
-                    .setUsesChronometer(true)
-                    .setShowWhen(true)
+                .setUsesChronometer(true)
+                .setShowWhen(true)
         } else {
             builder.setWhen(0)
-                    .setUsesChronometer(false)
-                    .setShowWhen(false)
+                .setUsesChronometer(false)
+                .setShowWhen(false)
         }
     }
 

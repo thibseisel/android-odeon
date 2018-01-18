@@ -30,9 +30,11 @@ import java.util.*
  * Each playlist has an unique identifier that its [PlaylistTrack] children must reference
  * to be included.
  */
-@Entity(tableName = "playlist", indices = [
-    Index(value = ["title"], unique = true)
-])
+@Entity(
+    tableName = "playlist", indices = [
+        Index(value = ["title"], unique = true)
+    ]
+)
 class Playlist {
 
     /**
@@ -71,9 +73,9 @@ class Playlist {
     fun asMediaDescription(builder: MediaDescriptionCompat.Builder): MediaDescriptionCompat {
         val mediaId = MediaID.createMediaID(null, MediaID.ID_PLAYLISTS, id!!.toString())
         return builder.setMediaId(mediaId)
-                .setTitle(title)
-                .setIconUri(artUri)
-                .build()
+            .setTitle(title)
+            .setIconUri(artUri)
+            .build()
     }
 
     companion object {

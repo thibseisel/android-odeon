@@ -49,16 +49,16 @@ import javax.inject.Inject
 @ServiceScoped
 class MediaQueueManager
 @Inject constructor(
-        service: MusicService,
-        private val prefs: PreferenceDao,
-        private val repository: MusicRepository,
-        private val player: ExoPlayer,
-        private val iconLoader: AlbumArtLoader,
-        private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
+    service: MusicService,
+    private val prefs: PreferenceDao,
+    private val repository: MusicRepository,
+    private val player: ExoPlayer,
+    private val iconLoader: AlbumArtLoader,
+    private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
 
 ) : TimelineQueueNavigator(service.session),
-        MediaSessionConnector.PlaybackPreparer,
-        MediaSessionController.SessionMetadataUpdater {
+    MediaSessionConnector.PlaybackPreparer,
+    MediaSessionController.SessionMetadataUpdater {
 
     private val dataSourceFactory: DataSource.Factory
     private val currentQueue = ArrayList<MediaDescriptionCompat>()
@@ -140,7 +140,12 @@ class MediaQueueManager
 
     override fun getCommands() = commands.keys.toTypedArray()
 
-    override fun onCommand(player: Player?, command: String?, extras: Bundle?, cb: ResultReceiver?) {
+    override fun onCommand(
+        player: Player?,
+        command: String?,
+        extras: Bundle?,
+        cb: ResultReceiver?
+    ) {
         commands[command]?.handle(extras, cb)
                 ?: cb?.send(MediaSessionCommand.CODE_UNKNOWN_COMMAND, null)
     }
@@ -148,7 +153,7 @@ class MediaQueueManager
     private fun setupMediaSource(mediaId: String, queue: List<MediaBrowserCompat.MediaItem>) {
         currentQueue.clear()
         val playableItems = queue.filterNot { it.isBrowsable }
-                .mapTo(currentQueue) { it.description }
+            .mapTo(currentQueue) { it.description }
 
         val mediaSourceFactory = ExtractorMediaSource.Factory(dataSourceFactory)
 
@@ -184,10 +189,10 @@ class MediaQueueManager
             if (lastMusicId != musicId) {
                 // Only update metadata if it has really changed.
                 repository.getMetadata(musicId)
-                        .flatMap { iconLoader.loadIntoMetadata(it) }
-                        .subscribe { metadata ->
-                            session.setMetadata(metadata)
-                        }
+                    .flatMap { iconLoader.loadIntoMetadata(it) }
+                    .subscribe { metadata ->
+                        session.setMetadata(metadata)
+                    }
             }
 
             // Remember the last change in metadata

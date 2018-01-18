@@ -31,8 +31,8 @@ import fr.nihilus.music.ui.BaseAdapter
  * Display a playlist's track.
  */
 internal class MembersHolder(
-        parent: ViewGroup,
-        private val glide: GlideRequest<Bitmap>
+    parent: ViewGroup,
+    private val glide: GlideRequest<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.song_list_item) {
 
     private val albumArt: ImageView = itemView.findViewById(R.id.albumArtView)
@@ -55,7 +55,9 @@ internal class MembersHolder(
 
         val millis = description.extras?.getLong(MediaItems.EXTRA_DURATION)
                 ?: throw IllegalStateException("Track should have extras")
-        subtitle.text = String.format(subtitleTemplate, description.subtitle,
-                DateUtils.formatElapsedTime(durationBuilder, millis / 1000L))
+        subtitle.text = String.format(
+            subtitleTemplate, description.subtitle,
+            DateUtils.formatElapsedTime(durationBuilder, millis / 1000L)
+        )
     }
 }

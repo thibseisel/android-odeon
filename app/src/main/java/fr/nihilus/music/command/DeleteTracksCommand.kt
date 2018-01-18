@@ -31,8 +31,8 @@ import javax.inject.Inject
 @ServiceScoped
 class DeleteTracksCommand
 @Inject internal constructor(
-        private val service: MusicService,
-        private val musicDao: MusicDao
+    private val service: MusicService,
+    private val musicDao: MusicDao
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
@@ -40,17 +40,17 @@ class DeleteTracksCommand
                 ?: throw IllegalArgumentException("Required parameter: PARAM_TRACK_IDS")
 
         Observable.fromIterable(idsToDelete.toSet())
-                .subscribeOn(Schedulers.io())
-                .flatMapCompletable { musicId -> musicDao.deleteTrack(musicId.toString()) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { onSuccess(cb) },
-                        { error ->
-                            if (BuildConfig.DEBUG) {
-                                // Rethrow unexpected errors on debug builds
-                                throw error
-                            }
-                        })
+            .subscribeOn(Schedulers.io())
+            .flatMapCompletable { musicId -> musicDao.deleteTrack(musicId.toString()) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { onSuccess(cb) },
+                { error ->
+                    if (BuildConfig.DEBUG) {
+                        // Rethrow unexpected errors on debug builds
+                        throw error
+                    }
+                })
     }
 
     private fun onSuccess(cb: ResultReceiver?) {

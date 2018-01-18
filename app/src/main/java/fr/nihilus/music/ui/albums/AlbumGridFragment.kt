@@ -59,9 +59,11 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         adapter = AlbumsAdapter(this, this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_albums, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        inflater.inflate(R.layout.fragment_albums, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -92,7 +94,8 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         val holder = recyclerView.findViewHolderForAdapterPosition(position) as AlbumHolder
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME)
+            activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
+        )
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java)
         albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
         albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors)

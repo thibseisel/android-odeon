@@ -24,7 +24,7 @@ import fr.nihilus.music.ui.holder.AlbumTrackHolder
 import fr.nihilus.music.utils.MediaID
 
 internal class TrackAdapter(
-        private val listener: BaseAdapter.OnItemSelectedListener
+    private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumTrackHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumTrackHolder {

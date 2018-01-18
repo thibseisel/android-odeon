@@ -93,9 +93,11 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_playlist, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        inflater.inflate(R.layout.fragment_playlist, container, false)
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedPlaylist = adapter[position]

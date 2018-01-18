@@ -31,17 +31,17 @@ import javax.inject.Inject
 
 internal class PlaylistItems
 @Inject constructor(
-        private val context: Context,
-        private val playlistDao: PlaylistDao,
-        private val musicDao: MusicDao,
-        private val mostRecentTracks: MostRecentTracks
+    private val context: Context,
+    private val playlistDao: PlaylistDao,
+    private val musicDao: MusicDao,
+    private val mostRecentTracks: MostRecentTracks
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-                .setMediaId(MediaID.ID_PLAYLISTS)
-                .setTitle(context.getString(R.string.action_playlists))
-                .build()
+            .setMediaId(MediaID.ID_PLAYLISTS)
+            .setTitle(context.getString(R.string.action_playlists))
+            .build()
         return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
     }
 
@@ -63,23 +63,23 @@ internal class PlaylistItems
     private fun fetchUserPlaylists(): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylists()
-                .flatMapObservable { Observable.fromIterable(it) }
-                .map { playlist ->
-                    val description = playlist.asMediaDescription(builder)
-                    MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
-                }
+            .flatMapObservable { Observable.fromIterable(it) }
+            .map { playlist ->
+                val description = playlist.asMediaDescription(builder)
+                MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
+            }
     }
 
     private fun fetchPlaylistMembers(playlistId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylistTracks(playlistId.toLong())
-                .subscribeOn(Schedulers.io())
-                .flatMapObservable { Observable.fromIterable(it) }
-                .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
-                .map { member ->
-                    val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
-                    MediaItem(descr, MediaItem.FLAG_PLAYABLE)
-                }
+            .subscribeOn(Schedulers.io())
+            .flatMapObservable { Observable.fromIterable(it) }
+            .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
+            .map { member ->
+                val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
+                MediaItem(descr, MediaItem.FLAG_PLAYABLE)
+            }
     }
 
 }

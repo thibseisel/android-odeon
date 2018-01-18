@@ -13,22 +13,23 @@ private val descrBuilder = MediaDescriptionCompat.Builder()
  * Create a [MediaDescriptionCompat] from the passed parameters.
  */
 internal fun mediaDescriptionOf(
-        mediaId: String? = null,
-        title: CharSequence? = null,
-        subtitle: CharSequence? = null,
-        description: CharSequence? = null,
-        iconUri: Uri? = null,
-        mediaUri: Uri? = null,
-        extras: Bundle? = null): MediaDescriptionCompat {
+    mediaId: String? = null,
+    title: CharSequence? = null,
+    subtitle: CharSequence? = null,
+    description: CharSequence? = null,
+    iconUri: Uri? = null,
+    mediaUri: Uri? = null,
+    extras: Bundle? = null
+): MediaDescriptionCompat {
 
     return descrBuilder.setMediaId(mediaId)
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setDescription(description)
-            .setIconUri(iconUri)
-            .setMediaUri(mediaUri)
-            .setExtras(extras)
-            .build()
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setDescription(description)
+        .setIconUri(iconUri)
+        .setMediaUri(mediaUri)
+        .setExtras(extras)
+        .build()
 }
 
 /**
@@ -36,17 +37,18 @@ internal fun mediaDescriptionOf(
  * This can be used as a parameter for methods asking for iconUri such as [mediaDescriptionOf].
  * @param albumId unique identifier of the album represented by the artwork
  */
-internal fun artUriOf(albumId: Long): Uri {
-    return Uri.parse("content://media/external/audio/albumart/$albumId")
-}
+internal fun artUriOf(albumId: Long): Uri =
+    Uri.parse("content://media/external/audio/albumart/$albumId")
 
 /**
  * Assert that the given [MediaMetadataCompat] has the expected mediaId, title, album, artist,
  * duration, disc number, track number and album art Uri.
  */
-internal fun assertMetadata(meta: MediaMetadataCompat, mediaId: String, title: String,
-                           album: String, artist: String, duration: Long, discNo: Long,
-                           trackNo: Long, artUri: String) {
+internal fun assertMetadata(
+    meta: MediaMetadataCompat, mediaId: String, title: String,
+    album: String, artist: String, duration: Long, discNo: Long,
+    trackNo: Long, artUri: String
+) {
     assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID), equalTo(mediaId))
     assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE), equalTo(title))
     assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM), equalTo(album))

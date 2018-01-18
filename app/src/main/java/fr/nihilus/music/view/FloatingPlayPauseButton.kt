@@ -29,10 +29,10 @@ import android.util.AttributeSet
  */
 class FloatingPlayPauseButton
 @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
-): FloatingActionButton(context, attrs, defStyleAttr) {
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
+) : FloatingActionButton(context, attrs, defStyleAttr) {
 
     private val helper = PlayPauseHelper(this)
 

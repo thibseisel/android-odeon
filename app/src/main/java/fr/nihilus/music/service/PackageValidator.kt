@@ -33,7 +33,8 @@ private const val TAG = "PackageValidator"
 class PackageValidator(context: Context) {
 
     private val validCertificates = readValidCertificates(
-            context.resources.getXml(R.xml.allowed_media_browser_callers))
+        context.resources.getXml(R.xml.allowed_media_browser_callers)
+    )
 
     private fun readValidCertificates(parser: XmlResourceParser): Map<String, ArrayList<CallerInfo>> {
         val validCertificates = HashMap<String, ArrayList<CallerInfo>>()
@@ -54,11 +55,13 @@ class PackageValidator(context: Context) {
                         infos = ArrayList()
                         validCertificates.put(certificate, infos)
                     }
-                    Log.v(TAG, """
+                    Log.v(
+                        TAG, """
                         Adding allowed caller: ${info.name},
                         package=${info.packageName}, release=${info.release},
                         certificate=$certificate
-                        """.trimIndent())
+                        """.trimIndent()
+                    )
                     infos.add(info)
                 }
                 eventType = parser.next()
@@ -88,18 +91,21 @@ class PackageValidator(context: Context) {
             return false
         }
         val signature = Base64.encodeToString(
-                packageInfo.signatures[0].toByteArray(), Base64.NO_WRAP)
+            packageInfo.signatures[0].toByteArray(), Base64.NO_WRAP
+        )
 
         // Test for known signatures:
         val validCallers = validCertificates.get(signature)
         if (validCallers == null) {
             Log.v(TAG, "Signature for caller $callingPackage is not valid: \n$signature")
             if (validCertificates.isEmpty()) {
-                Log.w(TAG, """
+                Log.w(
+                    TAG, """
                     The list of valid certificates is empty.
                     Either your file "res/xml/allowed_media_browser_callers.xml is empty
                     or there was an error while reading it. Check previous log messages.
-                    """.trimIndent())
+                    """.trimIndent()
+                )
             }
             return false
         }
@@ -108,18 +114,23 @@ class PackageValidator(context: Context) {
         val expectedPackages = StringBuffer()
         for (info in validCallers) {
             if (callingPackage == info.packageName) {
-                Log.v(TAG, "Valid caller: ${info.name}, package=${info.packageName}, release=${info.release}")
+                Log.v(
+                    TAG,
+                    "Valid caller: ${info.name}, package=${info.packageName}, release=${info.release}"
+                )
                 return true
             }
             expectedPackages.append(info.packageName).append(' ')
         }
 
-        Log.i(TAG, """
+        Log.i(
+            TAG, """
             Caller has a valid certificate, but its package doesn't match any expected package for the given certificate.
             Caller's package is $callingPackage.
             Expected packages as defined in res/xml/allowed_media_browser_callers.xml are ($expectedPackages).
             This caller's certificate is: \n"$signature
-            """.trimIndent())
+            """.trimIndent()
+        )
 
         return false
     }

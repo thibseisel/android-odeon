@@ -72,10 +72,10 @@ fun resolveThemeColor(context: Context, @AttrRes themeAttr: Int): Int {
  * @param desiredHeight Height of the resulting bitmap in pixels. Must be strictly positive.
  */
 fun loadResourceAsBitmap(
-        context: Context,
-        resourceId: Int,
-        desiredWidth: Int,
-        desiredHeight: Int
+    context: Context,
+    resourceId: Int,
+    desiredWidth: Int,
+    desiredHeight: Int
 ): Bitmap {
     val resource = AppCompatResources.getDrawable(context, resourceId)
             ?: throw IllegalStateException("Unable to decode resource.")

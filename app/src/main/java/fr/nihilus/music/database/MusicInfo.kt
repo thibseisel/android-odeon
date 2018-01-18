@@ -32,12 +32,12 @@ import android.arch.persistence.room.PrimaryKey
  */
 @Entity(tableName = "music_info")
 class MusicInfo(
-        /**
-         * Unique identifier of the track described by those information.
-         */
-        @PrimaryKey(autoGenerate = false)
-        @ColumnInfo(name = "music_id")
-        val musicId: Long
+    /**
+     * Unique identifier of the track described by those information.
+     */
+    @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name = "music_id")
+    val musicId: Long
 ) {
 
     /**

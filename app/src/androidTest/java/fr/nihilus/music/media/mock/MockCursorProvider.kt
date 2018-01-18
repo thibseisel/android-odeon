@@ -18,8 +18,10 @@ import android.test.mock.MockContentProvider
 class MockCursorProvider : MockContentProvider() {
     private val queryMap = ArrayMap<Uri, Cursor?>()
 
-    override fun query(uri: Uri?, projection: Array<out String>?, selection: String?,
-                       selectionArgs: Array<out String>?, sortOrder: String?) = queryMap[uri]
+    override fun query(
+        uri: Uri?, projection: Array<out String>?, selection: String?,
+        selectionArgs: Array<out String>?, sortOrder: String?
+    ) = queryMap[uri]
 
     /**
      * Associate a Cursor to an Uri,

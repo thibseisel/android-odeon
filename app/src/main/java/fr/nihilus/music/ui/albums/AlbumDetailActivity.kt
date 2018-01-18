@@ -42,8 +42,8 @@ import kotlinx.android.synthetic.main.activity_album_detail.*
 import javax.inject.Inject
 
 class AlbumDetailActivity : AppCompatActivity(),
-        View.OnClickListener,
-        BaseAdapter.OnItemSelectedListener {
+    View.OnClickListener,
+    BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var factory: ViewModelFactory
 
@@ -106,10 +106,10 @@ class AlbumDetailActivity : AppCompatActivity(),
         val defaultAlbumArt = AppCompatResources.getDrawable(this, R.drawable.ic_album_24dp)
 
         GlideApp.with(this).asBitmap()
-                .load(pickedAlbum.description.iconUri)
-                .fallback(defaultAlbumArt)
-                .centerCrop()
-                .into(albumArtView)
+            .load(pickedAlbum.description.iconUri)
+            .fallback(defaultAlbumArt)
+            .centerCrop()
+            .into(albumArtView)
     }
 
     private fun setupTrackList() {

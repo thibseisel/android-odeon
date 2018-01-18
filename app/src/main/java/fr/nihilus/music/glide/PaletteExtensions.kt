@@ -60,11 +60,11 @@ object PaletteExtensions {
     @GlideOption
     @JvmStatic
     fun region(
-            options: RequestOptions,
-            left: Float,
-            top: Float,
-            right: Float,
-            bottom: Float
+        options: RequestOptions,
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float
     ): RequestOptions {
         require(left in 0f..1f)
         require(top in 0f..1f)

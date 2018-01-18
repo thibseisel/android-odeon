@@ -54,8 +54,8 @@ import javax.inject.Singleton
 @Singleton
 class MediaStoreMusicDao
 @TestOnly internal constructor(
-        private val context: Context,
-        private val metadataCache: LongSparseArray<MediaMetadataCompat>
+    private val context: Context,
+    private val metadataCache: LongSparseArray<MediaMetadataCompat>
 ) : MusicDao {
 
     /**
@@ -108,8 +108,10 @@ class MediaStoreMusicDao
         }
     }
 
-    override fun getTracks(criteria: Map<String, Any>?,
-                           sorting: String?): Observable<MediaMetadataCompat> {
+    override fun getTracks(
+        criteria: Map<String, Any>?,
+        sorting: String?
+    ): Observable<MediaMetadataCompat> {
 
         // Translate criteria filtering into WHERE clause with ? parameters
         val whereArgs = criteria?.values?.map(Any::toString)?.toTypedArray()
@@ -130,8 +132,10 @@ class MediaStoreMusicDao
         }
     }
 
-    private fun loadFromMediaStore(whereClause: String?, whereArgs: Array<String>?,
-                                   sorting: String?): Observable<MediaMetadataCompat> {
+    private fun loadFromMediaStore(
+        whereClause: String?, whereArgs: Array<String>?,
+        sorting: String?
+    ): Observable<MediaMetadataCompat> {
 
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.i(TAG, "No permission to access external storage.")
@@ -147,8 +151,10 @@ class MediaStoreMusicDao
 
             // Preload art Uri for each album to associate them with tracks
             val iconUris = LongSparseArray<String>()
-            resolver.query(Albums.EXTERNAL_CONTENT_URI, arrayOf(Albums._ID, Albums.ALBUM_ART),
-                    null, null, Albums.DEFAULT_SORT_ORDER)?.use { cursor ->
+            resolver.query(
+                Albums.EXTERNAL_CONTENT_URI, arrayOf(Albums._ID, Albums.ALBUM_ART),
+                null, null, Albums.DEFAULT_SORT_ORDER
+            )?.use { cursor ->
 
                 val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
                 val colFilePath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
@@ -161,8 +167,10 @@ class MediaStoreMusicDao
                 }
             }
 
-            val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
-                    clause, whereArgs, sorting)
+            val cursor = resolver.query(
+                Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
+                clause, whereArgs, sorting
+            )
 
             cursor?.use {
                 // Memorize cursor column indexes for faster lookup
@@ -188,18 +196,18 @@ class MediaStoreMusicDao
                     val iconUri = iconUris[albumId]
 
                     builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, musicId.toString())
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE, it.getString(colTitle))
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it.getString(colAlbum))
-                            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, it.getString(colArtist))
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.getLong(colDuration))
-                            .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUri)
-                            .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
-                            .putLong(MusicDao.METADATA_KEY_DATE, it.getLong(colDateAdded))
-                            .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
-                            .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
-                            .putLong(MusicDao.METADATA_KEY_ARTIST_ID, it.getLong(colArtistId))
+                        .putString(MediaMetadataCompat.METADATA_KEY_TITLE, it.getString(colTitle))
+                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it.getString(colAlbum))
+                        .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, it.getString(colArtist))
+                        .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.getLong(colDuration))
+                        .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
+                        .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
+                        .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUri)
+                        .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
+                        .putLong(MusicDao.METADATA_KEY_DATE, it.getLong(colDateAdded))
+                        .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
+                        .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
+                        .putLong(MusicDao.METADATA_KEY_ARTIST_ID, it.getLong(colArtistId))
 
                     val metadata = builder.build()
                     emitter.onNext(metadata)
@@ -221,14 +229,17 @@ class MediaStoreMusicDao
             Maybe.just(cachedMetadata)
         } else {
             loadFromMediaStore(SELECTION_TRACK_BY_ID, arrayOf(musicId), null)
-                    .firstElement()
-                    .doOnSuccess { track ->
-                        metadataCache.put(musicId.toLong(), track)
-                    }
+                .firstElement()
+                .doOnSuccess { track ->
+                    metadataCache.put(musicId.toLong(), track)
+                }
         }
     }
 
-    override fun getAlbums(criteria: Map<String, Any>?, sorting: String?): Observable<MediaDescriptionCompat> {
+    override fun getAlbums(
+        criteria: Map<String, Any>?,
+        sorting: String?
+    ): Observable<MediaDescriptionCompat> {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
             Log.i(TAG, "Could not load albums : no permission to access external storage.")
             return Observable.empty()
@@ -249,8 +260,10 @@ class MediaStoreMusicDao
             val orderByClause = if (sorting != null) translateSortingClause(sorting) else
                 Albums.DEFAULT_SORT_ORDER
 
-            val cursor = resolver.query(Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
-                    whereClause, whereArgs, orderByClause)
+            val cursor = resolver.query(
+                Albums.EXTERNAL_CONTENT_URI, ALBUM_PROJECTION,
+                whereClause, whereArgs, orderByClause
+            )
 
             cursor?.use {
                 // Memorize cursor column indexes for faster lookup
@@ -278,10 +291,10 @@ class MediaStoreMusicDao
                     }
 
                     builder.setMediaId(mediaId)
-                            .setTitle(it.getString(colTitle))
-                            .setSubtitle(it.getString(colArtist)) // artist
-                            .setIconUri(artUri)
-                            .setExtras(extras)
+                        .setTitle(it.getString(colTitle))
+                        .setSubtitle(it.getString(colArtist)) // artist
+                        .setIconUri(artUri)
+                        .setExtras(extras)
 
                     emitter.onNext(builder.build())
                 }
@@ -299,12 +312,16 @@ class MediaStoreMusicDao
 
         // Accumulate artists in a list before emitting them in order to sort results
         return Observable.fromCallable<List<MediaDescriptionCompat>> {
-            val artistsCursor = resolver.query(Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
-                    null, null, Artists.ARTIST)
+            val artistsCursor = resolver.query(
+                Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
+                null, null, Artists.ARTIST
+            )
 
-            val albumsCursor = resolver.query(Albums.EXTERNAL_CONTENT_URI,
-                    arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
-                    null, null, ORDER_BY_MOST_RECENT)
+            val albumsCursor = resolver.query(
+                Albums.EXTERNAL_CONTENT_URI,
+                arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
+                null, null, ORDER_BY_MOST_RECENT
+            )
 
             if (artistsCursor == null || albumsCursor == null) {
                 Log.e(TAG, "Query for artists failed. Returning an empty list.")
@@ -335,17 +352,21 @@ class MediaStoreMusicDao
                     // to this artist. We add it without an album art and move to the next.
 
                     val artistId = artistsCursor.getLong(colId)
-                    val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
+                    val mediaId =
+                        MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
 
                     val extras = Bundle(2).apply {
                         putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
-                        putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
+                        putInt(
+                            MediaItems.EXTRA_NUMBER_OF_TRACKS,
+                            artistsCursor.getInt(colTrackCount)
+                        )
                     }
 
                     builder.setMediaId(mediaId)
-                            .setTitle(artistsCursor.getString(colArtistName))
-                            .setIconUri(null)
-                            .setExtras(extras)
+                        .setTitle(artistsCursor.getString(colArtistName))
+                        .setIconUri(null)
+                        .setExtras(extras)
 
                     artists.add(builder.build())
 
@@ -360,7 +381,8 @@ class MediaStoreMusicDao
                     // As albums are sorted by descending release year, the first album to match
                     // with the name of the artist is the most recent one.
                     val artistId = artistsCursor.getLong(colId)
-                    val mediaId = MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
+                    val mediaId =
+                        MediaID.createMediaID(null, MediaID.ID_ARTISTS, artistId.toString())
 
                     val artistIconUri = albumsCursor.getString(colAlbumArt)?.let { iconPath ->
                         Uri.parse("file://$iconPath")
@@ -368,13 +390,16 @@ class MediaStoreMusicDao
 
                     val extras = Bundle(2).apply {
                         putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
-                        putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
+                        putInt(
+                            MediaItems.EXTRA_NUMBER_OF_TRACKS,
+                            artistsCursor.getInt(colTrackCount)
+                        )
                     }
 
                     builder.setMediaId(mediaId)
-                            .setTitle(artistsCursor.getString(colArtistName))
-                            .setIconUri(artistIconUri)
-                            .setExtras(extras)
+                        .setTitle(artistsCursor.getString(colArtistName))
+                        .setIconUri(artistIconUri)
+                        .setExtras(extras)
 
                     artists.add(builder.build())
 
@@ -413,8 +438,10 @@ class MediaStoreMusicDao
         }
 
         return Completable.fromAction {
-            val cursor = resolver.query(Media.EXTERNAL_CONTENT_URI, arrayOf(Media.DATA),
-                    SELECTION_TRACK_BY_ID, arrayOf(trackId), null)
+            val cursor = resolver.query(
+                Media.EXTERNAL_CONTENT_URI, arrayOf(Media.DATA),
+                SELECTION_TRACK_BY_ID, arrayOf(trackId), null
+            )
 
             if (cursor == null || !cursor.moveToFirst()) {
                 Log.w(TAG, "deleteTrack : attempt to delete a non existing track: id = $trackId")
@@ -455,16 +482,22 @@ class MediaStoreMusicDao
         private const val ORDER_BY_MOST_RECENT = "${Albums.ARTIST} ASC, ${Albums.LAST_YEAR} DESC"
 
         @JvmField
-        val MEDIA_PROJECTION = arrayOf(BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
-                Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_ID, Media.ARTIST_ID,
-                Media.DATE_ADDED)
+        val MEDIA_PROJECTION = arrayOf(
+            BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
+            Media.DURATION, Media.TRACK, Media.TITLE_KEY, Media.ALBUM_ID, Media.ARTIST_ID,
+            Media.DATE_ADDED
+        )
 
         @JvmField
-        val ALBUM_PROJECTION = arrayOf(Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-                Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS, Albums.ALBUM_ART)
+        val ALBUM_PROJECTION = arrayOf(
+            Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
+            Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS, Albums.ALBUM_ART
+        )
 
         @JvmField
-        val ARTIST_PROJECTION = arrayOf(Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
-                Artists.NUMBER_OF_TRACKS)
+        val ARTIST_PROJECTION = arrayOf(
+            Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
+            Artists.NUMBER_OF_TRACKS
+        )
     }
 }

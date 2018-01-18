@@ -33,9 +33,9 @@ import fr.nihilus.music.ui.BaseAdapter
  *
  */
 internal class AlbumHolder(
-        parent: ViewGroup,
-        private val glide: RequestBuilder<PaletteBitmap>,
-        private val defaultColors: IntArray
+    parent: ViewGroup,
+    private val glide: RequestBuilder<PaletteBitmap>,
+    private val defaultColors: IntArray
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
@@ -51,8 +51,10 @@ internal class AlbumHolder(
                 val swatch = resource.palette.dominantSwatch
                 val accentColor = resource.palette.getVibrantColor(defaultColors[1])
                 if (swatch != null) {
-                    setColors(swatch.rgb, accentColor,
-                            swatch.titleTextColor, swatch.bodyTextColor)
+                    setColors(
+                        swatch.rgb, accentColor,
+                        swatch.titleTextColor, swatch.bodyTextColor
+                    )
                 }
             }
         }
@@ -63,8 +65,10 @@ internal class AlbumHolder(
     @ColorInt
     val colors = IntArray(4)
 
-    private fun setColors(@ColorInt primary: Int, @ColorInt accent: Int, @ColorInt title: Int,
-                          @ColorInt body: Int) {
+    private fun setColors(
+        @ColorInt primary: Int, @ColorInt accent: Int, @ColorInt title: Int,
+        @ColorInt body: Int
+    ) {
         this.card.setCardBackgroundColor(primary)
         this.title.setTextColor(body)
         artist.setTextColor(body)

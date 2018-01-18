@@ -47,14 +47,14 @@ import javax.inject.Inject
 @ServiceScoped
 class NewPlaylistCommand
 @Inject internal constructor(
-        private val service: MusicService,
-        private val playlistDao: PlaylistDao
+    private val service: MusicService,
+    private val playlistDao: PlaylistDao
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
         params ?: throw IllegalArgumentException("This command should have parameters")
-        val playlistTitle = params.getString(PARAM_TITLE) ?:
-                throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
+        val playlistTitle = params.getString(PARAM_TITLE)
+                ?: throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
         val trackIds = params.getLongArray(PARAM_TRACK_IDS) ?: LongArray(0)
 
         val playlist = Playlist().apply {
@@ -64,22 +64,22 @@ class NewPlaylistCommand
         }
 
         Single.fromCallable { savePlaylist(playlist) }
-                .subscribeOn(Schedulers.io())
-                .doOnSuccess { service.notifyChildrenChanged(MediaID.ID_PLAYLISTS) }
-                .map { playlistId ->
-                    trackIds.map { musicId ->
-                        PlaylistTrack(playlistId, musicId)
-                    }
+            .subscribeOn(Schedulers.io())
+            .doOnSuccess { service.notifyChildrenChanged(MediaID.ID_PLAYLISTS) }
+            .map { playlistId ->
+                trackIds.map { musicId ->
+                    PlaylistTrack(playlistId, musicId)
                 }
-                .doOnSuccess { playlistDao.addTracks(it) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { onSuccess(cb) },
-                        { error ->
-                            Log.i(TAG, "An error occurred while creating playlist", error)
-                            onError(error, cb)
-                        }
-                )
+            }
+            .doOnSuccess { playlistDao.addTracks(it) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { onSuccess(cb) },
+                { error ->
+                    Log.i(TAG, "An error occurred while creating playlist", error)
+                    onError(error, cb)
+                }
+            )
     }
 
     private fun savePlaylist(playlist: Playlist): Long {
@@ -109,8 +109,8 @@ class NewPlaylistCommand
             val bitmap = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888)
             Identicon.fromValue(seed, 320).apply {
                 style = IdenticonStyle(
-                        backgroundColor = Color.TRANSPARENT,
-                        padding = 0f
+                    backgroundColor = Color.TRANSPARENT,
+                    padding = 0f
                 )
             }.drawToBitmap(bitmap)
 

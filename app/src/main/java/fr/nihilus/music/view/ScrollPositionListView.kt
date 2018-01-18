@@ -27,9 +27,9 @@ import android.widget.ListView
  */
 class ScrollPositionListView
 @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0
 ) : ListView(context, attrs, defStyleAttr) {
 
     override fun onSaveInstanceState(): Parcelable {

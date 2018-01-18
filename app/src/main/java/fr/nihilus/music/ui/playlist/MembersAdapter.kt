@@ -31,8 +31,8 @@ import fr.nihilus.music.ui.holder.MembersHolder
 import fr.nihilus.music.utils.MediaID
 
 internal class MembersAdapter(
-        fragment: Fragment,
-        private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<MembersHolder>() {
 
     private val glideRequest: GlideRequest<Bitmap>
@@ -42,14 +42,14 @@ internal class MembersAdapter(
         val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
-                .transforms(FitCenter(), RoundedCorners(cornerRadius))
-                .fallback(defaultIcon)
+            .transforms(FitCenter(), RoundedCorners(cornerRadius))
+            .fallback(defaultIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
-            MembersHolder(parent, glideRequest).also { holder ->
-                holder.onAttachListeners(listener)
-            }
+        MembersHolder(parent, glideRequest).also { holder ->
+            holder.onAttachListeners(listener)
+        }
 
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {

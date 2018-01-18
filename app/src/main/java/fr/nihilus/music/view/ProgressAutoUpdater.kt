@@ -51,10 +51,10 @@ private const val PROGRESS_UPDATE_PERIOD = 1000L
  * Parameter is the desired playback position in milliseconds.
  */
 class ProgressAutoUpdater(
-        private val seekBar: SeekBar,
-        private val seekPosition: TextView?,
-        private val seekDuration: TextView?,
-        private val updateListener: (Long) -> Unit
+    private val seekBar: SeekBar,
+    private val seekPosition: TextView?,
+    private val seekDuration: TextView?,
+    private val updateListener: (Long) -> Unit
 ) : SeekBar.OnSeekBarChangeListener {
 
     /**
@@ -65,9 +65,9 @@ class ProgressAutoUpdater(
      * Parameter is the desired playback position in milliseconds.
      */
     constructor(
-            seekBar: SeekBar,
-            updateListener: (Long) -> Unit
-    ): this(seekBar, null, null, updateListener)
+        seekBar: SeekBar,
+        updateListener: (Long) -> Unit
+    ) : this(seekBar, null, null, updateListener)
 
     private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
@@ -134,8 +134,10 @@ class ProgressAutoUpdater(
     }
 
     private fun scheduleProgressUpdate() {
-        updateFuture = executorService.scheduleAtFixedRate(scheduledUpdate,
-                PROGRESS_UPDATE_INITIAL_DELAY, PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS)
+        updateFuture = executorService.scheduleAtFixedRate(
+            scheduledUpdate,
+            PROGRESS_UPDATE_INITIAL_DELAY, PROGRESS_UPDATE_PERIOD, TimeUnit.MILLISECONDS
+        )
     }
 
     private fun stopProgressUpdate() {

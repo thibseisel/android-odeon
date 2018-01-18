@@ -30,15 +30,15 @@ import javax.inject.Inject
 
 internal class ArtistItems
 @Inject constructor(
-        private val context: Context,
-        private val musicDao: MusicDao
+    private val context: Context,
+    private val musicDao: MusicDao
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-                .setMediaId(MediaID.ID_ARTISTS)
-                .setTitle(context.getString(R.string.action_artists))
-                .build()
+            .setMediaId(MediaID.ID_ARTISTS)
+            .setTitle(context.getString(R.string.action_artists))
+            .build()
         val item = MediaItem(description, MediaItem.FLAG_BROWSABLE)
         return Single.just(item)
     }
@@ -54,7 +54,7 @@ internal class ArtistItems
     }
 
     private fun fetchAllArtists(): Observable<MediaItem> =
-            musicDao.getArtists().map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
+        musicDao.getArtists().map { MediaItem(it, MediaItem.FLAG_BROWSABLE) }
 
     private fun fetchArtistChildren(artistId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
@@ -63,13 +63,13 @@ internal class ArtistItems
         val albumSorting = "${MediaMetadataCompat.METADATA_KEY_YEAR} DESC"
 
         val albums = musicDao.getAlbums(criteria, albumSorting)
-                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
+            .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_BROWSABLE) }
 
         val tracks = musicDao.getTracks(criteria, null)
-                .map {
-                    val description = it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId)
-                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }
+            .map {
+                val description = it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId)
+                MediaItem(description, MediaItem.FLAG_PLAYABLE)
+            }
         return Observable.concat(albums, tracks)
     }
 }

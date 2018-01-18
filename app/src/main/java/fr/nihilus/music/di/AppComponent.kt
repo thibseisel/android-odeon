@@ -29,12 +29,14 @@ import javax.inject.Singleton
  * Every injectable object annotated with `Singleton` is bound to it.
  */
 @Singleton
-@Component(modules = [
-    AndroidInjectionModule::class,
-    AppModule::class,
-    ActivityBindingModule::class,
-    MusicServiceModule::class
-])
+@Component(
+    modules = [
+        AndroidInjectionModule::class,
+        AppModule::class,
+        ActivityBindingModule::class,
+        MusicServiceModule::class
+    ]
+)
 interface AppComponent {
 
     /**

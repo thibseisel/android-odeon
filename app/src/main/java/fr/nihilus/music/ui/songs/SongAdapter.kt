@@ -45,13 +45,14 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     init {
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultTrackIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
+        val defaultTrackIcon =
+            AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
         registerDataSetObserver(indexer)
         glideRequest = GlideApp.with(fragment).asBitmap()
-                .transforms(FitCenter(), RoundedCorners(cornerRadius))
-                .fallback(defaultTrackIcon)
+            .transforms(FitCenter(), RoundedCorners(cornerRadius))
+            .fallback(defaultTrackIcon)
     }
 
     override fun getCount() = songs.size
@@ -91,10 +92,10 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     override fun getSections(): Array<out Any> = indexer.sections
 
     override fun getPositionForSection(sectionIndex: Int) =
-            indexer.getPositionForSection(sectionIndex)
+        indexer.getPositionForSection(sectionIndex)
 
     override fun getSectionForPosition(position: Int) =
-            indexer.getSectionForPosition(position)
+        indexer.getSectionForPosition(position)
 
     fun updateItems(newItems: List<MediaBrowserCompat.MediaItem>) {
         songs.clear()

@@ -30,15 +30,15 @@ import javax.inject.Inject
 
 internal class AlbumItems
 @Inject constructor(
-        private val context: Context,
-        private val musicDao: MusicDao
-): BuiltinItem {
+    private val context: Context,
+    private val musicDao: MusicDao
+) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-                .setMediaId(MediaID.ID_ALBUMS)
-                .setTitle(context.getString(R.string.action_albums))
-                .build()
+            .setMediaId(MediaID.ID_ALBUMS)
+            .setTitle(context.getString(R.string.action_albums))
+            .build()
         return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
     }
 
@@ -54,16 +54,18 @@ internal class AlbumItems
 
     private fun fetchAllAlbums(): Observable<MediaItem> {
         return musicDao.getAlbums(null, null)
-                .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
+            .map { MediaItem(it, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE) }
     }
 
     private fun fetchAlbumTracks(albumId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
-        return musicDao.getTracks(mapOf(MusicDao.METADATA_KEY_ALBUM_ID to albumId.toLong()),
-                MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-                .map {
-                    val description = it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId)
-                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }
+        return musicDao.getTracks(
+            mapOf(MusicDao.METADATA_KEY_ALBUM_ID to albumId.toLong()),
+            MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER
+        )
+            .map {
+                val description = it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId)
+                MediaItem(description, MediaItem.FLAG_PLAYABLE)
+            }
     }
 }

@@ -33,9 +33,9 @@ private const val TAG = "DbInit"
  */
 class DatabaseInitCallback
 @Inject constructor(
-        private val prefs: PreferenceDao,
-        private val musicDao: MusicDao,
-        private val infoDao: Provider<MusicInfoDao>
+    private val prefs: PreferenceDao,
+    private val musicDao: MusicDao,
+    private val infoDao: Provider<MusicInfoDao>
 ) : RoomDatabase.Callback() {
 
     override fun onCreate(db: SupportSQLiteDatabase) {
@@ -50,20 +50,20 @@ class DatabaseInitCallback
         if (prefs.shouldInitDatabase) {
             Log.d(TAG, "Database should be initialized.")
             musicDao.getTracks(null, null)
-                    .subscribeOn(Schedulers.io())
-                    .map { metadata ->
-                        val mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-                        MusicInfo(mediaId.toLong())
-                    }.toList()
-                    .subscribe { stats, error ->
-                        if (error == null) {
-                            Log.d(TAG, "Initializing. Found ${stats.size} tracks.")
-                            infoDao.get().addStats(stats)
-                            prefs.shouldInitDatabase = stats.isEmpty()
-                        } else {
-                            Log.e(TAG, "An error occurred while initializing database", error)
-                        }
+                .subscribeOn(Schedulers.io())
+                .map { metadata ->
+                    val mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+                    MusicInfo(mediaId.toLong())
+                }.toList()
+                .subscribe { stats, error ->
+                    if (error == null) {
+                        Log.d(TAG, "Initializing. Found ${stats.size} tracks.")
+                        infoDao.get().addStats(stats)
+                        prefs.shouldInitDatabase = stats.isEmpty()
+                    } else {
+                        Log.e(TAG, "An error occurred while initializing database", error)
                     }
+                }
         }
     }
 

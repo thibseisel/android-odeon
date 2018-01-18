@@ -29,7 +29,7 @@ import javax.inject.Inject
 @ServiceScoped
 class ErrorHandler
 @Inject constructor(
-        private val context: Context
+    private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 
     override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? {

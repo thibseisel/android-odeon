@@ -30,8 +30,8 @@ import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.resolveThemeColor
 
 internal class AlbumsAdapter(
-        fragment: Fragment,
-        private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
     private val glideRequest: RequestBuilder<PaletteBitmap>
@@ -40,17 +40,17 @@ internal class AlbumsAdapter(
     init {
         val ctx = checkNotNull(fragment.context) { "Fragment is not attached" }
         defaultColors = intArrayOf(
-                ContextCompat.getColor(ctx, R.color.album_band_default),
-                resolveThemeColor(ctx, R.attr.colorAccent),
-                ContextCompat.getColor(ctx, android.R.color.white),
-                ContextCompat.getColor(ctx, android.R.color.white)
+            ContextCompat.getColor(ctx, R.color.album_band_default),
+            resolveThemeColor(ctx, R.attr.colorAccent),
+            ContextCompat.getColor(ctx, android.R.color.white),
+            ContextCompat.getColor(ctx, android.R.color.white)
         )
 
         val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
         glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
-                .centerCrop()
-                .fallback(dummyAlbumArt)
-                .region(0f, .75f, 1f, 1f)
+            .centerCrop()
+            .fallback(dummyAlbumArt)
+            .region(0f, .75f, 1f, 1f)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {

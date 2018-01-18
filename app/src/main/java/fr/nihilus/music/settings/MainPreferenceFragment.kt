@@ -29,7 +29,7 @@ import fr.nihilus.music.R
 import javax.inject.Inject
 
 class MainPreferenceFragment : PreferenceFragmentCompat(),
-        SharedPreferences.OnSharedPreferenceChangeListener {
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject lateinit var prefs: PreferenceDao
     private lateinit var keyNightMode: String

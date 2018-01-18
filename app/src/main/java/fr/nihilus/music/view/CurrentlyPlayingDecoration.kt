@@ -25,17 +25,22 @@ import android.support.v7.widget.RecyclerView
 import fr.nihilus.music.R
 
 class CurrentlyPlayingDecoration(
-        context: Context,
-        iconColor: Int
+    context: Context,
+    iconColor: Int
 ) : RecyclerView.ItemDecoration() {
 
     private val icon: Drawable
-    private val paddingStart = context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
+    private val paddingStart =
+        context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
     var decoratedPosition = RecyclerView.NO_POSITION
 
     init {
-        val notNullIcon = checkNotNull(AppCompatResources.getDrawable(context,
-                R.drawable.currently_playing_decoration)) { "Icon should not be null" }
+        val notNullIcon = checkNotNull(
+            AppCompatResources.getDrawable(
+                context,
+                R.drawable.currently_playing_decoration
+            )
+        ) { "Icon should not be null" }
         icon = DrawableCompat.wrap(notNullIcon)
         DrawableCompat.setTint(icon, iconColor)
     }

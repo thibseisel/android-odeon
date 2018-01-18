@@ -35,7 +35,7 @@ import java.io.IOException
  * Stores PaletteBitmap resources into the cache.
  */
 internal class PaletteBitmapEncoder(
-        private val bitmapPool: BitmapPool
+    private val bitmapPool: BitmapPool
 ) : ResourceEncoder<PaletteBitmap> {
     private val bitmapEncoder = BitmapEncoder()
 
@@ -48,7 +48,7 @@ internal class PaletteBitmapEncoder(
     }
 
     override fun getEncodeStrategy(options: Options): EncodeStrategy =
-            bitmapEncoder.getEncodeStrategy(options)
+        bitmapEncoder.getEncodeStrategy(options)
 
     private fun writePalette(palette: Palette, file: File): Boolean {
 

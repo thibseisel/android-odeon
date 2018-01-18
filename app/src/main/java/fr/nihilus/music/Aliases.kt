@@ -20,18 +20,18 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
 import android.support.v4.media.session.MediaControllerCompat
 
-/**
- * The result of retrieving media items to be sent to media browser clients.
- */
+        /**
+         * The result of retrieving media items to be sent to media browser clients.
+         */
 typealias MediaItemResult = MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>>
 
-/**
- * Defines a task to be executed on a [MediaControllerCompat].
- */
+        /**
+         * Defines a task to be executed on a [MediaControllerCompat].
+         */
 typealias MediaControllerRequest = (MediaControllerCompat) -> Unit
 
-/**
- * Represents an event that is fired when the currently shown screen changes.
- * This accepts an [Int] parameter giving hints on the new location.
- */
+        /**
+         * Represents an event that is fired when the currently shown screen changes.
+         * This accepts an [Int] parameter giving hints on the new location.
+         */
 typealias RouteChangeListener = (Int) -> Unit

@@ -34,21 +34,24 @@ import android.arch.persistence.room.ForeignKey
  * @param musicId id of the music track this object represents
  */
 @Entity(tableName = "playlist_track", primaryKeys = ["music_id", "playlist_id"])
-@ForeignKey(entity = Playlist::class, onDelete = ForeignKey.CASCADE,
-        childColumns = ["playlist_id"], parentColumns = ["id"])
+@ForeignKey(
+    entity = Playlist::class, onDelete = ForeignKey.CASCADE,
+    childColumns = ["playlist_id"], parentColumns = ["id"]
+)
 class PlaylistTrack(
 
-        /**
-         * Id of the playlist this track belongs to.
-         */
-        @ColumnInfo(name = "playlist_id")
-        val playlistId: Long,
+    /**
+     * Id of the playlist this track belongs to.
+     */
+    @ColumnInfo(name = "playlist_id")
+    val playlistId: Long,
 
-        /**
-         * Id of the music track this object represents.
-         */
-        @ColumnInfo(name = "music_id")
-        val musicId: Long) {
+    /**
+     * Id of the music track this object represents.
+     */
+    @ColumnInfo(name = "music_id")
+    val musicId: Long
+) {
 
     /**
      * Position of this track in the playlist.

@@ -52,9 +52,9 @@ import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
 class HomeActivity : AppCompatActivity(),
-        HasSupportFragmentInjector,
-        NavigationView.OnNavigationItemSelectedListener,
-        PlayerView.EventListener {
+    HasSupportFragmentInjector,
+    NavigationView.OnNavigationItemSelectedListener,
+    PlayerView.EventListener {
 
     @Inject lateinit var dispatchingFragmentInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var prefs: PreferenceDao
@@ -150,8 +150,10 @@ class HomeActivity : AppCompatActivity(),
      * Create and populate the Navigation Drawer.
      */
     private fun setupNavigationDrawer() {
-        drawerToggle = ActionBarDrawerToggle(this, drawerLayout,
-                R.string.drawer_opened, R.string.drawer_closed)
+        drawerToggle = ActionBarDrawerToggle(
+            this, drawerLayout,
+            R.string.drawer_opened, R.string.drawer_closed
+        )
         drawerLayout.addDrawerListener(drawerToggle)
 
         navDrawer.setNavigationItemSelectedListener(this)
@@ -196,8 +198,9 @@ class HomeActivity : AppCompatActivity(),
                 with(drawerLayout) {
                     requestDisallowInterceptTouchEvent(isExpandedOrExpanding)
                     setDrawerLockMode(
-                            if (isExpandedOrExpanding) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-                            else DrawerLayout.LOCK_MODE_UNLOCKED)
+                        if (isExpandedOrExpanding) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+                        else DrawerLayout.LOCK_MODE_UNLOCKED
+                    )
                 }
             }
         })
@@ -243,8 +246,10 @@ class HomeActivity : AppCompatActivity(),
         handleIntent(intent)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>,
-                                            grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
 
             // Whether it has permission or not, load fragment into interface
@@ -255,11 +260,14 @@ class HomeActivity : AppCompatActivity(),
             // Show an informative dialog message if permission is not granted
             // and user has not checked "Don't ask again".
             if (grantResults[0] == PackageManager.PERMISSION_DENIED &&
-                    ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                ConfirmDialogFragment.newInstance(null, 0,
-                        message = getString(R.string.external_storage_permission_rationale),
-                        positiveButton = R.string.ok
+                ActivityCompat.shouldShowRequestPermissionRationale(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )) {
+                ConfirmDialogFragment.newInstance(
+                    null, 0,
+                    message = getString(R.string.external_storage_permission_rationale),
+                    positiveButton = R.string.ok
                 ).show(supportFragmentManager, null)
             }
         }
@@ -277,8 +285,8 @@ class HomeActivity : AppCompatActivity(),
      */
     private fun setInitialBottomSheetVisibility(state: PlaybackStateCompat?) {
         bottomSheet.peekHeight = if (state == null
-                || state.state == PlaybackStateCompat.STATE_NONE
-                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            || state.state == PlaybackStateCompat.STATE_NONE
+            || state.state == PlaybackStateCompat.STATE_STOPPED) {
             playerShadow.visibility = View.GONE
             resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         } else {
@@ -295,15 +303,15 @@ class HomeActivity : AppCompatActivity(),
      */
     private fun togglePlayerVisibility(state: PlaybackStateCompat?) {
         if (state == null
-                || state.state == PlaybackStateCompat.STATE_NONE
-                || state.state == PlaybackStateCompat.STATE_STOPPED) {
+            || state.state == PlaybackStateCompat.STATE_NONE
+            || state.state == PlaybackStateCompat.STATE_STOPPED) {
             bottomSheet.isHideable = true
             bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             container.setPadding(0, 0, 0, 0)
             playerShadow.visibility = View.GONE
 
         } else if (bottomSheet.isHideable
-                || bottomSheet.peekHeight == 0) {
+            || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             playerView.post { bottomSheet.isHideable = false }
@@ -350,8 +358,8 @@ class HomeActivity : AppCompatActivity(),
                     viewModel.post { controller ->
                         val playbackState = controller.playbackState
                         if (playbackState == null
-                                || playbackState.state == PlaybackStateCompat.STATE_NONE
-                                || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
+                            || playbackState.state == PlaybackStateCompat.STATE_NONE
+                            || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
                             controller.transportControls.prepare()
                         }
                     }

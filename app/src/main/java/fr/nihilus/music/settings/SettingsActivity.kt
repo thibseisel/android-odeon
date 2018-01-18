@@ -36,8 +36,8 @@ class SettingsActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .add(R.id.container, MainPreferenceFragment())
-                    .commit()
+                .add(R.id.container, MainPreferenceFragment())
+                .commit()
         }
     }
 

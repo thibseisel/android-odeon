@@ -24,7 +24,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
-internal class AlbumTrackHolder(parent: ViewGroup) : BaseAdapter.ViewHolder(parent, R.layout.album_track_item) {
+internal class AlbumTrackHolder(parent: ViewGroup) :
+    BaseAdapter.ViewHolder(parent, R.layout.album_track_item) {
     private val trackNo: TextView = itemView.findViewById(R.id.trackNo)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val duration: TextView = itemView.findViewById(R.id.duration)

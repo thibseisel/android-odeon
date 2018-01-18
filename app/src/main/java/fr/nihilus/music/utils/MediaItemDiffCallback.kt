@@ -21,8 +21,8 @@ import android.support.v7.util.DiffUtil
 import android.text.TextUtils
 
 class MediaItemDiffCallback(
-        private val oldItems: List<MediaItem>,
-        private val newItems: List<MediaItem>
+    private val oldItems: List<MediaItem>,
+    private val newItems: List<MediaItem>
 ) : DiffUtil.Callback() {
 
     override fun getOldListSize() = oldItems.size

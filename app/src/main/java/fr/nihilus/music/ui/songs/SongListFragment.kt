@@ -44,7 +44,7 @@ import fr.nihilus.music.utils.MediaID
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : Fragment(),
-        AdapterView.OnItemClickListener {
+    AdapterView.OnItemClickListener {
 
     private val multiSelectMode = SongListActionMode()
 
@@ -77,7 +77,7 @@ class SongListFragment : Fragment(),
         // TODO Search and filtering features
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when(item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_play_shuffled -> {
             viewModel.post { controller ->
                 controller.transportControls.playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
@@ -89,9 +89,11 @@ class SongListFragment : Fragment(),
         else -> super.onOptionsItemSelected(item)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View =
-            inflater.inflate(R.layout.fragment_songs, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View =
+        inflater.inflate(R.layout.fragment_songs, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -137,12 +139,16 @@ class SongListFragment : Fragment(),
 
     private fun showDeleteDialog() {
         val checkedItemCount = list.checkedItemCount
-        val dialogMessage = resources.getQuantityString(R.plurals.delete_dialog_message,
-                checkedItemCount, checkedItemCount)
+        val dialogMessage = resources.getQuantityString(
+            R.plurals.delete_dialog_message,
+            checkedItemCount, checkedItemCount
+        )
 
-        val confirm = ConfirmDialogFragment.newInstance(this, 21,
-                getString(R.string.delete_dialog_title), dialogMessage,
-                R.string.action_delete, R.string.cancel, 0)
+        val confirm = ConfirmDialogFragment.newInstance(
+            this, 21,
+            getString(R.string.delete_dialog_title), dialogMessage,
+            R.string.action_delete, R.string.cancel, 0
+        )
         confirm.show(fragmentManager!!, null)
     }
 
@@ -162,17 +168,20 @@ class SongListFragment : Fragment(),
 
         viewModel.post { controller ->
             controller.sendCommand(DeleteTracksCommand.CMD_NAME,
-                    params, object : ResultReceiver(Handler()) {
+                params, object : ResultReceiver(Handler()) {
 
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    val rootView = view
-                    if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
-                        val message = resources
-                                .getQuantityString(R.plurals.deleted_songs_confirmation, toDelete.size)
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                        val rootView = view
+                        if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
+                            val message = resources
+                                .getQuantityString(
+                                    R.plurals.deleted_songs_confirmation,
+                                    toDelete.size
+                                )
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        }
                     }
-                }
-            })
+                })
         }
     }
 
@@ -189,7 +198,12 @@ class SongListFragment : Fragment(),
     private inner class SongListActionMode : MultiChoiceModeListener {
         private var actionMode: ActionMode? = null
 
-        override fun onItemCheckedStateChanged(mode: ActionMode, position: Int, id: Long, checked: Boolean) {
+        override fun onItemCheckedStateChanged(
+            mode: ActionMode,
+            position: Int,
+            id: Long,
+            checked: Boolean
+        ) {
             mode.title = list.checkedItemCount.toString()
         }
 

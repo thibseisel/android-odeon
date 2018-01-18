@@ -32,8 +32,8 @@ import fr.nihilus.music.ui.BaseAdapter
  * Playlists that are marked as playable could be played by taping the play action icon.
  */
 internal class PlaylistHolder(
-        parent: ViewGroup,
-        private val glide: RequestBuilder<Bitmap>
+    parent: ViewGroup,
+    private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.playlist_item) {
 
     private val title: TextView = itemView.findViewById(R.id.title)

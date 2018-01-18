@@ -37,7 +37,7 @@ class AlbumArtLoader
 @Inject internal constructor(context: MusicService) {
 
     private val glide = GlideApp.with(context).asBitmap()
-            .downsample(DownsampleStrategy.AT_MOST)
+        .downsample(DownsampleStrategy.AT_MOST)
 
     fun loadIntoMetadata(metadata: MediaMetadataCompat): Single<MediaMetadataCompat> {
         return Single.create { emitter ->
@@ -46,7 +46,10 @@ class AlbumArtLoader
                 val artUri = uriString.toUri()
                 glide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
 
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
                         // Emits a new metadata with an album art
                         emitter.onSuccess(metadata.copy {
                             putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)

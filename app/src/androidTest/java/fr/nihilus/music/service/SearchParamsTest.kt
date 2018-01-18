@@ -95,16 +95,16 @@ class SearchParamsTest {
     @Test
     fun whenHasFocusExtra_shouldBeSpecified() {
         arrayOf(
-                MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE,
-                MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE,
-                MediaStore.Audio.Media.ENTRY_CONTENT_TYPE
+            MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE,
+            MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE,
+            MediaStore.Audio.Media.ENTRY_CONTENT_TYPE
         ).map { mediaFocus ->
             SearchParams("Some query", Bundle(1).apply {
                 putString(MediaStore.EXTRA_MEDIA_FOCUS, mediaFocus)
             })
         }.forEach { search ->
-            assertFalse(search.isAny)
-            assertFalse(search.isUnstructured)
-        }
+                assertFalse(search.isAny)
+                assertFalse(search.isUnstructured)
+            }
     }
 }

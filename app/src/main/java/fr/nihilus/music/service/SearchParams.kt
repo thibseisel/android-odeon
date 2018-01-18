@@ -30,43 +30,38 @@ class SearchParams
  * @param query the query parameter from a voice search
  * @param extras the extras parameter from a voice search
  */
-(@JvmField val query: String?, private val extras: Bundle?) {
+    (@JvmField val query: String?, private val extras: Bundle?) {
 
     /**
      * If `true`, the search query is unspecified and its result could be anything,
      * provided the result is calculated based on a smart choice,
      * for example the last playlist the user listened to.
      */
-    @JvmField
-    val isAny: Boolean
+    @JvmField val isAny: Boolean
 
     /**
      * If `true`, the search query gives no detail on what to search.
      */
-    @JvmField
-    val isUnstructured: Boolean
+    @JvmField val isUnstructured: Boolean
 
     /**
      * If `true`, this search is artist-specific.
      * That artist name is stored in [artist].
      */
-    @JvmField
-    val isArtistFocus: Boolean
+    @JvmField val isArtistFocus: Boolean
 
     /**
      * If `true`, this search is album-specific.
      * The album name is stored in [album], and its related artist in [artist].
      */
-    @JvmField
-    val isAlbumFocus: Boolean
+    @JvmField val isAlbumFocus: Boolean
 
     /**
      * If `true`, this search is song-specific.
      * The song name is stored in [song].
      * This query also provides the album and the artist of this song.
      */
-    @JvmField
-    val isSongFocus: Boolean
+    @JvmField val isSongFocus: Boolean
 
     /**
      * Retrieve the artist name associated with this search.

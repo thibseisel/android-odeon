@@ -82,13 +82,17 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
-                val dialogTitle = getString(R.string.delete_playlist_dialog_title,
-                        playlist.description.title)
-                ConfirmDialogFragment.newInstance(this, REQUEST_DELETE_PLAYLIST,
-                        title = dialogTitle,
-                        positiveButton = R.string.ok,
-                        negativeButton = R.string.cancel)
-                        .show(fragmentManager, null)
+                val dialogTitle = getString(
+                    R.string.delete_playlist_dialog_title,
+                    playlist.description.title
+                )
+                ConfirmDialogFragment.newInstance(
+                    this, REQUEST_DELETE_PLAYLIST,
+                    title = dialogTitle,
+                    positiveButton = R.string.ok,
+                    negativeButton = R.string.cancel
+                )
+                    .show(fragmentManager, null)
                 return true
             }
         }
@@ -138,14 +142,20 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         params.putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
 
         viewModel.post {
-            it.sendCommand(DeletePlaylistCommand.CMD_NAME, params, object : ResultReceiver(Handler()) {
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    when (resultCode) {
-                        MediaSessionCommand.CODE_SUCCESS -> router.navigateBack()
-                        else -> Log.e(TAG, "Delete playlist: unexpected resultCode = $resultCode")
+            it.sendCommand(
+                DeletePlaylistCommand.CMD_NAME,
+                params,
+                object : ResultReceiver(Handler()) {
+                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                        when (resultCode) {
+                            MediaSessionCommand.CODE_SUCCESS -> router.navigateBack()
+                            else -> Log.e(
+                                TAG,
+                                "Delete playlist: unexpected resultCode = $resultCode"
+                            )
+                        }
                     }
-                }
-            })
+                })
         }
     }
 

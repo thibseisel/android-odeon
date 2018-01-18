@@ -84,8 +84,10 @@ class MusicService : MediaBrowserServiceCompat() {
 
         val appContext = applicationContext
         val uiIntent = Intent(appContext, HomeActivity::class.java)
-        val pi = PendingIntent.getActivity(appContext, 99,
-                uiIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pi = PendingIntent.getActivity(
+            appContext, 99,
+            uiIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
         session.setSessionActivity(pi)
         session.setRatingType(RatingCompat.RATING_NONE)
 
@@ -125,7 +127,11 @@ class MusicService : MediaBrowserServiceCompat() {
         session.release()
     }
 
-    override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
+    override fun onGetRoot(
+        clientPackageName: String,
+        clientUid: Int,
+        rootHints: Bundle?
+    ): BrowserRoot? {
 
         if (!packageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
             // If the request comes from an untrusted package, return an empty BrowserRoot
@@ -146,26 +152,26 @@ class MusicService : MediaBrowserServiceCompat() {
         Log.v(TAG, "Loading children for ID: $parentId")
         result.detach()
         repository.getMediaItems(parentId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : SingleObserver<List<MediaBrowserCompat.MediaItem>> {
-                    override fun onSubscribe(d: Disposable) {}
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : SingleObserver<List<MediaBrowserCompat.MediaItem>> {
+                override fun onSubscribe(d: Disposable) {}
 
-                    override fun onSuccess(items: List<MediaBrowserCompat.MediaItem>) {
-                        Log.v(TAG, "Loaded items for $parentId: size=${items.size}")
-                        result.sendResult(items)
+                override fun onSuccess(items: List<MediaBrowserCompat.MediaItem>) {
+                    Log.v(TAG, "Loaded items for $parentId: size=${items.size}")
+                    result.sendResult(items)
+                }
+
+                override fun onError(e: Throwable) {
+                    if (e !is UnsupportedOperationException && BuildConfig.DEBUG) {
+                        // Rethrow unexpected errors in debug builds
+                        throw e
                     }
 
-                    override fun onError(e: Throwable) {
-                        if (e !is UnsupportedOperationException && BuildConfig.DEBUG) {
-                            // Rethrow unexpected errors in debug builds
-                            throw e
-                        }
-
-                        Log.w(TAG, "Unsupported parent id: $parentId")
-                        result.sendResult(null)
-                    }
-                })
+                    Log.w(TAG, "Unsupported parent id: $parentId")
+                    result.sendResult(null)
+                }
+            })
     }
 
     internal fun onPlaybackStart() {

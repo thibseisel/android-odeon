@@ -115,7 +115,8 @@ class BrowserViewModel
         disconnect()
     }
 
-    private inner class ConnectionCallback(context: Context) : MediaBrowserCompat.ConnectionCallback() {
+    private inner class ConnectionCallback(context: Context) :
+        MediaBrowserCompat.ConnectionCallback() {
         private val contextRef = WeakReference<Context>(context)
 
         override fun onConnected() {

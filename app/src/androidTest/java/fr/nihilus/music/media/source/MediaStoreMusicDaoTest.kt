@@ -59,9 +59,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         subject.getTracks(null, null).test()
-                .assertNoErrors()
-                .assertNoValues()
-                .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
+            .assertComplete()
     }
 
     @Test
@@ -80,9 +80,11 @@ class MediaStoreMusicDaoTest {
                 cursor.moveToPosition(it)
                 cursor.getString(1)
             }.forEachIndexed { index, expectedTitle ->
-                assertEquals(expectedTitle,
-                        values()[index].getString(MediaMetadataCompat.METADATA_KEY_TITLE))
-            }
+                    assertEquals(
+                        expectedTitle,
+                        values()[index].getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+                    )
+                }
         }
     }
 
@@ -92,9 +94,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         val observer = subject.getTracks(null, null).test()
-                .assertNoErrors()
-                .assertValueCount(10)
-                .assertComplete()
+            .assertNoErrors()
+            .assertValueCount(10)
+            .assertComplete()
 
         // Check that each metadata key is translated correctly from MediaStore's data
         observer.values().forEachIndexed { index, actual ->
@@ -106,7 +108,11 @@ class MediaStoreMusicDaoTest {
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_DURATION)
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-            assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
+            assertMetadataKeyEquals(
+                expected,
+                actual,
+                MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI
+            )
             assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
             assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_TITLE_KEY)
             assertMetadataKeyEquals(expected, actual, MusicDao.METADATA_KEY_DATE)
@@ -122,8 +128,8 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         val observer = subject.getTracks(null, null).test()
-                .assertNoErrors()
-                .assertComplete()
+            .assertNoErrors()
+            .assertComplete()
         assertEquals(observer.valueCount(), metadataCache.size())
 
         (0..3).map {
@@ -138,9 +144,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, null)
 
         subject.getTracks(null, null).test()
-                .assertNoErrors()
-                .assertNoValues()
-                .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
+            .assertComplete()
     }
 
     //@Test
@@ -154,9 +160,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
 
         subject.getTracks(null, null).test()
-                .assertNoErrors()
-                .assertNoValues()
-                .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
+            .assertComplete()
     }
 
     @Test
@@ -166,15 +172,15 @@ class MediaStoreMusicDaoTest {
 
         val sorting = "${MusicDao.METADATA_KEY_DATE} DESC"
         val observer = subject.getTracks(null, sorting).test()
-                .assertNoErrors()
-                .assertValueCount(3)
-                .assertComplete()
+            .assertNoErrors()
+            .assertValueCount(3)
+            .assertComplete()
 
         arrayOf(2, 9, 4).map(mockMetadata::get)
-                .zip(observer.values())
-                .forEach { (expected, actual) ->
-                    assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-                }
+            .zip(observer.values())
+            .forEach { (expected, actual) ->
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            }
     }
 
     @Test
@@ -184,16 +190,16 @@ class MediaStoreMusicDaoTest {
 
         val criteria = mapOf(MediaMetadataCompat.METADATA_KEY_ARTIST to "Foo Fighters")
         val observer = subject.getTracks(criteria, null).test()
-                .assertNoErrors()
-                .assertValueCount(4)
-                .assertComplete()
+            .assertNoErrors()
+            .assertValueCount(4)
+            .assertComplete()
 
         intArrayOf(2, 6, 8, 9)
-                .map(mockMetadata::get)
-                .zip(observer.values())
-                .forEach { (expected, actual) ->
-                    assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-                }
+            .map(mockMetadata::get)
+            .zip(observer.values())
+            .forEach { (expected, actual) ->
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            }
     }
 
     @Test
@@ -203,16 +209,16 @@ class MediaStoreMusicDaoTest {
 
         val criteria = mapOf(MusicDao.METADATA_KEY_ARTIST_ID to 13L)
         val observer = subject.getTracks(criteria, null).test()
-                .assertNoErrors()
-                .assertValueCount(4)
-                .assertComplete()
+            .assertNoErrors()
+            .assertValueCount(4)
+            .assertComplete()
 
         intArrayOf(2, 6, 8, 9)
-                .map(mockMetadata::get)
-                .zip(observer.values())
-                .forEach { (expected, actual) ->
-                    assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-                }
+            .map(mockMetadata::get)
+            .zip(observer.values())
+            .forEach { (expected, actual) ->
+                assertMetadataKeyEquals(expected, actual, MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+            }
     }
 
     @Test
@@ -221,9 +227,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
 
         subject.getAlbums(null, null).test()
-                .assertNoErrors()
-                .assertNoValues()
-                .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
+            .assertComplete()
     }
 
     @Test
@@ -232,18 +238,18 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
 
         val observer = subject.getAlbums(null, null).test()
-                .assertNoErrors()
-                .assertValueCount(8)
-                .assertComplete()
+            .assertNoErrors()
+            .assertValueCount(8)
+            .assertComplete()
 
         longArrayOf(40L, 65L, 102L, 7L, 38L, 26L, 6L, 95L)
-                .map { MediaID.createMediaID(null, MediaID.ID_ALBUMS, it.toString()) }
-                .zip(observer.values()) { expectedId, album ->
-                    expectedId to album.mediaId
-                }
-                .forEach { (expectedId, actualId) ->
-                    assertEquals(expectedId, actualId)
-                }
+            .map { MediaID.createMediaID(null, MediaID.ID_ALBUMS, it.toString()) }
+            .zip(observer.values()) { expectedId, album ->
+                expectedId to album.mediaId
+            }
+            .forEach { (expectedId, actualId) ->
+                assertEquals(expectedId, actualId)
+            }
     }
 
     @Test
@@ -252,10 +258,10 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
 
         val album = subject.getAlbums(null, null).test()
-                .assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .values()[0]
+            .assertNoErrors()
+            .assertValueCount(1)
+            .assertComplete()
+            .values()[0]
 
         with(album) {
 
@@ -281,9 +287,9 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
 
         subject.getArtists().test()
-                .assertNoErrors()
-                .assertNoValues()
-                .assertComplete()
+            .assertNoErrors()
+            .assertNoValues()
+            .assertComplete()
     }
 
     @Test
@@ -295,19 +301,19 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
 
         val artists = subject.getArtists().test()
-                .assertNoErrors()
-                .assertValueCount(5)
-                .assertComplete()
-                .values()
+            .assertNoErrors()
+            .assertValueCount(5)
+            .assertComplete()
+            .values()
 
         longArrayOf(5L, 26L, 4L, 13L, 18L)
-                .map { MediaID.createMediaID(null, MediaID.ID_ARTISTS, it.toString()) }
-                .zip(artists) {expectedId, artist ->
-                    expectedId to artist.mediaId
-                }
-                .forEach { (expectedId, actualId) ->
-                    assertEquals(expectedId, actualId)
-                }
+            .map { MediaID.createMediaID(null, MediaID.ID_ARTISTS, it.toString()) }
+            .zip(artists) { expectedId, artist ->
+                expectedId to artist.mediaId
+            }
+            .forEach { (expectedId, actualId) ->
+                assertEquals(expectedId, actualId)
+            }
     }
 
     @Test
@@ -320,10 +326,10 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
 
         val artist = subject.getArtists().test()
-                .assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .values()[0]
+            .assertNoErrors()
+            .assertValueCount(1)
+            .assertComplete()
+            .values()[0]
 
         with(artist) {
             assertEquals("${MediaID.ID_ARTISTS}/4", mediaId)
@@ -332,7 +338,10 @@ class MediaStoreMusicDaoTest {
 
             extras?.run {
                 assertEquals(2, size())
-                assertEquals(""")S1C51/M1S1C3E?/""", getString(MediaItems.EXTRA_TITLE_KEY))
+                assertEquals(
+                    """)S1C51/M1S1C3E?/""",
+                    getString(MediaItems.EXTRA_TITLE_KEY)
+                )
                 assertEquals(1, getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS))
             } ?: fail("Artists should have extras")
         }
@@ -347,10 +356,10 @@ class MediaStoreMusicDaoTest {
         mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
 
         val artist = subject.getArtists().test()
-                .assertNoErrors()
-                .assertValueCount(1)
-                .assertComplete()
-                .values()[0]
+            .assertNoErrors()
+            .assertValueCount(1)
+            .assertComplete()
+            .values()[0]
 
         // The expected icon Uri is the album art of "Concrete and Gold" (ID = 102)
         val expectedIconUri = artUriOf(102L)

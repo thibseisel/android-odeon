@@ -45,7 +45,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
         }
 
         val builder = AlertDialog.Builder(context!!)
-                .setTitle(args.getString(ARG_TITLE))
+            .setTitle(args.getString(ARG_TITLE))
 
         val message = args.getString(ARG_MESSAGE)
         builder.setMessage(message)
@@ -106,13 +106,13 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
          * to display in the neutral button. If absent, no neutral button will be shown.
          */
         @JvmStatic fun newInstance(
-                caller: Fragment?,
-                requestCode: Int,
-                title: String? = null,
-                message: String? = null,
-                @StringRes positiveButton: Int = 0,
-                @StringRes negativeButton: Int = 0,
-                @StringRes neutralButton: Int = 0
+            caller: Fragment?,
+            requestCode: Int,
+            title: String? = null,
+            message: String? = null,
+            @StringRes positiveButton: Int = 0,
+            @StringRes negativeButton: Int = 0,
+            @StringRes neutralButton: Int = 0
         ): ConfirmDialogFragment {
             val args = Bundle(5)
             args.putString(ARG_TITLE, title)

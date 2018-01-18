@@ -95,8 +95,8 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
      * @param layoutResId Identifier of the layout to inflate for this ViewHolder.
      */
     abstract class ViewHolder(
-            parent: ViewGroup,
-            @LayoutRes layoutResId: Int
+        parent: ViewGroup,
+        @LayoutRes layoutResId: Int
     ) : RecyclerView.ViewHolder(parent.inflate(layoutResId)) {
 
         /**

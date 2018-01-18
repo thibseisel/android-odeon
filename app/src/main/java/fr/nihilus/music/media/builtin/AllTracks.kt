@@ -29,15 +29,15 @@ import javax.inject.Inject
 
 internal class AllTracks
 @Inject constructor(
-        private val context: Context,
-        private val musicDao: MusicDao
+    private val context: Context,
+    private val musicDao: MusicDao
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-                .setMediaId(MediaID.ID_MUSIC)
-                .setTitle(context.getString(R.string.all_music))
-                .build()
+            .setMediaId(MediaID.ID_MUSIC)
+            .setTitle(context.getString(R.string.all_music))
+            .build()
         val item = MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
         return Single.just(item)
     }
@@ -45,9 +45,9 @@ internal class AllTracks
     override fun getChildren(parentMediaId: String): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getTracks(null, null)
-                .map { metadata ->
-                    val description = metadata.asMediaDescription(builder, MediaID.ID_MUSIC)
-                    MediaItem(description, MediaItem.FLAG_PLAYABLE)
-                }
+            .map { metadata ->
+                val description = metadata.asMediaDescription(builder, MediaID.ID_MUSIC)
+                MediaItem(description, MediaItem.FLAG_PLAYABLE)
+            }
     }
 }

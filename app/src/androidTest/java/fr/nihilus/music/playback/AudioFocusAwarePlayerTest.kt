@@ -60,8 +60,10 @@ class AudioFocusAwarePlayerTest {
 
         // Wrapped player should neither start nor pause playback
         verify(internalPlayer, never()).setPlayWhenReady(anyBoolean())
-        assertThat("Noisy receiver should not have been registered",
-                noisyReceiverRegistered, `is`(false))
+        assertThat(
+            "Noisy receiver should not have been registered",
+            noisyReceiverRegistered, `is`(false)
+        )
     }
 
     @Test
@@ -74,8 +76,10 @@ class AudioFocusAwarePlayerTest {
 
         // Wrapped player should start playback when ready
         verify(internalPlayer).setPlayWhenReady(true)
-        assertThat("Noisy receiver should have been registered",
-                noisyReceiverRegistered, `is`(true))
+        assertThat(
+            "Noisy receiver should have been registered",
+            noisyReceiverRegistered, `is`(true)
+        )
     }
 
     @Test
@@ -89,8 +93,10 @@ class AudioFocusAwarePlayerTest {
 
         // Wrapped player should have paused playback
         verify(internalPlayer).setPlayWhenReady(false)
-        assertThat("Noisy receiver should have been unregistered",
-                noisyReceiverRegistered, `is`(false))
+        assertThat(
+            "Noisy receiver should have been unregistered",
+            noisyReceiverRegistered, `is`(false)
+        )
     }
 
     @Test
@@ -108,8 +114,10 @@ class AudioFocusAwarePlayerTest {
         player.stop()
 
         verify(internalPlayer).stop()
-        assertThat("Noisy receiver should have been unregistered",
-                noisyReceiverRegistered, `is`(false))
+        assertThat(
+            "Noisy receiver should have been unregistered",
+            noisyReceiverRegistered, `is`(false)
+        )
     }
 
     @Test
@@ -120,6 +128,7 @@ class AudioFocusAwarePlayerTest {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             verify(audioManager).requestAudioFocus(any())
         } else {
+            @Suppress("DEPRECATION")
             verify(audioManager).requestAudioFocus(any(), anyInt(), anyInt())
         }
     }
@@ -133,7 +142,7 @@ class AudioFocusAwarePlayerTest {
 
         `when`(context.unregisterReceiver(any())).then {
             noisyReceiverRegistered = false
-            return@then Unit
+            return@then null
         }
     }
 
