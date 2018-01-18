@@ -91,6 +91,8 @@ class MediaNotificationManager
         )
     )
 
+    private val emptyAction = NotificationCompat.Action(0, null, null)
+
     private val defaultLargeIcon = loadResourceAsBitmap(
         service, R.drawable.ic_default_icon,
         ICON_SIZE, ICON_SIZE
@@ -271,10 +273,13 @@ class MediaNotificationManager
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setStyle(mediaStyle)
 
+        val canSkipToPrev = (state.actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L)
+        val canSkipToNext = (state.actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L)
+
         // Add actions to control playback - skip previous, next and play/pause
-        builder.addAction(previousAction)
+        builder.addAction(if (canSkipToPrev) previousAction else emptyAction)
         builder.addAction(if (isPlaying) pauseAction else playAction)
-        builder.addAction(nextAction)
+        builder.addAction(if (canSkipToNext) nextAction else emptyAction)
 
         // Make the notification un-dismissible while playing
         builder.setOngoing(isPlaying)
