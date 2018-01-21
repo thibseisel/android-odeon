@@ -33,12 +33,14 @@ private const val LEVEL_PAUSED = 0
 /**
  * Helper class providing an easy way to implement an ImageView whose displayed image
  * can be toggled between two states, such as a play-pause button.
+ *
+ * @param view The ImageView that will display the icon.
  */
 internal class PlayPauseHelper(private val view: ImageView) {
 
     /**
      * Whether the associated view should display its "playing" state.
-     * If the configured drawables can be animated, then the animation will only be triggered
+     * If the callbackConfigured drawables can be animated, then the animation will only be triggered
      * if this property value changes.
      *
      * The default is `true`.
