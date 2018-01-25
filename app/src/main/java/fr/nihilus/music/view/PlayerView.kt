@@ -221,7 +221,7 @@ class PlayerView
      *
      * @param actions A set of flags describing what actions are available on this media session.
      */
-    private fun toggleControls(actions: Long) {
+    private fun toggleControls(@PlaybackStateCompat.Actions actions: Long) {
         playPauseButton.isEnabled = actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L
 
         miniPrevButton?.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L
