@@ -20,15 +20,8 @@ import android.graphics.drawable.Animatable
 import android.os.Build
 import android.widget.ImageView
 
-/**
- * Show the pause icon while playing.
- */
-private const val LEVEL_PLAYING = 1
-
-/**
- * Show the play icon while not playing.
- */
-private const val LEVEL_PAUSED = 0
+private const val LEVEL_PLAYING = 0
+private const val LEVEL_PAUSED = 1
 
 /**
  * Helper class providing an easy way to implement an ImageView whose displayed image
@@ -36,27 +29,33 @@ private const val LEVEL_PAUSED = 0
  *
  * @param view The ImageView that will display the icon.
  */
-internal class PlayPauseHelper(private val view: ImageView) {
+class PlayPauseHelper(private val view: ImageView) {
 
     /**
      * Whether the associated view should display its "playing" state.
-     * If the callbackConfigured drawables can be animated, then the animation will only be triggered
+     * If the configured drawables can be animated, then the animation will only be triggered
      * if this property value changes.
      *
-     * The default is `true`.
+     * This is `null` by default so that the icon is always animated
+     * the first time this property value is set.
      */
-    var isPlaying: Boolean = true
+    var isPlaying: Boolean? = null
         set(value) {
             if (field != value) {
-                field = value
 
-                // Change image level depending on the new state
-                view.setImageLevel(if (value) LEVEL_PLAYING else LEVEL_PAUSED)
+                view.setImageLevel(if (value == true) LEVEL_PLAYING else LEVEL_PAUSED)
 
-                // Apply AnimatedVectorDrawable animation for API 21+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // Start transition to the next state
                     (view.drawable?.current as? Animatable)?.start()
+
+                    // For API 25+, invalidate View to take the transition into account
+                    // because UI thread is busy during initialization
+                    // and AnimatedVectorDrawable is rendered on RenderThread.
+                    if (field == null) view.invalidate()
                 }
+
+                field = value
             }
         }
 }

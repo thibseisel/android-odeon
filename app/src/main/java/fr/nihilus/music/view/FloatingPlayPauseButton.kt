@@ -40,7 +40,7 @@ class FloatingPlayPauseButton
      * Whether this button should display its "playing" state.
      */
     var isPlaying: Boolean
-        get() = helper.isPlaying
+        get() = helper.isPlaying == true
         set(value) {
             helper.isPlaying = value
         }
