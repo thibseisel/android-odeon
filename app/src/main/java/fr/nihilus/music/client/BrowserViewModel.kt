@@ -152,7 +152,13 @@ class BrowserViewModel
     }
 
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
-        private val meaningfulStatuses = intArrayOf(0, 1, 2, 3, 7)
+        private val meaningfulStatuses = intArrayOf(
+            PlaybackStateCompat.STATE_NONE,
+            PlaybackStateCompat.STATE_STOPPED,
+            PlaybackStateCompat.STATE_PAUSED,
+            PlaybackStateCompat.STATE_PLAYING,
+            PlaybackStateCompat.STATE_ERROR
+        )
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
             // Only report for interesting statuses.
