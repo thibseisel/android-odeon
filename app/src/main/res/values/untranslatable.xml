@@ -16,8 +16,6 @@
   -->
 
 <resources>
-    <string name="path_pause_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM9,8L11,8L11,16L9,16zM13,8 L15,8 L15,16 L13,16z</string>
-    <string name="path_play_filled" translatable="false">M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM10,7.5L13,9.75L13,14.25L10,16.5zM13,9.75L16,12L16,12L13,14.25z</string>
     <string name="path_play" translatable="false">M8,5 L8,19 L13.5,15.5 L13.5,8.5z M13.5,8.5 L13.5,15.5 L19,12 L19,12z</string>
     <string name="path_pause" translatable="false">M6,5 L6,19 L10,19 L10,5z M14,5 L14,19 L18,19 L18,5z</string>
     <string name="pref_default_startup_screen" translatable="false">MUSIC</string>

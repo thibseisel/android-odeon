@@ -39,11 +39,8 @@
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
     <string name="play_or_pause">Play or pause</string>
-    <string name="action_loop">Loop</string>
-    <string name="now_playing">Now playing</string>
     <string name="skip_previous">Skip Previous</string>
     <string name="skip_next">Skip Next</string>
-    <string name="home_screen">Home screen</string>
     <string name="empty_artist">No artist</string>
     <string name="random_mix">Random mix</string>
     <string name="action_delete">Delete</string>
@@ -78,14 +75,11 @@
 
     <string name="song_item_subtitle" formatted="false">%1$s &#8226; %2$s</string>
     <string name="ok">OK</string>
-    <string name="no_thanks">No thanks</string>
-    <string name="repeat">Repeat</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
     <string name="action_play">Play</string>
     <string name="last_added">Last added</string>
     <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
-    <string name="title_automatic_playlists">Automatic playlists</string>
     <string name="home">Home</string>
     <string name="action_pause">Pause</string>
     <string name="channel_mediasession">Media playback</string>

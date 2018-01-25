@@ -17,9 +17,9 @@
 
 <level-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:drawable="@drawable/avd_pause_to_play"
+        android:drawable="@drawable/avd_playtopause"
         android:maxLevel="0"/>
     <item
-        android:drawable="@drawable/avd_play_to_pause"
+        android:drawable="@drawable/avd_pausetoplay"
         android:maxLevel="1"/>
 </level-list>

@@ -40,11 +40,8 @@
     <string name="action_next">Suivant</string>
     <string name="action_previous">Précédent</string>
     <string name="play_or_pause">Play ou pause</string>
-    <string name="action_loop">Répéter</string>
-    <string name="now_playing">Lecture en cours</string>
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
-    <string name="home_screen">Écran d\'accueil</string>
     <string name="random_mix">Mix aléatoire</string>
     <string name="empty_artist">Aucun artiste</string>
     <string name="action_delete">Supprimer</string>
@@ -77,15 +74,12 @@
     <string name="new_playlist_help_message">Sélectionnez les morceaux à ajouter</string>
     <string name="song_item_subtitle" formatted="false">%1$s &#8226; %2$s</string>
     <string name="ok">OK</string>
-    <string name="no_thanks">Non merci</string>
-    <string name="repeat">Répéter</string>
     <string name="action_play">Lire</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="last_added">Derniers ajouts</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
     <string name="home">Accueil</string>
-    <string name="title_automatic_playlists">Playlists automatiques</string>
     <string name="action_pause">Pause</string>
     <string name="channel_mediasession">Lecteur musical</string>
     <string name="channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -53,7 +54,7 @@ class PackageValidator(context: Context) {
                     var infos = validCertificates[certificate]
                     if (infos == null) {
                         infos = ArrayList()
-                        validCertificates.put(certificate, infos)
+                        validCertificates[certificate] = infos
                     }
                     Log.v(
                         TAG, """
@@ -138,6 +139,7 @@ class PackageValidator(context: Context) {
     /**
      * @return [PackageInfo] for the package name or null if it's not found.
      */
+    @SuppressLint("PackageManagerGetSignatures")
     private fun getPackageInfo(context: Context, pkgName: String): PackageInfo? {
         val pm = context.packageManager
         return try {

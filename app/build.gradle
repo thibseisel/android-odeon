@@ -73,16 +73,10 @@ android {
             }
         }
 
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
-        }
-
         // Beta build type make the application non-debuggable.
         // This make the application start quickly while still printing logs.
         beta {
             initWith debug
-            applicationIdSuffix ".beta"
             debuggable false
         }
     }

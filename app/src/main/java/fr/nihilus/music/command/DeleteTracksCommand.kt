@@ -60,8 +60,6 @@ class DeleteTracksCommand
 
     companion object {
 
-        private const val TAG = "DeleteTracksCmd"
-
         /**
          * The name of this command.
          *

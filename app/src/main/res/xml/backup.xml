@@ -16,5 +16,5 @@
   -->
 
 <full-backup-content>
-    <!-- Par défaut, Android enregistre tous les fichiers liés à l'application, sauf le cache. -->
+    <!-- By default, Android backs up all application files, excluding cache. -->
 </full-backup-content>

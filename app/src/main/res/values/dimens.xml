@@ -24,7 +24,7 @@
     <dimen name="song_item_height">72dp</dimen>
     <dimen name="album_art_item_side">56dp</dimen>
     <dimen name="song_title_size">14sp</dimen>
-    <dimen name="song_subtitle_size">13sp</dimen>
+    <dimen name="song_subtitle_size">14sp</dimen>
     <dimen name="tick_mark_inset">12dp</dimen>
     <dimen name="playerview_elevation">8dp</dimen>
     <dimen name="track_icon_corner_radius">4dp</dimen>

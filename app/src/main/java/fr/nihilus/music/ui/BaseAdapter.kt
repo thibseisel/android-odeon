@@ -46,9 +46,9 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
      *
      * @return A new ViewHolder that holds a View of the given view type.
      */
-    override abstract fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH
+    abstract override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH
 
-    override final fun onBindViewHolder(holder: VH, position: Int) {
+    final override fun onBindViewHolder(holder: VH, position: Int) {
         holder.onBind(items[position])
     }
 

@@ -117,10 +117,10 @@
     <!-- Action buttons -->
     <ImageView
         android:id="@+id/repeatButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
         android:background="?selectableItemBackgroundBorderless"
-        android:contentDescription="@string/repeat"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipPrevButton"
@@ -132,8 +132,9 @@
 
     <ImageView
         android:id="@+id/skipPrevButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="4dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_previous"
         android:scaleType="fitCenter"
@@ -151,7 +152,7 @@
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:contentDescription="@string/play_or_pause"
-        app:fabSize="normal"
+        app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipNextButton"
         app:layout_constraintLeft_toRightOf="@+id/skipPrevButton"
@@ -163,8 +164,9 @@
 
     <ImageView
         android:id="@+id/skipNextButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="4dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
         android:scaleType="fitCenter"
@@ -177,8 +179,9 @@
 
     <ImageView
         android:id="@+id/shuffleButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_random"
         android:scaleType="fitCenter"

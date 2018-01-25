@@ -55,7 +55,7 @@ import java.util.Map;
  * A reworked version of ExoPlayer's {@link MediaSessionConnector} that allow clients to override
  * the default way of updating media session metadata.
  *
- * @version ExoPlayer 2.6.0
+ * @version ExoPlayer 2.6.1
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class MediaSessionController {
@@ -127,7 +127,7 @@ public final class MediaSessionController {
     }
 
     /**
-     * @see MediaSessionConnector#MediaSessionConnector(MediaSessionCompat, PlaybackController, boolean)
+     * @see MediaSessionConnector#MediaSessionConnector(MediaSessionCompat, PlaybackController, boolean, String)
      */
     public MediaSessionController(MediaSessionCompat mediaSession,
                                   PlaybackController playbackController,

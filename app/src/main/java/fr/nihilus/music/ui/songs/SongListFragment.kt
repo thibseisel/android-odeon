@@ -240,7 +240,7 @@ class SongListFragment : Fragment(),
 
     companion object Factory {
 
-        private val REQUEST_CODE_DELETE_TRACKS = 21
+        private const val REQUEST_CODE_DELETE_TRACKS = 21
 
         fun newInstance(): SongListFragment {
             val args = Bundle(1)
