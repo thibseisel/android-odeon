@@ -15,10 +15,10 @@
   ~ limitations under the License.
   -->
 
-<merge xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/view_player">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:showIn="@layout/view_player">
 
     <ImageView
         android:id="@+id/iconView"
@@ -28,7 +28,7 @@
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="?colorAccent" />
+        tools:src="?colorAccent"/>
 
     <TextView
         android:id="@+id/titleView"
@@ -41,30 +41,30 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintBottom_toTopOf="@+id/subtitleView"
         app:layout_constraintLeft_toRightOf="@+id/iconView"
         app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Title of the song"
-        app:layout_constraintBottom_toTopOf="@+id/subtitleView"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Title of the song"/>
 
     <TextView
         android:id="@+id/subtitleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorTertiary"
+        app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
         app:layout_constraintStart_toEndOf="@id/iconView"
         app:layout_constraintTop_toBottomOf="@id/titleView"
-        tools:text="Artist name"
-        app:layout_constraintBottom_toTopOf="@+id/top_guideline" />
+        tools:text="Artist name"/>
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/playPauseButton"
@@ -77,5 +77,5 @@
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintRight_toLeftOf="@+id/end_guideline"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level_play_pause" />
+        android:src="@drawable/level_play_pause"/>
 </merge>

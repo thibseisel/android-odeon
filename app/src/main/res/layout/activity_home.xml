@@ -58,7 +58,7 @@
             android:id="@+id/playerShadow"
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            app:elevation="@dimen/playerview_elevation"
+            android:elevation="@dimen/playerview_elevation"
             android:layout_gravity="center"
             android:background="@drawable/shape_top_shadow"
             app:layout_anchor="@+id/playerView"/>
@@ -69,7 +69,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:layout_gravity="center"
-            app:elevation="@dimen/playerview_elevation"
+            android:elevation="@dimen/playerview_elevation"
             app:behavior_peekHeight="@dimen/playerview_height"
             app:layout_behavior="fr.nihilus.music.view.ScrimBottomSheetBehavior"/>
     </android.support.design.widget.CoordinatorLayout>

@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorLayout"
@@ -28,8 +29,8 @@
         android:id="@+id/appbarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="0dp"
         android:fitsSystemWindows="true"
-        app:elevation="0dp"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -51,13 +52,13 @@
                     android:id="@+id/albumArtView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintDimensionRatio="16:9"
                     android:contentDescription="@string/album_art"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/ic_album_24dp"/>
+                    android:src="@drawable/ic_album_24dp"
+                    app:layout_constraintDimensionRatio="16:9"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
             </android.support.constraint.ConstraintLayout>
 
             <android.support.v7.widget.Toolbar
@@ -115,9 +116,9 @@
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
-        app:layout_anchor="@id/collapsingToolbar"
+        android:src="@drawable/ic_play_arrow_24dp"
         app:backgroundTint="?colorBackgroundFloating"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_play_arrow_24dp"/>
+        app:layout_anchor="@id/collapsingToolbar"
+        app:layout_anchorGravity="bottom|end"/>
 
 </android.support.design.widget.CoordinatorLayout>

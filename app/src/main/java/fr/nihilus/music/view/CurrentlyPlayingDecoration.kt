@@ -19,8 +19,6 @@ package fr.nihilus.music.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
 import fr.nihilus.music.R
 
@@ -29,20 +27,14 @@ class CurrentlyPlayingDecoration(
     iconColor: Int
 ) : RecyclerView.ItemDecoration() {
 
-    private val icon: Drawable
+    private val icon: Drawable = context.getDrawable(R.drawable.currently_playing_decoration)
+            ?: throw IllegalStateException("Icon should not be null")
     private val paddingStart =
         context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
     var decoratedPosition = RecyclerView.NO_POSITION
 
     init {
-        val notNullIcon = checkNotNull(
-            AppCompatResources.getDrawable(
-                context,
-                R.drawable.currently_playing_decoration
-            )
-        ) { "Icon should not be null" }
-        icon = DrawableCompat.wrap(notNullIcon)
-        DrawableCompat.setTint(icon, iconColor)
+        icon.setTint(iconColor)
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {

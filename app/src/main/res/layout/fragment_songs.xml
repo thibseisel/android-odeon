@@ -15,11 +15,10 @@
   -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/contentFrame"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+             xmlns:tools="http://schemas.android.com/tools"
+             android:id="@+id/contentFrame"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <android.support.v4.widget.ContentLoadingProgressBar
         android:id="@android:id/progress"
@@ -59,7 +58,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@null"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/sad_panda" />
+                android:src="@drawable/sad_panda" />
 
             <TextView
                 android:layout_width="match_parent"

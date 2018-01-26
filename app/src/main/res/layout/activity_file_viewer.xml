@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -27,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="72dp" />
+        app:layout_constraintGuide_begin="72dp"/>
 
     <ImageView
         android:id="@+id/albumArtView"
@@ -37,16 +38,14 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/dummy_album_art" />
+        tools:src="@drawable/dummy_album_art"/>
 
     <TextView
         android:id="@+id/titleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -55,15 +54,13 @@
         app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Title of the song" />
+        tools:text="Title of the song"/>
 
     <TextView
         android:id="@+id/subtitleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
@@ -72,8 +69,9 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
         app:layout_constraintStart_toEndOf="@id/albumArtView"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        tools:text="Artist name" />
+        app:layout_constraintTop_toBottomOf="@+id/titleView"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="Artist name"/>
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/playPauseButton"
@@ -82,10 +80,10 @@
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
         android:scaleType="fitCenter"
+        android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level_play_pause" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <SeekBar
         android:id="@+id/progress"
@@ -93,6 +91,6 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline"
-        tools:progress="100" />
+        tools:progress="100"/>
 
 </android.support.constraint.ConstraintLayout>

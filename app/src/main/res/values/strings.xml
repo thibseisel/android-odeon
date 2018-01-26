@@ -35,12 +35,12 @@
     <string name="search_music_hint">Search the music library</string>
     <string name="playback_service_label">Audio Playback Service</string>
     <string name="action_playlists">Playlists</string>
-    <string name="action_random">Random</string>
+    <string name="action_shuffle_mode">Toggle shuffle mode</string>
     <string name="action_next">Next</string>
     <string name="action_previous">Previous</string>
     <string name="play_or_pause">Play or pause</string>
-    <string name="skip_previous">Skip Previous</string>
-    <string name="skip_next">Skip Next</string>
+    <string name="skip_previous">Skip to previous</string>
+    <string name="skip_next">Skip to next</string>
     <string name="empty_artist">No artist</string>
     <string name="random_mix">Random mix</string>
     <string name="action_delete">Delete</string>
@@ -91,4 +91,5 @@
     <string name="player_unknown_error">An unknown error occurred.</string>
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
     <string name="action_condensed_play_shuffled">Read shuffled</string>
+    <string name="action_repeat_mode">Toggle repeat mode</string>
 </resources>

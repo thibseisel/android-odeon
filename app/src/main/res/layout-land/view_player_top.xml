@@ -15,10 +15,10 @@
   ~ limitations under the License.
   -->
 
-<merge xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:showIn="@layout/view_player">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       tools:showIn="@layout/view_player">
 
     <ImageView
         android:id="@+id/iconView"
@@ -28,7 +28,7 @@
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="?colorAccent" />
+        tools:src="?colorAccent"/>
 
     <TextView
         android:id="@+id/titleView"
@@ -46,7 +46,7 @@
         app:layout_constraintRight_toLeftOf="@+id/miniPrevButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Title of the song" />
+        tools:text="Title of the song"/>
 
     <TextView
         android:id="@+id/subtitleView"
@@ -64,7 +64,7 @@
         app:layout_constraintRight_toLeftOf="@+id/miniPrevButton"
         app:layout_constraintStart_toEndOf="@id/iconView"
         app:layout_constraintTop_toBottomOf="@id/titleView"
-        tools:text="Artist name" />
+        tools:text="Artist name"/>
 
     <ImageView
         android:id="@+id/miniPrevButton"
@@ -74,10 +74,10 @@
         android:contentDescription="@string/play_or_pause"
         android:padding="12dp"
         android:scaleType="fitCenter"
+        android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_skip_previous_24dp" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/playPauseButton"
@@ -87,10 +87,10 @@
         android:contentDescription="@string/play_or_pause"
         android:padding="12dp"
         android:scaleType="fitCenter"
+        android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintRight_toLeftOf="@+id/miniNextButton"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/level_play_pause" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/miniNextButton"
@@ -100,8 +100,8 @@
         android:contentDescription="@string/skip_next"
         android:padding="12dp"
         android:scaleType="fitCenter"
+        android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintRight_toLeftOf="@id/end_guideline"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_skip_next_24dp" />
+        app:layout_constraintTop_toTopOf="parent"/>
 </merge>

@@ -26,7 +26,6 @@ import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
@@ -103,11 +102,10 @@ class AlbumDetailActivity : AppCompatActivity(),
     private fun setupAlbumArt() {
         val albumArtView: ImageView = findViewById(R.id.albumArtView)
         ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME)
-        val defaultAlbumArt = AppCompatResources.getDrawable(this, R.drawable.ic_album_24dp)
 
         GlideApp.with(this).asBitmap()
             .load(pickedAlbum.description.iconUri)
-            .fallback(defaultAlbumArt)
+            .fallback(R.drawable.ic_album_24dp)
             .centerCrop()
             .into(albumArtView)
     }

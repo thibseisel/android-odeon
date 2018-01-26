@@ -60,7 +60,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@null"
                 android:scaleType="fitCenter"
-                app:srcCompat="@drawable/ic_person_24dp"/>
+                android:src="@drawable/ic_person_24dp"/>
 
             <TextView
                 android:layout_width="match_parent"

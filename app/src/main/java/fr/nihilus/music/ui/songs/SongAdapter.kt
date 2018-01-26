@@ -19,7 +19,6 @@ package fr.nihilus.music.ui.songs
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.content.res.AppCompatResources
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
@@ -45,14 +44,12 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     init {
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultTrackIcon =
-            AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
         registerDataSetObserver(indexer)
         glideRequest = GlideApp.with(fragment).asBitmap()
             .transforms(FitCenter(), RoundedCorners(cornerRadius))
-            .fallback(defaultTrackIcon)
+            .fallback(R.drawable.ic_audiotrack_24dp)
     }
 
     override fun getCount() = songs.size

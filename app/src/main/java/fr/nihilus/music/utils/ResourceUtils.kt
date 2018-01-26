@@ -23,12 +23,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.support.annotation.AttrRes
 import android.support.annotation.ColorInt
 import android.support.annotation.FloatRange
 import android.support.annotation.Px
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.content.res.AppCompatResources
 import android.util.TypedValue
 
@@ -101,15 +99,3 @@ fun loadResourceAsBitmap(
     }
 }
 
-/**
- * Returns this drawable tinted with the specified color.
- *
- * @receiver The drawable resource to tint.
- * @param tintColor The color to apply as the tint.
- * @return The tinted drawable.
- */
-fun Drawable.tintedWith(tintColor: Int): Drawable {
-    val wrappedDrawable = DrawableCompat.wrap(this)
-    DrawableCompat.setTint(wrappedDrawable, tintColor)
-    return wrappedDrawable
-}

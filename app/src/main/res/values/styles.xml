@@ -31,6 +31,11 @@
         </item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
+
+        <!-- Enable window content transition -->
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     </style>
 
     <style name="AppTheme" parent="Base.AppTheme"/>
@@ -38,6 +43,8 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
@@ -54,10 +61,8 @@
     </style>
 
     <style name="Widget.AppTheme.ProgressBar" parent="Widget.AppCompat.SeekBar">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="paddingStart">0dp</item>
-        <item name="paddingEnd">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
     </style>
 
     <style name="Widget.AppTheme.CardView" parent="Base.CardView">
@@ -69,7 +74,7 @@
 
 
     <style name="Widget.AppTheme.CardView.Animated">
-        <!-- Animation is available for API 21+ -->
+        <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
     <style name="Base.AppTheme.DialogWhenLarge" parent="Theme.AppCompat.DayNight.DialogWhenLarge">

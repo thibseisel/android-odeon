@@ -18,7 +18,6 @@ package fr.nihilus.music.ui.playlist
 
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
-import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.bumptech.glide.load.resource.bitmap.FitCenter
@@ -39,11 +38,10 @@ internal class MembersAdapter(
 
     init {
         val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
             .transforms(FitCenter(), RoundedCorners(cornerRadius))
-            .fallback(defaultIcon)
+            .fallback(R.drawable.ic_audiotrack_24dp)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =

@@ -48,8 +48,8 @@ internal class ArtistDetailAdapter(
             ContextCompat.getColor(context, android.R.color.white)
         )
 
-        val defaultAlbumIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
-        val defaultTrackIcon = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
+        val defaultAlbumIcon = context.getDrawable(R.drawable.ic_album_24dp)
+        val defaultTrackIcon = context.getDrawable(R.drawable.ic_audiotrack_24dp)
         paletteLoader = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
             .centerCrop()
             .fallback(defaultAlbumIcon)

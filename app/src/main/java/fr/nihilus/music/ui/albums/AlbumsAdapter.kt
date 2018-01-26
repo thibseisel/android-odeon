@@ -20,7 +20,6 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.palette.PaletteBitmap
@@ -34,8 +33,11 @@ internal class AlbumsAdapter(
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
-    private val glideRequest: RequestBuilder<PaletteBitmap>
     private val defaultColors: IntArray
+    private val glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
+        .fallback(R.drawable.ic_album_24dp)
+        .region(0f, .75f, 1f, 1f)
+        .centerCrop()
 
     init {
         val ctx = checkNotNull(fragment.context) { "Fragment is not attached" }
@@ -45,12 +47,6 @@ internal class AlbumsAdapter(
             ContextCompat.getColor(ctx, android.R.color.white),
             ContextCompat.getColor(ctx, android.R.color.white)
         )
-
-        val dummyAlbumArt = ContextCompat.getDrawable(ctx, R.drawable.ic_album_24dp)
-        glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
-            .centerCrop()
-            .fallback(dummyAlbumArt)
-            .region(0f, .75f, 1f, 1f)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {

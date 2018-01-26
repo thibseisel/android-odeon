@@ -16,13 +16,10 @@
 
 package fr.nihilus.music.ui.playlist
 
-import android.graphics.Bitmap
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
@@ -39,14 +36,8 @@ internal class PlaylistsAdapter(
 ) : BaseAdapter<PlaylistHolder>() {
 
     private val playlists = ArrayList<MediaItem>()
-    private val glideRequest: RequestBuilder<Bitmap>
-
-    init {
-        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
-        val defaultIcon = ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp)
-        glideRequest = GlideApp.with(fragment).asBitmap()
-            .fallback(defaultIcon)
-    }
+    private val glideRequest = GlideApp.with(fragment).asBitmap()
+        .fallback(R.drawable.ic_playlist_24dp)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder {
         return PlaylistHolder(parent, glideRequest).also { holder ->

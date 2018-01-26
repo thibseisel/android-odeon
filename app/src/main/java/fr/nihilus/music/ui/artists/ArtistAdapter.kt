@@ -16,14 +16,11 @@
 
 package fr.nihilus.music.ui.artists
 
-import android.graphics.Bitmap
 import android.support.v4.app.Fragment
-import android.support.v7.content.res.AppCompatResources
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.ArtistHolder
 import fr.nihilus.music.utils.MediaID
@@ -33,16 +30,9 @@ internal class ArtistAdapter(
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<ArtistHolder>() {
 
-    private val glide: GlideRequest<Bitmap>
-
-    init {
-        val context = checkNotNull(fragment.context) { "Fragment is not attached" }
-        val defaultIcon = AppCompatResources.getDrawable(context, R.drawable.ic_person_24dp)
-
-        glide = GlideApp.with(fragment).asBitmap()
-            .centerCrop()
-            .fallback(defaultIcon)
-    }
+    private val glide = GlideApp.with(fragment).asBitmap()
+        .fallback(R.drawable.ic_person_24dp)
+        .centerCrop()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {
         return ArtistHolder(parent, glide).also { holder ->

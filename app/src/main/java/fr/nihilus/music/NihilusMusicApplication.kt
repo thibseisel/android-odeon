@@ -19,7 +19,6 @@ package fr.nihilus.music
 import android.app.Activity
 import android.app.Application
 import android.app.Service
-import android.os.Build
 import android.support.v7.app.AppCompatDelegate
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -40,11 +39,6 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
 
     override fun onCreate() {
         super.onCreate()
-
-        // Allow inflating vector drawables on API < 21 via the support library
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        }
 
         DaggerAppComponent.builder()
             .application(this)

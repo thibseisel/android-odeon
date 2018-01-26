@@ -36,7 +36,7 @@
     <string name="search_music_hint">Chercher dans ma bibliothèque</string>
     <string name="playback_service_label">Service du Lecteur Musical</string>
     <string name="action_playlists">Playlists</string>
-    <string name="action_random">Aléatoire</string>
+    <string name="action_shuffle_mode">Activer la lecture aléatoire</string>
     <string name="action_next">Suivant</string>
     <string name="action_previous">Précédent</string>
     <string name="play_or_pause">Play ou pause</string>
@@ -90,4 +90,5 @@
     <string name="player_unknown_error">Une erreur inattendue s\'est produite.</string>
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
     <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
+    <string name="action_repeat_mode">Répéter la lecture</string>
 </resources>
