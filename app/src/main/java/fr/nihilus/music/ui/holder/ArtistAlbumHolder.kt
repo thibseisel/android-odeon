@@ -18,7 +18,6 @@ package fr.nihilus.music.ui.holder
 
 import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.view.ViewCompat
 import android.support.v7.widget.CardView
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -66,7 +65,7 @@ internal class ArtistAlbumHolder(
         title.text = description.title
 
         setColors(defaultColors[0], defaultColors[1], defaultColors[2], defaultColors[3])
-        ViewCompat.setTransitionName(albumArt, "art_" + item.mediaId)
+        albumArt.transitionName = "art_" + item.mediaId
 
         glide.load(description.iconUri).into(object : ImageViewTarget<PaletteBitmap>(albumArt) {
             override fun setResource(resource: PaletteBitmap?) {

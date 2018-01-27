@@ -18,7 +18,6 @@ package fr.nihilus.music.ui.holder
 
 import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.view.ViewCompat
 import android.support.v7.widget.CardView
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -92,6 +91,6 @@ internal class AlbumHolder(
         setColors(defaultColors[0], defaultColors[1], defaultColors[2], defaultColors[3])
 
         glide.load(description.iconUri).into(albumViewTarget)
-        ViewCompat.setTransitionName(albumArt, "image_" + description.mediaId)
+        albumArt.transitionName = "image_" + description.mediaId
     }
 }

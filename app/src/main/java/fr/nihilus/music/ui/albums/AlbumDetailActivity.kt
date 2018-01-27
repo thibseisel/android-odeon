@@ -24,7 +24,6 @@ import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
@@ -101,7 +100,7 @@ class AlbumDetailActivity : AppCompatActivity(),
 
     private fun setupAlbumArt() {
         val albumArtView: ImageView = findViewById(R.id.albumArtView)
-        ViewCompat.setTransitionName(albumArtView, ALBUM_ART_TRANSITION_NAME)
+        albumArtView.transitionName = ALBUM_ART_TRANSITION_NAME
 
         GlideApp.with(this).asBitmap()
             .load(pickedAlbum.description.iconUri)
@@ -132,10 +131,10 @@ class AlbumDetailActivity : AppCompatActivity(),
      *
      * @param colors array of colors containing the following :
      *
-     *  * [0] Primary Color
-     *  * [1] Accent Color
-     *  * [2] Title text color
-     *  * [3] Body text color
+     *  * (0) Primary Color
+     *  * (1) Accent Color
+     *  * (2) Title text color
+     *  * (3) Body text color
      *
      */
     private fun applyPaletteTheme(@ColorInt colors: IntArray) {

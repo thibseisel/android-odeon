@@ -26,7 +26,6 @@ import android.os.ResultReceiver
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
-import android.support.v4.view.ViewCompat
 import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.AbsListView.MultiChoiceModeListener
@@ -104,7 +103,6 @@ class SongListFragment : Fragment(),
             emptyView = view.findViewById(android.R.id.empty)
             choiceMode = ListView.CHOICE_MODE_MULTIPLE_MODAL
             setMultiChoiceModeListener(multiSelectMode)
-            ViewCompat.setNestedScrollingEnabled(this, true)
         }
 
         listContainer.visibility = View.GONE
