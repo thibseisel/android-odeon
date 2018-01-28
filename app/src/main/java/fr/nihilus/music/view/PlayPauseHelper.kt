@@ -17,7 +17,6 @@
 package fr.nihilus.music.view
 
 import android.graphics.drawable.Animatable
-import android.os.Build
 import android.widget.ImageView
 
 private const val LEVEL_PLAYING = 0
@@ -29,7 +28,13 @@ private const val LEVEL_PAUSED = 1
  *
  * @param view The ImageView that will display the icon.
  */
-class PlayPauseHelper(private val view: ImageView) {
+class PlayPauseHelper(val view: ImageView) {
+
+    private val updateIconTask = Runnable {
+        view.setImageLevel(if (isPlaying == true) LEVEL_PLAYING else LEVEL_PAUSED)
+        // Start transition to the next state
+        (view.drawable?.current as? Animatable)?.start()
+    }
 
     /**
      * Whether the associated view should display its "playing" state.
@@ -42,20 +47,10 @@ class PlayPauseHelper(private val view: ImageView) {
     var isPlaying: Boolean? = null
         set(value) {
             if (field != value) {
-
-                view.setImageLevel(if (value == true) LEVEL_PLAYING else LEVEL_PAUSED)
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    // Start transition to the next state
-                    (view.drawable?.current as? Animatable)?.start()
-
-                    // For API 25+, invalidate View to take the transition into account
-                    // because UI thread is busy during initialization
-                    // and AnimatedVectorDrawable is rendered on RenderThread.
-                    if (field == null) view.invalidate()
-                }
-
                 field = value
+
+                // Update icon when the next frame could be drawn
+                view.post(updateIconTask)
             }
         }
 }
