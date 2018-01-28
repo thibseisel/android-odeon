@@ -109,6 +109,7 @@ dependencies {
     // My libraries
     implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
     implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
+    implementation 'com.github.thibseisel:ratioimageview:1.0.0'
 
     // ExoPlayer
     implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
