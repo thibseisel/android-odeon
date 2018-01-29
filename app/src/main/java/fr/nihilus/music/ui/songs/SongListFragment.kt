@@ -91,8 +91,7 @@ class SongListFragment : Fragment(),
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_songs, container, false)
+    ): View = inflater.inflate(R.layout.fragment_songs, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

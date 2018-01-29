@@ -30,12 +30,6 @@ private const val LEVEL_PAUSED = 1
  */
 class PlayPauseHelper(val view: ImageView) {
 
-    private val updateIconTask = Runnable {
-        view.setImageLevel(if (isPlaying == true) LEVEL_PLAYING else LEVEL_PAUSED)
-        // Start transition to the next state
-        (view.drawable?.current as? Animatable)?.start()
-    }
-
     /**
      * Whether the associated view should display its "playing" state.
      * If the configured drawables can be animated, then the animation will only be triggered
@@ -47,10 +41,18 @@ class PlayPauseHelper(val view: ImageView) {
     var isPlaying: Boolean? = null
         set(value) {
             if (field != value) {
-                field = value
 
-                // Update icon when the next frame could be drawn
-                view.post(updateIconTask)
+                if (field == null) {
+                    // Initializing state : do not trigger an animation.
+                    // Reverse the logic to show the correct static icon.
+                    view.setImageLevel(if (value == true) LEVEL_PAUSED else LEVEL_PLAYING)
+                } else {
+                    // Set the correct level then trigger transition to the next state
+                    view.setImageLevel(if (value == true) LEVEL_PLAYING else LEVEL_PAUSED)
+                    (view.drawable?.current as? Animatable)?.start()
+                }
+
+                field = value
             }
         }
 }
