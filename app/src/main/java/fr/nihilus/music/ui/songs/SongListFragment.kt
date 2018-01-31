@@ -150,18 +150,9 @@ class SongListFragment : Fragment(),
     }
 
     private fun deleteSelectedTracks() {
-        var index = 0
-        val checkedPositions = list.checkedItemPositions
-        val toDelete = LongArray(list.checkedItemCount)
-        for (i in 0 until checkedPositions.size()) {
-            if (checkedPositions.valueAt(i)) {
-                val pos = checkedPositions.keyAt(i)
-                toDelete[index++] = songAdapter.getItemId(pos)
-            }
-        }
-
+        val checkedItemIds = list.checkedItemIds
         val params = Bundle(1)
-        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, toDelete)
+        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, list.checkedItemIds)
 
         viewModel.post { controller ->
             controller.sendCommand(DeleteTracksCommand.CMD_NAME,
@@ -170,11 +161,10 @@ class SongListFragment : Fragment(),
                     override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
                         val rootView = view
                         if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
-                            val message = resources
-                                .getQuantityString(
-                                    R.plurals.deleted_songs_confirmation,
-                                    toDelete.size
-                                )
+                            val message = resources.getQuantityString(
+                                R.plurals.deleted_songs_confirmation,
+                                checkedItemIds.size
+                            )
                             Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                         }
                     }
@@ -236,7 +226,6 @@ class SongListFragment : Fragment(),
     }
 
     companion object Factory {
-
         private const val REQUEST_CODE_DELETE_TRACKS = 21
 
         fun newInstance(): SongListFragment {
