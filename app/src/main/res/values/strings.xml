@@ -92,4 +92,5 @@
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
     <string name="action_condensed_play_shuffled">Read shuffled</string>
     <string name="action_repeat_mode">Toggle repeat mode</string>
+    <string name="action_create_playlist">New playlist</string>
 </resources>

@@ -157,6 +157,7 @@ public final class MediaID {
         return mediaID.split(String.valueOf(CATEGORY_SEPARATOR));
     }
 
+    @Nullable
     public static String extractBrowseCategoryValueFromMediaID(@NonNull String mediaID) {
         String[] hierarchy = getHierarchy(mediaID);
         if (hierarchy.length == 2) {
@@ -188,5 +189,22 @@ public final class MediaID {
         }
 
         return mediaId.substring(0, indexOfLeaf);
+    }
+
+    @NonNull
+    public static String getIdRoot(@NonNull String mediaId) {
+        int indexOfCategory = mediaId.indexOf(CATEGORY_SEPARATOR);
+        int indexOfLeaf = mediaId.indexOf(LEAF_SEPARATOR);
+
+        if (indexOfCategory > 0) {
+            // Media ID has categories. Root is before the first category separator.
+            return mediaId.substring(0, indexOfCategory);
+        } else if (indexOfLeaf > 0) {
+            // Media ID has only a music id. Root is before the leaf separator.
+            return mediaId.substring(0, indexOfLeaf);
+        } else {
+            // Media Id is only composed of the root.
+            return mediaId;
+        }
     }
 }

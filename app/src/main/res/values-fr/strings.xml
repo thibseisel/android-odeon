@@ -91,4 +91,5 @@
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
     <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
     <string name="action_repeat_mode">Répéter la lecture</string>
+    <string name="action_create_playlist">Nouvelle playlist</string>
 </resources>

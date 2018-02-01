@@ -21,6 +21,7 @@ import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
+import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.MembersFragment
 import fr.nihilus.music.ui.playlist.NewPlaylistFragment
 import fr.nihilus.music.ui.playlist.PlaylistsFragment
@@ -34,32 +35,28 @@ import fr.nihilus.music.ui.songs.SongListFragment
 @Module
 abstract class MusicLibraryModule {
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeSongListFragment(): SongListFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeAlbumGridFragment(): AlbumGridFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeArtistsFragment(): ArtistsFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeArtistDetailFragment(): ArtistDetailFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributePlaylistsFragment(): PlaylistsFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeNewPlaylistFragment(): NewPlaylistFragment
 
-    @FragmentScoped
-    @ContributesAndroidInjector
+    @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeMembersFragment(): MembersFragment
+
+    @FragmentScoped @ContributesAndroidInjector
+    abstract fun contributeAddToPlaylistDialog(): AddToPlaylistDialog
 
 }
