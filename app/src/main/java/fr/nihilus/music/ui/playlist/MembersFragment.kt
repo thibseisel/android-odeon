@@ -21,8 +21,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.util.Log
@@ -91,8 +89,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
                     title = dialogTitle,
                     positiveButton = R.string.ok,
                     negativeButton = R.string.cancel
-                )
-                    .show(fragmentManager, null)
+                ).show(fragmentManager, null)
                 return true
             }
         }
@@ -137,25 +134,14 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     }
 
     private fun deleteThisPlaylist() {
-        val playlistId = MediaID.extractBrowseCategoryValueFromMediaID(playlist.mediaId!!).toLong()
-        val params = Bundle(1)
-        params.putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
+        val playlistId = MediaID.browseCategoryOf(playlist.mediaId!!).toLong()
+        val params = Bundle(1).apply {
+            putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
+        }
 
-        viewModel.post {
-            it.sendCommand(
-                DeletePlaylistCommand.CMD_NAME,
-                params,
-                object : ResultReceiver(Handler()) {
-                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                        when (resultCode) {
-                            MediaSessionCommand.CODE_SUCCESS -> router.navigateBack()
-                            else -> Log.e(
-                                TAG,
-                                "Delete playlist: unexpected resultCode = $resultCode"
-                            )
-                        }
-                    }
-                })
+        viewModel.postCommand(DeletePlaylistCommand.CMD_NAME, params) { resultCode, _ ->
+            if (resultCode == MediaSessionCommand.CODE_SUCCESS) router.navigateBack()
+            else Log.e(TAG, "Delete playlist: unexpected resultCode = $resultCode")
         }
     }
 
@@ -165,13 +151,11 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         private const val ARG_DELETABLE = "deletable"
         private const val REQUEST_DELETE_PLAYLIST = 66
 
-        fun newInstance(playlist: MediaItem, deletable: Boolean): MembersFragment {
-            return MembersFragment().apply {
-                arguments = Bundle(3).apply {
-                    putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
-                    putParcelable(ARG_PLAYLIST, playlist)
-                    putBoolean(ARG_DELETABLE, deletable)
-                }
+        fun newInstance(playlist: MediaItem, deletable: Boolean) = MembersFragment().apply {
+            arguments = Bundle(3).apply {
+                putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
+                putParcelable(ARG_PLAYLIST, playlist)
+                putBoolean(ARG_DELETABLE, deletable)
             }
         }
     }

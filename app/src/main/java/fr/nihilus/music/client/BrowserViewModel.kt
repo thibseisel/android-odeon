@@ -20,13 +20,17 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.ComponentName
 import android.content.Context
+import android.os.Bundle
+import android.os.Handler
 import android.os.RemoteException
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.MediaControllerRequest
+import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
 import java.lang.ref.WeakReference
@@ -68,7 +72,7 @@ class BrowserViewModel
     /**
      * Post a request to execute instructions on a media controller.
      * If the media browser is not actually connected to its service, requests are delayed
-     * then processed in order whenever the media browser (re)connects.
+     * then processed in order as soon as the media browser (re)connects.
      *
      * The provided controller instance is guaranteed to be connected to the service
      * at the time this method is called, but should not be cached as it may become
@@ -85,6 +89,31 @@ class BrowserViewModel
 
         // Otherwise, enqueue the request until media browser is connected
         requestQueue.offer(request)
+    }
+
+    /**
+     * Post a command to be sent to the MediaBrowserService.
+     * If the media browser is not actually connected to its service, requests are delayed
+     * then processed in order as soon as the media browser (re)connects.
+     *
+     * If the specified command is not supported, the passed callback function will be called with
+     * the result code [MediaSessionCommand.CODE_UNKNOWN_COMMAND].
+     *
+     * @param commandName The name of the command to execute.
+     * @param params The parameters to be passed to the command.
+     * They may be required or optional depending on the command to execute.
+     * @param onResultReceived The function to be called when the command has been processed.
+     */
+    inline fun postCommand(
+        commandName: String,
+        params: Bundle?,
+        crossinline onResultReceived: (resultCode: Int, resultData: Bundle?) -> Unit
+    ) = post { controller ->
+        controller.sendCommand(commandName, params, object : ResultReceiver(Handler()) {
+            override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                onResultReceived.invoke(resultCode, resultData)
+            }
+        })
     }
 
     /**

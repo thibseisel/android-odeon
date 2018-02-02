@@ -16,10 +16,12 @@
 
 package fr.nihilus.music.ui.playlist
 
+import android.app.Activity
 import android.app.Dialog
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -34,25 +36,53 @@ import android.widget.TextView
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.command.EditPlaylistCommand
+import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.utils.MediaID
 
-@ActivityScoped
+/**
+ * A fragment displaying an Alert Dialog prompting the user to choose to which playlists
+ * he wants to add a set of tracks.
+ * He may also trigger another dialog allowing him to create a new playlist from the given tracks.
+ */
 class AddToPlaylistDialog : AppCompatDialogFragment() {
 
-    private lateinit var viewModel: BrowserViewModel
+    private lateinit var browserViewModel: BrowserViewModel
     private lateinit var playlistAdapter: ListAdapter
 
     companion object Factory {
         private const val ARG_SELECTED_TRACKS = "selected_tracks_ids"
+
+        /**
+         * The tag associated with this dialog.
+         * This may be used to identify the dialog in the fragment manager.
+         */
         const val TAG = "AddToPlaylistDialog"
 
-        fun newInstance(caller: Fragment, selectedTracksIds: LongArray) =
+        /**
+         * The number of tracks that have been added to the playlist
+         * as a result of calling this dialog.
+         * This is passed as an extra in the caller's [Fragment.onActivityResult].
+         *
+         * Type: `Int`
+         */
+        const val RESULT_TRACK_COUNT = "track_count"
+
+        /**
+         * The title of the playlist the tracks have been added to
+         * as a result of calling this dialog.
+         * This is passed as an extra in the caller's [Fragment.onActivityResult].
+         *
+         * Type: `String`
+         */
+        const val RESULT_PLAYLIST_TITLE = "playlist_title"
+
+        fun newInstance(caller: Fragment, requestCode: Int, selectedTracksIds: LongArray) =
             AddToPlaylistDialog().apply {
-                setTargetFragment(caller, 12)
+                setTargetFragment(caller, requestCode)
                 arguments = Bundle(1).apply {
                     putLongArray(ARG_SELECTED_TRACKS, selectedTracksIds)
                 }
@@ -76,24 +106,59 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+        browserViewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
     }
 
     override fun onStart() {
         super.onStart()
-        viewModel.subscribe(MediaID.ID_PLAYLISTS, updateItemsCallback)
+        browserViewModel.subscribe(MediaID.ID_PLAYLISTS, updateItemsCallback)
     }
 
     override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_PLAYLISTS)
+        browserViewModel.unsubscribe(MediaID.ID_PLAYLISTS)
         super.onStop()
     }
 
-    private val dialogEventHandler = DialogInterface.OnClickListener { _, item ->
-        when (item) {
-            DialogInterface.BUTTON_POSITIVE -> TODO("Bouton neutre")
-            else -> TODO("Position de l'élément cliqué dans l'adapter")
+    private val dialogEventHandler = DialogInterface.OnClickListener { _, position ->
+        if (position >= 0) {
+            // The clicked element is a playlist
+            val playlist = playlistAdapter.getItem(position)
+            val trackIds = arguments?.getLongArray(ARG_SELECTED_TRACKS) ?: LongArray(0)
+            performAddToPlaylist(playlist, trackIds)
+
+        } else if (position == DialogInterface.BUTTON_POSITIVE) {
+            // The "New playlist" action has been selected
+            callNewPlaylistDialog()
         }
+    }
+
+    private fun performAddToPlaylist(playlist: MediaItem, newTrackIds: LongArray) {
+
+        val playlistId = MediaID.browseCategoryOf(playlist.mediaId!!).toLong()
+        val params = Bundle(2).apply {
+            putLong(EditPlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
+            putLongArray(EditPlaylistCommand.PARAM_NEW_TRACKS, newTrackIds)
+        }
+
+        browserViewModel.postCommand(EditPlaylistCommand.CMD_NAME, params) { resultCode, _ ->
+            // Only notify clients when the operation is successful
+            if (resultCode == MediaSessionCommand.CODE_SUCCESS) {
+                targetFragment?.onActivityResult(
+                    targetRequestCode,
+                    Activity.RESULT_OK,
+                    Intent().apply {
+                        putExtra(RESULT_TRACK_COUNT, newTrackIds.size)
+                        putExtra(RESULT_PLAYLIST_TITLE, playlist.description.title ?: "")
+                    }
+                )
+            }
+        }
+    }
+
+    private fun callNewPlaylistDialog() {
+        val memberTracks = arguments?.getLongArray(ARG_SELECTED_TRACKS) ?: LongArray(0)
+        NewPlaylistDialog.newInstance(targetFragment!!, targetRequestCode, memberTracks)
+            .show(fragmentManager, NewPlaylistDialog.TAG)
     }
 
     private val updateItemsCallback = object : SubscriptionCallback() {
@@ -104,6 +169,13 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         }
     }
 
+    override fun onCancel(dialog: DialogInterface?) {
+        targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
+    }
+
+    /**
+     * The adapter used to display available playlists in the dialog's body.
+     */
     private class ListAdapter(fragment: Fragment) : BaseAdapter() {
 
         private val items = ArrayList<MediaItem>()
@@ -116,7 +188,7 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         override fun getItemId(position: Int): Long {
             return if (hasStableIds()) {
                 val mediaId = items[position].mediaId!!
-                MediaID.extractBrowseCategoryValueFromMediaID(mediaId)?.toLong() ?: -1L
+                MediaID.browseCategoryOf(mediaId)?.toLong() ?: -1L
             } else -1L
         }
 
@@ -141,6 +213,9 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         }
     }
 
+    /**
+     * Holds references to views representing a playlist item.
+     */
     private class PlaylistHolder(itemView: View) {
         private val icon = itemView.findViewById<ImageView>(R.id.iconView)
         private val title = itemView.findViewById<TextView>(R.id.titleView)

@@ -16,13 +16,12 @@
 
 package fr.nihilus.music.ui.songs
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
@@ -38,6 +37,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.DeleteTracksCommand
 import fr.nihilus.music.command.MediaSessionCommand
+import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import kotlinx.android.synthetic.main.fragment_songs.*
@@ -152,29 +152,47 @@ class SongListFragment : Fragment(),
     private fun deleteSelectedTracks() {
         val checkedItemIds = list.checkedItemIds
         val params = Bundle(1)
-        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, list.checkedItemIds)
+        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, checkedItemIds)
 
-        viewModel.post { controller ->
-            controller.sendCommand(DeleteTracksCommand.CMD_NAME,
-                params, object : ResultReceiver(Handler()) {
-
-                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                        val rootView = view
-                        if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
-                            val message = resources.getQuantityString(
-                                R.plurals.deleted_songs_confirmation,
-                                checkedItemIds.size
-                            )
-                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                        }
-                    }
-                })
+        viewModel.postCommand(DeleteTracksCommand.CMD_NAME, params) { resultCode, _ ->
+            val rootView = view
+            if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
+                val userMessage = resources.getQuantityString(
+                    R.plurals.deleted_songs_confirmation,
+                    checkedItemIds.size
+                )
+                Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
+            }
         }
     }
 
+    private fun openPlaylistChooserDialog() {
+        val checkedItemIds = list.checkedItemIds
+        val dialog = AddToPlaylistDialog.newInstance(this, REQUEST_ADD_TO_PLAYLIST, checkedItemIds)
+        dialog.show(fragmentManager!!, AddToPlaylistDialog.TAG)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        // User has confirmed his intention to delete track(s)
         if (requestCode == REQUEST_CODE_DELETE_TRACKS && resultCode == DialogInterface.BUTTON_POSITIVE) {
             deleteSelectedTracks()
+            multiSelectMode.finish()
+        }
+
+        // Track(s) have been added to a playlist
+        if (requestCode == REQUEST_ADD_TO_PLAYLIST && resultCode == Activity.RESULT_OK) {
+
+            if (data != null) {
+                // Display a confirmation message as a Toast
+                val addedCount = data.getIntExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, 0)
+                val playlistTitle = data.getStringExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE)
+
+                val userMessage = resources.getQuantityString(R.plurals.tracks_added_to_playlist,
+                    addedCount, addedCount, playlistTitle)
+                Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
+            }
+
             multiSelectMode.finish()
         }
     }
@@ -208,8 +226,7 @@ class SongListFragment : Fragment(),
                 true
             }
             R.id.action_playlist -> {
-                // TODO Prepare a playlist with the selected items
-                mode.finish()
+                openPlaylistChooserDialog()
                 true
             }
             else -> false
@@ -227,6 +244,7 @@ class SongListFragment : Fragment(),
 
     companion object Factory {
         private const val REQUEST_CODE_DELETE_TRACKS = 21
+        private const val REQUEST_ADD_TO_PLAYLIST = 29
 
         fun newInstance(): SongListFragment {
             val args = Bundle(1)

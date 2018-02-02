@@ -25,18 +25,19 @@ import dagger.multibindings.StringKey
 @Module
 abstract class CommandModule {
 
-    @Binds
-    @IntoMap
+    @Binds @IntoMap
     @StringKey(NewPlaylistCommand.CMD_NAME)
     abstract fun bindNewPlaylistCommand(cmd: NewPlaylistCommand): MediaSessionCommand
 
-    @Binds
-    @IntoMap
+    @Binds @IntoMap
+    @StringKey(EditPlaylistCommand.CMD_NAME)
+    abstract fun bindEditPlaylistCOmmand(cmd: EditPlaylistCommand): MediaSessionCommand
+
+    @Binds @IntoMap
     @StringKey(DeletePlaylistCommand.CMD_NAME)
     abstract fun bindDeletePlaylistCommand(cmd: DeletePlaylistCommand): MediaSessionCommand
 
-    @Binds
-    @IntoMap
+    @Binds @IntoMap
     @StringKey(DeleteTracksCommand.CMD_NAME)
     abstract fun bindDeleteTracksCommand(cmd: DeleteTracksCommand): MediaSessionCommand
 }

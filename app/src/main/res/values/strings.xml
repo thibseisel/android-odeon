@@ -73,6 +73,11 @@
         <item quantity="other">%d tracks</item>
     </plurals>
 
+    <plurals name="tracks_added_to_playlist">
+        <item quantity="one">%d track added to playlist \"%s\"</item>
+        <item quantity="other">%d tracks added to playlist "\%s\"</item>
+    </plurals>
+
     <string name="song_item_subtitle" formatted="false">%1$s &#8226; %2$s</string>
     <string name="ok">OK</string>
     <string name="action_edit_playlist">Edit playlist</string>

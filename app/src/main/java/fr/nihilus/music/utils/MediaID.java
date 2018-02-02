@@ -157,8 +157,7 @@ public final class MediaID {
         return mediaID.split(String.valueOf(CATEGORY_SEPARATOR));
     }
 
-    @Nullable
-    public static String extractBrowseCategoryValueFromMediaID(@NonNull String mediaID) {
+    public static String browseCategoryOf(@NonNull String mediaID) {
         String[] hierarchy = getHierarchy(mediaID);
         if (hierarchy.length == 2) {
             return hierarchy[1];
