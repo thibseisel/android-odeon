@@ -19,6 +19,7 @@ package fr.nihilus.music.command
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.util.Log
+import fr.nihilus.music.R
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
 import fr.nihilus.music.service.MusicService
@@ -89,7 +90,7 @@ class EditPlaylistCommand
                     Log.e(TAG, "Unexpected error: ${error.message}", error)
                     cb?.send(CODE_ERROR_PLAYLIST_NOT_EXISTS, null)
                 } else {
-                    cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
+                    cb?.send(R.id.result_success, null)
                 }
             }
     }

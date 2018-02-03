@@ -36,7 +36,6 @@ import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.DeleteTracksCommand
-import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
@@ -157,7 +156,7 @@ class SongListFragment : Fragment(),
 
         viewModel.postCommand(DeleteTracksCommand.CMD_NAME, params) { resultCode, _ ->
             val rootView = view
-            if (resultCode == MediaSessionCommand.CODE_SUCCESS && rootView != null) {
+            if (resultCode == R.id.result_success && rootView != null) {
                 val userMessage = resources.getQuantityString(
                     R.plurals.deleted_songs_confirmation,
                     checkedItemIds.size
@@ -168,20 +167,20 @@ class SongListFragment : Fragment(),
     }
 
     private fun openPlaylistChooserDialog() {
-        val checkedItemIds = list.checkedItemIds
-        val dialog = AddToPlaylistDialog.newInstance(this, REQUEST_ADD_TO_PLAYLIST, checkedItemIds)
+        val checkedIds = list.checkedItemIds
+        val dialog = AddToPlaylistDialog.newInstance(this, R.id.request_add_to_playlist, checkedIds)
         dialog.show(fragmentManager!!, AddToPlaylistDialog.TAG)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         // User has confirmed his intent to delete track(s)
-        if (requestCode == REQUEST_CODE_DELETE_TRACKS && resultCode == DialogInterface.BUTTON_POSITIVE) {
+        if (requestCode == R.id.request_delete_tracks && resultCode == DialogInterface.BUTTON_POSITIVE) {
             deleteSelectedTracks()
             multiSelectMode.finish()
         }
 
-        if (requestCode == REQUEST_ADD_TO_PLAYLIST) {
+        else if (requestCode == R.id.request_add_to_playlist) {
 
             when (resultCode) {
                 Activity.RESULT_OK -> {
@@ -198,10 +197,9 @@ class SongListFragment : Fragment(),
 
                     // Finish action mode to deselect all items
                     multiSelectMode.finish()
-
                 }
 
-                NewPlaylistDialog.ERROR_ALREADY_EXISTS -> {
+                R.id.error_playlist_already_exists -> {
                     // Failed to insert to a playlist due to its name being already taken
                     data ?: throw IllegalStateException("Dialog should send information back")
                     val title = data.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)
@@ -219,12 +217,8 @@ class SongListFragment : Fragment(),
     private inner class SongListActionMode : MultiChoiceModeListener {
         private var actionMode: ActionMode? = null
 
-        override fun onItemCheckedStateChanged(
-            mode: ActionMode,
-            position: Int,
-            id: Long,
-            checked: Boolean
-        ) {
+        override fun onItemCheckedStateChanged(mode: ActionMode, position: Int,
+                                               id: Long, checked: Boolean) {
             mode.title = list.checkedItemCount.toString()
         }
 
@@ -249,7 +243,7 @@ class SongListFragment : Fragment(),
         }
 
         override fun onDestroyActionMode(mode: ActionMode) {
-            // By default, deselect items
+            // Items are deselected by default when action mode is destroyed
             actionMode = null
         }
 
@@ -259,9 +253,6 @@ class SongListFragment : Fragment(),
     }
 
     companion object Factory {
-        private const val REQUEST_CODE_DELETE_TRACKS = 21
-        private const val REQUEST_ADD_TO_PLAYLIST = 29
-
         fun newInstance(): SongListFragment {
             val args = Bundle(1)
             args.putInt(Constants.FRAGMENT_ID, R.id.action_all)

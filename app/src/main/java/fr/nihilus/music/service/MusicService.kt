@@ -35,10 +35,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
-import fr.nihilus.music.BuildConfig
-import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.MediaItemResult
-import fr.nihilus.music.doIfPresent
+import fr.nihilus.music.*
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
@@ -85,7 +82,7 @@ class MusicService : MediaBrowserServiceCompat() {
         val appContext = applicationContext
         val uiIntent = Intent(appContext, HomeActivity::class.java)
         val pi = PendingIntent.getActivity(
-            appContext, 99,
+            appContext, R.id.request_start_media_activity,
             uiIntent, PendingIntent.FLAG_UPDATE_CURRENT
         )
         session.setSessionActivity(pi)

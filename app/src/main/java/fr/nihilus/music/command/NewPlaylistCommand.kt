@@ -26,6 +26,7 @@ import android.util.Log
 import com.github.thibseisel.kdenticon.Identicon
 import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
+import fr.nihilus.music.R
 import fr.nihilus.music.database.Playlist
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
@@ -89,13 +90,13 @@ class NewPlaylistCommand
     }
 
     private fun onSuccess(cb: ResultReceiver?) {
-        cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
+        cb?.send(R.id.result_success, null)
     }
 
     private fun onError(error: Throwable, cb: ResultReceiver?) {
         // TODO Maybe the unique constraint on the title could be removed
         if (error is SQLiteConstraintException) {
-            cb?.send(CODE_ERROR_TITLE_ALREADY_EXISTS, null)
+            cb?.send(R.id.error_playlist_already_exists, null)
         } else {
             Log.w(TAG, "An error occurred while creating playlist", error)
         }
@@ -148,7 +149,7 @@ class NewPlaylistCommand
         /**
          * The title of the new playlist to create, as a String value.
          *
-         * If this name is already taken, [CODE_ERROR_TITLE_ALREADY_EXISTS]
+         * If this name is already taken, the code [R.id.error_playlist_already_exists]
          * will be returned.
          */
         const val PARAM_TITLE = "playlist_title"
@@ -160,11 +161,5 @@ class NewPlaylistCommand
          * If not specified, no track will be added to the playlist.
          */
         const val PARAM_TRACK_IDS = "track_ids"
-
-        /**
-         * An error code that denotes that the attempt to create a playlist has failed
-         * because a playlist with that title already exists.
-         */
-        const val CODE_ERROR_TITLE_ALREADY_EXISTS = -2
     }
 }

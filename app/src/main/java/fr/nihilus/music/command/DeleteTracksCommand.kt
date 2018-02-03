@@ -19,6 +19,7 @@ package fr.nihilus.music.command
 import android.os.Bundle
 import android.os.ResultReceiver
 import fr.nihilus.music.BuildConfig
+import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.service.MusicService
@@ -55,7 +56,7 @@ class DeleteTracksCommand
 
     private fun onSuccess(cb: ResultReceiver?) {
         service.notifyChildrenChanged(MediaID.ID_MUSIC)
-        cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
+        cb?.send(R.id.result_success, null)
     }
 
     companion object {

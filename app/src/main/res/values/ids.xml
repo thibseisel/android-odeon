@@ -15,9 +15,42 @@
   -->
 
 <resources>
-    <item name="view_type_album" type="id" />
-    <item name="view_type_track" type="id" />
+    <!-- View types -->
 
-    <item name="action_play_item" type="id" />
-    <item name="action_browse_item" type="id" />
+    <item name="view_type_album" type="id"/>
+    <item name="view_type_track" type="id"/>
+
+    <!-- Action codes used by BaseAdapter.OnItemSelectedListener -->
+
+    <item name="action_play_item" type="id"/>
+    <item name="action_browse_item" type="id"/>
+
+    <!-- Request codes -->
+
+    <item name="request_settings" type="id" />
+    <!-- Request to start the activity associated with the MediaSession. -->
+    <item name="request_start_media_activity" type="id" />
+    <!-- Request to delete tracks from the music library. -->
+    <item name="request_delete_tracks" type="id"/>
+    <!-- Request to add a set of tracks to a playlist. -->
+    <item name="request_add_to_playlist" type="id"/>
+
+    <!-- Result codes -->
+
+    <!--
+        Indicates that the command successfully completed.
+        Every implementation of MediaSessionCommand should send this code upon success.
+    -->
+    <item name="result_success" type="id" />
+
+    <!-- Error codes -->
+
+    <!--
+        Indicates that an attempt to create a new playlist has failed because a playlist
+        with the desired name already exists.
+    -->
+    <item name="error_playlist_already_exists" type="id"/>
+    <!-- Indicates that a command can't be handled because it is not supported. -->
+    <item name="error_unknown_command" type="id" />
+
 </resources>

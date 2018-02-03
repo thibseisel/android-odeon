@@ -140,14 +140,10 @@ class MediaQueueManager
 
     override fun getCommands() = commands.keys.toTypedArray()
 
-    override fun onCommand(
-        player: Player?,
-        command: String?,
-        extras: Bundle?,
-        cb: ResultReceiver?
-    ) {
+    override fun onCommand(player: Player?, command: String?,
+                           extras: Bundle?, cb: ResultReceiver?) {
         commands[command]?.handle(extras, cb)
-                ?: cb?.send(MediaSessionCommand.CODE_UNKNOWN_COMMAND, null)
+                ?: cb?.send(R.id.error_unknown_command, null)
     }
 
     private fun setupMediaSource(mediaId: String, queue: List<MediaBrowserCompat.MediaItem>) {

@@ -19,6 +19,7 @@ package fr.nihilus.music.command
 import android.os.Bundle
 import android.os.ResultReceiver
 import fr.nihilus.music.BuildConfig
+import fr.nihilus.music.R
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.service.MusicService
@@ -46,7 +47,7 @@ class DeletePlaylistCommand
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 service.notifyChildrenChanged(MediaID.ID_PLAYLISTS)
-                cb?.send(MediaSessionCommand.CODE_SUCCESS, null)
+                cb?.send(R.id.result_success, null)
             }, { error ->
                 if (BuildConfig.DEBUG) {
                     // Rethrow unexpected errors on debug builds

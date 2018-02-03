@@ -37,7 +37,6 @@ import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.EditPlaylistCommand
-import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
@@ -142,7 +141,7 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
         browserViewModel.postCommand(EditPlaylistCommand.CMD_NAME, params) { resultCode, _ ->
             // Only notify clients when the operation is successful
-            if (resultCode == MediaSessionCommand.CODE_SUCCESS) {
+            if (resultCode == R.id.result_success) {
                 targetFragment?.onActivityResult(
                     targetRequestCode,
                     Activity.RESULT_OK,

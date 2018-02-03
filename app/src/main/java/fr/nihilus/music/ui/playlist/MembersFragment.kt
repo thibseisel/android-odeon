@@ -33,7 +33,6 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.command.DeletePlaylistCommand
-import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.ConfirmDialogFragment
@@ -140,7 +139,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         }
 
         viewModel.postCommand(DeletePlaylistCommand.CMD_NAME, params) { resultCode, _ ->
-            if (resultCode == MediaSessionCommand.CODE_SUCCESS) router.navigateBack()
+            if (resultCode == R.id.result_success) router.navigateBack()
             else Log.e(TAG, "Delete playlist: unexpected resultCode = $resultCode")
         }
     }

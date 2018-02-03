@@ -40,23 +40,4 @@ interface MediaSessionCommand {
      * @param params Parameters that may be needed to execute the command.
      */
     fun handle(params: Bundle?, cb: ResultReceiver?)
-
-    /**
-     * Holds result codes passed to [ResultReceiver.onReceiveResult]
-     * after a command has been executed, denoting success or describing an error.
-     */
-    companion object ResultCode {
-
-        /**
-         * Indicates that the command successfully completed.
-         * Every implementation of MediaSessionCommand should send this code upon success.
-         */
-        const val CODE_SUCCESS = 0
-
-        /**
-         * Indicates that a command can't be handled because it is not supported.
-         * This code should not be used by `MediaSessionCommand` implementations.
-         */
-        const val CODE_UNKNOWN_COMMAND = -99
-    }
 }

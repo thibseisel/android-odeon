@@ -30,7 +30,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import fr.nihilus.music.MediaControllerRequest
-import fr.nihilus.music.command.MediaSessionCommand
+import fr.nihilus.music.R
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
 import java.lang.ref.WeakReference
@@ -97,7 +97,7 @@ class BrowserViewModel
      * then processed in order as soon as the media browser (re)connects.
      *
      * If the specified command is not supported, the passed callback function will be called with
-     * the result code [MediaSessionCommand.CODE_UNKNOWN_COMMAND].
+     * the result code [R.id.error_unknown_command].
      *
      * @param commandName The name of the command to execute.
      * @param params The parameters to be passed to the command.
