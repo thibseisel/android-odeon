@@ -98,4 +98,6 @@
     <string name="action_condensed_play_shuffled">Read shuffled</string>
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
+    <string name="hint_playlist_title">Playlist title</string>
+    <string name="error_playlist_title_taken">Playlist title \"%s\" is already taken</string>
 </resources>

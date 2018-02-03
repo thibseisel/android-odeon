@@ -38,6 +38,7 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.DeleteTracksCommand
 import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
+import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import kotlinx.android.synthetic.main.fragment_songs.*
@@ -174,26 +175,41 @@ class SongListFragment : Fragment(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        // User has confirmed his intention to delete track(s)
+        // User has confirmed his intent to delete track(s)
         if (requestCode == REQUEST_CODE_DELETE_TRACKS && resultCode == DialogInterface.BUTTON_POSITIVE) {
             deleteSelectedTracks()
             multiSelectMode.finish()
         }
 
-        // Track(s) have been added to a playlist
-        if (requestCode == REQUEST_ADD_TO_PLAYLIST && resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_ADD_TO_PLAYLIST) {
 
-            if (data != null) {
-                // Display a confirmation message as a Toast
-                val addedCount = data.getIntExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, 0)
-                val playlistTitle = data.getStringExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE)
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    // Track(s) have been added to a playlist
+                    if (data != null) {
+                        // Display a confirmation message as a Toast
+                        val count = data.getIntExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, 0)
+                        val title = data.getStringExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE)
 
-                val userMessage = resources.getQuantityString(R.plurals.tracks_added_to_playlist,
-                    addedCount, addedCount, playlistTitle)
-                Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
+                        val userMessage = resources.getQuantityString(
+                            R.plurals.tracks_added_to_playlist, count, count, title)
+                        Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
+                    }
+
+                    // Finish action mode to deselect all items
+                    multiSelectMode.finish()
+
+                }
+
+                NewPlaylistDialog.ERROR_ALREADY_EXISTS -> {
+                    // Failed to insert to a playlist due to its name being already taken
+                    data ?: throw IllegalStateException("Dialog should send information back")
+                    val title = data.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)
+
+                    val userMessage = getString(R.string.error_playlist_title_taken, title)
+                    Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
+                }
             }
-
-            multiSelectMode.finish()
         }
     }
 

@@ -26,7 +26,6 @@ import android.util.Log
 import com.github.thibseisel.kdenticon.Identicon
 import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
-import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.database.Playlist
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
@@ -76,7 +75,6 @@ class NewPlaylistCommand
             .subscribe(
                 { onSuccess(cb) },
                 { error ->
-                    Log.i(TAG, "An error occurred while creating playlist", error)
                     onError(error, cb)
                 }
             )
@@ -95,11 +93,11 @@ class NewPlaylistCommand
     }
 
     private fun onError(error: Throwable, cb: ResultReceiver?) {
+        // TODO Maybe the unique constraint on the title could be removed
         if (error is SQLiteConstraintException) {
             cb?.send(CODE_ERROR_TITLE_ALREADY_EXISTS, null)
-        } else if (BuildConfig.DEBUG) {
-            // Rethrow unexpected errors on debug builds
-            throw error
+        } else {
+            Log.w(TAG, "An error occurred while creating playlist", error)
         }
     }
 
