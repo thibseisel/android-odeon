@@ -213,14 +213,18 @@ class HomeActivity : AppCompatActivity(),
     }
 
     /**
-     * Collapses the BottomSheet using the back button if it is expanded.
+     * Called when the back button is pressed.
+     * This will close the navigation drawer if open, collapse the player view if expanded,
+     * or otherwise follow the default behavior (pop fragment back stack or finish activity).
      */
-    override fun onBackPressed() {
-        if (bottomSheet.state != BottomSheetBehavior.STATE_EXPANDED) {
-            super.onBackPressed()
-        } else {
+    override fun onBackPressed() = when {
+        drawerLayout.isDrawerOpen(GravityCompat.START) ->
+            drawerLayout.closeDrawer(GravityCompat.START)
+
+        bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED ->
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
+
+        else -> super.onBackPressed()
     }
 
     /**
