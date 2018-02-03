@@ -17,6 +17,7 @@
 package fr.nihilus.music.view
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.constraint.ConstraintLayout
@@ -30,6 +31,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
 import fr.nihilus.music.utils.dipToPixels
 import kotlinx.android.synthetic.main.view_player.view.*
@@ -42,10 +44,7 @@ class PlayerView
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr) {
 
-    private val glideRequest = GlideApp.with(context).asDrawable()
-        .fallback(R.drawable.ic_audiotrack_24dp)
-        .diskCacheStrategy(DiskCacheStrategy.NONE)
-        .centerCrop()
+    private lateinit var glideRequest: GlideRequest<Drawable>
 
     private lateinit var autoUpdater: ProgressAutoUpdater
     private lateinit var albumArtTarget: SwitcherTarget
@@ -63,6 +62,13 @@ class PlayerView
 
         // Prevent from dispatching touches to views behind
         isClickable = true
+
+        if (!isInEditMode) {
+            glideRequest = GlideApp.with(context).asDrawable()
+                .fallback(R.drawable.ic_audiotrack_24dp)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .centerCrop()
+        }
     }
 
     override fun onFinishInflate() {
