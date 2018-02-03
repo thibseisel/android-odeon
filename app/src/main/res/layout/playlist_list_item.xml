@@ -19,18 +19,19 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/song_item_height"
+    android:layout_height="56dp"
     android:background="?selectableItemBackground"
     android:checkable="true"
     android:paddingEnd="16dp"
     android:paddingStart="16dp"
     android:orientation="horizontal"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:textDirection="locale">
 
     <ImageView
         android:id="@+id/iconView"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
@@ -45,6 +46,6 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="@dimen/song_title_size"
-        tools:text="All Theses Things I Hate (Revolve Around Me)"/>
+        tools:text="All the songs I like"/>
 
 </LinearLayout>

@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?colorBackgroundFloating"
-    tools:ignore="Overdraw">
+    android:textDirection="locale">
 
     <!-- Top of the bottom sheet that appears when collapsed -->
     <android.support.constraint.Guideline
@@ -120,6 +120,7 @@
         android:id="@+id/repeatButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginStart="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_repeat_mode"
         android:padding="8dp"
@@ -127,8 +128,6 @@
         android:src="@drawable/ic_level_repeat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipPrevButton"
-        app:layout_constraintLeft_toLeftOf="@+id/start_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/skipPrevButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
 
@@ -143,8 +142,6 @@
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/masterPlayPause"
-        app:layout_constraintLeft_toRightOf="@+id/repeatButton"
-        app:layout_constraintRight_toLeftOf="@+id/masterPlayPause"
         app:layout_constraintStart_toEndOf="@+id/repeatButton"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
 
@@ -159,8 +156,6 @@
         app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skipNextButton"
-        app:layout_constraintLeft_toRightOf="@+id/skipPrevButton"
-        app:layout_constraintRight_toLeftOf="@+id/skipNextButton"
         app:layout_constraintStart_toEndOf="@+id/skipPrevButton"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
 
@@ -174,8 +169,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/masterPlayPause"
-        app:layout_constraintRight_toLeftOf="@+id/shuffleButton"
+        app:layout_constraintEnd_toStartOf="@+id/shuffleButton"
         app:layout_constraintStart_toEndOf="@+id/masterPlayPause"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
 
@@ -183,6 +177,7 @@
         android:id="@+id/shuffleButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_shuffle_mode"
         android:padding="8dp"
@@ -190,8 +185,6 @@
         android:src="@drawable/ic_shuffle_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/skipNextButton"
-        app:layout_constraintRight_toLeftOf="@+id/end_guideline"
         app:layout_constraintStart_toEndOf="@+id/skipNextButton"
         app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
 

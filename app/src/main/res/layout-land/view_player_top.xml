@@ -42,8 +42,8 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         app:layout_constraintBottom_toTopOf="@+id/subtitleView"
-        app:layout_constraintLeft_toRightOf="@+id/iconView"
-        app:layout_constraintRight_toLeftOf="@+id/miniPrevButton"
+        app:layout_constraintStart_toEndOf="@+id/iconView"
+        app:layout_constraintEnd_toStartOf="@+id/miniPrevButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="Title of the song"/>
@@ -61,7 +61,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorTertiary"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/miniPrevButton"
+        app:layout_constraintEnd_toStartOf="@+id/miniPrevButton"
         app:layout_constraintStart_toEndOf="@id/iconView"
         app:layout_constraintTop_toBottomOf="@id/titleView"
         tools:text="Artist name"/>
@@ -76,7 +76,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <fr.nihilus.music.view.PlayPauseButton
@@ -89,19 +89,20 @@
         android:scaleType="fitCenter"
         android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/miniNextButton"
+        app:layout_constraintEnd_toStartOf="@+id/miniNextButton"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
         android:id="@+id/miniNextButton"
         android:layout_width="48dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
         android:padding="12dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@id/end_guideline"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 </merge>

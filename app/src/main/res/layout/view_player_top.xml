@@ -18,6 +18,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:app="http://schemas.android.com/apk/res-auto"
        xmlns:tools="http://schemas.android.com/tools"
+       android:textDirection="locale"
        tools:showIn="@layout/view_player">
 
     <ImageView
@@ -35,15 +36,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
         app:layout_constraintBottom_toTopOf="@+id/subtitleView"
-        app:layout_constraintLeft_toRightOf="@+id/iconView"
-        app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
+        app:layout_constraintStart_toEndOf="@+id/iconView"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="Title of the song"/>
@@ -53,15 +52,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorTertiary"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
         app:layout_constraintStart_toEndOf="@id/iconView"
         app:layout_constraintTop_toBottomOf="@id/titleView"
         tools:text="Artist name"/>
@@ -70,12 +67,13 @@
         android:id="@+id/playPauseButton"
         android:layout_width="40dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
         android:padding="8dp"
         android:scaleType="fitCenter"
+        android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintRight_toLeftOf="@+id/end_guideline"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/level_play_pause"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 </merge>

@@ -15,31 +15,31 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/song_item_height"
-                android:background="@drawable/item_background_activated"
-                android:checkable="true"
-                android:paddingEnd="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/song_item_height"
+    android:background="@drawable/item_background_activated"
+    android:checkable="true"
+    android:paddingEnd="16dp"
+    android:paddingStart="16dp"
+    android:textDirection="locale">
 
     <FrameLayout
         android:layout_width="@dimen/album_art_item_side"
         android:layout_height="@dimen/album_art_item_side"
+        android:layout_centerVertical="true"
         android:foreground="@drawable/selected_tick_mark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        android:layout_centerVertical="true">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
         <ImageView
             android:id="@+id/albumArtView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="fitCenter"
             android:contentDescription="@string/album_art"
+            android:scaleType="fitCenter"
             tools:src="@android:color/black"/>
     </FrameLayout>
 
