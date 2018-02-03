@@ -21,7 +21,9 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.Constants
 import fr.nihilus.music.R
@@ -81,23 +83,10 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         super.onStop()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_playlists, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (R.id.action_new_playlist == item.itemId) {
-            NewPlaylistFragment.newInstance().show(fragmentManager!!, null)
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_playlist, container, false)
+    ): View = inflater.inflate(R.layout.fragment_playlist, container, false)
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedPlaylist = adapter[position]
