@@ -138,7 +138,7 @@ class HomeActivity : AppCompatActivity(),
             }
             R.id.action_settings -> {
                 val settingsActivity = Intent(this, SettingsActivity::class.java)
-                startActivityForResult(settingsActivity, R.id.request_settings)
+                startActivityForResult(settingsActivity, REQUEST_SETTINGS)
                 return true
             }
         }
@@ -234,7 +234,7 @@ class HomeActivity : AppCompatActivity(),
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == R.id.request_settings) {
+        if (requestCode == REQUEST_SETTINGS) {
             recreate()
         }
     }
@@ -425,6 +425,7 @@ class HomeActivity : AppCompatActivity(),
     override fun supportFragmentInjector() = dispatchingFragmentInjector
 
     private companion object {
+        private const val REQUEST_SETTINGS = 42
         private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
         private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
         private const val ACTION_ARTISTS = "fr.nihilus.music.ACTION_ARTISTS"
