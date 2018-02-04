@@ -84,7 +84,7 @@
     <!-- Progress bar -->
     <SeekBar
         android:id="@+id/seekBar"
-        style="@style/Widget.AppTheme.ProgressBar"
+        style="@style/Widget.AppTheme.SeekBar.FullWidth"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"

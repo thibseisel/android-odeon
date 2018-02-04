@@ -56,11 +56,11 @@
 
     <!-- Toolbar theme variant that has colored title text and icons -->
     <style name="AppTheme.AppBarOverlay.Colored">
-        <item name="android:textColorPrimary">@color/mtrl_deeppurple_500</item>
-        <item name="android:textColorSecondary">@color/mtrl_deeppurple_500</item>
+        <item name="android:textColorPrimary">@color/mtrl_deeppurple_a400</item>
+        <item name="android:textColorSecondary">@color/mtrl_deeppurple_a400</item>
     </style>
 
-    <style name="Widget.AppTheme.ProgressBar" parent="Widget.AppCompat.SeekBar">
+    <style name="Widget.AppTheme.SeekBar.FullWidth" parent="Widget.AppCompat.SeekBar">
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
@@ -71,7 +71,6 @@
         <item name="cardCornerRadius">@dimen/cardview_default_radius</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
-
 
     <style name="Widget.AppTheme.CardView.Animated">
         <item name="android:stateListAnimator">@animator/card_state_list</item>
