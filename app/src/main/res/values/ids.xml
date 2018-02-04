@@ -27,7 +27,6 @@
 
     <!-- Request codes -->
 
-    <item name="request_settings" type="id" />
     <!-- Request to start the activity associated with the MediaSession. -->
     <item name="request_start_media_activity" type="id" />
     <!-- Request to delete tracks from the music library. -->
