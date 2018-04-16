@@ -24,11 +24,11 @@ import android.content.IntentFilter
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
-import android.util.Log
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import fr.nihilus.music.di.ServiceScoped
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val TAG = "AFAPlayer"
@@ -144,7 +144,10 @@ class AudioFocusAwarePlayer
                 AUDIO_NO_FOCUS_NO_DUCK
             }
             AudioManager.AUDIOFOCUS_LOSS -> AUDIO_NO_FOCUS_NO_DUCK
-            else -> Log.w(TAG, "Unhandled focus change: $newFocus.")
+            else -> {
+                Timber.w("Unhandled focus change: %d", newFocus)
+                AUDIO_NO_FOCUS_NO_DUCK
+            }
         }
 
         configurePlayerState()

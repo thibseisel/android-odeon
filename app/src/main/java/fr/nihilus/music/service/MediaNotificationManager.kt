@@ -32,11 +32,11 @@ import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.utils.loadResourceAsBitmap
+import timber.log.Timber
 import javax.inject.Inject
 
 @ServiceScoped
@@ -44,7 +44,6 @@ class MediaNotificationManager
 @Inject constructor(private val service: MusicService) {
 
     companion object {
-        private const val TAG = "MediaNotifMgr"
         const val REQUEST_CODE = 100
         private const val NOTIFICATION_ID = 42
         private const val CHANNEL_ID = "media_channel"
@@ -183,7 +182,7 @@ class MediaNotificationManager
      */
     fun stop(clearNotification: Boolean) {
         if (isForeground) {
-            Log.d(TAG, "clearNotification: FOREGROUND => false")
+            Timber.d("clearNotification: FOREGROUND => false")
             isForeground = false
             service.stopForeground(clearNotification)
         }
@@ -220,7 +219,7 @@ class MediaNotificationManager
         if (state.state == PlaybackStateCompat.STATE_NONE
             || state.state == PlaybackStateCompat.STATE_STOPPED) {
             // Do not show a notification if playback is stopped.
-            Log.i(TAG, "No playback state. Clear notification.")
+            Timber.i("No playback state. Clear notification.")
             stop(clearNotification = true)
             return
         }
@@ -312,7 +311,7 @@ class MediaNotificationManager
                     scheduleNotificationUpdate()
                 }
 
-                PlaybackStateCompat.STATE_ERROR -> Log.w(TAG, "STATE_ERROR in notification")
+                PlaybackStateCompat.STATE_ERROR -> Timber.w("STATE_ERROR in notification")
             }
         }
 

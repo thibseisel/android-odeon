@@ -22,7 +22,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.util.Log
 import com.github.thibseisel.kdenticon.Identicon
 import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
@@ -37,6 +36,7 @@ import fr.nihilus.music.utils.PermissionUtil
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -98,7 +98,7 @@ class NewPlaylistCommand
         if (error is SQLiteConstraintException) {
             cb?.send(R.id.error_playlist_already_exists, null)
         } else {
-            Log.w(TAG, "An error occurred while creating playlist", error)
+            Timber.w(error, "An error occurred while creating playlist")
         }
     }
 
@@ -130,12 +130,11 @@ class NewPlaylistCommand
             return if (successful) Uri.fromFile(iconFile) else Uri.EMPTY
         }
 
-        Log.i(TAG, "Cannot create icon: no permission to write to external storage.")
+        Timber.w("Cannot create icon: no permission to write to external storage.")
         return Uri.EMPTY
     }
 
     companion object {
-        private const val TAG = "NewPlaylistCmd"
 
         /**
          * The name of this command.

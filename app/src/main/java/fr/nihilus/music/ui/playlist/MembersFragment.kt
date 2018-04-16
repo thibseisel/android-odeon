@@ -23,7 +23,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -38,6 +37,7 @@ import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
+import timber.log.Timber
 import javax.inject.Inject
 
 @ActivityScoped
@@ -140,12 +140,11 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
         viewModel.postCommand(DeletePlaylistCommand.CMD_NAME, params) { resultCode, _ ->
             if (resultCode == R.id.result_success) router.navigateBack()
-            else Log.e(TAG, "Delete playlist: unexpected resultCode = $resultCode")
+            else Timber.e("Delete playlist: unexpected resultCode = %d", resultCode)
         }
     }
 
     companion object Factory {
-        private const val TAG = "MembersFragment"
         private const val ARG_PLAYLIST = "playlist"
         private const val ARG_DELETABLE = "deletable"
         private const val REQUEST_DELETE_PLAYLIST = 66

@@ -28,7 +28,6 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -49,6 +48,8 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * A reworked version of ExoPlayer's {@link MediaSessionConnector} that allow clients to override
@@ -275,9 +276,7 @@ public final class MediaSessionController {
             actions |= (QueueNavigator.ACTIONS &
                     queueNavigator.getSupportedQueueNavigatorActions(player));
         }
-        if (queueEditor != null) {
-            actions |= (QueueEditor.ACTIONS & queueEditor.getSupportedQueueEditorActions(player));
-        }
+
         return actions;
     }
 
@@ -315,18 +314,13 @@ public final class MediaSessionController {
                 & QueueNavigator.ACTIONS & action) != 0;
     }
 
-    private boolean canDispatchToQueueEditor(long action) {
-        return queueEditor != null && (queueEditor.getSupportedQueueEditorActions(player)
-                & QueueEditor.ACTIONS & action) != 0;
-    }
-
     private class ExoPlayerEventListener extends Player.DefaultEventListener {
 
         private int currentWindowIndex;
         private int currentWindowCount;
 
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest) {
+        public void onTimelineChanged(Timeline timeline, Object manifest, @Player.TimelineChangeReason int reason) {
             int windowCount = player.getCurrentTimeline().getWindowCount();
             int windowIndex = player.getCurrentWindowIndex();
             if (queueNavigator != null) {
@@ -373,7 +367,7 @@ public final class MediaSessionController {
 
         @Override
         public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-            Log.d("MSController", "onPositionDiscontinuity: discontinuityReason = [" + reason + "]");
+            Timber.d("onPositionDiscontinuity: discontinuityReason = [%s]", reason);
             if (currentWindowIndex != player.getCurrentWindowIndex()) {
                 if (queueNavigator != null) {
                     queueNavigator.onCurrentWindowIndexChanged(player);
@@ -396,7 +390,7 @@ public final class MediaSessionController {
         @Override
         public void onPlay() {
             if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_PLAY)) {
-                Log.d("MSController", "dispatching onPlay");
+                Timber.d("dispatching onPlay");
                 playbackController.onPlay(player);
             }
         }
@@ -438,9 +432,9 @@ public final class MediaSessionController {
 
         @Override
         public void onSetShuffleMode(int shuffleMode) {
-            Log.d("MSController", "onSetShuffleMode: shuffleMode = [" + shuffleMode + "]");
+            Timber.d("onSetShuffleMode: shuffleMode = [%s]", shuffleMode);
             if (canDispatchToPlaybackController(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
-                Log.d("MSController", "onSetShuffleMode: dispatching setShuffleMode.");
+                Timber.d("onSetShuffleMode: dispatching setShuffleMode.");
                 playbackController.onSetShuffleMode(player, shuffleMode);
             }
         }
@@ -584,9 +578,7 @@ public final class MediaSessionController {
 
         @Override
         public void onSetRating(RatingCompat rating) {
-            if (canDispatchToQueueEditor(PlaybackStateCompat.ACTION_SET_RATING)) {
-                queueEditor.onSetRating(player, rating);
-            }
+
         }
 
     }

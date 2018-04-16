@@ -44,7 +44,7 @@ class PaletteBitmapTranscoder(
         val region = getRegionFromRelative(bitmap, options[PALETTE_RELATIVE_REGION])
         return Palette.from(bitmap)
             .setRegion(region.left, region.top, region.right, region.bottom)
-            .maximumColorCount(options[MAX_COLOR_COUNT])
+            .maximumColorCount(options[MAX_COLOR_COUNT]!!)
             .generate()
     }
 

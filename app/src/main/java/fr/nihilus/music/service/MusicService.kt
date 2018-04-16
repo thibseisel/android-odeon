@@ -29,7 +29,6 @@ import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
@@ -44,6 +43,7 @@ import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
@@ -105,7 +105,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.i(TAG, "Service is now started.")
+        Timber.i("Service is now started.")
         MediaButtonReceiver.handleIntent(session, intent)
 
         isStarted = true
@@ -115,7 +115,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onDestroy() {
-        Log.i(TAG, "Destroying service.")
+        Timber.i("Destroying service.")
         notificationMgr.stop(clearNotification = true)
         session.controller.unregisterCallback(playbackStateListener)
         isStarted = false
@@ -134,7 +134,7 @@ class MusicService : MediaBrowserServiceCompat() {
             // If the request comes from an untrusted package, return an empty BrowserRoot
             // so that every application can use mediaController in debug mode.
             // Release builds prevents untrusted packages from connecting.
-            Log.w(TAG, "onGetRoot: IGNORING request from untrusted package $clientPackageName")
+            Timber.w("onGetRoot: IGNORING request from untrusted package %s", clientPackageName)
             return if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
         }
 
@@ -146,7 +146,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onLoadChildren(parentId: String, result: MediaItemResult, options: Bundle) {
-        Log.v(TAG, "Loading children for ID: $parentId")
+        Timber.v("Loading children for ID: %s", parentId)
         result.detach()
         repository.getMediaItems(parentId)
             .subscribeOn(Schedulers.io())
@@ -155,7 +155,7 @@ class MusicService : MediaBrowserServiceCompat() {
                 override fun onSubscribe(d: Disposable) {}
 
                 override fun onSuccess(items: List<MediaBrowserCompat.MediaItem>) {
-                    Log.v(TAG, "Loaded items for $parentId: size=${items.size}")
+                    Timber.v("Loaded items for %s: size=%d", parentId, items.size)
                     result.sendResult(items)
                 }
 
@@ -165,14 +165,14 @@ class MusicService : MediaBrowserServiceCompat() {
                         throw e
                     }
 
-                    Log.w(TAG, "Unsupported parent id: $parentId")
+                    Timber.w("Unsupported parent id: %s", parentId)
                     result.sendResult(null)
                 }
             })
     }
 
     internal fun onPlaybackStart() {
-        Log.v(TAG, "onPlaybackStart")
+        Timber.v("onPlaybackStart")
         session.isActive = true
         delayedStopHandler.removeCallbacksAndMessages(null)
 
@@ -183,18 +183,18 @@ class MusicService : MediaBrowserServiceCompat() {
         notificationMgr.start()
 
         if (!isStarted) {
-            Log.i(TAG, "Starting service to keep it running while playing")
+            Timber.i("Starting service to keep it running while playing")
             startForegroundService(this, Intent(applicationContext, MusicService::class.java))
         }
     }
 
     internal fun onPlaybackPaused() {
-        Log.v(TAG, "onPlaybackPause")
+        Timber.v("onPlaybackPause")
         notificationMgr.stop(clearNotification = false)
     }
 
     internal fun onPlaybackStop() {
-        Log.v(TAG, "onPlaybackStop")
+        Timber.v("onPlaybackStop")
         session.isActive = false
         // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
         // potentially stopping the service.
@@ -231,11 +231,11 @@ class MusicService : MediaBrowserServiceCompat() {
         override fun handleMessage(msg: Message?) {
             mServiceRef.doIfPresent { service ->
                 if (service.player.playWhenReady) {
-                    Log.d(TAG, "Ignoring delayed stop since the media player is in use.")
+                    Timber.d("Ignoring delayed stop since the media player is in use.")
                     return
                 }
 
-                Log.i(TAG, "Stopping service with delay handler")
+                Timber.i("Stopping service with delay handler")
                 service.stopSelf()
                 service.isStarted = false
             }

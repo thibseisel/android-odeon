@@ -18,8 +18,6 @@
 
 package fr.nihilus.music
 
-import android.util.Log
-
 /**
  * Throws an AssertionError if the value is false and this build is a debug build.
  * This method is a replacement for the `assert` keyword or [kotlin.assert]
@@ -52,18 +50,3 @@ val playbackStates = arrayOf(
     "REWINDING", "BUFFERING", "ERROR", "CONNECTING",
     "SKIPPING_TO_PREVIOUS", "SKIPPING_TO_NEXT", "SKIPPING_TO_QUEUE_ITEM"
 )
-
-/**
- * Print a line to Logcat using this as the tag.
- * The log message will only be evaluated and displayed if not building a release.
- *
- * @receiver The containing class whose name should be used as the log tag.
- * @param messageProvider A function evaluated lazily to calculate the message to print.
- */
-inline fun Any.logd(messageProvider: () -> String) {
-    if (BuildConfig.DEBUG) {
-        val className = this::class.java.simpleName
-        val tag = className.substring(0, minOf(className.length, 23))
-        Log.d(tag, messageProvider())
-    }
-}

@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -32,6 +31,7 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.view.PlayPauseButton
 import fr.nihilus.music.view.ProgressAutoUpdater
+import timber.log.Timber
 import javax.inject.Inject
 
 class FileViewerActivity : AppCompatActivity() {
@@ -54,7 +54,7 @@ class FileViewerActivity : AppCompatActivity() {
             }
 
             viewModel.post { controller ->
-                Log.d("FVActivity", "File URI: $data")
+                Timber.d("File URI: %s", data)
                 controller.transportControls.playFromUri(data, null)
             }
         }

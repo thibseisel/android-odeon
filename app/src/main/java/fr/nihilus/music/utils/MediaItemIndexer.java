@@ -17,12 +17,13 @@ package fr.nihilus.music.utils;
 
 import android.database.DataSetObserver;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.widget.SectionIndexer;
 
 import java.text.Collator;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * A {@link SectionIndexer} that allows FastScrolling and indexing in a list of {@link MediaItem}.
@@ -31,7 +32,6 @@ import java.util.List;
  */
 public class MediaItemIndexer extends DataSetObserver implements SectionIndexer {
 
-    private static final String TAG = "MediaItemIndexer";
     private static final String[] ALPHABET = {"#", "A", "B", "C", "D", "E", "F", "G", "H", "I",
             "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
@@ -137,7 +137,7 @@ public class MediaItemIndexer extends DataSetObserver implements SectionIndexer 
         final MediaItem item = items.get(position);
         CharSequence name = item.getDescription().getTitle();
         if (name == null) {
-            Log.w(TAG, "getSectionForPosition: mediaItem has no name.");
+            Timber.w("getSectionForPosition: mediaItem has no name.");
             return 0;
         }
         // Linear search, since there are only a few items in th section index

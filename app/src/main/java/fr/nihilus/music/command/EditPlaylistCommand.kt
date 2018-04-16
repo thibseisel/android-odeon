@@ -18,7 +18,6 @@ package fr.nihilus.music.command
 
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.util.Log
 import fr.nihilus.music.R
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
@@ -27,6 +26,7 @@ import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 class EditPlaylistCommand
@@ -36,8 +36,6 @@ class EditPlaylistCommand
 ) : MediaSessionCommand {
 
     companion object {
-
-        private const val TAG = "EditPlaylistCommand"
 
         /**
          * The name to use to call this command from MediaBrowserCompat.
@@ -87,7 +85,7 @@ class EditPlaylistCommand
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { _, error ->
                 if (error != null) {
-                    Log.e(TAG, "Unexpected error: ${error.message}", error)
+                    Timber.e(error, "Unexpected error: %s", error.message)
                     cb?.send(CODE_ERROR_PLAYLIST_NOT_EXISTS, null)
                 } else {
                     cb?.send(R.id.result_success, null)

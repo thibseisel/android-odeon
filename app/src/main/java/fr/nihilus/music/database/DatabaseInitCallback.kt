@@ -19,14 +19,12 @@ package fr.nihilus.music.database
 import android.arch.persistence.db.SupportSQLiteDatabase
 import android.arch.persistence.room.RoomDatabase
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.settings.PreferenceDao
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
-
-private const val TAG = "DbInit"
 
 /**
  * Perform database initialization.
@@ -48,7 +46,7 @@ class DatabaseInitCallback
      */
     private fun initStats() {
         if (prefs.shouldInitDatabase) {
-            Log.d(TAG, "Database should be initialized.")
+            Timber.d("First setup: database should be initialized.")
             musicDao.getTracks(null, null)
                 .subscribeOn(Schedulers.io())
                 .map { metadata ->
@@ -57,11 +55,11 @@ class DatabaseInitCallback
                 }.toList()
                 .subscribe { stats, error ->
                     if (error == null) {
-                        Log.d(TAG, "Initializing. Found ${stats.size} tracks.")
+                        Timber.d("Initializing. Found %d tracks.", stats.size)
                         infoDao.get().addStats(stats)
                         prefs.shouldInitDatabase = stats.isEmpty()
                     } else {
-                        Log.e(TAG, "An error occurred while initializing database", error)
+                        Timber.e(error, "An error occurred while initializing database")
                     }
                 }
         }

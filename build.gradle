@@ -17,7 +17,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlinVersion = '1.2.21'
+    ext.kotlinVersion = '1.2.31'
     ext.buildToolsVersion = '3.0.1'
     repositories {
         jcenter()
@@ -31,27 +31,29 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url "https://dl.bintray.com/nihilus/android/" }
         google()
         jcenter()
+        maven { url "https://dl.bintray.com/nihilus/android/" }
     }
 }
 
 ext {
-    supportLibVersion = '27.0.2'
-    glideVersion = '4.5.0'
-    daggerVersion = '2.14.1'
+    supportLibVersion = '27.1.1'
+    glideVersion = '4.6.1'
+    daggerVersion = '2.15'
     junitVersion = '4.12'
     hamcrestVersion = '1.3'
     mockitoVersion = '2.9.0'
-    archVersion = '1.0.0'
-    rxJavaVersion = '2.1.8'
-    rxAndroidVersion = '2.0.1'
-    exoplayerVersion = '2.6.1'
-    constraintVersion = '1.0.2'
+    archVersion = '1.1.1'
+    roomVersion = '1.0.0'
+    rxJavaVersion = '2.1.12'
+    rxAndroidVersion = '2.0.2'
+    exoplayerVersion = '2.7.3'
+    constraintVersion = '1.1.0'
     recyclerVersion = '1.1.4'
     kdenticonVersion = '1.0.0-alpha5'
     androidTestVersion = '1.0.1'
+    timberVersion = '4.7.0'
 }
 
 task clean(type: Delete) {

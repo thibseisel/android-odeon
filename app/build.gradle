@@ -52,8 +52,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     buildTypes {
@@ -98,9 +98,10 @@ dependencies {
 
     // Android Arch Components
     implementation "android.arch.lifecycle:extensions:${archVersion}"
-    implementation "android.arch.persistence.room:runtime:${archVersion}"
-    implementation "android.arch.persistence.room:rxjava2:${archVersion}"
-    kapt "android.arch.persistence.room:compiler:${archVersion}"
+    implementation "android.arch.persistence.room:runtime:${roomVersion}"
+    implementation "android.arch.persistence.room:rxjava2:${roomVersion}"
+    kapt "android.arch.lifecycle:compiler:${archVersion}"
+    kapt "android.arch.persistence.room:compiler:${roomVersion}"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:${glideVersion}"
@@ -125,6 +126,9 @@ dependencies {
     // ReactiveX
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+
+    // Timber Logging
+    implementation "com.jakewharton.timber:timber:${timberVersion}"
 
     // Test dependencies
     testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"

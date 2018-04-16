@@ -23,13 +23,10 @@ import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.os.Process
 import android.util.Base64
-import android.util.Log
 import fr.nihilus.music.R
 import org.xmlpull.v1.XmlPullParserException
+import timber.log.Timber
 import java.io.IOException
-
-
-private const val TAG = "PackageValidator"
 
 class PackageValidator(context: Context) {
 
@@ -56,21 +53,21 @@ class PackageValidator(context: Context) {
                         infos = ArrayList()
                         validCertificates[certificate] = infos
                     }
-                    Log.v(
-                        TAG, """
-                        Adding allowed caller: ${info.name},
-                        package=${info.packageName}, release=${info.release},
-                        certificate=$certificate
-                        """.trimIndent()
+                    Timber.v("""
+                        Adding allowed caller: %s,
+                        package=%s, release=%s,
+                        certificate=%s
+                        """.trimIndent(),
+                        info.name, info.packageName, info.release, certificate
                     )
                     infos.add(info)
                 }
                 eventType = parser.next()
             }
         } catch (e: XmlPullParserException) {
-            Log.e(TAG, "Could not read allowed callers from XML.", e)
+            Timber.e(e, "Could not read allowed callers from XML.")
         } catch (e: IOException) {
-            Log.e(TAG, "Could not read allowed callers from XML.", e)
+            Timber.e(e, "Could not read allowed callers from XML.")
         }
 
         return validCertificates
@@ -88,7 +85,7 @@ class PackageValidator(context: Context) {
 
         val packageInfo = getPackageInfo(context, callingPackage) ?: return false
         if (packageInfo.signatures.size != 1) {
-            Log.w(TAG, "Caller does not have exactly one signature certificate!")
+            Timber.w("Caller does not have exactly one signature certificate!")
             return false
         }
         val signature = Base64.encodeToString(
@@ -98,10 +95,12 @@ class PackageValidator(context: Context) {
         // Test for known signatures:
         val validCallers = validCertificates.get(signature)
         if (validCallers == null) {
-            Log.v(TAG, "Signature for caller $callingPackage is not valid: \n$signature")
+            Timber.v("""
+                Signature for caller %s is not valid:
+                %s
+                """.trimIndent(), callingPackage, signature)
             if (validCertificates.isEmpty()) {
-                Log.w(
-                    TAG, """
+                Timber.w("""
                     The list of valid certificates is empty.
                     Either your file "res/xml/allowed_media_browser_callers.xml is empty
                     or there was an error while reading it. Check previous log messages.
@@ -115,22 +114,21 @@ class PackageValidator(context: Context) {
         val expectedPackages = StringBuffer()
         for (info in validCallers) {
             if (callingPackage == info.packageName) {
-                Log.v(
-                    TAG,
-                    "Valid caller: ${info.name}, package=${info.packageName}, release=${info.release}"
-                )
+                Timber.v("Valid caller: %s, package=%s, release=%s",
+                    info.name, info.packageName, info.release)
                 return true
             }
             expectedPackages.append(info.packageName).append(' ')
         }
 
-        Log.i(
-            TAG, """
+        Timber.i("""
             Caller has a valid certificate, but its package doesn't match any expected package for the given certificate.
-            Caller's package is $callingPackage.
-            Expected packages as defined in res/xml/allowed_media_browser_callers.xml are ($expectedPackages).
-            This caller's certificate is: \n"$signature
-            """.trimIndent()
+            Caller's package is %s.
+            Expected packages as defined in res/xml/allowed_media_browser_callers.xml are (%s).
+            This caller's certificate is:
+            %s
+            """.trimIndent(),
+            callingPackage, expectedPackages, signature
         )
 
         return false
@@ -145,7 +143,7 @@ class PackageValidator(context: Context) {
         return try {
             pm.getPackageInfo(pkgName, PackageManager.GET_SIGNATURES)
         } catch (e: PackageManager.NameNotFoundException) {
-            Log.w(TAG, "Package manager can't find package: $pkgName", e)
+            Timber.w(e, "Package manager can't find package: %s", pkgName)
             return null
         }
     }

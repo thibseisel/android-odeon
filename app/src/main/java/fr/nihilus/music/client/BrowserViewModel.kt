@@ -28,11 +28,11 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.service.MusicService
+import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
@@ -64,7 +64,7 @@ class BrowserViewModel
 
     fun connect() {
         if (!mBrowser.isConnected) {
-            Log.d(TAG, "Connecting...")
+            Timber.d("Attempt to connect to MediaSession with MediaBrowser...")
             mBrowser.connect()
         }
     }
@@ -121,7 +121,7 @@ class BrowserViewModel
      */
     fun disconnect() {
         if (mBrowser.isConnected) {
-            Log.d(TAG, "Disconnecting from service")
+            Timber.d("Disconnecting from the MediaSession")
             mBrowser.disconnect()
         }
     }
@@ -151,7 +151,7 @@ class BrowserViewModel
         override fun onConnected() {
             try {
                 contextRef.doIfPresent {
-                    Log.v(TAG, "onConnected: browser is now connected to MediaBrowserService.")
+                    Timber.v("onConnected: browser is now connected to MediaBrowserService.")
                     val controller = MediaControllerCompat(it, mBrowser.sessionToken)
                     controller.registerCallback(mControllerCallback)
                     this@BrowserViewModel.controller = controller
@@ -166,17 +166,17 @@ class BrowserViewModel
                     }
                 }
             } catch (re: RemoteException) {
-                Log.e(TAG, "onConnected: cannot create MediaController", re)
+                Timber.e(re, "onConnected: failed to create a MediaController")
             }
         }
 
         override fun onConnectionSuspended() {
-            Log.w(TAG, "onConnectionSuspended: disconnected from MediaBrowserService.")
+            Timber.w("onConnectionSuspended: disconnected from MediaBrowserService.")
             controller.unregisterCallback(mControllerCallback)
         }
 
         override fun onConnectionFailed() {
-            Log.e(TAG, "onConnectionFailed: can't connect to MediaBrowserService.")
+            Timber.e("onConnectionFailed: can't connect to MediaBrowserService.")
         }
     }
 
@@ -210,7 +210,7 @@ class BrowserViewModel
         }
 
         override fun onSessionDestroyed() {
-            Log.i(TAG, "onSessionDestroyed")
+            Timber.i("onSessionDestroyed")
         }
     }
 }

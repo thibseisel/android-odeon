@@ -25,6 +25,7 @@ import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
 import fr.nihilus.music.di.DaggerAppComponent
 import fr.nihilus.music.settings.PreferenceDao
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -44,6 +45,10 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
             .application(this)
             .build()
             .inject(this)
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         AppCompatDelegate.setDefaultNightMode(prefs.nightMode)
     }
