@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.client
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.ComponentName
@@ -36,8 +37,7 @@ import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
 import javax.inject.Inject
-
-private const val TAG = "BrowserViewModel"
+import kotlin.collections.HashMap
 
 /**
  * A ViewModel that abstracts the connection to a MediaBrowserService.
@@ -52,6 +52,7 @@ class BrowserViewModel
 
     private val mBrowser: MediaBrowserCompat
     private val mControllerCallback = ControllerCallback()
+    private val subscriptionCache = HashMap<String, LiveData<List<MediaBrowserCompat.MediaItem>>>()
 
     private val requestQueue: Queue<MediaControllerRequest> = LinkedList()
     private lateinit var controller: MediaControllerCompat
@@ -114,6 +115,12 @@ class BrowserViewModel
                 onResultReceived.invoke(resultCode, resultData)
             }
         })
+    }
+
+    fun subscriptionFor(parentId: String): LiveData<List<MediaBrowserCompat.MediaItem>> {
+        return subscriptionCache.getOrPut(parentId) {
+            SubscriptionLiveData(mBrowser, parentId)
+        }
     }
 
     /**
