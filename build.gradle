@@ -17,11 +17,19 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlinVersion = '1.2.31'
-    ext.buildToolsVersion = '3.0.1'
+    ext {
+        kotlinVersion = '1.2.31'
+        buildToolsVersion = '3.1.0'
+    }
+
     repositories {
-        jcenter()
+        if (project.hasProperty('repositoryMirrors')) {
+            repositoryMirrors.split(',').each { mirror ->
+                maven { url mirror }
+            }
+        }
         google()
+        jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${buildToolsVersion}"
@@ -31,6 +39,11 @@ buildscript {
 
 allprojects {
     repositories {
+        if (project.hasProperty('repositoryMirrors')) {
+            repositoryMirrors.split(',').each { mirror ->
+                maven { url mirror }
+            }
+        }
         google()
         jcenter()
         maven { url "https://dl.bintray.com/nihilus/android/" }
@@ -54,6 +67,7 @@ ext {
     kdenticonVersion = '1.0.0-alpha5'
     androidTestVersion = '1.0.1'
     timberVersion = '4.7.0'
+    espressoVersion = '3.0.1'
 }
 
 task clean(type: Delete) {

@@ -19,11 +19,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-// Retrieve keystore properties to configure APK signing
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(keystorePropertiesFile.newInputStream())
-
 android {
     compileSdkVersion 27
     buildToolsVersion "27.0.3"
@@ -42,14 +37,32 @@ android {
         }
     }
 
-    signingConfigs {
-        config {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+    // Retrieve keystore properties from this machine's global Gradle properties.
+    if (project.hasProperty('android.signing.keyAlias')
+        && project.hasProperty('android.signing.keyPassword')
+        && project.hasProperty('android.signing.storeFile')
+        && project.hasProperty('android.signing.storePassword')) {
+
+        signingConfigs {
+            config {
+                keyAlias project.property('android.signing.keyAlias')
+                keyPassword project.property('android.signing.keyPassword')
+                storeFile file(project.property('android.signing.storeFile'))
+                storePassword project.property('android.signing.storePassword')
+            }
         }
+    } else {
+        project.logger.warn('''
+            This machine does not define a signing configuration, 
+            and therefore cannot build releases. You have to define the following properties:
+            * android.signing.keyAlias
+            * android.signing.keyPassword
+            * android.signing.storeFile
+            * android.signing.storePassword
+            in the local ~.gradle/gradle.properties file of your machine.
+            '''.stripIndent())
     }
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
@@ -138,6 +151,6 @@ dependencies {
     androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
     androidTestImplementation "com.android.support.test:rules:${androidTestVersion}"
     androidTestImplementation "com.android.support.test:runner:${androidTestVersion}"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:${buildToolsVersion}"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoVersion}"
     androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
 }
