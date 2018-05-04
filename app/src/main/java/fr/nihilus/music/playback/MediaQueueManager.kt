@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -161,8 +162,20 @@ class MediaQueueManager
             mediaSourceFactory.createMediaSource(sourceUri)
         }
 
+        // Defines a shuffle order for the loaded media sources that is predictable.
+        // It depends on the loaded media id.
+        // TODO Must also depend on another date specific parameter
+        val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
+            mediaSources.size,
+            mediaId.hashCode().toLong()
+        )
+
         // Concatenate all media source to play them all in the same Timeline.
-        val concatenatedSource = ConcatenatingMediaSource(*mediaSources)
+        val concatenatedSource = ConcatenatingMediaSource(
+            false,
+            predictableShuffleOrder,
+            *mediaSources
+        )
         player.prepare(concatenatedSource)
 
         // Start at a given track if it is mentioned in the passed media id.
