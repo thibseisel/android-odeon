@@ -18,7 +18,7 @@ package fr.nihilus.music.database
 
 import android.arch.persistence.room.TypeConverter
 import android.net.Uri
-import fr.nihilus.music.toUri
+import androidx.core.net.toUri
 import java.util.*
 
 internal class Converters {

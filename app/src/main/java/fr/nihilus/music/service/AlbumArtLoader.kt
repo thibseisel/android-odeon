@@ -19,17 +19,16 @@ package fr.nihilus.music.service
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaMetadataCompat
+import androidx.core.net.toUri
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import fr.nihilus.music.copy
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.toUri
 import io.reactivex.Single
 import javax.inject.Inject
 
-private const val TAG = "AlbumArtLoader"
 private const val ART_MAX_SIZE = 320
 
 @ServiceScoped

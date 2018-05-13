@@ -16,7 +16,6 @@
 
 package fr.nihilus.music
 
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.annotation.LayoutRes
@@ -26,6 +25,7 @@ import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference
  * Convert this [MediaMetadataCompat] into its [MediaDescriptionCompat] equivalent.
  * @param categories the Media ID to use a prefix for this item's Media ID
  * @param builder an optional builder for reuse
- * @return a media description created from this track metadatas
+ * @return a media description created from this track metadata
  */
 fun MediaMetadataCompat.asMediaDescription(
     builder: MediaDescriptionCompat.Builder,
@@ -132,11 +132,3 @@ inline fun MediaDescriptionCompat.copy(
  * @return A pair made of this object and the one passed in parameter.
  */
 infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
-
-/**
- * Create a Uri from this String.
- *
- * @receiver An RFC 2396-compliant, encoded URI
- * @return An Uri from this String
- */
-fun String.toUri(): Uri = Uri.parse(this)
