@@ -21,6 +21,17 @@ import android.widget.ImageSwitcher
 import com.bumptech.glide.request.target.ViewTarget
 import com.bumptech.glide.request.transition.Transition
 
+/**
+ * A Glide [ViewTarget] that displays images in an [ImageSwitcher].
+ *
+ * As explained [here][http://bumptech.github.io/glide/doc/transitions.html#cross-fading-across-requests],
+ * Glide does not support cross-fading between images loaded from different requests.
+ * Cross-fading can be emulated using a ViewSwitcher containing two ImageViews
+ * (or more specifically, an [ImageSwitcher]).
+ *
+ * @constructor
+ * @param switcher The ImageSwitcher View into which images should be displayed.
+ */
 class SwitcherTarget(switcher: ImageSwitcher) : ViewTarget<ImageSwitcher, Drawable>(switcher) {
 
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
