@@ -45,7 +45,7 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, artists: List<MediaItem>) {
-            adapter.update(artists)
+            adapter.submitList(artists)
             setRecyclerShown(true)
         }
     }
@@ -90,7 +90,7 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val artist = adapter[position]
+        val artist = adapter.getItem(position)
         router.navigateToArtistDetail(artist)
     }
 

@@ -47,7 +47,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
     private val subscriptionCallback = object : SubscriptionCallback() {
 
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.update(children)
+            adapter.submitList(children)
             setRecyclerShown(true)
         }
     }
@@ -102,7 +102,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val selectedItem = adapter[position]
+        val selectedItem = adapter.getItem(position)
         val holder = recyclerView.findViewHolderForAdapterPosition(position)
         when (holder.itemViewType) {
             R.id.view_type_track -> onTrackSelected(selectedItem)

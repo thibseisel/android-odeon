@@ -35,7 +35,7 @@ internal class TrackAdapter(
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = items[position].mediaId
+            val mediaId = getItem(position).mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
 
@@ -53,7 +53,14 @@ internal class TrackAdapter(
         val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
         val searchedMediaId = MediaID.createMediaID(musicId, MediaID.ID_ALBUMS)
 
-        return items.indexOfFirst { searchedMediaId == it.mediaId }
+        for (position in 0 until itemCount) {
+            val item = getItem(position)
+            if (searchedMediaId == item.mediaId) {
+                return position
+            }
+        }
+
+        return -1
     }
 
 }

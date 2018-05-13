@@ -51,7 +51,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
     private val subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.update(children)
+            adapter.submitList(children)
             setRecyclerShown(true)
         }
     }
@@ -120,7 +120,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val member = adapter[position]
+        val member = adapter.getItem(position)
         viewModel.post { controller ->
             controller.transportControls.playFromMediaId(member.mediaId, null)
         }

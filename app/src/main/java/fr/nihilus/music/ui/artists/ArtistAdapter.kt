@@ -42,7 +42,7 @@ internal class ArtistAdapter(
 
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
-            val mediaId = items[position].mediaId
+            val mediaId = getItem(position).mediaId
             return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
         return RecyclerView.NO_ID

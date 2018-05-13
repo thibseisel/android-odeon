@@ -52,7 +52,7 @@ class AlbumDetailActivity : AppCompatActivity(),
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.update(children)
+            adapter.submitList(children)
             recycler.swapAdapter(adapter, false)
 
             val currentMetadata = viewModel.currentMetadata.value
@@ -157,7 +157,7 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val selectedTrack = adapter[position]
+        val selectedTrack = adapter.getItem(position)
         playMediaItem(selectedTrack)
     }
 

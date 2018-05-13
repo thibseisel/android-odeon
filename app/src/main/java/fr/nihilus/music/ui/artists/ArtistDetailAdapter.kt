@@ -60,7 +60,7 @@ internal class ArtistDetailAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = items[position]
+        val item = getItem(position)
         return if (item.isBrowsable) R.id.view_type_album else R.id.view_type_track
     }
 
@@ -76,7 +76,7 @@ internal class ArtistDetailAdapter(
 
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
-            val mediaId = items[position].mediaId!!
+            val mediaId = getItem(position).mediaId!!
             mediaId.hashCode().toLong()
         } else RecyclerView.NO_ID
     }

@@ -44,7 +44,7 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.update(children)
+            adapter.submitList(children)
             setRecyclerShown(true)
         }
     }
@@ -89,7 +89,7 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     ): View = inflater.inflate(R.layout.fragment_playlist, container, false)
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val selectedPlaylist = adapter[position]
+        val selectedPlaylist = adapter.getItem(position)
         when (actionId) {
             R.id.action_browse_item -> router.navigateToPlaylistDetails(selectedPlaylist)
             R.id.action_play_item -> onPlay(selectedPlaylist)

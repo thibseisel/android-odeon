@@ -44,7 +44,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, albums: List<MediaItem>) {
-            adapter.update(albums)
+            adapter.submitList(albums)
             setRecyclerShown(true)
         }
     }
@@ -90,7 +90,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val album = adapter[position]
+        val album = adapter.getItem(position)
         val holder = recyclerView.findViewHolderForAdapterPosition(position) as AlbumHolder
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(

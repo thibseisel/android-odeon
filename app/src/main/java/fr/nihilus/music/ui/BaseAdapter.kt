@@ -17,21 +17,17 @@
 package fr.nihilus.music.ui
 
 import android.support.annotation.LayoutRes
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.util.DiffUtil
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.inflate
-import fr.nihilus.music.utils.MediaItemDiffCallback
+import fr.nihilus.music.utils.MediaItemDiffer
 
 /**
  * A RecyclerView adapter dedicated to the display of a set of media items.
  */
-abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<VH>() {
-
-    protected val items = ArrayList<MediaBrowserCompat.MediaItem>()
-
-    override fun getItemCount() = items.size
+abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : ListAdapter<MediaItem, VH>(MediaItemDiffer) {
 
     /**
      * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
@@ -49,43 +45,17 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
     abstract override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH
 
     final override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.onBind(items[position])
+        holder.onBind(this.getItem(position))
     }
 
-    /**
-     * Update items this adapter holds.
-     * This will replace all media items currently displayed by the specified new ones,
-     * notifying observers when necessary.
-     *
-     * @param newItems The new media items to display in this adapter.
-     */
-    fun update(newItems: List<MediaBrowserCompat.MediaItem>) {
-        if (items.isEmpty() && newItems.isEmpty()) {
+    override fun submitList(newItems: List<MediaItem>) {
+        /*if (this.itemCount == 0 && newItems.isEmpty()) {
             // Dispatch a general change notification to update RecyclerFragment's empty state
             notifyDataSetChanged()
-        } else {
-            // Calculate diff and dispatch individual changes
-            val callback = MediaItemDiffCallback(items, newItems)
-            val result = DiffUtil.calculateDiff(callback, false)
-            items.clear()
-            items += newItems
-            result.dispatchUpdatesTo(this)
-        }
+        } else */super.submitList(newItems)
     }
 
-    /**
-     * Retrieve a media item at a given position in the adapter.
-     *
-     * @param position The adapter position of the item to retrieve.
-     * @throws IndexOutOfBoundsException If position does not correspond to an item.
-     */
-    open operator fun get(position: Int): MediaBrowserCompat.MediaItem {
-        if (position !in items.indices) {
-            throw IndexOutOfBoundsException()
-        }
-
-        return items[position]
-    }
+    public override fun getItem(position: Int): MediaItem = super.getItem(position)
 
     /**
      * An extension of ViewHolder designed to display media items.
@@ -113,7 +83,7 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
          * to reflect the passed media item.
          * @param item The media item this ViewHolder should represent.
          */
-        abstract fun onBind(item: MediaBrowserCompat.MediaItem)
+        abstract fun onBind(item: MediaItem)
     }
 
     /**
@@ -126,7 +96,7 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : RecyclerView.Adapter<V
          * Called when an item from an adapter is selected.
          *
          * @param position The position of the selected item in the adapter.
-         * You may retrieve a reference to this item using [BaseAdapter.get].
+         * You may retrieve a reference to this item using [BaseAdapter.getItem].
          * @param actionId A unique code describing the action clients should trigger
          * as a result for selecting this item.
          */

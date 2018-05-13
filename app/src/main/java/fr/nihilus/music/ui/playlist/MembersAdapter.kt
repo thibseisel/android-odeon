@@ -51,7 +51,7 @@ internal class MembersAdapter(
 
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
-            val mediaId = items[position].mediaId!!
+            val mediaId = getItem(position).mediaId!!
             MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
         } else RecyclerView.NO_ID
     }
