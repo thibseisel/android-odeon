@@ -19,7 +19,6 @@ package fr.nihilus.music.playback
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -31,7 +30,6 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
-import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.Constants
@@ -61,14 +59,15 @@ class MediaQueueManager
     MediaSessionConnector.PlaybackPreparer,
     MediaSessionController.SessionMetadataUpdater {
 
-    private val dataSourceFactory: DataSource.Factory
+    private val mediaSourceFactory: ExtractorMediaSource.Factory
     private val currentQueue = ArrayList<MediaDescriptionCompat>()
 
     private var lastMusicId: String? = null
 
     init {
         val userAgent = Util.getUserAgent(service, service.getString(R.string.app_name))
-        dataSourceFactory = DefaultDataSourceFactory(service, userAgent)
+        val dataSourceFactory = DefaultDataSourceFactory(service, userAgent)
+        mediaSourceFactory = ExtractorMediaSource.Factory(dataSourceFactory)
     }
 
     override fun getSupportedPrepareActions(): Long {
@@ -78,21 +77,38 @@ class MediaQueueManager
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
     }
 
+    /**
+     * Handles generic requests to prepare playback.
+     *
+     * This prepares the last played queue, in the same order as the last time it was played.
+     * If it is the first time a queue is built, this prepares to play all tracks.
+     *
+     * @see MediaSessionCompat.Callback.onPrepare
+     */
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
         val lastPlayedMediaId = prefs.lastPlayedMediaId ?: MediaID.ID_MUSIC
-        onPrepareFromMediaId(lastPlayedMediaId, null)
+        prepareFromMediaId(lastPlayedMediaId, shuffled = false)
     }
 
+    /**
+     * Handles requests to prepare for playing a specific mediaId.
+     *
+     * This will built a new queue even if the current media id is the same, shuffling tracks
+     * in a different order.
+     * If no media id is provided, the player will be prepared to play all tracks.
+     *
+     * @param mediaId The media id of the track of set of tracks to prepare.
+     * @param extras Optional parameters describing how the queue should be prepared.
+     *
+     * @see MediaSessionCompat.Callback.onPrepareFromMediaId
+     */
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-        if (mediaId != null) {
-            val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
-            repository.getMediaItems(mediaId).subscribe { items ->
-                setupMediaSource(mediaId, items)
-                player.shuffleModeEnabled = shuffleExtraEnabled || player.shuffleModeEnabled
-            }
-        }
+        // A new queue has been requested. Increment the queue identifier.
+        prefs.queueCounter++
+        val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
+        prepareFromMediaId(mediaId ?: MediaID.ID_MUSIC, shuffleExtraEnabled)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -147,41 +163,42 @@ class MediaQueueManager
                 ?: cb?.send(R.id.error_unknown_command, null)
     }
 
-    private fun setupMediaSource(mediaId: String, queue: List<MediaBrowserCompat.MediaItem>) {
-        currentQueue.clear()
-        val playableItems = queue.filterNot { it.isBrowsable }
-            .mapTo(currentQueue) { it.description }
+    private fun prepareFromMediaId(mediaId: String, shuffled: Boolean) {
+        repository.getMediaItems(mediaId).subscribe { items ->
+            currentQueue.clear()
 
-        val mediaSourceFactory = ExtractorMediaSource.Factory(dataSourceFactory)
+            val playableItems = items.filterNot { it.isBrowsable }
+                .mapTo(currentQueue) { it.description }
+            val mediaSources = Array(playableItems.size) {
+                val sourceUri = checkNotNull(playableItems[it].mediaUri) {
+                    "Every item should have an Uri."
+                }
 
-        val mediaSources = Array(playableItems.size) {
-            val sourceUri = checkNotNull(playableItems[it].mediaUri) {
-                "Every item should have an Uri."
+                mediaSourceFactory.createMediaSource(sourceUri)
             }
 
-            mediaSourceFactory.createMediaSource(sourceUri)
-        }
+            // Defines a shuffle order for the loaded media sources that is predictable.
+            // It depends on the number of time a new queue has been built.
+            val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
+                mediaSources.size,
+                prefs.queueCounter
+            )
 
-        // Defines a shuffle order for the loaded media sources that is predictable.
-        // It depends on the loaded media id.
-        // TODO Must also depend on another date specific parameter
-        val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
-            mediaSources.size,
-            mediaId.hashCode().toLong()
-        )
+            // Concatenate all media source to play them all in the same Timeline.
+            val concatenatedSource = ConcatenatingMediaSource(false,
+                predictableShuffleOrder,
+                *mediaSources
+            )
 
-        // Concatenate all media source to play them all in the same Timeline.
-        val concatenatedSource = ConcatenatingMediaSource(
-            false,
-            predictableShuffleOrder,
-            *mediaSources
-        )
-        player.prepare(concatenatedSource)
+            player.prepare(concatenatedSource)
 
-        // Start at a given track if it is mentioned in the passed media id.
-        val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
-        if (startIndex != -1) {
-            player.seekTo(startIndex, C.TIME_UNSET)
+            // Start at a given track if it is mentioned in the passed media id.
+            val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
+            if (startIndex != -1) {
+                player.seekTo(startIndex, C.TIME_UNSET)
+            }
+
+            player.shuffleModeEnabled = shuffled || player.shuffleModeEnabled
         }
     }
 

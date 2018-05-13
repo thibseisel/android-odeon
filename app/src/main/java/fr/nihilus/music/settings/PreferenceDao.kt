@@ -31,6 +31,7 @@ private const val KEY_REPEAT_MODE = "repeat_mode"
 private const val KEY_LAST_PLAYED = "last_played"
 private const val KEY_STARTUP_SCREEN = "startup_screen"
 private const val KEY_DATABASE_INIT = "should_init_dabatase"
+private const val KEY_QUEUE_COUNTER = "load_counter"
 
 /**
  * Centralizes access to properties saved to Android SharedPreferences.
@@ -94,4 +95,12 @@ class PreferenceDao
     var shouldInitDatabase: Boolean
         get() = mPrefs.getBoolean(KEY_DATABASE_INIT, true)
         set(value) = mPrefs.edit().putBoolean(KEY_DATABASE_INIT, value).apply()
+
+    /**
+     * The number of time a new playing queue has been built.
+     * This may be used to uniquely identify a playing queue.
+     */
+    var queueCounter: Long
+        get() = mPrefs.getLong(KEY_QUEUE_COUNTER, 0L)
+        set(value) = mPrefs.edit().putLong(KEY_QUEUE_COUNTER, value).apply()
 }
