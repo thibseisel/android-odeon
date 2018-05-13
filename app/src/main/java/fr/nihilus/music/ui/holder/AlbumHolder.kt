@@ -18,6 +18,7 @@ package fr.nihilus.music.ui.holder
 
 import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.CardView
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -34,7 +35,7 @@ import fr.nihilus.music.ui.BaseAdapter
 internal class AlbumHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<PaletteBitmap>,
-    private val defaultColors: IntArray
+    private val defaultColors: DefaultColors
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
@@ -46,35 +47,39 @@ internal class AlbumHolder(
 
         override fun setResource(resource: PaletteBitmap?) {
             if (resource != null) {
+                applyPalette(resource.palette)
                 super.view.setImageBitmap(resource.bitmap)
-                val swatch = resource.palette.dominantSwatch
-                val accentColor = resource.palette.getVibrantColor(defaultColors[1])
-                if (swatch != null) {
-                    setColors(
-                        swatch.rgb, accentColor,
-                        swatch.titleTextColor, swatch.bodyTextColor
-                    )
-                }
             }
         }
     }
 
     inline val transitionView get() = albumArt
 
-    @ColorInt
-    val colors = IntArray(4)
+    var palette: Palette? = null
+
+    private fun applyPalette(palette: Palette?) {
+        this.palette = palette
+
+        palette?.dominantSwatch?.let {
+            val primaryColor = it.rgb
+            val bodyColor = it.bodyTextColor
+            setColors(primaryColor, bodyColor)
+
+        } ?: applyDefaultColors()
+    }
+
+    private fun applyDefaultColors() {
+        val (primaryColor, _, _, bodyColor) = defaultColors
+        setColors(primaryColor, bodyColor)
+    }
 
     private fun setColors(
-        @ColorInt primary: Int, @ColorInt accent: Int, @ColorInt title: Int,
+        @ColorInt primary: Int,
         @ColorInt body: Int
     ) {
-        this.card.setCardBackgroundColor(primary)
-        this.title.setTextColor(body)
+        card.setCardBackgroundColor(primary)
+        title.setTextColor(body)
         artist.setTextColor(body)
-        colors[0] = primary
-        colors[1] = accent
-        colors[2] = title
-        colors[3] = body
     }
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
@@ -88,9 +93,18 @@ internal class AlbumHolder(
         title.text = description.title
         artist.text = description.subtitle
 
-        setColors(defaultColors[0], defaultColors[1], defaultColors[2], defaultColors[3])
-
         glide.load(description.iconUri).into(albumViewTarget)
         albumArt.transitionName = "image_" + description.mediaId
     }
+
+    /**
+     * A set of color to be used as fallbacks when no such colors can be extracted
+     * from the image displayed by this album holder.
+     */
+    data class DefaultColors(
+        @ColorInt val primary: Int,
+        @ColorInt val accent: Int,
+        @ColorInt val title: Int,
+        @ColorInt val body: Int
+    )
 }

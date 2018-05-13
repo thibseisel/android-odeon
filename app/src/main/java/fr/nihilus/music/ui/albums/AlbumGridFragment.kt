@@ -31,6 +31,7 @@ import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.glide.palette.toParcelable
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.MediaID
@@ -62,8 +63,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_albums, container, false)
+    ): View = inflater.inflate(R.layout.fragment_albums, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -98,7 +98,10 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         )
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java)
         albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
-        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors)
+        holder.palette?.let {
+            albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, it.toParcelable())
+        }
+
         startActivity(albumDetailIntent, options.toBundle())
     }
 

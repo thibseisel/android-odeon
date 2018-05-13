@@ -19,12 +19,14 @@ package fr.nihilus.music.ui.albums
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
-import android.support.annotation.ColorInt
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
@@ -33,8 +35,13 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.palette.ParcelablePalette
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.darker
+import fr.nihilus.music.utils.luminance
+import fr.nihilus.music.utils.resolveThemeColor
+import fr.nihilus.music.utils.setLightStatusBar
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.activity_album_detail.*
 import javax.inject.Inject
@@ -49,6 +56,8 @@ class AlbumDetailActivity : AppCompatActivity(),
     private lateinit var pickedAlbum: MediaItem
     private lateinit var decoration: CurrentlyPlayingDecoration
     private lateinit var viewModel: BrowserViewModel
+
+    private lateinit var defaultColors: AlbumHolder.DefaultColors
 
     private val subscriptionCallback = object : SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
@@ -79,7 +88,16 @@ class AlbumDetailActivity : AppCompatActivity(),
         setupToolbar()
         setupAlbumArt()
         setupTrackList()
-        applyPaletteTheme(intent.getIntArrayExtra(ARG_PALETTE))
+
+        defaultColors = AlbumHolder.DefaultColors(
+            ContextCompat.getColor(this, R.color.album_band_default),
+            resolveThemeColor(this, R.attr.colorAccent),
+            ContextCompat.getColor(this, android.R.color.white),
+            ContextCompat.getColor(this, android.R.color.white)
+        )
+
+        val palette = intent.getParcelableExtra<ParcelablePalette>(ARG_PALETTE)?.asPalette()
+        applyPaletteTheme(palette)
 
         viewModel = ViewModelProviders.of(this, factory).get(BrowserViewModel::class.java)
         viewModel.connect()
@@ -127,26 +145,43 @@ class AlbumDetailActivity : AppCompatActivity(),
     }
 
     /**
-     * Apply colors picked from the album art on the user interface.
-     *
-     * @param colors array of colors containing the following :
-     *
-     *  * (0) Primary Color
-     *  * (1) Accent Color
-     *  * (2) Title text color
-     *  * (3) Body text color
-     *
+     * Apply colors picked from the album art to the user interface.
      */
-    private fun applyPaletteTheme(@ColorInt colors: IntArray) {
-        val statusBarColor = darker(colors[0], 0.8f)
-        collapsingToolbar.setStatusBarScrimColor(statusBarColor)
-        collapsingToolbar.setContentScrimColor(colors[0])
-        findViewById<View>(R.id.albumInfoLayout).setBackgroundColor(colors[0])
-        titleView.setTextColor(colors[2])
-        subtitleView.setTextColor(colors[3])
-        playFab.backgroundTintList = ColorStateList.valueOf(colors[1])
+    private fun applyPaletteTheme(palette: Palette?) {
+        val primaryColor: Int
+        val accentColor: Int
+        val titleColor: Int
+        val bodyColor: Int
 
-        decoration = CurrentlyPlayingDecoration(this, colors[1])
+        if (palette != null) {
+            primaryColor = palette.getDominantColor(defaultColors.primary)
+            accentColor = palette.getVibrantColor(defaultColors.accent)
+
+            val swatch = palette.dominantSwatch!!
+            titleColor = swatch.titleTextColor
+            bodyColor = swatch.bodyTextColor
+
+        } else {
+            primaryColor = defaultColors.primary
+            accentColor = defaultColors.accent
+            titleColor = defaultColors.title
+            bodyColor = defaultColors.body
+        }
+
+        val statusBarColor = darker(primaryColor, 0.8f)
+        findViewById<View>(R.id.albumInfoLayout).setBackgroundColor(primaryColor)
+        titleView.setTextColor(titleColor)
+        subtitleView.setTextColor(bodyColor)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            setLightStatusBar(window, luminance(bodyColor) < 0.5f)
+        }
+
+        collapsingToolbar.setStatusBarScrimColor(statusBarColor)
+        collapsingToolbar.setContentScrimColor(primaryColor)
+
+        playFab.backgroundTintList = ColorStateList.valueOf(accentColor)
+        decoration = CurrentlyPlayingDecoration(this, accentColor)
         recycler.addItemDecoration(decoration)
     }
 

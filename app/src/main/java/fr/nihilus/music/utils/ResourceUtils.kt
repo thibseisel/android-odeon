@@ -48,6 +48,21 @@ fun darker(@ColorInt color: Int, @FloatRange(from = 0.0, to = 1.0) factor: Float
 }
 
 /**
+ * Computes the relative luminance of a color.
+ * Assumes sRGB encoding. Based on the formula for relative luminance
+ * defined in WCAG 2.0, W3C Recommendation 11 December 2008.
+ *
+ * @return a value between 0 (darkest black) and 1 (lightest white).
+ * @see Color.luminance
+ */
+fun luminance(@ColorInt color: Int): Float {
+    val r = Color.red(color)
+    val g = Color.green(color)
+    val b = Color.blue(color)
+    return (0.2126f * r) + (0.7152f * g) + (0.0722f * b)
+}
+
+/**
  * Resolve a color attribute from the application theme such as `colorPrimary` or `colorAccent`.
  *
  * @param themeAttr theme attribute pointing on that color

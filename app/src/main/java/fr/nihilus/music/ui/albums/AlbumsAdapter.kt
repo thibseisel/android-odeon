@@ -33,15 +33,15 @@ internal class AlbumsAdapter(
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
-    private val defaultColors: IntArray
+    private val defaultColors: AlbumHolder.DefaultColors
     private val glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
         .fallback(R.drawable.ic_album_24dp)
         .region(0f, .75f, 1f, 1f)
         .centerCrop()
 
     init {
-        val ctx = checkNotNull(fragment.context) { "Fragment is not attached" }
-        defaultColors = intArrayOf(
+        val ctx = fragment.requireContext()
+        defaultColors = AlbumHolder.DefaultColors(
             ContextCompat.getColor(ctx, R.color.album_band_default),
             resolveThemeColor(ctx, R.attr.colorAccent),
             ContextCompat.getColor(ctx, android.R.color.white),
