@@ -134,7 +134,7 @@ class MediaQueueManager
         }
     }
 
-    override fun getMediaDescription(windowIndex: Int): MediaDescriptionCompat {
+    override fun getMediaDescription(player: Player?, windowIndex: Int): MediaDescriptionCompat {
         assert(windowIndex in currentQueue.indices)
         return currentQueue[windowIndex]
     }
