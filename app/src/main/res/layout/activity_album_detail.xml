@@ -22,8 +22,8 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:textDirection="locale"
+    android:fitsSystemWindows="true"
     tools:context="fr.nihilus.music.ui.albums.AlbumDetailActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -36,7 +36,7 @@
         <android.support.design.widget.CollapsingToolbarLayout
             android:id="@+id/collapsingToolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:titleEnabled="false">
@@ -44,7 +44,7 @@
             <com.github.thibseisel.ratioimageview.RatioImageView
                 android:id="@+id/albumArtView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:contentDescription="@string/album_art"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
