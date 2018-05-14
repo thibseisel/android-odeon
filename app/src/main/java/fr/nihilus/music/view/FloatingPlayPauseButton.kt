@@ -34,14 +34,8 @@ class FloatingPlayPauseButton
     defStyleAttr: Int = 0
 ) : FloatingActionButton(context, attrs, defStyleAttr) {
 
-    private val helper = PlayPauseHelper(this)
-
     /**
      * Whether this button should display its "playing" state.
      */
-    var isPlaying: Boolean
-        get() = helper.isPlaying == true
-        set(value) {
-            helper.isPlaying = value
-        }
+    var isPlaying: Boolean by PlayPauseDelegate()
 }
