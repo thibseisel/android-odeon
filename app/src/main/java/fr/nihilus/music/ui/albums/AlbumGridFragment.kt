@@ -16,13 +16,13 @@
 
 package fr.nihilus.music.ui.albums
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,10 +31,10 @@ import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.glide.palette.toParcelable
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.utils.resolveThemeColor
 import fr.nihilus.recyclerfragment.RecyclerFragment
 
 @ActivityScoped
@@ -43,12 +43,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     private lateinit var adapter: AlbumsAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, albums: List<MediaItem>) {
-            adapter.submitList(albums)
-            setRecyclerShown(true)
-        }
-    }
+    private lateinit var defaultAlbumPalette: AlbumPalette
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -57,7 +52,16 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = AlbumsAdapter(this, this)
+
+        val context = requireContext()
+        defaultAlbumPalette = AlbumPalette(
+            primary = ContextCompat.getColor(context, R.color.album_band_default),
+            accent = resolveThemeColor(context, R.attr.colorAccent),
+            titleText = ContextCompat.getColor(context, android.R.color.white),
+            bodyText = ContextCompat.getColor(context, android.R.color.white)
+        )
+
+        adapter = AlbumsAdapter(this, defaultAlbumPalette, this)
     }
 
     override fun onCreateView(
@@ -68,6 +72,11 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+
+        viewModel.subscribeTo(MediaID.ID_ALBUMS).observe(this, Observer { albums ->
+            adapter.submitList(albums.orEmpty())
+            setRecyclerShown(true)
+        })
 
         setAdapter(adapter)
         recyclerView.setHasFixedSize(true)
@@ -81,12 +90,6 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     override fun onStart() {
         super.onStart()
         activity!!.setTitle(R.string.action_albums)
-        viewModel.subscribe(MediaID.ID_ALBUMS, subscriptionCallback)
-    }
-
-    override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_ALBUMS)
-        super.onStop()
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
@@ -96,10 +99,10 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
         )
-        val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java)
-        albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
-        holder.palette?.let {
-            albumDetailIntent.putExtra(AlbumDetailActivity.ARG_PALETTE, it.toParcelable())
+
+        val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
+            putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
+            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colorPalette ?: defaultAlbumPalette)
         }
 
         startActivity(albumDetailIntent, options.toBundle())

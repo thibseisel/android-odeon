@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.ui.playlist
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,13 +42,6 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     private lateinit var adapter: PlaylistsAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.submitList(children)
-            setRecyclerShown(true)
-        }
-    }
-
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -64,6 +57,11 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         super.onActivityCreated(savedInstanceState)
 
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+        viewModel.subscribeTo(MediaID.ID_PLAYLISTS).observe(this, Observer {
+            adapter.submitList(it.orEmpty())
+            setRecyclerShown(true)
+        })
+
         recyclerView.setHasFixedSize(true)
         setAdapter(adapter)
 
@@ -75,12 +73,6 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     override fun onStart() {
         super.onStart()
         activity!!.setTitle(R.string.action_playlists)
-        viewModel.subscribe(MediaID.ID_PLAYLISTS, subscriptionCallback)
-    }
-
-    override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_PLAYLISTS)
-        super.onStop()
     }
 
     override fun onCreateView(

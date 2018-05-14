@@ -16,11 +16,10 @@
 
 package fr.nihilus.music.ui.artists
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,13 +42,6 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     private lateinit var adapter: ArtistAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, artists: List<MediaItem>) {
-            adapter.submitList(artists)
-            setRecyclerShown(true)
-        }
-    }
-
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -63,18 +55,21 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View =
-        inflater.inflate(R.layout.fragment_artists, container, false)
+    ): View = inflater.inflate(R.layout.fragment_artists, container, false)
 
     override fun onStart() {
         super.onStart()
         activity!!.setTitle(R.string.action_artists)
-        viewModel.subscribe(MediaID.ID_ARTISTS, subscriptionCallback)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+        viewModel.subscribeTo(MediaID.ID_ARTISTS).observe(this, Observer {
+            adapter.submitList(it.orEmpty())
+            setRecyclerShown(true)
+        })
 
         setAdapter(adapter)
         recyclerView.setHasFixedSize(true)
@@ -82,11 +77,6 @@ class ArtistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         if (savedInstanceState == null) {
             setRecyclerShown(false)
         }
-    }
-
-    override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_ARTISTS)
-        super.onStop()
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {

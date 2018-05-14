@@ -21,12 +21,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
@@ -35,12 +32,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.palette.ParcelablePalette
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.holder.AlbumHolder
-import fr.nihilus.music.utils.darker
 import fr.nihilus.music.utils.luminance
-import fr.nihilus.music.utils.resolveThemeColor
 import fr.nihilus.music.utils.setLightStatusBar
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.activity_album_detail.*
@@ -57,18 +50,6 @@ class AlbumDetailActivity : AppCompatActivity(),
     private lateinit var decoration: CurrentlyPlayingDecoration
     private lateinit var viewModel: BrowserViewModel
 
-    private lateinit var defaultColors: AlbumHolder.DefaultColors
-
-    private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.submitList(children)
-            recycler.swapAdapter(adapter, false)
-
-            val currentMetadata = viewModel.currentMetadata.value
-            decoratePlayingTrack(currentMetadata)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -76,6 +57,10 @@ class AlbumDetailActivity : AppCompatActivity(),
 
         pickedAlbum = checkNotNull(intent.getParcelableExtra(ARG_PICKED_ALBUM)) {
             "Calling activity must specify the album to display."
+        }
+
+        val palette = checkNotNull(intent.getParcelableExtra<AlbumPalette>(ARG_PALETTE)) {
+            "Calling activity must specify a color palette calculated from the album artwork."
         }
 
         with(pickedAlbum.description) {
@@ -89,14 +74,6 @@ class AlbumDetailActivity : AppCompatActivity(),
         setupAlbumArt()
         setupTrackList()
 
-        defaultColors = AlbumHolder.DefaultColors(
-            ContextCompat.getColor(this, R.color.album_band_default),
-            resolveThemeColor(this, R.attr.colorAccent),
-            ContextCompat.getColor(this, android.R.color.white),
-            ContextCompat.getColor(this, android.R.color.white)
-        )
-
-        val palette = intent.getParcelableExtra<ParcelablePalette>(ARG_PALETTE)?.asPalette()
         applyPaletteTheme(palette)
 
         viewModel = ViewModelProviders.of(this, factory).get(BrowserViewModel::class.java)
@@ -104,16 +81,15 @@ class AlbumDetailActivity : AppCompatActivity(),
 
         // Change the decorated item when metadata changes
         viewModel.currentMetadata.observe(this, Observer(this::decoratePlayingTrack))
-    }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.subscribe(pickedAlbum.mediaId!!, subscriptionCallback)
-    }
+        // Subscribe to children of this album
+        viewModel.subscribeTo(pickedAlbum.mediaId!!).observe(this, Observer { children ->
+            adapter.submitList(children.orEmpty())
+            recycler.swapAdapter(adapter, false)
 
-    override fun onStop() {
-        viewModel.unsubscribe(pickedAlbum.mediaId!!)
-        super.onStop()
+            val currentMetadata = viewModel.currentMetadata.value
+            decoratePlayingTrack(currentMetadata)
+        })
     }
 
     private fun setupAlbumArt() {
@@ -147,41 +123,20 @@ class AlbumDetailActivity : AppCompatActivity(),
     /**
      * Apply colors picked from the album art to the user interface.
      */
-    private fun applyPaletteTheme(palette: Palette?) {
-        val primaryColor: Int
-        val accentColor: Int
-        val titleColor: Int
-        val bodyColor: Int
-
-        if (palette != null) {
-            primaryColor = palette.getDominantColor(defaultColors.primary)
-            accentColor = palette.getVibrantColor(defaultColors.accent)
-
-            val swatch = palette.dominantSwatch!!
-            titleColor = swatch.titleTextColor
-            bodyColor = swatch.bodyTextColor
-
-        } else {
-            primaryColor = defaultColors.primary
-            accentColor = defaultColors.accent
-            titleColor = defaultColors.title
-            bodyColor = defaultColors.body
-        }
-
-        val statusBarColor = darker(primaryColor, 0.8f)
-        findViewById<View>(R.id.albumInfoLayout).setBackgroundColor(primaryColor)
-        titleView.setTextColor(titleColor)
-        subtitleView.setTextColor(bodyColor)
+    private fun applyPaletteTheme(palette: AlbumPalette) {
+        findViewById<View>(R.id.albumInfoLayout).setBackgroundColor(palette.primary)
+        titleView.setTextColor(palette.titleText)
+        subtitleView.setTextColor(palette.bodyText)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setLightStatusBar(window, luminance(bodyColor) < 0.5f)
+            setLightStatusBar(window, luminance(palette.bodyText) < 0.5f)
         }
 
-        collapsingToolbar.setStatusBarScrimColor(statusBarColor)
-        collapsingToolbar.setContentScrimColor(primaryColor)
+        collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
+        collapsingToolbar.setContentScrimColor(palette.primary)
 
-        playFab.backgroundTintList = ColorStateList.valueOf(accentColor)
-        decoration = CurrentlyPlayingDecoration(this, accentColor)
+        playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        decoration = CurrentlyPlayingDecoration(this, palette.accent)
         recycler.addItemDecoration(decoration)
     }
 

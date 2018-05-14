@@ -63,6 +63,9 @@ class BrowserViewModel
         mBrowser = MediaBrowserCompat(context, componentName, connectionCallback, null)
     }
 
+    /**
+     * Initiates a connection to the media browser service.
+     */
     fun connect() {
         if (!mBrowser.isConnected) {
             Timber.d("Attempt to connect to MediaSession with MediaBrowser...")
@@ -117,7 +120,10 @@ class BrowserViewModel
         })
     }
 
-    fun subscriptionFor(parentId: String): LiveData<List<MediaBrowserCompat.MediaItem>> {
+    /**
+     * Subscribes to a stream of media items that are children of a given media id.
+     */
+    fun subscribeTo(parentId: String): LiveData<List<MediaBrowserCompat.MediaItem>> {
         return subscriptionCache.getOrPut(parentId) {
             SubscriptionLiveData(mBrowser, parentId)
         }
@@ -133,26 +139,14 @@ class BrowserViewModel
         }
     }
 
-    /**
-     * @see MediaBrowserCompat.subscribe
-     */
-    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        mBrowser.subscribe(parentId, callback)
-    }
-
-    /**
-     * @see MediaBrowserCompat.unsubscribe
-     */
-    fun unsubscribe(parentId: String) {
-        mBrowser.unsubscribe(parentId)
-    }
-
     override fun onCleared() {
         disconnect()
     }
 
-    private inner class ConnectionCallback(context: Context) :
-        MediaBrowserCompat.ConnectionCallback() {
+    private inner class ConnectionCallback(
+        context: Context
+    ) : MediaBrowserCompat.ConnectionCallback() {
+
         private val contextRef = WeakReference<Context>(context)
 
         override fun onConnected() {

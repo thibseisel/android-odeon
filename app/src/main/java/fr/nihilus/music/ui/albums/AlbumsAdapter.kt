@@ -17,7 +17,6 @@
 package fr.nihilus.music.ui.albums
 
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
@@ -26,31 +25,20 @@ import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.resolveThemeColor
 
 internal class AlbumsAdapter(
     fragment: Fragment,
+    private val defaultPalette: AlbumPalette,
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
-    private val defaultColors: AlbumHolder.DefaultColors
     private val glideRequest = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
         .fallback(R.drawable.ic_album_24dp)
         .region(0f, .75f, 1f, 1f)
         .centerCrop()
 
-    init {
-        val ctx = fragment.requireContext()
-        defaultColors = AlbumHolder.DefaultColors(
-            ContextCompat.getColor(ctx, R.color.album_band_default),
-            resolveThemeColor(ctx, R.attr.colorAccent),
-            ContextCompat.getColor(ctx, android.R.color.white),
-            ContextCompat.getColor(ctx, android.R.color.white)
-        )
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
-        return AlbumHolder(parent, glideRequest, defaultColors).also { holder ->
+        return AlbumHolder(parent, glideRequest, defaultPalette).also { holder ->
             holder.onAttachListeners(listener)
         }
     }

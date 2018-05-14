@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide.palette
+package fr.nihilus.music.ui.albums
 
-class ParcelablePaletteTest {
+import android.os.Parcelable
+import android.support.annotation.ColorInt
+import fr.nihilus.music.utils.darker
+import kotlinx.android.parcel.IgnoredOnParcel
+import kotlinx.android.parcel.Parcelize
 
-
+@Parcelize
+data class AlbumPalette(
+    @ColorInt val primary: Int,
+    @ColorInt val accent: Int,
+    @ColorInt val titleText: Int,
+    @ColorInt val bodyText: Int
+) : Parcelable {
+    @IgnoredOnParcel
+    @ColorInt val primaryDark = darker(primary, 0.8f)
 }

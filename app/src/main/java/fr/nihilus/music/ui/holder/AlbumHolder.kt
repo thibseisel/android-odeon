@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.holder
 
-import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.CardView
@@ -28,14 +27,12 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.albums.AlbumPalette
 
-/**
- *
- */
 internal class AlbumHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<PaletteBitmap>,
-    private val defaultColors: DefaultColors
+    private val defaultPalette: AlbumPalette
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
@@ -55,31 +52,21 @@ internal class AlbumHolder(
 
     inline val transitionView get() = albumArt
 
-    var palette: Palette? = null
+    var colorPalette: AlbumPalette? = null
+        private set
 
-    private fun applyPalette(palette: Palette?) {
-        this.palette = palette
-
-        palette?.dominantSwatch?.let {
-            val primaryColor = it.rgb
-            val bodyColor = it.bodyTextColor
-            setColors(primaryColor, bodyColor)
-
-        } ?: applyDefaultColors()
-    }
-
-    private fun applyDefaultColors() {
-        val (primaryColor, _, _, bodyColor) = defaultColors
-        setColors(primaryColor, bodyColor)
-    }
-
-    private fun setColors(
-        @ColorInt primary: Int,
-        @ColorInt body: Int
-    ) {
-        card.setCardBackgroundColor(primary)
-        title.setTextColor(body)
-        artist.setTextColor(body)
+    private fun applyPalette(palette: Palette) {
+        val dominantSwatch = palette.dominantSwatch
+        colorPalette = AlbumPalette(
+            primary = dominantSwatch?.rgb ?: defaultPalette.primary,
+            accent = palette.getVibrantColor(defaultPalette.accent),
+            titleText = dominantSwatch?.titleTextColor ?: defaultPalette.titleText,
+            bodyText = dominantSwatch?.bodyTextColor ?: defaultPalette.bodyText
+        ).also {
+            card.setCardBackgroundColor(it.primary)
+            title.setTextColor(it.bodyText)
+            artist.setTextColor(it.bodyText)
+        }
     }
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
@@ -96,15 +83,4 @@ internal class AlbumHolder(
         glide.load(description.iconUri).into(albumViewTarget)
         albumArt.transitionName = "image_" + description.mediaId
     }
-
-    /**
-     * A set of color to be used as fallbacks when no such colors can be extracted
-     * from the image displayed by this album holder.
-     */
-    data class DefaultColors(
-        @ColorInt val primary: Int,
-        @ColorInt val accent: Int,
-        @ColorInt val title: Int,
-        @ColorInt val body: Int
-    )
 }

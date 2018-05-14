@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.ui.holder
 
-import android.support.annotation.ColorInt
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.CardView
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -27,31 +27,32 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.palette.PaletteBitmap
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.albums.AlbumPalette
 
-/**
- *
- */
 internal class ArtistAlbumHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<PaletteBitmap>,
-    private val defaultColors: IntArray
+    private val defaultPalette: AlbumPalette
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_album_item) {
 
-    val colors = IntArray(4)
+    var colorPalette: AlbumPalette? = null
+        private set
+
     private val card: CardView = itemView.findViewById(R.id.card)
     val albumArt: ImageView = itemView.findViewById(R.id.albumArt)
     val title: TextView = itemView.findViewById(R.id.title)
 
-    fun setColors(
-        @ColorInt primary: Int, @ColorInt accent: Int, @ColorInt title: Int,
-        @ColorInt body: Int
-    ) {
-        card.setCardBackgroundColor(primary)
-        this.title.setTextColor(body)
-        colors[0] = primary
-        colors[1] = accent
-        colors[2] = title
-        colors[3] = body
+    private fun applyPalette(palette: Palette) {
+        val dominantSwatch = palette.dominantSwatch
+        colorPalette = AlbumPalette(
+            primary = dominantSwatch?.rgb ?: defaultPalette.primary,
+            accent = palette.getVibrantColor(defaultPalette.accent),
+            titleText = dominantSwatch?.titleTextColor ?: defaultPalette.titleText,
+            bodyText = dominantSwatch?.bodyTextColor ?: defaultPalette.bodyText
+        ).also {
+            card.setCardBackgroundColor(it.primary)
+            title.setTextColor(it.bodyText)
+        }
     }
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
@@ -64,21 +65,13 @@ internal class ArtistAlbumHolder(
         val description = item.description
         title.text = description.title
 
-        setColors(defaultColors[0], defaultColors[1], defaultColors[2], defaultColors[3])
         albumArt.transitionName = "art_" + item.mediaId
 
         glide.load(description.iconUri).into(object : ImageViewTarget<PaletteBitmap>(albumArt) {
             override fun setResource(resource: PaletteBitmap?) {
                 if (resource != null) {
                     super.view.setImageBitmap(resource.bitmap)
-                    val swatch = resource.palette.dominantSwatch
-                    val accentColor = resource.palette.getVibrantColor(defaultColors[1])
-                    if (swatch != null) {
-                        setColors(
-                            swatch.rgb, accentColor,
-                            swatch.titleTextColor, swatch.bodyTextColor
-                        )
-                    }
+                    applyPalette(resource.palette)
                 }
             }
         })

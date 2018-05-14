@@ -17,15 +17,13 @@
 package fr.nihilus.music.ui.songs
 
 import android.app.Activity
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
-import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
@@ -50,14 +48,6 @@ class SongListFragment : Fragment(),
     private lateinit var songAdapter: SongAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private val subscriptionCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, items: List<MediaItem>) {
-            songAdapter.updateItems(items)
-            progress.hide()
-            listContainer.visibility = View.VISIBLE
-        }
-    }
-
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
@@ -72,7 +62,7 @@ class SongListFragment : Fragment(),
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_songlist, menu)
-        val searchView = menu.findItem(R.id.action_search).actionView as SearchView
+        //val searchView = menu.findItem(R.id.action_search).actionView as SearchView
         // TODO Search and filtering features
     }
 
@@ -113,17 +103,16 @@ class SongListFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+        viewModel.subscribeTo(MediaID.ID_MUSIC).observe(this, Observer {
+            songAdapter.updateItems(it.orEmpty())
+            progress.hide()
+            listContainer.visibility = View.VISIBLE
+        })
     }
 
     override fun onStart() {
         super.onStart()
         activity!!.setTitle(R.string.all_music)
-        viewModel.subscribe(MediaID.ID_MUSIC, subscriptionCallback)
-    }
-
-    override fun onStop() {
-        viewModel.unsubscribe(MediaID.ID_MUSIC)
-        super.onStop()
     }
 
     override fun onItemClick(listView: AdapterView<*>, view: View, position: Int, id: Long) {

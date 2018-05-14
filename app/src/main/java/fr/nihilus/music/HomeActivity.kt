@@ -107,8 +107,8 @@ class HomeActivity : AppCompatActivity(),
      */
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY -> viewModel.post { controller ->
-                controller.dispatchMediaButtonEvent(event)
+            KeyEvent.KEYCODE_MEDIA_PLAY -> viewModel.post {
+                it.dispatchMediaButtonEvent(event)
             }
         }
         return super.onKeyDown(keyCode, event)

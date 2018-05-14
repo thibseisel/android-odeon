@@ -18,6 +18,7 @@ package fr.nihilus.music.ui.playlist
 
 import android.app.Activity
 import android.app.Dialog
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.DialogInterface
@@ -25,7 +26,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialogFragment
 import android.view.View
@@ -105,17 +105,14 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         browserViewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        browserViewModel.subscribe(MediaID.ID_PLAYLISTS, updateItemsCallback)
-    }
-
-    override fun onStop() {
-        browserViewModel.unsubscribe(MediaID.ID_PLAYLISTS)
-        super.onStop()
+        browserViewModel.subscribeTo(MediaID.ID_PLAYLISTS).observe(this, Observer {
+            val children = it?.filter {
+                MediaID.getIdRoot(it.mediaId!!) == MediaID.ID_PLAYLISTS
+            }.orEmpty()
+            playlistAdapter.update(children)
+        })
     }
 
     private val dialogEventHandler = DialogInterface.OnClickListener { _, position ->
@@ -158,14 +155,6 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         val memberTracks = arguments?.getLongArray(ARG_SELECTED_TRACKS) ?: LongArray(0)
         NewPlaylistDialog.newInstance(targetFragment!!, targetRequestCode, memberTracks)
             .show(fragmentManager, NewPlaylistDialog.TAG)
-    }
-
-    private val updateItemsCallback = object : SubscriptionCallback() {
-        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            playlistAdapter.update(children.filter {
-                MediaID.getIdRoot(it.mediaId!!) == MediaID.ID_PLAYLISTS
-            })
-        }
     }
 
     override fun onCancel(dialog: DialogInterface?) {

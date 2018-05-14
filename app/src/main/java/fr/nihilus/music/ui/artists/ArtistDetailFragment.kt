@@ -16,16 +16,16 @@
 
 package fr.nihilus.music.ui.artists
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback
 import android.support.v7.widget.GridLayoutManager
 import android.view.View
-
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.Constants
 import fr.nihilus.music.R
@@ -33,7 +33,9 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
+import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.ui.holder.ArtistAlbumHolder
+import fr.nihilus.music.utils.resolveThemeColor
 import fr.nihilus.recyclerfragment.RecyclerFragment
 
 @ActivityScoped
@@ -43,14 +45,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
     private lateinit var adapter: ArtistDetailAdapter
 
     private lateinit var viewModel: BrowserViewModel
-
-    private val subscriptionCallback = object : SubscriptionCallback() {
-
-        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            adapter.submitList(children)
-            setRecyclerShown(true)
-        }
-    }
+    private lateinit var defaultAlbumPalette: AlbumPalette
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -60,11 +55,19 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val args = arguments
-        pickedArtist = args?.getParcelable(KEY_ARTIST)
-                ?: throw IllegalStateException("Caller must specify the artist to display.")
+        pickedArtist = checkNotNull(arguments?.getParcelable(KEY_ARTIST)) {
+            "Callers must specify the artist to display."
+        }
 
-        adapter = ArtistDetailAdapter(this, this)
+        val context = requireContext()
+        defaultAlbumPalette = AlbumPalette(
+            ContextCompat.getColor(context, R.color.album_band_default),
+            resolveThemeColor(context, R.attr.colorAccent),
+            ContextCompat.getColor(context, android.R.color.white),
+            ContextCompat.getColor(context, android.R.color.white)
+        )
+
+        adapter = ArtistDetailAdapter(this, defaultAlbumPalette, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -88,17 +91,16 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
         setAdapter(adapter)
+
+        viewModel.subscribeTo(pickedArtist.mediaId!!).observe(this, Observer {
+            adapter.submitList(it.orEmpty())
+            setRecyclerShown(true)
+        })
     }
 
     override fun onStart() {
         super.onStart()
         activity!!.title = pickedArtist.description.title
-        viewModel.subscribe(pickedArtist.mediaId!!, subscriptionCallback)
-    }
-
-    override fun onStop() {
-        viewModel.unsubscribe(pickedArtist.mediaId!!)
-        super.onStop()
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
@@ -117,7 +119,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
             putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
-            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colors)
+            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colorPalette ?: defaultAlbumPalette)
         }
 
         startActivity(albumDetailIntent, options.toBundle())
