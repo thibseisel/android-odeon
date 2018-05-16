@@ -18,7 +18,9 @@ package fr.nihilus.music.glide.palette
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.ColorUtils
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Target
 import com.bumptech.glide.load.Options
@@ -55,7 +57,7 @@ class AlbumArtResource(
  */
 private const val MAX_BITMAP_AREA = 400 * 80
 
-private val DOMINANT_TARGET = Target.Builder()
+private val PRIMARY_TARGET = Target.Builder()
     .setPopulationWeight(0.7f)
     .setSaturationWeight(0.3f)
     .setTargetSaturation(0.6f)
@@ -91,24 +93,28 @@ class AlbumArtTranscoder(
     override fun transcode(toTranscode: Resource<Bitmap>, options: Options): Resource<AlbumArt> {
         val bitmap = toTranscode.get()
 
-        // Generate a coarse Palette to extract the dominant color from the bottom quarter.
-        val primaryColorPalette = Palette.from(bitmap)
+        // Generate a coarse Palette to extract the dominant color from the bottom of the image.
+        val primaryPalette = Palette.from(bitmap)
             .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
             .resizeBitmapArea(MAX_BITMAP_AREA)
             .clearFilters()
             .clearTargets()
-            .addTarget(DOMINANT_TARGET)
+            .addTarget(PRIMARY_TARGET)
             .generate()
 
-        // TODO Maybe better to create a single Target that matches all vibrant colors
-        // Generate a precise Palette to extract the color tu use as accent.
-        val accentColorPalette = Palette.from(bitmap)
+
+        val primaryColor = primaryPalette.getColorForTarget(PRIMARY_TARGET, defaultPalette.primary)
+        val primaryColorFilter = PrimaryHueFilter(primaryColor)
+
+        // Generate a Palette to extract the color tu use as the accent color.
+        val accentPalette = Palette.from(bitmap)
             .clearTargets()
             .addTarget(ACCENT_TARGET)
+            .addFilter(primaryColorFilter)
             .generate()
 
-        val accentColor = accentColorPalette.getColorForTarget(ACCENT_TARGET, defaultPalette.accent)
-        val colorPack = primaryColorPalette.dominantSwatch?.let {
+        val accentColor = accentPalette.getColorForTarget(ACCENT_TARGET, defaultPalette.accent)
+        val colorPack = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)?.let {
             AlbumPalette(
                 primary = it.rgb,
                 accent = accentColor,
@@ -120,4 +126,24 @@ class AlbumArtTranscoder(
         val albumArt = AlbumArt(bitmap, colorPack)
         return AlbumArtResource(albumArt, bitmapPool)
     }
+}
+
+private const val HUE_DELTA = 15f
+
+internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
+
+    private val hasSameHueAsPrimary: (targetHue: Float) -> Boolean = run {
+        val primaryHsl = FloatArray(3)
+        ColorUtils.colorToHSL(primaryColor, primaryHsl)
+        val primaryHue = primaryHsl[0]
+
+        if (primaryHue in 0f..HUE_DELTA || primaryHue in (360f - HUE_DELTA)..360f) {
+            { it in 0f..(primaryHue + HUE_DELTA) || it in (360f - HUE_DELTA + primaryHue)..360f }
+        } else {
+            { it in (primaryHue - HUE_DELTA)..(primaryHue + HUE_DELTA) }
+        }
+    }
+
+    override fun isAllowed(rgb: Int, hsl: FloatArray) = !hasSameHueAsPrimary(hsl[0])
+
 }
