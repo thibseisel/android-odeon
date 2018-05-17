@@ -17,42 +17,46 @@
 package fr.nihilus.music.ui.holder
 
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.graphics.Palette
 import android.support.v7.widget.CardView
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
-import fr.nihilus.music.glide.palette.PaletteBitmap
+import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumPalette
 
 internal class ArtistAlbumHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<PaletteBitmap>,
+    private val glide: RequestBuilder<AlbumArt>,
     private val defaultPalette: AlbumPalette
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_album_item) {
 
+    private val card: CardView = itemView.findViewById(R.id.card)
+
+    private val albumArt: ImageView = itemView.findViewById(R.id.albumArt)
+    private val title: TextView = itemView.findViewById(R.id.title)
+
+    val transitionView: View get() = albumArt
     var colorPalette: AlbumPalette? = null
         private set
 
-    private val card: CardView = itemView.findViewById(R.id.card)
-    val albumArt: ImageView = itemView.findViewById(R.id.albumArt)
-    val title: TextView = itemView.findViewById(R.id.title)
-
-    private fun applyPalette(palette: Palette) {
-        val dominantSwatch = palette.dominantSwatch
-        colorPalette = AlbumPalette(
-            primary = dominantSwatch?.rgb ?: defaultPalette.primary,
-            accent = palette.getVibrantColor(defaultPalette.accent),
-            titleText = dominantSwatch?.titleTextColor ?: defaultPalette.titleText,
-            bodyText = dominantSwatch?.bodyTextColor ?: defaultPalette.bodyText
-        ).also {
-            card.setCardBackgroundColor(it.primary)
-            title.setTextColor(it.bodyText)
+    private val albumArtTarget = object : ImageViewTarget<AlbumArt>(albumArt) {
+        override fun setResource(resource: AlbumArt?) {
+            if (resource != null) {
+                super.view.setImageBitmap(resource.bitmap)
+                applyPalette(resource.palette)
+            }
         }
+    }
+
+    private fun applyPalette(palette: AlbumPalette) {
+        colorPalette = palette
+        card.setCardBackgroundColor(palette.primary)
+        title.setTextColor(palette.bodyText)
     }
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
@@ -64,16 +68,10 @@ internal class ArtistAlbumHolder(
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
         title.text = description.title
+        applyPalette(defaultPalette)
 
         albumArt.transitionName = "art_" + item.mediaId
 
-        glide.load(description.iconUri).into(object : ImageViewTarget<PaletteBitmap>(albumArt) {
-            override fun setResource(resource: PaletteBitmap?) {
-                if (resource != null) {
-                    super.view.setImageBitmap(resource.bitmap)
-                    applyPalette(resource.palette)
-                }
-            }
-        })
+        glide.load(description.iconUri).into(albumArtTarget)
     }
 }

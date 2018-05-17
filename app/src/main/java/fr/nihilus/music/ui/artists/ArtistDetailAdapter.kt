@@ -23,7 +23,7 @@ import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.glide.palette.PaletteBitmap
+import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.ui.holder.ArtistAlbumHolder
@@ -35,17 +35,16 @@ internal class ArtistDetailAdapter(
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {
 
-    private val paletteLoader: GlideRequest<PaletteBitmap>
+    private val paletteLoader: GlideRequest<AlbumArt>
     private val bitmapLoader: GlideRequest<Bitmap>
 
     init {
         val context = fragment.requireContext()
         val defaultAlbumIcon = context.getDrawable(R.drawable.ic_album_24dp)
         val defaultTrackIcon = context.getDrawable(R.drawable.ic_audiotrack_24dp)
-        paletteLoader = GlideApp.with(fragment).`as`(PaletteBitmap::class.java)
+        paletteLoader = GlideApp.with(fragment).`as`(AlbumArt::class.java)
             .centerCrop()
             .fallback(defaultAlbumIcon)
-            .region(0f, .75f, 1f, 1f)
         bitmapLoader = GlideApp.with(fragment).asBitmap()
             .centerCrop()
             .fallback(defaultTrackIcon)

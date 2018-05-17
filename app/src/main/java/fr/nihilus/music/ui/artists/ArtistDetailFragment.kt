@@ -114,7 +114,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
 
     private fun onAlbumSelected(holder: ArtistAlbumHolder, album: MediaItem) {
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            activity!!, holder.albumArt, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
+            activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
         )
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
