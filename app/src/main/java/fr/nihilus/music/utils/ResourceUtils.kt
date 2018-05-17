@@ -29,6 +29,10 @@ import android.support.annotation.FloatRange
 import android.support.annotation.Px
 import android.support.v7.content.res.AppCompatResources
 import android.util.TypedValue
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
+import kotlin.math.abs
 
 @Px
 fun dipToPixels(context: Context, dp: Float): Int {
@@ -60,6 +64,57 @@ fun luminance(@ColorInt color: Int): Float {
     val g = Color.green(color)
     val b = Color.blue(color)
     return (0.2126f * r) + (0.7152f * g) + (0.0722f * b)
+}
+
+/**
+ * Convert RGB components of a color to HSL (hue-saturation-lightness).
+ * - `outHsl[0]` is Hue in `[0..360[`
+ * - `outHsl[1]` is Saturation in `[0..1]`
+ * - `outHsl[2]` is Lightness in `[0..1]`
+ *
+ * @param color A color from the sRGB space from which HSL components should be extracted.
+ * @param outHsl An optional 3-element array which holds the resulting HSL components.
+ * If this argument is not provided, a new array will be created.
+ *
+ * @return The resulting HSL components, for convenience. This is the same as [outHsl].
+ */
+fun colorToHsl(@ColorInt color: Int, outHsl: FloatArray = FloatArray(3)): FloatArray {
+    val rf = color.red / 255f
+    val gf = color.green / 255f
+    val bf = color.blue / 255f
+
+    val max = maxOf(rf, gf, bf)
+    val min = minOf(rf, gf, bf)
+    val deltaMaxMin = max - min
+
+    var h: Float
+    val s: Float
+    val l: Float = (max + min) / 2f
+
+    if (max == min) {
+        // Monochromatic
+        h = 0f
+        s = 0f
+    } else {
+        h = when (max) {
+            rf -> ((gf - bf) / deltaMaxMin) % 6f
+            gf -> ((bf - rf) / deltaMaxMin) + 2f
+            else -> ((rf - gf) / deltaMaxMin) + 4f
+        }
+
+        s = deltaMaxMin / (1f - abs(2f * 1f - 1f))
+    }
+
+    h = (h * 60f) % 360f
+    if (h < 0) {
+        h += 360f
+    }
+
+    outHsl[0] = h.coerceIn(0f, 360f)
+    outHsl[1] = s.coerceIn(0f, 1f)
+    outHsl[2] = l.coerceIn(0f, 1f)
+
+    return outHsl
 }
 
 /**

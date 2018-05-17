@@ -30,6 +30,7 @@ import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 import com.bumptech.glide.util.Util
 import fr.nihilus.music.R
 import fr.nihilus.music.ui.albums.AlbumPalette
+import fr.nihilus.music.utils.colorToHsl
 
 data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)
 
@@ -128,22 +129,60 @@ class AlbumArtTranscoder(
     }
 }
 
-private const val HUE_DELTA = 15f
+internal const val HUE_DELTA = 15f
 
+/**
+ *
+ */
 internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
 
-    private val hasSameHueAsPrimary: (targetHue: Float) -> Boolean = run {
-        val primaryHsl = FloatArray(3)
-        ColorUtils.colorToHSL(primaryColor, primaryHsl)
-        val primaryHue = primaryHsl[0]
+    /**
+     * Whether the primary color is perceived as a shade of grey to the human eye.
+     * The primary color will be considered a grey scale if one of the following is true:
+     * - its saturation value is low,
+     * - its lightness value is either very low or very high.
+     */
+    private val primaryIsGreyScale: Boolean
 
-        if (primaryHue in 0f..HUE_DELTA || primaryHue in (360f - HUE_DELTA)..360f) {
-            { it in 0f..(primaryHue + HUE_DELTA) || it in (360f - HUE_DELTA + primaryHue)..360f }
+    /**
+     * Whether the primary color's hue is close to the origin of the color circle (i.e, red hues).
+     * Due to hue values being normalized in `[0 ; 360[`, the range of forbidden accent color hues
+     * has to be split into 2 ranges when `primaryHue - delta < 0` or `primaryHue + delta > 360`,
+     * which typically happens when the primary hue is a shade of red.
+     */
+    private val primaryIsNearRed: Boolean
+
+    /**
+     * The lower bound of the range of forbidden hues for the accent color.
+     */
+    private val lowerBound: Float
+
+    /**
+     * The higher bound of the range of forbidden hues for the accent color.
+     */
+    private val higherBound: Float
+
+    init {
+        // Extract HSL components from the primary color for analysis
+        val (hue, sat, light) = colorToHsl(primaryColor)
+        primaryIsGreyScale = sat < 0.2f || light !in 0.15f..0.85f
+        primaryIsNearRed = hue in 0f..HUE_DELTA || hue in (360f - HUE_DELTA)..360f
+
+        if (primaryIsNearRed) {
+            lowerBound = 360f - HUE_DELTA + hue
+            higherBound = hue + HUE_DELTA
         } else {
-            { it in (primaryHue - HUE_DELTA)..(primaryHue + HUE_DELTA) }
+            lowerBound = hue - HUE_DELTA
+            higherBound = hue + HUE_DELTA
         }
     }
 
-    override fun isAllowed(rgb: Int, hsl: FloatArray) = !hasSameHueAsPrimary(hsl[0])
+    override fun isAllowed(rgb: Int, hsl: FloatArray): Boolean {
+        return primaryIsGreyScale || if (primaryIsNearRed) {
+            hsl[0] !in lowerBound..360f || hsl[0] !in 0f..higherBound
+        } else {
+            hsl[0] !in lowerBound..higherBound
+        }
+    }
 
 }
