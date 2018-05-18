@@ -71,8 +71,8 @@ private val ACCENT_TARGET = Target.Builder()
     .setLightnessWeight(0.4f)
     .setMinimumSaturation(0.2f)
     .setTargetSaturation(0.7f)
-    .setMinimumLightness(0.30f)
-    .setTargetLightness(0.5f)
+    .setMinimumLightness(0.3f)
+    .setTargetLightness(0.6f)
     .setMaximumLightness(0.8f)
     .setExclusive(false)
     .build()
@@ -178,7 +178,7 @@ internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
 
     override fun isAllowed(rgb: Int, hsl: FloatArray): Boolean {
         return primaryIsGreyScale || if (primaryIsNearRed) {
-            hsl[0] !in lowerBound..360f || hsl[0] !in 0f..higherBound
+            hsl[0] !in lowerBound..360f && hsl[0] !in 0f..higherBound
         } else {
             hsl[0] !in lowerBound..higherBound
         }
