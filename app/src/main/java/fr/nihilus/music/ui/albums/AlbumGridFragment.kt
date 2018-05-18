@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,8 +33,8 @@ import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.resolveThemeColor
 import fr.nihilus.recyclerfragment.RecyclerFragment
+import javax.inject.Inject
 
 @ActivityScoped
 class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
@@ -43,7 +42,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     private lateinit var adapter: AlbumsAdapter
     private lateinit var viewModel: BrowserViewModel
 
-    private lateinit var defaultAlbumPalette: AlbumPalette
+    @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -52,15 +51,6 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val context = requireContext()
-        defaultAlbumPalette = AlbumPalette(
-            primary = ContextCompat.getColor(context, R.color.album_band_default),
-            accent = resolveThemeColor(context, R.attr.colorAccent),
-            titleText = ContextCompat.getColor(context, android.R.color.white),
-            bodyText = ContextCompat.getColor(context, android.R.color.white)
-        )
-
         adapter = AlbumsAdapter(this, defaultAlbumPalette, this)
     }
 
@@ -102,7 +92,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
             putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
-            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colorPalette ?: defaultAlbumPalette)
+            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colorPalette)
         }
 
         startActivity(albumDetailIntent, options.toBundle())

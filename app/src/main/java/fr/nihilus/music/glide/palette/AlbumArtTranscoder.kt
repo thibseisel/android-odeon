@@ -19,7 +19,6 @@ package fr.nihilus.music.glide.palette
 import android.content.Context
 import android.graphics.Bitmap
 import android.support.annotation.ColorInt
-import android.support.v4.content.ContextCompat
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Target
 import com.bumptech.glide.load.Options
@@ -27,7 +26,6 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 import com.bumptech.glide.util.Util
-import fr.nihilus.music.R
 import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.utils.toHsl
 
@@ -83,12 +81,7 @@ class AlbumArtTranscoder(
     private val bitmapPool: BitmapPool
 ) : ResourceTranscoder<Bitmap, AlbumArt> {
 
-    private val defaultPalette = AlbumPalette(
-        primary = ContextCompat.getColor(context, R.color.album_band_default),
-        accent = ContextCompat.getColor(context, R.color.color_accent),
-        titleText = ContextCompat.getColor(context, android.R.color.white),
-        bodyText = ContextCompat.getColor(context, android.R.color.white)
-    )
+    private val defaultPalette = AlbumColorModule.providesDefaultAlbumPalette(context)
 
     override fun transcode(toTranscode: Resource<Bitmap>, options: Options): Resource<AlbumArt> {
         val bitmap = toTranscode.get()

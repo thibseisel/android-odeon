@@ -44,6 +44,7 @@ class AlbumDetailActivity : AppCompatActivity(),
     BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var factory: ViewModelFactory
+    @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
     private lateinit var adapter: TrackAdapter
     private lateinit var pickedAlbum: MediaItem
@@ -59,10 +60,6 @@ class AlbumDetailActivity : AppCompatActivity(),
             "Calling activity must specify the album to display."
         }
 
-        val palette = checkNotNull(intent.getParcelableExtra<AlbumPalette>(ARG_PALETTE)) {
-            "Calling activity must specify a color palette calculated from the album artwork."
-        }
-
         with(pickedAlbum.description) {
             titleView.text = title
             subtitleView.text = subtitle
@@ -74,7 +71,8 @@ class AlbumDetailActivity : AppCompatActivity(),
         setupAlbumArt()
         setupTrackList()
 
-        applyPaletteTheme(palette)
+        val palette: AlbumPalette? = intent.getParcelableExtra(ARG_PALETTE)
+        applyPaletteTheme(palette ?: defaultAlbumPalette)
 
         viewModel = ViewModelProviders.of(this, factory).get(BrowserViewModel::class.java)
         viewModel.connect()

@@ -19,7 +19,9 @@ package fr.nihilus.music.ui.albums
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
@@ -31,7 +33,15 @@ internal class AlbumsAdapter(
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
-    private val glideRequest = GlideApp.with(fragment).`as`(AlbumArt::class.java).centerCrop()
+    private val glideRequest: GlideRequest<AlbumArt>
+
+    init {
+        val context = fragment.requireContext()
+        val fallbackIcon = context.getDrawable(R.drawable.ic_album_24dp)
+        glideRequest = GlideApp.with(fragment).`as`(AlbumArt::class.java)
+            .fallback(fallbackIcon)
+            .centerCrop()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
         return AlbumHolder(parent, glideRequest, defaultPalette).also { holder ->

@@ -19,6 +19,7 @@
     <color name="color_primary">@color/mtrl_deeppurple_500</color>
     <color name="color_primary_dark">@android:color/black</color>
     <color name="color_accent">@color/mtrl_blue_a200</color>
+    <color name="color_background_floating">@color/background_floating_material_dark</color>
 
     <color name="color_control_activated_compat">@color/mtrl_blue_a200</color>
 
