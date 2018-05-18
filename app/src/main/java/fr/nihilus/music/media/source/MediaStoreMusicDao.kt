@@ -25,7 +25,6 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
 import android.util.LongSparseArray
 import fr.nihilus.music.assert
 import fr.nihilus.music.media.MediaItems
@@ -36,6 +35,7 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import org.jetbrains.annotations.TestOnly
+import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -103,7 +103,7 @@ class MediaStoreMusicDao
                     ?: throw UnsupportedOperationException("Unsupported sort key: $metadataKey")
 
             if (splitCond.size > 1 && splitCond[1].contains("DESC")) {
-                mediaStoreKey + " DESC"
+                "$mediaStoreKey DESC"
             } else mediaStoreKey
         }
     }
@@ -119,7 +119,7 @@ class MediaStoreMusicDao
         val whereClause = criteria?.keys?.joinToString(", ") { key ->
             val mediaStoreKey = keyMapper[key]
                     ?: throw UnsupportedOperationException("Unsupported filter key: $key")
-            mediaStoreKey + " = ?"
+            "$mediaStoreKey = ?"
         }
 
         // Translate the client's sorting clause to a MediaStore ORDER BY clause.
@@ -138,7 +138,7 @@ class MediaStoreMusicDao
     ): Observable<MediaMetadataCompat> {
 
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
-            Log.i(TAG, "No permission to access external storage.")
+            Timber.i("No permission to access external storage.")
             return Observable.empty()
         }
 
@@ -146,7 +146,7 @@ class MediaStoreMusicDao
 
             // Restricts SQL WHERE clause to only music
             val clause = if (whereClause != null) {
-                whereClause + " AND " + MEDIA_SELECTION_CLAUSE
+                "$whereClause AND $MEDIA_SELECTION_CLAUSE"
             } else MEDIA_SELECTION_CLAUSE
 
             // Preload art Uri for each album to associate them with tracks
@@ -213,7 +213,7 @@ class MediaStoreMusicDao
                     emitter.onNext(metadata)
                 }
 
-            } ?: Log.e(TAG, "Track metadata query failed: null cursor")
+            } ?: Timber.e("Track metadata query failed: null cursor")
 
             emitter.onComplete()
         }
@@ -241,7 +241,7 @@ class MediaStoreMusicDao
         sorting: String?
     ): Observable<MediaDescriptionCompat> {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
-            Log.i(TAG, "Could not load albums : no permission to access external storage.")
+            Timber.i("Could not load albums : no permission to access external storage.")
             return Observable.empty()
         }
 
@@ -253,7 +253,7 @@ class MediaStoreMusicDao
             val whereClause = criteria?.keys?.joinToString(", ") { key ->
                 val mediaStoreKey = keyMapper[key]
                         ?: throw UnsupportedOperationException("Unsupported filter key: $key")
-                mediaStoreKey + " = ?"
+                "$mediaStoreKey = ?"
             }
 
             // Translate sorting clause to an SQL ORDER BY clause with MediaStore keys
@@ -298,7 +298,7 @@ class MediaStoreMusicDao
 
                     emitter.onNext(builder.build())
                 }
-            } ?: Log.e(TAG, "Album query failed: null cursor.")
+            } ?: Timber.e("Album query failed: null cursor.")
 
             emitter.onComplete()
         }
@@ -306,7 +306,7 @@ class MediaStoreMusicDao
 
     override fun getArtists(): Observable<MediaDescriptionCompat> {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
-            Log.i(TAG, "Could not load artists: no permission to access external storage.")
+            Timber.i("Could not load artists: no permission to access external storage.")
             return Observable.empty()
         }
 
@@ -324,7 +324,7 @@ class MediaStoreMusicDao
             )
 
             if (artistsCursor == null || albumsCursor == null) {
-                Log.e(TAG, "Query for artists failed. Returning an empty list.")
+                Timber.e("Query for artists failed. Returning an empty list.")
                 return@fromCallable emptyList()
             }
 
@@ -433,7 +433,7 @@ class MediaStoreMusicDao
      */
     override fun deleteTrack(trackId: String): Completable {
         if (!PermissionUtil.hasExternalStoragePermission(context)) {
-            Log.i(TAG, "Could not delete track: no permission to access external storage.")
+            Timber.i("Could not delete track: no permission to access external storage.")
             return Completable.complete()
         }
 
@@ -444,7 +444,7 @@ class MediaStoreMusicDao
             )
 
             if (cursor == null || !cursor.moveToFirst()) {
-                Log.w(TAG, "deleteTrack : attempt to delete a non existing track: id = $trackId")
+                Timber.w("deleteTrack : attempt to delete a non existing track: id = $trackId")
                 return@fromAction
             }
 
@@ -455,7 +455,7 @@ class MediaStoreMusicDao
 
             val file = File(filepath)
             if (!file.exists()) {
-                Log.w(TAG, "deleteTrack: attempt to delete a file that does not exist.")
+                Timber.w("deleteTrack: attempt to delete a file that does not exist.")
                 return@fromAction
             }
 
@@ -472,7 +472,6 @@ class MediaStoreMusicDao
     }
 
     private companion object {
-        const val TAG = "MediaStoreMusicDao"
         const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
         const val SELECTION_TRACK_BY_ID = "${Media._ID} = ?"
 
