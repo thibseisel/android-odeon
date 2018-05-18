@@ -33,7 +33,7 @@ import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
 import fr.nihilus.music.ui.albums.AlbumPalette
-import fr.nihilus.music.ui.holder.ArtistAlbumHolder
+import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject
 
@@ -100,11 +100,11 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
         val holder = recyclerView.findViewHolderForAdapterPosition(position)
         when (holder.itemViewType) {
             R.id.view_type_track -> onTrackSelected(selectedItem)
-            R.id.view_type_album -> onAlbumSelected(holder as ArtistAlbumHolder, selectedItem)
+            R.id.view_type_album -> onAlbumSelected(holder as AlbumHolder, selectedItem)
         }
     }
 
-    private fun onAlbumSelected(holder: ArtistAlbumHolder, album: MediaItem) {
+    private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
         )
@@ -118,7 +118,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
     }
 
     private fun onTrackSelected(track: MediaItem) {
-        val mediaId = track.mediaId ?: throw AssertionError("Track should have a mediaId")
+        val mediaId = track.mediaId ?: error("Track should have a mediaId")
         viewModel.post { it.transportControls.playFromMediaId(mediaId, null) }
     }
 

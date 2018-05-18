@@ -25,19 +25,21 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.palette.AlbumArt
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumPalette
 
 internal class AlbumHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<AlbumArt>,
-    private val defaultPalette: AlbumPalette
+    private val defaultPalette: AlbumPalette,
+    private val isArtistAlbum: Boolean
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
     private val albumArt: ImageView = itemView.findViewById(R.id.albumArtView)
     private val title: TextView = itemView.findViewById(R.id.title)
-    private val artist: TextView = itemView.findViewById(R.id.artist)
+    private val subtitle: TextView = itemView.findViewById(R.id.artist)
 
     private val albumViewTarget = object : ImageViewTarget<AlbumArt>(albumArt) {
 
@@ -58,7 +60,7 @@ internal class AlbumHolder(
         colorPalette = palette
         card.setCardBackgroundColor(palette.primary)
         title.setTextColor(palette.bodyText)
-        artist.setTextColor(palette.bodyText)
+        subtitle.setTextColor(palette.bodyText)
     }
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
@@ -70,7 +72,13 @@ internal class AlbumHolder(
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
         title.text = description.title
-        artist.text = description.subtitle
+
+        subtitle.text = if (isArtistAlbum) {
+            val trackNb = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
+            subtitle.resources.getQuantityString(R.plurals.number_of_tracks, trackNb, trackNb)
+        } else {
+            description.subtitle
+        }
 
         applyPalette(defaultPalette)
 

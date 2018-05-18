@@ -44,7 +44,7 @@ internal class AlbumsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
-        return AlbumHolder(parent, glideRequest, defaultPalette).also { holder ->
+        return AlbumHolder(parent, glideRequest, defaultPalette, false).also { holder ->
             holder.onAttachListeners(listener)
         }
     }

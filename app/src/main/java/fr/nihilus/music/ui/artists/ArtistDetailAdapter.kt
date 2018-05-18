@@ -26,7 +26,7 @@ import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumPalette
-import fr.nihilus.music.ui.holder.ArtistAlbumHolder
+import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.music.ui.holder.TrackHolder
 
 internal class ArtistDetailAdapter(
@@ -57,7 +57,7 @@ internal class ArtistDetailAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseAdapter.ViewHolder {
         return when (viewType) {
-            R.id.view_type_album -> ArtistAlbumHolder(parent, paletteLoader, defaultPalette)
+            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, true)
             R.id.view_type_track -> TrackHolder(parent, bitmapLoader)
             else -> error("Unexpected view type: $viewType")
         }.apply {
