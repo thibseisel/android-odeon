@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.support.annotation.ColorInt
 import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.ColorUtils
 import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Target
 import com.bumptech.glide.load.Options
@@ -30,7 +29,7 @@ import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 import com.bumptech.glide.util.Util
 import fr.nihilus.music.R
 import fr.nihilus.music.ui.albums.AlbumPalette
-import fr.nihilus.music.utils.colorToHsl
+import fr.nihilus.music.utils.toHsl
 
 data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)
 
@@ -72,9 +71,9 @@ private val ACCENT_TARGET = Target.Builder()
     .setLightnessWeight(0.4f)
     .setMinimumSaturation(0.2f)
     .setTargetSaturation(0.7f)
-    .setMinimumLightness(0.4f)
+    .setMinimumLightness(0.30f)
     .setTargetLightness(0.5f)
-    .setMaximumLightness(0.9f)
+    .setMaximumLightness(0.8f)
     .setExclusive(false)
     .build()
 
@@ -129,7 +128,7 @@ class AlbumArtTranscoder(
     }
 }
 
-internal const val HUE_DELTA = 15f
+private const val HUE_DELTA = 15f
 
 /**
  *
@@ -142,7 +141,7 @@ internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
      * - its saturation value is low,
      * - its lightness value is either very low or very high.
      */
-    private val primaryIsGreyScale: Boolean
+    val primaryIsGreyScale: Boolean
 
     /**
      * Whether the primary color's hue is close to the origin of the color circle (i.e, red hues).
@@ -150,7 +149,7 @@ internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
      * has to be split into 2 ranges when `primaryHue - delta < 0` or `primaryHue + delta > 360`,
      * which typically happens when the primary hue is a shade of red.
      */
-    private val primaryIsNearRed: Boolean
+    val primaryIsNearRed: Boolean
 
     /**
      * The lower bound of the range of forbidden hues for the accent color.
@@ -164,8 +163,8 @@ internal class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
 
     init {
         // Extract HSL components from the primary color for analysis
-        val (hue, sat, light) = colorToHsl(primaryColor)
-        primaryIsGreyScale = sat < 0.2f || light !in 0.15f..0.85f
+        val (hue, sat, light) = primaryColor.toHsl()
+        primaryIsGreyScale = sat < 0.2f || light !in 0.10f..0.90f
         primaryIsNearRed = hue in 0f..HUE_DELTA || hue in (360f - HUE_DELTA)..360f
 
         if (primaryIsNearRed) {

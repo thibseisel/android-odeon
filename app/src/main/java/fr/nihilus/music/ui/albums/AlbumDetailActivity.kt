@@ -129,7 +129,7 @@ class AlbumDetailActivity : AppCompatActivity(),
         subtitleView.setTextColor(palette.bodyText)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setLightStatusBar(window, luminance(palette.bodyText) < 0.5f)
+            setLightStatusBar(window, palette.bodyText.luminance < 0.5f)
         }
 
         collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
