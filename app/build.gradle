@@ -84,12 +84,11 @@ android {
                 ]
             }
         }
+    }
 
-        // Beta build type make the application non-debuggable.
-        // This make the application start quickly while still printing logs.
-        beta {
-            initWith debug
-            debuggable false
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
         }
     }
 }
@@ -99,18 +98,18 @@ androidExtensions {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlinVersion}"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7'
     implementation "androidx.core:core-ktx:$ktxVersion"
 
     // Support library dependencies
-    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
-    implementation "com.android.support:design:${supportLibVersion}"
-    implementation "com.android.support:cardview-v7:${supportLibVersion}"
-    implementation "com.android.support:support-v4:${supportLibVersion}"
-    implementation "com.android.support:recyclerview-v7:${supportLibVersion}"
-    implementation "com.android.support:palette-v7:${supportLibVersion}"
-    implementation "com.android.support:preference-v7:${supportLibVersion}"
-    implementation "com.android.support:preference-v14:${supportLibVersion}"
+    implementation supportLibrary('support-v4')
+    implementation supportLibrary('appcompat-v7')
+    implementation supportLibrary('cardview-v7')
+    implementation supportLibrary('recyclerview-v7')
+    implementation supportLibrary('palette-v7')
+    implementation supportLibrary('design')
+    implementation supportLibrary('preference-v7')
+    implementation supportLibrary('preference-v14')
     implementation "com.android.support.constraint:constraint-layout:${constraintVersion}"
 
     // Android Arch Components
@@ -151,10 +150,20 @@ dependencies {
     testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.robolectric:robolectric:${robolectricVersion}"
+    testImplementation "com.google.truth:truth:${truthVersion}"
 
     androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
     androidTestImplementation "com.android.support.test:rules:${androidTestVersion}"
     androidTestImplementation "com.android.support.test:runner:${androidTestVersion}"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoVersion}"
     androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
+}
+
+/**
+ * Helper function that builds the Maven coordinates for Android support libraries,
+ * for a more compact and readable dependency declaration.
+ */
+String supportLibrary(String artifact) {
+    return "com.android.support:$artifact:$supportLibVersion"
 }
