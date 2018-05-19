@@ -106,16 +106,31 @@ class AlbumArtTranscoder(
             .addFilter(primaryColorFilter)
             .generate()
 
-        val accentColor = accentPalette.getColorForTarget(ACCENT_TARGET, defaultPalette.accent)
-        val colorPack = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)?.let {
-            AlbumPalette(
-                primary = it.rgb,
-                accent = accentColor,
-                titleText = it.titleTextColor,
-                bodyText = it.bodyTextColor
-            )
-        } ?: defaultPalette.copy(accent = accentColor)
+        val accent: Int
+        val titleText: Int
+        val bodyText: Int
+        val textOnAccent: Int
 
+        val primarySwatch = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)
+        val accentSwatch = accentPalette.getSwatchForTarget(ACCENT_TARGET)
+
+        if (primarySwatch != null) {
+            titleText = primarySwatch.titleTextColor
+            bodyText = primarySwatch.bodyTextColor
+        } else {
+            titleText = defaultPalette.titleText
+            bodyText = defaultPalette.bodyText
+        }
+
+        if (accentSwatch != null) {
+            accent = accentSwatch.rgb
+            textOnAccent = accentSwatch.titleTextColor
+        } else {
+            accent = defaultPalette.accent
+            textOnAccent = defaultPalette.textOnAccent
+        }
+
+        val colorPack = AlbumPalette(primaryColor, accent, titleText, bodyText, textOnAccent)
         val albumArt = AlbumArt(bitmap, colorPack)
         return AlbumArtResource(albumArt, bitmapPool)
     }

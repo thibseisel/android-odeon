@@ -27,7 +27,8 @@ data class AlbumPalette(
     @ColorInt val primary: Int,
     @ColorInt val accent: Int,
     @ColorInt val titleText: Int,
-    @ColorInt val bodyText: Int
+    @ColorInt val bodyText: Int,
+    @ColorInt val textOnAccent: Int
 ) : Parcelable {
     @IgnoredOnParcel
     @ColorInt val primaryDark = darker(primary, 0.8f)

@@ -35,7 +35,8 @@ public class AlbumColorModule {
                 ContextCompat.getColor(context, R.color.album_band_default),
                 ContextCompat.getColor(context, R.color.color_accent),
                 ContextCompat.getColor(context, android.R.color.white),
-                ContextCompat.getColor(context, android.R.color.white)
+                ContextCompat.getColor(context, android.R.color.white),
+                ContextCompat.getColor(context, R.color.color_control_normal_compat)
         );
     }
 }

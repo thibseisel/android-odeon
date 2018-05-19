@@ -21,9 +21,11 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
@@ -112,8 +114,8 @@ class AlbumDetailActivity : AppCompatActivity(),
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
 
-        supportActionBar!!.apply {
-            setDisplayHomeAsUpEnabled(true)
+        with(supportActionBar!!) {
+            setDisplayHomeAsUpEnabled(false)
             title = null
         }
     }
@@ -126,14 +128,17 @@ class AlbumDetailActivity : AppCompatActivity(),
         titleView.setTextColor(palette.titleText)
         subtitleView.setTextColor(palette.bodyText)
 
+        val darkStatusText = palette.bodyText.luminance < 0.5f
+        setDarkHomeUpIndicator(darkStatusText)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setLightStatusBar(window, palette.bodyText.luminance < 0.5f)
+            setLightStatusBar(window, darkStatusText)
         }
 
         collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
         collapsingToolbar.setContentScrimColor(palette.primary)
 
         playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
         decoration = CurrentlyPlayingDecoration(this, palette.accent)
         recycler.addItemDecoration(decoration)
     }
@@ -168,6 +173,19 @@ class AlbumDetailActivity : AppCompatActivity(),
                 decoration.decoratedPosition = position
                 recycler.invalidateItemDecorations()
             }
+        }
+    }
+
+    private fun setDarkHomeUpIndicator(dark: Boolean) {
+        val themedContext = ContextThemeWrapper(this,
+            if (dark) R.style.ThemeOverlay_AppCompat_Light
+            else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
+        )
+
+        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.abc_ic_ab_back_material)
+        with(supportActionBar!!) {
+            setHomeAsUpIndicator(upArrow)
+            setDisplayHomeAsUpEnabled(true)
         }
     }
 
