@@ -21,13 +21,13 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "fr.nihilus.music"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName '1.1.0'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
@@ -87,7 +87,8 @@ android {
 
         // Allow installing a debug version of the application along a production one
         debug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-debug'
             debuggable true
         }
     }
