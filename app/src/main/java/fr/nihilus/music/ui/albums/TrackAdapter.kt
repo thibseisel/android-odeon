@@ -51,11 +51,10 @@ internal class TrackAdapter(
     fun indexOf(metadata: MediaMetadataCompat): Int {
         // Assume the passed musicId is from ALBUMS category
         val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-        val searchedMediaId = MediaID.createMediaID(musicId, MediaID.ID_ALBUMS)
 
         for (position in 0 until itemCount) {
             val item = getItem(position)
-            if (searchedMediaId == item.mediaId) {
+            if (item.mediaId!!.endsWith(musicId)) {
                 return position
             }
         }
