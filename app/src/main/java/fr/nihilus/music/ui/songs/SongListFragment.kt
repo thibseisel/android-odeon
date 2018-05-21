@@ -131,7 +131,7 @@ class SongListFragment : Fragment(),
         )
 
         val confirm = ConfirmDialogFragment.newInstance(
-            this, 21,
+            this, R.id.request_delete_tracks,
             getString(R.string.delete_dialog_title), dialogMessage,
             R.string.action_delete, R.string.cancel, 0
         )
