@@ -18,19 +18,21 @@ package fr.nihilus.music.media.repo
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
+import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.builtin.BuiltinItem
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
+import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A Music Repository that tries to fetch items and metadata from cache,
  * and then from the data source if not available.
  */
-@Singleton
+@ServiceScoped
 internal class CachedMusicRepository
 @Inject constructor(
     private val mediaDao: MusicDao,
@@ -40,9 +42,9 @@ internal class CachedMusicRepository
 
     override fun getMediaItems(parentMediaId: String): Single<List<MediaItem>> {
         // Get the "true" parent in case the passed media id is a playable item
-        val trueParent = MediaID.stripMusicId(parentMediaId)
+        val trueParent = browseCategoryOf(parentMediaId)
 
-        val cachedItems = musicCache.getItems(trueParent)
+        val cachedItems = musicCache[trueParent]
         if (cachedItems.isNotEmpty()) {
             return Single.just(cachedItems)
         }
@@ -55,8 +57,13 @@ internal class CachedMusicRepository
         val items = builtIn.getChildren(trueParent).toList()
 
         return items.doOnSuccess {
-            musicCache.putItems(trueParent, it)
+            musicCache.put(trueParent, it)
         }
+    }
+
+    override fun getMediaChanges(): Observable<String> = mediaDao.getMediaChanges().doOnNext {
+        // TODO Clear cache depending on the Media ID of the item that has changed
+        musicCache.clear()
     }
 
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> =

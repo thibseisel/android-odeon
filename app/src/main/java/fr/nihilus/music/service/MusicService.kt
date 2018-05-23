@@ -35,12 +35,15 @@ import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
 import fr.nihilus.music.*
+import fr.nihilus.music.media.BROWSER_ROOT
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
 import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.utils.PermissionDeniedException
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -57,18 +60,20 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject lateinit var repository: MusicRepository
     @Inject lateinit var notificationMgr: MediaNotificationManager
 
+    lateinit var session: MediaSessionCompat
     @Inject lateinit var player: ExoPlayer
     @Inject lateinit var playbackController: PlaybackController
     @Inject lateinit var queueManager: MediaQueueManager
-    @Inject lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
-    private lateinit var packageValidator: PackageValidator
+    @Inject lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
+    @Inject lateinit var packageValidator: PackageValidator
+
     private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
 
-    private var isStarted = false
+    private val subscriptions = CompositeDisposable()
 
-    lateinit var session: MediaSessionCompat
+    private var isStarted = false
 
     override fun onCreate() {
         super.onCreate()
@@ -88,10 +93,8 @@ class MusicService : MediaBrowserServiceCompat() {
         session.setSessionActivity(pi)
         session.setRatingType(RatingCompat.RATING_NONE)
 
-        packageValidator = PackageValidator(this)
-        val repeatAction = RepeatModeActionProvider(this, player)
-
         playbackController.restoreStateFromPreferences(player, session)
+        val repeatAction = RepeatModeActionProvider(this, player)
 
         // Configure MediaSessionConnector with player and session
         MediaSessionController(session, playbackController, true).apply {
@@ -102,6 +105,13 @@ class MusicService : MediaBrowserServiceCompat() {
         }
 
         session.controller.registerCallback(playbackStateListener)
+
+        // Listen for changes in the repository to notify media browsers
+        repository.getMediaChanges()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(this::notifyChildrenChanged)
+            .also { subscriptions.add(it) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -122,6 +132,9 @@ class MusicService : MediaBrowserServiceCompat() {
 
         delayedStopHandler.removeCallbacksAndMessages(null)
         session.release()
+
+        // Clear all subscriptions to prevent resource leaks
+        subscriptions.clear()
     }
 
     override fun onGetRoot(
@@ -138,7 +151,7 @@ class MusicService : MediaBrowserServiceCompat() {
             return if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
         }
 
-        return BrowserRoot(MediaID.ID_ROOT, null)
+        return BrowserRoot(BROWSER_ROOT, null)
     }
 
     override fun onLoadChildren(parentId: String, result: MediaItemResult) {
@@ -160,12 +173,10 @@ class MusicService : MediaBrowserServiceCompat() {
                 }
 
                 override fun onError(e: Throwable) {
-                    if (e !is UnsupportedOperationException && BuildConfig.DEBUG) {
-                        // Rethrow unexpected errors in debug builds
-                        throw e
+                    when (e) {
+                        is UnsupportedOperationException -> Timber.w("Unsupported parent id: %s", parentId)
+                        is PermissionDeniedException -> Timber.i(e)
                     }
-
-                    Timber.w("Unsupported parent id: %s", parentId)
                     result.sendResult(null)
                 }
             })
@@ -202,11 +213,6 @@ class MusicService : MediaBrowserServiceCompat() {
         delayedStopHandler.sendEmptyMessageDelayed(0, STOP_DELAY)
 
         notificationMgr.stop(clearNotification = true)
-    }
-
-    override fun notifyChildrenChanged(parentId: String) {
-        repository.clear()
-        super.notifyChildrenChanged(parentId)
     }
 
     private inner class PlaybackStateListener : MediaControllerCompat.Callback() {

@@ -21,8 +21,8 @@ import android.os.ResultReceiver
 import fr.nihilus.music.R
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -81,7 +81,7 @@ class EditPlaylistCommand
 
         Single.fromCallable { playlistDao.addTracks(tracks) }
             .subscribeOn(Schedulers.io())
-            .doOnSuccess { service.notifyChildrenChanged(MediaID.ID_PLAYLISTS) }
+            .doOnSuccess { service.notifyChildrenChanged(CATEGORY_PLAYLISTS) }
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { _, error ->
                 if (error != null) {

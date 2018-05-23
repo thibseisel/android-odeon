@@ -30,9 +30,9 @@ import fr.nihilus.music.database.Playlist
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.database.PlaylistTrack
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.PermissionUtil
+import fr.nihilus.music.utils.hasExternalStoragePermission
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -65,7 +65,7 @@ class NewPlaylistCommand
 
         Single.fromCallable { savePlaylist(playlist) }
             .subscribeOn(Schedulers.io())
-            .doOnSuccess { service.notifyChildrenChanged(MediaID.ID_PLAYLISTS) }
+            .doOnSuccess { service.notifyChildrenChanged(CATEGORY_PLAYLISTS) }
             .map { playlistId ->
                 trackIds.map { musicId ->
                     PlaylistTrack(playlistId, musicId)
@@ -103,7 +103,7 @@ class NewPlaylistCommand
     }
 
     private fun generateIcon(seed: CharSequence): Uri {
-        if (PermissionUtil.hasExternalStoragePermission(service)) {
+        if (service.hasExternalStoragePermission()) {
 
             val bitmap = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888)
             Identicon.fromValue(seed, 320).apply {

@@ -22,8 +22,8 @@ import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.R
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -46,7 +46,7 @@ class DeletePlaylistCommand
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                service.notifyChildrenChanged(MediaID.ID_PLAYLISTS)
+                service.notifyChildrenChanged(CATEGORY_PLAYLISTS)
                 cb?.send(R.id.result_success, null)
             }, { error ->
                 if (BuildConfig.DEBUG) {

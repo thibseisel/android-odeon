@@ -41,11 +41,13 @@ import dagger.android.support.HasSupportFragmentInjector
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.client.ViewModelFactory
+import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.utils.ConfirmDialogFragment
-import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.PermissionUtil
+import fr.nihilus.music.utils.EXTERNAL_STORAGE_REQUEST
+import fr.nihilus.music.utils.hasExternalStoragePermission
+import fr.nihilus.music.utils.requestExternalStoragePermission
 import fr.nihilus.music.view.PlayerView
 import fr.nihilus.music.view.ScrimBottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_home.*
@@ -82,13 +84,13 @@ class HomeActivity : AppCompatActivity(),
         setupPlayerView()
 
         if (savedInstanceState == null) {
-            if (PermissionUtil.hasExternalStoragePermission(this)) {
+            if (this.hasExternalStoragePermission()) {
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(intent)) {
                     // If intent is not handled, load default fragment
                     showHomeScreen()
                 }
-            } else PermissionUtil.requestExternalStoragePermission(this)
+            } else this.requestExternalStoragePermission()
         }
     }
 
@@ -254,7 +256,7 @@ class HomeActivity : AppCompatActivity(),
         requestCode: Int, permissions: Array<String>,
         grantResults: IntArray
     ) {
-        if (requestCode == PermissionUtil.EXTERNAL_STORAGE_REQUEST) {
+        if (requestCode == EXTERNAL_STORAGE_REQUEST) {
 
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(intent)) {
@@ -314,8 +316,7 @@ class HomeActivity : AppCompatActivity(),
             container.setPadding(0, 0, 0, 0)
             playerShadow.visibility = View.GONE
 
-        } else if (bottomSheet.isHideable
-            || bottomSheet.peekHeight == 0) {
+        } else if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             playerView.post { bottomSheet.isHideable = false }
@@ -387,7 +388,7 @@ class HomeActivity : AppCompatActivity(),
     private fun startRandomMix() {
         viewModel.post { controller ->
             with(controller.transportControls) {
-                playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
+                playFromMediaId(CATEGORY_MUSIC, Bundle(1).apply {
                     putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
                 })
             }

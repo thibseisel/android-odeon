@@ -21,9 +21,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.ArtistHolder
-import fr.nihilus.music.utils.MediaID
 
 internal class ArtistAdapter(
     fragment: Fragment,
@@ -43,7 +43,7 @@ internal class ArtistAdapter(
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
             val mediaId = getItem(position).mediaId
-            return MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
+            return musicIdFrom(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
         return RecyclerView.NO_ID
     }

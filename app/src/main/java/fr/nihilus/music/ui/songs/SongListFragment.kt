@@ -34,10 +34,10 @@ import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.command.DeleteTracksCommand
+import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
-import fr.nihilus.music.utils.MediaID
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : Fragment(),
@@ -69,7 +69,7 @@ class SongListFragment : Fragment(),
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_play_shuffled -> {
             viewModel.post { controller ->
-                controller.transportControls.playFromMediaId(MediaID.ID_MUSIC, Bundle(1).apply {
+                controller.transportControls.playFromMediaId(CATEGORY_MUSIC, Bundle(1).apply {
                     putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
                 })
             }
@@ -103,7 +103,7 @@ class SongListFragment : Fragment(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
-        viewModel.subscribeTo(MediaID.ID_MUSIC).observe(this, Observer {
+        viewModel.subscribeTo(CATEGORY_MUSIC).observe(this, Observer {
             songAdapter.updateItems(it.orEmpty())
             progress.hide()
             listContainer.visibility = View.VISIBLE

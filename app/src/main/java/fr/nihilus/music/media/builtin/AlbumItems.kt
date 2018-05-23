@@ -22,6 +22,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.media.CATEGORY_ALBUMS
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
@@ -36,7 +37,7 @@ internal class AlbumItems
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-            .setMediaId(MediaID.ID_ALBUMS)
+            .setMediaId(CATEGORY_ALBUMS)
             .setTitle(context.getString(R.string.action_albums))
             .build()
         return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
@@ -64,7 +65,7 @@ internal class AlbumItems
             MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER
         )
             .map {
-                val description = it.asMediaDescription(builder, MediaID.ID_ALBUMS, albumId)
+                val description = it.asMediaDescription(builder, CATEGORY_ALBUMS, albumId)
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
             }
     }

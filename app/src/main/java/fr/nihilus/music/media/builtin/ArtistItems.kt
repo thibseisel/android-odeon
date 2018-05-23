@@ -22,6 +22,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.media.CATEGORY_ARTISTS
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
@@ -36,7 +37,7 @@ internal class ArtistItems
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-            .setMediaId(MediaID.ID_ARTISTS)
+            .setMediaId(CATEGORY_ARTISTS)
             .setTitle(context.getString(R.string.action_artists))
             .build()
         val item = MediaItem(description, MediaItem.FLAG_BROWSABLE)
@@ -67,7 +68,7 @@ internal class ArtistItems
 
         val tracks = musicDao.getTracks(criteria, null)
             .map {
-                val description = it.asMediaDescription(builder, MediaID.ID_ARTISTS, artistId)
+                val description = it.asMediaDescription(builder, CATEGORY_ARTISTS, artistId)
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
             }
         return Observable.concat(albums, tracks)

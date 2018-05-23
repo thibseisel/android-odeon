@@ -19,8 +19,6 @@ package fr.nihilus.music.utils;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.util.Arrays;
-
 public final class MediaID {
 
     /**
@@ -28,29 +26,6 @@ public final class MediaID {
      * This is only used for debug builds to allow interaction with the MediaControllerTest app.
      */
     public static final String ID_EMPTY_ROOT = "EMPTY";
-
-    public static final String ID_ROOT = "ROOT";
-
-    /**
-     * The whole music library composed of all available tracks.
-     */
-    public static final String ID_MUSIC = "MUSIC";
-    /**
-     * All available music albums.
-     */
-    public static final String ID_ALBUMS = "ALBUMS";
-    /**
-     * All artists that produced the available songs.
-     */
-    public static final String ID_ARTISTS = "ARTISTS";
-    /**
-     * All user-defined getPlaylists.
-     */
-    public static final String ID_PLAYLISTS = "PLAYLISTS";
-    /**
-     * A special selection of the most recently added songs.
-     */
-    public static final String ID_MOST_RECENT = "RECENT";
 
     private static final char CATEGORY_SEPARATOR = '/';
     private static final char LEAF_SEPARATOR = '|';
@@ -87,27 +62,6 @@ public final class MediaID {
         if (musicID != null) {
             sb.append(LEAF_SEPARATOR).append(musicID);
         }
-        return sb.toString();
-    }
-
-    public static String createMediaId(String[] categories, String musicId) {
-        StringBuilder sb = new StringBuilder();
-        if (categories != null) {
-            for (int i = 0; i < categories.length; i++) {
-                if (!isValidCategory(categories[i])) {
-                    throw new IllegalArgumentException("Invalid category " + categories[i]);
-                }
-                sb.append(categories[i]);
-                if (i < categories.length - 1) {
-                    sb.append(CATEGORY_SEPARATOR);
-                }
-            }
-
-            if (musicId != null && categories.length > 0) {
-                sb.append(LEAF_SEPARATOR).append(musicId);
-            }
-        }
-
         return sb.toString();
     }
 
@@ -163,31 +117,6 @@ public final class MediaID {
             return hierarchy[1];
         }
         return null;
-    }
-
-    static boolean isBrowseable(@NonNull String mediaID) {
-        return mediaID.indexOf(LEAF_SEPARATOR) < 0;
-    }
-
-    public static String getParentMediaID(@NonNull String mediaID) {
-        String[] hierarchy = getHierarchy(mediaID);
-        if (!isBrowseable(mediaID)) {
-            return createMediaID(null, hierarchy);
-        }
-        if (hierarchy.length <= 1) {
-            return ID_ROOT;
-        }
-        String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length - 1);
-        return createMediaID(null, parentHierarchy);
-    }
-
-    public static String stripMusicId(String mediaId) {
-        int indexOfLeaf = mediaId.indexOf(LEAF_SEPARATOR);
-        if (indexOfLeaf < 0) {
-            return mediaId;
-        }
-
-        return mediaId.substring(0, indexOfLeaf);
     }
 
     @NonNull

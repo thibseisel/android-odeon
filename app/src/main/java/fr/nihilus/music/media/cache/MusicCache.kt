@@ -30,24 +30,32 @@ import android.support.v4.media.MediaBrowserCompat
 interface MusicCache {
 
     /**
-     * Put media items in the cache. Those items could then be retrieved via `getItems(mediaId)`.
+     * Put media items in the cache. Those items could then be retrieved via `get(mediaId)`.
      * Depending on the cache implementation, older items may be removed
      * as other set of media items are put into the cache.
      *
      * @param mediaId unique identifier of the parent that contains the media items
      */
-    fun putItems(mediaId: String, items: List<MediaBrowserCompat.MediaItem>)
+    fun put(mediaId: String, items: List<MediaBrowserCompat.MediaItem>)
 
     /**
      * Retrieve a set of media items stored in the cache.
      * Depending on the cache implementation, the requested items may or may not be in the cache,
-     * even if it has been saved in [putItems] earlier.
+     * even if it has been saved in [put] earlier.
      * In case items are absent, an empty list will be returned.
      *
      * @param mediaId of the parent that contains the media items
      * @return a list of those media items, or an empty list if not in cache
      */
-    fun getItems(mediaId: String): List<MediaBrowserCompat.MediaItem>
+    operator fun get(mediaId: String): List<MediaBrowserCompat.MediaItem>
+
+    /**
+     * Removes a set of media items from the cache.
+     * Subsequent calls to [get] for the same [mediaId] are then guaranteed to return an empty list.
+     *
+     * @param mediaId The media id of the parent that contains the media items.
+     */
+    fun remove(mediaId: String)
 
     /**
      * Remove all items stored in the cache, effectively releasing all reference to them.

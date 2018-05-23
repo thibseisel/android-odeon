@@ -40,6 +40,8 @@ import fr.nihilus.music.command.EditPlaylistCommand
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.utils.MediaID
 
 /**
@@ -107,9 +109,9 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         super.onActivityCreated(savedInstanceState)
 
         browserViewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
-        browserViewModel.subscribeTo(MediaID.ID_PLAYLISTS).observe(this, Observer {
+        browserViewModel.subscribeTo(CATEGORY_PLAYLISTS).observe(this, Observer {
             val children = it?.filter {
-                MediaID.getIdRoot(it.mediaId!!) == MediaID.ID_PLAYLISTS
+                MediaID.getIdRoot(it.mediaId!!) == CATEGORY_PLAYLISTS
             }.orEmpty()
             playlistAdapter.update(children)
         })
@@ -176,7 +178,7 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
         override fun getItemId(position: Int): Long {
             return if (hasStableIds()) {
                 val mediaId = items[position].mediaId!!
-                MediaID.browseCategoryOf(mediaId)?.toLong() ?: -1L
+                musicIdFrom(mediaId)?.toLong() ?: -1L
             } else -1L
         }
 

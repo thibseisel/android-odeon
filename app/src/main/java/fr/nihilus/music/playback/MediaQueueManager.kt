@@ -37,6 +37,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.assert
 import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MediaSessionController
@@ -88,7 +89,7 @@ class MediaQueueManager
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = prefs.lastPlayedMediaId ?: MediaID.ID_MUSIC
+        val lastPlayedMediaId = prefs.lastPlayedMediaId ?: CATEGORY_MUSIC
         prepareFromMediaId(lastPlayedMediaId, shuffled = false)
     }
 
@@ -108,7 +109,7 @@ class MediaQueueManager
         // A new queue has been requested. Increment the queue identifier.
         prefs.queueCounter++
         val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
-        prepareFromMediaId(mediaId ?: MediaID.ID_MUSIC, shuffleExtraEnabled)
+        prepareFromMediaId(mediaId ?: CATEGORY_MUSIC, shuffleExtraEnabled)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {

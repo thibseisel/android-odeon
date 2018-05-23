@@ -22,9 +22,9 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.PlaylistHolder
-import fr.nihilus.music.utils.MediaID
 import java.util.*
 
 /**
@@ -48,7 +48,7 @@ internal class PlaylistsAdapter(
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
             val mediaId = playlists[position].mediaId
-            MediaID.extractMusicID(mediaId)?.toLong() ?: RecyclerView.NO_ID
+            musicIdFrom(mediaId)?.toLong() ?: RecyclerView.NO_ID
         } else RecyclerView.NO_ID
     }
 

@@ -18,45 +18,33 @@ package fr.nihilus.music.command
 
 import android.os.Bundle
 import android.os.ResultReceiver
-import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.utils.MediaID
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @ServiceScoped
 class DeleteTracksCommand
 @Inject internal constructor(
-    private val service: MusicService,
     private val musicDao: MusicDao
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
-        val idsToDelete = params?.getLongArray(PARAM_TRACK_IDS)
-                ?: throw IllegalArgumentException("Required parameter: PARAM_TRACK_IDS")
+        val idsToDelete = requireNotNull(params?.getLongArray(PARAM_TRACK_IDS)) {
+            "Required parameter: PARAM_TRACK_IDS"
+        }
 
-        Observable.fromIterable(idsToDelete.toSet())
-            .subscribeOn(Schedulers.io())
-            .flatMapCompletable { musicId -> musicDao.deleteTrack(musicId.toString()) }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { onSuccess(cb) },
-                { error ->
-                    if (BuildConfig.DEBUG) {
-                        // Rethrow unexpected errors on debug builds
-                        throw error
-                    }
-                })
+        musicDao.deleteTracks(idsToDelete).subscribe(
+            { onSuccess(cb, it) },
+            { Timber.e(it, "Unexpected error while deleting tracks with ids: $idsToDelete") }
+        )
     }
 
-    private fun onSuccess(cb: ResultReceiver?) {
-        service.notifyChildrenChanged(MediaID.ID_MUSIC)
-        cb?.send(R.id.result_success, null)
+    private fun onSuccess(cb: ResultReceiver?, deleteCount: Int) {
+        cb?.send(R.id.result_success, Bundle(1).apply {
+            putInt(RESULT_DELETE_COUNT, deleteCount)
+        })
     }
 
     companion object {
@@ -75,5 +63,7 @@ class DeleteTracksCommand
          * Type: long array
          */
         const val PARAM_TRACK_IDS = "track_ids"
+
+        const val RESULT_DELETE_COUNT = "delete_count"
     }
 }

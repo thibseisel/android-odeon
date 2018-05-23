@@ -30,9 +30,9 @@ import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.media.CATEGORY_ALBUMS
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
-import fr.nihilus.music.utils.MediaID
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject
 
@@ -63,7 +63,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
 
-        viewModel.subscribeTo(MediaID.ID_ALBUMS).observe(this, Observer { albums ->
+        viewModel.subscribeTo(CATEGORY_ALBUMS).observe(this, Observer { albums ->
             adapter.submitList(albums.orEmpty())
             setRecyclerShown(true)
         })

@@ -27,8 +27,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.mediaIdOf
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import java.lang.ref.WeakReference
 
 /**
@@ -56,7 +56,7 @@ fun MediaMetadataCompat.asMediaDescription(
     val artUri = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
     val bitmapArt = getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
 
-    val mediaId = MediaID.createMediaId(categories, musicId)
+    val mediaId = mediaIdOf(*categories, musicId = musicId.toLong())
     builder.setMediaId(mediaId)
         .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
         .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))

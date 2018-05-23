@@ -18,23 +18,27 @@ package fr.nihilus.music.media.cache
 
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.util.LruCache
+import fr.nihilus.music.di.ServiceScoped
 import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * A MusicCache implementation that keeps only the latest media items in memory.
  */
-@Singleton
+@ServiceScoped
 internal class LruMemoryCache
 @Inject constructor() : MusicCache {
 
     private val itemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
 
-    override fun putItems(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
+    override fun put(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
         itemsCache.put(mediaId, items)
     }
 
-    override fun getItems(mediaId: String) = itemsCache.get(mediaId) ?: emptyList()
+    override fun get(mediaId: String) = itemsCache.get(mediaId) ?: emptyList()
+
+    override fun remove(mediaId: String) {
+        itemsCache.remove(mediaId)
+    }
 
     override fun clear() {
         itemsCache.evictAll()

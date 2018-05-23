@@ -26,6 +26,10 @@ import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.media.CATEGORY_ALBUMS
+import fr.nihilus.music.media.CATEGORY_ARTISTS
+import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -35,7 +39,6 @@ import fr.nihilus.music.ui.songs.SongListFragment
 import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
-private const val TAG = "NavigationControl"
 private const val KEY_FIRST_TAG = "first_tag"
 
 /**
@@ -73,8 +76,8 @@ class NavigationController
      * Shows the list of all tracks available.
      */
     fun navigateToAllSongs() {
-        val fragment = findOrCreateFragment(MediaID.ID_MUSIC, SongListFragment.Factory::newInstance)
-        showFragment(MediaID.ID_MUSIC, fragment)
+        val fragment = findOrCreateFragment(CATEGORY_MUSIC, SongListFragment.Factory::newInstance)
+        showFragment(CATEGORY_MUSIC, fragment)
     }
 
     /**
@@ -82,8 +85,8 @@ class NavigationController
      */
     fun navigateToAlbums() {
         val fragment =
-            findOrCreateFragment(MediaID.ID_ALBUMS, AlbumGridFragment.Factory::newInstance)
-        showFragment(MediaID.ID_ALBUMS, fragment)
+            findOrCreateFragment(CATEGORY_ALBUMS, AlbumGridFragment.Factory::newInstance)
+        showFragment(CATEGORY_ALBUMS, fragment)
     }
 
     /**
@@ -91,8 +94,8 @@ class NavigationController
      */
     fun navigateToArtists() {
         val fragment =
-            findOrCreateFragment(MediaID.ID_ARTISTS, ArtistsFragment.Factory::newInstance)
-        showFragment(MediaID.ID_ARTISTS, fragment)
+            findOrCreateFragment(CATEGORY_ARTISTS, ArtistsFragment.Factory::newInstance)
+        showFragment(CATEGORY_ARTISTS, fragment)
     }
 
     /**
@@ -102,7 +105,7 @@ class NavigationController
      * @param artist The artist from whose details are to be displayed
      */
     fun navigateToArtistDetail(artist: MediaBrowserCompat.MediaItem) {
-        val tag = artist.mediaId ?: throw IllegalArgumentException("Artist should have a mediaId")
+        val tag = requireNotNull(artist.mediaId)
         val fragment = findOrCreateFragment(tag) {
             ArtistDetailFragment.newInstance(artist)
         }
@@ -116,8 +119,8 @@ class NavigationController
      */
     fun navigateToPlaylists() {
         val fragment =
-            findOrCreateFragment(MediaID.ID_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
-        showFragment(MediaID.ID_PLAYLISTS, fragment)
+            findOrCreateFragment(CATEGORY_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
+        showFragment(CATEGORY_PLAYLISTS, fragment)
     }
 
     /**
@@ -131,7 +134,7 @@ class NavigationController
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
             val rootId = MediaID.getHierarchy(tag)[0]
-            MembersFragment.newInstance(playlist, deletable = (MediaID.ID_PLAYLISTS == rootId))
+            MembersFragment.newInstance(playlist, deletable = (CATEGORY_PLAYLISTS == rootId))
         }
 
         showFragment(tag, fragment)
@@ -152,10 +155,10 @@ class NavigationController
     fun navigateToMediaId(mediaId: String) {
         val root = MediaID.getHierarchy(mediaId)[0]
         when (root) {
-            MediaID.ID_MUSIC -> navigateToAllSongs()
-            MediaID.ID_ALBUMS -> navigateToAlbums()
-            MediaID.ID_ARTISTS -> navigateToArtists()
-            MediaID.ID_PLAYLISTS -> navigateToPlaylists()
+            CATEGORY_MUSIC -> navigateToAllSongs()
+            CATEGORY_ALBUMS -> navigateToAlbums()
+            CATEGORY_ARTISTS -> navigateToArtists()
+            CATEGORY_PLAYLISTS -> navigateToPlaylists()
             else -> throw UnsupportedOperationException("Unsupported media ID: $mediaId")
         }
     }

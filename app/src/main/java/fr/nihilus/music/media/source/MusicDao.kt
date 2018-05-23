@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.MediaItems
-import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -143,12 +142,21 @@ interface MusicDao {
     fun search(query: String?, extras: Bundle?): Single<List<MediaMetadataCompat>>
 
     /**
-     * Delete the track with the specified [trackId] from this implementation's data store.
+     * Delete all tracks whose id matches the ones in the specified [trackIds]
+     * from this implementation's data store.
      * If no track exists with this id, the operation should complete without an error.
      *
      * @return The deferred deletion task.
      */
-    fun deleteTrack(trackId: String): Completable
+    fun deleteTracks(trackIds: LongArray): Single<Int>
+
+    /**
+     * Produces a live sequence whose elements are the ids of media from this repository
+     * that have changed.
+     *
+     * @return
+     */
+    fun getMediaChanges(): Observable<String>
 
     /**
      * Defines a set of custom metadata keys for MediaMetadataCompat.

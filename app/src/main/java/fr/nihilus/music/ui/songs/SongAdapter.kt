@@ -33,7 +33,7 @@ import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.utils.MediaItemIndexer
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
@@ -61,7 +61,7 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     override fun getItemId(pos: Int): Long {
         if (hasStableIds()) {
             val mediaId = songs[pos].mediaId
-            return MediaID.extractMusicID(mediaId)?.toLong() ?: -1L
+            return musicIdFrom(mediaId)?.toLong() ?: -1L
         }
         return -1L
     }

@@ -23,9 +23,9 @@ import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
-import fr.nihilus.music.utils.MediaID
 
 internal class AlbumsAdapter(
     fragment: Fragment,
@@ -52,7 +52,7 @@ internal class AlbumsAdapter(
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
             val item = getItem(position)
-            MediaID.extractMusicID(item.mediaId)?.toLong() ?: RecyclerView.NO_ID
+            musicIdFrom(item.mediaId)?.toLong() ?: RecyclerView.NO_ID
         } else RecyclerView.NO_ID
     }
 

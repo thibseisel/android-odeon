@@ -56,6 +56,8 @@ interface MusicRepository {
      */
     fun getMetadata(musicId: String): Single<MediaMetadataCompat>
 
+    fun getMediaChanges(): Observable<String>
+
     /**
      * Release all references to objects loaded by this repository.
      * Implementations that use a memory cache should clear all entries.

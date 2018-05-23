@@ -22,7 +22,8 @@ import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
-import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.mediaIdOf
 import java.util.*
 
 /**
@@ -71,7 +72,8 @@ class Playlist {
     var artUri: Uri = Uri.EMPTY
 
     fun asMediaDescription(builder: MediaDescriptionCompat.Builder): MediaDescriptionCompat {
-        val mediaId = MediaID.createMediaID(null, MediaID.ID_PLAYLISTS, id!!.toString())
+        val playlistId = checkNotNull(id) { "Cant create MediaDescription of an unsaved playlist" }
+        val mediaId = mediaIdOf(CATEGORY_PLAYLISTS, playlistId.toString())
         return builder.setMediaId(mediaId)
             .setTitle(title)
             .setIconUri(artUri)

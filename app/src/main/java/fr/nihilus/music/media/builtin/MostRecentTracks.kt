@@ -22,9 +22,9 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.media.CATEGORY_MOST_RECENT
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -41,7 +41,7 @@ internal class MostRecentTracks
     override fun asMediaItem(): Single<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
         val description = builder
-            .setMediaId(MediaID.ID_MOST_RECENT)
+            .setMediaId(CATEGORY_MOST_RECENT)
             .setTitle(context.getText(R.string.last_added))
             .setExtras(Bundle(1).apply {
                 putInt(MediaItems.EXTRA_ICON_ID, R.drawable.ic_most_recent_128dp)
@@ -54,7 +54,7 @@ internal class MostRecentTracks
         val builder = MediaDescriptionCompat.Builder()
         return dao.getTracks(null, "${MusicDao.METADATA_KEY_DATE} DESC").take(50)
             .map {
-                val description = it.asMediaDescription(builder, MediaID.ID_MOST_RECENT)
+                val description = it.asMediaDescription(builder, CATEGORY_MOST_RECENT)
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
             }
     }

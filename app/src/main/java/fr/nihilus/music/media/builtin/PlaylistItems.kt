@@ -22,6 +22,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
@@ -39,7 +40,7 @@ internal class PlaylistItems
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-            .setMediaId(MediaID.ID_PLAYLISTS)
+            .setMediaId(CATEGORY_PLAYLISTS)
             .setTitle(context.getString(R.string.action_playlists))
             .build()
         return Single.just(MediaItem(description, MediaItem.FLAG_BROWSABLE))
@@ -77,7 +78,7 @@ internal class PlaylistItems
             .flatMapObservable { Observable.fromIterable(it) }
             .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
             .map { member ->
-                val descr = member.asMediaDescription(builder, MediaID.ID_PLAYLISTS, playlistId)
+                val descr = member.asMediaDescription(builder, CATEGORY_PLAYLISTS, playlistId)
                 MediaItem(descr, MediaItem.FLAG_PLAYABLE)
             }
     }

@@ -27,8 +27,10 @@ import fr.nihilus.music.R
 import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.io.IOException
+import javax.inject.Inject
 
-class PackageValidator(context: Context) {
+class PackageValidator
+@Inject constructor(context: Context) {
 
     private val validCertificates = readValidCertificates(
         context.resources.getXml(R.xml.allowed_media_browser_callers)

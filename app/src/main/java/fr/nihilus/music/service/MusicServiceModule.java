@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.Reusable;
 import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.music.command.CommandModule;
 import fr.nihilus.music.di.ServiceScoped;
@@ -43,7 +44,7 @@ public abstract class MusicServiceModule {
     @ContributesAndroidInjector
     abstract MusicService contributeMusicService();
 
-    @Provides
+    @Provides @Reusable
     static SimpleExoPlayer provideExoPlayer(@NonNull Context context) {
         return ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
     }

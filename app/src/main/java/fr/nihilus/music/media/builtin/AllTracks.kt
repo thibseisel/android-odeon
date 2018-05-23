@@ -21,8 +21,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
+import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -35,7 +35,7 @@ internal class AllTracks
 
     override fun asMediaItem(): Single<MediaItem> {
         val description = MediaDescriptionCompat.Builder()
-            .setMediaId(MediaID.ID_MUSIC)
+            .setMediaId(CATEGORY_MUSIC)
             .setTitle(context.getString(R.string.all_music))
             .build()
         val item = MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
@@ -46,7 +46,7 @@ internal class AllTracks
         val builder = MediaDescriptionCompat.Builder()
         return musicDao.getTracks(null, null)
             .map { metadata ->
-                val description = metadata.asMediaDescription(builder, MediaID.ID_MUSIC)
+                val description = metadata.asMediaDescription(builder, CATEGORY_MUSIC)
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
             }
     }

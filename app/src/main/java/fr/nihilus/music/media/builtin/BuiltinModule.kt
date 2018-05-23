@@ -20,7 +20,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import dagger.multibindings.StringKey
-import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.media.*
 
 /**
  * A Dagger module that groups implementations of the [BuiltinItem] interface in a [Map]
@@ -35,22 +35,22 @@ import fr.nihilus.music.utils.MediaID
 internal abstract class BuiltinModule {
 
     @Binds @IntoMap
-    @StringKey(MediaID.ID_MUSIC)
+    @StringKey(CATEGORY_MUSIC)
     abstract fun bindAllTracks(impl: AllTracks): BuiltinItem
 
     @Binds @IntoMap
-    @StringKey(MediaID.ID_ALBUMS)
+    @StringKey(CATEGORY_ALBUMS)
     abstract fun bindAlbums(impl: AlbumItems): BuiltinItem
 
     @Binds @IntoMap
-    @StringKey(MediaID.ID_ARTISTS)
+    @StringKey(CATEGORY_ARTISTS)
     abstract fun bindArtists(impl: ArtistItems): BuiltinItem
 
     @Binds @IntoMap
-    @StringKey(MediaID.ID_PLAYLISTS)
+    @StringKey(CATEGORY_PLAYLISTS)
     abstract fun bindPlaylists(impl: PlaylistItems): BuiltinItem
 
     @Binds @IntoMap
-    @StringKey(MediaID.ID_MOST_RECENT)
+    @StringKey(CATEGORY_MOST_RECENT)
     abstract fun bindMostRecentTracks(impl: MostRecentTracks): BuiltinItem
 }

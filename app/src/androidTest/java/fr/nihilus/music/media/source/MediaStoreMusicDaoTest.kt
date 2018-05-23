@@ -9,11 +9,13 @@ import android.support.v4.media.MediaMetadataCompat
 import android.test.mock.MockContentResolver
 import android.util.LongSparseArray
 import fr.nihilus.music.assertMetadataKeyEquals
+import fr.nihilus.music.media.CATEGORY_ALBUMS
+import fr.nihilus.music.media.CATEGORY_ARTISTS
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.mediaIdOf
 import fr.nihilus.music.media.mock.MockCursorProvider
 import fr.nihilus.music.mock
-import fr.nihilus.music.utils.MediaID
-import fr.nihilus.music.utils.PermissionUtil
+import fr.nihilus.music.utils.hasExternalStoragePermission
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -153,8 +155,7 @@ class MediaStoreMusicDaoTest {
     fun getTracks_whenNoStoragePermission_emitsNothing() {
         // Simulate a denied permission to read/write external storage
         // FIXME Test cannot be performed due to Kotlin object being final
-        val permissionChecker = mock<PermissionUtil>()
-        `when`(permissionChecker.hasExternalStoragePermission(any<Context>())).thenReturn(false)
+        `when`(any<Context>().hasExternalStoragePermission()).thenReturn(false)
 
         val cursor = mockTracksCursor(0, 1, 2, 3)
         mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
@@ -243,7 +244,7 @@ class MediaStoreMusicDaoTest {
             .assertComplete()
 
         longArrayOf(40L, 65L, 102L, 7L, 38L, 26L, 6L, 95L)
-            .map { MediaID.createMediaID(null, MediaID.ID_ALBUMS, it.toString()) }
+            .map { mediaIdOf(CATEGORY_ALBUMS, it.toString()) }
             .zip(observer.values()) { expectedId, album ->
                 expectedId to album.mediaId
             }
@@ -265,7 +266,7 @@ class MediaStoreMusicDaoTest {
 
         with(album) {
 
-            assertEquals("${MediaID.ID_ALBUMS}/40", mediaId)
+            assertEquals("$CATEGORY_ALBUMS/40", mediaId)
             assertEquals("The 2nd Law", title)
             assertEquals("Muse", subtitle)
             assertEquals(artUriOf(40L), iconUri)
@@ -307,7 +308,7 @@ class MediaStoreMusicDaoTest {
             .values()
 
         longArrayOf(5L, 26L, 4L, 13L, 18L)
-            .map { MediaID.createMediaID(null, MediaID.ID_ARTISTS, it.toString()) }
+            .map { mediaIdOf(CATEGORY_ARTISTS, it.toString()) }
             .zip(artists) { expectedId, artist ->
                 expectedId to artist.mediaId
             }
@@ -332,7 +333,7 @@ class MediaStoreMusicDaoTest {
             .values()[0]
 
         with(artist) {
-            assertEquals("${MediaID.ID_ARTISTS}/4", mediaId)
+            assertEquals("$CATEGORY_ARTISTS/4", mediaId)
             assertEquals("Avenged Sevenfold", title)
             assertEquals(artUriOf(6L), iconUri)
 

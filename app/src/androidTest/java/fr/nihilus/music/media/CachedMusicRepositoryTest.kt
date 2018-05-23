@@ -11,7 +11,6 @@ import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.source.MediaStoreMusicDao
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import org.hamcrest.Matchers.equalTo
@@ -50,9 +49,8 @@ class CachedMusicRepositoryTest {
         val values = METADATA[0]
         val metadata = sampleToMetadata(values)
 
-        val description =
-            metadata.asMediaDescription(MediaDescriptionCompat.Builder(), MediaID.ID_MUSIC)
-        assertThat(description.mediaId, equalTo("${MediaID.ID_MUSIC}|${values[0]}"))
+        val description = metadata.asMediaDescription(MediaDescriptionCompat.Builder(), CATEGORY_MUSIC)
+        assertThat(description.mediaId, equalTo("$CATEGORY_MUSIC|${values[0]}"))
         assertThat(description.title, equalTo(values[1] as CharSequence))
         assertThat(description.subtitle, equalTo(values[3] as CharSequence))
         assertThat(description.mediaUri, equalTo(Uri.parse(values[8] as String)))
@@ -64,7 +62,7 @@ class CachedMusicRepositoryTest {
 
     /**
      * Assert that [CachedMusicRepository.getMediaItems] emits a list of media items
-     * corresponding to tracks fetched from [MediaStoreMusicDao] when the media ID is [MediaID.ID_MUSIC].
+     * corresponding to tracks fetched from [MediaStoreMusicDao] when the media ID is [CATEGORY_MUSIC].
      */
     @Test
     fun mediaItems_allTracks() {
