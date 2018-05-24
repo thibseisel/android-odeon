@@ -34,6 +34,7 @@ import dagger.android.ContributesAndroidInjector;
 import fr.nihilus.music.command.CommandModule;
 import fr.nihilus.music.di.ServiceScoped;
 import fr.nihilus.music.playback.AudioFocusAwarePlayer;
+import fr.nihilus.music.playback.AudioOnlyRenderersFactory;
 import fr.nihilus.music.playback.ErrorHandler;
 
 @SuppressWarnings("unused")
@@ -46,7 +47,10 @@ public abstract class MusicServiceModule {
 
     @Provides @Reusable
     static SimpleExoPlayer provideExoPlayer(@NonNull Context context) {
-        return ExoPlayerFactory.newSimpleInstance(context, new DefaultTrackSelector());
+        return ExoPlayerFactory.newSimpleInstance(
+                new AudioOnlyRenderersFactory(context),
+                new DefaultTrackSelector()
+        );
     }
 
     @Binds
