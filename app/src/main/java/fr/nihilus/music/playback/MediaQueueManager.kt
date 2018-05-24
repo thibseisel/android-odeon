@@ -69,6 +69,7 @@ class MediaQueueManager
         val userAgent = Util.getUserAgent(service, service.getString(R.string.app_name))
         val dataSourceFactory = DefaultDataSourceFactory(service, userAgent)
         mediaSourceFactory = ExtractorMediaSource.Factory(dataSourceFactory)
+            .setExtractorsFactory(AudioOnlyExtractorsFactory())
     }
 
     override fun getSupportedPrepareActions(): Long {
