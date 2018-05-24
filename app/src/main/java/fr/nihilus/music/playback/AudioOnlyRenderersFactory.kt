@@ -18,22 +18,20 @@ package fr.nihilus.music.playback
 
 import android.content.Context
 import android.os.Handler
+import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.RenderersFactory
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
 import com.google.android.exoplayer2.drm.DrmSessionManager
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.metadata.MetadataOutput
 import com.google.android.exoplayer2.text.TextOutput
 import com.google.android.exoplayer2.video.VideoRendererEventListener
-import javax.inject.Inject
 
 /**
- * An [RenderersFactory] implementation that only uses the audio renderer.
+ * A [RenderersFactory] implementation that only uses the audio renderer.
  * Unlike [DefaultRenderersFactory] that internally references all [Renderer] implementations,
  * this factory does not reference video renderers it doesn't need,
  * thus allowing Proguard from removing unused renderers and reducing final APK size.

@@ -48,13 +48,6 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : ListAdapter<MediaItem,
         holder.onBind(this.getItem(position))
     }
 
-    override fun submitList(newItems: List<MediaItem>) {
-        /*if (this.itemCount == 0 && newItems.isEmpty()) {
-            // Dispatch a general change notification to update RecyclerFragment's empty state
-            notifyDataSetChanged()
-        } else */super.submitList(newItems)
-    }
-
     public override fun getItem(position: Int): MediaItem = super.getItem(position)
 
     /**

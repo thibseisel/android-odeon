@@ -23,8 +23,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.database.PlaylistDao
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.browseHierarchyOf
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -47,7 +47,7 @@ internal class PlaylistItems
     }
 
     override fun getChildren(parentMediaId: String): Observable<MediaItem> {
-        val hierarchy = MediaID.getHierarchy(parentMediaId)
+        val hierarchy = browseHierarchyOf(parentMediaId)
         return if (hierarchy.size > 1) {
             val playlistId = hierarchy[1]
             fetchPlaylistMembers(playlistId)

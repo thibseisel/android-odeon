@@ -18,6 +18,9 @@ package fr.nihilus.music.media
 
 import org.jetbrains.annotations.Contract
 
+private const val CATEGORY_SEPARATOR = '/'
+private const val LEAF_SEPARATOR = "|"
+
 const val BROWSER_ROOT = "__ROOT__"
 
 /**
@@ -69,12 +72,23 @@ const val CATEGORY_MOST_RECENT = "MOST_RECENT"
  * @return a hierarchy-aware media ID.
  */
 fun mediaIdOf(vararg categories: String, musicId: Long = -1L): String = buildString {
-    categories.joinTo(this, separator = "/")
+    require(categories.all(::isValidCategory)) {
+        "Categories cannot contain the following characters: $CATEGORY_SEPARATOR or $LEAF_SEPARATOR"
+    }
+
+    categories.joinTo(this, CATEGORY_SEPARATOR.toString())
     if (musicId >= 0L) {
         append('|')
         append(musicId)
     }
 }
+
+/**
+ * Indicates if a category is considered valid.
+ * The only restriction is to avoid using the separator characters `/` and `|`.
+ */
+private fun isValidCategory(category: String) =
+    category.indexOf(CATEGORY_SEPARATOR) < 0 && category.indexOf(LEAF_SEPARATOR) < 0
 
 /**
  * Extracts the music id from a given [mediaId].
@@ -83,7 +97,8 @@ fun mediaIdOf(vararg categories: String, musicId: Long = -1L): String = buildStr
  * or `null` if it does not have a music id or [mediaId] is `null`.
  */
 @Contract("null -> null")
-fun musicIdFrom(mediaId: String?) = mediaId?.substringAfter('|')?.takeUnless(String::isEmpty)
+fun musicIdFrom(mediaId: String?): String? =
+    mediaId?.substringAfter(LEAF_SEPARATOR, "")?.takeUnless(String::isEmpty)
 
 /**
  * Extracts the browse category from a non-browsable media.
@@ -92,4 +107,13 @@ fun musicIdFrom(mediaId: String?) = mediaId?.substringAfter('|')?.takeUnless(Str
  * @return The browse category that is the direct parent of the specified media,
  * or the same [mediaId] if it is already browsable.
  */
-fun browseCategoryOf(mediaId: String): String = mediaId.substringBefore('|')
+fun browseCategoryOf(mediaId: String): String = mediaId.substringBefore(LEAF_SEPARATOR)
+
+/**
+ * Extracts category and category value from a [mediaId].
+ *
+ * @return A list whose first element is the browse category
+ * and the second element, if present, is the category value.
+ */
+fun browseHierarchyOf(mediaId: String): List<String> =
+    mediaId.substringBefore(LEAF_SEPARATOR).split(CATEGORY_SEPARATOR)

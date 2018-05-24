@@ -132,7 +132,7 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
     private fun performAddToPlaylist(playlist: MediaItem, newTrackIds: LongArray) {
 
-        val playlistId = MediaID.browseCategoryOf(playlist.mediaId!!).toLong()
+        val playlistId = MediaID.categoryValueOf(playlist.mediaId!!).toLong()
         val params = Bundle(2).apply {
             putLong(EditPlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
             putLongArray(EditPlaylistCommand.PARAM_NEW_TRACKS, newTrackIds)

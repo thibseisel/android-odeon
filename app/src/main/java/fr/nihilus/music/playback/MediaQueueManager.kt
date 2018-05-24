@@ -38,12 +38,12 @@ import fr.nihilus.music.assert
 import fr.nihilus.music.command.MediaSessionCommand
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MediaSessionController
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
-import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
 @ServiceScoped
@@ -211,8 +211,9 @@ class MediaQueueManager
         if (activeItem != null) {
             val activeMediaId = activeItem.description.mediaId
             prefs.lastPlayedMediaId = activeMediaId
-            val musicId = MediaID.extractMusicID(activeMediaId)
-                    ?: throw IllegalStateException("Track should have a musicId")
+            val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
+                "Each playable track should have a music ID"
+            }
 
             if (lastMusicId != musicId) {
                 // Only update metadata if it has really changed.

@@ -20,10 +20,10 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.browseCategoryOf
+import fr.nihilus.music.media.browseHierarchyOf
 import fr.nihilus.music.media.builtin.BuiltinItem
 import fr.nihilus.music.media.cache.MusicCache
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.utils.MediaID
 import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
@@ -49,7 +49,7 @@ internal class CachedMusicRepository
             return Single.just(cachedItems)
         }
 
-        val parentHierarchy = MediaID.getHierarchy(trueParent)
+        val parentHierarchy = browseHierarchyOf(trueParent)
         // Search the root media id in built-in items
         // Notify an error if no built-in is found
         val builtIn = builtIns[parentHierarchy[0]]

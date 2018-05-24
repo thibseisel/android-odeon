@@ -26,17 +26,13 @@ import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.media.CATEGORY_ALBUMS
-import fr.nihilus.music.media.CATEGORY_ARTISTS
-import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.*
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
 import fr.nihilus.music.ui.playlist.MembersFragment
 import fr.nihilus.music.ui.playlist.PlaylistsFragment
 import fr.nihilus.music.ui.songs.SongListFragment
-import fr.nihilus.music.utils.MediaID
 import javax.inject.Inject
 
 private const val KEY_FIRST_TAG = "first_tag"
@@ -133,7 +129,7 @@ class NavigationController
             playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
-            val rootId = MediaID.getHierarchy(tag)[0]
+            val rootId = browseHierarchyOf(tag)[0]
             MembersFragment.newInstance(playlist, deletable = (CATEGORY_PLAYLISTS == rootId))
         }
 
@@ -153,13 +149,13 @@ class NavigationController
      * @param mediaId The media id that represents the screen to display
      */
     fun navigateToMediaId(mediaId: String) {
-        val root = MediaID.getHierarchy(mediaId)[0]
+        val root = browseHierarchyOf(mediaId)[0]
         when (root) {
             CATEGORY_MUSIC -> navigateToAllSongs()
             CATEGORY_ALBUMS -> navigateToAlbums()
             CATEGORY_ARTISTS -> navigateToArtists()
             CATEGORY_PLAYLISTS -> navigateToPlaylists()
-            else -> throw UnsupportedOperationException("Unsupported media ID: $mediaId")
+            else -> error("Unsupported media ID: $mediaId")
         }
     }
 

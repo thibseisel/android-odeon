@@ -125,7 +125,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
     }
 
     private fun deleteThisPlaylist() {
-        val playlistId = MediaID.browseCategoryOf(playlist.mediaId!!).toLong()
+        val playlistId = MediaID.categoryValueOf(playlist.mediaId!!).toLong()
         val params = Bundle(1).apply {
             putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
         }
