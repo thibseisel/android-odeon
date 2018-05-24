@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ogg.OggExtractor
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
 import com.google.android.exoplayer2.extractor.wav.WavExtractor
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
+import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
 
 /**
  * An ExtractorsFactory that only uses audio file extractors.
@@ -41,6 +42,8 @@ class AudioOnlyExtractorsFactory : ExtractorsFactory {
         // Most used audio file extensions .mp3 and .wav
         Mp3Extractor(),
         WavExtractor(),
+        // .aac audio files
+        AdtsExtractor(),
         // .ogg and .oga audio files
         OggExtractor(),
         // .ac3 (Dolby Digital) audio files
