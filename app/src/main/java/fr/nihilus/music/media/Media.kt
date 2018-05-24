@@ -18,7 +18,7 @@ package fr.nihilus.music.media
 
 import org.jetbrains.annotations.Contract
 
-private const val CATEGORY_SEPARATOR = '/'
+private const val CATEGORY_SEPARATOR = "/"
 private const val LEAF_SEPARATOR = "|"
 
 const val BROWSER_ROOT = "__ROOT__"
@@ -26,28 +26,28 @@ const val BROWSER_ROOT = "__ROOT__"
 /**
  * The whole music library composed of all available tracks.
  */
-const val CATEGORY_MUSIC = "BY_MUSIC"
+const val CATEGORY_MUSIC = "MUSIC"
 
 /**
  * All available music albums.
  */
-const val CATEGORY_ALBUMS = "BY_ALBUM"
+const val CATEGORY_ALBUMS = "ALBUMS"
 
 /**
  * All artists that produced the available songs.
  */
-const val CATEGORY_ARTISTS = "BY_ARTIST"
+const val CATEGORY_ARTISTS = "ARTISTS"
 
 /**
  * All user-defined getPlaylists.
  */
-const val CATEGORY_PLAYLISTS = "BY_PLAYLIST"
+const val CATEGORY_PLAYLISTS = "PLAYLISTS"
 
 /**
  * A special selection of the most recently added songs.
  */
 const val CATEGORY_BUILT_IN = "BUILT_IN"
-const val CATEGORY_MOST_RECENT = "MOST_RECENT"
+const val CATEGORY_MOST_RECENT = "RECENT"
 
 /**
  * Creates a String value that represents a playable or a browsable media.
@@ -76,7 +76,7 @@ fun mediaIdOf(vararg categories: String, musicId: Long = -1L): String = buildStr
         "Categories cannot contain the following characters: $CATEGORY_SEPARATOR or $LEAF_SEPARATOR"
     }
 
-    categories.joinTo(this, CATEGORY_SEPARATOR.toString())
+    categories.joinTo(this, CATEGORY_SEPARATOR)
     if (musicId >= 0L) {
         append('|')
         append(musicId)
