@@ -22,11 +22,11 @@ import fr.nihilus.music.di.ServiceScoped
 import javax.inject.Inject
 
 /**
- * A MusicCache implementation that keeps only the latest media items in memory.
+ * A MediaCache implementation that keeps only the latest media items in memory.
  */
 @ServiceScoped
 internal class LruMemoryCache
-@Inject constructor() : MusicCache {
+@Inject constructor() : MediaCache {
 
     private val itemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
 

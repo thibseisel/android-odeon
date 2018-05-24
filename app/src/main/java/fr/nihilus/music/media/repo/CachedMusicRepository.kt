@@ -22,7 +22,7 @@ import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.browseHierarchyOf
 import fr.nihilus.music.media.builtin.BuiltinItem
-import fr.nihilus.music.media.cache.MusicCache
+import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.source.MusicDao
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -36,7 +36,7 @@ import javax.inject.Inject
 internal class CachedMusicRepository
 @Inject constructor(
     private val mediaDao: MusicDao,
-    private val musicCache: MusicCache,
+    private val mediaCache: MediaCache,
     private val builtIns: Map<String, @JvmSuppressWildcards BuiltinItem>
 ) : MusicRepository {
 
@@ -44,7 +44,7 @@ internal class CachedMusicRepository
         // Get the "true" parent in case the passed media id is a playable item
         val trueParent = browseCategoryOf(parentMediaId)
 
-        val cachedItems = musicCache[trueParent]
+        val cachedItems = mediaCache[trueParent]
         if (cachedItems.isNotEmpty()) {
             return Single.just(cachedItems)
         }
@@ -57,17 +57,18 @@ internal class CachedMusicRepository
         val items = builtIn.getChildren(trueParent).toList()
 
         return items.doOnSuccess {
-            musicCache.put(trueParent, it)
+            mediaCache.put(trueParent, it)
         }
     }
 
+    // TODO Calculate diff with the cache (if entry is present) to emit more precise Media IDs to subscribers
     override fun getMediaChanges(): Observable<String> = mediaDao.getMediaChanges().doOnNext {
-        // TODO Clear cache depending on the Media ID of the item that has changed
-        musicCache.clear()
+        val parentCategory = browseCategoryOf(it)
+        mediaCache.remove(parentCategory)
     }
 
     override fun getMetadata(musicId: String): Single<MediaMetadataCompat> =
         mediaDao.findTrack(musicId).toSingle()
 
-    override fun clear() = musicCache.clear()
+    override fun clear() = mediaCache.clear()
 }

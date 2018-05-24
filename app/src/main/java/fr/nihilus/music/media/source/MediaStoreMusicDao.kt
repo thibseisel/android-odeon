@@ -165,12 +165,10 @@ class MediaStoreMusicDao
             }
         }
 
-        val cursor = resolver.query(
+        resolver.query(
             Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
             clause, whereArgs, sorting
-        )
-
-        cursor?.use {
+        )?.use {
             // Memorize cursor column indexes for faster lookup
             val colId = it.getColumnIndexOrThrow(BaseColumns._ID)
             val colTitle = it.getColumnIndexOrThrow(Media.TITLE)
@@ -186,7 +184,7 @@ class MediaStoreMusicDao
             val builder = MediaMetadataCompat.Builder()
 
             // Fetch data from cursor
-            while (cursor.moveToNext() && !emitter.isDisposed) {
+            while (it.moveToNext() && !emitter.isDisposed) {
                 val musicId = it.getLong(colId)
                 val albumId = it.getLong(colAlbumId)
                 val trackNo = it.getLong(colTrackNo)
@@ -416,10 +414,6 @@ class MediaStoreMusicDao
         TODO("not implemented")
     }
 
-    /**
-     * Delete all tracks whose id matches one in the specified [trackIds]
-     * from the device and from the MediaStore.
-     */
     override fun deleteTracks(trackIds: LongArray): Single<Int> = Single.fromCallable {
         context.requirePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
@@ -457,8 +451,12 @@ class MediaStoreMusicDao
             Timber.d("Media change detected: uri=$uri")
 
             val lastSegment = uri?.lastPathSegment ?: return
-            lastSegment.toLongOrNull()?.let(this::dispatchTrackSpecificChange)
-                    ?: dispatchGenericChange()
+            val idPart = lastSegment.toLongOrNull()
+            if (idPart != null) {
+                dispatchTrackSpecificChange(idPart)
+            } else {
+                dispatchGenericChange()
+            }
         }
 
         /**

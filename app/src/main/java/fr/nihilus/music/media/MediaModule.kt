@@ -20,7 +20,7 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.builtin.BuiltinModule
 import fr.nihilus.music.media.cache.LruMemoryCache
-import fr.nihilus.music.media.cache.MusicCache
+import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.source.MediaStoreMusicDao
@@ -38,7 +38,7 @@ import fr.nihilus.music.media.source.MusicDao
 internal abstract class MediaModule {
 
     @Binds
-    abstract fun bindsMusicCache(cacheImpl: LruMemoryCache): MusicCache
+    abstract fun bindsMusicCache(cacheImpl: LruMemoryCache): MediaCache
 
     @Binds
     abstract fun bindsMusicDao(daoImpl: MediaStoreMusicDao): MusicDao

@@ -146,6 +146,7 @@ interface MusicDao {
      * from this implementation's data store.
      * If no track exists with this id, the operation should complete without an error.
      *
+     * @param trackIds An array containing music ids to delete from the data store.
      * @return The deferred deletion task.
      */
     fun deleteTracks(trackIds: LongArray): Single<Int>

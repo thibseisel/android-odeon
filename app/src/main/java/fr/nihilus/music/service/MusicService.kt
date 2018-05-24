@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
 import fr.nihilus.music.*
 import fr.nihilus.music.media.BROWSER_ROOT
+import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
@@ -106,10 +107,12 @@ class MusicService : MediaBrowserServiceCompat() {
 
         session.controller.registerCallback(playbackStateListener)
 
-        // Listen for changes in the repository to notify media browsers
+        // Listen for changes in the repository to notify media browsers.
+        // If the changed media ID is a track, notify for its parent category.
         repository.getMediaChanges()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .map { browseCategoryOf(it) }
             .subscribe(this::notifyChildrenChanged)
             .also { subscriptions.add(it) }
     }
@@ -159,7 +162,7 @@ class MusicService : MediaBrowserServiceCompat() {
     }
 
     override fun onLoadChildren(parentId: String, result: MediaItemResult, options: Bundle) {
-        Timber.v("Loading children for ID: %s", parentId)
+        Timber.v("Start loading children for ID: %s", parentId)
         result.detach()
         repository.getMediaItems(parentId)
             .subscribeOn(Schedulers.io())
@@ -176,7 +179,9 @@ class MusicService : MediaBrowserServiceCompat() {
                     when (e) {
                         is UnsupportedOperationException -> Timber.w("Unsupported parent id: %s", parentId)
                         is PermissionDeniedException -> Timber.i(e)
+                        else -> Timber.e(e, "Unexpected error while loading %s children", parentId)
                     }
+
                     result.sendResult(null)
                 }
             })
