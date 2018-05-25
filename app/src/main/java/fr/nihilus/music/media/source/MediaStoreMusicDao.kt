@@ -420,8 +420,8 @@ class MediaStoreMusicDao
         // Delete those tracks from the MediaStore.
         resolver.delete(
             Media.EXTERNAL_CONTENT_URI,
-            WHERE_IN_TRACK_IDS,
-            arrayOf(trackIds.joinToString(prefix = "(", separator = ",", postfix = ")"))
+            makeInClause(Media._ID, trackIds.size),
+            Array(trackIds.size) { trackIds[it].toString() }
         ).also {
             // Remove those tracks from the cache if successfully deleted
             trackIds.forEach(metadataCache::delete)
@@ -500,7 +500,20 @@ class MediaStoreMusicDao
     private companion object {
         const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
         const val WHERE_TRACK_BY_ID = "${Media._ID} = ?"
-        const val WHERE_IN_TRACK_IDS = "${Media._ID} IN ?"
+
+        /**
+         * Builds a `WHERE column IN (?,?,?)` clause with [paramCount] wildcards.
+         *
+         * @param column The name of the column the WHERE IN clause is applied to.
+         * @param paramCount The number of `?` wildcards characters between the IN brackets.
+         *
+         * @return A SQL WHERE statement with [paramCount] wildcard characters,
+         * to be replaced by [paramCount] actual values.
+         */
+        private fun makeInClause(column: String, paramCount: Int) = buildString {
+            append(column).append(" IN ")
+            CharArray(paramCount) { '?' }.joinTo(this, separator = "(", postfix =  ")")
+        }
 
         /**
          * ORDER BY clause to use when querying for albums associated with an artist.
