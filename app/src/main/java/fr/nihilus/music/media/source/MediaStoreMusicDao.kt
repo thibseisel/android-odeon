@@ -527,7 +527,7 @@ class MediaStoreMusicDao
          */
         private fun makeInClause(column: String, paramCount: Int) = buildString {
             append(column).append(" IN ")
-            CharArray(paramCount) { '?' }.joinTo(this, separator = "(", postfix =  ")")
+            CharArray(paramCount) { '?' }.joinTo(this, prefix = "(", postfix =  ")")
         }
 
         /**
