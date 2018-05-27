@@ -30,7 +30,6 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.LongSparseArray
-import androidx.core.util.isEmpty
 import fr.nihilus.music.assert
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.media.*
@@ -213,20 +212,6 @@ class MediaStoreMusicDao
         } ?: Timber.e("Track metadata query failed: null cursor")
 
         emitter.onComplete()
-    }
-
-    /**
-     * Load all tracks from the MediaStore to the internal [metadataCache].
-     * This makes it easier to guess the nature of changes occurring in the MediaStore
-     * and reported by [getMediaChanges].
-     */
-    private fun prefetchMetadata() {
-        if (metadataCache.isEmpty()) {
-            loadFromMediaStore(null, null, null).blockingIterable().forEach {
-                val musicId = it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
-                metadataCache.put(musicId, it)
-            }
-        }
     }
 
     override fun findTrack(musicId: String): Maybe<MediaMetadataCompat> = Maybe.defer {
