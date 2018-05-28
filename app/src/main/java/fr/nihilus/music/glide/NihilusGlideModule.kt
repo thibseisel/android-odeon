@@ -21,17 +21,31 @@ import android.graphics.Bitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
+import com.bumptech.glide.load.resource.bitmap.BitmapEncoder
+import com.bumptech.glide.load.resource.bitmap.ByteBufferBitmapDecoder
+import com.bumptech.glide.load.resource.bitmap.Downsampler
+import com.bumptech.glide.load.resource.bitmap.StreamBitmapDecoder
 import com.bumptech.glide.module.AppGlideModule
-import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.glide.palette.AlbumArtTranscoder
-import fr.nihilus.music.glide.palette.PaletteBitmap
-import fr.nihilus.music.glide.palette.PaletteBitmapTranscoder
+import fr.nihilus.music.glide.palette.*
 
 @GlideModule
 class NihilusGlideModule : AppGlideModule() {
     override fun isManifestParsingEnabled() = false
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+        val bitmapEncoder = BitmapEncoder(glide.arrayPool)
+
+        val downsampler = Downsampler(
+            registry.imageHeaderParsers,
+            context.resources.displayMetrics,
+            glide.bitmapPool,
+            glide.arrayPool
+        )
+        val streamBitmapDecoder = StreamBitmapDecoder(downsampler, glide.arrayPool)
+        val bufferBitmapDecoder = ByteBufferBitmapDecoder(downsampler)
+
+        
+
         // Calculate the color Palette associated with the loaded Bitmap
         registry.register(
             Bitmap::class.java, PaletteBitmap::class.java,
