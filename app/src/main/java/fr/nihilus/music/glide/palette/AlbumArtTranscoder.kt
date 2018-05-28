@@ -23,28 +23,31 @@ import android.support.v7.graphics.Palette
 import android.support.v7.graphics.Target
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.engine.Resource
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
-import com.bumptech.glide.util.Util
 import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.utils.toHsl
+import timber.log.Timber
 
 data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)
 
 class AlbumArtResource(
-    private val albumArt: AlbumArt,
-    private val bitmapPool: BitmapPool
+    private val albumPalette: AlbumPalette,
+    private val bitmapResource: Resource<Bitmap>
 ) : Resource<AlbumArt> {
 
     override fun getResourceClass() = AlbumArt::class.java
 
-    override fun get() = albumArt
+    override fun get() = AlbumArt(bitmapResource.get(), albumPalette)
 
-    // Size of the bitmap + 4 color integers (4 bytes each)
-    override fun getSize() = Util.getBitmapByteSize(albumArt.bitmap) + (4 * 4)
+    // Size of the bitmap + 5 color integers (4 bytes each)
+    override fun getSize() = bitmapResource.size + ALBUM_PALETTE_BYTE_SIZE
 
     override fun recycle() {
-        bitmapPool.put(albumArt.bitmap)
+        bitmapResource.recycle()
+    }
+
+    companion object {
+        const val ALBUM_PALETTE_BYTE_SIZE = 5 * 4
     }
 }
 
@@ -76,14 +79,12 @@ private val ACCENT_TARGET = Target.Builder()
     .build()
 
 
-class AlbumArtTranscoder(
-    context: Context,
-    private val bitmapPool: BitmapPool
-) : ResourceTranscoder<Bitmap, AlbumArt> {
+class AlbumArtTranscoder(context: Context) : ResourceTranscoder<Bitmap, AlbumArt> {
 
     private val defaultPalette = AlbumColorModule.providesDefaultAlbumPalette(context)
 
     override fun transcode(toTranscode: Resource<Bitmap>, options: Options): Resource<AlbumArt> {
+        Timber.d("Transcoding to AlbumArt")
         val bitmap = toTranscode.get()
 
         // Generate a coarse Palette to extract the dominant color from the bottom of the image.
@@ -131,8 +132,7 @@ class AlbumArtTranscoder(
         }
 
         val colorPack = AlbumPalette(primaryColor, accent, titleText, bodyText, textOnAccent)
-        val albumArt = AlbumArt(bitmap, colorPack)
-        return AlbumArtResource(albumArt, bitmapPool)
+        return AlbumArtResource(colorPack, toTranscode)
     }
 }
 

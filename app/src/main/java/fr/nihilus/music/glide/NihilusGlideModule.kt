@@ -24,15 +24,16 @@ import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.resource.bitmap.BitmapEncoder
 import com.bumptech.glide.load.resource.bitmap.ByteBufferBitmapDecoder
 import com.bumptech.glide.load.resource.bitmap.Downsampler
-import com.bumptech.glide.load.resource.bitmap.StreamBitmapDecoder
 import com.bumptech.glide.module.AppGlideModule
 import fr.nihilus.music.glide.palette.*
+import java.nio.ByteBuffer
 
 @GlideModule
 class NihilusGlideModule : AppGlideModule() {
     override fun isManifestParsingEnabled() = false
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
+
         val bitmapEncoder = BitmapEncoder(glide.arrayPool)
 
         val downsampler = Downsampler(
@@ -41,20 +42,30 @@ class NihilusGlideModule : AppGlideModule() {
             glide.bitmapPool,
             glide.arrayPool
         )
-        val streamBitmapDecoder = StreamBitmapDecoder(downsampler, glide.arrayPool)
+
         val bufferBitmapDecoder = ByteBufferBitmapDecoder(downsampler)
 
-        
+        registry.prepend(
+            AlbumArt::class.java,
+            AlbumArtEncoder(bitmapEncoder, glide.bitmapPool, glide.arrayPool)
+        )
+        registry.prepend(
+            ByteBuffer::class.java,
+            AlbumArt::class.java,
+            AlbumArtDecoder(bufferBitmapDecoder, glide.arrayPool)
+        )
 
         // Calculate the color Palette associated with the loaded Bitmap
         registry.register(
-            Bitmap::class.java, PaletteBitmap::class.java,
+            Bitmap::class.java,
+            PaletteBitmap::class.java,
             PaletteBitmapTranscoder(glide.bitmapPool)
         )
 
         registry.register(
-            Bitmap::class.java, AlbumArt::class.java,
-            AlbumArtTranscoder(context, glide.bitmapPool)
+            Bitmap::class.java,
+            AlbumArt::class.java,
+            AlbumArtTranscoder(context)
         )
     }
 }
