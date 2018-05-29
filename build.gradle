@@ -52,7 +52,7 @@ allprojects {
 
 ext {
     supportLibVersion = '27.1.1'
-    glideVersion = '4.6.1'
+    glideVersion = '4.7.1'
     daggerVersion = '2.16'
     junitVersion = '4.12'
     hamcrestVersion = '1.3'
