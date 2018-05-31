@@ -23,39 +23,48 @@ import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.resource.bitmap.BitmapEncoder
 import com.bumptech.glide.load.resource.bitmap.ByteBufferBitmapDecoder
 import com.bumptech.glide.load.resource.bitmap.Downsampler
+import com.bumptech.glide.load.resource.bitmap.StreamBitmapDecoder
 import com.bumptech.glide.module.AppGlideModule
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.glide.palette.AlbumArtEncoder
 import fr.nihilus.music.glide.palette.BufferAlbumArtDecoder
+import fr.nihilus.music.glide.palette.StreamAlbumArtDecoder
+import java.io.InputStream
 import java.nio.ByteBuffer
 
 @GlideModule
-class NihilusGlideModule : AppGlideModule() {
+class GlideModule : AppGlideModule() {
 
     override fun isManifestParsingEnabled() = false
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         val bitmapEncoder = BitmapEncoder(glide.arrayPool)
-        val bufferBitmapDecoder = ByteBufferBitmapDecoder(
-            Downsampler(
-                registry.imageHeaderParsers,
-                context.resources.displayMetrics,
-                glide.bitmapPool,
-                glide.arrayPool
-            )
+        val downsampler = Downsampler(
+            registry.imageHeaderParsers,
+            context.resources.displayMetrics,
+            glide.bitmapPool,
+            glide.arrayPool
         )
+        val bufferBitmapDecoder = ByteBufferBitmapDecoder(downsampler)
+        val streamBitmapDecoder = StreamBitmapDecoder(downsampler, glide.arrayPool)
 
         // Decode AlbumArts from source or cache, generating an AlbumPalette only when required.
-        registry.prepend(
+        registry.append(
             ByteBuffer::class.java,
             AlbumArt::class.java,
             BufferAlbumArtDecoder(context, bufferBitmapDecoder)
         )
 
-        // Store loaded AlbumArts to the disk cache.
-        registry.prepend(
+        registry.append(
+            InputStream::class.java,
             AlbumArt::class.java,
-            AlbumArtEncoder(bitmapEncoder, glide.bitmapPool, glide.arrayPool)
+            StreamAlbumArtDecoder(context, streamBitmapDecoder)
+        )
+
+        // Store loaded AlbumArts to the disk cache.
+        registry.append(
+            AlbumArt::class.java,
+            AlbumArtEncoder(context, bitmapEncoder, glide.bitmapPool, glide.arrayPool)
         )
     }
 }

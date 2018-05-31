@@ -24,7 +24,6 @@ import android.support.v7.graphics.Target
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.ResourceEncoder
-import com.bumptech.glide.load.data.BufferedOutputStream
 import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
@@ -33,9 +32,15 @@ import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.utils.toHsl
 import timber.log.Timber
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.nio.ByteBuffer
 
+/**
+ * The size of the header indicating that a cached [AlbumPalette] follows in the data stream.
+ * This header is composed of the ASCII letters "ART" expressed as bytes.
+ */
 private const val HEADER_BYTE_SIZE = 3
 private const val HEADER_A: Byte = 0x41
 private const val HEADER_R: Byte = 0x52
@@ -50,8 +55,16 @@ private const val PALETTE_BYTE_SIZE = 5 * 4
  * The maximum area of the bitmap used to to extract the bottom primary color.
  * As most album art are squares, this takes a base width of 320px
  * and takes the lower 1/5 of the height.
+ *
+ * The lower the value, the faster the primary color can be extracted from the bitmap.
  */
 private const val MAX_BITMAP_AREA = 400 * 80
+
+/**
+ * The range of hue around the primary color, in which an accent color cannot be chosen.
+ * The lower the value, the closer in hue a primary and an accent color can be.
+ */
+private const val HUE_DELTA = 15f
 
 /**
  * Defines how a "primary color" should be selected from loaded bitmaps.
@@ -92,6 +105,65 @@ private fun ByteArray.setInt(startIndex: Int, value: Int) {
 }
 
 /**
+ * Extract a primary and an accent color from the provided bitmap,
+ * using colors in [defaultPalette] as a fallback if any color is missing.
+ *
+ * @param bitmap The bitmap from which a color palette should be extracted.
+ * @param defaultPalette Default colors to return in the generated palette if any is missing.
+ *
+ * @return The generated color palette.
+ */
+private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): AlbumPalette {
+    Timber.d("Extracting colors from Bitmap")
+
+    // Generate a coarse Palette to extract the primary color from the bottom of the image.
+    val primaryPalette = Palette.from(bitmap)
+        .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
+        .resizeBitmapArea(MAX_BITMAP_AREA)
+        .clearFilters()
+        .clearTargets()
+        .addTarget(PRIMARY_TARGET)
+        .generate()
+
+    // Extracts the accent color by generating another Palette.
+    // Filter out accent color too close in hue from the primary's to ensure enough contrast.
+    val primaryColor = primaryPalette.getColorForTarget(PRIMARY_TARGET, defaultPalette.primary)
+    val primaryColorFilter = PrimaryHueFilter(primaryColor)
+
+    val accentPalette = Palette.from(bitmap)
+        .clearTargets()
+        .addTarget(ACCENT_TARGET)
+        .addFilter(primaryColorFilter)
+        .generate()
+
+    val accent: Int
+    val titleText: Int
+    val bodyText: Int
+    val textOnAccent: Int
+
+    val primarySwatch = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)
+    val accentSwatch = accentPalette.getSwatchForTarget(ACCENT_TARGET)
+
+    if (primarySwatch != null) {
+        titleText = primarySwatch.titleTextColor
+        bodyText = primarySwatch.bodyTextColor
+    } else {
+        titleText = defaultPalette.titleText
+        bodyText = defaultPalette.bodyText
+    }
+
+    if (accentSwatch != null) {
+        accent = accentSwatch.rgb
+        textOnAccent = accentSwatch.titleTextColor
+    } else {
+        accent = defaultPalette.accent
+        textOnAccent = defaultPalette.textOnAccent
+    }
+
+    return AlbumPalette(primaryColor, accent, titleText, bodyText, textOnAccent)
+}
+
+/**
  * The resource that will be loaded and recycled by Glide when loading an [AlbumArt].
  * Those resources can be stored in the disk cache to avoid extracting colors
  * from the loaded bitmap more than once.
@@ -128,6 +200,7 @@ class BufferAlbumArtDecoder(
         options: Options
     ): Resource<AlbumArt>? {
         // Read the first 3 bytes to check if it matches the ASCII sequence "ART"
+        Timber.d("Decoding from BufferAlbumArtDecoder")
         val hasCachedPalette = source.get(0) == HEADER_A
                 && source.get(1) == HEADER_R
                 && source.get(2) == HEADER_T
@@ -138,7 +211,7 @@ class BufferAlbumArtDecoder(
         // Delegate loading of the Bitmap to the passed decoder
         val bitmapResource = bitmapDecoder.decode(source, width, height, options) ?: return null
 
-        val palette: AlbumPalette = if (hasCachedPalette) {
+        val palette = if (hasCachedPalette) {
             Timber.d("Palette is already in cache. Retrieving colors.")
             // Go back to after the header bytes to read the palette colors
             source.position(3)
@@ -150,67 +223,50 @@ class BufferAlbumArtDecoder(
                 textOnAccent = source.getInt()
             )
 
-        } else extractPalette(bitmapResource.get())
+        } else extractColorPalette(bitmapResource.get(), defaultPalette)
 
         return AlbumArtResource(palette, bitmapResource)
     }
+}
 
-    private fun extractPalette(bitmap: Bitmap): AlbumPalette {
-        Timber.d("Extracting colors from Bitmap")
+/**
+ * Decodes [AlbumArt]s from [ByteBuffer]s,
+ * loading a Bitmap and generating the associated [AlbumPalette] from it.
+ * This decoder is ensured to be used for all non-cached resource loads,
+ * and therefore does not attempt to retrieve the generating palette from the source data stream.
+ */
+class StreamAlbumArtDecoder(
+    context: Context,
+    private val bitmapDecoder: ResourceDecoder<InputStream, Bitmap>
+) : ResourceDecoder<InputStream, AlbumArt> {
 
-        // Generate a coarse Palette to extract the primary color from the bottom of the image.
-        val primaryPalette = Palette.from(bitmap)
-            .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
-            .resizeBitmapArea(MAX_BITMAP_AREA)
-            .clearFilters()
-            .clearTargets()
-            .addTarget(PRIMARY_TARGET)
-            .generate()
+    private val defaultPalette = AlbumColorModule.providesDefaultAlbumPalette(context)
 
-        // Extracts the accent color by generating another Palette.
-        // Filter out accent color too close in hue from the primary's to ensure enough contrast.
-        val primaryColor = primaryPalette.getColorForTarget(PRIMARY_TARGET, defaultPalette.primary)
-        val primaryColorFilter = PrimaryHueFilter(primaryColor)
+    // This Decoder is expected to decode all AlbumArt resources.
+    override fun handles(source: InputStream, options: Options): Boolean = true
 
-        val accentPalette = Palette.from(bitmap)
-            .clearTargets()
-            .addTarget(ACCENT_TARGET)
-            .addFilter(primaryColorFilter)
-            .generate()
-
-        val accent: Int
-        val titleText: Int
-        val bodyText: Int
-        val textOnAccent: Int
-
-        val primarySwatch = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)
-        val accentSwatch = accentPalette.getSwatchForTarget(ACCENT_TARGET)
-
-        if (primarySwatch != null) {
-            titleText = primarySwatch.titleTextColor
-            bodyText = primarySwatch.bodyTextColor
-        } else {
-            titleText = defaultPalette.titleText
-            bodyText = defaultPalette.bodyText
-        }
-
-        if (accentSwatch != null) {
-            accent = accentSwatch.rgb
-            textOnAccent = accentSwatch.titleTextColor
-        } else {
-            accent = defaultPalette.accent
-            textOnAccent = defaultPalette.textOnAccent
-        }
-
-        return AlbumPalette(primaryColor, accent, titleText, bodyText, textOnAccent)
+    override fun decode(
+        source: InputStream,
+        width: Int,
+        height: Int,
+        options: Options
+    ): Resource<AlbumArt>? {
+        Timber.d("Decoding from StreamAlbumArtDecoder")
+        val bitmapResource = bitmapDecoder.decode(source, width, height, options) ?: return null
+        val palette = extractColorPalette(bitmapResource.get(), defaultPalette)
+        return AlbumArtResource(palette, bitmapResource)
     }
+
 }
 
 class AlbumArtEncoder(
+    context: Context,
     private val encoder: ResourceEncoder<Bitmap>,
     private val bitmapPool: BitmapPool,
     private val arrayPool: ArrayPool
 ) : ResourceEncoder<AlbumArt> {
+
+    private val tempDirectory = context.cacheDir
 
     override fun getEncodeStrategy(options: Options) = encoder.getEncodeStrategy(options)
 
@@ -231,22 +287,28 @@ class AlbumArtEncoder(
         paletteBytes.setInt(HEADER_BYTE_SIZE + 3 * 4, palette.bodyText)
         paletteBytes.setInt(HEADER_BYTE_SIZE + 4 * 4, palette.textOnAccent)
 
-        try {
-            BufferedOutputStream(file.outputStream(), arrayPool).use {
-                it.write(paletteBytes, 0, HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
+        return try {
+            FileOutputStream(file, true).use {
+                it.write(paletteBytes)
+                val tempFile = createTempFile(directory = tempDirectory)
+                val writtenToTemp = encoder.encode(BitmapResource(bitmap, bitmapPool), tempFile, options)
+                val appendedToFile = tempFile.inputStream().channel.transferTo(0, Long.MAX_VALUE, it.channel) != 0L
+                writtenToTemp && appendedToFile
             }
         } catch (e: IOException) {
             Timber.e(e, "Error while writing AlbumPalette to cache file.")
+            false
         }
-
-        return encoder.encode(BitmapResource(bitmap, bitmapPool), file, options)
     }
 }
 
-private const val HUE_DELTA = 15f
-
-private class PrimaryHueFilter(@ColorInt primaryColor: Int) :
-    Palette.Filter {
+/**
+ * A Palette filter that prevents from picking an accent color
+ * whose hue is too close from the selected primary color.
+ *
+ * @param primaryColor The selected primary color.
+ */
+private class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
 
     /**
      * Whether the primary color is perceived as a shade of grey to the human eye.
@@ -278,8 +340,7 @@ private class PrimaryHueFilter(@ColorInt primaryColor: Int) :
         // Extract HSL components from the primary color for analysis
         val (hue, sat, light) = primaryColor.toHsl()
         primaryIsGreyScale = sat < 0.2f || light !in 0.10f..0.90f
-        primaryIsNearRed = hue in 0f..
-                HUE_DELTA || hue in (360f - HUE_DELTA)..360f
+        primaryIsNearRed = hue in 0f..HUE_DELTA || hue in (360f - HUE_DELTA)..360f
 
         if (primaryIsNearRed) {
             lowerBound = 360f - HUE_DELTA + hue
@@ -297,5 +358,4 @@ private class PrimaryHueFilter(@ColorInt primaryColor: Int) :
             hsl[0] !in lowerBound..higherBound
         }
     }
-
 }
