@@ -64,7 +64,7 @@ class GlideModule : AppGlideModule() {
         // Store loaded AlbumArts to the disk cache.
         registry.append(
             AlbumArt::class.java,
-            AlbumArtEncoder(context, bitmapEncoder, glide.bitmapPool, glide.arrayPool)
+            AlbumArtEncoder(bitmapEncoder, glide.bitmapPool, glide.arrayPool)
         )
     }
 }

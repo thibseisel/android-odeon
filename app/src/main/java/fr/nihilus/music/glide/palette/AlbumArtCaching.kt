@@ -199,22 +199,25 @@ class BufferAlbumArtDecoder(
         height: Int,
         options: Options
     ): Resource<AlbumArt>? {
-        // Read the first 3 bytes to check if it matches the ASCII sequence "ART"
-        Timber.d("Decoding from BufferAlbumArtDecoder")
-        val hasCachedPalette = source.get(0) == HEADER_A
-                && source.get(1) == HEADER_R
-                && source.get(2) == HEADER_T
+        // Check the last bytes for the header "ART".
+        val maybeHeaderPosition = source.capacity() - (HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
+        val hasCachedPalette = source[maybeHeaderPosition] == HEADER_A
+                && source[maybeHeaderPosition + 1] == HEADER_R
+                && source[maybeHeaderPosition + 2] == HEADER_T
 
-        // Advance source cursor to skip the cached palette headers and cached colors
-        if (hasCachedPalette) source.position(HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
+        // If the header is present, then the few last bytes are the color palette.
+        // Prevent the Bitmap decoder from reading them as part of the bitmap by setting a limit.
+        if (hasCachedPalette) {
+            source.limit(maybeHeaderPosition)
+        }
 
-        // Delegate loading of the Bitmap to the passed decoder
+        // Delegate loading of the Bitmap to the bitmap decoder.
         val bitmapResource = bitmapDecoder.decode(source, width, height, options) ?: return null
 
         val palette = if (hasCachedPalette) {
-            Timber.d("Palette is already in cache. Retrieving colors.")
-            // Go back to after the header bytes to read the palette colors
-            source.position(3)
+            // Remove the limit, then go back to after the header bytes to read the palette colors
+            source.limit(source.capacity())
+            source.position(maybeHeaderPosition + HEADER_BYTE_SIZE)
             AlbumPalette(
                 primary = source.getInt(),
                 accent = source.getInt(),
@@ -222,9 +225,7 @@ class BufferAlbumArtDecoder(
                 bodyText = source.getInt(),
                 textOnAccent = source.getInt()
             )
-
         } else extractColorPalette(bitmapResource.get(), defaultPalette)
-
         return AlbumArtResource(palette, bitmapResource)
     }
 }
@@ -256,26 +257,22 @@ class StreamAlbumArtDecoder(
         val palette = extractColorPalette(bitmapResource.get(), defaultPalette)
         return AlbumArtResource(palette, bitmapResource)
     }
-
 }
 
 class AlbumArtEncoder(
-    context: Context,
     private val encoder: ResourceEncoder<Bitmap>,
     private val bitmapPool: BitmapPool,
     private val arrayPool: ArrayPool
 ) : ResourceEncoder<AlbumArt> {
 
-    private val tempDirectory = context.cacheDir
-
     override fun getEncodeStrategy(options: Options) = encoder.getEncodeStrategy(options)
 
     override fun encode(data: Resource<AlbumArt>, file: File, options: Options): Boolean {
-        Timber.d("Encoding AlbumArt to file %s", file.name)
         val (bitmap, palette) = data.get()
         val paletteBytes = arrayPool[HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE, ByteArray::class.java]
 
-        // Write header as ASCII letters "ART"
+        // Write header as ASCII letters "ART".
+        // This allows decoders to determine if an album art is stored in the cached file.
         paletteBytes[0] = HEADER_A
         paletteBytes[1] = HEADER_R
         paletteBytes[2] = HEADER_T
@@ -288,12 +285,10 @@ class AlbumArtEncoder(
         paletteBytes.setInt(HEADER_BYTE_SIZE + 4 * 4, palette.textOnAccent)
 
         return try {
-            FileOutputStream(file, true).use {
-                it.write(paletteBytes)
-                val tempFile = createTempFile(directory = tempDirectory)
-                val writtenToTemp = encoder.encode(BitmapResource(bitmap, bitmapPool), tempFile, options)
-                val appendedToFile = tempFile.inputStream().channel.transferTo(0, Long.MAX_VALUE, it.channel) != 0L
-                writtenToTemp && appendedToFile
+            encoder.encode(BitmapResource(bitmap, bitmapPool), file, options).also {
+                FileOutputStream(file, true).use {
+                    it.write(paletteBytes, 0, HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
+                }
             }
         } catch (e: IOException) {
             Timber.e(e, "Error while writing AlbumPalette to cache file.")
