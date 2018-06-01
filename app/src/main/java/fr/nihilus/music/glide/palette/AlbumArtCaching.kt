@@ -96,7 +96,19 @@ private val ACCENT_TARGET = Target.Builder()
     .setExclusive(false)
     .build()
 
-private fun ByteArray.setInt(startIndex: Int, value: Int) {
+/**
+ * Writes the given 4-bytes integer [value] in the receiver array,
+ * starting at the specified [startIndex] up to [startIndex] + 3.
+ *
+ * Bytes are written following the Big Endian convention
+ * (the most significant bytes are written first in the array).
+ *
+ * @receiver The array in which the integer should be written to.
+ * @param startIndex Index in the array where the first byte should be written.
+ * This index is expected to be less than `size - 3`.
+ * @param value The integer whose 4 bytes should be written to the array.
+ */
+private fun ByteArray.writeInt(startIndex: Int, value: Int) {
     assert(size > startIndex + 3)
     this[startIndex] = (value ushr 24).toByte()
     this[startIndex + 1] = (value ushr 16).toByte()
@@ -114,8 +126,6 @@ private fun ByteArray.setInt(startIndex: Int, value: Int) {
  * @return The generated color palette.
  */
 private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): AlbumPalette {
-    Timber.d("Extracting colors from Bitmap")
-
     // Generate a coarse Palette to extract the primary color from the bottom of the image.
     val primaryPalette = Palette.from(bitmap)
         .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
@@ -278,11 +288,11 @@ class AlbumArtEncoder(
         paletteBytes[2] = HEADER_T
 
         // Write each color as a 4-bytes integer
-        paletteBytes.setInt(HEADER_BYTE_SIZE, palette.primary)
-        paletteBytes.setInt(HEADER_BYTE_SIZE + 4, palette.accent)
-        paletteBytes.setInt(HEADER_BYTE_SIZE + 2 * 4, palette.titleText)
-        paletteBytes.setInt(HEADER_BYTE_SIZE + 3 * 4, palette.bodyText)
-        paletteBytes.setInt(HEADER_BYTE_SIZE + 4 * 4, palette.textOnAccent)
+        paletteBytes.writeInt(HEADER_BYTE_SIZE, palette.primary)
+        paletteBytes.writeInt(HEADER_BYTE_SIZE + 4, palette.accent)
+        paletteBytes.writeInt(HEADER_BYTE_SIZE + 2 * 4, palette.titleText)
+        paletteBytes.writeInt(HEADER_BYTE_SIZE + 3 * 4, palette.bodyText)
+        paletteBytes.writeInt(HEADER_BYTE_SIZE + 4 * 4, palette.textOnAccent)
 
         return try {
             encoder.encode(BitmapResource(bitmap, bitmapPool), file, options).also {
