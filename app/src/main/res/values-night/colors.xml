@@ -20,6 +20,8 @@
     <color name="color_primary_dark">@android:color/black</color>
     <color name="color_accent">@color/mtrl_blue_a200</color>
     <color name="color_background_floating">@color/background_floating_material_dark</color>
+    <color name="text_color_primary">#FFFFFFFF</color>
+    <color name="text_color_secondary">#B2FFFFFF</color>
 
     <color name="color_control_activated_compat">@color/mtrl_blue_a200</color>
 

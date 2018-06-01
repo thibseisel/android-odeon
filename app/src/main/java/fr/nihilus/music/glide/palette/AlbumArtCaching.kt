@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.glide.palette
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.support.annotation.ColorInt
 import android.support.v7.graphics.Palette
@@ -28,6 +27,7 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
+import fr.nihilus.music.glide.GlideExtensions
 import fr.nihilus.music.ui.albums.AlbumPalette
 import fr.nihilus.music.utils.toHsl
 import timber.log.Timber
@@ -194,11 +194,8 @@ private class AlbumArtResource(
  * or retrieving the palette from the cache if available.
  */
 class BufferAlbumArtDecoder(
-    context: Context,
     private val bitmapDecoder: ResourceDecoder<ByteBuffer, Bitmap>
 ) : ResourceDecoder<ByteBuffer, AlbumArt> {
-
-    private val defaultPalette = AlbumColorModule.providesDefaultAlbumPalette(context)
 
     // This Decoder is expected to decode all AlbumArt resources.
     override fun handles(source: ByteBuffer, options: Options): Boolean = true
@@ -235,7 +232,10 @@ class BufferAlbumArtDecoder(
                 bodyText = source.getInt(),
                 textOnAccent = source.getInt()
             )
-        } else extractColorPalette(bitmapResource.get(), defaultPalette)
+        } else {
+            val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
+            extractColorPalette(bitmapResource.get(), defaultPalette)
+        }
         return AlbumArtResource(palette, bitmapResource)
     }
 }
@@ -247,11 +247,8 @@ class BufferAlbumArtDecoder(
  * and therefore does not attempt to retrieve the generating palette from the source data stream.
  */
 class StreamAlbumArtDecoder(
-    context: Context,
     private val bitmapDecoder: ResourceDecoder<InputStream, Bitmap>
 ) : ResourceDecoder<InputStream, AlbumArt> {
-
-    private val defaultPalette = AlbumColorModule.providesDefaultAlbumPalette(context)
 
     // This Decoder is expected to decode all AlbumArt resources.
     override fun handles(source: InputStream, options: Options): Boolean = true
@@ -262,13 +259,21 @@ class StreamAlbumArtDecoder(
         height: Int,
         options: Options
     ): Resource<AlbumArt>? {
-        Timber.d("Decoding from StreamAlbumArtDecoder")
+
+        // Load bitmap from the source
         val bitmapResource = bitmapDecoder.decode(source, width, height, options) ?: return null
+
+        // Extract the color palette from the loaded bitmap
+        val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
         val palette = extractColorPalette(bitmapResource.get(), defaultPalette)
+
         return AlbumArtResource(palette, bitmapResource)
     }
 }
 
+/**
+ * Write loaded [AlbumArt] to the cache, saving the generated color palette along the loaded bitmap.
+ */
 class AlbumArtEncoder(
     private val encoder: ResourceEncoder<Bitmap>,
     private val bitmapPool: BitmapPool,

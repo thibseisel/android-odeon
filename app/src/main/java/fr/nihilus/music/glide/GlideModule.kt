@@ -52,13 +52,13 @@ class GlideModule : AppGlideModule() {
         registry.append(
             ByteBuffer::class.java,
             AlbumArt::class.java,
-            BufferAlbumArtDecoder(context, bufferBitmapDecoder)
+            BufferAlbumArtDecoder(bufferBitmapDecoder)
         )
 
         registry.append(
             InputStream::class.java,
             AlbumArt::class.java,
-            StreamAlbumArtDecoder(context, streamBitmapDecoder)
+            StreamAlbumArtDecoder(streamBitmapDecoder)
         )
 
         // Store loaded AlbumArts to the disk cache.
