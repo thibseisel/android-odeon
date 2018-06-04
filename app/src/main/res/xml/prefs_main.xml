@@ -37,4 +37,13 @@
             android:key="@string/pref_startup_screen"
             android:summary="%s" />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_category_experimental">
+
+        <SwitchPreference
+            android:key="@string/pref_skip_silence"
+            android:title="@string/pref_title_skip_silence"
+            android:summary="@string/pref_summary_skip_silence"
+            android:defaultValue="@bool/pref_default_skip_silence"/>
+    </PreferenceCategory>
 </PreferenceScreen>

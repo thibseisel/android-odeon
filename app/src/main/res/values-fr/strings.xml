@@ -99,4 +99,7 @@
     <string name="action_create_playlist">Nouvelle playlist</string>
     <string name="hint_playlist_title">Titre de la playlist</string>
     <string name="error_playlist_title_taken">La playlist \"%s\" existe déjà</string>
+    <string name="pref_title_skip_silence">Passer les silences</string>
+    <string name="pref_summary_skip_silence">Ne pas jouer le début ou la fin d\'un morceau s\'il n\'est pas audible</string>
+    <string name="pref_category_experimental">Fonctionnalités expérimentales</string>
 </resources>

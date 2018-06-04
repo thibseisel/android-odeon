@@ -100,4 +100,8 @@
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
     <string name="error_playlist_title_taken">Playlist title \"%s\" is already taken</string>
+    <string name="pref_skip_silence" translatable="false">skip_silence</string>
+    <string name="pref_title_skip_silence">Skip silence in tracks</string>
+    <string name="pref_summary_skip_silence">Skip start or end of a track if it produces no noise</string>
+    <string name="pref_category_experimental">Experimental</string>
 </resources>
