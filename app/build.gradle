@@ -26,13 +26,13 @@ android {
         applicationId "fr.nihilus.music"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 3
-        versionName '1.1.0'
+        versionCode 1002
+        versionName '1.0.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+                arguments = ['room.schemaLocation': "$projectDir/schemas".toString()]
             }
         }
     }
