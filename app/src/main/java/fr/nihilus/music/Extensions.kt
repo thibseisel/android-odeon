@@ -132,3 +132,11 @@ inline fun MediaDescriptionCompat.copy(
  * @return A pair made of this object and the one passed in parameter.
  */
 infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
+
+fun bundleOf(key: String, value: Int) = Bundle(1).apply {
+    putInt(key, value)
+}
+
+fun bundleOf(key: String, value: Boolean) = Bundle(1).apply {
+    putBoolean(key, value)
+}

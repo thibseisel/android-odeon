@@ -40,6 +40,7 @@ import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.playback.MediaQueueManager
 import fr.nihilus.music.playback.PlaybackController
+import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionDeniedException
 import io.reactivex.SingleObserver
@@ -68,6 +69,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     @Inject lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
     @Inject lateinit var packageValidator: PackageValidator
+    @Inject lateinit var prefs: PreferenceDao
 
     private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
@@ -95,11 +97,14 @@ class MusicService : MediaBrowserServiceCompat() {
         session.setRatingType(RatingCompat.RATING_NONE)
 
         playbackController.restoreStateFromPreferences(player, session)
+
         val repeatAction = RepeatModeActionProvider(this, player)
+        val skipSilenceAction = SkipSilenceActionProvider(player)
+        skipSilenceAction.setEnabled(prefs.shouldSkipSilence)
 
         // Configure MediaSessionConnector with player and session
         MediaSessionController(session, playbackController, true).apply {
-            setPlayer(player, queueManager, repeatAction)
+            setPlayer(player, queueManager, repeatAction, skipSilenceAction)
             setQueueNavigator(queueManager)
             setErrorMessageProvider(errorHandler)
             setMetadataUpdater(queueManager)
