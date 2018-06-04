@@ -25,6 +25,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
@@ -115,6 +116,7 @@ class MediaQueueManager
         // If not available, play all songs.
         val lastPlayedMediaId = prefs.lastPlayedMediaId ?: CATEGORY_MUSIC
         prepareFromMediaId(lastPlayedMediaId, shuffled = false)
+        configurePlaybackParameters()
     }
 
     /**
@@ -134,6 +136,7 @@ class MediaQueueManager
         prefs.queueCounter++
         val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
         prepareFromMediaId(mediaId ?: CATEGORY_MUSIC, shuffleExtraEnabled)
+        configurePlaybackParameters()
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -142,6 +145,7 @@ class MediaQueueManager
     }
 
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+        configurePlaybackParameters()
         TODO("Implement the searching API.")
     }
 
@@ -186,6 +190,12 @@ class MediaQueueManager
                            extras: Bundle?, cb: ResultReceiver?) {
         commands[command]?.handle(extras, cb)
                 ?: cb?.send(R.id.error_unknown_command, null)
+    }
+
+    private fun configurePlaybackParameters() {
+        player.playbackParameters =
+                if (prefs.shouldSkipSilence) PLAYBACK_PARAMETERS_SKIP_SILENCE
+                else PlaybackParameters.DEFAULT
     }
 
     private fun prepareFromMediaId(mediaId: String, shuffled: Boolean) {

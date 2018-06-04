@@ -22,6 +22,7 @@ import android.content.SharedPreferences
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v7.app.AppCompatDelegate
 import fr.nihilus.music.R
+import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,6 +33,7 @@ private const val KEY_LAST_PLAYED = "last_played"
 private const val KEY_STARTUP_SCREEN = "startup_screen"
 private const val KEY_DATABASE_INIT = "should_init_dabatase"
 private const val KEY_QUEUE_COUNTER = "load_counter"
+private const val KEY_SKIP_SILENCE = "skip_silence"
 
 /**
  * Centralizes access to properties saved to Android SharedPreferences.
@@ -103,4 +105,20 @@ class PreferenceDao
     var queueCounter: Long
         get() = mPrefs.getLong(KEY_QUEUE_COUNTER, 0L)
         set(value) = mPrefs.edit().putLong(KEY_QUEUE_COUNTER, value).apply()
+
+    val shouldSkipSilence: Boolean
+        get() = mPrefs.getBoolean(KEY_SKIP_SILENCE, false)
+
+    val skipSilenceUpdates: Observable<Boolean>
+        get() = Observable.create {
+            val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key != KEY_SKIP_SILENCE) return@OnSharedPreferenceChangeListener
+                it.onNext(shouldSkipSilence)
+            }
+
+            mPrefs.registerOnSharedPreferenceChangeListener(preferenceListener)
+            it.setCancellable {
+                mPrefs.unregisterOnSharedPreferenceChangeListener(preferenceListener)
+            }
+        }
 }
