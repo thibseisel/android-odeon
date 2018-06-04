@@ -61,7 +61,7 @@ ext {
     roomVersion = '1.1.0'
     rxJavaVersion = '2.1.13'
     rxAndroidVersion = '2.0.2'
-    exoplayerVersion = '2.8.0'
+    exoplayerVersion = '2.8.1'
     constraintVersion = '1.1.0'
     recyclerVersion = '1.1.4'
     kdenticonVersion = '1.0.0-alpha5'

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.playback
 
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -77,6 +78,28 @@ class MediaQueueManager
         return PlaybackStateCompat.ACTION_PREPARE or
                 PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
                 PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+    }
+
+    /**
+     * Fixes a bug in ExoPlayer 2.8.1 where skipping to previous/next media
+     * in a in a [ConcatenatingMediaSource] cannot be performed when in shuffle mode.
+     */
+    override fun getSupportedQueueNavigatorActions(player: Player?): Long {
+        if (player == null || player.currentTimeline.windowCount < 2) {
+            return 0L
+        }
+
+        if (player.repeatMode != Player.REPEAT_MODE_OFF) {
+            return PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                    PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+        }
+
+        return PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM or when {
+            player.previousWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+            player.nextWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+            else -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+        }
     }
 
     /**
