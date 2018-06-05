@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.RenderersFactory
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
+import com.google.android.exoplayer2.audio.DefaultAudioSink
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
 import com.google.android.exoplayer2.drm.DrmSessionManager
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.metadata.MetadataOutput
 import com.google.android.exoplayer2.text.TextOutput
 import com.google.android.exoplayer2.video.VideoRendererEventListener
+import fr.nihilus.music.playback.processor.CustomAudioProcessorChain
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
@@ -37,7 +39,11 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener
  * thus allowing Proguard from removing unused renderers and reducing final APK size.
  *
  * The full explanation is detailed
- * on the [Exoplayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
+ * on the [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
+ *
+ * In addition to only being able to play audio, this renderer factory replaces
+ * the "silence skipping" feature by "silence trimming", which is basically the same
+ * except that only the start and the end of a track are skipped.
  */
 class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
 
@@ -49,11 +55,16 @@ class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory
         metadataRendererOutput: MetadataOutput?,
         drmSessionManager: DrmSessionManager<FrameworkMediaCrypto>?
     ): Array<Renderer> = arrayOf(
+        // Audio-only renderer
         MediaCodecAudioRenderer(
             context,
             MediaCodecSelector.DEFAULT,
+            null,
+            false,
             eventHandler,
-            audioRendererEventListener
+            audioRendererEventListener,
+            // Configure a custom processor chain to change the silence skipping behavior.
+            DefaultAudioSink(null, CustomAudioProcessorChain(), false)
         )
     )
 }
