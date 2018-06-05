@@ -16,20 +16,7 @@
 
 package fr.nihilus.music.glide.palette
 
-import com.bumptech.glide.load.engine.Resource
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
-import com.bumptech.glide.util.Util
+import android.graphics.Bitmap
+import fr.nihilus.music.ui.albums.AlbumPalette
 
-class PaletteBitmapResource(
-    private val paletteBitmap: PaletteBitmap,
-    private val bitmapPool: BitmapPool
-) : Resource<PaletteBitmap> {
-
-    override fun getResourceClass() = PaletteBitmap::class.java
-
-    override fun get() = this.paletteBitmap
-
-    override fun getSize() = Util.getBitmapByteSize(paletteBitmap.bitmap)
-
-    override fun recycle() = bitmapPool.put(paletteBitmap.bitmap)
-}
+data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)

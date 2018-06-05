@@ -38,14 +38,15 @@ internal class AlbumsAdapter(
     init {
         val context = fragment.requireContext()
         val fallbackIcon = context.getDrawable(R.drawable.ic_album_24dp)
-        glideRequest = GlideApp.with(fragment).`as`(AlbumArt::class.java)
+        glideRequest = GlideApp.with(fragment).asAlbumArt()
+            .fallbackColors(defaultPalette)
             .fallback(fallbackIcon)
             .centerCrop()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
-        return AlbumHolder(parent, glideRequest, defaultPalette, false).also { holder ->
-            holder.onAttachListeners(listener)
+        return AlbumHolder(parent, glideRequest, defaultPalette, false).also {
+            it.onAttachListeners(listener)
         }
     }
 

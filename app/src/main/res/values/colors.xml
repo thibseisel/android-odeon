@@ -32,6 +32,8 @@
     <color name="color_primary_dark">@color/mtrl_grey_300</color>
     <color name="color_accent">@color/mtrl_blue_a400</color>
     <color name="color_background_floating">@color/background_floating_material_light</color>
+    <color name="text_color_primary">#DD000000</color>
+    <color name="text_color_secondary">#B2000000</color>
 
     <color name="color_control_activated_compat">@color/mtrl_blue_a400</color>
 

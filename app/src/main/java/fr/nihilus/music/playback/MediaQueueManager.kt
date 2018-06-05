@@ -81,6 +81,28 @@ class MediaQueueManager
     }
 
     /**
+     * Fixes a bug in ExoPlayer 2.8.1 where skipping to previous/next media
+     * in a in a [ConcatenatingMediaSource] cannot be performed when in shuffle mode.
+     */
+    override fun getSupportedQueueNavigatorActions(player: Player?): Long {
+        if (player == null || player.currentTimeline.windowCount < 2) {
+            return 0L
+        }
+
+        if (player.repeatMode != Player.REPEAT_MODE_OFF) {
+            return PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                    PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
+        }
+
+        return PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM or when {
+            player.previousWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+            player.nextWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+            else -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+        }
+    }
+
+    /**
      * Handles generic requests to prepare playback.
      *
      * This prepares the last played queue, in the same order as the last time it was played.
