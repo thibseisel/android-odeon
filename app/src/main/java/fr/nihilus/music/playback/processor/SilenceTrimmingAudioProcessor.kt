@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.audio.AudioProcessor
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.abs
 
 /**
  * The minimum duration of audio that must be below {@link #SILENCE_THRESHOLD_LEVEL} to classify
@@ -40,8 +41,8 @@ private const val PADDING_SILENCE_US = 10_000L
  */
 private const val SILENCE_THRESHOLD_LEVEL: Short = 1024
 /**
- * Threshold for classifying an individual PCM sample as silent based on its more significant
- * byte. This is {@link #SILENCE_THRESHOLD_LEVEL} divided by 256 with rounding.
+ * Threshold for classifying an individual PCM sample as silent based on its more significant byte.
+ * This is [SILENCE_THRESHOLD_LEVEL] divided by 256 with rounding.
  */
 private const val SILENCE_THRESHOLD_LEVEL_MSB = ((SILENCE_THRESHOLD_LEVEL + 128) shr 8).toByte()
 
@@ -66,6 +67,8 @@ private const val STATE_SILENT = 2
  */
 class SilenceTrimmingAudioProcessor : AudioProcessor {
 
+    private val emptyByteArray = ByteArray(0)
+
     /** The output channel count. This is the same as the configured input. */
     private var channelCount = Format.NO_VALUE
     /** The output sample rate. This is the same as the configured input. */
@@ -84,8 +87,8 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
     private var skippedFrames = 0L
 
     private var paddingSize = 0
-    private var maybeSilenceBuffer: ByteArray = ByteArray(0)
-    private var paddingBuffer: ByteArray = ByteArray(0)
+    private var maybeSilenceBuffer: ByteArray = emptyByteArray
+    private var paddingBuffer: ByteArray = emptyByteArray
 
     /**
      * Sets whether to trim silence in the input.
@@ -168,7 +171,25 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
     override fun isEnded() = inputEnded && outputBuffer === AudioProcessor.EMPTY_BUFFER
 
     override fun flush() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (isActive) {
+            // Calculate the required buffer size for silence and padding.
+            val maybeSilenceBufferSize = durationToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame
+            if (maybeSilenceBuffer.size != maybeSilenceBufferSize) {
+                maybeSilenceBuffer = ByteArray(maybeSilenceBufferSize)
+            }
+
+            paddingSize = durationToFrames(PADDING_SILENCE_US) * bytesPerFrame
+            if (paddingBuffer.size != paddingSize) {
+                paddingBuffer = ByteArray(paddingSize)
+            }
+        }
+
+        state = STATE_NOISY
+        outputBuffer = AudioProcessor.EMPTY_BUFFER
+        inputEnded = false
+        skippedFrames = 0
+        maybeSilenceBufferSize = 0
+        hasOutputNoise = false
     }
 
     override fun reset() {
@@ -178,8 +199,8 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         channelCount = Format.NO_VALUE
         sampleRateHz = Format.NO_VALUE
         paddingSize = 0
-        maybeSilenceBuffer = ByteArray(0)
-        paddingBuffer = ByteArray(0)
+        maybeSilenceBuffer = emptyByteArray
+        paddingBuffer = emptyByteArray
     }
 
     /**
@@ -203,7 +224,71 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
      * updating the state if needed.
      */
     private fun processSilence(inputBuffer: ByteBuffer) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // Save limit to restore it if needed
+        val limit = inputBuffer.limit()
+
+        // Find the byte position of the first frame considered noisy, limit if not found.
+        val noisyPosition = findNoisePosition(inputBuffer)
+        // Overwrites the limit to only read the portion of input that is silence.
+        inputBuffer.limit(noisyPosition)
+        // Update the skipped frames counter with the number of silent frames in inputBuffer
+        skippedFrames += inputBuffer.remaining() / bytesPerFrame
+        updatePaddingBuffer(inputBuffer, paddingBuffer, paddingSize)
+
+        if (noisyPosition < limit) {
+            // Output the padding, which may include previous input as well as new input,
+            // then transition back to the noisy state.
+            output(paddingBuffer, paddingSize)
+            state = STATE_NOISY
+
+            // Restore the limit.
+            inputBuffer.limit(limit)
+        }
+    }
+
+    /**
+     * Fills [paddingBuffer] using data from [input], plus any additional buffered data
+     * at the end of [buffer] (up to its [size]) required to fill it, advancing the input position.
+     */
+    private fun updatePaddingBuffer(input: ByteBuffer, buffer: ByteArray, size: Int) {
+        val fromInputSize = minOf(input.remaining(), paddingSize)
+        val fromBufferSize = paddingSize - fromInputSize
+
+        System.arraycopy(
+            buffer,
+            size - fromBufferSize,
+            paddingBuffer,
+            0,
+            fromBufferSize
+        )
+
+        input.position(input.limit() - fromBufferSize)
+        input.get(paddingBuffer, fromBufferSize, fromInputSize)
+    }
+
+    /**
+     * Returns the number of input frames corresponding to [durationUs] microseconds of audio.
+     */
+    private fun durationToFrames(durationUs: Long): Int =
+        ((durationUs * sampleRateHz) / C.MICROS_PER_SECOND).toInt()
+
+    /**
+     * Returns the earliest byte position in `[position, limit)`
+     * of [buffer] that contains a frame classified as a noisy frame,
+     * or the limit of the buffer if no such frame exists.
+     */
+    private fun findNoisePosition(buffer: ByteBuffer): Int {
+        // The input is in native order, which is always little endian on Android.
+        // We only read the second byte for each frame, which is the most significant one.
+        for (i in buffer.position() + 1 until buffer.limit() step 2) {
+            // If the sound level of that frame exceeds the threshold, return its frame position
+            if (abs(buffer[i].toInt()) > SILENCE_THRESHOLD_LEVEL_MSB) {
+                // Round to the start of the frame
+                return bytesPerFrame * (i / bytesPerFrame)
+            }
+        }
+
+        return buffer.limit()
     }
 
     /**

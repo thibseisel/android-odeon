@@ -54,6 +54,4 @@ class CustomAudioProcessorChain(
     override fun getSkippedOutputFrameCount(): Long = silenceProcessor.getSkippedFrames()
 
     override fun getAudioProcessors(): Array<AudioProcessor> = audioProcessors
-
-
 }
