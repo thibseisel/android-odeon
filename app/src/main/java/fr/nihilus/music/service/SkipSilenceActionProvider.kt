@@ -16,20 +16,27 @@
 
 package fr.nihilus.music.service
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-
-private val SKIP_SILENCE_PARAMETERS = PlaybackParameters(1f, 1f, true)
+import fr.nihilus.music.R
 
 class SkipSilenceActionProvider(
+    context: Context,
     private val player: Player
 ) : MediaSessionConnector.CustomActionProvider {
 
+    private val actionDescription = context.getString(R.string.pref_title_skip_silence)
+
     override fun getCustomAction(): PlaybackStateCompat.CustomAction =
-        PlaybackStateCompat.CustomAction.Builder(ACTION_SKIP_SILENCE, null, 0).build()
+        PlaybackStateCompat.CustomAction.Builder(
+            ACTION_SKIP_SILENCE,
+            actionDescription,
+            R.drawable.ic_hearing_24dp
+        ).build()
 
     override fun onCustomAction(action: String?, extras: Bundle?) {
         setEnabled(extras?.getBoolean(EXTRA_ENABLED) == true)
@@ -44,5 +51,7 @@ class SkipSilenceActionProvider(
     companion object {
         const val ACTION_SKIP_SILENCE = "fr.nihilus.music.action.SKIP_SILENCE"
         const val EXTRA_ENABLED = "fr.nihilus.music.extras.SKIP_SILENCE_ENABLED"
+
+        private val SKIP_SILENCE_PARAMETERS = PlaybackParameters(1f, 1f, true)
     }
 }

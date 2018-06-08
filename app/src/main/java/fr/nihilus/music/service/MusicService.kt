@@ -99,7 +99,7 @@ class MusicService : MediaBrowserServiceCompat() {
         playbackController.restoreStateFromPreferences(player, session)
 
         val repeatAction = RepeatModeActionProvider(this, player)
-        val skipSilenceAction = SkipSilenceActionProvider(player)
+        val skipSilenceAction = SkipSilenceActionProvider(this, player)
         skipSilenceAction.setEnabled(prefs.shouldSkipSilence)
 
         // Configure MediaSessionConnector with player and session

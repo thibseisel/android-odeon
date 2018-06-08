@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.annotation.StringRes
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import android.support.v7.preference.PreferenceFragmentCompat
@@ -96,6 +95,4 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
             )
         }
     }
-
-    private fun findPreference(@StringRes keyRes: Int) = findPreference(getString(keyRes))
 }
