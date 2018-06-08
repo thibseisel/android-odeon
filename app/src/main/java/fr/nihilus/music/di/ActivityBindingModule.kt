@@ -49,7 +49,7 @@ abstract class ActivityBindingModule {
     abstract fun contributeAlbumDetailActivity(): AlbumDetailActivity
 
     @ActivityScoped
-    @ContributesAndroidInjector(modules = [SettingsModule::class])
+    @ContributesAndroidInjector(modules = [SettingsModule::class, ViewModelModule::class])
     abstract fun contributeSettingsActivity(): SettingsActivity
 
     @ActivityScoped
