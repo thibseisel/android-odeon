@@ -151,7 +151,11 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
     override fun getOutputSampleRateHz(): Int = sampleRateHz
 
     override fun queueInput(inputBuffer: ByteBuffer) {
-        output(inputBuffer)
+        if (trimMode == TRIM_START) {
+            processStartSilence(inputBuffer)
+        } else {
+            output(inputBuffer)
+        }
     }
 
     override fun queueEndOfStream() {
@@ -205,11 +209,12 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         // Count and skip silent frames
         inputBuffer.limit(noisyPosition)
         skippedFrames += inputBuffer.remaining() / bytesPerFrame
+        inputBuffer.position(noisyPosition)
 
         // If noise has been detected in the input
         if (noisyPosition < limit) {
             // Restore the limit and output from the first noisy frame
-            inputBuffer.limit(limit).position(noisyPosition)
+            inputBuffer.limit(limit)
             output(inputBuffer)
             trimMode = TRIM_END
         }
