@@ -116,12 +116,7 @@ class SilenceTrimmingAudioProcessorTest {
         )
 
         // When processing the entire signal...
-        processor.setEnabled(true)
-        val reconfigured = processor.configure(
-            SIGNAL_SAMPLE_RATE_HZ, SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT)
-        processor.flush()
-        assertThat(reconfigured).isTrue()
-        assertThat(processor.isActive).isTrue()
+        enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
         // The entire signal is skipped.
@@ -141,12 +136,7 @@ class SilenceTrimmingAudioProcessorTest {
         )
 
         // When processing the entire signal...
-        processor.setEnabled(true)
-        val reconfigured = processor.configure(
-            SIGNAL_SAMPLE_RATE_HZ, SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT)
-        processor.flush()
-        assertThat(reconfigured).isTrue()
-        assertThat(processor.isActive).isTrue()
+        enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
         // None of the signal is skipped.
@@ -156,57 +146,91 @@ class SilenceTrimmingAudioProcessorTest {
 
     @Test
     fun testTrimStartSilence_skipsStartOfSignal() {
-        // Given a signal starting with silence ...
-        lateinit var inputBufferProvider: InputBufferProvider
+        // Given a signal starting with 1 second of silence ...
+        val silenceFrameCount = 1 * SIGNAL_SAMPLE_RATE_HZ // 1 second of silence
+        val noiseFrameCount = SIGNAL_FRAME_COUNT - 1 * SIGNAL_SAMPLE_RATE_HZ // The rest as noise
+        val inputBufferProvider = buildInputBufferProvider(SIGNAL_CHANNEL_COUNT, SIGNAL_FRAME_COUNT) {
+            appendFrames(silenceFrameCount, 0, 0)
+            appendFrames(noiseFrameCount, Short.MAX_VALUE, Short.MAX_VALUE)
+        }
 
         enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
-        TODO()
+        assertThat(totalOutputFrames).isEqualTo(noiseFrameCount)
+        assertThat(processor.getSkippedFrames()).isEqualTo(silenceFrameCount)
     }
 
     @Test
     fun testTrimEndSilence_skipsEndOfSignal() {
-        // Given a signal ending with silence ...
-        lateinit var inputBufferProvider: InputBufferProvider
+        // Given a signal ending with 1 second of silence ...
+        val silenceFrameCount = 1 * SIGNAL_SAMPLE_RATE_HZ // 1 second of silence
+        val noiseFrameCount = SIGNAL_FRAME_COUNT - 1 * SIGNAL_SAMPLE_RATE_HZ // The rest as noise
+        val inputBufferProvider = buildInputBufferProvider(SIGNAL_CHANNEL_COUNT, SIGNAL_FRAME_COUNT) {
+            appendFrames(noiseFrameCount, Short.MAX_VALUE, Short.MAX_VALUE)
+            appendFrames(silenceFrameCount, 0, 0)
+        }
 
         enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
-        TODO()
+        assertThat(totalOutputFrames).isEqualTo(noiseFrameCount)
+        assertThat(processor.getSkippedFrames()).isEqualTo(silenceFrameCount)
     }
 
     @Test
     fun testMiddleSilence_skipsNothing() {
-        // Given a signal with silence in the middle of noise ...
-        lateinit var inputBufferProvider: InputBufferProvider
+        // Given a signal with 1 second of silence in the middle of noise ...
+        val silenceFrameCount = 1 * SIGNAL_SAMPLE_RATE_HZ // 1 second of silence
+        val noiseFrameCount = SIGNAL_FRAME_COUNT - 1 * SIGNAL_SAMPLE_RATE_HZ // The rest as noise
+        val inputBufferProvider = buildInputBufferProvider(SIGNAL_CHANNEL_COUNT, SIGNAL_FRAME_COUNT) {
+            appendFrames(noiseFrameCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+            appendFrames(silenceFrameCount, 0, 0)
+            appendFrames(noiseFrameCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+        }
 
         enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
-        TODO()
+        assertThat(totalOutputFrames).isEqualTo(SIGNAL_FRAME_COUNT)
+        assertThat(processor.getSkippedFrames()).isEqualTo(0)
     }
 
     @Test
     fun testStartEndSilence_skipsStartAndEndSilence() {
-        // Given a signal starting with silence ...
-        lateinit var inputBufferProvider: InputBufferProvider
+        // Given a signal between 2 silences of 1 second
+        val silenceFrameCount = 1 * SIGNAL_SAMPLE_RATE_HZ
+        val noiseFrameCount = SIGNAL_FRAME_COUNT - 2 * SIGNAL_SAMPLE_RATE_HZ
+        val inputBufferProvider = buildInputBufferProvider(SIGNAL_CHANNEL_COUNT, SIGNAL_FRAME_COUNT) {
+            appendFrames(silenceFrameCount, 0, 0)
+            appendFrames(noiseFrameCount, Short.MAX_VALUE, Short.MAX_VALUE)
+            appendFrames(silenceFrameCount, 0, 0)
+        }
 
         enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
-        TODO()
+        assertThat(totalOutputFrames).isEqualTo(noiseFrameCount)
+        assertThat(processor.getSkippedFrames()).isEqualTo(2 * silenceFrameCount)
     }
 
     @Test
     fun testStartMiddleEndSilence_skipsStartAndEndSilence() {
-        // Given a signal starting with silence, with silence in middle of noise ...
-        lateinit var inputBufferProvider: InputBufferProvider
+        val silenceFrameCount = 1 * SIGNAL_SAMPLE_RATE_HZ
+        val noiseFrameCount = SIGNAL_FRAME_COUNT - 3 * SIGNAL_SAMPLE_RATE_HZ
+        val inputBufferProvider = buildInputBufferProvider(SIGNAL_CHANNEL_COUNT, SIGNAL_FRAME_COUNT) {
+            appendFrames(silenceFrameCount, 0, 0)
+            appendFrames(noiseFrameCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+            appendFrames(silenceFrameCount, 0, 0)
+            appendFrames(noiseFrameCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+            appendFrames(silenceFrameCount, 0, 0)
+        }
 
         enableAndConfigureProcessor()
         val totalOutputFrames = process(processor, inputBufferProvider, INPUT_BUFFER_SIZE)
 
-        TODO()
+        assertThat(totalOutputFrames).isEqualTo(noiseFrameCount + silenceFrameCount)
+        assertThat(processor.getSkippedFrames()).isEqualTo(2 * noiseFrameCount)
     }
 
     @After
@@ -217,6 +241,7 @@ class SilenceTrimmingAudioProcessorTest {
     private fun enableAndConfigureProcessor() {
         processor.setEnabled(true)
         val reconfigured = processor.configure(SIGNAL_SAMPLE_RATE_HZ, SIGNAL_CHANNEL_COUNT, C.ENCODING_PCM_16BIT)
+        processor.flush()
         assertThat(reconfigured).isTrue()
         assertThat(processor.isActive).isTrue()
     }
@@ -254,7 +279,7 @@ private fun process(
 }
 
 /**
- * Wraps a[ShortBuffer] and provides a sequence of [ByteBuffer]s of specified sizes
+ * Wraps a [ShortBuffer] and provides a sequence of [ByteBuffer]s of specified sizes
  * that contain copies of its data.
  */
 private class InputBufferProvider(private val buffer: ShortBuffer) {
@@ -279,26 +304,42 @@ private class InputBufferProvider(private val buffer: ShortBuffer) {
     fun hasRemaining(): Boolean = buffer.hasRemaining()
 }
 
-private fun getInputBufferProvider(
+private inline fun buildInputBufferProvider(
+    channelCount: Int,
+    totalFrameCount: Int,
+    bufferBuilder: Pcm16BitAudioBuilder.() -> Unit
+): InputBufferProvider {
+    val buffer = Pcm16BitAudioBuilder(channelCount, totalFrameCount).apply(bufferBuilder).build()
+    return InputBufferProvider(buffer)
+}
+
+private fun getInputBufferWithSilences(
     sampleRateHz: Int,
     channelCount: Int,
-    startSilenceDurationMs: Int = 0,
+    totalFrameCount: Int,
     noiseDurationMs: Int,
-    middleSilenceDurationMs: Int = 0,
-    endSilenceDurationMs: Int = 0,
-    totalFrameCount: Int
+    startSilenceDurationMs: Int,
+    middleSilenceDurationMs: Int,
+    endSilenceDurationMs: Int
 ): InputBufferProvider {
-    val startSilenceFrames = (startSilenceDurationMs * sampleRateHz) / 1000
-    val noiseFrames = (noiseDurationMs * sampleRateHz) / 1000
-    val middleSilenceFrames = (middleSilenceDurationMs * sampleRateHz) / 1000
-    val endSilenceFrames = (endSilenceDurationMs * sampleRateHz) / 1000
 
-    val audioBuilder = Pcm16BitAudioBuilder(channelCount, totalFrameCount)
-    audioBuilder.appendFrames(startSilenceFrames, 0)
-    audioBuilder.appendFrames(noiseFrames / 2, Short.MAX_VALUE)
-    audioBuilder.appendFrames(middleSilenceFrames, 0)
-    audioBuilder.appendFrames(noiseFrames / 2, Short.MAX_VALUE)
-    audioBuilder.appendFrames(endSilenceFrames, 0)
+    val totalFrameDurationMs = totalFrameCount * 1000 / sampleRateHz
+    require(noiseDurationMs + startSilenceDurationMs + middleSilenceDurationMs + endSilenceDurationMs == totalFrameDurationMs) {
+        "The total duration of noise and silences must be of $totalFrameDurationMs milliseconds."
+    }
+
+    val noiseFramesCount = (noiseDurationMs * sampleRateHz) / 1000
+    val startSilenceFramesCount = (startSilenceDurationMs * sampleRateHz) / 1000
+    val middleSilenceFramesCount = (middleSilenceDurationMs * sampleRateHz) / 1000
+    val endSilenceFramesCount = (endSilenceDurationMs * sampleRateHz) / 1000
+
+    val audioBuilder = Pcm16BitAudioBuilder(channelCount, totalFrameCount).apply {
+        appendFrames(startSilenceFramesCount, 0, 0)
+        appendFrames(noiseFramesCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+        appendFrames(middleSilenceFramesCount, 0, 0)
+        appendFrames(noiseFramesCount / 2, Short.MAX_VALUE, Short.MAX_VALUE)
+        appendFrames(endSilenceFramesCount, 0, 0)
+    }
 
     return InputBufferProvider(audioBuilder.build())
 }
@@ -323,13 +364,21 @@ private fun getInputBufferProviderForAlternatingSilenceAndNoise(
     val audioBuilder = Pcm16BitAudioBuilder(channelCount, totalFrameCount)
     while (!audioBuilder.isFull()) {
         val silenceDurationFrames = (silenceDurationMs * sampleRateHz) / 1000
-        audioBuilder.appendFrames(silenceDurationFrames, 0)
+        audioBuilder.appendFrames(silenceDurationFrames, 0, 0)
         val noiseDurationFrames = (noiseDurationMs * sampleRateHz) / 1000
-        audioBuilder.appendFrames(noiseDurationFrames, Short.MAX_VALUE)
+        audioBuilder.appendFrames(noiseDurationFrames, Short.MAX_VALUE, Short.MAX_VALUE)
     }
 
     return InputBufferProvider(audioBuilder.build())
 }
+
+/**
+ * Computes the number of audio frames for a given duration.
+ *
+ * @param durationMs The duration in milliseconds.
+ * @param sampleRateHz The sample rate in Hertz.
+ */
+private fun durationToFrames(durationMs: Int, sampleRateHz: Int) = durationMs * sampleRateHz / 1000
 
 /**
  * Builder for [ShortBuffer]s that contains 16-bit PCM audio samples.
@@ -343,10 +392,16 @@ private class Pcm16BitAudioBuilder(
 
     /**
      * Append [count] audio frames, using the specified [channelLevels] in each frames.
+     *
+     * @param count The number of frames to append to this audio sample sequence.
+     * @param channelLevels The values for channels of each sample.
+     * There should be at least [channelCount] values.
      */
     fun appendFrames(count: Int, vararg channelLevels: Short) {
+        require(channelLevels.size == channelCount)
         check(!built)
-        for (i in 0 until count step channelCount) {
+
+        repeat(count) {
             for (level in channelLevels) {
                 buffer.put(level)
             }

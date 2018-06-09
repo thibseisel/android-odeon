@@ -25,8 +25,8 @@ import java.nio.ByteOrder
 import kotlin.math.abs
 
 /**
- * The minimum duration of audio that must be below [SILENCE_THRESHOLD_LEVEL] to classify
- * that part of audio as silent, in microseconds.
+ * The minimum duration of audio that must be below [SILENCE_THRESHOLD_LEVEL]
+ * to classify that part of audio as silent, in microseconds.
  */
 private const val MINIMUM_SILENCE_DURATION_US = 100_000L
 /**
@@ -196,59 +196,22 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         maybeSilenceBuffer = emptyByteArray
     }
 
-    /**
-     * Incrementally processes new input from [inputBuffer] while in [STATE_NOISY],
-     * updating the state if needed.
-     */
-    private fun processNoisy(inputBuffer: ByteBuffer) {
-        TODO()
-    }
-
-    /**
-     * Incrementally processes new input from [inputBuffer] while in [STATE_MAYBE_SILENT],
-     * updating the state if needed.
-     */
-    private fun processMaybeSilence(inputBuffer: ByteBuffer) {
-        TODO()
-    }
-
-    /**
-     * Incrementally processes new input from [inputBuffer] while in [STATE_SILENT],
-     * updating the state if needed.
-     */
-    private fun processSilence(inputBuffer: ByteBuffer) {
-        // Save limit to restore it if needed
-        val limit = inputBuffer.limit()
-
-        // Find the byte position of the first frame considered noisy, limit if not found.
-        val noisyPosition = findNoisePosition(inputBuffer)
-        // Overwrites the limit to only read the portion of input that is silence.
-        inputBuffer.limit(noisyPosition)
-        // Update the skipped frames counter with the number of silent frames in inputBuffer
-        skippedFrames += inputBuffer.remaining() / bytesPerFrame
-
-        if (noisyPosition < limit) {
-            // Output the padding, which may include previous input as well as new input,
-            // then transition back to the noisy state.
-            state = STATE_NOISY
-
-            // Restore the limit.
-            inputBuffer.limit(limit)
-        }
-    }
-
     private fun processStartSilence(inputBuffer: ByteBuffer) {
         val limit = inputBuffer.limit()
 
+        // Look for a noisy frame in the input.
         val noisyPosition = findNoisePosition(inputBuffer)
+
+        // Count and skip silent frames
         inputBuffer.limit(noisyPosition)
         skippedFrames += inputBuffer.remaining() / bytesPerFrame
 
+        // If noise has been detected in the input
         if (noisyPosition < limit) {
-            trimMode = TRIM_END
-            inputBuffer.limit(limit)
-            inputBuffer.position(noisyPosition)
+            // Restore the limit and output from the first noisy frame
+            inputBuffer.limit(limit).position(noisyPosition)
             output(inputBuffer)
+            trimMode = TRIM_END
         }
     }
 
@@ -287,6 +250,7 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         var i = buffer.limit() - 1
         while (i >= buffer.position()) {
             if (abs(buffer[i].toInt()) > SILENCE_THRESHOLD_LEVEL_MSB) {
+                // Return the start of the next frame.
                 return bytesPerFrame * (i / bytesPerFrame)
             }
             i -= 2
