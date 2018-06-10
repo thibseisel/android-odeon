@@ -29,9 +29,11 @@ import kotlin.math.abs
  * to classify that part of audio as silent, in microseconds.
  */
 private const val MINIMUM_SILENCE_DURATION_US = 100_000L
+
+private const val MINIMUM_END_SILENCE_DURATION_US = 1_000_000L
 /**
- * The duration of silence by which to extend non-silent sections, in microseconds. The value must
- * not exceed [MINIMUM_SILENCE_DURATION_US].
+ * The duration of silence by which to extend non-silent sections, in microseconds.
+ * The value must not exceed [MINIMUM_SILENCE_DURATION_US].
  */
 private const val PADDING_SILENCE_US = 10_000L
 /**
@@ -62,25 +64,13 @@ private const val STATE_MAYBE_SILENT = 1
 private const val STATE_SILENT = 2
 
 /**
- * Enumeration of trimming modes.
- */
-@Target(AnnotationTarget.TYPE)
-@Retention(AnnotationRetention.SOURCE)
-@IntDef(TRIM_START, TRIM_END)
-annotation class TrimMode
-
-/** The processor removes silence between the start of the input and the first noisy frame. */
-private const val TRIM_START = 1
-/** The processor removes silence between the last noisy frame and the end of the input. */
-private const val TRIM_END = 2
-
-/**
  * An [AudioProcessor] that trims silence from the start and the end of the input stream.
  * Input and output are 16-bits PCM.
  */
 class SilenceTrimmingAudioProcessor : AudioProcessor {
 
-    private val emptyByteArray = ByteArray(0)
+    /** An empty byte array allocated only once for reuse. */
+    private val EMPTY_BYTE_ARRAY = ByteArray(0)
 
     /** The output channel count. This is the same as the configured input. */
     private var channelCount = Format.NO_VALUE
@@ -95,11 +85,11 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
     private var inputEnded = false
 
     private var state: @State Int = STATE_NOISY
-    private var trimMode: @TrimMode Int = TRIM_START
     private var maybeSilenceBufferSize = 0
     private var skippedFrames = 0L
 
-    private var maybeSilenceBuffer: ByteArray = emptyByteArray
+    private var maybeSilenceBuffer: ByteArray = EMPTY_BYTE_ARRAY
+    private var hasOutputNoise = false
 
     /**
      * Sets whether to trim silence in the input.
@@ -151,10 +141,13 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
     override fun getOutputSampleRateHz(): Int = sampleRateHz
 
     override fun queueInput(inputBuffer: ByteBuffer) {
-        if (trimMode == TRIM_START) {
-            processStartSilence(inputBuffer)
-        } else {
-            output(inputBuffer)
+        while (inputBuffer.hasRemaining() && !outputBuffer.hasRemaining()) {
+            when (state) {
+                STATE_NOISY -> processNoisy(inputBuffer)
+                STATE_MAYBE_SILENT -> processMaybeSilence(inputBuffer)
+                STATE_SILENT -> processSilence(inputBuffer)
+                else -> NoWhenBranchMatchedException("Unexpected state code: $state")
+            }
         }
     }
 
@@ -188,35 +181,130 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         inputEnded = false
         skippedFrames = 0
         maybeSilenceBufferSize = 0
+        hasOutputNoise = false
     }
 
     override fun reset() {
         enabled = false
-        trimMode = TRIM_START
         flush()
         buffer = AudioProcessor.EMPTY_BUFFER
         channelCount = Format.NO_VALUE
         sampleRateHz = Format.NO_VALUE
-        maybeSilenceBuffer = emptyByteArray
+        maybeSilenceBuffer = EMPTY_BYTE_ARRAY
     }
 
-    private fun processStartSilence(inputBuffer: ByteBuffer) {
+    /**
+     * Incrementally processes new input from [inputBuffer] while in [STATE_NOISY],
+     * updating the state if needed.
+     */
+    private fun processNoisy(inputBuffer: ByteBuffer) {
         val limit = inputBuffer.limit()
 
-        // Look for a noisy frame in the input.
-        val noisyPosition = findNoisePosition(inputBuffer)
+        // Check if there's any noise within the maybe silence buffer duration.
+        inputBuffer.limit(minOf(limit, inputBuffer.position() + maybeSilenceBuffer.size))
+        val noiseLimit = findNoiseLimit(inputBuffer)
+        if (noiseLimit == inputBuffer.position()) {
+            // The buffer contains the start of possible silence.
+            state = STATE_MAYBE_SILENT
+        } else {
+            inputBuffer.limit(noiseLimit)
+            output(inputBuffer)
+        }
 
-        // Count and skip silent frames
+        // Restore the limit.
+        inputBuffer.limit(limit)
+    }
+
+    /**
+     * Incrementally processes new input from [inputBuffer] while in [STATE_MAYBE_SILENT],
+     * updating the state if needed.
+     */
+    private fun processMaybeSilence(inputBuffer: ByteBuffer) {
+        val limit = inputBuffer.limit()
+        val noisePosition = findNoisePosition(inputBuffer)
+        val maybeSilenceInputSize = noisePosition - inputBuffer.position()
+        val maybeSilenceBufferRemaining = maybeSilenceBuffer.size - maybeSilenceBufferSize
+        if (noisePosition < limit && maybeSilenceInputSize < maybeSilenceBufferRemaining) {
+            // The maybe silence buffer isn't full, so output it and switch back to the noisy state.
+            output(maybeSilenceBuffer, maybeSilenceBufferSize)
+            maybeSilenceBufferSize = 0
+            state = STATE_NOISY
+        } else {
+            // Fill as much of the maybe silence buffer as possible.
+            val bytesToWrite = minOf(maybeSilenceInputSize, maybeSilenceBufferRemaining)
+            inputBuffer.limit(inputBuffer.position() + bytesToWrite)
+            inputBuffer.get(maybeSilenceBuffer, maybeSilenceBufferSize, bytesToWrite)
+            maybeSilenceBufferSize += bytesToWrite
+            if (maybeSilenceBufferSize == maybeSilenceBuffer.size) {
+                // We've reached a period of silence, so skip it.
+                skippedFrames += (maybeSilenceBufferSize / bytesPerFrame)
+                inputBuffer.position(inputBuffer.limit())
+                maybeSilenceBufferSize = 0
+                state = STATE_SILENT
+            }
+
+            // Restore the limit.
+            inputBuffer.limit(limit)
+        }
+    }
+
+    /**
+     * Incrementally processes new input from [inputBuffer] while in [STATE_SILENT],
+     * updating the state if needed.
+     */
+    private fun processSilence(inputBuffer: ByteBuffer) {
+        val limit = inputBuffer.limit()
+        val noisyPosition = findNoisePosition(inputBuffer)
         inputBuffer.limit(noisyPosition)
         skippedFrames += inputBuffer.remaining() / bytesPerFrame
         inputBuffer.position(noisyPosition)
-
-        // If noise has been detected in the input
         if (noisyPosition < limit) {
-            // Restore the limit and output from the first noisy frame
+            // Transition back to the noisy state.
+            state = STATE_NOISY
+            // Restore the limit.
             inputBuffer.limit(limit)
-            output(inputBuffer)
-            trimMode = TRIM_END
+        }
+    }
+
+    /**
+     * Copies [length] elements from [data] to populate a new output buffer from the processor.
+     */
+    private fun output(data: ByteArray, length: Int) {
+        prepareForOutput(length)
+        buffer.put(data, 0, length)
+        buffer.flip()
+        outputBuffer = buffer
+    }
+
+    /**
+     * Copies remaining bytes from [data] to populate a new output buffer from the processor.
+     */
+    private fun output(data: ByteBuffer) {
+        prepareForOutput(data.remaining())
+        buffer.put(data)
+        buffer.flip()
+        outputBuffer = buffer
+    }
+
+    /**
+     * Prepares to output [size] bytes in [buffer].
+     */
+    private fun prepareForOutput(size: Int) {
+        if (buffer.capacity() < size) {
+            buffer = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder())
+        } else {
+            buffer.clear()
+        }
+
+        if (size > 0) {
+            if (!hasOutputNoise) {
+                val maybeSilenceBufferSize = durationToFrames(MINIMUM_END_SILENCE_DURATION_US) * bytesPerFrame
+                maybeSilenceBuffer = ByteArray(maybeSilenceBufferSize).also {
+                    System.arraycopy(maybeSilenceBuffer, 0, it, 0, maybeSilenceBuffer.size)
+                }
+            }
+
+            hasOutputNoise = true
         }
     }
 
@@ -256,42 +344,11 @@ class SilenceTrimmingAudioProcessor : AudioProcessor {
         while (i >= buffer.position()) {
             if (abs(buffer[i].toInt()) > SILENCE_THRESHOLD_LEVEL_MSB) {
                 // Return the start of the next frame.
-                return bytesPerFrame * (i / bytesPerFrame)
+                return bytesPerFrame * (i / bytesPerFrame) + bytesPerFrame
             }
             i -= 2
         }
 
         return buffer.position()
-    }
-
-    /**
-     * Copies [length] elements from [data] to populate a new output buffer from the processor.
-     */
-    private fun output(data: ByteArray, length: Int) {
-        prepareForOutput(length)
-        buffer.put(data, 0, length)
-        buffer.flip()
-        outputBuffer = buffer
-    }
-
-    /**
-     * Copies remaining bytes from [data] to populate a new output buffer from the processor.
-     */
-    private fun output(data: ByteBuffer) {
-        prepareForOutput(data.remaining())
-        buffer.put(data)
-        buffer.flip()
-        outputBuffer = buffer
-    }
-
-    /**
-     * Prepares to output [size] bytes in [buffer].
-     */
-    private fun prepareForOutput(size: Int) {
-        if (buffer.capacity() < size) {
-            buffer = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder())
-        } else {
-            buffer.clear()
-        }
     }
 }
