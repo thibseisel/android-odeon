@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.playback
 
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -51,13 +50,14 @@ import javax.inject.Inject
 class MediaQueueManager
 @Inject constructor(
     service: MusicService,
+    mediaSession: MediaSessionCompat,
     private val prefs: PreferenceDao,
     private val repository: MusicRepository,
     private val player: ExoPlayer,
     private val iconLoader: AlbumArtLoader,
     private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
 
-) : TimelineQueueNavigator(service.session),
+) : TimelineQueueNavigator(mediaSession),
     MediaSessionConnector.PlaybackPreparer,
     MediaSessionController.SessionMetadataUpdater {
 
@@ -242,9 +242,7 @@ class MediaQueueManager
                 // Only update metadata if it has really changed.
                 repository.getMetadata(musicId)
                     .flatMap { iconLoader.loadIntoMetadata(it) }
-                    .subscribe { metadata ->
-                        session.setMetadata(metadata)
-                    }
+                    .subscribe(session::setMetadata)
             }
 
             // Remember the last change in metadata

@@ -57,6 +57,7 @@ import timber.log.Timber;
  *
  * @version ExoPlayer 2.6.1
  */
+@Deprecated
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class MediaSessionController {
 

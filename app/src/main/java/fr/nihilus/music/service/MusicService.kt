@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.service
 
-import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -24,22 +23,19 @@ import android.os.Message
 import android.support.v4.content.ContextCompat.startForegroundService
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
-import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
-import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.android.AndroidInjection
-import fr.nihilus.music.*
+import fr.nihilus.music.BuildConfig
+import fr.nihilus.music.MediaItemResult
+import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.BROWSER_ROOT
 import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.repo.MusicRepository
-import fr.nihilus.music.playback.MediaQueueManager
-import fr.nihilus.music.playback.PlaybackController
+import fr.nihilus.music.playback.CustomPlaybackController
 import fr.nihilus.music.utils.MediaID
 import fr.nihilus.music.utils.PermissionDeniedException
 import io.reactivex.SingleObserver
@@ -51,8 +47,6 @@ import timber.log.Timber
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
-private const val TAG = "MusicService"
-
 /** Number of milliseconds to wait until the service stops itself when not playing. */
 private const val STOP_DELAY = 30000L
 
@@ -61,12 +55,9 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject lateinit var repository: MusicRepository
     @Inject lateinit var notificationMgr: MediaNotificationManager
 
-    lateinit var session: MediaSessionCompat
+    @Inject lateinit var session: MediaSessionCompat
     @Inject lateinit var player: ExoPlayer
-    @Inject lateinit var playbackController: PlaybackController
-    @Inject lateinit var queueManager: MediaQueueManager
-
-    @Inject lateinit var errorHandler: ErrorMessageProvider<ExoPlaybackException>
+    @Inject lateinit var playbackController: CustomPlaybackController
     @Inject lateinit var packageValidator: PackageValidator
 
     private val delayedStopHandler = DelayedStopHandler(this)
@@ -78,34 +69,12 @@ class MusicService : MediaBrowserServiceCompat() {
 
     override fun onCreate() {
         super.onCreate()
-
-        session = MediaSessionCompat(this, TAG)
-        sessionToken = session.sessionToken
-
-        // Inject dependencies only after MediaSession is instantiated
         AndroidInjection.inject(this)
 
-        val appContext = applicationContext
-        val uiIntent = Intent(appContext, HomeActivity::class.java)
-        val pi = PendingIntent.getActivity(
-            appContext, R.id.request_start_media_activity,
-            uiIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        session.setSessionActivity(pi)
-        session.setRatingType(RatingCompat.RATING_NONE)
+        sessionToken = session.sessionToken
+        session.controller.registerCallback(playbackStateListener)
 
         playbackController.restoreStateFromPreferences(player, session)
-        val repeatAction = RepeatModeActionProvider(this, player)
-
-        // Configure MediaSessionConnector with player and session
-        MediaSessionController(session, playbackController, true).apply {
-            setPlayer(player, queueManager, repeatAction)
-            setQueueNavigator(queueManager)
-            setErrorMessageProvider(errorHandler)
-            setMetadataUpdater(queueManager)
-        }
-
-        session.controller.registerCallback(playbackStateListener)
 
         // Listen for changes in the repository to notify media browsers.
         // If the changed media ID is a track, notify for its parent category.
