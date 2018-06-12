@@ -40,6 +40,7 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.Single
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -417,15 +418,44 @@ class MediaStoreMusicDao
     override fun deleteTracks(trackIds: LongArray): Single<Int> = Single.fromCallable {
         context.requirePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-        // Delete those tracks from the MediaStore.
-        resolver.delete(
+        var whereTrackIdsClause = makeInClause(Media._ID, trackIds.size)
+        var whereTrackIdsArgs = Array(trackIds.size) { trackIds[it].toString() }
+
+        // Retrieve each track's filepath from MediaStore
+        resolver.query(
             Media.EXTERNAL_CONTENT_URI,
-            makeInClause(Media._ID, trackIds.size),
-            Array(trackIds.size) { trackIds[it].toString() }
-        ).also {
-            // Remove those tracks from the cache if successfully deleted
-            trackIds.forEach(metadataCache::delete)
-        }
+            FILEPATH_PROJECTION,
+            whereTrackIdsClause,
+            whereTrackIdsArgs,
+            Media._ID
+        )?.use { cursor ->
+            val colId = cursor.getColumnIndexOrThrow(Media._ID)
+            val colFilepath = cursor.getColumnIndexOrThrow(Media.DATA)
+            val deletedTrackIds = mutableListOf<Long>()
+
+            while (cursor.moveToNext()) {
+                val trackId = cursor.getLong(colId)
+                val file = File(cursor.getString(colFilepath))
+
+                // Attempt to delete each file.
+                if (file.delete()) {
+                    deletedTrackIds.add(trackId)
+                }
+            }
+
+            // If some files have not been deleted, rewrite delete clause.
+            if (deletedTrackIds.size < trackIds.size) {
+                whereTrackIdsClause = makeInClause(Media._ID, deletedTrackIds.size)
+                whereTrackIdsArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
+            }
+
+            // Delete track information from the MediaStore then return the delete count.
+            // Only tracks whose file have been deleted are removed.
+            resolver.delete(Media.EXTERNAL_CONTENT_URI, whereTrackIdsClause, whereTrackIdsArgs).also {
+                // Remove deleted tracks from the metadata cache.
+                deletedTrackIds.forEach(metadataCache::delete)
+            }
+        } ?: error("Media tracks failed with a null cursor.")
     }
 
     override fun getMediaChanges(): Observable<String> = Observable.create<String> {
@@ -538,5 +568,8 @@ class MediaStoreMusicDao
             Artists._ID, Artists.ARTIST, Artists.ARTIST_KEY,
             Artists.NUMBER_OF_TRACKS
         )
+
+        @JvmField
+        val FILEPATH_PROJECTION = arrayOf(Media._ID, Media.DATA)
     }
 }
