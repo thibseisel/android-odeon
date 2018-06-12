@@ -318,7 +318,7 @@ class AlbumArtEncoder(
  *
  * @param primaryColor The selected primary color.
  */
-private class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
+class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
 
     /**
      * Whether the primary color is perceived as a shade of grey to the human eye.
