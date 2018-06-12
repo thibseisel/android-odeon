@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.playback
 
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -42,29 +41,40 @@ import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.AlbumArtLoader
-import fr.nihilus.music.service.MediaSessionController
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @ServiceScoped
 class MediaQueueManager
 @Inject constructor(
     service: MusicService,
+    private val mediaSession: MediaSessionCompat,
     private val prefs: PreferenceDao,
     private val repository: MusicRepository,
     private val player: ExoPlayer,
     private val iconLoader: AlbumArtLoader,
     private val commands: Map<String, @JvmSuppressWildcards MediaSessionCommand>
 
-) : TimelineQueueNavigator(service.session),
-    MediaSessionConnector.PlaybackPreparer,
-    MediaSessionController.SessionMetadataUpdater {
+) : MediaSessionConnector.PlaybackPreparer,
+    MediaSessionConnector.QueueNavigator {
 
     private val mediaSourceFactory: ExtractorMediaSource.Factory
     private val currentQueue = ArrayList<MediaDescriptionCompat>()
 
     private var lastMusicId: String? = null
+
+    private val navigator = object : TimelineQueueNavigator(mediaSession) {
+        override fun getMediaDescription(
+            player: Player?,
+            windowIndex: Int
+        ): MediaDescriptionCompat {
+            assert(windowIndex in currentQueue.indices)
+            return currentQueue[windowIndex]
+        }
+    }
 
     init {
         val userAgent = Util.getUserAgent(service, service.getString(R.string.app_name))
@@ -153,10 +163,10 @@ class MediaQueueManager
     override fun onSkipToPrevious(player: Player?) {
         if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
             player.repeatMode = Player.REPEAT_MODE_ALL
-            super.onSkipToPrevious(player)
+            navigator.onSkipToPrevious(player)
             player.repeatMode = Player.REPEAT_MODE_ONE
         } else {
-            super.onSkipToPrevious(player)
+            navigator.onSkipToPrevious(player)
         }
     }
 
@@ -168,16 +178,28 @@ class MediaQueueManager
     override fun onSkipToNext(player: Player?) {
         if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
             player.repeatMode = Player.REPEAT_MODE_ALL
-            super.onSkipToNext(player)
+            navigator.onSkipToNext(player)
             player.repeatMode = Player.REPEAT_MODE_ONE
         } else {
-            super.onSkipToNext(player)
+            navigator.onSkipToNext(player)
         }
     }
 
-    override fun getMediaDescription(player: Player?, windowIndex: Int): MediaDescriptionCompat {
-        assert(windowIndex in currentQueue.indices)
-        return currentQueue[windowIndex]
+    override fun onSkipToQueueItem(player: Player?, id: Long) {
+        navigator.onSkipToQueueItem(player, id)
+    }
+
+    override fun onCurrentWindowIndexChanged(player: Player) {
+        navigator.onCurrentWindowIndexChanged(player)
+        onUpdateMediaSessionMetadata(player)
+    }
+
+    override fun getActiveQueueItemId(player: Player?): Long {
+        return navigator.getActiveQueueItemId(player)
+    }
+
+    override fun onTimelineChanged(player: Player?) {
+        navigator.onTimelineChanged(player)
     }
 
     override fun getCommands() = commands.keys.toTypedArray()
@@ -227,28 +249,25 @@ class MediaQueueManager
         }
     }
 
-    override fun onUpdateMediaSessionMetadata(session: MediaSessionCompat, player: Player?) {
-        val activeQueueId = this.getActiveQueueItemId(player)
-        val activeItem = session.controller.queue.find { it.queueId == activeQueueId }
-
-        if (activeItem != null) {
-            val activeMediaId = activeItem.description.mediaId
-            prefs.lastPlayedMediaId = activeMediaId
-            val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
-                "Each playable track should have a music ID"
-            }
-
-            if (lastMusicId != musicId) {
-                // Only update metadata if it has really changed.
-                repository.getMetadata(musicId)
-                    .flatMap { iconLoader.loadIntoMetadata(it) }
-                    .subscribe { metadata ->
-                        session.setMetadata(metadata)
-                    }
-            }
-
-            // Remember the last change in metadata
-            lastMusicId = musicId
+    private fun onUpdateMediaSessionMetadata(player: Player) {
+        val currentWindowIndex = player.currentWindowIndex
+        val activeItem = currentQueue[currentWindowIndex]
+        val activeMediaId = activeItem.mediaId
+        prefs.lastPlayedMediaId = activeMediaId
+        val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
+            "Each playable track should have a music ID"
         }
+
+        if (lastMusicId != musicId) {
+            // Only update metadata if it has really changed.
+            repository.getMetadata(musicId)
+                .subscribeOn(Schedulers.io())
+                .flatMap { iconLoader.loadIntoMetadata(it) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mediaSession::setMetadata)
+        }
+
+        // Remember the last change in metadata
+        lastMusicId = musicId
     }
 }

@@ -28,7 +28,7 @@ import javax.inject.Inject
  * to shared preferences when any of them changes.
  */
 @ServiceScoped
-class PlaybackController
+class CustomPlaybackController
 @Inject constructor(
     private val prefs: PreferenceDao
 ) : DefaultPlaybackController() {

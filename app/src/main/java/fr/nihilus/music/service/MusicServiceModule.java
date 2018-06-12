@@ -42,7 +42,7 @@ import fr.nihilus.music.playback.ErrorHandler;
 public abstract class MusicServiceModule {
 
     @ServiceScoped
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = {MediaSessionModule.class})
     abstract MusicService contributeMusicService();
 
     @Provides @Reusable
@@ -55,7 +55,4 @@ public abstract class MusicServiceModule {
 
     @Binds
     abstract ExoPlayer bindsExoPlayer(AudioFocusAwarePlayer playerImpl);
-
-    @Binds
-    abstract ErrorMessageProvider<ExoPlaybackException> bindsErrorProvider(ErrorHandler handler);
 }
