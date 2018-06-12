@@ -19,7 +19,7 @@
 buildscript {
     ext {
         kotlinVersion = '1.2.41'
-        buildToolsVersion = '3.1.2'
+        buildToolsVersion = '3.1.3'
     }
 
     repositories {
@@ -59,7 +59,7 @@ ext {
     mockitoVersion = '2.9.0'
     archVersion = '1.1.1'
     roomVersion = '1.1.0'
-    rxJavaVersion = '2.1.13'
+    rxJavaVersion = '2.1.14'
     rxAndroidVersion = '2.0.2'
     exoplayerVersion = '2.8.1'
     constraintVersion = '1.1.0'
