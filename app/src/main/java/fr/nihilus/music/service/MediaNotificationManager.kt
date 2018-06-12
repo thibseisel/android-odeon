@@ -90,6 +90,11 @@ class MediaNotificationManager
         )
     )
 
+    private val stopIntent = MediaButtonReceiver.buildMediaButtonPendingIntent(
+        service,
+        PlaybackStateCompat.ACTION_STOP
+    )
+
     private val emptyAction = NotificationCompat.Action(0, null, null)
 
     private val defaultLargeIcon = loadResourceAsBitmap(
@@ -116,7 +121,6 @@ class MediaNotificationManager
         publishNotification(state, metadata) { notification ->
             notificationManager.notify(NOTIFICATION_ID, notification)
         }
-
     }
 
     init {
@@ -246,12 +250,7 @@ class MediaNotificationManager
             .setShowActionsInCompactView(0, 1, 2)
             // For backwards compatibility with Android L and earlier
             .setShowCancelButton(true)
-            .setCancelButtonIntent(
-                MediaButtonReceiver.buildMediaButtonPendingIntent(
-                    service,
-                    PlaybackStateCompat.ACTION_STOP
-                )
-            )
+            .setCancelButtonIntent(stopIntent)
 
         builder.setSmallIcon(if (isPlaying) R.drawable.notif_play_arrow else R.drawable.notif_pause)
             // Pending intent that is fired when user clicks on notification

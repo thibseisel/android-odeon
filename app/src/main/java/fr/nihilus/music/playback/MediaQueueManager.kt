@@ -43,6 +43,8 @@ import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.service.AlbumArtLoader
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.settings.PreferenceDao
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @ServiceScoped
@@ -259,7 +261,9 @@ class MediaQueueManager
         if (lastMusicId != musicId) {
             // Only update metadata if it has really changed.
             repository.getMetadata(musicId)
+                .subscribeOn(Schedulers.io())
                 .flatMap { iconLoader.loadIntoMetadata(it) }
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaSession::setMetadata)
         }
 

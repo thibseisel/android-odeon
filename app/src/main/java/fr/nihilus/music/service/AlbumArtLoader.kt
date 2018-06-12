@@ -16,13 +16,9 @@
 
 package fr.nihilus.music.service
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaMetadataCompat
 import androidx.core.net.toUri
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import fr.nihilus.music.copy
 import fr.nihilus.music.di.ServiceScoped
 import fr.nihilus.music.glide.GlideApp
@@ -43,22 +39,9 @@ class AlbumArtLoader
             val uriString = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
             if (uriString != null) {
                 val artUri = uriString.toUri()
-                glide.load(artUri).into(object : SimpleTarget<Bitmap>(ART_MAX_SIZE, ART_MAX_SIZE) {
-
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        // Emits a new metadata with an album art
-                        emitter.onSuccess(metadata.copy {
-                            putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, resource)
-                        })
-                    }
-
-                    override fun onLoadFailed(errorDrawable: Drawable?) {
-                        // Re-emit the same metadata without modifications in case of an error.
-                        emitter.onSuccess(metadata)
-                    }
+                val albumArt = glide.load(artUri).submit(ART_MAX_SIZE, ART_MAX_SIZE).get()
+                emitter.onSuccess(metadata.copy {
+                    putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
                 })
             } else {
                 // When there's no album art, ee-emit the same metadata without modifications.

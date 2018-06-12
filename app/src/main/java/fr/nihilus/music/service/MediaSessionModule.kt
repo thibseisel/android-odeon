@@ -21,14 +21,12 @@ import android.content.Context
 import android.content.Intent
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-
 import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.*
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
-
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -36,9 +34,9 @@ import dagger.multibindings.IntoSet
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ServiceScoped
+import fr.nihilus.music.playback.CustomPlaybackController
 import fr.nihilus.music.playback.ErrorHandler
 import fr.nihilus.music.playback.MediaQueueManager
-import fr.nihilus.music.playback.CustomPlaybackController
 
 /**
  * Configures and provides MediaSession-related dependencies.
@@ -51,7 +49,7 @@ class MediaSessionModule {
      */
     @Provides @ServiceScoped
     fun providesMediaSession(service: MusicService): MediaSessionCompat {
-        val session = MediaSessionCompat(service, null)
+        val session = MediaSessionCompat(service, "MediaSession")
         val showUiIntent = PendingIntent.getActivity(
             service.applicationContext,
             R.id.request_start_media_activity,
@@ -65,13 +63,13 @@ class MediaSessionModule {
 
     @Provides @ServiceScoped
     fun providesSessionConnector(
-        player: Player,
+        player: ExoPlayer,
         mediaSession: MediaSessionCompat,
         controller: PlaybackController,
         preparer: PlaybackPreparer,
         navigator: QueueNavigator,
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
-        customActions: Set<CustomActionProvider>
+        customActions: Set<@JvmSuppressWildcards CustomActionProvider>
 
     ) = MediaSessionConnector(mediaSession, controller, false, null).apply {
         setPlayer(player, preparer, *customActions.toTypedArray())
@@ -80,7 +78,7 @@ class MediaSessionModule {
     }
 
     @Provides @ServiceScoped
-    fun providesRepeatModeAction(context: Context, player: Player) =
+    fun providesRepeatModeAction(context: Context, player: ExoPlayer) =
         RepeatModeActionProvider(context, player)
 }
 

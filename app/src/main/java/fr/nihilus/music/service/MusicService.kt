@@ -28,6 +28,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
 import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.MediaItemResult
@@ -56,6 +57,7 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject lateinit var notificationMgr: MediaNotificationManager
 
     @Inject lateinit var session: MediaSessionCompat
+    @Inject lateinit var connector: MediaSessionConnector
     @Inject lateinit var player: ExoPlayer
     @Inject lateinit var playbackController: CustomPlaybackController
     @Inject lateinit var packageValidator: PackageValidator
