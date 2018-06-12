@@ -30,7 +30,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.bundleOf
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
-import fr.nihilus.music.service.SkipSilenceActionProvider
+import fr.nihilus.music.service.TrimSilenceActionProvider
 import javax.inject.Inject
 
 class MainPreferenceFragment : PreferenceFragmentCompat(),
@@ -90,8 +90,8 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
     private fun onSkipSilenceChanged(skipSilenceEnabled: Boolean) {
         browserVm.post {
             it.transportControls.sendCustomAction(
-                SkipSilenceActionProvider.ACTION_SKIP_SILENCE,
-                bundleOf(SkipSilenceActionProvider.EXTRA_ENABLED, skipSilenceEnabled)
+                TrimSilenceActionProvider.ACTION_SKIP_SILENCE,
+                bundleOf(TrimSilenceActionProvider.EXTRA_ENABLED, skipSilenceEnabled)
             )
         }
     }

@@ -19,14 +19,19 @@ package fr.nihilus.music.service
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.R
+import javax.inject.Inject
 
-class SkipSilenceActionProvider(
+/**
+ * Exposes the "silence trimming" feature as a Media Session custom action.
+ */
+class TrimSilenceActionProvider
+@Inject constructor(
     context: Context,
-    private val player: Player
+    private val player: ExoPlayer
 ) : MediaSessionConnector.CustomActionProvider {
 
     private val actionDescription = context.getString(R.string.pref_title_skip_silence)

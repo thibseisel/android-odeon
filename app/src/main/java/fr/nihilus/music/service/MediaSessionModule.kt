@@ -99,5 +99,8 @@ abstract class SessionConnectorModule {
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
 
     @Binds @IntoSet
-    abstract fun bindsRepeatModeAction(repeatModeAction: RepeatModeActionProvider): CustomActionProvider
+    abstract fun bindsRepeatModeAction(action: RepeatModeActionProvider): CustomActionProvider
+
+    @Binds @IntoSet
+    abstract fun bindsTrimSilenceAction(action: TrimSilenceActionProvider): CustomActionProvider
 }
