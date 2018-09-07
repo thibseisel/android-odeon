@@ -36,13 +36,13 @@ import android.widget.TextView
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.command.EditPlaylistCommand
+import fr.nihilus.music.media.command.EditPlaylistCommand
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.utils.MediaID
+import fr.nihilus.music.media.utils.MediaID
 
 /**
  * A fragment displaying an Alert Dialog prompting the user to choose to which playlists

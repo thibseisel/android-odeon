@@ -61,6 +61,7 @@ dependencies {
 
     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "androidx.core:core-ktx:$ktxVersion"
 
     // Android Room
     implementation "android.arch.persistence.room:runtime:${roomVersion}"
@@ -73,12 +74,17 @@ dependencies {
 
     // Dagger
     implementation "com.google.dagger:dagger:${daggerVersion}"
+    implementation "com.google.dagger:dagger-android:${daggerVersion}"
     kapt "com.google.dagger:dagger-compiler:${daggerVersion}"
     kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
 
     // ReactiveX
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:${glideVersion}"
+    kapt "com.github.bumptech.glide:compiler:${glideVersion}"
 
     // Timber Logging
     implementation "com.jakewharton.timber:timber:${timberVersion}"
@@ -87,9 +93,15 @@ dependencies {
     //implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
 
     // Test dependencies
-    testImplementation "junit:junit:$junitVersion"
+    // Test dependencies
+    testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.robolectric:robolectric:${robolectricVersion}"
     testImplementation "com.google.truth:truth:${truthVersion}"
 
     // Android-specific test dependencies
+    androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
     androidTestImplementation "com.android.support.test:runner:$androidTestVersion"
+    androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
 }

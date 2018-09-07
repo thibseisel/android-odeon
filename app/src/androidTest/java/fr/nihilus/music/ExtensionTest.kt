@@ -5,6 +5,7 @@ import android.support.test.filters.SmallTest
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.assertMediaDescription
 import fr.nihilus.music.media.source.MusicDao
 import org.junit.Test
 import kotlin.to

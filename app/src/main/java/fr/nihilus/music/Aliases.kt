@@ -16,14 +16,7 @@
 
 package fr.nihilus.music
 
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserServiceCompat
 import android.support.v4.media.session.MediaControllerCompat
-
-/**
- * The result of retrieving media items to be sent to media browser clients.
- */
-typealias MediaItemResult = MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>>
 
 /**
  * Defines a task to be executed on a [MediaControllerCompat].

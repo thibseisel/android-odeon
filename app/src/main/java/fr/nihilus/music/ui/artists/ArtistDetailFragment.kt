@@ -26,10 +26,10 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.widget.GridLayoutManager
 import android.view.View
 import dagger.android.support.AndroidSupportInjection
-import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.media.Constants
+import fr.nihilus.music.media.di.ActivityScoped
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
 import fr.nihilus.music.ui.albums.AlbumPalette

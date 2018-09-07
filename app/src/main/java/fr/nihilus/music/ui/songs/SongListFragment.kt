@@ -30,11 +30,11 @@ import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
 import dagger.android.support.AndroidSupportInjection
-import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.command.DeleteTracksCommand
+import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment

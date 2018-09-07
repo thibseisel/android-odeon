@@ -32,7 +32,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.doIfPresent
-import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.media.service.MusicService
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*

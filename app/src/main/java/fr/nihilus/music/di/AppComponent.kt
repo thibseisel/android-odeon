@@ -21,7 +21,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
 import fr.nihilus.music.NihilusMusicApplication
-import fr.nihilus.music.service.MusicServiceModule
+import fr.nihilus.music.media.service.MusicServiceModule
 import javax.inject.Singleton
 
 /**

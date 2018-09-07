@@ -25,12 +25,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import dagger.android.support.AndroidSupportInjection
-import fr.nihilus.music.Constants
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
-import fr.nihilus.music.di.ActivityScoped
+import fr.nihilus.music.media.di.ActivityScoped
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject

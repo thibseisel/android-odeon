@@ -29,7 +29,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import fr.nihilus.music.glide.GlideExtensions
 import fr.nihilus.music.ui.albums.AlbumPalette
-import fr.nihilus.music.utils.toHsl
+import fr.nihilus.music.media.utils.toHsl
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream

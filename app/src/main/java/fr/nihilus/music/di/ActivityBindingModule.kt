@@ -21,6 +21,7 @@ import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.FileViewerActivity
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.glide.palette.AlbumColorModule
+import fr.nihilus.music.media.di.ActivityScoped
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.SettingsModule
 import fr.nihilus.music.ui.albums.AlbumDetailActivity

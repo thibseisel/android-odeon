@@ -1,0 +1,29 @@
+<!--
+  ~ Copyright 2018 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportHeight="48.0"
+    android:viewportWidth="48.0">
+
+    <path android:fillColor="@color/abc_mtrl_deeppurple_300"
+        android:pathData="M0,0V48H48V0z"/>
+
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M24.714286,13.429 c -5.68,0 -10.285715,4.605618 -10.285715,10.285501 l -3.428571,0 4.445714,4.445621 0.08,0.159997 4.617143,-4.605618 -3.428571,0 c 0,-4.422766 3.577143,-7.999834 8,-7.999834 4.422856,0 8,3.577068 8,7.999834 0,4.422764 -3.577144,7.999832 -8,7.999832 -2.205715,0 -4.205715,-0.902838 -5.645715,-2.354236 l -1.62286,1.622824 C 19.308571,32.845739 21.868571,34 24.714286,34 30.394286,34 35,29.394382 35,23.714501 35,18.034618 30.394286,13.429 24.714286,13.429 Z m -1.142857,5.714167 0,5.714166 4.891428,2.902797 0.822857,-1.382828 -4,-2.377094 0,-4.857041 -1.714285,0 z" />
+</vector>

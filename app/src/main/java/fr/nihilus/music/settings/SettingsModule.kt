@@ -18,7 +18,7 @@ package fr.nihilus.music.settings
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.di.FragmentScoped
+import fr.nihilus.music.media.di.FragmentScoped
 
 @Suppress("unused")
 @Module

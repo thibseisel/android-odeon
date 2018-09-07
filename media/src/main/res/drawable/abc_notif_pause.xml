@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:tint="?colorControlNormal"
+        android:viewportHeight="24.0"
+        android:viewportWidth="24.0">
+
+    <!-- pathData has been redefined to be compatible for a path morph with ic_play_arrow -->
+    <path
+        android:name="pause"
+        android:fillColor="#ff000000"
+        android:pathData="M6,5 L6,19 L10,19 L10,5z M14,5 L14,19 L18,19 L18,5z"/>
+
+</vector>

@@ -42,12 +42,13 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.media.Constants
 import fr.nihilus.music.settings.PreferenceDao
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.utils.ConfirmDialogFragment
-import fr.nihilus.music.utils.EXTERNAL_STORAGE_REQUEST
-import fr.nihilus.music.utils.hasExternalStoragePermission
-import fr.nihilus.music.utils.requestExternalStoragePermission
+import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
+import fr.nihilus.music.media.utils.hasExternalStoragePermission
+import fr.nihilus.music.media.utils.requestExternalStoragePermission
 import fr.nihilus.music.view.PlayerView
 import fr.nihilus.music.view.ScrimBottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_home.*

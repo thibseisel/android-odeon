@@ -30,7 +30,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.bundleOf
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
-import fr.nihilus.music.service.TrimSilenceActionProvider
+import fr.nihilus.music.media.service.TrimSilenceActionProvider
 import javax.inject.Inject
 
 class MainPreferenceFragment : PreferenceFragmentCompat(),

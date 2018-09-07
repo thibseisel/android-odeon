@@ -27,7 +27,7 @@ import android.text.InputType
 import android.widget.EditText
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.command.NewPlaylistCommand
+import fr.nihilus.music.media.command.NewPlaylistCommand
 
 class NewPlaylistDialog : AppCompatDialogFragment() {
 

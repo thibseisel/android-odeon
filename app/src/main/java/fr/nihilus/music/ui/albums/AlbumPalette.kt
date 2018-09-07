@@ -18,7 +18,7 @@ package fr.nihilus.music.ui.albums
 
 import android.os.Parcelable
 import android.support.annotation.ColorInt
-import fr.nihilus.music.utils.darker
+import fr.nihilus.music.media.utils.darker
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 

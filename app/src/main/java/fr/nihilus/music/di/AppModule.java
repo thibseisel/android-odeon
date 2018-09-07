@@ -17,7 +17,6 @@
 package fr.nihilus.music.di;
 
 import android.app.Application;
-import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -28,10 +27,7 @@ import javax.inject.Singleton;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import fr.nihilus.music.database.AppDatabase;
-import fr.nihilus.music.database.DatabaseInitCallback;
-import fr.nihilus.music.database.MusicInfoDao;
-import fr.nihilus.music.database.PlaylistDao;
+import fr.nihilus.music.media.DatabaseModule;
 import fr.nihilus.music.media.MediaModule;
 
 /**
@@ -40,7 +36,7 @@ import fr.nihilus.music.media.MediaModule;
  * such as implementations for abstract types or calls to factory methods.
  */
 @SuppressWarnings("unused")
-@Module(includes = {MediaModule.class})
+@Module(includes = {MediaModule.class, DatabaseModule.class})
 abstract class AppModule {
 
     @Binds
@@ -49,22 +45,5 @@ abstract class AppModule {
     @Provides @Singleton
     static SharedPreferences provideSharedPreferences(@NonNull Application app) {
         return PreferenceManager.getDefaultSharedPreferences(app);
-    }
-
-    @Provides @Singleton
-    static AppDatabase provideDatabase(@NonNull Application app, @NonNull DatabaseInitCallback dbInit) {
-        return Room.databaseBuilder(app, AppDatabase.class, AppDatabase.NAME)
-                .addCallback(dbInit)
-                .build();
-    }
-
-    @Provides @Singleton
-    static MusicInfoDao provideMusicInfoDao(@NonNull AppDatabase db) {
-        return db.getMusicInfoDao();
-    }
-
-    @Provides @Singleton
-    static PlaylistDao providePlaylistDao(@NonNull AppDatabase db) {
-        return db.getPlaylistDao();
     }
 }
