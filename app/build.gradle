@@ -23,12 +23,12 @@ android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "fr.nihilus.music"
+        applicationId 'fr.nihilus.music'
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 1002
-        versionName '1.0.2'
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        versionCode appVersionCode
+        versionName appVersionName
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -39,9 +39,9 @@ android {
 
     // Retrieve keystore properties from this machine's global Gradle properties.
     if (project.hasProperty('android.signing.keyAlias')
-        && project.hasProperty('android.signing.keyPassword')
-        && project.hasProperty('android.signing.storeFile')
-        && project.hasProperty('android.signing.storePassword')) {
+            && project.hasProperty('android.signing.keyPassword')
+            && project.hasProperty('android.signing.storeFile')
+            && project.hasProperty('android.signing.storePassword')) {
 
         signingConfigs {
             config {
@@ -105,25 +105,29 @@ androidExtensions {
 }
 
 dependencies {
+    api project(':media')
+
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7'
     implementation "androidx.core:core-ktx:$ktxVersion"
 
     // Support library dependencies
-    implementation supportLibrary('support-v4')
-    implementation supportLibrary('appcompat-v7')
-    implementation supportLibrary('cardview-v7')
-    implementation supportLibrary('recyclerview-v7')
-    implementation supportLibrary('palette-v7')
-    implementation supportLibrary('design')
-    implementation supportLibrary('preference-v7')
-    implementation supportLibrary('preference-v14')
+    implementation "com.android.support:support-v4:$supportLibVersion"
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.android.support:cardview-v7:$supportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
+    implementation "com.android.support:palette-v7:$supportLibVersion"
+    implementation "com.android.support:design:$supportLibVersion"
+    implementation "com.android.support:preference-v7:$supportLibVersion"
+    implementation "com.android.support:preference-v14:$supportLibVersion"
     implementation "com.android.support.constraint:constraint-layout:${constraintVersion}"
 
     // Android Arch Components
     implementation "android.arch.lifecycle:extensions:${archVersion}"
+    kapt "android.arch.lifecycle:compiler:${archVersion}"
+
+    // Android Room
     implementation "android.arch.persistence.room:runtime:${roomVersion}"
     implementation "android.arch.persistence.room:rxjava2:${roomVersion}"
-    kapt "android.arch.lifecycle:compiler:${archVersion}"
     kapt "android.arch.persistence.room:compiler:${roomVersion}"
 
     // Glide
@@ -165,12 +169,4 @@ dependencies {
     androidTestImplementation "com.android.support.test:runner:${androidTestVersion}"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoVersion}"
     androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
-}
-
-/**
- * Helper function that builds the Maven coordinates for Android support libraries,
- * for a more compact and readable dependency declaration.
- */
-String supportLibrary(String artifact) {
-    return "com.android.support:$artifact:$supportLibVersion"
 }
