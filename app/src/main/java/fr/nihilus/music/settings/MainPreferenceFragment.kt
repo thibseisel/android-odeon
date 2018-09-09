@@ -36,7 +36,7 @@ import javax.inject.Inject
 class MainPreferenceFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
-    @Inject lateinit var prefs: PreferenceDao
+    @Inject lateinit var prefs: UiSettings
     @Inject lateinit var vmFactory: ViewModelFactory
 
     private lateinit var keyNightMode: String

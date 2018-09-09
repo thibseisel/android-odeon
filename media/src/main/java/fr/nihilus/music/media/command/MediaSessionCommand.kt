@@ -25,7 +25,7 @@ import android.os.ResultReceiver
  * Each command is identified by a unique name, for example the implementation class name
  * prefixed by its package.
  */
-interface MediaSessionCommand {
+internal interface MediaSessionCommand {
 
     /**
      * Handle the custom command.

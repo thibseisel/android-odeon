@@ -39,7 +39,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @ServiceScoped
-class MediaNotificationManager
+internal class MediaNotificationManager
 @Inject constructor(private val service: MusicService) {
 
     companion object {

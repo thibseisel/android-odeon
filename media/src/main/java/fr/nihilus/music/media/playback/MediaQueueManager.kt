@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import fr.nihilus.music.media.assert
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.command.MediaSessionCommand
 import fr.nihilus.music.media.di.ServiceScoped
@@ -44,7 +43,7 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @ServiceScoped
-class MediaQueueManager
+internal class MediaQueueManager
 @Inject constructor(
     service: MusicService,
     private val mediaSession: MediaSessionCompat,

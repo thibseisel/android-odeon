@@ -22,6 +22,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
+import fr.nihilus.music.client.ViewModelKey
 
 /**
  * Every ViewModel subclass that can be created with [ViewModelFactory]

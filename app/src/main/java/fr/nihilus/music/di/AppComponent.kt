@@ -21,7 +21,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
 import fr.nihilus.music.NihilusMusicApplication
-import fr.nihilus.music.media.service.MusicServiceModule
+import fr.nihilus.music.media.MediaServiceModule
 import javax.inject.Singleton
 
 /**
@@ -34,7 +34,7 @@ import javax.inject.Singleton
         AndroidInjectionModule::class,
         AppModule::class,
         ActivityBindingModule::class,
-        MusicServiceModule::class
+        MediaServiceModule::class
     ]
 )
 interface AppComponent {

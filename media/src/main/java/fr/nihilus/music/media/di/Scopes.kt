@@ -19,29 +19,10 @@ package fr.nihilus.music.media.di
 import javax.inject.Scope
 
 /**
- * Denote that the annotated class or component is alive as long the containing
- * activity instance is alive.
- * This annotation can especially be used to mark fragment classes.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ActivityScoped
-
-/**
  * Denote that the annotated class or component is alive as long as the enclosing service
  * instance is alive.
  */
 @Scope
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ServiceScoped
-
-/**
- * Denote that the annotated class or component is alive as long the enclosing
- * fragment instance is alive.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class FragmentScoped
+internal annotation class ServiceScoped

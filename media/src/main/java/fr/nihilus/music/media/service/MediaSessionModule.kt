@@ -41,7 +41,7 @@ import fr.nihilus.music.media.playback.MediaQueueManager
  * Configures and provides MediaSession-related dependencies.
  */
 @Module(includes = [SessionConnectorModule::class])
-class MediaSessionModule {
+internal class MediaSessionModule {
 
     /**
      * Creates a media session associated with the given [service].
@@ -83,7 +83,7 @@ class MediaSessionModule {
 
 @Module
 @Suppress("unused")
-abstract class SessionConnectorModule {
+internal abstract class SessionConnectorModule {
 
     @Binds
     abstract fun bindsPlaybackController(controller: CustomPlaybackController): PlaybackController

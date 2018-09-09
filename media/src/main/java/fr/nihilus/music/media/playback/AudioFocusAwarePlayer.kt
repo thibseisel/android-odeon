@@ -31,8 +31,6 @@ import fr.nihilus.music.media.di.ServiceScoped
 import timber.log.Timber
 import javax.inject.Inject
 
-private const val TAG = "AFAPlayer"
-
 /**
  * The volume level to use when we lose audio focus,
  * but are allowed to reduce the volume instead of stopping playback.
@@ -57,7 +55,7 @@ private const val AUDIO_FOCUSED = 2
  * through the phone's speakers when not intended.
  */
 @ServiceScoped
-class AudioFocusAwarePlayer
+internal class AudioFocusAwarePlayer
 @Inject constructor(
     private val context: Context,
     private val exoPlayer: SimpleExoPlayer

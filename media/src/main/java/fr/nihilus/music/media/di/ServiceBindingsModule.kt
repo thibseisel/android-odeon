@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.di
+package fr.nihilus.music.media.di
 
-import android.arch.lifecycle.ViewModel
-import dagger.MapKey
-import kotlin.reflect.KClass
+import com.google.android.exoplayer2.ExoPlayer
+import dagger.Binds
+import dagger.Module
+import fr.nihilus.music.media.MediaSettings
+import fr.nihilus.music.media.SharedPreferencesMediaSettings
+import fr.nihilus.music.media.playback.AudioFocusAwarePlayer
 
-/**
- * Annotation that identifies the ViewModel's subclass that is bound in a Map multi-binding.
- */
-@MapKey
-@MustBeDocumented
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ViewModelKey(val value: KClass<out ViewModel>)
+@Module
+@Suppress("unused")
+internal abstract class ServiceBindingsModule {
+
+    @Binds
+    abstract fun bindsSettings(settings: SharedPreferencesMediaSettings): MediaSettings
+
+    @Binds
+    abstract fun bindsExoPlayer(player: AudioFocusAwarePlayer): ExoPlayer
+}

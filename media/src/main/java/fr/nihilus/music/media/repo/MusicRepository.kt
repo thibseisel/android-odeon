@@ -32,7 +32,7 @@ import io.reactivex.Single
  * Depending on implementations, a music repository may use a memory or a disc cache to speed-up
  * access to common or recently used queries.
  */
-interface MusicRepository {
+internal interface MusicRepository {
 
     /**
      * Build a set of items suitable for display composed of children of a given Media ID.

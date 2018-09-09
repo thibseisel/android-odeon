@@ -18,11 +18,11 @@ package fr.nihilus.music.media.repo
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.browseCategoryOf
 import fr.nihilus.music.media.browseHierarchyOf
 import fr.nihilus.music.media.builtin.BuiltinItem
 import fr.nihilus.music.media.cache.MediaCache
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.source.MusicDao
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -33,7 +33,7 @@ import javax.inject.Inject
  * and then from the data source if not available.
  */
 @ServiceScoped
-class CachedMusicRepository
+internal class CachedMusicRepository
 @Inject constructor(
     private val mediaDao: MusicDao,
     private val mediaCache: MediaCache,

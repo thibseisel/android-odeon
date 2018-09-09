@@ -45,7 +45,7 @@ import fr.nihilus.music.media.playback.processor.CustomAudioProcessorChain
  * the "silence skipping" feature by "silence trimming", which is basically the same
  * except that only the start and the end of a track are skipped.
  */
-class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
+internal class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
 
     override fun createRenderers(
         eventHandler: Handler?,

@@ -27,7 +27,7 @@ import android.support.v4.media.MediaBrowserCompat
  * or caching strategy (eviction, cache-aside...)
  * provided it is faster than fetching items from their original source.
  */
-interface MediaCache {
+internal interface MediaCache {
 
     /**
      * Put media items in the cache. Those items could then be retrieved via `get(mediaId)`.

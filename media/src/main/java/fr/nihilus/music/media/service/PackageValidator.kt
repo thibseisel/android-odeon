@@ -29,7 +29,7 @@ import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
-class PackageValidator
+internal class PackageValidator
 @Inject constructor(context: Context) {
 
     private val validCertificates = readValidCertificates(

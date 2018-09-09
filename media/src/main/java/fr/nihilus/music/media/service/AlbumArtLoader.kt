@@ -29,8 +29,8 @@ import javax.inject.Inject
 private const val ART_MAX_SIZE = 144
 
 @ServiceScoped
-class AlbumArtLoader
-@Inject internal constructor(context: MusicService) {
+internal class AlbumArtLoader
+@Inject constructor(context: MusicService) {
 
     private val glide = Glide.with(context).asBitmap()
         .apply(RequestOptions().downsample(DownsampleStrategy.AT_MOST))

@@ -67,7 +67,7 @@ private const val STATE_SILENT = 2
  * An [AudioProcessor] that trims silence from the start and the end of the input stream.
  * Input and output are 16-bits PCM.
  */
-class SilenceTrimmingAudioProcessor : AudioProcessor {
+internal class SilenceTrimmingAudioProcessor : AudioProcessor {
 
     /** An empty byte array allocated only once for reuse. */
     private val EMPTY_BYTE_ARRAY = ByteArray(0)

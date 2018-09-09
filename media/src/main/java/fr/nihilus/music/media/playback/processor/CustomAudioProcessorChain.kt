@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.audio.SonicAudioProcessor
  *
  * That feature is enabled via [PlaybackParameters].
  */
-class CustomAudioProcessorChain(
+internal class CustomAudioProcessorChain(
     vararg audioProcessors: AudioProcessor
 ) : DefaultAudioSink.AudioProcessorChain {
 

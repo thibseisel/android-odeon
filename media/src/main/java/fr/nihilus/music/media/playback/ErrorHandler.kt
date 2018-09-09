@@ -27,7 +27,7 @@ import fr.nihilus.music.media.to
 import javax.inject.Inject
 
 @ServiceScoped
-class ErrorHandler
+internal class ErrorHandler
 @Inject constructor(
     private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {

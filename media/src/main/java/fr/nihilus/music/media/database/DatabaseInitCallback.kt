@@ -29,7 +29,7 @@ import javax.inject.Provider
 /**
  * Perform database initialization.
  */
-class DatabaseInitCallback
+internal class DatabaseInitCallback
 @Inject constructor(
     private val prefs: MediaSettings,
     private val musicDao: MusicDao,

@@ -27,7 +27,7 @@ import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
-import fr.nihilus.music.media.di.ActivityScoped
+import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.CATEGORY_ARTISTS
 import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter

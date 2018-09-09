@@ -29,12 +29,6 @@ android {
         versionCode appVersionCode
         versionName appVersionName
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ['room.schemaLocation': "$projectDir/schemas".toString()]
-            }
-        }
     }
 
     // Retrieve keystore properties from this machine's global Gradle properties.

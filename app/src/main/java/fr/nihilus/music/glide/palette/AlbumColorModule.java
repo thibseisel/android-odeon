@@ -23,7 +23,7 @@ import android.support.v4.content.ContextCompat;
 import dagger.Module;
 import dagger.Provides;
 import fr.nihilus.music.R;
-import fr.nihilus.music.media.di.ActivityScoped;
+import fr.nihilus.music.di.ActivityScoped;
 import fr.nihilus.music.ui.albums.AlbumPalette;
 
 @Module

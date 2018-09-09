@@ -30,9 +30,8 @@ import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.util.LongSparseArray
-import fr.nihilus.music.media.assert
-import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.*
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.utils.requirePermission
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -55,7 +54,7 @@ import javax.inject.Inject
  * @param metadataCache The cache into which this object stores its metadata.
  */
 @ServiceScoped
-class MediaStoreMusicDao
+internal class MediaStoreMusicDao
 @TestOnly internal constructor(
     private val context: Context,
     private val metadataCache: LongSparseArray<MediaMetadataCompat>

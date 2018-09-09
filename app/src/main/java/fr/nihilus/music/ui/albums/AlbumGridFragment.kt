@@ -30,6 +30,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.CATEGORY_ALBUMS
+import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.recyclerfragment.RecyclerFragment

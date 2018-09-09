@@ -24,7 +24,7 @@ import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
-import fr.nihilus.music.media.di.ActivityScoped
+import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.*
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment

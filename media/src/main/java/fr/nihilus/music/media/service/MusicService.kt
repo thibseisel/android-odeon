@@ -30,12 +30,12 @@ import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
-import fr.nihilus.music.media.BuildConfig
-import fr.nihilus.music.media.doIfPresent
 import fr.nihilus.music.media.BROWSER_ROOT
+import fr.nihilus.music.media.BuildConfig
 import fr.nihilus.music.media.browseCategoryOf
-import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.media.doIfPresent
 import fr.nihilus.music.media.playback.CustomPlaybackController
+import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.utils.MediaID
 import fr.nihilus.music.media.utils.PermissionDeniedException
 import io.reactivex.SingleObserver
@@ -52,14 +52,14 @@ private const val STOP_DELAY = 30000L
 
 class MusicService : MediaBrowserServiceCompat() {
 
-    @Inject lateinit var repository: MusicRepository
-    @Inject lateinit var notificationMgr: MediaNotificationManager
+    @Inject internal lateinit var repository: MusicRepository
+    @Inject internal lateinit var notificationMgr: MediaNotificationManager
 
-    @Inject lateinit var session: MediaSessionCompat
-    @Inject lateinit var connector: MediaSessionConnector
-    @Inject lateinit var player: ExoPlayer
-    @Inject lateinit var playbackController: CustomPlaybackController
-    @Inject lateinit var packageValidator: PackageValidator
+    @Inject internal lateinit var session: MediaSessionCompat
+    @Inject internal lateinit var connector: MediaSessionConnector
+    @Inject internal lateinit var player: ExoPlayer
+    @Inject internal lateinit var playbackController: CustomPlaybackController
+    @Inject internal lateinit var packageValidator: PackageValidator
 
     private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()

@@ -14,9 +14,25 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playback
+package fr.nihilus.music.di
 
-import com.google.android.exoplayer2.PlaybackParameters
+import javax.inject.Scope
 
-@JvmField
-val PLAYBACK_PARAMETERS_SKIP_SILENCE = PlaybackParameters(1f, 1f, true)
+/**
+ * Denote that the annotated class or component is alive as long the containing
+ * activity instance is alive.
+ * This annotation can especially be used to mark fragment classes.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ActivityScoped
+
+/**
+ * Denote that the annotated class or component is alive as long the enclosing
+ * fragment instance is alive.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class FragmentScoped

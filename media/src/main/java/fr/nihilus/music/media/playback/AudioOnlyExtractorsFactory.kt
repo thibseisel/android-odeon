@@ -16,15 +16,15 @@
 
 package fr.nihilus.music.media.playback
 
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
-import com.google.android.exoplayer2.extractor.wav.WavExtractor
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
+import com.google.android.exoplayer2.extractor.wav.WavExtractor
 
 /**
  * An ExtractorsFactory that only uses audio file extractors.
@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
  * The full explanation is detailed
  * on the [Exoplayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
  */
-class AudioOnlyExtractorsFactory : ExtractorsFactory {
+internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
 
     @Synchronized
     override fun createExtractors(): Array<Extractor> = arrayOf(

@@ -34,8 +34,8 @@ import fr.nihilus.music.media.source.MusicDao
  * should be injected when asking for an abstract type.
  */
 @Suppress("unused")
-@Module(includes = [(BuiltinModule::class)])
-abstract class MediaModule {
+@Module(includes = [BuiltinModule::class])
+internal abstract class MediaSourceModule {
 
     @Binds
     abstract fun bindsMusicCache(cacheImpl: LruMemoryCache): MediaCache

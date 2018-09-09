@@ -24,7 +24,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
 import fr.nihilus.music.di.DaggerAppComponent
-import fr.nihilus.music.settings.PreferenceDao
+import fr.nihilus.music.settings.UiSettings
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,7 +36,7 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
 
     @Inject lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
     @Inject lateinit var dispatchingServiceInjector: DispatchingAndroidInjector<Service>
-    @Inject lateinit var prefs: PreferenceDao
+    @Inject lateinit var prefs: UiSettings
 
     override fun onCreate() {
         super.onCreate()

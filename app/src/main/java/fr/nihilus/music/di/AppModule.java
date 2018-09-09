@@ -27,8 +27,8 @@ import javax.inject.Singleton;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import fr.nihilus.music.media.DatabaseModule;
-import fr.nihilus.music.media.MediaModule;
+import fr.nihilus.music.settings.SharedPreferencesUiSettings;
+import fr.nihilus.music.settings.UiSettings;
 
 /**
  * The main module for this application.
@@ -36,7 +36,7 @@ import fr.nihilus.music.media.MediaModule;
  * such as implementations for abstract types or calls to factory methods.
  */
 @SuppressWarnings("unused")
-@Module(includes = {MediaModule.class, DatabaseModule.class})
+@Module
 abstract class AppModule {
 
     @Binds
@@ -46,4 +46,7 @@ abstract class AppModule {
     static SharedPreferences provideSharedPreferences(@NonNull Application app) {
         return PreferenceManager.getDefaultSharedPreferences(app);
     }
+
+    @Binds
+    abstract UiSettings bindsUiSettings(SharedPreferencesUiSettings settings);
 }

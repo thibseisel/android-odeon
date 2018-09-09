@@ -23,7 +23,7 @@ import dagger.multibindings.StringKey
 
 @Suppress("unused")
 @Module
-abstract class CommandModule {
+internal abstract class CommandModule {
 
     @Binds @IntoMap
     @StringKey(NewPlaylistCommand.CMD_NAME)

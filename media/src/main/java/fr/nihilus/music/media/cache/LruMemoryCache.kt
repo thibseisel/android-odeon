@@ -25,7 +25,7 @@ import javax.inject.Inject
  * A MediaCache implementation that keeps only the latest media items in memory.
  */
 @ServiceScoped
-class LruMemoryCache
+internal class LruMemoryCache
 @Inject constructor() : MediaCache {
 
     private val itemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)

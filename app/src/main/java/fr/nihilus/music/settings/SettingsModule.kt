@@ -18,11 +18,11 @@ package fr.nihilus.music.settings
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.media.di.FragmentScoped
+import fr.nihilus.music.di.FragmentScoped
 
 @Suppress("unused")
 @Module
-abstract class SettingsModule {
+internal abstract class SettingsModule {
 
     @FragmentScoped
     @ContributesAndroidInjector

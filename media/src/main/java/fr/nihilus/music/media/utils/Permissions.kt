@@ -18,7 +18,6 @@ package fr.nihilus.music.media.utils
 
 import android.Manifest
 import android.app.Activity
-
 import android.content.Context
 import android.content.pm.PackageManager
 import android.support.v4.app.ActivityCompat
@@ -41,8 +40,14 @@ fun Context.hasExternalStoragePermission() = ContextCompat.checkSelfPermission(
     Manifest.permission.WRITE_EXTERNAL_STORAGE
 ) == PackageManager.PERMISSION_GRANTED
 
+/**
+ * Issue a request to grant permission to read/write the device's external storage.
+ * The result will be dispatched to [Activity.onRequestPermissionsResult]
+ * with the request code [EXTERNAL_STORAGE_REQUEST].
+ */
 fun Activity.requestExternalStoragePermission() {
-    TODO()
+    val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    ActivityCompat.requestPermissions(this, permissions, EXTERNAL_STORAGE_REQUEST)
 }
 
 /**
