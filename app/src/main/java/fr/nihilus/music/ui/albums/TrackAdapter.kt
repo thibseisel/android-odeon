@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.albums
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import fr.nihilus.music.media.extensions.id
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumTrackHolder
@@ -50,7 +51,7 @@ internal class TrackAdapter(
      */
     fun indexOf(metadata: MediaMetadataCompat): Int {
         // Assume the passed musicId is from ALBUMS category
-        val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+        val musicId = metadata.id
 
         for (position in 0 until itemCount) {
             val item = getItem(position)

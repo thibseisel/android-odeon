@@ -25,10 +25,7 @@ import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
-import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.media.mediaIdOf
-import fr.nihilus.music.media.source.MusicDao
+import fr.nihilus.music.media.extensions.*
 import java.lang.ref.WeakReference
 
 /**
@@ -37,31 +34,23 @@ import java.lang.ref.WeakReference
  * @param builder an optional builder for reuse
  * @return a media description created from this track metadata
  */
-fun MediaMetadataCompat.asMediaDescription(
+internal fun MediaMetadataCompat.asMediaDescription(
     builder: MediaDescriptionCompat.Builder,
     vararg categories: String
 ): MediaDescriptionCompat {
-    val musicId = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+    val musicId = this.id
     val extras = Bundle(4)
-    extras.putString(MediaItems.EXTRA_TITLE_KEY, getString(MusicDao.METADATA_KEY_TITLE_KEY))
-    extras.putLong(MediaItems.EXTRA_DURATION, getLong(MediaMetadataCompat.METADATA_KEY_DURATION))
-    extras.putLong(
-        MediaItems.EXTRA_TRACK_NUMBER,
-        getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-    )
-    extras.putLong(
-        MediaItems.EXTRA_DISC_NUMBER,
-        getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
-    )
-    val artUri = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
-    val bitmapArt = getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
+    extras.putString(MediaItems.EXTRA_TITLE_KEY, this.titleKey)
+    extras.putLong(MediaItems.EXTRA_DURATION, this.duration)
+    extras.putLong(MediaItems.EXTRA_TRACK_NUMBER, this.trackNumber)
+    extras.putLong(MediaItems.EXTRA_DISC_NUMBER, this.discNumber)
 
     val mediaId = mediaIdOf(*categories, musicId = musicId.toLong())
     builder.setMediaId(mediaId)
-        .setTitle(getString(MediaMetadataCompat.METADATA_KEY_TITLE))
-        .setSubtitle(getString(MediaMetadataCompat.METADATA_KEY_ARTIST))
-        .setIconBitmap(bitmapArt)
-        .setIconUri(artUri?.toUri())
+        .setTitle(this.title)
+        .setSubtitle(this.artist)
+        .setIconBitmap(this.albumArt)
+        .setIconUri(this.albumArtUri)
         .setMediaUri(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.buildUpon()
                 .appendEncodedPath(musicId)
@@ -93,22 +82,6 @@ inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
     get()?.let(action)
 }
 
-/**
- * Makes a copy of this MediaMetadataCompat, adding or overriding some of its fields.
- *
- * @receiver The MediaMetadataCompat instance to copy
- * @param reWriter A function block allowing to override some values from the source metadata.
- * This block will be called with a [MediaMetadataCompat.Builder] instance as its receiver.
- * @return a copy of the original metadata with some of its fields added or overridden.
- */
-inline fun MediaMetadataCompat.copy(
-    reWriter: MediaMetadataCompat.Builder.() -> Unit
-): MediaMetadataCompat {
-    val builder = MediaMetadataCompat.Builder(this)
-    reWriter(builder)
-    return builder.build()
-}
-
 inline fun MediaDescriptionCompat.copy(
     reWriter: MediaDescriptionCompat.Builder.() -> Unit
 ): MediaDescriptionCompat {
@@ -132,11 +105,3 @@ inline fun MediaDescriptionCompat.copy(
  * @return A pair made of this object and the one passed in parameter.
  */
 infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
-
-fun bundleOf(key: String, value: Int) = Bundle(1).apply {
-    putInt(key, value)
-}
-
-fun bundleOf(key: String, value: Boolean) = Bundle(1).apply {
-    putBoolean(key, value)
-}

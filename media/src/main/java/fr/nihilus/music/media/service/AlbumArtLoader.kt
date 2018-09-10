@@ -21,7 +21,7 @@ import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.RequestOptions
-import fr.nihilus.music.media.copy
+import fr.nihilus.music.media.extensions.copy
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.Single
 import javax.inject.Inject

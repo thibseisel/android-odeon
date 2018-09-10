@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.command.CommandModule
 import fr.nihilus.music.media.database.DatabaseModule
-import fr.nihilus.music.media.di.PlaybackModule
-import fr.nihilus.music.media.di.ServiceBindingsModule
-import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
+import javax.inject.Scope
 
+/**
+ * Denote that the annotated class or component is alive as long as the enclosing service
+ * instance is alive.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+internal annotation class ServiceScoped
+
+/**
+ * Configures [MusicService]-related bindings, providing dependency injection for the whole `media` library module.
+ * This Dagger module should be installed in the root component.
+ */
 @Module
 @Suppress("unused")
 abstract class MediaServiceModule {

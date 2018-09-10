@@ -32,6 +32,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.util.LongSparseArray
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.extensions.*
 import fr.nihilus.music.media.utils.requirePermission
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -55,7 +56,7 @@ import javax.inject.Inject
  */
 @ServiceScoped
 internal class MediaStoreMusicDao
-@TestOnly internal constructor(
+@TestOnly constructor(
     private val context: Context,
     private val metadataCache: LongSparseArray<MediaMetadataCompat>
 ) : MusicDao {
@@ -129,7 +130,7 @@ internal class MediaStoreMusicDao
 
         // Load all metadata from MediaStore and put them all in memory cache for faster reuse
         return loadFromMediaStore(whereClause, whereArgs, orderByClause).doOnNext { metadata ->
-            val musicId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toLong()
+            val musicId = metadata.id.toLong()
             metadataCache.put(musicId, metadata)
         }
     }
@@ -168,42 +169,43 @@ internal class MediaStoreMusicDao
         resolver.query(
             Media.EXTERNAL_CONTENT_URI, MEDIA_PROJECTION,
             clause, whereArgs, sorting
-        )?.use {
+        )?.use { cursor ->
             // Memorize cursor column indexes for faster lookup
-            val colId = it.getColumnIndexOrThrow(BaseColumns._ID)
-            val colTitle = it.getColumnIndexOrThrow(Media.TITLE)
-            val colAlbum = it.getColumnIndexOrThrow(Media.ALBUM)
-            val colArtist = it.getColumnIndexOrThrow(Media.ARTIST)
-            val colDuration = it.getColumnIndexOrThrow(Media.DURATION)
-            val colTrackNo = it.getColumnIndexOrThrow(Media.TRACK)
-            val colTitleKey = it.getColumnIndexOrThrow(Media.TITLE_KEY)
-            val colAlbumId = it.getColumnIndexOrThrow(Media.ALBUM_ID)
-            val colArtistId = it.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colDateAdded = it.getColumnIndexOrThrow(Media.DATE_ADDED)
+            val colId = cursor.getColumnIndexOrThrow(BaseColumns._ID)
+            val colTitle = cursor.getColumnIndexOrThrow(Media.TITLE)
+            val colAlbum = cursor.getColumnIndexOrThrow(Media.ALBUM)
+            val colArtist = cursor.getColumnIndexOrThrow(Media.ARTIST)
+            val colDuration = cursor.getColumnIndexOrThrow(Media.DURATION)
+            val colTrackNo = cursor.getColumnIndexOrThrow(Media.TRACK)
+            val colTitleKey = cursor.getColumnIndexOrThrow(Media.TITLE_KEY)
+            val colAlbumId = cursor.getColumnIndexOrThrow(Media.ALBUM_ID)
+            val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
+            val colDateAdded = cursor.getColumnIndexOrThrow(Media.DATE_ADDED)
 
             val builder = MediaMetadataCompat.Builder()
 
             // Fetch data from cursor
-            while (it.moveToNext() && !emitter.isDisposed) {
-                val musicId = it.getLong(colId)
-                val albumId = it.getLong(colAlbumId)
-                val trackNo = it.getLong(colTrackNo)
-                val mediaUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId)
-                val iconUri = iconUris[albumId]
+            while (cursor.moveToNext() && !emitter.isDisposed) {
+                val musicId = cursor.getLong(colId)
+                val trackAlbumId = cursor.getLong(colAlbumId)
+                val trackNo = cursor.getLong(colTrackNo)
+                val localMediaUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId)
+                val iconUri = iconUris[trackAlbumId]
 
-                builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, musicId.toString())
-                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, it.getString(colTitle))
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it.getString(colAlbum))
-                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, it.getString(colArtist))
-                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.getLong(colDuration))
-                    .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNo % 1000)
-                    .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, trackNo / 1000)
-                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUri)
-                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, mediaUri.toString())
-                    .putLong(MusicDao.METADATA_KEY_DATE, it.getLong(colDateAdded))
-                    .putString(MusicDao.METADATA_KEY_TITLE_KEY, it.getString(colTitleKey))
-                    .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
-                    .putLong(MusicDao.METADATA_KEY_ARTIST_ID, it.getLong(colArtistId))
+                builder.apply {
+                    id = musicId.toString()
+                    album = cursor.getString(colAlbum)
+                    artist = cursor.getString(colArtist)
+                    duration = cursor.getLong(colDuration)
+                    discNumber = trackNo / 1000L
+                    trackNumber = trackNo % 1000L
+                    albumArtUri = iconUri
+                    mediaUri = localMediaUri.toString()
+                    availabilityDate = cursor.getLong(colDateAdded)
+                    titleKey = cursor.getString(colTitleKey)
+                    albumId = trackAlbumId
+                    artistId = cursor.getLong(colArtistId)
+                }
 
                 val metadata = builder.build()
                 emitter.onNext(metadata)
@@ -368,8 +370,7 @@ internal class MediaStoreMusicDao
                     // As albums are sorted by descending release year, the first album to match
                     // with the name of the artist is the most recent one.
                     val artistId = artistsCursor.getLong(colId)
-                    val mediaId =
-                        mediaIdOf(CATEGORY_ARTISTS, artistId.toString())
+                    val mediaId = mediaIdOf(CATEGORY_ARTISTS, artistId.toString())
 
                     val artistIconUri = albumsCursor.getString(colAlbumArt)?.let { iconPath ->
                         Uri.parse("file://$iconPath")
@@ -508,8 +509,8 @@ internal class MediaStoreMusicDao
                 Media._ID
             ).blockingFirst()
 
-            val relatedAlbumId = metadata.getLong(MusicDao.METADATA_KEY_ALBUM_ID)
-            val relatedArtistId = metadata.getLong(MusicDao.METADATA_KEY_ARTIST_ID)
+            val relatedAlbumId = metadata.albumId
+            val relatedArtistId = metadata.artistId
 
             // Notify changes for the related artist and album
             val changedArtistId = mediaIdOf(CATEGORY_ARTISTS, relatedArtistId.toString())

@@ -19,10 +19,9 @@ package fr.nihilus.music.di
 import android.app.Application
 import dagger.BindsInstance
 import dagger.Component
-import dagger.android.AndroidInjectionModule
 import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.NihilusMusicApplication
-import fr.nihilus.music.media.MediaServiceModule
+import fr.nihilus.music.media.di.MediaServiceModule
 import javax.inject.Singleton
 
 /**

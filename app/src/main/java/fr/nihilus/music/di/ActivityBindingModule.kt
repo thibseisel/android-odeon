@@ -24,6 +24,26 @@ import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.SettingsModule
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
+import javax.inject.Scope
+
+/**
+ * Denote that the annotated class or component is alive as long the containing
+ * activity instance is alive.
+ * This annotation can especially be used to mark fragment classes.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ActivityScoped
+
+/**
+ * Denote that the annotated class or component is alive as long the enclosing
+ * fragment instance is alive.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class FragmentScoped
 
 /**
  * Enable dependency injection for activities in the application.

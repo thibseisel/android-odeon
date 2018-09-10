@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.di
 
 import dagger.Binds
 import dagger.Module

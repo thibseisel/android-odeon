@@ -23,6 +23,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.widget.SeekBar
 import android.widget.TextView
+import fr.nihilus.music.media.extensions.duration
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -90,7 +91,7 @@ class ProgressAutoUpdater(
      * @param metadata The metadata of the currently playing track
      */
     fun setMetadata(metadata: MediaMetadataCompat?) {
-        val maxProgress = metadata?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION) ?: 0L
+        val maxProgress = metadata?.duration ?: 0L
         seekBar.max = maxProgress.toInt()
         seekDuration?.text = DateUtils.formatElapsedTime(builder, maxProgress / 1000L)
     }
