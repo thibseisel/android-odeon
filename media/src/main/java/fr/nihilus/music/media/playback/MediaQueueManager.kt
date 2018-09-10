@@ -212,11 +212,12 @@ internal class MediaQueueManager
             val playableItems = items.filterNot { it.isBrowsable }
                 .mapTo(currentQueue) { it.description }
             val mediaSources = Array(playableItems.size) {
-                val sourceUri = checkNotNull(playableItems[it].mediaUri) {
+                val playableItem: MediaDescriptionCompat = playableItems[it]
+                val sourceUri = checkNotNull(playableItem.mediaUri) {
                     "Every item should have an Uri."
                 }
 
-                mediaSourceFactory.createMediaSource(sourceUri)
+                mediaSourceFactory.setTag(playableItem).createMediaSource(sourceUri)
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.
