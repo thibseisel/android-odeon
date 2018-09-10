@@ -24,14 +24,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import fr.nihilus.music.media.playback.AudioOnlyRenderersFactory
+import fr.nihilus.music.media.service.MusicService
 
 @Module(includes = [ServiceBindingsModule::class])
 internal object PlaybackModule {
 
     @JvmStatic
     @[Provides Reusable]
-    fun provideExoPlayer(context: Context): SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(
-        AudioOnlyRenderersFactory(context),
+    fun provideExoPlayer(service: MusicService): SimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(
+        AudioOnlyRenderersFactory(service),
         DefaultTrackSelector()
     )
 }

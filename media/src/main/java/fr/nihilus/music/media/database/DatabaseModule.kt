@@ -16,19 +16,19 @@
 
 package fr.nihilus.music.media.database
 
-import android.app.Application
 import android.arch.persistence.room.Room
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.service.MusicService
 
 @Module
 internal object DatabaseModule {
 
     @JvmStatic
     @[Provides ServiceScoped]
-    fun provideDatabase(app: Application, dbInit: DatabaseInitCallback): AppDatabase {
-        return Room.databaseBuilder(app, AppDatabase::class.java, AppDatabase.NAME)
+    fun provideDatabase(service: MusicService, dbInit: DatabaseInitCallback): AppDatabase {
+        return Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME)
             .addCallback(dbInit)
             .build()
     }

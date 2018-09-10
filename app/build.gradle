@@ -119,23 +119,13 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:${archVersion}"
     kapt "android.arch.lifecycle:compiler:${archVersion}"
 
-    // Android Room
-    implementation "android.arch.persistence.room:runtime:${roomVersion}"
-    implementation "android.arch.persistence.room:rxjava2:${roomVersion}"
-    kapt "android.arch.persistence.room:compiler:${roomVersion}"
-
     // Glide
     implementation "com.github.bumptech.glide:glide:${glideVersion}"
     kapt "com.github.bumptech.glide:compiler:${glideVersion}"
 
     // My libraries
     implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
-    implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
     implementation 'com.github.thibseisel:ratioimageview:1.0.0'
-
-    // ExoPlayer
-    implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
-    implementation "com.google.android.exoplayer:extension-mediasession:${exoplayerVersion}"
 
     // Dagger
     implementation "com.google.dagger:dagger:${daggerVersion}"

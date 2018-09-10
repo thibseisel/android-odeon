@@ -57,6 +57,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // Android support libraries
+    implementation "com.android.support:appcompat-v7:$supportLibVersion"
     implementation "com.android.support:support-media-compat:$supportLibVersion"
 
     // Kotlin language support
@@ -64,13 +65,13 @@ dependencies {
     implementation "androidx.core:core-ktx:$ktxVersion"
 
     // Android Room
-    implementation "android.arch.persistence.room:runtime:${roomVersion}"
+    api "android.arch.persistence.room:runtime:${roomVersion}"
     implementation "android.arch.persistence.room:rxjava2:${roomVersion}"
     kapt "android.arch.persistence.room:compiler:${roomVersion}"
 
     // ExoPlayer
-    implementation "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
-    implementation "com.google.android.exoplayer:extension-mediasession:${exoplayerVersion}"
+    api "com.google.android.exoplayer:exoplayer-core:${exoplayerVersion}"
+    api "com.google.android.exoplayer:extension-mediasession:${exoplayerVersion}"
 
     // Dagger
     implementation "com.google.dagger:dagger:${daggerVersion}"
@@ -92,7 +93,6 @@ dependencies {
     // Other libraries
     //implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
 
-    // Test dependencies
     // Test dependencies
     testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
