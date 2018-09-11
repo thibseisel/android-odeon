@@ -103,7 +103,7 @@ internal class MediaNotificationManager
 
     private val contentIntent = PendingIntent.getActivity(
         service, REQUEST_CODE,
-        Intent(service, /* TODO packageManager.getLaunchIntentForPackage(...) */null),
+        service.packageManager.getLaunchIntentForPackage(service.packageName),
         PendingIntent.FLAG_CANCEL_CURRENT
     )
 

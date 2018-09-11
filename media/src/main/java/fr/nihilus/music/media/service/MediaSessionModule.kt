@@ -52,8 +52,8 @@ internal class MediaSessionModule {
         val showUiIntent = PendingIntent.getActivity(
             service.applicationContext,
             R.id.abc_request_start_media_activity,
-            Intent(service.applicationContext, /* TODO packageManager.getLaunchIntentForPackage(...) */ null),
-            PendingIntent.FLAG_UPDATE_CURRENT
+            service.packageManager.getLaunchIntentForPackage(service.packageName),
+            0
         )
         session.setSessionActivity(showUiIntent)
         session.setRatingType(RatingCompat.RATING_NONE)
