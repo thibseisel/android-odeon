@@ -17,16 +17,17 @@
 package fr.nihilus.music.media.service
 
 import android.support.v4.media.MediaMetadataCompat
-import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.RequestOptions
 import fr.nihilus.music.media.extensions.copy
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.extensions.albumArt
+import fr.nihilus.music.media.extensions.albumArtUri
 import io.reactivex.Single
 import javax.inject.Inject
 
-private const val ART_MAX_SIZE = 144
+private const val ART_MAX_SIZE = 320
 
 @ServiceScoped
 internal class AlbumArtLoader
@@ -37,12 +38,11 @@ internal class AlbumArtLoader
 
     fun loadIntoMetadata(metadata: MediaMetadataCompat): Single<MediaMetadataCompat> {
         return Single.create { emitter ->
-            val uriString = metadata.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
-            if (uriString != null) {
-                val artUri = uriString.toUri()
-                val albumArt = glide.load(artUri).submit(ART_MAX_SIZE, ART_MAX_SIZE).get()
+            val artUri = metadata.albumArtUri
+            if (artUri != null) {
+                val loadedAlbumArt = glide.load(artUri).submit(ART_MAX_SIZE, ART_MAX_SIZE).get()
                 emitter.onSuccess(metadata.copy {
-                    putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
+                    albumArt = loadedAlbumArt
                 })
             } else {
                 // When there's no album art, ee-emit the same metadata without modifications.

@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.settings
 
-import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.support.v7.app.AppCompatDelegate
@@ -49,18 +48,19 @@ interface UiSettings {
 
 @Singleton
 internal class SharedPreferencesUiSettings
-@Inject constructor(app: Application, private val mPrefs: SharedPreferences) : UiSettings {
-
-    private val appContext: Context = app
+@Inject constructor(
+    private val context: Context,
+    private val prefs: SharedPreferences
+) : UiSettings {
 
     override val nightMode: Int
-        get() = mPrefs.getString(appContext.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE).toInt()
+        get() = prefs.getString(context.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE).toInt()
 
     override val startupScreenMediaId: String
-        get() = mPrefs.getString(KEY_STARTUP_SCREEN, appContext.getString(R.string.pref_default_startup_screen))
+        get() = prefs.getString(KEY_STARTUP_SCREEN, context.getString(R.string.pref_default_startup_screen))
 
     override val shouldSkipSilence: Boolean
-        get() = mPrefs.getBoolean(KEY_SKIP_SILENCE, false)
+        get() = prefs.getBoolean(KEY_SKIP_SILENCE, false)
 
     override val skipSilenceUpdates: Observable<Boolean>
         get() = Observable.create {
@@ -69,9 +69,9 @@ internal class SharedPreferencesUiSettings
                 it.onNext(shouldSkipSilence)
             }
 
-            mPrefs.registerOnSharedPreferenceChangeListener(preferenceListener)
+            prefs.registerOnSharedPreferenceChangeListener(preferenceListener)
             it.setCancellable {
-                mPrefs.unregisterOnSharedPreferenceChangeListener(preferenceListener)
+                prefs.unregisterOnSharedPreferenceChangeListener(preferenceListener)
             }
         }
 }
