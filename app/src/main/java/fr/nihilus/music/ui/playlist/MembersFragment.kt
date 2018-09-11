@@ -131,7 +131,7 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         }
 
         viewModel.postCommand(DeletePlaylistCommand.CMD_NAME, params) { resultCode, _ ->
-            if (resultCode == R.id.result_success) router.navigateBack()
+            if (resultCode == R.id.abc_result_success) router.navigateBack()
             else Timber.e("Delete playlist: unexpected resultCode = %d", resultCode)
         }
     }

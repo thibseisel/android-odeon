@@ -101,7 +101,7 @@ class BrowserViewModel
      * then processed in order as soon as the media browser (re)connects.
      *
      * If the specified command is not supported, the passed callback function will be called with
-     * the result code [R.id.error_unknown_command].
+     * the result code [R.id.abc_error_unknown_command].
      *
      * @param commandName The name of the command to execute.
      * @param params The parameters to be passed to the command.

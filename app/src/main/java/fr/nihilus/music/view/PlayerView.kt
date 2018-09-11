@@ -33,7 +33,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
-import fr.nihilus.music.media.utils.dipToPixels
+import fr.nihilus.music.utils.dipToPixels
 import kotlinx.android.synthetic.main.view_player.view.*
 import kotlinx.android.synthetic.main.view_player_top.view.*
 

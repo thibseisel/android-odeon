@@ -98,22 +98,22 @@ class NewPlaylistDialog : AppCompatDialogFragment() {
 
         browserModel.postCommand(NewPlaylistCommand.CMD_NAME, params) { resultCode, _ ->
             when (resultCode) {
-                R.id.result_success -> {
+                R.id.abc_result_success -> {
                     val data = Intent().apply {
                         putExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE, playlistTitle)
                         putExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, memberTrackIds.size)
                     }
 
-                    targetFragment?.onActivityResult(targetRequestCode, R.id.result_success, data)
+                    targetFragment?.onActivityResult(targetRequestCode, R.id.abc_result_success, data)
                 }
 
-                R.id.error_playlist_already_exists -> {
+                R.id.abc_error_playlist_already_exists -> {
                     val data = Intent().apply {
                         putExtra(RESULT_TAKEN_PLAYLIST_TITLE, playlistTitle)
                     }
 
                     targetFragment?.onActivityResult(targetRequestCode,
-                        R.id.error_playlist_already_exists, data)
+                        R.id.abc_error_playlist_already_exists, data)
                 }
             }
         }

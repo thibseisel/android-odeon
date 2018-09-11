@@ -16,8 +16,6 @@
   -->
 
 <resources>
-    <string name="path_play" translatable="false">M8,5 L8,19 L13.5,15.5 L13.5,8.5z M13.5,8.5 L13.5,15.5 L19,12 L19,12z</string>
-    <string name="path_pause" translatable="false">M6,5 L6,19 L10,19 L10,5z M14,5 L14,19 L18,19 L18,5z</string>
     <string name="pref_default_startup_screen" translatable="false">MUSIC</string>
     <string name="pref_startup_screen" translatable="false">startup_screen</string>
     <string name="pref_night_mode" translatable="false">night_mode</string>

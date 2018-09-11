@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.di
 
-import android.content.Context
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector

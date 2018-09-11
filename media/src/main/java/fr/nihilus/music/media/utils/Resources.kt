@@ -21,60 +21,10 @@ package fr.nihilus.music.media.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.support.annotation.*
 import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.ColorUtils
 import android.util.TypedValue
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
-
-@Px
-fun dipToPixels(context: Context, @Dimension(unit = Dimension.DP) dp: Float): Int {
-    val metrics = context.resources.displayMetrics
-    return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics))
-}
-
-/**
- * Produce a darker shade of this color by a given factor.
- */
-@ColorInt
-fun darker(@ColorInt color: Int, @FloatRange(from = 0.0, to = 1.0) factor: Float): Int {
-    val hsv = FloatArray(3)
-    Color.colorToHSV(color, hsv)
-    hsv[2] *= factor
-    return Color.HSVToColor(hsv)
-}
-
-/**
- * Computes the relative luminance of a color.
- * Assumes sRGB encoding. Based on the formula for relative luminance
- * defined in WCAG 2.0, W3C Recommendation 11 December 2008.
- *
- * @receiver A color packed integer in the sRGB color space.
- * @return a value between 0 (darkest black) and 1 (lightest white).
- * @see Color.luminance
- */
-val @receiver:ColorInt Int.luminance: Float
-    get() = (0.2126f * red) + (0.7152f * green) + (0.0722f * blue)
-
-/**
- * Convert RGB components of a color to HSL (hue-saturation-lightness).
- * - `outHsl[0]` is Hue in `[0..360[`
- * - `outHsl[1]` is Saturation in `[0..1]`
- * - `outHsl[2]` is Lightness in `[0..1]`
- *
- * @receiver A color from the sRGB space from which HSL components should be extracted.
- * @param outHsl An optional 3-element array which holds the resulting HSL components.
- * If this argument is not provided, a new array will be created.
- *
- * @return The resulting HSL components, for convenience. This is the same as [outHsl].
- */
-fun @receiver:ColorInt Int.toHsl(outHsl: FloatArray = FloatArray(3)) = outHsl.also {
-    ColorUtils.colorToHSL(this, it)
-}
 
 /**
  * Resolve a color attribute from the application theme such as `colorPrimary` or `colorAccent`.

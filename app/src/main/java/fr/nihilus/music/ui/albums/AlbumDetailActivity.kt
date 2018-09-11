@@ -35,8 +35,8 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.media.utils.luminance
-import fr.nihilus.music.utils.setLightStatusBar
+import fr.nihilus.music.utils.darkSystemIcons
+import fr.nihilus.music.utils.luminance
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.activity_album_detail.*
 import javax.inject.Inject
@@ -131,7 +131,7 @@ class AlbumDetailActivity : AppCompatActivity(),
         val darkStatusText = palette.bodyText.luminance < 0.5f
         setDarkHomeUpIndicator(darkStatusText)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setLightStatusBar(window, darkStatusText)
+            window.darkSystemIcons = darkStatusText
         }
 
         collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.ui.songs
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
@@ -113,10 +114,10 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
             }
         }
 
+        @SuppressLint("StringFormatInvalid")
         private fun bindSubtitle(textView: TextView, text: CharSequence?, durationMillis: Long) {
             val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
-            val subtitle = textView.context.getString(R.string.song_item_subtitle, text, duration)
-            textView.text = subtitle
+            textView.text = textView.context.getString(R.string.song_item_subtitle, text, duration)
         }
     }
 }

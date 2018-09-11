@@ -27,18 +27,12 @@
     <string name="action_search">Rechercher</string>
     <string name="empty_songs">Aucun morceau</string>
     <string name="all_music">Toute ma musique</string>
-    <string name="favorites">Favoris</string>
     <string name="empty_albums">Aucun album</string>
-    <string name="action_about">A propos</string>
     <string name="music_library">Bibliothèque musicale</string>
     <string name="night_mode">Mode nuit</string>
     <string name="prefs_category_appearance">Apparence</string>
-    <string name="search_music_hint">Chercher dans ma bibliothèque</string>
-    <string name="playback_service_label">Service du Lecteur Musical</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Activer la lecture aléatoire</string>
-    <string name="action_next">Suivant</string>
-    <string name="action_previous">Précédent</string>
     <string name="play_or_pause">Play ou pause</string>
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
@@ -57,10 +51,6 @@
         <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau a été supprimé.</item>
         <item quantity="other">Ces morceaux ont été supprimés.</item>
     </plurals>
-    <plurals name="selected_song_count">
-        <item quantity="one">%d morceau sélectionné</item>
-        <item quantity="other">%d morceaux sélectionnés</item>
-    </plurals>
     <plurals name="number_of_tracks">
         <item quantity="one">%d morceau</item>
         <item quantity="other">%d morceaux</item>
@@ -70,29 +60,15 @@
         <item quantity="other">%d titres ajoutés à la playlist \"%s\"</item>
     </plurals>
 
-    <string name="new_playlist">Nouvelle playlist</string>
-    <string name="title_hint">Titre</string>
-    <string name="saving_playlist">Enregistrement de la playlist…</string>
-    <string name="playlist_title_error">Veuillez saisir un titre</string>
-    <string name="action_close">Fermer</string>
-    <string name="validate">Valider</string>
-    <string name="new_playlist_help_message">Sélectionnez les morceaux à ajouter</string>
-    <string name="song_item_subtitle" formatted="false">%1$s &#8226; %2$s</string>
+    <string name="song_item_subtitle" formatted="false">%s &#8226; %s</string>
     <string name="ok">OK</string>
     <string name="action_play">Lire</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
-    <string name="last_added">Derniers ajouts</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
     <string name="home">Accueil</string>
-    <string name="action_pause">Pause</string>
-    <string name="channel_mediasession">Lecteur musical</string>
-    <string name="channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>
     <string name="pref_category_behavior">Comportement</string>
     <string name="pref_title_startup_screen">Ecran affiché au démarrage</string>
-    <string name="pref_title_app_shortcuts">Configurer les raccourcis</string>
-    <string name="error_playlist_already_exists">Une playlist porte déjà ce nom.</string>
-    <string name="player_unknown_error">Une erreur inattendue s\'est produite.</string>
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
     <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
     <string name="action_repeat_mode">Répéter la lecture</string>

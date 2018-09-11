@@ -145,7 +145,7 @@ class SongListFragment : Fragment(),
 
         viewModel.postCommand(DeleteTracksCommand.CMD_NAME, params) { resultCode, _ ->
             val rootView = view
-            if (resultCode == R.id.result_success && rootView != null) {
+            if (resultCode == R.id.abc_result_success && rootView != null) {
                 val userMessage = resources.getQuantityString(
                     R.plurals.deleted_songs_confirmation,
                     checkedItemIds.size
@@ -188,7 +188,7 @@ class SongListFragment : Fragment(),
                     multiSelectMode.finish()
                 }
 
-                R.id.error_playlist_already_exists -> {
+                R.id.abc_error_playlist_already_exists -> {
                     // Failed to insert to a playlist due to its name being already taken
                     data ?: throw IllegalStateException("Dialog should send information back")
                     val title = data.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)

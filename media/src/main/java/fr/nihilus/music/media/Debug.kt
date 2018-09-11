@@ -41,12 +41,3 @@ inline fun assert(value: Boolean, lazyMessage: () -> Any) {
         }
     }
 }
-
-/**
- * Decode playback state code into their equivalent constant name.
- */
-val playbackStates = arrayOf(
-    "NONE", "STOPPED", "PAUSED", "PLAYING", "FAST_FORWARDING",
-    "REWINDING", "BUFFERING", "ERROR", "CONNECTING",
-    "SKIPPING_TO_PREVIOUS", "SKIPPING_TO_NEXT", "SKIPPING_TO_QUEUE_ITEM"
-)

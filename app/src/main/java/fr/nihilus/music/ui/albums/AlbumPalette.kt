@@ -16,13 +16,11 @@
 
 package fr.nihilus.music.ui.albums
 
+import android.os.Parcel
 import android.os.Parcelable
 import android.support.annotation.ColorInt
-import fr.nihilus.music.media.utils.darker
-import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import fr.nihilus.music.utils.darker
 
-@Parcelize
 data class AlbumPalette(
     @ColorInt val primary: Int,
     @ColorInt val accent: Int,
@@ -30,6 +28,28 @@ data class AlbumPalette(
     @ColorInt val bodyText: Int,
     @ColorInt val textOnAccent: Int
 ) : Parcelable {
-    @IgnoredOnParcel
     @ColorInt val primaryDark = darker(primary, 0.8f)
+
+    constructor(parcel: Parcel) : this(
+        primary = parcel.readInt(),
+        accent = parcel.readInt(),
+        titleText = parcel.readInt(),
+        bodyText = parcel.readInt(),
+        textOnAccent = parcel.readInt()
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(primary)
+        parcel.writeInt(accent)
+        parcel.writeInt(titleText)
+        parcel.writeInt(bodyText)
+        parcel.writeInt(textOnAccent)
+    }
+
+    override fun describeContents(): Int = 0
+
+    companion object CREATOR : Parcelable.Creator<AlbumPalette> {
+        override fun createFromParcel(parcel: Parcel): AlbumPalette = AlbumPalette(parcel)
+        override fun newArray(size: Int): Array<AlbumPalette?> = arrayOfNulls(size)
+    }
 }

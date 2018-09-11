@@ -148,7 +148,7 @@ class NewPlaylistCommand
         /**
          * The title of the new playlist to create, as a String value.
          *
-         * If this name is already taken, the code [R.id.error_playlist_already_exists]
+         * If this name is already taken, the code [R.id.abc_error_playlist_already_exists]
          * will be returned.
          */
         const val PARAM_TITLE = "playlist_title"

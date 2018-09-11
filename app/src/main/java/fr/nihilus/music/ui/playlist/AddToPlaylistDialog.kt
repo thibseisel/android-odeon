@@ -140,7 +140,7 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
         browserViewModel.postCommand(EditPlaylistCommand.CMD_NAME, params) { resultCode, _ ->
             // Only notify clients when the operation is successful
-            if (resultCode == R.id.result_success) {
+            if (resultCode == R.id.abc_result_success) {
                 targetFragment?.onActivityResult(
                     targetRequestCode,
                     Activity.RESULT_OK,

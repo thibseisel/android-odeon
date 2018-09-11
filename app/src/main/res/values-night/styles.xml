@@ -29,10 +29,6 @@
         <item name="colorPrimary">@color/mtrl_grey_900</item>
     </style>
 
-    <style name="AppTheme.DialogWhenLarge" parent="Base.AppTheme.DialogWhenLarge">
-        <item name="colorAccent">@color/mtrl_blue_a200</item>
-    </style>
-
     <style name="AppTheme.AppBarOverlay.Colored">
         <!-- White text color when action bar is dark, which is the theme's default -->
     </style>

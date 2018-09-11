@@ -18,7 +18,6 @@ package fr.nihilus.music.media.service
 
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException

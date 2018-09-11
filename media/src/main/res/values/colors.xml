@@ -16,31 +16,5 @@
   -->
 
 <resources>
-    <color name="abc_mtrl_grey_900">#212121</color>
-    <color name="abc_mtrl_blue_a100">#82b1ff</color>
-    <color name="abc_mtrl_blue_a200">#448AFF</color>
-    <color name="abc_mtrl_blue_a400">#2979ff</color>
     <color name="abc_mtrl_deeppurple_300">#9575cd</color>
-    <color name="abc_mtrl_deeppurple_500">#673ab7</color>
-    <color name="abc_mtrl_deeppurple_a400">#651FFF</color>
-
-    <color name="abc_mtrl_grey_100">#f5f5f5</color>
-    <color name="abc_mtrl_grey_300">#e0e0e0</color>
-    <color name="abc_album_band_default">#4c4c4c</color>
-
-    <color name="abc_color_primary">@color/abc_mtrl_deeppurple_500</color>
-    <color name="abc_color_primary_dark">@color/abc_mtrl_grey_300</color>
-    <color name="abc_color_accent">@color/abc_mtrl_blue_a400</color>
-    <color name="abc_text_color_primary">#DD000000</color>
-    <color name="abc_text_color_secondary">#B2000000</color>
-
-    <color name="abc_color_control_activated_compat">@color/abc_mtrl_blue_a400</color>
-
-    <color name="abc_control_normal_compat_disabled">#42000000</color>
-    <color name="abc_control_normal_compat">#b2000000</color>
-
-    <color name="abc_navigation_bar_color">@color/abc_mtrl_grey_100</color>
-    <color name="abc_divider_color">#1F000000</color>
-    <color name="abc_navigation_bar_divider_color">@color/abc_divider_color</color>
-
 </resources>
