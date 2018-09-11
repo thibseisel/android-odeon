@@ -30,6 +30,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
+import fr.nihilus.music.media.OdeonPlaybackPreparer
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playback.CustomPlaybackController
@@ -88,7 +89,7 @@ internal abstract class SessionConnectorModule {
     abstract fun bindsPlaybackController(controller: CustomPlaybackController): PlaybackController
 
     @Binds
-    abstract fun bindsPlaybackPreparer(preparer: MediaQueueManager): PlaybackPreparer
+    abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): PlaybackPreparer
 
     @Binds
     abstract fun bindsQueueNavigator(navigator: MediaQueueManager): QueueNavigator
