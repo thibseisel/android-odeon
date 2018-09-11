@@ -31,6 +31,7 @@
             android:name=".service.MusicService"
             android:exported="true"
             android:enabled="true"
+            android:process=":musicplayer"
             tools:ignore="ExportedService">
 
             <intent-filter>

@@ -163,6 +163,7 @@ internal class MediaNotificationManager
             val metadata = controller.metadata
             val playbackState = controller.playbackState
 
+            // FIXME: metadata are null at this point
             publishNotification(playbackState, metadata) { notification ->
                 // Make service foreground and listen to changes in metadata and playback state.
                 controller.registerCallback(controllerCallback)

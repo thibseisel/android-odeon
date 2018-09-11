@@ -194,6 +194,7 @@ internal class MediaStoreMusicDao
 
                 builder.apply {
                     id = musicId.toString()
+                    title = cursor.getString(colTitle)
                     album = cursor.getString(colAlbum)
                     artist = cursor.getString(colArtist)
                     duration = cursor.getLong(colDuration)
