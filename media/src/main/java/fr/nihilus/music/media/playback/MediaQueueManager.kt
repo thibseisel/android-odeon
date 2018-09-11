@@ -25,6 +25,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
@@ -57,17 +58,18 @@ internal class MediaQueueManager
     MediaSessionConnector.QueueNavigator {
 
     private val mediaSourceFactory: ExtractorMediaSource.Factory
-    private val currentQueue = ArrayList<MediaDescriptionCompat>()
-
     private var lastMusicId: String? = null
 
+    /**
+     * Implementation of [MediaSessionConnector.QueueNavigator] to delegate to.
+     * This allows overriding final methods of [TimelineQueueNavigator].
+     */
     private val navigator = object : TimelineQueueNavigator(mediaSession) {
-        override fun getMediaDescription(
-            player: Player?,
-            windowIndex: Int
-        ): MediaDescriptionCompat {
-            assert(windowIndex in currentQueue.indices)
-            return currentQueue[windowIndex]
+        private val windowBuffer = Timeline.Window()
+
+        override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
+            player.currentTimeline.getWindow(windowIndex, windowBuffer, true)
+            return windowBuffer.tag as MediaDescriptionCompat
         }
     }
 
@@ -189,13 +191,9 @@ internal class MediaQueueManager
         onUpdateMediaSessionMetadata(player)
     }
 
-    override fun getActiveQueueItemId(player: Player?): Long {
-        return navigator.getActiveQueueItemId(player)
-    }
+    override fun getActiveQueueItemId(player: Player?) = navigator.getActiveQueueItemId(player)
 
-    override fun onTimelineChanged(player: Player?) {
-        navigator.onTimelineChanged(player)
-    }
+    override fun onTimelineChanged(player: Player?) = navigator.onTimelineChanged(player)
 
     override fun getCommands() = commands.keys.toTypedArray()
 
@@ -207,10 +205,7 @@ internal class MediaQueueManager
 
     private fun prepareFromMediaId(mediaId: String, shuffled: Boolean) {
         repository.getMediaItems(mediaId).subscribe { items ->
-            currentQueue.clear()
-
-            val playableItems = items.filterNot { it.isBrowsable }
-                .mapTo(currentQueue) { it.description }
+            val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
             val mediaSources = Array(playableItems.size) {
                 val playableItem: MediaDescriptionCompat = playableItems[it]
                 val sourceUri = checkNotNull(playableItem.mediaUri) {
@@ -228,7 +223,7 @@ internal class MediaQueueManager
             )
 
             // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(false,
+            val concatenatedSource = ConcatenatingMediaSource(/* TODO Test with true */false,
                 predictableShuffleOrder,
                 *mediaSources
             )
@@ -246,9 +241,7 @@ internal class MediaQueueManager
     }
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
-        val currentWindowIndex = player.currentWindowIndex
-        val activeItem = currentQueue[currentWindowIndex]
-        val activeMediaId = activeItem.mediaId
+        val activeMediaId = (player.currentTag as MediaDescriptionCompat).mediaId
         prefs.lastPlayedMediaId = activeMediaId
         val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
             "Each playable track should have a music ID"
