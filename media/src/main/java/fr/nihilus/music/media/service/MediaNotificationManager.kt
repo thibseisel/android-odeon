@@ -113,8 +113,8 @@ internal class MediaNotificationManager
 
     private val updateNotificationTask = Runnable {
         val controller = service.session.controller
-        val metadata = controller.metadata
-        val state = controller.playbackState
+        val metadata: MediaMetadataCompat? = controller.metadata
+        val state: PlaybackStateCompat? = controller.playbackState
 
         publishNotification(state, metadata) { notification ->
             notificationManager.notify(NOTIFICATION_ID, notification)
@@ -160,10 +160,9 @@ internal class MediaNotificationManager
         if (!isForeground) {
             // Immediately publish the notification so that the service is promoted to the foreground
             val controller = service.session.controller
-            val metadata = controller.metadata
-            val playbackState = controller.playbackState
+            val metadata: MediaMetadataCompat? = controller.metadata
+            val playbackState: PlaybackStateCompat? = controller.playbackState
 
-            // FIXME: metadata are null at this point
             publishNotification(playbackState, metadata) { notification ->
                 // Make service foreground and listen to changes in metadata and playback state.
                 controller.registerCallback(controllerCallback)
@@ -215,14 +214,22 @@ internal class MediaNotificationManager
      * take care of publishing the newly created notification.
      */
     private inline fun publishNotification(
-        state: PlaybackStateCompat, metadata: MediaMetadataCompat,
+        state: PlaybackStateCompat?,
+        metadata: MediaMetadataCompat?,
         publisher: (Notification) -> Unit
     ) {
 
-        if (state.state == PlaybackStateCompat.STATE_NONE
+        if (state == null
+            || state.state == PlaybackStateCompat.STATE_NONE
             || state.state == PlaybackStateCompat.STATE_STOPPED) {
             // Do not show a notification if playback is stopped.
             Timber.i("No playback state. Clear notification.")
+            stop(clearNotification = true)
+            return
+        }
+
+        if (metadata == null) {
+            Timber.w("No metadata. Aborting notification update.")
             stop(clearNotification = true)
             return
         }
@@ -239,7 +246,8 @@ internal class MediaNotificationManager
      */
     private fun configureNotification(
         builder: NotificationCompat.Builder,
-        state: PlaybackStateCompat, metadata: MediaMetadataCompat
+        state: PlaybackStateCompat,
+        metadata: MediaMetadataCompat
     ) {
 
         val currentMedia = metadata.description
