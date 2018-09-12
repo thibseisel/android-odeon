@@ -30,10 +30,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
-import fr.nihilus.music.media.BROWSER_ROOT
-import fr.nihilus.music.media.BuildConfig
-import fr.nihilus.music.media.browseCategoryOf
-import fr.nihilus.music.media.doIfPresent
+import fr.nihilus.music.media.*
 import fr.nihilus.music.media.playback.CustomPlaybackController
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.utils.MediaID
@@ -59,7 +56,8 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: ExoPlayer
     @Inject internal lateinit var playbackController: CustomPlaybackController
-    @Inject internal lateinit var packageValidator: PackageValidator
+
+    private lateinit var packageValidator: PackageValidator
 
     private val delayedStopHandler = DelayedStopHandler(this)
     private val playbackStateListener = PlaybackStateListener()
@@ -76,6 +74,8 @@ class MusicService : MediaBrowserServiceCompat() {
         session.controller.registerCallback(playbackStateListener)
 
         playbackController.restoreStateFromPreferences(player, session)
+
+        packageValidator = PackageValidator(this, R.xml.abc_allowed_media_browser_callers)
 
         // Listen for changes in the repository to notify media browsers.
         // If the changed media ID is a track, notify for its parent category.
@@ -116,7 +116,7 @@ class MusicService : MediaBrowserServiceCompat() {
         rootHints: Bundle?
     ): BrowserRoot? {
 
-        if (!packageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
+        if (!packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
             // If the request comes from an untrusted package, return an empty BrowserRoot
             // so that every application can use mediaController in debug mode.
             // Release builds prevents untrusted packages from connecting.
