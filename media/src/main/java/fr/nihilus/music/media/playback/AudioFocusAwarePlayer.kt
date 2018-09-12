@@ -17,10 +17,7 @@
 package fr.nihilus.music.media.playback
 
 import android.annotation.TargetApi
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
@@ -30,6 +27,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import fr.nihilus.music.media.di.ServiceScoped
 import timber.log.Timber
 import javax.inject.Inject
+import android.media.AudioAttributes as AndroidAudioAttributes
 
 /**
  * The volume level to use when we lose audio focus,
@@ -57,7 +55,7 @@ private const val AUDIO_FOCUSED = 2
 @ServiceScoped
 internal class AudioFocusAwarePlayer
 @Inject constructor(
-    private val context: Context,
+    context: Context,
     private val exoPlayer: SimpleExoPlayer
 ) : ExoPlayer by exoPlayer, AudioManager.OnAudioFocusChangeListener {
 
@@ -65,9 +63,6 @@ internal class AudioFocusAwarePlayer
     private var currentFocus = AUDIO_NO_FOCUS_NO_DUCK
     private var focusRequest: AudioFocusRequest? = null
     private var playOnFocusGain = false
-
-    private val audioNoisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-    private var noisyReceiverRegistered = false
 
     override fun setPlayWhenReady(playWhenReady: Boolean) {
         if (playWhenReady) onPlay()
@@ -77,7 +72,6 @@ internal class AudioFocusAwarePlayer
     private fun onPlay() {
         val focusGranted = requestAudioFocus()
         if (focusGranted) {
-            registerAudioNoisyReceiver()
             exoPlayer.playWhenReady = true
             configurePlayerState()
         }
@@ -85,19 +79,17 @@ internal class AudioFocusAwarePlayer
 
     private fun onPause() {
         exoPlayer.playWhenReady = false
-        unregisterAudioNoisyReceiver()
     }
 
     override fun stop() {
         exoPlayer.stop()
-        unregisterAudioNoisyReceiver()
         giveUpAudioFocus()
     }
 
     private fun requestAudioFocus(): Boolean {
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(androidAttributesOf(exoPlayer.audioAttributes))
+                .setAudioAttributes(exoPlayer.audioAttributes.android)
                 .setOnAudioFocusChangeListener(this)
                 .build()
             audioManager.requestAudioFocus(focusRequest)
@@ -169,28 +161,6 @@ internal class AudioFocusAwarePlayer
         }
     }
 
-    private val mAudioNoisyReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY == intent.action) {
-                this@AudioFocusAwarePlayer.playWhenReady = false
-            }
-        }
-    }
-
-    private fun registerAudioNoisyReceiver() {
-        if (!noisyReceiverRegistered) {
-            context.registerReceiver(mAudioNoisyReceiver, audioNoisyIntentFilter)
-            noisyReceiverRegistered = true
-        }
-    }
-
-    private fun unregisterAudioNoisyReceiver() {
-        if (noisyReceiverRegistered) {
-            context.unregisterReceiver(mAudioNoisyReceiver)
-            noisyReceiverRegistered = false
-        }
-    }
-
     override fun release() {
         // Make sure to release the broadcast receiver to avoid memory leaks
         stop()
@@ -200,14 +170,10 @@ internal class AudioFocusAwarePlayer
 
 /**
  * Convert ExoPlayer's audio attributes to the Android framework's equivalent representation.
- * @param attrs exoplayer audio attributes
- * @return android framework equivalent audio attributes
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-private fun androidAttributesOf(attrs: AudioAttributes): android.media.AudioAttributes {
-    return android.media.AudioAttributes.Builder()
-        .setUsage(attrs.usage)
-        .setContentType(attrs.contentType)
-        .setFlags(attrs.flags)
-        .build()
-}
+@get:TargetApi(Build.VERSION_CODES.LOLLIPOP)
+private val AudioAttributes.android: AndroidAudioAttributes get() = AndroidAudioAttributes.Builder()
+    .setUsage(usage)
+    .setContentType(contentType)
+    .setFlags(flags)
+    .build()
