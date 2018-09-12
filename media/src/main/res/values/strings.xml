@@ -27,7 +27,7 @@
     <string name="abc_action_pause">Pause</string>
     <string name="abc_action_next">Next</string>
     <string name="abc_action_previous">Previous</string>
-    <string name="abc_channel_mediasession">Media playback</string>
-    <string name="abc_channel_mediasession_description">Control media playback from the lock screen and the notification panel.</string>
+    <string name="abc_channel_mediasession">Now playing</string>
+    <string name="abc_channel_mediasession_description">Controls media playback from the lock screen and the notification panel.</string>
     <string name="abc_pref_title_skip_silence">Skip silence in tracks</string>
 </resources>
