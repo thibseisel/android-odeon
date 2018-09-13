@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.service
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -23,22 +24,38 @@ import android.content.Context
 import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
+import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
+import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import fr.nihilus.music.media.R
+import fr.nihilus.music.media.assert
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.extensions.isPlayEnabled
+import fr.nihilus.music.media.extensions.isPlaying
+import fr.nihilus.music.media.extensions.isSkipToNextEnabled
+import fr.nihilus.music.media.extensions.isSkipToPreviousEnabled
 import javax.inject.Inject
 
 private const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
 
 @ServiceScoped
 internal class MediaNotificationBuilder
-@Inject constructor(private val context: MusicService) {
+@Inject constructor(
+    private val context: MusicService,
+    private val controller: MediaControllerCompat
+) {
 
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val skipToPreviousAction = NotificationCompat.Action(
+    /**
+     * An action that does nothing.
+     * Used to display a blank space in lieu of a disabled action.
+     */
+    private val noOpAction = NotificationCompat.Action(0, null, null)
+
+    private val previousAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_previous_36dp,
         context.getString(R.string.abc_action_previous),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
@@ -56,7 +73,7 @@ internal class MediaNotificationBuilder
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
 
-    private val skipToNextAction = NotificationCompat.Action(
+    private val nextAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_next_36dp,
         context.getString(R.string.abc_action_next),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
@@ -65,8 +82,62 @@ internal class MediaNotificationBuilder
     private val stopPendingIntent: PendingIntent =
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
-    private val notificationChannelName = context.getString(R.string.abc_channel_mediasession)
-    private val notificationChannelDescription = context.getString(R.string.abc_channel_mediasession_description)
+    fun buildNotification(): Notification {
+        if (shouldCreateNowPlayingChannel()) {
+            createNowPlayingChannel()
+        }
+
+        assert(controller.metadata != null)
+        assert(controller.playbackState != null)
+        val description =  controller.metadata.description
+        val playbackState = controller.playbackState
+
+        val isPlaying = playbackState.isPlaying
+
+        // Display notification actions depending on playback state and actions availability
+        val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
+        builder.addAction(if (playbackState.isSkipToPreviousEnabled) previousAction else noOpAction)
+        if (isPlaying) {
+            builder.addAction(pauseAction)
+        } else if (playbackState.isPlayEnabled) {
+            builder.addAction(playAction)
+        }
+        builder.addAction(if (playbackState.isSkipToNextEnabled) nextAction else noOpAction)
+
+        // Display current playback position as a chronometer
+        if (isPlaying && playbackState.position >= 0) {
+            builder.setWhen(System.currentTimeMillis() - playbackState.position)
+                .setUsesChronometer(true)
+                .setShowWhen(true)
+        } else {
+            builder.setWhen(0)
+                .setUsesChronometer(false)
+                .setShowWhen(false)
+        }
+
+        // Specific style for media playback notifications
+        val mediaStyle = MediaStyle()
+            .setCancelButtonIntent(stopPendingIntent)
+            .setMediaSession(controller.sessionToken)
+            .setShowActionsInCompactView(0, 1, 2)
+            .setShowCancelButton(true)
+
+        return builder.setContentIntent(controller.sessionActivity)
+            .setContentTitle(description.title)
+            .setContentText(description.subtitle)
+            .setDeleteIntent(stopPendingIntent)
+            .setLargeIcon(description.iconBitmap)
+            .setOnlyAlertOnce(true)
+            .setSmallIcon(if (isPlaying) R.drawable.abc_notif_play_arrow else R.drawable.abc_notif_pause)
+            .setStyle(mediaStyle)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOngoing(isPlaying)
+            .build()
+
+    }
+
+    private fun shouldCreateNowPlayingChannel(): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !nowPlayingChannelExists()
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun nowPlayingChannelExists(): Boolean =
@@ -75,10 +146,11 @@ internal class MediaNotificationBuilder
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNowPlayingChannel() {
         val notificationChannel = NotificationChannel(NOW_PLAYING_CHANNEL,
-            notificationChannelName,
+            context.getString(R.string.abc_channel_mediasession),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = notificationChannelDescription
+            description = context.getString(R.string.abc_channel_mediasession_description)
+            lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
         }
 
         notificationManager.createNotificationChannel(notificationChannel)
