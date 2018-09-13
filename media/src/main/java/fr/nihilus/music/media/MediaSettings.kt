@@ -49,12 +49,16 @@ internal interface MediaSettings {
      * When shuffle mode is enabled, tracks in a playlist are read in random order.
      * This property value should be an `PlaybackStateCompat.SHUFFLE_MODE_*` constant.
      */
+    @get:PlaybackStateCompat.ShuffleMode
+    @set:PlaybackStateCompat.ShuffleMode
     var shuffleMode: Int
 
     /**
      * The last configured repeat mode.
      * This property value should be an `PlaybackStateCompat.REPEAT_MODE_*` constant.
      */
+    @get:PlaybackStateCompat.RepeatMode
+    @set:PlaybackStateCompat.RepeatMode
     var repeatMode: Int
 }
 

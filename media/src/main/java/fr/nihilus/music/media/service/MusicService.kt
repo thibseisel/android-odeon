@@ -29,14 +29,9 @@ import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
-import fr.nihilus.music.media.BROWSER_ROOT
-import fr.nihilus.music.media.BuildConfig
-import fr.nihilus.music.media.R
-import fr.nihilus.music.media.browseCategoryOf
-import fr.nihilus.music.media.playback.CustomPlaybackController
+import fr.nihilus.music.media.*
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.utils.MediaID
 import fr.nihilus.music.media.utils.PermissionDeniedException
@@ -55,8 +50,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
-    @Inject internal lateinit var player: ExoPlayer
-    @Inject internal lateinit var playbackController: CustomPlaybackController
+    @Inject internal lateinit var settings: MediaSettings
 
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
@@ -70,6 +64,7 @@ class MusicService : MediaBrowserServiceCompat() {
         super.onCreate()
         AndroidInjection.inject(this)
 
+        // Make the media session discoverable and able to receive commands.
         session.isActive = true
 
         /**
@@ -78,13 +73,17 @@ class MusicService : MediaBrowserServiceCompat() {
          *
          * It is possible to wait to set the session token, if required for a specific use-case.
          * However, the token *must* be set by the time [MediaBrowserServiceCompat.onGetRoot]
-         * returns, or the connection will fail silently.
-         * (The system will not even call [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
+         * returns, or the connection will fail silently. (The system will not even call
+         * [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
          */
         sessionToken = session.sessionToken
-        session.controller.registerCallback(controllerCallback)
 
-        playbackController.restoreStateFromPreferences(player, session)
+        // Restore last configured shuffle mode and repeat mode settings.
+        // Player will be configured accordingly through callbacks.
+        session.setShuffleMode(settings.shuffleMode)
+        session.setRepeatMode(settings.repeatMode)
+
+        session.controller.registerCallback(controllerCallback)
 
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.abc_allowed_media_browser_callers)
@@ -194,23 +193,29 @@ class MusicService : MediaBrowserServiceCompat() {
 
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            when (state.state) {
-                PlaybackStateCompat.STATE_PLAYING -> {
-                    becomingNoisyReceiver.register()
-                    onPlaybackStart()
-                }
-                PlaybackStateCompat.STATE_PAUSED -> {
-                    becomingNoisyReceiver.unregister()
-                    onPlaybackPaused()
-                }
-                PlaybackStateCompat.STATE_STOPPED,
-                PlaybackStateCompat.STATE_NONE -> {
-                    becomingNoisyReceiver.unregister()
-                    onPlaybackStop()
-                }
-                else -> becomingNoisyReceiver.unregister()
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) = when (state.state) {
+            PlaybackStateCompat.STATE_PLAYING -> {
+                becomingNoisyReceiver.register()
+                onPlaybackStart()
             }
+            PlaybackStateCompat.STATE_PAUSED -> {
+                becomingNoisyReceiver.unregister()
+                onPlaybackPaused()
+            }
+            PlaybackStateCompat.STATE_STOPPED,
+            PlaybackStateCompat.STATE_NONE -> {
+                becomingNoisyReceiver.unregister()
+                onPlaybackStop()
+            }
+            else -> becomingNoisyReceiver.unregister()
+        }
+
+        override fun onShuffleModeChanged(shuffleMode: Int) {
+            settings.shuffleMode = shuffleMode
+        }
+
+        override fun onRepeatModeChanged(repeatMode: Int) {
+            settings.repeatMode = repeatMode
         }
     }
 

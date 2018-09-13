@@ -23,6 +23,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.*
 import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
@@ -35,7 +36,6 @@ import dagger.multibindings.IntoSet
 import fr.nihilus.music.media.OdeonPlaybackPreparer
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.playback.CustomPlaybackController
 import fr.nihilus.music.media.playback.ErrorHandler
 import fr.nihilus.music.media.playback.MediaQueueManager
 
@@ -85,6 +85,9 @@ internal class MediaSessionModule {
     }
 
     @Provides @ServiceScoped
+    fun providesPlaybackController() = DefaultPlaybackController()
+
+    @Provides @ServiceScoped
     fun providesRepeatModeAction(context: Context, player: ExoPlayer) =
         RepeatModeActionProvider(context, player)
 }
@@ -94,7 +97,7 @@ internal class MediaSessionModule {
 internal abstract class SessionConnectorModule {
 
     @Binds
-    abstract fun bindsPlaybackController(controller: CustomPlaybackController): PlaybackController
+    abstract fun bindsPlaybackController(controller: DefaultPlaybackController): PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): PlaybackPreparer
