@@ -17,163 +17,134 @@
 package fr.nihilus.music.media.playback
 
 import android.annotation.TargetApi
-import android.content.Context
+import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
+import android.support.annotation.RequiresApi
+import android.support.annotation.VisibleForTesting
+import android.support.v4.media.AudioAttributesCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.audio.AudioAttributes
 import fr.nihilus.music.media.di.ServiceScoped
 import timber.log.Timber
 import javax.inject.Inject
-import android.media.AudioAttributes as AndroidAudioAttributes
 
-/**
- * The volume level to use when we lose audio focus,
- * but are allowed to reduce the volume instead of stopping playback.
- */
-private const val VOLUME_DUCK = 0.2f
-/** The volume level to use when we have audio focus. */
 private const val VOLUME_NORMAL = 1.0f
-
-/** We don't have audio focus and can't duck (play at a low volume). */
-private const val AUDIO_NO_FOCUS_NO_DUCK = 0
-/** We don't have focus, but we can duck (play at a low volume). */
-private const val AUDIO_NO_FOCUS_CAN_DUCK = 1
-/** We have full audio focus. We are allowed to play loudly. */
-private const val AUDIO_FOCUSED = 2
+private const val VOLUME_DUCK = 0.2f
 
 /**
  * An ExoPlayer implementation that takes care requesting audio focus whenever it needs to play.
  * If audio focus is not granted, the player will not start playback, and will lower its volume or
  * pause if another application needs the focus while possessing it.
- *
- * Playback will also automatically stop if headphones are disconnected to avoid playing loudly
- * through the phone's speakers when not intended.
  */
 @ServiceScoped
 internal class AudioFocusAwarePlayer
 @Inject constructor(
-    context: Context,
-    private val exoPlayer: SimpleExoPlayer
-) : ExoPlayer by exoPlayer, AudioManager.OnAudioFocusChangeListener {
+    private val audioManager: AudioManager,
+    private val player: SimpleExoPlayer
+) : ExoPlayer by player {
 
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private var currentFocus = AUDIO_NO_FOCUS_NO_DUCK
-    private var focusRequest: AudioFocusRequest? = null
-    private var playOnFocusGain = false
+    private val audioAttributes = AudioAttributesCompat.Builder()
+        .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+        .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+        .build()
 
-    override fun setPlayWhenReady(playWhenReady: Boolean) {
-        if (playWhenReady) onPlay()
-        else onPause()
-    }
+    @get:RequiresApi(Build.VERSION_CODES.O)
+    private val audioFocusRequest: AudioFocusRequest by lazy { buildFocusRequest() }
 
-    private fun onPlay() {
-        val focusGranted = requestAudioFocus()
-        if (focusGranted) {
-            exoPlayer.playWhenReady = true
-            configurePlayerState()
+    /**
+     * Reflects the *intent* to play.
+     * This is used to restore [setPlayWhenReady] after recovering from a transient focus loss.
+     */
+    private var shouldPlayWhenReady = false
+
+    /**
+     * Notify that the audio focus for this player has changed.
+     * Visibility has been relaxed, so that the focus change can be simulated during tests.
+     */
+    @VisibleForTesting
+    @Suppress("MemberVisibilityCanBePrivate")
+    internal val audioFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                if (shouldPlayWhenReady || player.playWhenReady) {
+                    player.playWhenReady = true
+                    player.volume = VOLUME_NORMAL
+                }
+                shouldPlayWhenReady = false
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                if (player.playWhenReady) {
+                    player.volume = VOLUME_DUCK
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                // Save the current state of playback so the _intention_ to play can be properly
+                // restored to the app.
+                shouldPlayWhenReady = player.playWhenReady
+                player.playWhenReady = false
+            }
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // This will chain through to abandonAudioFocus().
+                AudioFocusAwarePlayer@playWhenReady = false
+            }
         }
     }
 
-    private fun onPause() {
-        exoPlayer.playWhenReady = false
-    }
-
-    override fun stop() {
-        exoPlayer.stop()
-        giveUpAudioFocus()
-    }
-
-    private fun requestAudioFocus(): Boolean {
-        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(exoPlayer.audioAttributes.android)
-                .setOnAudioFocusChangeListener(this)
-                .build()
-            audioManager.requestAudioFocus(focusRequest)
+    override fun setPlayWhenReady(playWhenReady: Boolean) {
+        if (playWhenReady) {
+            requestAudioFocus()
         } else {
-            @Suppress("DEPRECATION")
+            if (shouldPlayWhenReady) {
+                shouldPlayWhenReady = false
+            }
+
+            player.playWhenReady = false
+            abandonAudioFocus()
+        }
+    }
+
+    private fun requestAudioFocus() {
+        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioManager.requestAudioFocus(audioFocusRequest)
+        } else {
+            @Suppress("deprecation")
             audioManager.requestAudioFocus(
-                this, AudioManager.STREAM_MUSIC,
+                audioFocusListener,
+                audioAttributes.legacyStreamType,
                 AudioManager.AUDIOFOCUS_GAIN
             )
         }
 
-        currentFocus =
-                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) AUDIO_FOCUSED
-                else AUDIO_NO_FOCUS_NO_DUCK
-
-        currentFocus =
-                if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) AUDIO_FOCUSED
-                else AUDIO_NO_FOCUS_NO_DUCK
-
-        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
-    }
-
-    private fun giveUpAudioFocus(): Boolean {
-        val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (focusRequest != null) {
-                audioManager.abandonAudioFocusRequest(focusRequest).also { focusRequest = null }
-            } else AudioManager.AUDIOFOCUS_REQUEST_FAILED
+        // Call the listener whenever focus is granted - event the first time!
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            shouldPlayWhenReady = true
+            audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
         } else {
-            @Suppress("DEPRECATION")
-            audioManager.abandonAudioFocus(this)
+            Timber.i("Unable to start playback: audio focus request has been denied.")
         }
-
-        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
-    override fun onAudioFocusChange(newFocus: Int) {
-        currentFocus = when (newFocus) {
-            AudioManager.AUDIOFOCUS_GAIN -> AUDIO_FOCUSED
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> AUDIO_NO_FOCUS_CAN_DUCK
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                playOnFocusGain = true
-                AUDIO_NO_FOCUS_NO_DUCK
-            }
-            AudioManager.AUDIOFOCUS_LOSS -> AUDIO_NO_FOCUS_NO_DUCK
-            else -> {
-                Timber.w("Unhandled focus change: %d", newFocus)
-                AUDIO_NO_FOCUS_NO_DUCK
-            }
-        }
-
-        configurePlayerState()
-    }
-
-    private fun configurePlayerState() {
-        if (currentFocus == AUDIO_NO_FOCUS_NO_DUCK) {
-            // We don't have audio focus and can't duck, so we have to pause
-            this.playWhenReady = false
+    private fun abandonAudioFocus() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            audioManager.abandonAudioFocusRequest(audioFocusRequest)
         } else {
-            // We're permitted to play, but only if we "duck" (play quietly)
-            exoPlayer.volume =
-                    if (currentFocus == AUDIO_NO_FOCUS_CAN_DUCK) VOLUME_DUCK
-                    else VOLUME_NORMAL
-
-            // If we were playing when we lost focus, we need to resume playing.
-            if (playOnFocusGain) {
-                exoPlayer.playWhenReady = true
-                playOnFocusGain = false
-            }
+            @Suppress("deprecation")
+            audioManager.abandonAudioFocus(audioFocusListener)
         }
     }
 
-    override fun release() {
-        // Make sure to release the broadcast receiver to avoid memory leaks
-        stop()
-        exoPlayer.release()
+    override fun stop() {
+        player.stop()
+        abandonAudioFocus()
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun buildFocusRequest(): AudioFocusRequest {
+        return AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(audioAttributes.unwrap() as AudioAttributes)
+            .setOnAudioFocusChangeListener(audioFocusListener)
+            .build()
     }
 }
-
-/**
- * Convert ExoPlayer's audio attributes to the Android framework's equivalent representation.
- */
-@get:TargetApi(Build.VERSION_CODES.LOLLIPOP)
-private val AudioAttributes.android: AndroidAudioAttributes get() = AndroidAudioAttributes.Builder()
-    .setUsage(usage)
-    .setContentType(contentType)
-    .setFlags(flags)
-    .build()

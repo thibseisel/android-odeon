@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.di
 
+import android.content.Context
+import android.media.AudioManager
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
@@ -34,4 +36,9 @@ internal object PlaybackModule {
         AudioOnlyRenderersFactory(service),
         DefaultTrackSelector()
     )
+
+    @JvmStatic
+    @Provides
+    fun providesAudioManager(context: Context): AudioManager =
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 }
