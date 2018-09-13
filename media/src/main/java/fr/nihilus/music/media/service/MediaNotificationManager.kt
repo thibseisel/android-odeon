@@ -37,6 +37,7 @@ import fr.nihilus.music.media.utils.loadResourceAsBitmap
 import timber.log.Timber
 import javax.inject.Inject
 
+@Deprecated("Notification are now built by MusicService using MediaNotificationBuilder")
 @ServiceScoped
 internal class MediaNotificationManager
 @Inject constructor(private val service: MusicService) {

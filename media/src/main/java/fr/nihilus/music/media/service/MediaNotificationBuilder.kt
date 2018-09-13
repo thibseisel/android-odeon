@@ -37,8 +37,12 @@ import fr.nihilus.music.media.extensions.isSkipToNextEnabled
 import fr.nihilus.music.media.extensions.isSkipToPreviousEnabled
 import javax.inject.Inject
 
-private const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
+internal const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
+internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
 
+/**
+ * Encapsulate code for building media notifications displaying the currently playing media.
+ */
 @ServiceScoped
 internal class MediaNotificationBuilder
 @Inject constructor(
@@ -131,9 +135,7 @@ internal class MediaNotificationBuilder
             .setSmallIcon(if (isPlaying) R.drawable.abc_notif_play_arrow else R.drawable.abc_notif_pause)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setOngoing(isPlaying)
             .build()
-
     }
 
     private fun shouldCreateNowPlayingChannel(): Boolean =

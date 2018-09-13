@@ -22,10 +22,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
-import android.support.v4.content.ContextCompat.startForegroundService
+import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
-import android.support.v4.media.session.MediaButtonReceiver
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -46,19 +46,21 @@ import javax.inject.Inject
 class MusicService : MediaBrowserServiceCompat() {
 
     @Inject internal lateinit var repository: MusicRepository
-    @Inject internal lateinit var notificationMgr: MediaNotificationManager
+    @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
+    @Inject internal lateinit var mediaController: MediaControllerCompat
     @Inject internal lateinit var settings: MediaSettings
 
+    private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
 
     private val controllerCallback = MediaControllerCallback()
     private val subscriptions = CompositeDisposable()
 
-    private var isStarted = false
+    private var isForegroundService = false
 
     override fun onCreate() {
         super.onCreate()
@@ -85,6 +87,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
         session.controller.registerCallback(controllerCallback)
 
+        notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.abc_allowed_media_browser_callers)
 
@@ -98,20 +101,8 @@ class MusicService : MediaBrowserServiceCompat() {
             .also { subscriptions.add(it) }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Timber.i("Service is now started.")
-        MediaButtonReceiver.handleIntent(session, intent)
-
-        isStarted = true
-        return START_NOT_STICKY
-    }
-
     override fun onDestroy() {
         Timber.i("Destroying service.")
-        notificationMgr.stop(clearNotification = true)
-        session.controller.unregisterCallback(controllerCallback)
-        isStarted = false
-
         session.run {
             isActive = false
             release()
@@ -125,16 +116,18 @@ class MusicService : MediaBrowserServiceCompat() {
         clientPackageName: String,
         clientUid: Int,
         rootHints: Bundle?
-    ): BrowserRoot? {
-        if (!packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
-            // If the request comes from an untrusted package, return an empty BrowserRoot
-            // so that every application can use mediaController in debug mode.
-            // Release builds prevents untrusted packages from connecting.
-            Timber.w("onGetRoot: IGNORING request from untrusted package %s", clientPackageName)
-            return if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
+    ): MediaBrowserServiceCompat.BrowserRoot? {
+        return if (packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
+            BrowserRoot(BROWSER_ROOT, null)
+        } else {
+            /**
+             * Unknown caller.
+             * - In debug builds, return a root without any content,
+             * which will still allows the connecting client to issue commands.
+             * - In releases, return `null`, which cause the system to disconnect the app.
+             */
+            if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
         }
-
-        return BrowserRoot(BROWSER_ROOT, null)
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
@@ -167,47 +160,23 @@ class MusicService : MediaBrowserServiceCompat() {
             })
     }
 
-    internal fun onPlaybackStart() {
-        // The service must continue running even after the bound client (usually a MediaController)
-        // disconnects, otherwise the music playback will stop.
-        // Calling startService(Intent) will keep the service running until it is explicitly killed.
-
-        notificationMgr.start()
-
-        if (!isStarted) {
-            Timber.i("Starting service to keep it running while playing")
-            startForegroundService(this, Intent(applicationContext, MusicService::class.java))
-        }
-    }
-
-    internal fun onPlaybackPaused() {
-        Timber.v("onPlaybackPause")
-        notificationMgr.stop(clearNotification = false)
-    }
-
-    internal fun onPlaybackStop() {
-        Timber.v("onPlaybackStop")
-        session.isActive = false
-        notificationMgr.stop(clearNotification = true)
-    }
-
+    /**
+     * Receive callbacks about state changes to the [MediaSessionCompat].
+     * In response to those callbacks, this class:
+     *
+     * - Build/update the service's notification.
+     * - Register/unregister a broadcast receiver for [AudioManager.ACTION_AUDIO_BECOMING_NOISY].
+     * - Calls [MusicService.startForeground] and [MusicService.stopForeground].
+     * - Save changes to shuffle mode and repeat mode to settings.
+     */
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat) = when (state.state) {
-            PlaybackStateCompat.STATE_PLAYING -> {
-                becomingNoisyReceiver.register()
-                onPlaybackStart()
-            }
-            PlaybackStateCompat.STATE_PAUSED -> {
-                becomingNoisyReceiver.unregister()
-                onPlaybackPaused()
-            }
-            PlaybackStateCompat.STATE_STOPPED,
-            PlaybackStateCompat.STATE_NONE -> {
-                becomingNoisyReceiver.unregister()
-                onPlaybackStop()
-            }
-            else -> becomingNoisyReceiver.unregister()
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            mediaController.playbackState?.let { updateNotification(it) }
+        }
+
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            state?.let { updateNotification(it) }
         }
 
         override fun onShuffleModeChanged(shuffleMode: Int) {
@@ -217,40 +186,78 @@ class MusicService : MediaBrowserServiceCompat() {
         override fun onRepeatModeChanged(repeatMode: Int) {
             settings.repeatMode = repeatMode
         }
+
+        private fun updateNotification(state: PlaybackStateCompat) {
+            val updatedState = state.state
+            if (mediaController.metadata == null) {
+                // Do not update notification when no metadata.
+                return
+            }
+
+            // Skip building a notification when state is NONE.
+            val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
+                notificationBuilder.buildNotification()
+            } else null
+
+            when (updatedState) {
+
+                PlaybackStateCompat.STATE_BUFFERING,
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    becomingNoisyReceiver.register()
+                    startForeground(NOW_PLAYING_NOTIFICATION, notification)
+                    isForegroundService = true
+                }
+
+                else -> {
+                    becomingNoisyReceiver.unregister()
+
+                    if (isForegroundService) {
+                        stopForeground(false)
+                        if (notification != null) {
+                            notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
+                        } else {
+                            stopForeground(true)
+                        }
+
+                        isForegroundService = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A receiver that listens for when headphones are unplugged.
+ * This pauses playback to prevent it from being noisy.
+ */
+private class BecomingNoisyReceiver(
+    private val context: Context,
+    sessionToken: MediaSessionCompat.Token
+) : BroadcastReceiver() {
+
+    private val noisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+    private val controller = MediaControllerCompat(context, sessionToken)
+
+    private var isRegistered = false
+
+    fun register() {
+        if (!isRegistered) {
+            context.registerReceiver(this, noisyIntentFilter)
+            isRegistered = true
+        }
     }
 
-    /**
-     * A receiver that listens for when headphones are unplugged.
-     * This pauses playback to prevent it from being noisy.
-     */
-    private class BecomingNoisyReceiver(
-        private val context: Context,
-        sessionToken: MediaSessionCompat.Token
-    ) : BroadcastReceiver() {
-
-        private val noisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        private val controller = MediaControllerCompat(context, sessionToken)
-
-        private var isRegistered = false
-
-        fun register() {
-            if (!isRegistered) {
-                context.registerReceiver(this, noisyIntentFilter)
-                isRegistered = true
-            }
+    fun unregister() {
+        if (isRegistered) {
+            context.unregisterReceiver(this)
+            isRegistered = false
         }
+    }
 
-        fun unregister() {
-            if (isRegistered) {
-                context.unregisterReceiver(this)
-                isRegistered = false
-            }
-        }
-
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-                controller.transportControls.pause()
-            }
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+            controller.transportControls.pause()
         }
     }
 }
