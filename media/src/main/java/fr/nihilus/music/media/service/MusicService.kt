@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.repo.MusicRepository
-import fr.nihilus.music.media.utils.MediaID
 import fr.nihilus.music.media.utils.PermissionDeniedException
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -50,9 +49,9 @@ class MusicService : MediaBrowserServiceCompat() {
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
-    @Inject internal lateinit var mediaController: MediaControllerCompat
     @Inject internal lateinit var settings: MediaSettings
 
+    private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
@@ -80,12 +79,15 @@ class MusicService : MediaBrowserServiceCompat() {
          */
         sessionToken = session.sessionToken
 
-        // Restore last configured shuffle mode and repeat mode settings.
-        // Player will be configured accordingly through callbacks.
-        session.setShuffleMode(settings.shuffleMode)
-        session.setRepeatMode(settings.repeatMode)
+        // Restore shuffle and repeat mode for the media session and the player (through callbacks)
+        mediaController = MediaControllerCompat(this, session)
+        mediaController.transportControls.run {
+            setShuffleMode(settings.shuffleMode)
+            setRepeatMode(settings.repeatMode)
+        }
 
-        session.controller.registerCallback(controllerCallback)
+        // Because ExoPlayer will manage the MediaSession, add the service as a callback for state changes.
+        mediaController.registerCallback(controllerCallback)
 
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
@@ -117,17 +119,13 @@ class MusicService : MediaBrowserServiceCompat() {
         clientUid: Int,
         rootHints: Bundle?
     ): MediaBrowserServiceCompat.BrowserRoot? {
-        return if (packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
+        /**
+         * Allow connections to the MediaBrowserService in debug builds, otherwise
+         * check the caller's signature and disconnect it if not allowed by returning `null`.
+         */
+        return if (BuildConfig.DEBUG || packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
             BrowserRoot(BROWSER_ROOT, null)
-        } else {
-            /**
-             * Unknown caller.
-             * - In debug builds, return a root without any content,
-             * which will still allows the connecting client to issue commands.
-             * - In releases, return `null`, which cause the system to disconnect the app.
-             */
-            if (BuildConfig.DEBUG) BrowserRoot(MediaID.ID_EMPTY_ROOT, null) else null
-        }
+        } else null
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {

@@ -27,6 +27,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.media.app.NotificationCompat.MediaStyle
 import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.assert
@@ -47,11 +48,13 @@ internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
 internal class MediaNotificationBuilder
 @Inject constructor(
     private val context: MusicService,
-    private val controller: MediaControllerCompat
+    session: MediaSessionCompat
 ) {
 
     private val notificationManager: NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+    private val controller = MediaControllerCompat(context, session.sessionToken)
 
     /**
      * An action that does nothing.

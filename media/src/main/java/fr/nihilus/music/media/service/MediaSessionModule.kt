@@ -19,7 +19,6 @@ package fr.nihilus.music.media.service
 import android.app.PendingIntent
 import android.content.Context
 import android.support.v4.media.RatingCompat
-import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
@@ -31,7 +30,6 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import dagger.multibindings.IntoSet
 import fr.nihilus.music.media.OdeonPlaybackPreparer
 import fr.nihilus.music.media.R
@@ -62,12 +60,6 @@ internal class MediaSessionModule {
         return session
     }
 
-    @Provides @Reusable
-    fun providesMediaController(
-        context: Context,
-        session: MediaSessionCompat
-    ) = MediaControllerCompat(context, session)
-
     @Provides @ServiceScoped
     fun providesSessionConnector(
         player: ExoPlayer,
@@ -78,10 +70,10 @@ internal class MediaSessionModule {
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
         customActions: Set<@JvmSuppressWildcards CustomActionProvider>
 
-    ) = MediaSessionConnector(mediaSession, controller, false, null).apply {
-        setPlayer(player, preparer, *customActions.toTypedArray())
-        setQueueNavigator(navigator)
-        setErrorMessageProvider(errorHandler)
+    ) = MediaSessionConnector(mediaSession, controller, false, null).also {
+        it.setPlayer(player, preparer, *customActions.toTypedArray())
+        it.setQueueNavigator(navigator)
+        it.setErrorMessageProvider(errorHandler)
     }
 
     @Provides @ServiceScoped
