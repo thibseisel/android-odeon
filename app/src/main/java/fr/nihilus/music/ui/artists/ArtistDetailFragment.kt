@@ -28,8 +28,8 @@ import android.view.View
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
 import fr.nihilus.music.ui.albums.AlbumPalette
@@ -128,7 +128,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
 
         fun newInstance(artist: MediaItem) = ArtistDetailFragment().apply {
             arguments = Bundle(2).apply {
-                putInt(Constants.FRAGMENT_ID, R.id.action_artists)
+                putInt(FRAGMENT_ID, R.id.action_artists)
                 putParcelable(KEY_ARTIST, artist)
             }
         }

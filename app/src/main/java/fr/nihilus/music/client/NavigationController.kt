@@ -34,6 +34,16 @@ import fr.nihilus.music.ui.playlist.PlaylistsFragment
 import fr.nihilus.music.ui.songs.SongListFragment
 import javax.inject.Inject
 
+/**
+ * A argument key referring to the identifier of a fragment.
+ *
+ * Multiple fragments may share the same id: in this case they should be considered the same,
+ * for example they should belong to the same navigation hierarchy.
+ *
+ * Type: `Int`
+ */
+const val FRAGMENT_ID = "fragment_id"
+
 private const val KEY_FIRST_TAG = "first_tag"
 
 /**
@@ -61,7 +71,7 @@ class NavigationController
         fm.addOnBackStackChangedListener {
             // Listen for back stack changes and emits an event with the id of the displayed fragment
             fm.findFragmentById(containerId)?.let { fragment ->
-                val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
+                val fragmentId = fragment.arguments!!.getInt(FRAGMENT_ID)
                 routeChangeListener(fragmentId)
             }
         }
@@ -236,7 +246,7 @@ class NavigationController
                 .add(containerId, fragment, tag)
                 .commitAllowingStateLoss()
 
-            val fragmentId = fragment.arguments!!.getInt(Constants.FRAGMENT_ID)
+            val fragmentId = fragment.arguments!!.getInt(FRAGMENT_ID)
             routeChangeListener(fragmentId)
         }
     }

@@ -27,10 +27,10 @@ import android.view.ViewGroup
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
-import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.recyclerfragment.RecyclerFragment
 import javax.inject.Inject
@@ -99,7 +99,7 @@ class PlaylistsFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
         fun newInstance() = PlaylistsFragment().apply {
             arguments = Bundle(1).apply {
-                putInt(Constants.FRAGMENT_ID, R.id.action_playlist)
+                putInt(FRAGMENT_ID, R.id.action_playlist)
             }
         }
     }

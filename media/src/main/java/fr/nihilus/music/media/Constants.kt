@@ -22,16 +22,6 @@ package fr.nihilus.music.media
 object Constants {
 
     /**
-     * A argument key referring to the identifier of a fragment.
-     *
-     * Multiple fragments may share the same id: in this case they should be considered the same,
-     * for example they should belong to the same navigation hierarchy.
-     *
-     * Type: `Int`
-     */
-    const val FRAGMENT_ID = "fragment_id"
-
-    /**
      * Extra for `prepareFrom*` and `playFrom*` methods of `MediaControllerCompat`.
      * If supplied and `true`, shuffle mode will be enabled once media has been prepared.
      *

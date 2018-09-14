@@ -32,9 +32,10 @@ import android.widget.Toast
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.media.command.DeleteTracksCommand
+import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.Constants
+import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
@@ -244,7 +245,7 @@ class SongListFragment : Fragment(),
     companion object Factory {
         fun newInstance(): SongListFragment {
             val args = Bundle(1)
-            args.putInt(Constants.FRAGMENT_ID, R.id.action_all)
+            args.putInt(FRAGMENT_ID, R.id.action_all)
             val fragment = SongListFragment()
             fragment.arguments = args
             return fragment

@@ -28,9 +28,9 @@ import android.view.ViewGroup
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.CATEGORY_ALBUMS
-import fr.nihilus.music.media.Constants
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
 import fr.nihilus.recyclerfragment.RecyclerFragment
@@ -102,7 +102,7 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
 
         fun newInstance(): AlbumGridFragment {
             val args = Bundle(1)
-            args.putInt(Constants.FRAGMENT_ID, R.id.action_albums)
+            args.putInt(FRAGMENT_ID, R.id.action_albums)
             val fragment = AlbumGridFragment()
             fragment.arguments = args
             return fragment
