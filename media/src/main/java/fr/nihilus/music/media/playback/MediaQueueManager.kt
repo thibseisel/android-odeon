@@ -126,7 +126,10 @@ internal class MediaQueueManager
 
     override fun getActiveQueueItemId(player: Player?) = navigator.getActiveQueueItemId(player)
 
-    override fun onTimelineChanged(player: Player?) = navigator.onTimelineChanged(player)
+    override fun onTimelineChanged(player: Player) {
+        navigator.onTimelineChanged(player)
+        onUpdateMediaSessionMetadata(player)
+    }
 
     override fun getCommands(): Array<String>? = null
 
@@ -138,7 +141,7 @@ internal class MediaQueueManager
     ) = Unit
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
-        val activeMediaId = (player.currentTag as MediaDescriptionCompat).mediaId
+        val activeMediaId = (player.currentTag as? MediaDescriptionCompat)?.mediaId ?: return
         prefs.lastPlayedMediaId = activeMediaId
         val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
             "Each playable track should have a music ID"
