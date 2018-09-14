@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.service
 
 import android.app.PendingIntent
-import android.content.Context
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -25,7 +24,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.*
-import com.google.android.exoplayer2.ext.mediasession.RepeatModeActionProvider
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
@@ -78,10 +76,6 @@ internal class MediaSessionModule {
 
     @Provides @ServiceScoped
     fun providesPlaybackController() = DefaultPlaybackController()
-
-    @Provides @ServiceScoped
-    fun providesRepeatModeAction(context: Context, player: ExoPlayer) =
-        RepeatModeActionProvider(context, player)
 }
 
 @Module
@@ -99,9 +93,6 @@ internal abstract class SessionConnectorModule {
 
     @Binds
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
-
-    @Binds @IntoSet
-    abstract fun bindsRepeatModeAction(action: RepeatModeActionProvider): CustomActionProvider
 
     @Binds @IntoSet
     abstract fun bindsTrimSilenceAction(action: TrimSilenceActionProvider): CustomActionProvider
