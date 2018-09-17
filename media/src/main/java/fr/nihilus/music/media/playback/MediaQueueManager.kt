@@ -121,14 +121,20 @@ internal class MediaQueueManager
 
     override fun onCurrentWindowIndexChanged(player: Player) {
         navigator.onCurrentWindowIndexChanged(player)
-        onUpdateMediaSessionMetadata(player)
+
+        if (!player.currentTimeline.isEmpty) {
+            onUpdateMediaSessionMetadata(player)
+        }
     }
 
     override fun getActiveQueueItemId(player: Player?) = navigator.getActiveQueueItemId(player)
 
     override fun onTimelineChanged(player: Player) {
         navigator.onTimelineChanged(player)
-        onUpdateMediaSessionMetadata(player)
+
+        if (!player.currentTimeline.isEmpty) {
+            onUpdateMediaSessionMetadata(player)
+        }
     }
 
     override fun getCommands(): Array<String>? = null
