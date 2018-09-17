@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.di
 
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.MediaSettings
@@ -32,4 +33,7 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsExoPlayer(player: AudioFocusAwarePlayer): ExoPlayer
+
+    @Binds
+    abstract fun bindsPlayer(player: AudioFocusAwarePlayer): Player
 }

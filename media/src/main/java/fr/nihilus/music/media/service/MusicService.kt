@@ -16,12 +16,14 @@
 
 package fr.nihilus.music.media.service
 
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
@@ -29,6 +31,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
@@ -40,6 +43,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import java.lang.ref.WeakReference
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MusicService : MediaBrowserServiceCompat() {
@@ -49,6 +54,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
+    @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: MediaSettings
 
     private lateinit var mediaController: MediaControllerCompat
@@ -57,9 +63,11 @@ class MusicService : MediaBrowserServiceCompat() {
     private lateinit var packageValidator: PackageValidator
 
     private val controllerCallback = MediaControllerCallback()
+    private val serviceStopper = ServiceStopper(this)
     private val subscriptions = CompositeDisposable()
 
     private var isForegroundService = false
+    private var isStarted = false
 
     override fun onCreate() {
         super.onCreate()
@@ -103,8 +111,15 @@ class MusicService : MediaBrowserServiceCompat() {
             .also { subscriptions.add(it) }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        isStarted = true
+        return Service.START_NOT_STICKY
+    }
+
     override fun onDestroy() {
         Timber.i("Destroying service.")
+
         session.run {
             isActive = false
             release()
@@ -158,6 +173,11 @@ class MusicService : MediaBrowserServiceCompat() {
             })
     }
 
+    internal fun stopService() {
+        stopSelf()
+        isStarted = false
+    }
+
     /**
      * Receive callbacks about state changes to the [MediaSessionCompat].
      * In response to those callbacks, this class:
@@ -204,6 +224,14 @@ class MusicService : MediaBrowserServiceCompat() {
                     becomingNoisyReceiver.register()
                     startForeground(NOW_PLAYING_NOTIFICATION, notification)
                     isForegroundService = true
+
+                    if (!isStarted) {
+                        // Start service to keep it running while playing.
+                        startService(Intent(this@MusicService, MusicService::class.java))
+                    } else {
+                        // Cancel the scheduled stop of the service.
+                        serviceStopper.cancel()
+                    }
                 }
 
                 else -> {
@@ -219,7 +247,19 @@ class MusicService : MediaBrowserServiceCompat() {
 
                         isForegroundService = false
                     }
+
+                    // If the service is started, schedule to stop it automatically at a later time.
+                    if (isStarted) {
+                        serviceStopper.schedule(30L, TimeUnit.SECONDS)
+                    }
                 }
+            }
+        }
+
+        override fun onSessionDestroyed() {
+            player.run {
+                stop()
+                release()
             }
         }
     }
@@ -256,6 +296,31 @@ private class BecomingNoisyReceiver(
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
             controller.transportControls.pause()
+        }
+    }
+}
+
+private class ServiceStopper(service: MusicService) {
+    private val serviceRef = WeakReference<MusicService>(service)
+    private val handler = Handler()
+
+    private var scheduled = false
+
+    private val stopServiceTask = Runnable {
+        serviceRef.get()?.stopService()
+    }
+
+    fun schedule(time: Long, unit: TimeUnit) {
+        if (!scheduled) {
+            handler.postDelayed(stopServiceTask, unit.toMillis(time))
+            scheduled = true
+        }
+    }
+
+    fun cancel() {
+        if (scheduled) {
+            handler.removeCallbacks(stopServiceTask)
+            scheduled = false
         }
     }
 }
