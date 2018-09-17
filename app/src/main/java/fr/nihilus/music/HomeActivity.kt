@@ -42,7 +42,6 @@ import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.media.Constants
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
@@ -389,9 +388,8 @@ class HomeActivity : AppCompatActivity(),
     private fun startRandomMix() {
         viewModel.post { controller ->
             with(controller.transportControls) {
-                playFromMediaId(CATEGORY_MUSIC, Bundle(1).apply {
-                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
-                })
+                setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                playFromMediaId(CATEGORY_MUSIC, null)
             }
         }
     }

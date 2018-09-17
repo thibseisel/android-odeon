@@ -73,7 +73,7 @@ internal class OdeonPlaybackPreparer
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastPlayedMediaId ?: CATEGORY_MUSIC
-        prepareFromMediaId(lastPlayedMediaId, shuffled = false)
+        prepareFromMediaId(lastPlayedMediaId)
     }
 
     /**
@@ -91,8 +91,7 @@ internal class OdeonPlaybackPreparer
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         // A new queue has been requested. Increment the queue identifier.
         settings.queueCounter++
-        val shuffleExtraEnabled = extras?.getBoolean(Constants.EXTRA_PLAY_SHUFFLED) ?: false
-        prepareFromMediaId(mediaId ?: CATEGORY_MUSIC, shuffleExtraEnabled)
+        prepareFromMediaId(mediaId ?: CATEGORY_MUSIC)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -101,7 +100,8 @@ internal class OdeonPlaybackPreparer
     }
 
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-        TODO("Implement the searching API.")
+        // TODO: Implement searching for Google Assistant
+        throw UnsupportedOperationException()
     }
 
     override fun getCommands(): Array<String> = commandHandlers.keys.toTypedArray()
@@ -111,7 +111,7 @@ internal class OdeonPlaybackPreparer
                 ?: cb?.send(R.id.abc_error_unknown_command, null)
     }
 
-    private fun prepareFromMediaId(mediaId: String, shuffled: Boolean) {
+    private fun prepareFromMediaId(mediaId: String) {
         repository.getMediaItems(mediaId).subscribe { items ->
             val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
             val mediaSources = Array(playableItems.size) {
@@ -145,8 +145,6 @@ internal class OdeonPlaybackPreparer
             if (startIndex != -1) {
                 player.seekTo(startIndex, C.TIME_UNSET)
             }
-
-            player.shuffleModeEnabled = shuffled || player.shuffleModeEnabled
         }
     }
 }

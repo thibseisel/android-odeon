@@ -24,6 +24,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.media.session.PlaybackStateCompat
 import android.view.*
 import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
@@ -34,7 +35,6 @@ import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.media.Constants
 import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
@@ -70,9 +70,10 @@ class SongListFragment : Fragment(),
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_play_shuffled -> {
             viewModel.post { controller ->
-                controller.transportControls.playFromMediaId(CATEGORY_MUSIC, Bundle(1).apply {
-                    putBoolean(Constants.EXTRA_PLAY_SHUFFLED, true)
-                })
+                controller.transportControls.run {
+                    setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                    playFromMediaId(CATEGORY_MUSIC, null)
+                }
             }
             true
         }

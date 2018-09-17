@@ -34,6 +34,7 @@ import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playback.ErrorHandler
 import fr.nihilus.music.media.playback.MediaQueueManager
+import fr.nihilus.music.media.playback.OdeonPlaybackController
 
 /**
  * Configures and provides MediaSession-related dependencies.
@@ -46,16 +47,17 @@ internal class MediaSessionModule {
      */
     @Provides @ServiceScoped
     fun providesMediaSession(service: MusicService): MediaSessionCompat {
-        val session = MediaSessionCompat(service, "MediaSession")
         val showUiIntent = PendingIntent.getActivity(
             service.applicationContext,
             R.id.abc_request_start_media_activity,
             service.packageManager.getLaunchIntentForPackage(service.packageName),
             0
         )
-        session.setSessionActivity(showUiIntent)
-        session.setRatingType(RatingCompat.RATING_NONE)
-        return session
+
+        return MediaSessionCompat(service, "MediaSession").also {
+            it.setSessionActivity(showUiIntent)
+            it.setRatingType(RatingCompat.RATING_NONE)
+        }
     }
 
     @Provides @ServiceScoped
@@ -83,7 +85,7 @@ internal class MediaSessionModule {
 internal abstract class SessionConnectorModule {
 
     @Binds
-    abstract fun bindsPlaybackController(controller: DefaultPlaybackController): PlaybackController
+    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): PlaybackPreparer
