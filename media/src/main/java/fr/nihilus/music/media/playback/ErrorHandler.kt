@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.to
 import javax.inject.Inject
 
 @ServiceScoped
@@ -35,10 +34,10 @@ internal class ErrorHandler
     override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? {
         val unknownError = context.getString(R.string.abc_player_unknown_error)
         if (playbackException == null) {
-            return PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR to unknownError
+            return Pair(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, unknownError)
         }
 
         // TODO Error description should be more precise
-        return PlaybackStateCompat.ERROR_CODE_APP_ERROR to unknownError
+        return Pair(PlaybackStateCompat.ERROR_CODE_APP_ERROR, unknownError)
     }
 }

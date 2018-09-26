@@ -132,7 +132,7 @@ class BrowserViewModel
     /**
      * @see MediaBrowserCompat.disconnect
      */
-    fun disconnect() {
+    private fun disconnect() {
         if (mBrowser.isConnected) {
             Timber.d("Disconnecting from the MediaSession")
             mBrowser.disconnect()

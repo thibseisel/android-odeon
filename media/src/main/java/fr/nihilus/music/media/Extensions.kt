@@ -22,10 +22,10 @@ import android.provider.MediaStore
 import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.exoplayer2.Player
 import fr.nihilus.music.media.extensions.*
 import java.lang.ref.WeakReference
 
@@ -103,11 +103,18 @@ inline fun MediaDescriptionCompat.copy(
     return builder.build()
 }
 
-/**
- * Helper extension function that creates an [android.util.Pair] the same way Kotlin does for
- * [kotlin.Pair].
- * @receiver The first object of the pair
- * @param other The second object of the pair
- * @return A pair made of this object and the one passed in parameter.
- */
-infix fun <F, S> F.to(other: S): android.util.Pair<F, S> = Pair(this, other)
+internal val Int.discontinuityReasonName get() = when (this) {
+    Player.DISCONTINUITY_REASON_AD_INSERTION -> "AD_INSERTION"
+    Player.DISCONTINUITY_REASON_PERIOD_TRANSITION -> "PERIOD_TRANSITION"
+    Player.DISCONTINUITY_REASON_INTERNAL -> "INTERNAL"
+    Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT -> "SEEK_ADJUSTMENT"
+    Player.DISCONTINUITY_REASON_SEEK -> "SEEK"
+    else -> "UNKNOWN"
+}
+
+internal val Int.timelineChangedReasonName get() = when(this) {
+    Player.TIMELINE_CHANGE_REASON_DYNAMIC -> "DYNAMIC"
+    Player.TIMELINE_CHANGE_REASON_PREPARED -> "PREPARED"
+    Player.TIMELINE_CHANGE_REASON_RESET -> "RESET"
+    else -> "UNKNOWN"
+}

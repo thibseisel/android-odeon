@@ -30,8 +30,11 @@ import javax.inject.Inject
 class OdeonPlaybackController
 @Inject constructor() : DefaultPlaybackController() {
 
-    override fun getSupportedPlaybackActions(player: Player?): Long =
-        PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE or
-                PlaybackStateCompat.ACTION_SET_REPEAT_MODE or
-                super.getSupportedPlaybackActions(player)
+    override fun getSupportedPlaybackActions(player: Player?): Long {
+        return if (player != null)
+            PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE or
+                    PlaybackStateCompat.ACTION_SET_REPEAT_MODE or
+                    super.getSupportedPlaybackActions(player)
+        else 0L
+    }
 }
