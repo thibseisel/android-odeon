@@ -18,13 +18,9 @@ package fr.nihilus.music.media
 
 import android.content.SharedPreferences
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.core.content.edit
 import fr.nihilus.music.media.di.ServiceScoped
 import javax.inject.Inject
 
-/**
- *
- */
 internal interface MediaSettings {
 
     /**
@@ -82,15 +78,15 @@ internal class SharedPreferencesMediaSettings
 
     override var queueCounter: Long
         get() = prefs.getLong(KEY_QUEUE_COUNTER, 0L)
-        set(value) = prefs.edit { putLong(KEY_QUEUE_COUNTER, value) }
+        set(value) = prefs.edit().putLong(KEY_QUEUE_COUNTER, value).apply()
 
     override var lastPlayedMediaId: String?
         get() = prefs.getString(KEY_LAST_PLAYED, null)
-        set(value) = prefs.edit { putString(KEY_LAST_PLAYED, value) }
+        set(value) = prefs.edit().putString(KEY_LAST_PLAYED, value).apply()
 
     override var shouldInitDatabase: Boolean
         get() = prefs.getBoolean(KEY_DATABASE_INIT, true)
-        set(value) = prefs.edit { putBoolean(KEY_DATABASE_INIT, value) }
+        set(value) = prefs.edit().putBoolean(KEY_DATABASE_INIT, value).apply()
 
     override var shuffleMode: Int
         get() = prefs.getInt(KEY_SHUFFLE_MODE, PlaybackStateCompat.SHUFFLE_MODE_NONE)

@@ -37,7 +37,7 @@ class CurrentlyPlayingDecoration(
         icon.setTint(iconColor)
     }
 
-    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State?) {
+    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         if (decoratedPosition != RecyclerView.NO_POSITION) {
             val child = parent.getChildAt(decoratedPosition)
             if (child != null) {

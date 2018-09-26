@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media
 
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.annotation.LayoutRes
@@ -81,6 +82,11 @@ fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
 inline fun <T> WeakReference<T>.doIfPresent(action: (T) -> Unit) {
     get()?.let(action)
 }
+
+/**
+ * Creates a Uri from the given encoded URI string.
+ */
+fun String.toUri(): Uri = Uri.parse(this)
 
 inline fun MediaDescriptionCompat.copy(
     reWriter: MediaDescriptionCompat.Builder.() -> Unit

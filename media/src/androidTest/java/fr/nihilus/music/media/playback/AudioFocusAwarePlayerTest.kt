@@ -21,9 +21,8 @@ import android.media.AudioManager
 import android.os.Build
 import android.support.test.runner.AndroidJUnit4
 import com.google.android.exoplayer2.SimpleExoPlayer
-import org.hamcrest.core.Is.`is`
+import com.google.common.truth.Truth
 import org.junit.After
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,13 +40,13 @@ class AudioFocusAwarePlayerTest {
     var focusChangeListener: AudioManager.OnAudioFocusChangeListener? = null
     var noisyReceiverRegistered = false
 
-    lateinit var player: AudioFocusAwarePlayer
+    internal lateinit var player: AudioFocusAwarePlayer
 
     @Before
     fun setUp() {
         MockitoAnnotations.initMocks(this)
         initMockContext()
-        player = AudioFocusAwarePlayer(context, internalPlayer)
+        player = AudioFocusAwarePlayer(audioManager, internalPlayer)
     }
 
     @Test
@@ -56,14 +55,12 @@ class AudioFocusAwarePlayerTest {
         initMockAudioFocus(granted = false)
 
         // Attempt to start playback
-        player.setPlayWhenReady(true)
+        player.playWhenReady = true
 
         // Wrapped player should neither start nor pause playback
-        verify(internalPlayer, never()).setPlayWhenReady(anyBoolean())
-        assertThat(
-            "Noisy receiver should not have been registered",
-            noisyReceiverRegistered, `is`(false)
-        )
+        verify(internalPlayer, never()).playWhenReady = anyBoolean()
+        Truth.assertWithMessage("Noisy receiver should not have been registered")
+            .that(noisyReceiverRegistered).isFalse()
     }
 
     @Test
@@ -75,11 +72,8 @@ class AudioFocusAwarePlayerTest {
         player.setPlayWhenReady(true)
 
         // Wrapped player should start playback when ready
-        verify(internalPlayer).setPlayWhenReady(true)
-        assertThat(
-            "Noisy receiver should have been registered",
-            noisyReceiverRegistered, `is`(true)
-        )
+        verify(internalPlayer).playWhenReady = true
+        Truth.assertThat(noisyReceiverRegistered).isTrue()
     }
 
     @Test
@@ -93,10 +87,7 @@ class AudioFocusAwarePlayerTest {
 
         // Wrapped player should have paused playback
         verify(internalPlayer).setPlayWhenReady(false)
-        assertThat(
-            "Noisy receiver should have been unregistered",
-            noisyReceiverRegistered, `is`(false)
-        )
+        Truth.assertThat(noisyReceiverRegistered).isFalse()
     }
 
     @Test
@@ -109,21 +100,18 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenStopWhilePlaying_shouldStop() {
         initMockAudioFocus()
-        player.setPlayWhenReady(true)
+        player.playWhenReady = true
 
         player.stop()
 
         verify(internalPlayer).stop()
-        assertThat(
-            "Noisy receiver should have been unregistered",
-            noisyReceiverRegistered, `is`(false)
-        )
+        Truth.assertThat(noisyReceiverRegistered).isFalse()
     }
 
     @Test
     fun whenStartPlaying_shouldRequestAudioFocus() {
         initMockAudioFocus()
-        player.setPlayWhenReady(true)
+        player.playWhenReady = true
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             verify(audioManager).requestAudioFocus(any())
@@ -134,7 +122,6 @@ class AudioFocusAwarePlayerTest {
     }
 
     private fun initMockContext() {
-        `when`(context.getSystemService(Context.AUDIO_SERVICE)).thenReturn(audioManager)
         `when`(context.registerReceiver(any(), any())).then {
             noisyReceiverRegistered = true
             return@then null

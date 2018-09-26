@@ -6,7 +6,6 @@ import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.asMediaDescription
 import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.source.MediaStoreMusicDao
@@ -30,8 +29,8 @@ class CachedMusicRepositoryTest {
     lateinit var metadataSubject: Subject<List<MediaMetadataCompat>>
     private lateinit var subject: CachedMusicRepository
 
-    @Mock lateinit var cache: MediaCache
-    @Mock lateinit var dao: MusicDao
+    @Mock private lateinit var cache: MediaCache
+    @Mock private lateinit var dao: MusicDao
 
     @Before
     fun setUp() {

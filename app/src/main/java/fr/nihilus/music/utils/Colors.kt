@@ -20,9 +20,6 @@ import android.graphics.Color
 import android.support.annotation.ColorInt
 import android.support.annotation.FloatRange
 import android.support.v4.graphics.ColorUtils
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 
 /**
  * Produce a darker shade of this color by a given factor.
@@ -34,6 +31,26 @@ fun darker(@ColorInt color: Int, @FloatRange(from = 0.0, to = 1.0) factor: Float
     hsv[2] *= factor
     return Color.HSVToColor(hsv)
 }
+
+/**
+ * Return the alpha component of a color int.
+ */
+inline val @receiver:ColorInt Int.alpha get() = (this shr 24) and 0xff
+
+/**
+ * Return the red component of a color int.
+ */
+inline val @receiver:ColorInt Int.red get() = (this shr 16) and 0xff
+
+/**
+ * return the green component of a color int.
+ */
+inline val @receiver:ColorInt Int.green get() = (this shr 8) and 0xff
+
+/**
+ * Return the blue component of a color int.
+ */
+inline val @receiver:ColorInt Int.blue get() = this and 0xff
 
 /**
  * Computes the relative luminance of a color.

@@ -38,9 +38,9 @@ internal class ScrimBottomSheetBehavior<V : View>(context: Context?, attrs: Attr
      */
     internal var scrimOpacity: Float = 0.0f
 
-    override fun getScrimOpacity(parent: CoordinatorLayout?, child: V) = scrimOpacity
+    override fun getScrimOpacity(parent: CoordinatorLayout, child: V): Float = scrimOpacity
 
-    override fun blocksInteractionBelow(parent: CoordinatorLayout?, child: V) = true
+    override fun blocksInteractionBelow(parent: CoordinatorLayout, child: V): Boolean = true
 
     companion object {
         @JvmStatic fun <V : View> from(view: V): ScrimBottomSheetBehavior<V> {

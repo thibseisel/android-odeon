@@ -97,7 +97,7 @@ class ArtistDetailFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListe
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedItem = adapter.getItem(position)
-        val holder = recyclerView.findViewHolderForAdapterPosition(position)
+        val holder = recyclerView.findViewHolderForAdapterPosition(position) ?: return
         when (holder.itemViewType) {
             R.id.view_type_track -> onTrackSelected(selectedItem)
             R.id.view_type_album -> onAlbumSelected(holder as AlbumHolder, selectedItem)

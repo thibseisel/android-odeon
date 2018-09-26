@@ -25,10 +25,10 @@ import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.net.toUri
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.mediaIdOf
 import fr.nihilus.music.media.source.MusicDao
+import fr.nihilus.music.media.toUri
 import java.lang.ref.WeakReference
 
 /**

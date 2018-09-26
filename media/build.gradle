@@ -20,7 +20,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 27
@@ -54,15 +54,12 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // Kotlin language support
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     // Android support libraries
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
     implementation "com.android.support:support-media-compat:$supportLibVersion"
-
-    // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    implementation "androidx.core:core-ktx:$ktxVersion"
 
     // Android Room
     api "android.arch.persistence.room:runtime:${roomVersion}"
@@ -94,7 +91,6 @@ dependencies {
     //implementation "com.github.thibseisel:kdenticon-android:${kdenticonVersion}"
 
     // Test dependencies
-    testImplementation "org.hamcrest:hamcrest-all:${hamcrestVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "junit:junit:${junitVersion}"
     testImplementation "org.robolectric:robolectric:${robolectricVersion}"

@@ -20,8 +20,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import androidx.core.net.toUri
 import fr.nihilus.music.media.source.MusicDao
+import fr.nihilus.music.media.toUri
 
 /**
  * Provides utilities for creating and reading MediaMetadataCompat objects
