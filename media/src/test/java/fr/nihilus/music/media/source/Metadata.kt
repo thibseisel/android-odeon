@@ -267,10 +267,10 @@ fun mockArtistCursor(vararg indexes: Int): Cursor {
     return cursor
 }
 
-fun mediaUriOf(musicId: String) =
+fun mediaUriOf(musicId: String): Uri =
     ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId.toLong())
 
-fun artUriOf(albumId: Long) = Uri.parse("content://media/external/audio/albumart/$albumId")
+fun artUriOf(albumId: Long): Uri = Uri.parse("content://media/external/audio/albumart/$albumId")
 
 /**
  * Helper function to create a metadata.

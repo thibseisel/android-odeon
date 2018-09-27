@@ -18,7 +18,6 @@ package fr.nihilus.music.media
 
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.equalTo
 import org.junit.Assert.*
@@ -51,13 +50,6 @@ fun assertMediaDescription(
         assertNull(descr.extras)
     }
 }
-
-fun assertMetadataKeyEquals(
-    expected: MediaMetadataCompat,
-    actual: MediaMetadataCompat,
-    key: String
-) =
-    assertEquals(expected.bundle.get(key), actual.bundle.get(key))
 
 /**
  * Assert that the following block function throws a given [Exception].

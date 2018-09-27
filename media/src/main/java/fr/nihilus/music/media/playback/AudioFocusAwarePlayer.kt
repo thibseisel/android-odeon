@@ -61,7 +61,7 @@ internal class AudioFocusAwarePlayer
 
     /**
      * Notify that the audio focus for this player has changed.
-     * Visibility has been relaxed, so that the focus change can be simulated during tests.
+     * Visibility has been relaxed so that focus changes can be simulated during tests.
      */
     @VisibleForTesting
     @Suppress("MemberVisibilityCanBePrivate")
