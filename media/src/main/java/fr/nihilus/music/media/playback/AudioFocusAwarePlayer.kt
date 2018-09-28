@@ -25,7 +25,6 @@ import android.support.annotation.RequiresApi
 import android.support.annotation.VisibleForTesting
 import android.support.v4.media.AudioAttributesCompat
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.SimpleExoPlayer
 import fr.nihilus.music.media.di.ServiceScoped
 import timber.log.Timber
 import javax.inject.Inject
@@ -43,7 +42,7 @@ private const val VOLUME_DUCK = 0.2f
 internal class AudioFocusAwarePlayer
 @Inject constructor(
     private val audioManager: AudioManager,
-    @Named("WrappedPlayer") private val player: SimpleExoPlayer
+    @Named("WrappedPlayer") private val player: ExoPlayer
 ) : ExoPlayer by player {
 
     private val audioAttributes = AudioAttributesCompat.Builder()
@@ -71,13 +70,13 @@ internal class AudioFocusAwarePlayer
             AudioManager.AUDIOFOCUS_GAIN -> {
                 if (shouldPlayWhenReady || player.playWhenReady) {
                     player.playWhenReady = true
-                    player.volume = VOLUME_NORMAL
+                    player.audioComponent!!.volume = VOLUME_NORMAL
                 }
                 shouldPlayWhenReady = false
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 if (player.playWhenReady) {
-                    player.volume = VOLUME_DUCK
+                    player.audioComponent!!.volume = VOLUME_DUCK
                 }
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {

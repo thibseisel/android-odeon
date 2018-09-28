@@ -33,7 +33,7 @@ buildscript {
         roomVersion = '1.1.1'
         rxJavaVersion = '2.2.2'
         rxAndroidVersion = '2.1.0'
-        exoplayerVersion = '2.8.4'
+        exoplayerVersion = '2.9.0'
         constraintVersion = '1.1.3'
         recyclerVersion = '1.1.4'
         kdenticonVersion = '1.0.0-alpha5'
