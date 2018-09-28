@@ -16,67 +16,64 @@
 
 package fr.nihilus.music.media.playback
 
+import android.content.Context
 import android.media.AudioManager
 import android.os.Build
 import com.google.android.exoplayer2.SimpleExoPlayer
+import fr.nihilus.music.media.PropertyStub
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.then
+import org.mockito.BDDMockito.*
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.Shadows
+import org.robolectric.shadows.ShadowAudioManager
 
 @RunWith(RobolectricTestRunner::class)
 class AudioFocusAwarePlayerTest {
 
-    @[Rule JvmField] val mockitoRule: MockitoRule = MockitoJUnit.rule().silent()
+    @[Rule JvmField] val mockitoRule: MockitoRule = MockitoJUnit.rule()
 
     @Mock private lateinit var wrappedPlayer: SimpleExoPlayer
-    @Mock private lateinit var deniedFocusAudioManager: AudioManager
-    @Mock private lateinit var grantedFocusAudioManager: AudioManager
+    private lateinit var player: AudioFocusAwarePlayer
+
+    private lateinit var audioManager: AudioManager
+
+    /** Allow altering behavior of the platform's [AudioManager] without mocking it. */
+    private lateinit var shadowAudioManager: ShadowAudioManager
 
     @Before
-    fun setUpMocks() {
-        // Mock the behavior or an AudioManager that always deny granting audio focus.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            given(deniedFocusAudioManager.requestAudioFocus(any()))
-                .willReturn(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
-        } else {
-            @Suppress("deprecation")
-            given(deniedFocusAudioManager.requestAudioFocus(any(), anyInt(), anyInt()))
-                .willReturn(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
+    fun setUp() {
+        // Get an AudioManager from the test context, spy on it and retrieve its shadow.
+        val context: Context = RuntimeEnvironment.application
+        (context.getSystemService(Context.AUDIO_SERVICE) as AudioManager).let {
+            audioManager = spy(it)
+            shadowAudioManager = Shadows.shadowOf(it)
         }
 
-        // Mock the behavior or an AudioManager that always grants audio focus.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            given(grantedFocusAudioManager.requestAudioFocus(any()))
-                .willReturn(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
-        } else {
-            @Suppress("deprecation")
-            given(grantedFocusAudioManager.requestAudioFocus(any(), anyInt(), anyInt()))
-                .willReturn(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
-        }
+        // Create an instance of the player under test.
+        setupPlayWhenReadyStubProperty()
+        player = AudioFocusAwarePlayer(audioManager, wrappedPlayer)
     }
 
     @Test
     fun beforeStartingPlayback_requestsAudioFocus() {
-        // Given a new player
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-
+        // Given a player
         // When requested to start playback
         player.playWhenReady = true
 
         // Requests audio focus gain for music before playing.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            then(grantedFocusAudioManager).should().requestAudioFocus(any())
+            then(audioManager).should().requestAudioFocus(any())
         } else {
             @Suppress("deprecation")
-            then(grantedFocusAudioManager).should().requestAudioFocus(
+            then(audioManager).should().requestAudioFocus(
                 any(),
                 eq(AudioManager.STREAM_MUSIC),
                 eq(AudioManager.AUDIOFOCUS_GAIN)
@@ -86,8 +83,8 @@ class AudioFocusAwarePlayerTest {
 
     @Test
     fun beforeStartingPlayback_andFocusFailed_shouldNotStartPlayback() {
-        // Given a new player
-        val player = AudioFocusAwarePlayer(deniedFocusAudioManager, wrappedPlayer)
+        // Given an already acquired audio focus
+        shadowAudioManager.setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
 
         // When requested to start playback
         player.playWhenReady = true
@@ -98,8 +95,8 @@ class AudioFocusAwarePlayerTest {
 
     @Test
     fun whenFocusGranted_shouldStartPlayback() {
-        // Given a new player
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
+        // Given an available audio focus
+        shadowAudioManager.setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
 
         // When requested to start playback
         player.playWhenReady = true
@@ -110,8 +107,8 @@ class AudioFocusAwarePlayerTest {
 
     @Test
     fun whenPausingWhileNotPlaying_andFocusNotGranted_pausesPlayback() {
-        // Given a new player
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
+        // Given an acquired audio focus
+        shadowAudioManager.setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
 
         // When pausing playback while not playing
         player.playWhenReady = false
@@ -123,26 +120,24 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenPausingWhileFocused_shouldAbandonFocus() {
         // Given a player that has audio focus
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.playWhenReady = true
+        givenPlayerWithFocus()
 
         // When pausing playback
         player.playWhenReady = false
 
         // It should abandon audio focus.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            then(grantedFocusAudioManager).should().abandonAudioFocusRequest(any())
+            then(audioManager).should().abandonAudioFocusRequest(any())
         } else {
             @Suppress("deprecation")
-            then(grantedFocusAudioManager).should().abandonAudioFocus(any())
+            then(audioManager).should().abandonAudioFocus(any())
         }
     }
 
     @Test
     fun whenFocusChangedToTransientDuck_shouldKeepPlayingAtLowerVolume() {
         // Given a player that has audio focus
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        givenPlayerWithFocus()
 
         // When audio focus is lost and duck is allowed
         player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
@@ -155,8 +150,7 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenFocusGainedAfterDuck_shouldRestoreVolume() {
         // Given a player that has lost audio focus but was allowed to play at lower volume
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
+        givenPlayerWithFocus(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
 
         // When audio focus is restored
         player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
@@ -168,8 +162,7 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenFocusChangedToTransient_shouldPausePlayback() {
         // Given a player that has audio focus
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        givenPlayerWithFocus()
 
         // When audio focus is lost temporarily (for example during a phone call)
         player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
@@ -181,8 +174,7 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenFocusGainedAfterTransient_shouldResumePlayback() {
         // Given a player that has lost audio focus temporarily
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
+        givenPlayerWithFocus(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
 
         // When audio focus is restored
         player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
@@ -194,8 +186,7 @@ class AudioFocusAwarePlayerTest {
     @Test
     fun whenFocusIsLost_shouldPausePlaybackAndAbandonFocus() {
         // Given a player that has audio focus
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        givenPlayerWithFocus()
 
         // When audio focus is lost permanently
         player.audioFocusListener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS)
@@ -205,28 +196,52 @@ class AudioFocusAwarePlayerTest {
 
         // It should abandon audio focus.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            then(grantedFocusAudioManager).should().abandonAudioFocusRequest(any())
+            then(audioManager).should().abandonAudioFocusRequest(any())
         } else {
             @Suppress("deprecation")
-            then(grantedFocusAudioManager).should().abandonAudioFocus(any())
+            then(audioManager).should().abandonAudioFocus(any())
         }
     }
 
     @Test
     fun whenStopPlayer_shouldAbandonAudioFocus() {
         // Given a player that has audio focus
-        val player = AudioFocusAwarePlayer(grantedFocusAudioManager, wrappedPlayer)
-        player.playWhenReady = true
+        givenPlayerWithFocus()
 
         // When stopping player
         player.stop()
 
         // Player should abandon audio focus
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            then(grantedFocusAudioManager).should().abandonAudioFocusRequest(any())
+            then(audioManager).should().abandonAudioFocusRequest(any())
         } else {
             @Suppress("deprecation")
-            then(grantedFocusAudioManager).should().abandonAudioFocus(any())
+            then(audioManager).should().abandonAudioFocus(any())
         }
+    }
+
+    private fun givenPlayerWithFocus(audioFocus: Int = AudioManager.AUDIOFOCUS_GAIN) {
+        // Start playback and acquire Audio Focus
+        player.playWhenReady = true
+
+        // Make the player lose its focus if requested
+        when (audioFocus) {
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                player.audioFocusListener.onAudioFocusChange(audioFocus)
+            }
+        }
+
+        // Forget interactions with the wrapped player
+        // so that initialization code does not change test results.
+        Mockito.reset(wrappedPlayer)
+        setupPlayWhenReadyStubProperty()
+    }
+
+    private fun setupPlayWhenReadyStubProperty() {
+        val playWhenReady = PropertyStub(false)
+        given(wrappedPlayer.playWhenReady).will(playWhenReady.getValue)
+        will(playWhenReady.setValue).given(wrappedPlayer).playWhenReady = anyBoolean()
     }
 }
