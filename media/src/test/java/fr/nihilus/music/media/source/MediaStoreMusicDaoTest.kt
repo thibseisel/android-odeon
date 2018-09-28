@@ -1,45 +1,61 @@
+/*
+ * Copyright 2018 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package fr.nihilus.music.media.source
 
+import android.Manifest
+import android.content.ContentResolver
 import android.content.Context
-import android.provider.MediaStore
+import android.content.pm.PackageManager
 import android.provider.MediaStore.Audio.*
-import android.support.test.filters.SmallTest
-import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaMetadataCompat
-import android.test.mock.MockContentResolver
 import android.util.LongSparseArray
-import fr.nihilus.music.media.*
-import fr.nihilus.music.media.mock.MockCursorProvider
-import fr.nihilus.music.media.utils.hasExternalStoragePermission
+import fr.nihilus.music.media.CATEGORY_ALBUMS
+import fr.nihilus.music.media.CATEGORY_ARTISTS
+import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.mediaIdOf
+import fr.nihilus.music.media.utils.PermissionDeniedException
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.BDDMockito.given
+import org.mockito.BDDMockito.willThrow
+import org.mockito.Mock
 import org.mockito.Mockito.*
-import kotlin.to
+import org.mockito.junit.MockitoJUnit
+import org.mockito.junit.MockitoRule
+import org.robolectric.RobolectricTestRunner
 
-@Suppress("FunctionName")
-@SmallTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 class MediaStoreMusicDaoTest {
 
+    @[Rule JvmField] val mockitoRule: MockitoRule = MockitoJUnit.rule().silent()
+
+    @Mock private lateinit var mockContext: Context
+    @Mock private lateinit var mockResolver: ContentResolver
+
     private val metadataCache = LongSparseArray<MediaMetadataCompat>()
-    private val mockProvider = MockCursorProvider()
-
-    private val mockResolver = MockContentResolver().apply {
-        addProvider(MediaStore.AUTHORITY, mockProvider)
-    }
-
-    private val mockContext = mock<Context>().apply {
-        `when`(contentResolver).thenReturn(mockResolver)
-    }
-
     private lateinit var subject: MediaStoreMusicDao
 
     @Before
     fun setUp() {
-        // Instantiate the class under test
+        given(mockContext.contentResolver).willReturn(mockResolver)
         subject = MediaStoreMusicDao(mockContext, metadataCache)
     }
 
@@ -47,13 +63,12 @@ class MediaStoreMusicDaoTest {
     fun tearDown() {
         // Clear cache and query results mappings, effectively recycling them
         metadataCache.clear()
-        mockProvider.reset()
     }
 
     @Test
     fun getTracks_whenStoreEmpty_emitsNothing() {
         val cursor = mockTracksCursor()
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         subject.getTracks(null, null).test()
             .assertNoErrors()
@@ -64,7 +79,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_emitItemsFromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val observer = subject.getTracks(null, null).test()
         with(observer) {
@@ -88,7 +103,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_translatesRequiredMetadataKey() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val observer = subject.getTracks(null, null).test()
             .assertNoErrors()
@@ -122,7 +137,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_whenCacheEmpty_fillCacheFromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val observer = subject.getTracks(null, null).test()
             .assertNoErrors()
@@ -137,24 +152,10 @@ class MediaStoreMusicDaoTest {
 
     @Test
     fun getTracks_whenQueryFails_completesWithNoItems() {
-        // When a query fails, ContentResolver.query returns a null cursor
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, null)
+        // Given a query of MediaStore tracks that fails...
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(null)
 
-        subject.getTracks(null, null).test()
-            .assertNoErrors()
-            .assertNoValues()
-            .assertComplete()
-    }
-
-    //@Test
-    fun getTracks_whenNoStoragePermission_emitsNothing() {
-        // Simulate a denied permission to read/write external storage
-        // FIXME Test cannot be performed due to Kotlin object being final
-        `when`(any<Context>().hasExternalStoragePermission()).thenReturn(false)
-
-        val cursor = mockTracksCursor(0, 1, 2, 3)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
-
+        // Then the stream of metadata should complete without emitting elements.
         subject.getTracks(null, null).test()
             .assertNoErrors()
             .assertNoValues()
@@ -162,9 +163,26 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
+    fun getTracks_whenNoStoragePermission_emitsNothing() {
+        // Simulate a denied permission to read/write external storage
+        given(mockContext.checkPermission(
+            eq(Manifest.permission.READ_EXTERNAL_STORAGE),
+            anyInt(),
+            anyInt()
+        )).willReturn(PackageManager.PERMISSION_DENIED)
+
+        willThrow(SecurityException())
+            .given(mockResolver).query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())
+
+        subject.getTracks(null, null).test()
+            .assertNoValues()
+            .assertError { it is PermissionDeniedException && it.permission == Manifest.permission.READ_EXTERNAL_STORAGE }
+    }
+
+    @Test
     fun getTracks_withSorting_emitsFromStoreInOrder() {
         val cursor = mockTracksCursor(2, 9, 4)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val sorting = "${MusicDao.METADATA_KEY_DATE} DESC"
         val observer = subject.getTracks(null, sorting).test()
@@ -182,7 +200,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_withStringCriterion_emitsOnlyMatching() {
         val cursor = mockTracksCursor(2, 6, 8, 9)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val criteria = mapOf(MediaMetadataCompat.METADATA_KEY_ARTIST to "Foo Fighters")
         val observer = subject.getTracks(criteria, null).test()
@@ -201,7 +219,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_withLongCriterion_emitsOnlyMatching() {
         val cursor = mockTracksCursor(2, 6, 8, 9)
-        mockProvider.registerQueryResult(Media.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val criteria = mapOf(MusicDao.METADATA_KEY_ARTIST_ID to 13L)
         val observer = subject.getTracks(criteria, null).test()
@@ -220,7 +238,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getAlbums_whenStoreEmpty_completesWithNoItems() {
         val cursor = mockAlbumCursor()
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         subject.getAlbums(null, null).test()
             .assertNoErrors()
@@ -231,7 +249,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getAlbums_emitsAlbumsFromStore() {
         val cursor = mockAlbumCursor(0, 1, 2, 3, 4, 5, 6, 7)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val observer = subject.getAlbums(null, null).test()
             .assertNoErrors()
@@ -251,7 +269,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getAlbums_translatesRequiredProperties() {
         val cursor = mockAlbumCursor(0)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, cursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
 
         val album = subject.getAlbums(null, null).test()
             .assertNoErrors()
@@ -279,8 +297,8 @@ class MediaStoreMusicDaoTest {
     fun getArtists_emptyStore_completesWithNoItems() {
         val artistCursor = mockArtistCursor()
         val albumCursor = mockAlbumCursor()
-        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
 
         subject.getArtists().test()
             .assertNoErrors()
@@ -293,8 +311,8 @@ class MediaStoreMusicDaoTest {
         val artistCursor = mockArtistCursor(0, 1, 2, 3, 4)
         // Albums should be sorted by artist name + descending release year
         val albumCursor = mockAlbumCursor(3, 1, 6, 2, 5, 7, 0, 4)
-        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
 
         val artists = subject.getArtists().test()
             .assertNoErrors()
@@ -318,8 +336,8 @@ class MediaStoreMusicDaoTest {
         // The selection of iconUri is covered by another test
         val artistCursor = mockArtistCursor(2)
         val albumCursor = mockAlbumCursor(6)
-        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
 
         val artist = subject.getArtists().test()
             .assertNoErrors()
@@ -348,8 +366,8 @@ class MediaStoreMusicDaoTest {
         // Select artist "Foo Fighters" and 3 of their albums
         val artistCursor = mockArtistCursor(3)
         val albumCursor = mockAlbumCursor(2, 5, 7)
-        mockProvider.registerQueryResult(Artists.EXTERNAL_CONTENT_URI, artistCursor)
-        mockProvider.registerQueryResult(Albums.EXTERNAL_CONTENT_URI, albumCursor)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
 
         val artist = subject.getArtists().test()
             .assertNoErrors()
@@ -362,4 +380,10 @@ class MediaStoreMusicDaoTest {
         assertEquals(expectedIconUri, artist.iconUri)
     }
 }
+
+fun assertMetadataKeyEquals(
+    expected: MediaMetadataCompat,
+    actual: MediaMetadataCompat,
+    key: String
+) = assertEquals(expected.bundle.get(key), actual.bundle.get(key))
 

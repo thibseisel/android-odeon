@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import fr.nihilus.music.media.di.ServiceScoped
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val VOLUME_NORMAL = 1.0f
 private const val VOLUME_DUCK = 0.2f
@@ -42,7 +43,7 @@ private const val VOLUME_DUCK = 0.2f
 internal class AudioFocusAwarePlayer
 @Inject constructor(
     private val audioManager: AudioManager,
-    private val player: SimpleExoPlayer
+    @Named("WrappedPlayer") private val player: SimpleExoPlayer
 ) : ExoPlayer by player {
 
     private val audioAttributes = AudioAttributesCompat.Builder()
@@ -61,7 +62,7 @@ internal class AudioFocusAwarePlayer
 
     /**
      * Notify that the audio focus for this player has changed.
-     * Visibility has been relaxed, so that the focus change can be simulated during tests.
+     * Visibility has been relaxed so that focus changes can be simulated during tests.
      */
     @VisibleForTesting
     @Suppress("MemberVisibilityCanBePrivate")
