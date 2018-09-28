@@ -18,27 +18,32 @@ package fr.nihilus.music.media.di
 
 import android.content.Context
 import android.media.AudioManager
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import fr.nihilus.music.media.playback.AudioOnlyRenderersFactory
 import fr.nihilus.music.media.service.MusicService
-import javax.inject.Named
 
 @Module(includes = [ServiceBindingsModule::class])
 internal object PlaybackModule {
 
     @JvmStatic
-    @[Provides Reusable]
-    @Named("WrappedPlayer")
+    @[Provides ServiceScoped]
     fun provideExoPlayer(context: MusicService): ExoPlayer = ExoPlayerFactory.newSimpleInstance(
         context,
         AudioOnlyRenderersFactory(context),
         DefaultTrackSelector()
-    )
+    ).also {
+        val musicAttributes = AudioAttributes.Builder()
+            .setContentType(C.CONTENT_TYPE_MUSIC)
+            .setUsage(C.USAGE_MEDIA)
+            .build()
+        it.setAudioAttributes(musicAttributes, true)
+    }
 
     @JvmStatic
     @Provides

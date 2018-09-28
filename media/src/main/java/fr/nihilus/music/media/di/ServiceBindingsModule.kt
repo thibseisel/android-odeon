@@ -22,7 +22,6 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.SharedPreferencesMediaSettings
-import fr.nihilus.music.media.playback.AudioFocusAwarePlayer
 
 @Module
 @Suppress("unused")
@@ -32,8 +31,5 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsSettings(settings: SharedPreferencesMediaSettings): MediaSettings
 
     @Binds
-    abstract fun bindsExoPlayer(player: AudioFocusAwarePlayer): ExoPlayer
-
-    @Binds
-    abstract fun bindsPlayer(player: AudioFocusAwarePlayer): Player
+    abstract fun bindsPlayer(player: ExoPlayer): Player
 }
