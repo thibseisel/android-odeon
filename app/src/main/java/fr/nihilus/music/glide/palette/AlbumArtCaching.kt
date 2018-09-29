@@ -301,8 +301,8 @@ class AlbumArtEncoder(
 
         return try {
             encoder.encode(BitmapResource(bitmap, bitmapPool), file, options).also {
-                FileOutputStream(file, true).use {
-                    it.write(paletteBytes, 0, HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
+                FileOutputStream(file, true).use {file ->
+                    file.write(paletteBytes, 0, HEADER_BYTE_SIZE + PALETTE_BYTE_SIZE)
                 }
             }
         } catch (e: IOException) {

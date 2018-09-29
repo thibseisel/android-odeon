@@ -39,14 +39,14 @@ class GlideModule : AppGlideModule() {
 
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         val bitmapEncoder = BitmapEncoder(glide.arrayPool)
-        val downsampler = Downsampler(
+        val downSampler = Downsampler(
             registry.imageHeaderParsers,
             context.resources.displayMetrics,
             glide.bitmapPool,
             glide.arrayPool
         )
-        val bufferBitmapDecoder = ByteBufferBitmapDecoder(downsampler)
-        val streamBitmapDecoder = StreamBitmapDecoder(downsampler, glide.arrayPool)
+        val bufferBitmapDecoder = ByteBufferBitmapDecoder(downSampler)
+        val streamBitmapDecoder = StreamBitmapDecoder(downSampler, glide.arrayPool)
 
         // Decode AlbumArts from source or cache, generating an AlbumPalette only when required.
         registry.append(

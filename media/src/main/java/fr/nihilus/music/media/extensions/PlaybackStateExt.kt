@@ -47,6 +47,7 @@ inline val PlaybackStateCompat.isSkipToPreviousEnabled
 /**
  * The name of the state code of this playback state.
  */
+@Suppress("unused")
 val PlaybackStateCompat.stateName: String get() = when (state) {
     PlaybackStateCompat.STATE_NONE -> "NONE"
     PlaybackStateCompat.STATE_STOPPED -> "STOPPED"

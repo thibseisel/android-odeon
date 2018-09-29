@@ -253,7 +253,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         val md: MessageDigest = try {
             MessageDigest.getInstance("SHA256")
         } catch (noSuchAlgorithmException: NoSuchAlgorithmException) {
-            Timber.e( "No such algorithm: %s", noSuchAlgorithmException)
+            Timber.e( noSuchAlgorithmException, "No such algorithm: SHA256")
             throw RuntimeException("Could not find SHA256 hash algorithm", noSuchAlgorithmException)
         }
         md.update(certificate)

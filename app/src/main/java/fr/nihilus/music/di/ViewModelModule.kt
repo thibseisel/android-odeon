@@ -26,7 +26,7 @@ import fr.nihilus.music.client.ViewModelKey
 
 /**
  * Every ViewModel subclass that can be created with [ViewModelFactory]
- * must be registered in this module via a Map Multibinding.
+ * must be registered in this module via a Map MultiBinding.
  *
  * The key must be the actual subclass of ViewModel.
  */

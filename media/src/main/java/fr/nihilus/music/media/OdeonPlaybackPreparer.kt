@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.media.command.MediaSessionCommand
+import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.MusicService
 import javax.inject.Inject
@@ -49,6 +50,7 @@ internal class OdeonPlaybackPreparer
     private val commandHandlers: Map<String, @JvmSuppressWildcards MediaSessionCommand>
 ) : MediaSessionConnector.PlaybackPreparer {
 
+    private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
     private val appDataSourceFactory = DefaultDataSourceFactory(
         service,
         Util.getUserAgent(service, service.getString(R.string.app_name))
@@ -121,6 +123,7 @@ internal class OdeonPlaybackPreparer
                 }
 
                 ExtractorMediaSource.Factory(appDataSourceFactory)
+                    .setExtractorsFactory(audioOnlyExtractors)
                     .setTag(playableItem)
                     .createMediaSource(sourceUri)
             }

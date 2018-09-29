@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.extractor.wav.WavExtractor
 internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
 
     @Synchronized
-    override fun createExtractors(): Array<Extractor> = arrayOf(
+    override fun createExtractors() = arrayOf<Extractor>(
         // Most used audio file extensions .mp3 and .wav
         Mp3Extractor(),
         WavExtractor(),

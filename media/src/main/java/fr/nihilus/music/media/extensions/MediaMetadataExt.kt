@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
@@ -75,9 +76,11 @@ inline val MediaMetadataCompat.albumArtUri: Uri?
     get() = this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)?.toUri()
 
 inline val MediaMetadataCompat.userRating: Long
+    @SuppressLint("WrongConstant")
     get() = getLong(MediaMetadataCompat.METADATA_KEY_USER_RATING)
 
 inline val MediaMetadataCompat.rating: Long
+    @SuppressLint("WrongConstant")
     get() = getLong(MediaMetadataCompat.METADATA_KEY_RATING)
 
 inline val MediaMetadataCompat.displayTitle: String?
@@ -99,15 +102,19 @@ inline val MediaMetadataCompat.mediaUri: Uri?
     get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)?.toUri()
 
 inline val MediaMetadataCompat.availabilityDate: Long
+    @SuppressLint("WrongConstant")
     get() = getLong(MusicDao.METADATA_KEY_DATE)
 
 inline val MediaMetadataCompat.titleKey: String
+    @SuppressLint("WrongConstant")
     get() = getString(MusicDao.METADATA_KEY_TITLE_KEY)
 
 inline val MediaMetadataCompat.albumId: Long
+    @SuppressLint("WrongConstant")
     get() = getLong(MusicDao.METADATA_KEY_ALBUM_ID)
 
 inline val MediaMetadataCompat.artistId: Long
+    @SuppressLint("WrongConstant")
     get() = getLong(MusicDao.METADATA_KEY_ARTIST_ID)
 
 
@@ -201,6 +208,7 @@ inline var MediaMetadataCompat.Builder.trackCount: Long
 inline var MediaMetadataCompat.Builder.availabilityDate: Long
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
+    @SuppressLint("WrongConstant")
     set(value) {
         putLong(MusicDao.METADATA_KEY_DATE, value)
     }
@@ -236,6 +244,7 @@ inline var MediaMetadataCompat.Builder.displayIconUri: String?
 inline var MediaMetadataCompat.Builder.titleKey: String
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
+    @SuppressLint("WrongConstant")
     set(value) {
         putString(MusicDao.METADATA_KEY_TITLE_KEY, value)
     }
@@ -243,6 +252,7 @@ inline var MediaMetadataCompat.Builder.titleKey: String
 inline var MediaMetadataCompat.Builder.albumId: Long
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
+    @SuppressLint("WrongConstant")
     set(value) {
         putLong(MusicDao.METADATA_KEY_ALBUM_ID, value)
     }
@@ -250,6 +260,7 @@ inline var MediaMetadataCompat.Builder.albumId: Long
 inline var MediaMetadataCompat.Builder.artistId: Long
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
+    @SuppressLint("WrongConstant")
     set(value) {
         putLong(MusicDao.METADATA_KEY_ARTIST_ID, value)
     }

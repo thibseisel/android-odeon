@@ -54,10 +54,10 @@ internal class SharedPreferencesUiSettings
 ) : UiSettings {
 
     override val nightMode: Int
-        get() = prefs.getString(context.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE).toInt()
+        get() = prefs.getString(context.getString(R.string.pref_night_mode), DEFAULT_NIGHT_MODE)!!.toInt()
 
     override val startupScreenMediaId: String
-        get() = prefs.getString(KEY_STARTUP_SCREEN, context.getString(R.string.pref_default_startup_screen))
+        get() = prefs.getString(KEY_STARTUP_SCREEN, context.getString(R.string.pref_default_startup_screen))!!
 
     override val shouldSkipSilence: Boolean
         get() = prefs.getBoolean(KEY_SKIP_SILENCE, false)

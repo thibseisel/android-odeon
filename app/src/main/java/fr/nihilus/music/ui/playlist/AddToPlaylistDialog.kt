@@ -36,11 +36,11 @@ import android.widget.TextView
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.media.command.EditPlaylistCommand
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.command.EditPlaylistCommand
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.media.utils.MediaID
 
@@ -110,8 +110,8 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
 
         browserViewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
         browserViewModel.subscribeTo(CATEGORY_PLAYLISTS).observe(this, Observer {
-            val children = it?.filter {
-                MediaID.getIdRoot(it.mediaId!!) == CATEGORY_PLAYLISTS
+            val children = it?.filter {item ->
+                MediaID.getIdRoot(item.mediaId!!) == CATEGORY_PLAYLISTS
             }.orEmpty()
             playlistAdapter.update(children)
         })

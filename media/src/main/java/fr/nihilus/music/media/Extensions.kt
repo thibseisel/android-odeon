@@ -103,6 +103,7 @@ inline fun MediaDescriptionCompat.copy(
     return builder.build()
 }
 
+@Suppress("unused")
 internal val Int.discontinuityReasonName get() = when (this) {
     Player.DISCONTINUITY_REASON_AD_INSERTION -> "AD_INSERTION"
     Player.DISCONTINUITY_REASON_PERIOD_TRANSITION -> "PERIOD_TRANSITION"
@@ -112,6 +113,7 @@ internal val Int.discontinuityReasonName get() = when (this) {
     else -> "UNKNOWN"
 }
 
+@Suppress("unused")
 internal val Int.timelineChangedReasonName get() = when(this) {
     Player.TIMELINE_CHANGE_REASON_DYNAMIC -> "DYNAMIC"
     Player.TIMELINE_CHANGE_REASON_PREPARED -> "PREPARED"

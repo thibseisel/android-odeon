@@ -16,6 +16,7 @@
 
 package fr.nihilus.music
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.annotation.LayoutRes
@@ -31,12 +32,14 @@ import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.media.toUri
 import java.lang.ref.WeakReference
 
+
 /**
  * Convert this [MediaMetadataCompat] into its [MediaDescriptionCompat] equivalent.
  * @param categories the Media ID to use a prefix for this item's Media ID
  * @param builder an optional builder for reuse
  * @return a media description created from this track metadata
  */
+@SuppressLint("WrongConstant")
 fun MediaMetadataCompat.asMediaDescription(
     builder: MediaDescriptionCompat.Builder,
     vararg categories: String

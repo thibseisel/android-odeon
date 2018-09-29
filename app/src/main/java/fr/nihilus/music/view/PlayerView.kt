@@ -390,7 +390,7 @@ class PlayerView
         @JvmField var repeatMode: Int = 0
         @JvmField var expanded: Boolean = false
 
-        constructor(superState: Parcelable) : super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
         constructor(parcel: Parcel) : super(parcel) {
             lastPlaybackState = parcel.readParcelable(PlaybackStateCompat::class.java.classLoader)

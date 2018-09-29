@@ -55,7 +55,7 @@ class ScrollPositionListView
     private class SavedState : BaseSavedState {
         @JvmField var scrollPosition: Int = 0
 
-        constructor(superState: Parcelable) : super(superState)
+        constructor(superState: Parcelable?) : super(superState)
 
         constructor(source: Parcel) : super(source) {
             scrollPosition = source.readInt()

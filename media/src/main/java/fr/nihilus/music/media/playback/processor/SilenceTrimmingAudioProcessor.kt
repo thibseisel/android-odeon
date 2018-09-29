@@ -48,6 +48,9 @@ private const val SILENCE_THRESHOLD_LEVEL: Short = 1024
  */
 private const val SILENCE_THRESHOLD_LEVEL_MSB = ((SILENCE_THRESHOLD_LEVEL + 128) shr 8).toByte()
 
+/** An empty byte array allocated only once for reuse. */
+private val EMPTY_BYTE_ARRAY = ByteArray(0)
+
 /**
  * Enumeration of trimming states.
  */
@@ -68,9 +71,6 @@ private const val STATE_SILENT = 2
  * Input and output are 16-bits PCM.
  */
 internal class SilenceTrimmingAudioProcessor : AudioProcessor {
-
-    /** An empty byte array allocated only once for reuse. */
-    private val EMPTY_BYTE_ARRAY = ByteArray(0)
 
     /** The output channel count. This is the same as the configured input. */
     private var channelCount = Format.NO_VALUE
