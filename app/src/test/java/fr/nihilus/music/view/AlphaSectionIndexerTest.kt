@@ -115,6 +115,15 @@ class AlphaSectionIndexerTest {
     }
 
     @Test
+    fun whenNoSections_sectionForPositionReturnsZero() {
+        indexer.onChanged()
+
+        assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
+        assertThat(indexer.getSectionForPosition(2)).isEqualTo(0)
+        assertThat(indexer.getSectionForPosition(5)).isEqualTo(0)
+    }
+
+    @Test
     fun withSimpleItems_eachHasItsOwnSection() {
         items.addAll(oneSectionPerItem)
         indexer.onChanged()
@@ -157,6 +166,72 @@ class AlphaSectionIndexerTest {
         // [8] "Supermassive Black Hole" -> Section [4] "S"
         assertThat(indexer.getSectionForPosition(5)).isEqualTo(3)
     }
+
+    @Test
+    fun withRealisticItems_allAreInTheCorrectCategory() {
+        items.addAll(realisticItems)
+        indexer.onChanged()
+
+        // [0] "[F]" -> Section [0] "#"
+        assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
+        // [1] "10 Years Today" -> Section [0] "#"
+        assertThat(indexer.getSectionForPosition(1)).isEqualTo(0)
+        // [2] "The 2nd Law: Isolated System" -> Section [0] "#"
+        assertThat(indexer.getSectionForPosition(2)).isEqualTo(0)
+        // [3] "Another One Bites the Dust" -> Section [1] "A"
+        assertThat(indexer.getSectionForPosition(3)).isEqualTo(1)
+        // [4] "Get Lucky" -> Section [2] "G"
+        assertThat(indexer.getSectionForPosition(4)).isEqualTo(2)
+        // [5] "The Sky Is A Neighborhood" -> Section [3] "S"
+        assertThat(indexer.getSectionForPosition(5)).isEqualTo(3)
+        // [6] "Supermassive Black Hole" -> Section [3] "S"
+        assertThat(indexer.getSectionForPosition(6)).isEqualTo(3)
+    }
+
+    @Test
+    fun withSimpleItems_getPositionForSection() {
+        items.addAll(oneSectionPerItem)
+        indexer.onChanged()
+
+        assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
+        assertThat(indexer.getPositionForSection(1)).isEqualTo(1)
+        assertThat(indexer.getPositionForSection(2)).isEqualTo(2)
+        assertThat(indexer.getPositionForSection(3)).isEqualTo(3)
+        assertThat(indexer.getPositionForSection(4)).isEqualTo(4)
+        assertThat(indexer.getPositionForSection(5)).isEqualTo(5)
+    }
+
+    @Test
+    fun withMultipleItemsPerSection_getPositionForSection() {
+        items.addAll(sameFirstLetter)
+        indexer.onChanged()
+
+        // Section [0] "A" starts at [0] "Another One Bites the Dust"
+        assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
+        // Section [1] "B" starts at [1] "Back in Black"
+        assertThat(indexer.getPositionForSection(1)).isEqualTo(1)
+        // Section [2] "C" starts at [4] "Come As You Are"
+        assertThat(indexer.getPositionForSection(2)).isEqualTo(4)
+        // Section [3] "H" starts at [5] "Hells Bells"
+        assertThat(indexer.getPositionForSection(3)).isEqualTo(3)
+        // Section [4] "S" starts at [7] "Something Human"
+        assertThat(indexer.getPositionForSection(4)).isEqualTo(4)
+    }
+
+    @Test
+    fun withRealisticItems_getPositionForSection() {
+        items.addAll(realisticItems)
+        indexer.onChanged()
+
+        // Section [0] "#" starts at [0] "[F]"
+        assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
+        // Section [1] "A" starts at [3] "Another One Bites the Dust"
+        assertThat(indexer.getPositionForSection(1)).isEqualTo(3)
+        // Section [2] "G" starts at [4] "Get Lucky"
+        assertThat(indexer.getPositionForSection(2)).isEqualTo(4)
+        // Section [3] "S" starts at [5] "The Sky Is A Neighborhood"
+        assertThat(indexer.getPositionForSection(3)).isEqualTo(5)
+    }
 }
 
 private val oneSectionPerItem = arrayOf(
@@ -193,4 +268,14 @@ private val itemsWithLeadingCommonArticles = arrayOf(
     "The Sky Is A Neighborhood",
     "Supermassive Black Hole",
     "An Unexpected Journey"
+)
+
+private val realisticItems = arrayOf(
+    "[F]",
+    "10 Years Today",
+    "The 2nd Law: Isolated System",
+    "Another One Bites the Wall",
+    "Get Lucky",
+    "The Sky Is A Neighborhood",
+    "Supermassive Black Hole"
 )
