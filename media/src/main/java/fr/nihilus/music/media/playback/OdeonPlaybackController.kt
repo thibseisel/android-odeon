@@ -19,8 +19,12 @@ package fr.nihilus.music.media.playback
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.media.di.ServiceScoped
 import javax.inject.Inject
+
+private const val REWIND_MILLIS = 10_000L
+private const val FAST_FORWARD_MILLIS = 30_000L
 
 /**
  * A custom [DefaultPlaybackController] that allows setting shuffle mode and repeat mode
@@ -28,7 +32,11 @@ import javax.inject.Inject
  */
 @ServiceScoped
 class OdeonPlaybackController
-@Inject constructor() : DefaultPlaybackController() {
+@Inject constructor() : DefaultPlaybackController(
+    REWIND_MILLIS,
+    FAST_FORWARD_MILLIS,
+    MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES
+) {
 
     override fun getSupportedPlaybackActions(player: Player?): Long {
         return if (player != null)

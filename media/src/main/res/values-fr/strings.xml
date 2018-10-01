@@ -30,4 +30,6 @@
     <string name="abc_channel_mediasession">Lecture en cours</string>
     <string name="abc_channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>
     <string name="abc_pref_title_skip_silence">Couper les silences</string>
+    <string name="abc_action_rewind">Rembobiner</string>
+    <string name="abc_action_fast_forward">Avance rapide</string>
 </resources>
