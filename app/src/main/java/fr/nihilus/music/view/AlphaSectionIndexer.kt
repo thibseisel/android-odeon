@@ -35,14 +35,28 @@ class AlphaSectionIndexer(
     }
 
     override fun onChanged() {
-        generateIndexes()
+        generateSections()
     }
 
     override fun onInvalidated() {
-        TODO("Clear the indexer's structure")
+        sections = emptyArray()
     }
 
-    private fun generateIndexes() {
-        TODO("Generate indexes from items")
+    private fun generateSections() {
+        val titlesPerSection = items.asSequence()
+            .map { trimCommonPrefixes(it.trimStart().toUpperCase()) }
+            .groupBy { it.section }
+
+        sections = titlesPerSection.keys.toTypedArray()
     }
 }
+
+private fun trimCommonPrefixes(text: String) = when {
+    text.startsWith("THE ") -> text.drop(4)
+    text.startsWith("AN ") -> text.drop(3)
+    text.startsWith("A ") -> text.drop(2)
+    else -> text
+}
+
+private val String.section: String
+    get() = if (!first().isLetter()) "#" else this.substring(0, 1)
