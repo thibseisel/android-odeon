@@ -23,7 +23,6 @@
 
         <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">
