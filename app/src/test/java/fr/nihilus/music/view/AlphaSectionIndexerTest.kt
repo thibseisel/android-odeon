@@ -21,7 +21,10 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class AlphaSectionIndexerTest {
 
     private val items = mutableListOf<String>()
@@ -213,9 +216,9 @@ class AlphaSectionIndexerTest {
         // Section [2] "C" starts at [4] "Come As You Are"
         assertThat(indexer.getPositionForSection(2)).isEqualTo(4)
         // Section [3] "H" starts at [5] "Hells Bells"
-        assertThat(indexer.getPositionForSection(3)).isEqualTo(3)
+        assertThat(indexer.getPositionForSection(3)).isEqualTo(5)
         // Section [4] "S" starts at [7] "Something Human"
-        assertThat(indexer.getPositionForSection(4)).isEqualTo(4)
+        assertThat(indexer.getPositionForSection(4)).isEqualTo(7)
     }
 
     @Test
