@@ -35,12 +35,12 @@ import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.utils.MediaItemIndexer
+import fr.nihilus.music.view.AlphaSectionIndexer
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     private val songs = ArrayList<MediaBrowserCompat.MediaItem>()
-    private val indexer = MediaItemIndexer(songs)
+    private val indexer = AlphaSectionIndexer()
     private val glideRequest: GlideRequest<Bitmap>
 
     init {
@@ -98,6 +98,7 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
     fun updateItems(newItems: List<MediaBrowserCompat.MediaItem>) {
         songs.clear()
         songs.addAll(newItems)
+        indexer.updateItems(songs.map { it.description.title?.toString().orEmpty() })
         notifyDataSetChanged()
     }
 
