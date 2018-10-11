@@ -18,23 +18,19 @@ package fr.nihilus.music.view
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class AlphaSectionIndexerTest {
 
-    private val items = mutableListOf<String>()
     private lateinit var indexer: AlphaSectionIndexer
 
     @Before
     fun setUp() {
-        indexer = AlphaSectionIndexer(items)
-    }
-
-    @After
-    fun tearDown() {
-        items.clear()
+        indexer = AlphaSectionIndexer()
     }
 
     @Test
@@ -55,7 +51,7 @@ class AlphaSectionIndexerTest {
     @Test
     fun withSimpleItemSet_itShouldHaveOneSectionPerLetter() {
         // Given a set of items each starting with a different letter
-        items.addAll(oneSectionPerItem)
+        indexer.updateItems(oneSectionPerItem)
         indexer.onChanged()
 
         // There should be as many sections as items
@@ -69,7 +65,7 @@ class AlphaSectionIndexerTest {
     @Test
     fun whenSameFirstLetter_itShouldHaveOneSectionPerLetter() {
         // Given items where some share the same first letter
-        items.addAll(sameFirstLetter)
+        indexer.updateItems(sameFirstLetter)
         indexer.onChanged()
 
         // There should be one section per letter
@@ -82,7 +78,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun whenNotStartingByAZ_itShouldFallInFirstSection() {
-        items.addAll(itemsWithLeadingNonLetterCharacter)
+        indexer.updateItems(itemsWithLeadingNonLetterCharacter)
         indexer.onChanged()
 
         // The first section should be dedicated to non-letter items.
@@ -97,7 +93,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun shouldIgnoreCommonEnglishArticles() {
-        items.addAll(itemsWithLeadingCommonArticles)
+        indexer.updateItems(itemsWithLeadingCommonArticles)
         indexer.onChanged()
 
         val sections = indexer.sections
@@ -106,7 +102,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun whenInvalidated_itShouldHaveNoSections() {
-        items.addAll(sameFirstLetter)
+        indexer.updateItems(sameFirstLetter)
         indexer.onChanged()
 
         // When items are invalidated
@@ -125,7 +121,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun withSimpleItems_eachHasItsOwnSection() {
-        items.addAll(oneSectionPerItem)
+        indexer.updateItems(oneSectionPerItem)
         indexer.onChanged()
 
         // [0] "Another One Bites the Dust" -> Section [0] "A"
@@ -144,7 +140,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun withSameFirstLetterItems_fallInTheSameSection() {
-        items.addAll(sameFirstLetter)
+        indexer.updateItems(sameFirstLetter)
         indexer.onChanged()
 
         // [0] "Another One Bites the Dust" -> Section [0] "A"
@@ -169,7 +165,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun withRealisticItems_allAreInTheCorrectCategory() {
-        items.addAll(realisticItems)
+        indexer.updateItems(realisticItems)
         indexer.onChanged()
 
         // [0] "[F]" -> Section [0] "#"
@@ -190,7 +186,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun withSimpleItems_getPositionForSection() {
-        items.addAll(oneSectionPerItem)
+        indexer.updateItems(oneSectionPerItem)
         indexer.onChanged()
 
         assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
@@ -203,7 +199,7 @@ class AlphaSectionIndexerTest {
 
     @Test
     fun withMultipleItemsPerSection_getPositionForSection() {
-        items.addAll(sameFirstLetter)
+        indexer.updateItems(sameFirstLetter)
         indexer.onChanged()
 
         // Section [0] "A" starts at [0] "Another One Bites the Dust"
@@ -213,14 +209,14 @@ class AlphaSectionIndexerTest {
         // Section [2] "C" starts at [4] "Come As You Are"
         assertThat(indexer.getPositionForSection(2)).isEqualTo(4)
         // Section [3] "H" starts at [5] "Hells Bells"
-        assertThat(indexer.getPositionForSection(3)).isEqualTo(3)
+        assertThat(indexer.getPositionForSection(3)).isEqualTo(5)
         // Section [4] "S" starts at [7] "Something Human"
-        assertThat(indexer.getPositionForSection(4)).isEqualTo(4)
+        assertThat(indexer.getPositionForSection(4)).isEqualTo(7)
     }
 
     @Test
     fun withRealisticItems_getPositionForSection() {
-        items.addAll(realisticItems)
+        indexer.updateItems(realisticItems)
         indexer.onChanged()
 
         // Section [0] "#" starts at [0] "[F]"
@@ -234,7 +230,7 @@ class AlphaSectionIndexerTest {
     }
 }
 
-private val oneSectionPerItem = arrayOf(
+private val oneSectionPerItem = listOf(
     "Another One Bites the Dust",
     "Black Betty",
     "Come As You Are",
@@ -243,7 +239,7 @@ private val oneSectionPerItem = arrayOf(
     "Supermassive Black Hole"
 )
 
-private val sameFirstLetter = arrayOf(
+private val sameFirstLetter = listOf(
     "Another One Bites the Dust",
     "Back in Black",
     "Black Betty",
@@ -255,14 +251,14 @@ private val sameFirstLetter = arrayOf(
     "Supermassive Black Hole"
 )
 
-private val itemsWithLeadingNonLetterCharacter = arrayOf(
+private val itemsWithLeadingNonLetterCharacter = listOf(
     "[F]",
     "10 Years Today",
     "Another One Bites The Dust",
     "Get Lucky"
 )
 
-private val itemsWithLeadingCommonArticles = arrayOf(
+private val itemsWithLeadingCommonArticles = listOf(
     "The 2nd Law: Isolated System",
     "A Little Peace Of Heaven",
     "The Sky Is A Neighborhood",
@@ -270,7 +266,7 @@ private val itemsWithLeadingCommonArticles = arrayOf(
     "An Unexpected Journey"
 )
 
-private val realisticItems = arrayOf(
+private val realisticItems = listOf(
     "[F]",
     "10 Years Today",
     "The 2nd Law: Isolated System",

@@ -17,21 +17,37 @@
 package fr.nihilus.music.view
 
 import android.database.DataSetObserver
+import android.util.SparseIntArray
 import android.widget.SectionIndexer
 
-class AlphaSectionIndexer(
-    private val items: List<String>
-) : DataSetObserver(), SectionIndexer {
+class AlphaSectionIndexer : DataSetObserver(), SectionIndexer {
+    private val items = mutableListOf<String>()
+    private val positionForSection = SparseIntArray()
     private var sections: Array<String> = emptyArray()
 
     override fun getSections(): Array<String> = sections
 
     override fun getSectionForPosition(position: Int): Int {
-        TODO("Read the section index for that position from the data structure")
+        if (position !in items.indices) return 0
+
+        val itemAtPosition = items[position]
+        val section = itemAtPosition.stripCommonPrefixes().section
+
+        val sectionIndex = sections.binarySearch(section, Comparator { a, b ->
+            when {
+                a == "#" -> -1
+                b == "#" -> +1
+                else -> a.compareTo(b)
+            }
+        })
+
+        return sectionIndex.coerceAtLeast(0)
     }
 
     override fun getPositionForSection(sectionIndex: Int): Int {
-        TODO("Read the position for the linked section from the data structure")
+        if (sectionIndex !in sections.indices) throw IndexOutOfBoundsException()
+        val section = sections[sectionIndex]
+        return positionForSection.get(sectionKey(section), 0)
     }
 
     override fun onChanged() {
@@ -42,21 +58,37 @@ class AlphaSectionIndexer(
         sections = emptyArray()
     }
 
-    private fun generateSections() {
-        val titlesPerSection = items.asSequence()
-            .map { trimCommonPrefixes(it.trimStart().toUpperCase()) }
-            .groupBy { it.section }
+    fun updateItems(newTitles: List<String>) {
+        items.clear()
+        items += newTitles
+    }
 
-        sections = titlesPerSection.keys.toTypedArray()
+    private fun generateSections() {
+        val sectionPositionMapper = items.map { it.stripCommonPrefixes() }
+            .withIndex()
+            .groupingBy { (_, title) -> title.section }
+            .fold(Int.MAX_VALUE) { accumulator, (index, _) -> minOf(accumulator, index) }
+
+        sections = sectionPositionMapper.keys.toTypedArray()
+
+        sectionPositionMapper.forEach { (section, itemPosition) ->
+            positionForSection.put(sectionKey(section), itemPosition)
+        }
     }
 }
 
-private fun trimCommonPrefixes(text: String) = when {
-    text.startsWith("THE ") -> text.drop(4)
-    text.startsWith("AN ") -> text.drop(3)
-    text.startsWith("A ") -> text.drop(2)
-    else -> text
+private fun String.stripCommonPrefixes(): String {
+    with (this.trimStart().toUpperCase()) {
+        return when {
+            startsWith("THE ") -> drop(4)
+            startsWith("AN ") -> drop(3)
+            startsWith("A ") -> drop(2)
+            else -> this
+        }
+    }
 }
 
+private fun sectionKey(section: String): Int = section.first().toInt()
+
 private val String.section: String
-    get() = if (!first().isLetter()) "#" else this.substring(0, 1)
+    get() = if (firstOrNull()?.isLetter() == false) "#" else substring(0, 1)
