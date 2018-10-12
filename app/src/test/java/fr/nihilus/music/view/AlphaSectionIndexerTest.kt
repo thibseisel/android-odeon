@@ -54,12 +54,8 @@ class AlphaSectionIndexerTest {
         indexer.updateItems(oneSectionPerItem)
         indexer.onChanged()
 
-        // There should be as many sections as items
-        val sections = indexer.sections
-        assertThat(sections).hasLength(6)
-
         // Sections should be generated from the first letter of each item
-        assertThat(sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
+        assertThat(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
     }
 
     @Test
@@ -68,12 +64,8 @@ class AlphaSectionIndexerTest {
         indexer.updateItems(sameFirstLetter)
         indexer.onChanged()
 
-        // There should be one section per letter
-        val sections = indexer.sections
-        assertThat(sections).hasLength(5)
-
         // Sections should not feature duplicates
-        assertThat(sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
+        assertThat(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
     }
 
     @Test
@@ -96,8 +88,15 @@ class AlphaSectionIndexerTest {
         indexer.updateItems(itemsWithLeadingCommonArticles)
         indexer.onChanged()
 
-        val sections = indexer.sections
-        assertThat(sections).asList().containsExactly("#", "L", "S", "U").inOrder()
+        assertThat(indexer.sections).asList().containsExactly("#", "L", "S", "U").inOrder()
+    }
+
+    @Test
+    fun whenTitleHasAccentChars_sectionNameWithoutAccent() {
+        indexer.updateItems(itemsWithAccents)
+        indexer.onChanged()
+
+        assertThat(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
     }
 
     @Test
@@ -264,6 +263,13 @@ private val itemsWithLeadingCommonArticles = listOf(
     "The Sky Is A Neighborhood",
     "Supermassive Black Hole",
     "An Unexpected Journey"
+)
+
+private val itemsWithAccents = listOf(
+    "À la Claire Fontaine",
+    "Ça (c'est vraiment toi)",
+    "Californication",
+    "Évier Métal"
 )
 
 private val realisticItems = listOf(
