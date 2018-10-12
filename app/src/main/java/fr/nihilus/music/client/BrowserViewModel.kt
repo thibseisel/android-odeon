@@ -33,6 +33,7 @@ import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.doIfPresent
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.utils.filter
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
@@ -45,12 +46,27 @@ import kotlin.collections.HashMap
 class BrowserViewModel
 @Inject constructor(context: Context) : ViewModel() {
 
-    val playbackState = MutableLiveData<PlaybackStateCompat>()
-    val currentMetadata = MutableLiveData<MediaMetadataCompat>()
-    val repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
-    val shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
+    private val _playbackState = MutableLiveData<PlaybackStateCompat>()
+    val playbackState: LiveData<PlaybackStateCompat>
+        get() = _playbackState
 
-    private val mBrowser: MediaBrowserCompat
+    private val _currentMetadata = MutableLiveData<MediaMetadataCompat>()
+    val currentMetadata: LiveData<MediaMetadataCompat>
+        get() = _currentMetadata
+
+    private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
+    val repeatMode: LiveData<Int>
+        get() = _repeatMode
+
+    private val _shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
+    val shuffleMode: LiveData<Int>
+        get() = _shuffleMode
+
+    private val _playerError = MutableLiveData<CharSequence>()
+    val playerError: LiveData<CharSequence>
+        get() = _playerError.filter { it != null }
+
+    private val mediaBrowser: MediaBrowserCompat
     private val mControllerCallback = ControllerCallback()
     private val subscriptionCache = HashMap<String, LiveData<List<MediaBrowserCompat.MediaItem>>>()
 
@@ -60,16 +76,16 @@ class BrowserViewModel
     init {
         val componentName = ComponentName(context, MusicService::class.java)
         val connectionCallback = ConnectionCallback(context)
-        mBrowser = MediaBrowserCompat(context, componentName, connectionCallback, null)
+        mediaBrowser = MediaBrowserCompat(context, componentName, connectionCallback, null)
     }
 
     /**
      * Initiates a connection to the media browser service.
      */
     fun connect() {
-        if (!mBrowser.isConnected) {
+        if (!mediaBrowser.isConnected) {
             Timber.d("Attempt to connect to MediaSession with MediaBrowser...")
-            mBrowser.connect()
+            mediaBrowser.connect()
         }
     }
 
@@ -85,7 +101,7 @@ class BrowserViewModel
      * @param request The request to issue.
      */
     fun post(request: MediaControllerRequest) {
-        if (mBrowser.isConnected) {
+        if (mediaBrowser.isConnected) {
             // If connected, satisfy request immediately
             request.invoke(controller)
             return
@@ -125,7 +141,7 @@ class BrowserViewModel
      */
     fun subscribeTo(parentId: String): LiveData<List<MediaBrowserCompat.MediaItem>> {
         return subscriptionCache.getOrPut(parentId) {
-            SubscriptionLiveData(mBrowser, parentId)
+            SubscriptionLiveData(mediaBrowser, parentId)
         }
     }
 
@@ -133,9 +149,9 @@ class BrowserViewModel
      * @see MediaBrowserCompat.disconnect
      */
     private fun disconnect() {
-        if (mBrowser.isConnected) {
+        if (mediaBrowser.isConnected) {
             Timber.d("Disconnecting from the MediaSession")
-            mBrowser.disconnect()
+            mediaBrowser.disconnect()
         }
     }
 
@@ -153,13 +169,13 @@ class BrowserViewModel
             try {
                 contextRef.doIfPresent {
                     Timber.v("onConnected: browser is now connected to MediaBrowserService.")
-                    val controller = MediaControllerCompat(it, mBrowser.sessionToken)
+                    val controller = MediaControllerCompat(it, mediaBrowser.sessionToken)
                     controller.registerCallback(mControllerCallback)
                     this@BrowserViewModel.controller = controller
-                    currentMetadata.value = controller.metadata
-                    playbackState.value = controller.playbackState
-                    shuffleMode.value = controller.shuffleMode
-                    repeatMode.value = controller.repeatMode
+                    _currentMetadata.value = controller.metadata
+                    _playbackState.value = controller.playbackState
+                    _shuffleMode.value = controller.shuffleMode
+                    _repeatMode.value = controller.repeatMode
 
                     while (requestQueue.isNotEmpty()) {
                         val request = requestQueue.poll()
@@ -194,20 +210,23 @@ class BrowserViewModel
             // Only report for interesting statuses.
             // Transient statuses such as SKIPPING, BUFFERING are ignored for UI display
             if (state.state in meaningfulStatuses) {
-                playbackState.value = state
+                _playbackState.value = state
             }
+
+            // Report player errors if any.
+            _playerError.value = state.errorMessage
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            currentMetadata.value = metadata
+            _currentMetadata.value = metadata
         }
 
         override fun onRepeatModeChanged(@PlaybackStateCompat.RepeatMode mode: Int) {
-            repeatMode.value = mode
+            _repeatMode.value = mode
         }
 
         override fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode mode: Int) {
-            shuffleMode.value = mode
+            _shuffleMode.value = mode
         }
 
         override fun onSessionDestroyed() {

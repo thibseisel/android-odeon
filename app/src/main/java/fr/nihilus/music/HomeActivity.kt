@@ -81,6 +81,17 @@ class HomeActivity : AppCompatActivity(),
         viewModel = ViewModelProviders.of(this, vmFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
 
+        viewModel.playerError.observe(this, Observer { errorMessage ->
+            // TODO Make this more user-friendly.
+            ConfirmDialogFragment.newInstance(
+                null,
+                0,
+                "Player error",
+                errorMessage!!.toString(),
+                R.string.ok
+            )
+        })
+
         setupPlayerView()
 
         if (savedInstanceState == null) {
