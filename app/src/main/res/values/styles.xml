@@ -16,7 +16,13 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Base.AppTheme" parent="@style/Theme.AppCompat.DayNight">
+    <!--
+      - Pointer to the base theme used for both Light and Night.
+      - Override this theme to apply API-level specific customizations.
+      -->
+    <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
+
+    <style name="Base.V21.AppTheme" parent="@style/Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
@@ -25,11 +31,13 @@
         <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
+        <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
         <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">
             @drawable/abc_ic_clear_material
         </item>
+
+        <!-- Make the action mode appear above the content instead of above the Toolbar. -->
         <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
 
         <!-- Enable window content transition -->
         <item name="android:windowContentTransitions">true</item>
@@ -37,8 +45,13 @@
         <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     </style>
 
+    <!-- The default theme for the whole application. -->
     <style name="AppTheme" parent="Base.AppTheme"/>
 
+    <!--
+      - Extension of the default theme that removes the decor ActionBar.
+      - This allows using Toolbar in XML layouts.
+      -->
     <style name="AppTheme.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -59,6 +72,7 @@
         <item name="android:textColorSecondary">@color/mtrl_deeppurple_a400</item>
     </style>
 
+    <!-- Style for SeekBar that removes horizontal padding. -->
     <style name="Widget.AppTheme.SeekBar.FullWidth" parent="Widget.AppCompat.SeekBar">
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>

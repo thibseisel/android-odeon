@@ -16,15 +16,10 @@
   -->
 
 <resources>
-
-    <style name="AppTheme" parent="Base.AppTheme">
+    <style name="Base.AppTheme" parent="Base.V23.AppTheme"/>
+    <style name="Base.V23.AppTheme" parent="Base.V21.AppTheme">
         <!-- Use dark icons on light status bar -->
-        <item name="android:windowLightStatusBar">@bool/is_light_theme</item>
-
-        <!-- Enable window content transition -->
-        <item name="android:windowContentTransitions">true</item>
-
-        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
-        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+        <item name="android:windowLightStatusBar">?isLightTheme</item>
     </style>
+    
 </resources>
