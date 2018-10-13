@@ -346,8 +346,7 @@ class HomeActivity : AppCompatActivity(),
      * @return true if intent was handled, false otherwise
      */
     private fun handleIntent(intent: Intent?): Boolean {
-        if (intent != null && intent.action != null) {
-            when (intent.action) {
+            when (intent?.action) {
                 ACTION_RANDOM -> {
                     startRandomMix()
                     // Intent is purposely marked as not handled to trigger home screen display
@@ -381,7 +380,6 @@ class HomeActivity : AppCompatActivity(),
                     }
                 }
             }
-        }
 
         return false
     }

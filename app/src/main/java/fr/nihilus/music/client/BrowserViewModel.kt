@@ -41,12 +41,20 @@ import javax.inject.Inject
 import kotlin.collections.HashMap
 
 /**
+ * The playback state used as an alternative to `null`.
+ */
+private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
+    .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
+    .build()
+
+/**
  * A ViewModel that abstracts the connection to a MediaBrowserService.
  */
 class BrowserViewModel
 @Inject constructor(context: Context) : ViewModel() {
 
     private val _playbackState = MutableLiveData<PlaybackStateCompat>()
+        .apply { postValue(EMPTY_PLAYBACK_STATE) }
     val playbackState: LiveData<PlaybackStateCompat>
         get() = _playbackState
 
@@ -165,30 +173,28 @@ class BrowserViewModel
 
         private val contextRef = WeakReference<Context>(context)
 
-        override fun onConnected() {
-            try {
-                contextRef.doIfPresent {
-                    Timber.v("onConnected: browser is now connected to MediaBrowserService.")
-                    val controller = MediaControllerCompat(it, mediaBrowser.sessionToken)
-                    controller.registerCallback(mControllerCallback)
-                    this@BrowserViewModel.controller = controller
-                    _currentMetadata.value = controller.metadata
-                    _playbackState.value = controller.playbackState
-                    _shuffleMode.value = controller.shuffleMode
-                    _repeatMode.value = controller.repeatMode
+        override fun onConnected() = try {
+            contextRef.doIfPresent {
+                Timber.v("onConnected: browser is now connected to MediaBrowserService.")
+                val controller = MediaControllerCompat(it, mediaBrowser.sessionToken)
+                controller.registerCallback(mControllerCallback)
+                this@BrowserViewModel.controller = controller
+                _currentMetadata.value = controller.metadata
+                _playbackState.value = controller.playbackState ?: EMPTY_PLAYBACK_STATE
+                _shuffleMode.value = controller.shuffleMode
+                _repeatMode.value = controller.repeatMode
 
-                    while (requestQueue.isNotEmpty()) {
-                        val request = requestQueue.poll()
-                        request.invoke(controller)
-                    }
+                while (requestQueue.isNotEmpty()) {
+                    val request = requestQueue.poll()
+                    request.invoke(controller)
                 }
-            } catch (re: RemoteException) {
-                Timber.e(re, "onConnected: failed to create a MediaController")
             }
+        } catch (re: RemoteException) {
+            Timber.e(re, "onConnected: failed to create a MediaController")
         }
 
         override fun onConnectionSuspended() {
-            Timber.w("onConnectionSuspended: disconnected from MediaBrowserService.")
+            Timber.i("onConnectionSuspended: disconnected from MediaBrowserService.")
             controller.unregisterCallback(mControllerCallback)
         }
 
@@ -206,19 +212,20 @@ class BrowserViewModel
             PlaybackStateCompat.STATE_ERROR
         )
 
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            val newState = state ?: EMPTY_PLAYBACK_STATE
             // Only report for interesting statuses.
             // Transient statuses such as SKIPPING, BUFFERING are ignored for UI display
-            if (state.state in meaningfulStatuses) {
-                _playbackState.value = state
+            if (newState.state in meaningfulStatuses) {
+                _playbackState.postValue(state)
             }
 
             // Report player errors if any.
-            _playerError.value = state.errorMessage
+            _playerError.postValue(newState.errorMessage)
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            _currentMetadata.value = metadata
+            _currentMetadata.postValue(metadata)
         }
 
         override fun onRepeatModeChanged(@PlaybackStateCompat.RepeatMode mode: Int) {
