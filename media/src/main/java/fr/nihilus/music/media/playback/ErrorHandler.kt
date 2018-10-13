@@ -37,7 +37,16 @@ internal class ErrorHandler
             return Pair(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, unknownError)
         }
 
-        // TODO Error description should be more precise
-        return Pair(PlaybackStateCompat.ERROR_CODE_APP_ERROR, unknownError)
+        // TODO Error description should be user-friendly
+        val exceptionMessage = with(playbackException) {
+            when (type) {
+                ExoPlaybackException.TYPE_SOURCE -> "Source error: ${sourceException.message}"
+                ExoPlaybackException.TYPE_RENDERER -> "Renderer error: ${rendererException.message}"
+                ExoPlaybackException.TYPE_UNEXPECTED -> "Unexpected error: ${unexpectedException.message}"
+                else -> unknownError
+            }
+        }
+
+        return Pair(PlaybackStateCompat.ERROR_CODE_APP_ERROR, exceptionMessage)
     }
 }
