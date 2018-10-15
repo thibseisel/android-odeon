@@ -21,6 +21,7 @@ import android.os.Handler
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.RenderersFactory
+import com.google.android.exoplayer2.audio.AudioCapabilities
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
 import com.google.android.exoplayer2.audio.DefaultAudioSink
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
@@ -54,7 +55,7 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
         textRendererOutput: TextOutput?,
         metadataRendererOutput: MetadataOutput?,
         drmSessionManager: DrmSessionManager<FrameworkMediaCrypto>?
-    ): Array<Renderer> = arrayOf(
+    ) = arrayOf<Renderer>(
         // Audio-only renderer
         MediaCodecAudioRenderer(
             context,
@@ -64,7 +65,11 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
             eventHandler,
             audioRendererEventListener,
             // Configure a custom processor chain to change the silence skipping behavior.
-            DefaultAudioSink(null, CustomAudioProcessorChain(), false)
+            DefaultAudioSink(
+                AudioCapabilities.getCapabilities(context),
+                CustomAudioProcessorChain(),
+                false
+            )
         )
     )
 }

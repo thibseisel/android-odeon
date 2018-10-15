@@ -106,7 +106,7 @@ dependencies {
     api project(':media')
 
     // Kotlin language support
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 
     // Support library dependencies
     implementation "com.android.support:support-v4:$supportLibVersion"
