@@ -16,7 +16,10 @@
 
 package fr.nihilus.music.client
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.DefaultLifecycleObserver
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
@@ -31,7 +34,6 @@ import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.service.MusicService
-import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -48,7 +50,7 @@ class MediaBrowserConnection
 @Inject constructor(
     context: Context,
     owner: LifecycleOwner
-) : LifecycleObserver {
+) : DefaultLifecycleObserver {
 
     /** Requests sent while the MediaBrowser was disconnected. */
     private val pendingRequests = LinkedList<MediaControllerRequest>()
@@ -81,9 +83,12 @@ class MediaBrowserConnection
         _repeatMode.postValue(PlaybackStateCompat.REPEAT_MODE_INVALID)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    @TestOnly fun connect() {
+    override fun onCreate(owner: LifecycleOwner) {
         mediaBrowser.connect()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        mediaBrowser.disconnect()
     }
 
     fun subscribe(mediaId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
@@ -139,11 +144,6 @@ class MediaBrowserConnection
                 onResultReceived.invoke(resultCode, resultData)
             }
         })
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    @TestOnly fun disconnect() {
-        mediaBrowser.disconnect()
     }
 
     private inner class ConnectionCallback(

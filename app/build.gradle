@@ -120,7 +120,7 @@ dependencies {
 
     // Android Arch Components
     implementation "android.arch.lifecycle:extensions:${archVersion}"
-    kapt "android.arch.lifecycle:compiler:${archVersion}"
+    implementation "android.arch.lifecycle:common-java8:$archVersion"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:${glideVersion}"
