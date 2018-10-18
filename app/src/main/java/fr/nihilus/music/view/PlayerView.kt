@@ -37,6 +37,7 @@ import fr.nihilus.music.utils.dipToPixels
 import kotlinx.android.synthetic.main.view_player.view.*
 import kotlinx.android.synthetic.main.view_player_top.view.*
 
+@Deprecated("This View is progressively replaced by NowPlayingFragment")
 class PlayerView
 @JvmOverloads constructor(
     context: Context,

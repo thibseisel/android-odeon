@@ -32,6 +32,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.doIfPresent
+import fr.nihilus.music.media.extensions.isPlaying
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.utils.filter
 import timber.log.Timber
@@ -59,7 +60,7 @@ class BrowserViewModel
         get() = _playbackState
 
     private val _currentMetadata = MutableLiveData<MediaMetadataCompat>()
-    val currentMetadata: LiveData<MediaMetadataCompat>
+    val currentMetadata: LiveData<MediaMetadataCompat?>
         get() = _currentMetadata
 
     private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
@@ -151,6 +152,30 @@ class BrowserViewModel
         return subscriptionCache.getOrPut(parentId) {
             SubscriptionLiveData(mediaBrowser, parentId)
         }
+    }
+
+    fun togglePlayPause() = post {
+        val isPlaying = _playbackState.value?.isPlaying ?: false
+        if (isPlaying) {
+            it.transportControls.pause()
+        } else {
+            it.transportControls.play()
+        }
+    }
+
+    fun toggleShuffleMode() = post {
+        val currentShuffleMode = _shuffleMode.value ?: PlaybackStateCompat.SHUFFLE_MODE_NONE
+        it.transportControls.setShuffleMode(
+            if (currentShuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL)
+                PlaybackStateCompat.SHUFFLE_MODE_NONE
+            else
+                PlaybackStateCompat.SHUFFLE_MODE_ALL
+        )
+    }
+
+    fun toggleRepeatMode() = post {
+        val currentRepeatMode = _repeatMode.value ?: PlaybackStateCompat.REPEAT_MODE_NONE
+        it.transportControls.setRepeatMode((currentRepeatMode + 1) % 3)
     }
 
     /**
