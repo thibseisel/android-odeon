@@ -75,6 +75,19 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
+    fun getTracks_whenDeniedPermission_emitsException() {
+        given(mockContext.checkPermission(eq(Manifest.permission.READ_EXTERNAL_STORAGE), anyInt(), anyInt()))
+            .willReturn(PackageManager.PERMISSION_DENIED)
+
+        val cursor = mockTracksCursor(0, 1, 2, 3)
+        given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
+
+        subject.getTracks(null, null).test()
+            .assertNoValues()
+            .assertError { it is PermissionDeniedException && it.permission == Manifest.permission.READ_EXTERNAL_STORAGE }
+    }
+
+    @Test
     fun getTracks_emitItemsFromStore() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
         given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
