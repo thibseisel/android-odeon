@@ -25,6 +25,7 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import fr.nihilus.music.media.extensions.*
 
 private val mediaStoreColumns = arrayOf(
     BaseColumns._ID, Media.TITLE, Media.ALBUM, Media.ARTIST,
@@ -106,55 +107,156 @@ val mediaStoreTracks = arrayOf(
  * An array containing representative metadata for tracks.
  */
 val mockMetadata = arrayOf<MediaMetadataCompat>(
-    metadataOf(
-        "161",
-        "1741 (The Battle of Cartagena)",
-        "Sunset on the Golden Age",
-        "Alestorm",
-        437603L,
-        1L,
-        4L,
-        """ O71+)OO?1E3-)KO)51C)""",
-        65L,
-        26L,
-        1000003673L
-    ),
-    metadataOf(
-        "309", "The 2nd Law: Isolated System", "The 2nd Law", "Muse", 300042L, 1L, 13L,
-        """)+EQO)59K?""", 40L, 18L, 1000001838L
-    ),
-    metadataOf(
-        "481", "Dirty Water", "Concrete and Gold", "Foo Fighters", 320914L, 1L, 6L,
-        """/9KOYU)O1K""", 102L, 13L, 1000009113L
-    ),
-    metadataOf(
-        "86", "Give It Up", "Greatests Hits 30 Anniversary Edition", "AC/DC", 233592L,
-        1L, 19L, """59S19OQG""", 7L, 5L, 1000003095L
-    ),
-    metadataOf(
-        "125", "Jailbreak", "Greatests Hits 30 Anniversary Edition", "AC/DC",
-        276668L, 2L, 14L, """;)9?+K1)=""", 7L, 5L, 1000003503L
-    ),
-    metadataOf(
-        "294", "Knights of Cydonia", "Black Holes and Revelations", "Muse", 366946L,
-        1L, 11L, """=C957OME3-Y/EC9)""", 38L, 18L, 1000001838L
-    ),
-    metadataOf(
-        "219", "A Matter of Time", "Wasting Light", "Foo Fighters", 276140L, 1L, 8L,
-        """A)OO1KE3O9A1""", 26L, 13L, 1000002658L
-    ),
-    metadataOf(
-        "75", "Nightmare", "Nightmare", "Avenged Sevenfold", 374648L, 1L, 1L,
-        """C957OA)K1""", 6L, 4L, 1000003075L
-    ),
-    metadataOf(
-        "464", "The Pretenders", "Echoes, Silence, Patience & Grace", "Foo Fighters",
-        266509L, 1L, 1L, """GK1O1C/1KM""", 95L, 13L, 1000001624L
-    ),
-    metadataOf(
-        "477", "Run", "Concrete and Gold", "Foo Fighters", 323424L, 1L, 2L, """KQC""",
-        102, 13, 1000007047L
-    )
+    buildMetadata {
+        id = "161"
+        title = "1741 (The Battle of Cartagena)"
+        album = "Sunset on the Golden Age"
+        artist = "Alestorm"
+        duration = 437603L
+        discNumber = 1L
+        trackNumber = 4L
+        titleKey = """ O71+)OO?1E3-)KO)51C)"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548"
+        mediaUri = mediaUriOf("161").toString()
+        albumId = 65L
+        artistId = 26L
+        availabilityDate = 1000003673L
+    },
+    buildMetadata {
+        id = "309"
+        title = "The 2nd Law: Isolated System"
+        album = "The 2nd Law"
+        artist = "Muse"
+        duration = 300042L
+        discNumber = 1L
+        trackNumber = 13L
+        titleKey = """)+EQO)59K?"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019"
+        mediaUri = mediaUriOf("309").toString()
+        albumId = 40L
+        artistId = 18L
+        availabilityDate = 1000001838L
+    },
+    buildMetadata {
+        id = "481"
+        title = "Dirty Water"
+        album = "Concrete and Gold"
+        artist = "Foo Fighters"
+        duration = 320914L
+        discNumber = 1L
+        trackNumber = 6L
+        titleKey = """/9KOYU)O1K"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029"
+        mediaUri = mediaUriOf("481").toString()
+        albumId = 102L
+        artistId = 13L
+        availabilityDate = 1000009113L
+    },
+    buildMetadata {
+        id = "86"
+        title = "Give It Up"
+        album = "Greatests Hits 30 Anniversary Edition"
+        artist = "AC/DC"
+        duration = 233592L
+        discNumber = 1L
+        trackNumber = 19L
+        titleKey = """59S19OQG"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626951708"
+        mediaUri = mediaUriOf("86").toString()
+        albumId = 7L
+        artistId = 5L
+        availabilityDate = 1000003095L
+    },
+    buildMetadata {
+        id = "125"
+        title = "Jailbreak"
+        album = "Greatests Hits 30 Anniversary Edition"
+        artist = "AC/DC"
+        duration = 276668L
+        discNumber = 2L
+        trackNumber = 14L
+        titleKey = """;)9?+K1)="""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626951708"
+        mediaUri = mediaUriOf("125").toString()
+        albumId = 7L
+        artistId = 5L
+        availabilityDate = 1000003503L
+    },
+    buildMetadata {
+        id = "294"
+        title = "Knights of Cydonia"
+        album = "Black Holes and Revelations"
+        artist = "Muse"
+        duration = 366946L
+        discNumber = 1L
+        trackNumber = 11L
+        titleKey = """=C957OME3-Y/EC9)"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627043599"
+        mediaUri = mediaUriOf("294").toString()
+        albumId = 38L
+        artistId = 18L
+        availabilityDate = 1000001838L
+    },
+    buildMetadata {
+        id = "219"
+        title = "A Matter of Time"
+        album = "Wasting Light"
+        artist = "Foo Fighters"
+        duration = 276140L
+        discNumber = 1L
+        trackNumber = 8L
+        titleKey = """A)OO1KE3O9A1"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627009356"
+        mediaUri = mediaUriOf("219").toString()
+        albumId = 26L
+        artistId = 13L
+        availabilityDate = 1000002658L
+    },
+    buildMetadata {
+        id = "75"
+        title = "Nightmare"
+        album = "Nightmare"
+        artist = "Avenged Sevenfold"
+        duration = 374648L
+        discNumber = 1L
+        trackNumber = 1L
+        titleKey = """C957OA)K1"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626949249"
+        mediaUri = mediaUriOf("75").toString()
+        albumId = 6L
+        artistId = 4L
+        availabilityDate = 1000003075L
+    },
+    buildMetadata {
+        id = "464"
+        title = "The Pretenders"
+        album = "Echoes, Silence, Patience & Grace"
+        artist = "Foo Fighters"
+        duration = 266509L
+        discNumber = 1L
+        trackNumber = 1L
+        titleKey = """GK1O1C/1KM"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627124517"
+        mediaUri = mediaUriOf("464").toString()
+        albumId = 95L
+        artistId = 13L
+        availabilityDate = 1000001624L
+    },
+    buildMetadata {
+        id = "477"
+        title = "Run"
+        album = "Concrete and Gold"
+        artist = "Foo Fighters"
+        duration = 323424L
+        discNumber = 1L
+        trackNumber = 2L
+        titleKey = """KQC"""
+        albumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029"
+        mediaUri = mediaUriOf("477").toString()
+        albumId = 102
+        artistId = 13
+        availabilityDate = 1000007047L
+    }
 )
 
 /**
@@ -172,18 +274,27 @@ fun mockTracksCursor(vararg indexes: Int): Cursor {
 // ALBUMS
 private val albumMediaStoreColumns = arrayOf(
     Albums._ID, Albums.ALBUM, Albums.ALBUM_KEY, Albums.ARTIST,
-    Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS
+    Albums.LAST_YEAR, Albums.NUMBER_OF_SONGS, Albums.ALBUM_ART
 )
 
 private val mediaStoreAlbums = arrayOf(
-    arrayOf(40L, "The 2nd Law", """C/?)U""", "Muse", 2012, 1),
+    arrayOf(
+        40L,
+        "The 2nd Law",
+        """C/?)U""",
+        "Muse",
+        2012,
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019"
+    ),
     arrayOf(
         65L,
         "Sunset on the Golden Age",
         """MQCM1OECO715E?/1C)51""",
         "Alestorm",
         2014,
-        1
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548"
     ),
     arrayOf(
         102L,
@@ -191,7 +302,8 @@ private val mediaStoreAlbums = arrayOf(
         """-EC-K1O1)C/5E?/""",
         "Foo Fighters",
         2017,
-        2
+        2,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029"
     ),
     arrayOf(
         7L,
@@ -199,7 +311,8 @@ private val mediaStoreAlbums = arrayOf(
         """5K1)O1MOM79OM)CC9S1KM)KY1/9O9EC""",
         "AC/DC",
         2010,
-        2
+        2,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626951708"
     ),
     arrayOf(
         38L,
@@ -207,10 +320,27 @@ private val mediaStoreAlbums = arrayOf(
         """+?)-=7E?1M)C/K1S1?)O9ECM""",
         "Muse",
         2006,
-        1
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627043599"
     ),
-    arrayOf(26L, "Wasting Light", """U)MO9C5?957O""", "Foo Fighters", 2011, 1),
-    arrayOf(6L, "Nightname", """C957OA)K1""", "Avenged Sevenfold", 2010, 1),
+    arrayOf(
+        26L,
+        "Wasting Light",
+        """U)MO9C5?957O""",
+        "Foo Fighters",
+        2011,
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627009356"
+    ),
+    arrayOf(
+        6L,
+        "Nightmare",
+        """C957OA)K1""",
+        "Avenged Sevenfold",
+        2010,
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626949249"
+    ),
     arrayOf(
         95L,
         "Echoes, Silence, Patience & Grace",
@@ -218,7 +348,8 @@ private val mediaStoreAlbums = arrayOf(
        5K)-1""",
         "Foo Fighters",
         2007,
-        1
+        1,
+        "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627124517"
     )
 )
 
@@ -272,35 +403,6 @@ fun mediaUriOf(musicId: String): Uri =
 
 fun artUriOf(albumId: Long): Uri = Uri.parse("content://media/external/audio/albumart/$albumId")
 
-/**
- * Helper function to create a metadata.
- */
-private fun metadataOf(
-    mediaId: String, title: String, album: String, artist: String,
-    duration: Long, discNumber: Long, trackNumber: Long,
-    titleKey: String, albumId: Long, artistId: Long, dateAdded: Long
-) = MediaMetadataCompat.Builder()
-    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
-    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
-    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
-    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
-    .putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, discNumber)
-    .putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
-    .putString(MusicDao.METADATA_KEY_TITLE_KEY, titleKey)
-    .putString(
-        MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-        "content://media/external/audio/albumart/$albumId"
-    )
-    .putString(
-        MediaMetadataCompat.METADATA_KEY_MEDIA_URI,
-        mediaUriOf(mediaId).toString()
-    )
-    .putLong(MusicDao.METADATA_KEY_ALBUM_ID, albumId)
-    .putLong(MusicDao.METADATA_KEY_ARTIST_ID, artistId)
-    .putLong(MusicDao.METADATA_KEY_DATE, dateAdded)
-    .build()
-
 private fun mediaDescriptionOf(
     mediaId: String, title: String, subtitle: String,
     description: String?, iconUri: Uri?, extras: Bundle?
@@ -312,3 +414,6 @@ private fun mediaDescriptionOf(
     .setIconUri(iconUri)
     .setExtras(extras)
     .build()
+
+private inline fun buildMetadata(builder: MediaMetadataCompat.Builder.() -> Unit) =
+    MediaMetadataCompat.Builder().apply(builder).build()

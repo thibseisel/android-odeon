@@ -20,13 +20,11 @@ import android.Manifest
 import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaMetadataCompat
 import android.util.LongSparseArray
-import fr.nihilus.music.media.CATEGORY_ALBUMS
-import fr.nihilus.music.media.CATEGORY_ARTISTS
-import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.media.mediaIdOf
+import fr.nihilus.music.media.*
 import fr.nihilus.music.media.utils.PermissionDeniedException
 import org.junit.After
 import org.junit.Assert.*
@@ -103,7 +101,9 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getTracks_translatesRequiredMetadataKey() {
         val cursor = mockTracksCursor(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+        val albumsCursor = mockAlbumCursor(0, 1, 2, 3, 4, 5, 6, 7)
         given(mockResolver.query(eq(Media.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(cursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumsCursor)
 
         val observer = subject.getTracks(null, null).test()
             .assertNoErrors()
@@ -282,7 +282,8 @@ class MediaStoreMusicDaoTest {
             assertEquals("$CATEGORY_ALBUMS/40", mediaId)
             assertEquals("The 2nd Law", title)
             assertEquals("Muse", subtitle)
-            assertEquals(artUriOf(40L), iconUri)
+            val expectedAlbumArtUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019".toUri()
+            assertEquals(expectedAlbumArtUri, iconUri)
 
             extras?.run {
                 assertEquals(3, size())
@@ -348,7 +349,8 @@ class MediaStoreMusicDaoTest {
         with(artist) {
             assertEquals("$CATEGORY_ARTISTS/4", mediaId)
             assertEquals("Avenged Sevenfold", title)
-            assertEquals(artUriOf(6L), iconUri)
+            val expectedUri = "file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626949249".toUri()
+            assertEquals(expectedUri, iconUri)
 
             extras?.run {
                 assertEquals(2, size())
@@ -376,7 +378,7 @@ class MediaStoreMusicDaoTest {
             .values()[0]
 
         // The expected icon Uri is the album art of "Concrete and Gold" (ID = 102)
-        val expectedIconUri = artUriOf(102L)
+        val expectedIconUri = Uri.parse("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029")
         assertEquals(expectedIconUri, artist.iconUri)
     }
 }
