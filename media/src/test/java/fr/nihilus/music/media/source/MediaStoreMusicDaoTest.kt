@@ -310,7 +310,7 @@ class MediaStoreMusicDaoTest {
     @Test
     fun getArtists_emptyStore_completesWithNoItems() {
         val artistCursor = mockArtistCursor()
-        val albumCursor = mockAlbumCursor()
+        val albumCursor = mockAlbumCursor(0, 1, 2, 3, 4, 5, 6, 7)
         given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
         given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
 
@@ -342,6 +342,52 @@ class MediaStoreMusicDaoTest {
             .forEach { (expectedId, actualId) ->
                 assertEquals(expectedId, actualId)
             }
+    }
+
+    @Test
+    fun getArtists_whenNoAlbumInformation_emitsArtistsWithoutArt() {
+        val artistCursor = mockArtistCursor(0, 1, 2, 3, 4)
+        val albumCursor = mockAlbumCursor()
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
+
+        val artists = subject.getArtists().test()
+            .assertNoErrors()
+            .assertValueCount(5)
+            .assertComplete()
+            .values()
+
+        longArrayOf(5L, 26L, 4L, 13L, 18L)
+            .map { mediaIdOf(CATEGORY_ARTISTS, it.toString()) }
+            .zip(artists) { expectedId, artist ->
+                assertEquals(expectedId, artist.mediaId)
+                assertNull(artist.iconUri)
+            }
+    }
+
+    @Test
+    fun getArtists_whenMissingSomeAlbumInformation_emitsWithoutArt() {
+        val artistCursor = mockArtistCursor(0, 1, 2, 3, 4)
+        val albumCursor = mockAlbumCursor(/*3, 1,*/ 6, 2, 5, 7, 0, 4)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
+
+        val artists = subject.getArtists().test()
+            .assertNoErrors()
+            .assertValueCount(5)
+            .assertComplete()
+            .values()
+
+        listOf(
+            "$CATEGORY_ARTISTS/5" to null,
+            "$CATEGORY_ARTISTS/26" to null,
+            "$CATEGORY_ARTISTS/4" to "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626949249",
+            "$CATEGORY_ARTISTS/13" to "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029",
+            "$CATEGORY_ARTISTS/18" to "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019"
+        ).zip(artists) { (expectedId, expectedAlbumArtPath), actualArtist ->
+            assertEquals(expectedId, actualArtist.mediaId)
+            assertEquals(expectedAlbumArtPath, actualArtist.iconUri?.path)
+        }
     }
 
     @Test

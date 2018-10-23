@@ -385,7 +385,7 @@ private val mediaStoreArtists = arrayOf(
 )
 
 /**
- * Creates a custor containing artists whose informations are picked in order from a set of
+ * Creates a custom containing artists whose information are picked in order from a set of
  * 5 representative artists.
  * Artist metadata are coherent with track metadata: each track has a corresponding artist in this set.
  *
@@ -400,8 +400,6 @@ fun mockArtistCursor(vararg indexes: Int): Cursor {
 
 fun mediaUriOf(musicId: String): Uri =
     ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, musicId.toLong())
-
-fun artUriOf(albumId: Long): Uri = Uri.parse("content://media/external/audio/albumart/$albumId")
 
 private fun mediaDescriptionOf(
     mediaId: String, title: String, subtitle: String,
