@@ -391,6 +391,30 @@ class MediaStoreMusicDaoTest {
     }
 
     @Test
+    fun getArtists_whenMoreAlbumsThanArtists_emitsCorrectArt() {
+        val artistCursor = mockArtistCursor(1, 2, 4)
+        val albumCursor = mockAlbumCursor(3, 1, 6, 2, 5, 7, 0, 4)
+        given(mockResolver.query(eq(Artists.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(artistCursor)
+        given(mockResolver.query(eq(Albums.EXTERNAL_CONTENT_URI), any(), any(), any(), any())).willReturn(albumCursor)
+
+        val artists = subject.getArtists().test()
+            .assertNoErrors()
+            .assertValueCount(3)
+            .assertComplete()
+            .values()
+
+        val expectedAlbumArtPaths = listOf(
+            "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548",
+            "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626949249",
+            "/storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019"
+        )
+
+        artists.zip(expectedAlbumArtPaths) { actualArtist, expectedArtPath ->
+            assertEquals(expectedArtPath, actualArtist.iconUri?.path)
+        }
+    }
+
+    @Test
     fun getArtists_translatesRequiredProperties() {
         // Select artist "Avenged Sevenfold" with their album "Nightmare".
         // The selection of iconUri is covered by another test
