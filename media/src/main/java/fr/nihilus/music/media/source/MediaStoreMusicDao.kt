@@ -297,119 +297,70 @@ internal class MediaStoreMusicDao
         emitter.onComplete()
     }
 
-    override fun getArtists(): Observable<MediaDescriptionCompat> {
-        // Accumulate results in a list before emitting.
-        return Observable.fromCallable<List<MediaDescriptionCompat>> {
-            context.requirePermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    override fun getArtists(): Observable<MediaDescriptionCompat> = Observable.create { emitter ->
+        context.requirePermission(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-            val artistsCursor = resolver.query(
-                Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
-                null, null, Artists.ARTIST
-            )
+        val albumArtPerArtist: Map<String?, String?> = resolver.query(
+            Albums.EXTERNAL_CONTENT_URI,
+            arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
+            null, null, ORDER_BY_MOST_RECENT
+        )?.use { albumCursor ->
 
-            val albumsCursor = resolver.query(
-                Albums.EXTERNAL_CONTENT_URI,
-                arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
-                null, null, ORDER_BY_MOST_RECENT
-            )
+            val colArtist = albumCursor.getColumnIndexOrThrow(Albums.ARTIST)
+            val colArtPath = albumCursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
+            val colYear = albumCursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
 
-            if (artistsCursor == null || albumsCursor == null) {
-                Timber.e("Query for artists failed. Returning an empty list.")
-                return@fromCallable emptyList()
+            val albumInfo = ArrayList<AlbumArtInfo>(albumCursor.count)
+
+            while (albumCursor.moveToNext()) {
+                albumInfo += AlbumArtInfo(
+                    artist = albumCursor.getString(colArtist),
+                    albumArtPath = albumCursor.getString(colArtPath),
+                    releaseYear = albumCursor.getInt(colYear)
+                )
             }
+
+            albumInfo.groupBy { it.artist }.mapValues { it.value[0].albumArtPath }
+
+        } ?: emptyMap()
+
+        resolver.query(
+            Artists.EXTERNAL_CONTENT_URI, ARTIST_PROJECTION,
+            null, null, Artists.DEFAULT_SORT_ORDER
+        )?.use { artistsCursor ->
 
             val colId = artistsCursor.getColumnIndexOrThrow(Artists._ID)
             val colArtistName = artistsCursor.getColumnIndexOrThrow(Artists.ARTIST)
             val colArtistKey = artistsCursor.getColumnIndexOrThrow(Artists.ARTIST_KEY)
             val colTrackCount = artistsCursor.getColumnIndexOrThrow(Artists.NUMBER_OF_TRACKS)
 
-            val colArtistAlbum = albumsCursor.getColumnIndexOrThrow(Albums.ARTIST)
-            val colAlbumArt = albumsCursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
-
-            val artists = ArrayList<MediaDescriptionCompat>(albumsCursor.count)
             val builder = MediaDescriptionCompat.Builder()
 
-            artistsCursor.moveToFirst()
-            albumsCursor.moveToFirst()
+            while (artistsCursor.moveToNext()) {
+                val artistId = artistsCursor.getLong(colId)
+                val mediaId = mediaIdOf(CATEGORY_ARTISTS, artistId.toString())
 
-            // We need to find the most recent album for each artist to display its album art
-            while (!artistsCursor.isAfterLast && !albumsCursor.isAfterLast) {
-                var artistName = artistsCursor.getString(colArtistName)
-                val artistInAlbum = albumsCursor.getString(colArtistAlbum)
-
-                if (artistName < artistInAlbum) {
-                    // Albums are ahead of artists. This might happen when no album is associated
-                    // to this artist. We add it without an album art and move to the next.
-
-                    val artistId = artistsCursor.getLong(colId)
-                    val mediaId =
-                        mediaIdOf(CATEGORY_ARTISTS, artistId.toString())
-
-                    val extras = Bundle(2).apply {
-                        putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
-                        putInt(
-                            MediaItems.EXTRA_NUMBER_OF_TRACKS,
-                            artistsCursor.getInt(colTrackCount)
-                        )
-                    }
-
-                    builder.setMediaId(mediaId)
-                        .setTitle(artistsCursor.getString(colArtistName))
-                        .setIconUri(null)
-                        .setExtras(extras)
-
-                    artists.add(builder.build())
-
-                    artistsCursor.moveToNext()
-                    if (!artistsCursor.isAfterLast) {
-                        // Proceed to the next artist only if possible
-                        artistName = artistsCursor.getString(colArtistName)
-                    }
+                val artistName = artistsCursor.getString(colArtistName)
+                val artistIconUri = albumArtPerArtist[artistName]?.let {
+                    Uri.parse("file://$it")
                 }
 
-                if (artistName == artistInAlbum) {
-                    // As albums are sorted by descending release year, the first album to match
-                    // with the name of the artist is the most recent one.
-                    val artistId = artistsCursor.getLong(colId)
-                    val mediaId = mediaIdOf(CATEGORY_ARTISTS, artistId.toString())
-
-                    val artistIconUri = albumsCursor.getString(colAlbumArt)?.let { iconPath ->
-                        Uri.parse("file://$iconPath")
-                    }
-
-                    val extras = Bundle(2).apply {
-                        putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
-                        putInt(
-                            MediaItems.EXTRA_NUMBER_OF_TRACKS,
-                            artistsCursor.getInt(colTrackCount)
-                        )
-                    }
-
-                    builder.setMediaId(mediaId)
-                        .setTitle(artistsCursor.getString(colArtistName))
-                        .setIconUri(artistIconUri)
-                        .setExtras(extras)
-
-                    artists.add(builder.build())
-
-                    // Look for the next artist
-                    artistsCursor.moveToNext()
+                val extras = Bundle(2).apply {
+                    putString(MediaItems.EXTRA_TITLE_KEY, artistsCursor.getString(colArtistKey))
+                    putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, artistsCursor.getInt(colTrackCount))
                 }
 
-                // Whether it is matching or not, move to the next album
-                albumsCursor.moveToNext()
+                builder.setMediaId(mediaId)
+                    .setTitle(artistName)
+                    .setIconUri(artistIconUri)
+                    .setExtras(extras)
+
+                emitter.onNext(builder.build())
             }
 
-            assert(artistsCursor.count == artists.size) {
-                "Bad number of artists. Expecting ${artistsCursor.count}, found ${artists.size}"
-            }
+        } ?: Timber.e("Artist query failed: null cursor")
 
-            artistsCursor.close()
-            albumsCursor.close()
-
-            artists.sortedBy { it.extras!!.getString(MediaItems.EXTRA_TITLE_KEY) }
-
-        }.flatMap { Observable.fromIterable(it) }
+        emitter.onComplete()
     }
 
     override fun search(query: String?, extras: Bundle?): Single<List<MediaMetadataCompat>> {
@@ -527,6 +478,12 @@ internal class MediaStoreMusicDao
             metadataCache.put(musicId, metadata)
         }
     }
+
+    private data class AlbumArtInfo(
+        val artist: String?,
+        val albumArtPath: String?,
+        val releaseYear: Int
+    )
 
     private companion object {
         const val MEDIA_SELECTION_CLAUSE = "${Media.IS_MUSIC} = 1"
