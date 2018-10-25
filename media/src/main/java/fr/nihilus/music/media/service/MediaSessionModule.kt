@@ -70,7 +70,7 @@ internal class MediaSessionModule {
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
         customActions: Set<@JvmSuppressWildcards CustomActionProvider>
 
-    ) = MediaSessionConnector(mediaSession, controller, false, null).also {
+    ) = MediaSessionConnector(mediaSession, controller, null).also {
         it.setPlayer(player, preparer, *customActions.toTypedArray())
         it.setQueueNavigator(navigator)
         it.setErrorMessageProvider(errorHandler)
