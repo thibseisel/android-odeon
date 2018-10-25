@@ -53,6 +53,13 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg('dagger.formatGeneratedSource', 'disabled')
+        arg('dagger.fastInit', 'enabled')
+    }
+}
+
 dependencies {
     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
