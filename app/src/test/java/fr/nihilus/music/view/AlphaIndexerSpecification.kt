@@ -19,6 +19,7 @@ package fr.nihilus.music.view
 import com.google.common.collect.BoundType
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.TruthJUnit.assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +34,8 @@ import org.robolectric.RobolectricTestRunner
     WithNonLetterItems::class,
     WithDiacriticsItems::class,
     WithLeadingCommonEnglishPrefixes::class,
-    WithUnexpectedItems::class
+    WithUnexpectedItems::class,
+    WithLotsOfItemsPerSection::class
 )
 class AlphaIndexerSpecification
 
@@ -83,6 +85,8 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldMapPositionToCorrespondingSection() {
+        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
+
         // [0] "Another One Bites the Dust" -> Section [0] "A"
         assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
         // [1] "Black Betty" -> Section [1] "B"
@@ -99,6 +103,8 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnSectionForPosition() {
+        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
+
         assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
         assertThat(indexer.getPositionForSection(1)).isEqualTo(1)
         assertThat(indexer.getPositionForSection(2)).isEqualTo(2)
@@ -129,6 +135,8 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldGroupItemsStartingWithSameLetterUnderSameSection() {
+        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
+
         // [0] "Another One Bites the Dust" -> Section [0] "A"
         assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
         // [1] "Back in Black" -> Section [1] "B"
@@ -151,6 +159,8 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnPositionOfFirstItemOfSection() {
+        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
+
         // Section [0] "A" starts at [0] "Another One Bites the Dust"
         assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
         // Section [1] "B" starts at [1] "Back in Black"
@@ -214,6 +224,7 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldPutDiacriticItemsInNonDiacriticSections() {
+        assume().that(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
         assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
         assertThat(indexer.getSectionForPosition(1)).isEqualTo(1)
         assertThat(indexer.getSectionForPosition(2)).isEqualTo(1)
@@ -222,6 +233,7 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itsSectionsMayStartByDiacriticItem() {
+        assume().that(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
         assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
         assertThat(indexer.getPositionForSection(1)).isEqualTo(1)
         assertThat(indexer.getPositionForSection(2)).isEqualTo(3)
@@ -245,6 +257,7 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldPutPrefixedItemsInUnprefixedSections() {
+        assume().that(indexer.sections).asList().containsExactly("#", "L", "S", "U")
         assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
         assertThat(indexer.getSectionForPosition(1)).isEqualTo(1)
         assertThat(indexer.getSectionForPosition(2)).isEqualTo(2)
@@ -254,6 +267,7 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
 
     @Test
     fun itsSectionsMayStartByPrefixedItem() {
+        assume().that(indexer.sections).asList().containsExactly("#", "L", "S", "U")
         assertThat(indexer.getPositionForSection(0)).isEqualTo(0)
         assertThat(indexer.getPositionForSection(1)).isEqualTo(1)
         assertThat(indexer.getPositionForSection(2)).isEqualTo(2)
@@ -290,6 +304,8 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldPutItemsInCorrectSections() {
+        assume().that(indexer.sections).asList().containsExactly("#", "H", "I", "T", "U").inOrder()
+
         // [0] "Hello World" -> Section [1] "H"
         assertThat(indexer.getSectionForPosition(0)).isEqualTo(1)
         // [1] "This" -> Section [3] "T"
@@ -308,6 +324,60 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
         for (sectionPosition in indexer.sections.indices) {
             assertThat(indexer.getPositionForSection(sectionPosition)).isIn(itemIndices)
         }
+    }
+}
+
+@RunWith(RobolectricTestRunner::class)
+class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
+    override val items = listOf(
+        "Saint Cecilia",
+        "Say Goodnight",
+        "Scream",
+        "Scream Aim Fire",
+        "Sean",
+        "See The Light",
+        "Session",
+        "Supermassive Black Hole",
+        "Supremacy",
+        "Survival",
+        "Symphony Of Destruction",
+        "T-Shirt",
+        "Teenagers",
+        "Thunderstruck",
+        "Tribute"
+    )
+
+    @Test
+    fun itShouldCreateSubsectionsForFiveAndMoreItems() {
+        assertThat(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
+    }
+
+    @Test
+    fun itMapsItemsToCorrectSubsection() {
+        assume().that(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
+
+        assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
+        assertThat(indexer.getSectionForPosition(1)).isEqualTo(0)
+        assertThat(indexer.getSectionForPosition(2)).isEqualTo(1)
+        assertThat(indexer.getSectionForPosition(3)).isEqualTo(1)
+        assertThat(indexer.getSectionForPosition(4)).isEqualTo(2)
+        assertThat(indexer.getSectionForPosition(5)).isEqualTo(2)
+        assertThat(indexer.getSectionForPosition(6)).isEqualTo(2)
+        assertThat(indexer.getSectionForPosition(7)).isEqualTo(3)
+        assertThat(indexer.getSectionForPosition(8)).isEqualTo(3)
+        assertThat(indexer.getSectionForPosition(9)).isEqualTo(3)
+        assertThat(indexer.getSectionForPosition(10)).isEqualTo(4)
+    }
+
+    @Test
+    fun itShouldReturnPositionOfFirstItemOfSubsection() {
+        assume().that(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
+
+        assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
+        assertThat(indexer.getSectionForPosition(1)).isEqualTo(2)
+        assertThat(indexer.getSectionForPosition(2)).isEqualTo(4)
+        assertThat(indexer.getSectionForPosition(3)).isEqualTo(7)
+        assertThat(indexer.getSectionForPosition(4)).isEqualTo(10)
     }
 }
 

@@ -64,7 +64,8 @@ class AlphaSectionIndexer : DataSetObserver(), SectionIndexer {
     }
 
     private fun generateSections() {
-        val sectionPositionMapper = items.map { it.stripCommonPrefixes() }
+        val sectionPositionMapper = items.asSequence()
+            .map(String::stripCommonPrefixes)
             .withIndex()
             .groupingBy { (_, title) -> title.section }
             .fold(Int.MAX_VALUE) { accumulator, (index, _) -> minOf(accumulator, index) }
@@ -88,7 +89,9 @@ private fun String.stripCommonPrefixes(): String {
     }
 }
 
-private fun sectionKey(section: String): Int = section.first().toInt()
+private fun sectionKey(section: String): Int {
+    return if (section.isEmpty()) 0 else section.first().toInt()
+}
 
 private val String.section: String
-    get() = if (firstOrNull()?.isLetter() == false) "#" else substring(0, 1)
+    get() = if (firstOrNull()?.isLetter() != true) "#" else substring(0, 1)
