@@ -35,6 +35,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import dagger.android.AndroidInjection
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -80,17 +81,6 @@ class HomeActivity : AppCompatActivity(),
 
         viewModel = ViewModelProviders.of(this, vmFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
-
-        viewModel.playerError.observe(this, Observer { errorMessage ->
-            // TODO Make this more user-friendly.
-            ConfirmDialogFragment.newInstance(
-                null,
-                0,
-                "Player error",
-                errorMessage!!.toString(),
-                R.string.ok
-            )
-        })
 
         setupPlayerView()
 
@@ -195,6 +185,12 @@ class HomeActivity : AppCompatActivity(),
         viewModel.playbackState.observe(this, Observer { newState ->
             playerView.updatePlaybackState(newState)
             togglePlayerVisibility(newState)
+        })
+
+        viewModel.playerError.observe(this, Observer { errorMessage ->
+            if (errorMessage != null) {
+                Toast.makeText(this@HomeActivity, errorMessage, Toast.LENGTH_LONG).show()
+            }
         })
 
         bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
@@ -424,11 +420,11 @@ class HomeActivity : AppCompatActivity(),
     }
 
     override fun onRepeatModeChanged(newMode: Int) {
-        viewModel.post { it.transportControls.setRepeatMode(newMode) }
+        viewModel.toggleRepeatMode()
     }
 
     override fun onShuffleModeChanged(newMode: Int) {
-        viewModel.post { it.transportControls.setShuffleMode(newMode) }
+        viewModel.toggleShuffleMode()
     }
 
     override fun supportFragmentInjector() = dispatchingFragmentInjector

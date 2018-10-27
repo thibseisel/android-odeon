@@ -17,12 +17,16 @@
 package fr.nihilus.music.media.playback
 
 import android.content.Context
+import android.net.Uri
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
+import timber.log.Timber
+import java.io.IOException
 import javax.inject.Inject
 
 @ServiceScoped
@@ -31,22 +35,43 @@ internal class ErrorHandler
     private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 
-    override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? {
-        val unknownError = context.getString(R.string.abc_player_unknown_error)
-        if (playbackException == null) {
-            return Pair(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR, unknownError)
+    override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? =
+        when (playbackException?.type) {
+            ExoPlaybackException.TYPE_SOURCE -> handleSourceError(playbackException.sourceException)
+            ExoPlaybackException.TYPE_RENDERER -> handleUnexpectedError(playbackException.rendererException)
+            ExoPlaybackException.TYPE_UNEXPECTED -> handleUnexpectedError(playbackException.unexpectedException)
+            else -> handleUnexpectedError(null)
         }
 
-        // TODO Error description should be user-friendly
-        val exceptionMessage = with(playbackException) {
-            when (type) {
-                ExoPlaybackException.TYPE_SOURCE -> "Source error: ${sourceException.message}"
-                ExoPlaybackException.TYPE_RENDERER -> "Renderer error: ${rendererException.message}"
-                ExoPlaybackException.TYPE_UNEXPECTED -> "Unexpected error: ${unexpectedException.message}"
-                else -> unknownError
+    private fun handleSourceError(cause: IOException): Pair<Int, String>? = when (cause) {
+        is UnrecognizedInputFormatException -> handleUnrecognizedFormat(cause.uri)
+        else -> Pair(
+            PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
+            context.getString(R.string.player_source_error_generic)
+        )
+    }
+
+    private fun handleUnrecognizedFormat(failingUri: Uri?): Pair<Int, String> {
+        if (failingUri != null && failingUri.isHierarchical) {
+            failingUri.path?.substringAfterLast('.')?.let { fileExtension ->
+                return Pair(
+                    PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
+                    context.getString(R.string.player_error_unsupported_file_format, fileExtension)
+                )
             }
         }
 
-        return Pair(PlaybackStateCompat.ERROR_CODE_APP_ERROR, exceptionMessage)
+        return Pair(
+            PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
+            context.getString(R.string.player_error_unsupported_file)
+        )
+    }
+
+    private fun handleUnexpectedError(cause: Exception?): Pair<Int, String>? {
+        Timber.e(cause, "Unexpected player error.")
+        return Pair(
+            PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR,
+            context.getString(R.string.abc_player_unknown_error)
+        )
     }
 }

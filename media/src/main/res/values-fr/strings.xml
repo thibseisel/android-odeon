@@ -22,7 +22,7 @@
     <string name="abc_artists">Artistes</string>
     <string name="abc_last_added">Derniers ajouts</string>
     <string name="abc_playlists">Listes de lecture</string>
-    <string name="abc_player_unknown_error">Une erreur inconnue s\'est produite.</string>
+    <string name="abc_player_unknown_error">Oups, quelque chose a planté et la lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="abc_action_play">Lire</string>
     <string name="abc_action_pause">Pause</string>
     <string name="abc_action_next">Suivant</string>
@@ -32,4 +32,7 @@
     <string name="abc_pref_title_skip_silence">Couper les silences</string>
     <string name="abc_action_rewind">Rembobiner</string>
     <string name="abc_action_fast_forward">Avance rapide</string>
+    <string name="player_error_unsupported_file">Odéon ne peut pas lire ce fichier.</string>
+    <string name="player_error_unsupported_file_format">Odéon ne peut pas lire les fichiers de format %s.</string>
+    <string name="player_source_error_generic">Une erreur s\'est produite lors de la lecture de ce morceau. Si cela se produit régulièrement, le fichier est peut-être endommagé.</string>
 </resources>
