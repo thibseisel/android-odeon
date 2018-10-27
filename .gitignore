@@ -6,12 +6,10 @@
 /.idea/icon.png
 /.idea/icon_dark.png
 /.idea/kotlinc.xml
+/.idea/misc.xml
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 /projectFilesBackup
-app/schemas
 
-# Keystore file should stay private
-keystore.properties
