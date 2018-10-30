@@ -20,13 +20,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion rootProject.compileSdkVersion
     defaultConfig {
         applicationId 'fr.nihilus.music'
-        minSdkVersion 21
-        targetSdkVersion 27
-        versionCode appVersionCode
-        versionName appVersionName
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode rootProject.appVersionCode
+        versionName rootProject.appVersionName
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
 
@@ -113,53 +113,53 @@ dependencies {
     api project(':media')
 
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlinVersion"
 
     // Support library dependencies
-    implementation "com.android.support:support-v4:$supportLibVersion"
-    implementation "com.android.support:appcompat-v7:$supportLibVersion"
-    implementation "com.android.support:cardview-v7:$supportLibVersion"
-    implementation "com.android.support:recyclerview-v7:$supportLibVersion"
-    implementation "com.android.support:palette-v7:$supportLibVersion"
-    implementation "com.android.support:design:$supportLibVersion"
-    implementation "com.android.support:preference-v7:$supportLibVersion"
-    implementation "com.android.support.constraint:constraint-layout:${constraintVersion}"
+    implementation "com.android.support:support-v4:$rootProject.supportLibVersion"
+    implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
+    implementation "com.android.support:cardview-v7:$rootProject.supportLibVersion"
+    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibVersion"
+    implementation "com.android.support:palette-v7:$rootProject.supportLibVersion"
+    implementation "com.android.support:design:$rootProject.supportLibVersion"
+    implementation "com.android.support:preference-v7:$rootProject.supportLibVersion"
+    implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
 
     // Android Arch Components
-    implementation "android.arch.lifecycle:extensions:${archVersion}"
-    implementation "android.arch.lifecycle:common-java8:$archVersion"
+    implementation "android.arch.lifecycle:extensions:$rootProject.lifecycleVersion"
+    implementation "android.arch.lifecycle:common-java8:$rootProject.lifecycleVersion"
 
     // Glide
-    implementation "com.github.bumptech.glide:glide:${glideVersion}"
-    kapt "com.github.bumptech.glide:compiler:${glideVersion}"
+    implementation "com.github.bumptech.glide:glide:$rootProject.glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
 
     // My libraries
-    implementation "fr.nihilus:recyclerfragment:${recyclerVersion}"
+    implementation "fr.nihilus:recyclerfragment:$rootProject.recyclerVersion"
     implementation 'com.github.thibseisel:ratioimageview:1.0.0'
 
     // Dagger
-    implementation "com.google.dagger:dagger:${daggerVersion}"
-    implementation "com.google.dagger:dagger-android:${daggerVersion}"
-    implementation "com.google.dagger:dagger-android-support:${daggerVersion}"
-    kapt "com.google.dagger:dagger-compiler:${daggerVersion}"
-    kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
+    implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+    kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
 
     // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    implementation "io.reactivex.rxjava2:rxandroid:${rxAndroidVersion}"
+    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
 
     // Timber Logging
-    implementation "com.jakewharton.timber:timber:${timberVersion}"
+    implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
 
     // Test dependencies
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "junit:junit:${junitVersion}"
-    testImplementation "org.robolectric:robolectric:${robolectricVersion}"
-    testImplementation "com.google.truth:truth:${truthVersion}"
+    testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
+    testImplementation "junit:junit:$rootProject.junitVersion"
+    testImplementation "org.robolectric:robolectric:$rootProject.robolectricVersion"
+    testImplementation "com.google.truth:truth:$rootProject.truthVersion"
 
-    androidTestImplementation "com.android.support:support-annotations:${supportLibVersion}"
-    androidTestImplementation "com.android.support.test:rules:${androidTestVersion}"
-    androidTestImplementation "com.android.support.test:runner:${androidTestVersion}"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:${espressoVersion}"
-    androidTestImplementation "org.mockito:mockito-android:${mockitoVersion}"
+    androidTestImplementation "com.android.support:support-annotations:$rootProject.supportLibVersion"
+    androidTestImplementation "com.android.support.test:rules:$rootProject.androidTestVersion"
+    androidTestImplementation "com.android.support.test:runner:$rootProject.androidTestVersion"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
+    androidTestImplementation "org.mockito:mockito-android:$rootProject.mockitoVersion"
 }
