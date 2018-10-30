@@ -25,6 +25,7 @@ import dagger.android.HasActivityInjector
 import dagger.android.HasServiceInjector
 import fr.nihilus.music.di.DaggerAppComponent
 import fr.nihilus.music.settings.UiSettings
+import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -32,7 +33,7 @@ import javax.inject.Inject
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
-class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceInjector {
+class OdeonApplication : Application(), HasActivityInjector, HasServiceInjector {
 
     @Inject lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
     @Inject lateinit var dispatchingServiceInjector: DispatchingAndroidInjector<Service>
@@ -47,7 +48,10 @@ class NihilusMusicApplication : Application(), HasActivityInjector, HasServiceIn
             .inject(this)
 
         if (BuildConfig.DEBUG) {
+            // Print logs to Logcat
             Timber.plant(Timber.DebugTree())
+            // Rethrow unexpected RxJava errors to fail fast
+            RxJavaPlugins.setErrorHandler { throw it }
         }
 
         AppCompatDelegate.setDefaultNightMode(prefs.nightMode)

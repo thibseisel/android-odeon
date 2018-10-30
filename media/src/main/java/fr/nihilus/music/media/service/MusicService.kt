@@ -165,7 +165,7 @@ class MusicService : MediaBrowserServiceCompat() {
                     when (e) {
                         is UnsupportedOperationException -> Timber.w("Unsupported parent id: %s", parentId)
                         is PermissionDeniedException -> Timber.i(e)
-                        else -> Timber.e(e, "Unexpected error while loading %s children", parentId)
+                        else -> throw e
                     }
 
                     result.sendResult(null)

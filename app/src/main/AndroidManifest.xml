@@ -23,7 +23,7 @@
         android:required="true" />
 
     <application
-        android:name=".NihilusMusicApplication"
+        android:name=".OdeonApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup"
         android:icon="@mipmap/ic_launcher"
