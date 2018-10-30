@@ -302,7 +302,7 @@ internal class MediaStoreMusicDao
 
         val albumArtPerArtist: Map<String?, String?> = resolver.query(
             Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(Albums.ARTIST, Albums.ALBUM_ART),
+            arrayOf(Albums.ARTIST, Albums.ALBUM_ART, Albums.LAST_YEAR),
             null, null, ORDER_BY_MOST_RECENT
         )?.use { albumCursor ->
 
