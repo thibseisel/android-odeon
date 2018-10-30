@@ -27,15 +27,8 @@ internal object DatabaseModule {
 
     @JvmStatic
     @[Provides ServiceScoped]
-    fun provideDatabase(service: MusicService, dbInit: DatabaseInitCallback): AppDatabase {
-        return Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME)
-            .addCallback(dbInit)
-            .build()
-    }
-
-    @JvmStatic
-    @[Provides ServiceScoped]
-    fun provideMusicInfoDao(db: AppDatabase): MusicInfoDao = db.musicInfoDao
+    fun provideDatabase(service: MusicService): AppDatabase =
+        Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME).build()
 
     @JvmStatic
     @[Provides ServiceScoped]

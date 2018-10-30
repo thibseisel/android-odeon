@@ -17,17 +17,27 @@
 package fr.nihilus.music.media.database
 
 import android.arch.persistence.room.Database
+import android.arch.persistence.room.Entity
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 
-@Database(entities = [MusicInfo::class, Playlist::class, PlaylistTrack::class], version = 1)
+/**
+ * Definition of this application's local database.
+ *
+ * SQLite tables are generated from classes annotated with [Entity]
+ * that are configured in [Database.entities].
+ */
+@Database(entities = [
+    Playlist::class,
+    PlaylistTrack::class
+], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract val musicInfoDao: MusicInfoDao
     abstract val playlistDao: PlaylistDao
 
     companion object {
+        /** The name of the generated SQLite Database. */
         const val NAME = "music.db"
     }
 }
