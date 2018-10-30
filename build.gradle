@@ -56,10 +56,12 @@ buildscript {
             repositoryMirrors.split(',').each { mirror ->
                 maven { url mirror }
             }
+        } else {
+            google()
+            jcenter()
         }
-        google()
-        jcenter()
     }
+
     dependencies {
         classpath "com.android.tools.build:gradle:$buildToolsVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -72,10 +74,11 @@ allprojects {
             repositoryMirrors.split(',').each { mirror ->
                 maven { url mirror }
             }
+        } else {
+            google()
+            jcenter()
+            maven { url "https://dl.bintray.com/nihilus/android/" }
         }
-        google()
-        jcenter()
-        maven { url "https://dl.bintray.com/nihilus/android/" }
     }
 }
 
