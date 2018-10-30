@@ -173,6 +173,11 @@ class MusicService : MediaBrowserServiceCompat() {
             })
     }
 
+    override fun notifyChildrenChanged(parentId: String) {
+        repository.clear()
+        super.notifyChildrenChanged(parentId)
+    }
+
     internal fun stopService() {
         stopSelf()
         isStarted = false
