@@ -42,6 +42,6 @@ class SwitcherTarget(switcher: ImageSwitcher) : CustomViewTarget<ImageSwitcher, 
     }
 
     override fun onResourceCleared(placeholder: Drawable?) {
-        view.setImageDrawable(placeholder)
+        // TODO Rework ImageSwitcher to release previous ImageView resources.
     }
 }
