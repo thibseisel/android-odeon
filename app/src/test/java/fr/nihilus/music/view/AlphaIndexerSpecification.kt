@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
@@ -40,7 +39,6 @@ import org.robolectric.RobolectricTestRunner
 )
 class AlphaIndexerSpecification
 
-@RunWith(RobolectricTestRunner::class)
 class WithNoItem {
 
     private lateinit var indexer: AlphaSectionIndexer
@@ -68,7 +66,6 @@ class WithNoItem {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithOneItemPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -115,7 +112,6 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithSameFirstLetter : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -175,7 +171,6 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithNonLetterItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "[F]",
@@ -209,7 +204,6 @@ class WithNonLetterItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithDiacriticsItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "À la Claire Fontaine",
@@ -241,7 +235,6 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     override val items = listOf(
         "The 2nd Law: Isolated System",
@@ -276,7 +269,6 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithUnexpectedItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "  \nHello World!",
@@ -332,7 +324,6 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
 class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Saint Cecilia",
@@ -404,6 +395,11 @@ abstract class ItemBasedIndexerScenario {
         indexer.update(items.asSequence())
     }
 
+    /**
+     * Assert that the indexer under test returns the [expectedItemPosition] for the given [sectionIndex].
+     * This is a helper function to test [AlphaSectionIndexer.getPositionForSection],
+     * printing a cleaner error message when the assertion fails.
+     */
     protected fun assertSectionStartsAtPosition(sectionIndex: Int, expectedItemPosition: Int) {
         val actualItemPosition = indexer.getPositionForSection(sectionIndex)
         assertWithMessage(
@@ -414,6 +410,11 @@ abstract class ItemBasedIndexerScenario {
         ).that(actualItemPosition).isEqualTo(expectedItemPosition)
     }
 
+    /**
+     * Assert that the item at [itemPosition] is sorted in the section at [expectedSectionIndex].
+     * This is a helper function to test [AlphaSectionIndexer.getSectionForPosition],
+     * printing a cleaner error message when the assertion fails.
+     */
     protected fun assertItemInSection(itemPosition: Int, expectedSectionIndex: Int) {
         val sections = indexer.sections
         val actualSectionIndex = indexer.getSectionForPosition(itemPosition)

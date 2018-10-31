@@ -16,14 +16,13 @@
 
 package fr.nihilus.music.view
 
-import android.util.SparseIntArray
 import android.widget.SectionIndexer
 import java.text.Normalizer
 import java.util.*
 
 class AlphaSectionIndexer : SectionIndexer {
     private val items = mutableListOf<String>()
-    private val positionForSection = SparseIntArray()
+    private val positionForSection: MutableMap<String, Int> = TreeMap(SECTION_COMPARATOR)
     private var sections: Array<String> = emptyArray()
 
     override fun getSections(): Array<String> = sections
@@ -32,8 +31,13 @@ class AlphaSectionIndexer : SectionIndexer {
         if (position !in items.indices) return 0
 
         val itemAtPosition = items[position]
-        val section = itemAtPosition.toNormalizedSection()
-        val sectionIndex = sections.binarySearch(section, SECTION_COMPARATOR)
+        val subSection = itemAtPosition.toNormalizedSubSection()
+        val sectionIndex = if (positionForSection.containsKey(subSection)) {
+            sections.binarySearch(subSection, SECTION_COMPARATOR)
+        } else {
+            val parentSection = subSection.substring(0, 1)
+            sections.binarySearch(parentSection, SECTION_COMPARATOR)
+        }
 
         return sectionIndex.coerceAtLeast(0)
     }
@@ -41,7 +45,7 @@ class AlphaSectionIndexer : SectionIndexer {
     override fun getPositionForSection(sectionIndex: Int): Int {
         if (sectionIndex !in sections.indices) throw IndexOutOfBoundsException()
         val section = sections[sectionIndex]
-        return positionForSection.get(sectionKey(section), 0)
+        return positionForSection[section] ?: 0
     }
 
     /**
@@ -55,28 +59,29 @@ class AlphaSectionIndexer : SectionIndexer {
      * associated with this indexer.
      */
     fun update(newItems: Sequence<String>) {
-        newItems.mapTo(items, String::toNormalizedSection)
-        val sectionPositionMapper: Map<String, Int> = items.asSequence()
+        val subSectionsPerSection = newItems.mapTo(items, String::toNormalizedSubSection)
+            .asSequence()
             .withIndex()
-            .groupingBy { it.value }
-            .foldTo(
-                destination = TreeMap<String, Int>(SECTION_COMPARATOR),
-                initialValue = Int.MAX_VALUE,
-                operation = { accumulator, (index, _) -> minOf(accumulator, index) }
-            )
+            .groupBy { (_, subSection) -> subSection.substring(0, 1) }
 
-        sections = sectionPositionMapper.keys.toTypedArray()
-        sectionPositionMapper.forEach { (section, itemPosition) ->
-            positionForSection.put(sectionKey(section), itemPosition)
+        for ((section, subSections) in subSectionsPerSection) {
+            if (subSections.size < 5) {
+                positionForSection[section] = subSections.first().index
+            } else {
+                subSections
+                    .groupingBy { it.value }
+                    .foldTo(positionForSection, Int.MAX_VALUE) { accumulator, (index, _) ->
+                        minOf(accumulator, index)
+                    }
+            }
         }
+
+        sections = positionForSection.keys.toTypedArray()
     }
 }
 
 private val REGEX_COMBINE_DIACRITIC = Regex("[\\p{InCombiningDiacriticalMarks}]")
 
-/**
- * The ordering used
- */
 private val SECTION_COMPARATOR = Comparator<String> { a: String, b: String ->
     when {
         a == b -> 0
@@ -87,14 +92,9 @@ private val SECTION_COMPARATOR = Comparator<String> { a: String, b: String ->
 }
 
 /**
- * Produce an integer key representing a given section.
- */
-private fun sectionKey(section: String): Int = if (section.isEmpty()) 0 else section.first().toInt()
-
-/**
  * Extract the section name from an item label.
  */
-private fun String.toNormalizedSection(): String {
+private fun String.toNormalizedSubSection(): String {
     val trimmed = this.trimStart().toUpperCase()
     val withoutCommonPrefixes = when {
         trimmed.startsWith("THE ") -> trimmed.drop(4)
@@ -107,7 +107,9 @@ private fun String.toNormalizedSection(): String {
         return "#"
     }
 
-    val sectionWithDiacritics = withoutCommonPrefixes.substring(0, 1)
+    val sectionLength = withoutCommonPrefixes.length.coerceAtMost(2)
+    val sectionWithDiacritics = withoutCommonPrefixes.substring(0, sectionLength)
+
     return Normalizer.normalize(sectionWithDiacritics, Normalizer.Form.NFKD)
         .replace(REGEX_COMBINE_DIACRITIC, "")
 }
