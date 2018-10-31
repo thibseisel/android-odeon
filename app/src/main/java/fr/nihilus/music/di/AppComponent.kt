@@ -16,9 +16,8 @@
 
 package fr.nihilus.music.di
 
-import android.app.Application
-import dagger.BindsInstance
 import dagger.Component
+import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.OdeonApplication
 import fr.nihilus.music.media.di.MediaServiceModule
@@ -37,7 +36,7 @@ import javax.inject.Singleton
         MediaServiceModule::class
     ]
 )
-interface AppComponent {
+interface AppComponent : AndroidInjector<OdeonApplication> {
 
     /**
      * Generate a builder for the application component.
@@ -45,21 +44,5 @@ interface AppComponent {
      * order to provide it as a dependency to any other object.
      */
     @Component.Builder
-    interface Builder {
-
-        /**
-         * Attach the instance of the application to the component to be created,
-         * allowing it to be injected into other objects.
-         */
-        @BindsInstance
-        fun application(app: Application): Builder
-
-        fun build(): AppComponent
-    }
-
-    /**
-     * Inject dependencies into the Android application.
-     * After this call, fields annotated with `Inject` will be initialized.
-     */
-    fun inject(app: OdeonApplication)
+    abstract class Builder : AndroidInjector.Builder<OdeonApplication>()
 }

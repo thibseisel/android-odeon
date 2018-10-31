@@ -14,39 +14,28 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.di;
+package fr.nihilus.music.di
 
-import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-
-import javax.inject.Singleton;
-
-import dagger.Binds;
-import dagger.Module;
-import dagger.Provides;
-import fr.nihilus.music.settings.SharedPreferencesUiSettings;
-import fr.nihilus.music.settings.UiSettings;
+import android.content.Context
+import android.content.SharedPreferences
+import android.preference.PreferenceManager
+import dagger.Module
+import dagger.Provides
+import fr.nihilus.music.OdeonApplication
+import javax.inject.Singleton
 
 /**
  * The main module for this application.
  * It defines dependencies that cannot be instantiated with a constructor,
  * such as implementations for abstract types or calls to factory methods.
  */
-@SuppressWarnings("unused")
-@Module
-abstract class AppModule {
+@Module(includes = [AppModuleBinds::class])
+class AppModule {
 
-    @Binds
-    abstract Context bindsApplicationContext(@NonNull Application app);
+    @Provides
+    fun provideContext(application: OdeonApplication): Context = application.applicationContext
 
     @Provides @Singleton
-    static SharedPreferences provideSharedPreferences(@NonNull Application app) {
-        return PreferenceManager.getDefaultSharedPreferences(app);
-    }
-
-    @Binds
-    abstract UiSettings bindsUiSettings(SharedPreferencesUiSettings settings);
+    fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(application)
 }

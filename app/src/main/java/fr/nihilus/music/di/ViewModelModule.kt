@@ -17,6 +17,7 @@
 package fr.nihilus.music.di
 
 import android.arch.lifecycle.ViewModel
+import android.arch.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -33,6 +34,9 @@ import fr.nihilus.music.client.ViewModelKey
 @Suppress("unused")
 @Module
 abstract class ViewModelModule {
+
+    @Binds
+    abstract fun bindsViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 
     @Binds @IntoMap
     @ViewModelKey(BrowserViewModel::class)

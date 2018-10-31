@@ -16,13 +16,9 @@
 
 package fr.nihilus.music
 
-import android.app.Activity
-import android.app.Application
-import android.app.Service
 import android.support.v7.app.AppCompatDelegate
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
-import dagger.android.HasServiceInjector
+import dagger.android.AndroidInjector
+import dagger.android.support.DaggerApplication
 import fr.nihilus.music.di.DaggerAppComponent
 import fr.nihilus.music.settings.UiSettings
 import io.reactivex.plugins.RxJavaPlugins
@@ -33,19 +29,11 @@ import javax.inject.Inject
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
-class OdeonApplication : Application(), HasActivityInjector, HasServiceInjector {
-
-    @Inject lateinit var dispatchingActivityInjector: DispatchingAndroidInjector<Activity>
-    @Inject lateinit var dispatchingServiceInjector: DispatchingAndroidInjector<Service>
+class OdeonApplication : DaggerApplication() {
     @Inject lateinit var prefs: UiSettings
 
     override fun onCreate() {
         super.onCreate()
-
-        DaggerAppComponent.builder()
-            .application(this)
-            .build()
-            .inject(this)
 
         if (BuildConfig.DEBUG) {
             // Print logs to Logcat
@@ -57,7 +45,6 @@ class OdeonApplication : Application(), HasActivityInjector, HasServiceInjector 
         AppCompatDelegate.setDefaultNightMode(prefs.nightMode)
     }
 
-    override fun activityInjector() = dispatchingActivityInjector
-
-    override fun serviceInjector() = dispatchingServiceInjector
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
+        DaggerAppComponent.builder().create(this)
 }

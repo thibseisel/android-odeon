@@ -24,15 +24,13 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.view.ContextThemeWrapper
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
-import dagger.android.AndroidInjection
+import fr.nihilus.music.BaseActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.darkSystemIcons
@@ -41,11 +39,10 @@ import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.activity_album_detail.*
 import javax.inject.Inject
 
-class AlbumDetailActivity : AppCompatActivity(),
+class AlbumDetailActivity : BaseActivity(),
     View.OnClickListener,
     BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var factory: ViewModelFactory
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
     private lateinit var adapter: TrackAdapter
@@ -54,7 +51,6 @@ class AlbumDetailActivity : AppCompatActivity(),
     private lateinit var viewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_detail)
 
@@ -76,7 +72,7 @@ class AlbumDetailActivity : AppCompatActivity(),
         val palette: AlbumPalette? = intent.getParcelableExtra(ARG_PALETTE)
         applyPaletteTheme(palette ?: defaultAlbumPalette)
 
-        viewModel = ViewModelProviders.of(this, factory).get(BrowserViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
 
         // Change the decorated item when metadata changes

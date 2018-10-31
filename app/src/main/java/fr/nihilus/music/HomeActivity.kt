@@ -26,22 +26,16 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import dagger.android.AndroidInjection
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
-import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
@@ -54,15 +48,12 @@ import fr.nihilus.music.view.ScrimBottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
-class HomeActivity : AppCompatActivity(),
-    HasSupportFragmentInjector,
+class HomeActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener,
     PlayerView.EventListener {
 
-    @Inject lateinit var dispatchingFragmentInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var prefs: UiSettings
     @Inject lateinit var router: NavigationController
-    @Inject lateinit var vmFactory: ViewModelFactory
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
@@ -70,7 +61,6 @@ class HomeActivity : AppCompatActivity(),
     private lateinit var viewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
@@ -79,7 +69,7 @@ class HomeActivity : AppCompatActivity(),
 
         setupNavigationDrawer()
 
-        viewModel = ViewModelProviders.of(this, vmFactory).get(BrowserViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
 
         setupPlayerView()
@@ -426,8 +416,6 @@ class HomeActivity : AppCompatActivity(),
     override fun onShuffleModeChanged(newMode: Int) {
         viewModel.toggleShuffleMode()
     }
-
-    override fun supportFragmentInjector() = dispatchingFragmentInjector
 
     private companion object {
         private const val REQUEST_SETTINGS = 42
