@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.media.di
 
-import android.content.Context
-import android.media.AudioManager
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ExoPlayerFactory
@@ -29,9 +27,8 @@ import fr.nihilus.music.media.playback.AudioOnlyRenderersFactory
 import fr.nihilus.music.media.service.MusicService
 
 @Module(includes = [ServiceBindingsModule::class])
-internal object PlaybackModule {
+internal class PlaybackModule {
 
-    @JvmStatic
     @[Provides ServiceScoped]
     fun provideExoPlayer(context: MusicService): ExoPlayer = ExoPlayerFactory.newSimpleInstance(
         context,
@@ -44,9 +41,4 @@ internal object PlaybackModule {
             .build()
         it.setAudioAttributes(musicAttributes, true)
     }
-
-    @JvmStatic
-    @Provides
-    fun providesAudioManager(context: Context): AudioManager =
-        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 }

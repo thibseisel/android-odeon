@@ -29,7 +29,7 @@ import javax.inject.Singleton
  * It defines dependencies that cannot be instantiated with a constructor,
  * such as implementations for abstract types or calls to factory methods.
  */
-@Module(includes = [AppModuleBinds::class])
+@Module(includes = [AppBindingsModule::class])
 class AppModule {
 
     @Provides

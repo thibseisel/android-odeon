@@ -23,14 +23,12 @@ import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.MusicService
 
 @Module
-internal object DatabaseModule {
+internal class DatabaseModule {
 
-    @JvmStatic
     @[Provides ServiceScoped]
     fun provideDatabase(service: MusicService): AppDatabase =
         Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME).build()
 
-    @JvmStatic
     @[Provides ServiceScoped]
     fun providePlaylistDao(db: AppDatabase): PlaylistDao = db.playlistDao
 }

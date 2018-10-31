@@ -23,7 +23,7 @@ import fr.nihilus.music.settings.UiSettings
 
 @Suppress("unused")
 @Module
-abstract class AppModuleBinds {
+abstract class AppBindingsModule {
 
     @Binds
     internal abstract fun bindsUiSettings(settings: SharedPreferencesUiSettings): UiSettings
