@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.songs
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
@@ -35,19 +34,18 @@ import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.inflate
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.utils.MediaItemIndexer
+import fr.nihilus.music.view.AlphaSectionIndexer
 
 class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     private val songs = ArrayList<MediaBrowserCompat.MediaItem>()
-    private val indexer = MediaItemIndexer(songs)
+    private val indexer = AlphaSectionIndexer()
     private val glideRequest: GlideRequest<Bitmap>
 
     init {
-        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
+        val context = fragment.requireContext()
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
-        registerDataSetObserver(indexer)
         glideRequest = GlideApp.with(fragment).asBitmap()
             .transforms(FitCenter(), RoundedCorners(cornerRadius))
             .fallback(R.drawable.ic_audiotrack_24dp)
@@ -89,16 +87,20 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
 
     override fun getSections(): Array<out Any> = indexer.sections
 
-    override fun getPositionForSection(sectionIndex: Int) =
-        indexer.getPositionForSection(sectionIndex)
+    override fun getSectionForPosition(position: Int) = indexer.getSectionForPosition(position)
 
-    override fun getSectionForPosition(position: Int) =
-        indexer.getSectionForPosition(position)
+    override fun getPositionForSection(sectionIndex: Int) = indexer.getPositionForSection(sectionIndex)
 
     fun updateItems(newItems: List<MediaBrowserCompat.MediaItem>) {
         songs.clear()
-        songs.addAll(newItems)
+        songs += newItems
+        updateIndexer(newItems)
         notifyDataSetChanged()
+    }
+
+    private fun updateIndexer(newItems: List<MediaBrowserCompat.MediaItem>) {
+        val titleSequence = newItems.asSequence().map { it.description.title?.toString() ?: "" }
+        indexer.update(titleSequence)
     }
 
     private class ViewHolder(itemView: View) {
@@ -114,7 +116,6 @@ class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
             }
         }
 
-        @SuppressLint("StringFormatInvalid")
         private fun bindSubtitle(textView: TextView, text: CharSequence?, durationMillis: Long) {
             val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
             textView.text = textView.context.getString(R.string.song_item_subtitle, text, duration)
