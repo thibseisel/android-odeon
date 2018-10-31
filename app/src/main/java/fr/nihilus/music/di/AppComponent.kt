@@ -20,7 +20,7 @@ import android.app.Application
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.support.AndroidSupportInjectionModule
-import fr.nihilus.music.NihilusMusicApplication
+import fr.nihilus.music.OdeonApplication
 import fr.nihilus.music.media.di.MediaServiceModule
 import javax.inject.Singleton
 
@@ -61,5 +61,5 @@ interface AppComponent {
      * Inject dependencies into the Android application.
      * After this call, fields annotated with `Inject` will be initialized.
      */
-    fun inject(app: NihilusMusicApplication)
+    fun inject(app: OdeonApplication)
 }

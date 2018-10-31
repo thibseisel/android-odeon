@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.songs
 
-import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
@@ -174,7 +173,7 @@ class SongListFragment : Fragment(),
         else if (requestCode == R.id.request_add_to_playlist) {
 
             when (resultCode) {
-                Activity.RESULT_OK -> {
+                R.id.abc_result_success -> {
                     // Track(s) have been added to a playlist
                     if (data != null) {
                         // Display a confirmation message as a Toast
