@@ -36,6 +36,9 @@
             @drawable/abc_ic_clear_material
         </item>
 
+        <!-- Custom style for FastScroller -->
+        <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
+
         <!-- Make the action mode appear above the content instead of above the Toolbar. -->
         <item name="windowActionModeOverlay">true</item>
 
@@ -103,5 +106,10 @@
         <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
         <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
         <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
+    </style>
+
+    <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
+        <item name="android:minWidth">124dp</item>
+        <item name="android:typeface">monospace</item>
     </style>
 </resources>
