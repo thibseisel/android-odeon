@@ -28,4 +28,5 @@
     <dimen name="tick_mark_inset">12dp</dimen>
     <dimen name="playerview_elevation">8dp</dimen>
     <dimen name="track_icon_corner_radius">4dp</dimen>
+    <dimen name="playlist_name_input_padding">16dp</dimen>
 </resources>

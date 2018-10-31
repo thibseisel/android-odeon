@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatDialogFragment
 import android.text.InputType
+import android.view.WindowManager
 import android.widget.EditText
 import fr.nihilus.music.R
 import fr.nihilus.music.client.BrowserViewModel
@@ -73,10 +74,11 @@ class NewPlaylistDialog : AppCompatDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
+        val inputPadding = resources.getDimensionPixelSize(R.dimen.playlist_name_input_padding)
         titleInputView = EditText(context).apply {
             inputType = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             hint = getString(R.string.hint_playlist_title)
+            setPadding(inputPadding, inputPadding, inputPadding, inputPadding)
         }
 
         return AlertDialog.Builder(context!!)
@@ -85,6 +87,12 @@ class NewPlaylistDialog : AppCompatDialogFragment() {
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.ok) { _, _ -> onRequestCreatePlaylist() }
             .create()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
     }
 
     private fun onRequestCreatePlaylist() {
