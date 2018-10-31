@@ -85,3 +85,15 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+/**
+ * Retrieve a Gradle property value, or return the provided default value if it is not defined.
+ *
+ * @param propertyName The name of the property to find.
+ * @param defaultValue The value to use when the requested property is not defined.
+ * @return The value of the Gradle property.
+ */
+def <T> T propOrDefault(String propertyName, T defaultValue) {
+    def propertyValue = project.properties[propertyName]
+    return propertyValue ?: defaultValue
+}

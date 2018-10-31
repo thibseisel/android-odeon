@@ -31,29 +31,13 @@ android {
     }
 
     // Retrieve keystore properties from this machine's global Gradle properties.
-    if (project.hasProperty('android.signing.keyAlias')
-            && project.hasProperty('android.signing.keyPassword')
-            && project.hasProperty('android.signing.storeFile')
-            && project.hasProperty('android.signing.storePassword')) {
-
-        signingConfigs {
-            config {
-                keyAlias project.property('android.signing.keyAlias')
-                keyPassword project.property('android.signing.keyPassword')
-                storeFile file(project.property('android.signing.storeFile'))
-                storePassword project.property('android.signing.storePassword')
-            }
+    signingConfigs {
+        release {
+            keyAlias propOrDefault('android.signing.keyAlias', '')
+            keyPassword propOrDefault('android.signing.keyPassword', '')
+            storeFile file(propOrDefault('android.signing.storeFile', ''))
+            storePassword propOrDefault('android.signing.storePassword', '')
         }
-    } else {
-        project.logger.warn('''
-            This machine does not define a signing configuration, 
-            and therefore cannot build releases. You have to define the following properties:
-            * android.signing.keyAlias
-            * android.signing.keyPassword
-            * android.signing.storeFile
-            * android.signing.storePassword
-            in the local ~.gradle/gradle.properties file of your machine.
-            '''.stripIndent())
     }
 
     compileOptions {
@@ -61,15 +45,27 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    lintOptions {
-        abortOnError false
+    packagingOptions {
+        // Exclude AndroidX version files
+        exclude 'META-INF/*.version'
+        // Exclude consumer proguard files
+        exclude 'META-INF/proguard/*'
+        // Exclude the random properties files
+        exclude '/*.properties'
+        exclude 'META-INF/*.properties'
     }
 
     buildTypes {
+        // Allow installing a debug version of the application along a production one
+        debug {
+            versionNameSuffix '-dev'
+            applicationIdSuffix '.debug'
+        }
+
         release {
-            minifyEnabled true
+            signingConfig signingConfigs.release
             shrinkResources true
-            useProguard true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             // Configure Kotlin compiler optimisations for releases
@@ -80,19 +76,6 @@ android {
                         'Xno-receiver-assertions'
                 ]
             }
-        }
-
-        // Allow installing a debug version of the application along a production one
-        debug {
-            applicationIdSuffix '.debug'
-            versionNameSuffix '-debug'
-            debuggable true
-        }
-    }
-
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
         }
     }
 }
