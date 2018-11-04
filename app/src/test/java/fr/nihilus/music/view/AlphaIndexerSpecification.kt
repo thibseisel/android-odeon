@@ -25,6 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
+import org.robolectric.RobolectricTestRunner
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
@@ -39,6 +40,7 @@ import org.junit.runners.Suite
 )
 class AlphaIndexerSpecification
 
+@RunWith(RobolectricTestRunner::class)
 class WithNoItem {
 
     private lateinit var indexer: AlphaSectionIndexer
@@ -66,6 +68,7 @@ class WithNoItem {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithOneItemPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -112,6 +115,7 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithSameFirstLetter : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -171,6 +175,7 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithNonLetterItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "[F]",
@@ -204,6 +209,7 @@ class WithNonLetterItems : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithDiacriticsItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "À la Claire Fontaine",
@@ -235,6 +241,7 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     override val items = listOf(
         "The 2nd Law: Isolated System",
@@ -269,6 +276,7 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithUnexpectedItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "  \nHello World!",
@@ -324,6 +332,7 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Saint Cecilia",
