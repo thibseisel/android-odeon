@@ -339,12 +339,17 @@ class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
         "Symphony Of Destruction",
         "T-Shirt",
         "Teenagers",
+        "These Days",
+        "Through Glass",
+        "Throwdown",
         "Thunderstruck",
+        "Time Is Running Out",
+        "T.N.T",
         "Tribute"
     )
 
     @Test
-    fun itShouldCreateSubsectionsForFiveAndMoreItems() {
+    fun itShouldCreateSubsectionsWhenTenOrMoreItemsPerSection() {
         assertThat(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
     }
 

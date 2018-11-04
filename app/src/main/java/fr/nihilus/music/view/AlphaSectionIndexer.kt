@@ -65,7 +65,7 @@ class AlphaSectionIndexer : SectionIndexer {
             .groupBy { (_, subSection) -> subSection.substring(0, 1) }
 
         for ((section, subSections) in subSectionsPerSection) {
-            if (subSections.size < 5) {
+            if (subSections.size < 10) {
                 positionForSection[section] = subSections.first().index
             } else {
                 subSections
