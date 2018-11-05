@@ -35,7 +35,7 @@ android {
         release {
             keyAlias propOrDefault('android.signing.keyAlias', '')
             keyPassword propOrDefault('android.signing.keyPassword', '')
-            storeFile file(propOrDefault('android.signing.storeFile', ''))
+            storeFile file(propOrDefault('android.signing.storeFile', 'signing/release.jks'))
             storePassword propOrDefault('android.signing.storePassword', '')
         }
     }
