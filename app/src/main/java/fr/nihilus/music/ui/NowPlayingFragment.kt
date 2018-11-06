@@ -18,6 +18,8 @@ package fr.nihilus.music.ui
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.graphics.drawable.DrawableCompat
@@ -30,8 +32,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
 import fr.nihilus.music.media.extensions.albumArtUri
 import fr.nihilus.music.media.extensions.isPlaying
@@ -46,18 +50,18 @@ private const val LEVEL_CHEVRON_UP = 0
 private const val LEVEL_CHEVRON_DOWN = 1
 
 class NowPlayingFragment: Fragment() {
-
     @Inject lateinit var vmFactory: ViewModelProvider.Factory
 
-    private val glideRequest = GlideApp.with(this).asDrawable()
-        .fallback(R.drawable.ic_audiotrack_24dp)
-        .diskCacheStrategy(DiskCacheStrategy.NONE)
-        .centerCrop()
-
+    private lateinit var glideRequest: GlideRequest<Drawable>
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
     private lateinit var viewModel: NowPlayingViewModel
+
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -111,6 +115,11 @@ class NowPlayingFragment: Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        glideRequest = GlideApp.with(this).asDrawable()
+            .fallback(R.drawable.ic_audiotrack_24dp)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .centerCrop()
+
         viewModel = ViewModelProviders.of(this, vmFactory)[NowPlayingViewModel::class.java]
 
         viewModel.isExpanded.observeK(this) {
@@ -120,10 +129,10 @@ class NowPlayingFragment: Fragment() {
         viewModel.playbackState.observeK(this, this::onPlaybackStateChanged)
         viewModel.nowPlaying.observeK(this, this::onMetadataChanged)
         viewModel.repeatMode.observeK(this) {
-            onShuffleModeChanged(it ?: REPEAT_MODE_INVALID)
+            onRepeatModeChanged(it ?: REPEAT_MODE_INVALID)
         }
         viewModel.shuffleMode.observeK(this) {
-            onRepeatModeChanged(it ?: SHUFFLE_MODE_INVALID)
+            onShuffleModeChanged(it ?: SHUFFLE_MODE_INVALID)
         }
     }
 
@@ -153,13 +162,11 @@ class NowPlayingFragment: Fragment() {
     private fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode mode: Int) {
         shuffle_button.apply {
             isActivated = mode == SHUFFLE_MODE_ALL
-            isEnabled = mode != SHUFFLE_MODE_INVALID
         }
     }
 
     private fun onRepeatModeChanged(@PlaybackStateCompat.RepeatMode mode: Int) {
         repeat_button.apply {
-            isEnabled = mode != REPEAT_MODE_INVALID
             isActivated = (mode == REPEAT_MODE_ONE) || (mode == REPEAT_MODE_ALL)
             setImageLevel(mode)
         }

@@ -24,6 +24,7 @@ import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.client.ViewModelKey
+import fr.nihilus.music.ui.NowPlayingViewModel
 
 /**
  * Every ViewModel subclass that can be created with [DaggerViewModelFactory]
@@ -41,4 +42,8 @@ abstract class ViewModelModule {
     @Binds @IntoMap
     @ViewModelKey(BrowserViewModel::class)
     abstract fun bindsBrowserViewModel(viewModel: BrowserViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(NowPlayingViewModel::class)
+    abstract fun bindsNowPlayingViewModel(viewModel: NowPlayingViewModel): ViewModel
 }

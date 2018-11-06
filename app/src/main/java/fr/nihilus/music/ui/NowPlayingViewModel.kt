@@ -69,7 +69,7 @@ class NowPlayingViewModel
     fun toggleRepeatMode() = connection.post { controller ->
         val currentMode = repeatMode.value ?: REPEAT_MODE_INVALID
         if (currentMode != REPEAT_MODE_INVALID) {
-            controller.transportControls.setRepeatMode(currentMode + 1 % 3)
+            controller.transportControls.setRepeatMode((currentMode + 1) % 3)
         }
     }
 }

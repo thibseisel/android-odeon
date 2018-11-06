@@ -53,25 +53,26 @@
             android:paddingBottom="@dimen/playerview_height"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-        <!-- Bottomsheet's top shadow -->
-        <View
-            android:id="@+id/playerShadow"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:elevation="@dimen/playerview_elevation"
-            android:layout_gravity="center"
-            android:background="@drawable/shape_top_shadow"
-            app:layout_anchor="@+id/player_view"/>
-
-        <fr.nihilus.music.view.PlayerView
-            android:id="@+id/player_view"
+        <android.support.design.card.MaterialCardView
+            android:id="@+id/player_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:layout_gravity="center"
-            android:elevation="@dimen/playerview_elevation"
-            app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="fr.nihilus.music.view.ScrimBottomSheetBehavior"/>
+            app:cardMaxElevation="@dimen/playerview_elevation"
+            app:cardElevation="@dimen/playerview_elevation"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:behavior_peekHeight="@dimen/playerview_height">
+
+            <fragment
+                android:id="@+id/fragment_now_playing"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:name="fr.nihilus.music.ui.NowPlayingFragment"
+                tools:layout="@layout/fragment_now_playing"/>
+
+        </android.support.design.card.MaterialCardView>
+
     </android.support.design.widget.CoordinatorLayout>
 
     <!-- NavigationDrawer -->

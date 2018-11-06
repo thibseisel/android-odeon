@@ -42,23 +42,22 @@ import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.UiSettings
+import fr.nihilus.music.ui.NowPlayingViewModel
 import fr.nihilus.music.utils.ConfirmDialogFragment
-import fr.nihilus.music.view.PlayerView
-import fr.nihilus.music.view.ScrimBottomSheetBehavior
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
 class HomeActivity : BaseActivity(),
-    NavigationView.OnNavigationItemSelectedListener,
-    PlayerView.EventListener {
+    NavigationView.OnNavigationItemSelectedListener {
 
     @Inject lateinit var prefs: UiSettings
     @Inject lateinit var router: NavigationController
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private lateinit var bottomSheet: ScrimBottomSheetBehavior<PlayerView>
+    private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var viewModel: BrowserViewModel
+    private lateinit var playerViewModel: NowPlayingViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +67,8 @@ class HomeActivity : BaseActivity(),
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         setupNavigationDrawer()
+
+        playerViewModel = ViewModelProviders.of(this, viewModelFactory)[NowPlayingViewModel::class.java]
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
@@ -157,23 +158,12 @@ class HomeActivity : BaseActivity(),
     }
 
     private fun setupPlayerView() {
-        player_view.setEventListener(this)
-        bottomSheet = ScrimBottomSheetBehavior.from(player_view)
+        bottomSheet = BottomSheetBehavior.from(player_container)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playbackState.value)
 
-        viewModel.currentMetadata.observe(this, Observer(player_view::updateMetadata))
-        viewModel.shuffleMode.observe(this, Observer {
-            player_view.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
-        })
-
-        viewModel.repeatMode.observe(this, Observer {
-            player_view.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
-        })
-
         viewModel.playbackState.observe(this, Observer { newState ->
-            player_view.updatePlaybackState(newState)
             togglePlayerVisibility(newState)
         })
 
@@ -184,16 +174,13 @@ class HomeActivity : BaseActivity(),
         })
 
         bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                this@HomeActivity.bottomSheet.scrimOpacity = slideOffset.coerceAtLeast(0.0f) * 0.5f
-                bottomSheet.requestLayout()
-            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
                         && newState != BottomSheetBehavior.STATE_HIDDEN
 
-                player_view.setExpanded(isExpandedOrExpanding)
+                playerViewModel.markAsExpanded(isExpandedOrExpanding)
                 with(drawer_layout) {
                     requestDisallowInterceptTouchEvent(isExpandedOrExpanding)
                     setDrawerLockMode(
@@ -290,10 +277,8 @@ class HomeActivity : BaseActivity(),
         bottomSheet.peekHeight = if (state == null
             || state.state == PlaybackStateCompat.STATE_NONE
             || state.state == PlaybackStateCompat.STATE_STOPPED) {
-            playerShadow.visibility = View.GONE
             resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         } else {
-            playerShadow.visibility = View.VISIBLE
             resources.getDimensionPixelSize(R.dimen.playerview_height)
         }
     }
@@ -311,16 +296,14 @@ class HomeActivity : BaseActivity(),
             bottomSheet.isHideable = true
             bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
             container.setPadding(0, 0, 0, 0)
-            playerShadow.visibility = View.GONE
 
         } else if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            player_view.post { bottomSheet.isHideable = false }
+            player_container.post { bottomSheet.isHideable = false }
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
             container.setPadding(0, 0, 0, playerViewHeight)
             bottomSheet.peekHeight = playerViewHeight
-            playerShadow.visibility = View.VISIBLE
         }
     }
 
@@ -387,34 +370,6 @@ class HomeActivity : BaseActivity(),
                 playFromMediaId(CATEGORY_MUSIC, null)
             }
         }
-    }
-
-    override fun onActionPlay() {
-        viewModel.post { it.transportControls.play() }
-    }
-
-    override fun onActionPause() {
-        viewModel.post { it.transportControls.pause() }
-    }
-
-    override fun onSeek(position: Long) {
-        viewModel.post { it.transportControls.seekTo(position) }
-    }
-
-    override fun onSkipToPrevious() {
-        viewModel.post { it.transportControls.skipToPrevious() }
-    }
-
-    override fun onSkipToNext() {
-        viewModel.post { it.transportControls.skipToNext() }
-    }
-
-    override fun onRepeatModeChanged(newMode: Int) {
-        viewModel.toggleRepeatMode()
-    }
-
-    override fun onShuffleModeChanged(newMode: Int) {
-        viewModel.toggleShuffleMode()
     }
 
     private companion object {

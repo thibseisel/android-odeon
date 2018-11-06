@@ -18,6 +18,7 @@ package fr.nihilus.music.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.ui.NowPlayingFragment
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -34,6 +35,9 @@ import fr.nihilus.music.ui.songs.SongListFragment
 @Suppress("unused")
 @Module
 abstract class MusicLibraryModule {
+
+    @FragmentScoped @ContributesAndroidInjector
+    abstract fun contributeNowPlayingFragment(): NowPlayingFragment
 
     @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeSongListFragment(): SongListFragment
