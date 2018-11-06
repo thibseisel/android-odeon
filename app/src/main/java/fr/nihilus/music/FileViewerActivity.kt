@@ -59,10 +59,10 @@ class FileViewerActivity : AppCompatActivity() {
             }
         }
 
-        val albumArt = findViewById<ImageView>(R.id.albumArtView)
-        val titleView = findViewById<TextView>(R.id.titleView)
-        val subtitleView = findViewById<TextView>(R.id.subtitleView)
-        val playPauseButton = findViewById<PlayPauseButton>(R.id.playPauseButton)
+        val albumArt = findViewById<ImageView>(R.id.album_art_view)
+        val titleView = findViewById<TextView>(R.id.title_view)
+        val subtitleView = findViewById<TextView>(R.id.subtitle_view)
+        val playPauseButton = findViewById<PlayPauseButton>(R.id.play_pause_button)
         val seekBar = findViewById<SeekBar>(R.id.progress)
 
         // Configure seekBar auto-updates

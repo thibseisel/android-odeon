@@ -69,43 +69,43 @@ class NowPlayingFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val context = requireContext()
-        albumArtTarget = SwitcherTarget(albumArtSwitcher)
-        autoUpdater = ProgressAutoUpdater(seekBar, seekPosition, seekDuration) { position ->
+        albumArtTarget = SwitcherTarget(album_art_switcher)
+        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) { position ->
             viewModel.seekTo(position)
         }
 
-        seekBar.setOnSeekBarChangeListener(autoUpdater)
+        seek_bar.setOnSeekBarChangeListener(autoUpdater)
 
         // Change color when shuffle mode and repeat mode buttons are activated
         val activationStateList = AppCompatResources.getColorStateList(
             context,
             R.color.activation_state_list
         )
-        with(shuffleButton) {
+        with(shuffle_button) {
             val shuffleDrawable = DrawableCompat.wrap(this.drawable)
             DrawableCompat.setTintList(shuffleDrawable, activationStateList)
             setImageDrawable(shuffleDrawable)
         }
 
-        with(repeatButton) {
+        with(repeat_button) {
             val repeatDrawable = DrawableCompat.wrap(this.drawable)
             DrawableCompat.setTintList(repeatDrawable, activationStateList)
             setImageDrawable(repeatDrawable)
         }
 
         val clickListener = WidgetClickListener()
-        playPauseButton.setOnClickListener(clickListener)
+        play_pause_button.setOnClickListener(clickListener)
 
         // Buttons that are only present in landscape mode
-        miniPrevButton?.setOnClickListener(clickListener)
-        miniNextButton?.setOnClickListener(clickListener)
+        mini_prev_button?.setOnClickListener(clickListener)
+        mini_next_button?.setOnClickListener(clickListener)
 
         // Playback control buttons at bottom
-        repeatButton.setOnClickListener(clickListener)
-        skipPrevButton.setOnClickListener(clickListener)
-        masterPlayPause.setOnClickListener(clickListener)
-        skipNextButton.setOnClickListener(clickListener)
-        shuffleButton.setOnClickListener(clickListener)
+        repeat_button.setOnClickListener(clickListener)
+        skip_prev_button.setOnClickListener(clickListener)
+        master_play_pause.setOnClickListener(clickListener)
+        skip_next_button.setOnClickListener(clickListener)
+        shuffle_button.setOnClickListener(clickListener)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -134,16 +134,16 @@ class NowPlayingFragment: Fragment() {
     private fun onMetadataChanged(metadata: MediaMetadataCompat?) {
         if (metadata != null) {
             val media = metadata.description
-            titleView.text = media.title
-            subtitleView.text = media.subtitle
+            title_view.text = media.title
+            subtitle_view.text = media.subtitle
 
             autoUpdater.setMetadata(metadata)
             glideRequest.load(metadata.albumArtUri).into(albumArtTarget)
 
         } else {
             // Reset views
-            titleView.text = null
-            subtitleView.text = null
+            title_view.text = null
+            subtitle_view.text = null
 
             autoUpdater.setMetadata(null)
             Glide.with(this).clear(albumArtTarget)
@@ -151,14 +151,14 @@ class NowPlayingFragment: Fragment() {
     }
 
     private fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode mode: Int) {
-        shuffleButton.apply {
+        shuffle_button.apply {
             isActivated = mode == SHUFFLE_MODE_ALL
             isEnabled = mode != SHUFFLE_MODE_INVALID
         }
     }
 
     private fun onRepeatModeChanged(@PlaybackStateCompat.RepeatMode mode: Int) {
-        repeatButton.apply {
+        repeat_button.apply {
             isEnabled = mode != REPEAT_MODE_INVALID
             isActivated = (mode == REPEAT_MODE_ONE) || (mode == REPEAT_MODE_ALL)
             setImageLevel(mode)
@@ -179,13 +179,13 @@ class NowPlayingFragment: Fragment() {
             toggleControls(newState.actions)
 
             val isPlaying = newState.isPlaying
-            playPauseButton.isPlaying = isPlaying
-            masterPlayPause.isPlaying = isPlaying
+            play_pause_button.isPlaying = isPlaying
+            master_play_pause.isPlaying = isPlaying
 
         } else {
             toggleControls(0L)
-            playPauseButton.isPlaying = false
-            masterPlayPause.isPlaying = false
+            play_pause_button.isPlaying = false
+            master_play_pause.isPlaying = false
         }
     }
 
@@ -196,26 +196,26 @@ class NowPlayingFragment: Fragment() {
      * @param actions A set of flags describing what actions are available on this media session.
      */
     private fun toggleControls(@PlaybackStateCompat.Actions actions: Long) {
-        playPauseButton.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
+        play_pause_button.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
 
-        miniPrevButton?.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
-        miniNextButton?.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
+        mini_prev_button?.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
+        mini_next_button?.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
 
-        repeatButton.isEnabled = actions and ACTION_SET_REPEAT_MODE != 0L
-        skipPrevButton.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
-        masterPlayPause.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
-        skipNextButton.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
-        shuffleButton.isEnabled = actions and ACTION_SET_SHUFFLE_MODE != 0L
+        repeat_button.isEnabled = actions and ACTION_SET_REPEAT_MODE != 0L
+        skip_prev_button.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
+        master_play_pause.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
+        skip_next_button.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
+        shuffle_button.isEnabled = actions and ACTION_SET_SHUFFLE_MODE != 0L
     }
 
     private inner class WidgetClickListener : View.OnClickListener {
 
         override fun onClick(view: View) = when(view.id) {
-            R.id.masterPlayPause, R.id.playPauseButton -> viewModel.togglePlayPause()
-            R.id.skipPrevButton, R.id.miniPrevButton -> viewModel.skipToPrevious()
-            R.id.skipNextButton, R.id.miniNextButton -> viewModel.skipToNext()
-            R.id.shuffleButton -> viewModel.toggleShuffleMode()
-            R.id.repeatButton -> viewModel.toggleRepeatMode()
+            R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
+            R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
+            R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
+            R.id.shuffle_button -> viewModel.toggleShuffleMode()
+            R.id.repeat_button -> viewModel.toggleRepeatMode()
             else -> Timber.w("Unhandled click event for View : %s", view.javaClass.name)
         }
     }

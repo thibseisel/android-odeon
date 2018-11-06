@@ -95,7 +95,7 @@ class SongListFragment : Fragment(),
             setMultiChoiceModeListener(multiSelectMode)
         }
 
-        listContainer.visibility = View.GONE
+        list_container.visibility = View.GONE
         if (savedInstanceState == null) {
             progress.show()
         }
@@ -107,7 +107,7 @@ class SongListFragment : Fragment(),
         viewModel.subscribeTo(CATEGORY_MUSIC).observe(this, Observer {
             songAdapter.updateItems(it.orEmpty())
             progress.hide()
-            listContainer.visibility = View.VISIBLE
+            list_container.visibility = View.VISIBLE
         })
     }
 

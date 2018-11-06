@@ -21,7 +21,7 @@
        tools:showIn="@layout/view_player">
 
     <ImageView
-        android:id="@+id/iconView"
+        android:id="@+id/icon_view"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:contentDescription="@string/album_art"
@@ -31,7 +31,7 @@
         tools:src="?colorAccent"/>
 
     <TextView
-        android:id="@+id/titleView"
+        android:id="@+id/title_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -41,15 +41,15 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        app:layout_constraintBottom_toTopOf="@+id/subtitleView"
-        app:layout_constraintStart_toEndOf="@+id/iconView"
-        app:layout_constraintEnd_toStartOf="@+id/miniPrevButton"
+        app:layout_constraintBottom_toTopOf="@+id/subtitle_view"
+        app:layout_constraintStart_toEndOf="@+id/icon_view"
+        app:layout_constraintEnd_toStartOf="@+id/mini_prev_button"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="Title of the song"/>
 
     <TextView
-        android:id="@+id/subtitleView"
+        android:id="@+id/subtitle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -61,13 +61,13 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="?android:attr/textColorTertiary"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/miniPrevButton"
-        app:layout_constraintStart_toEndOf="@id/iconView"
-        app:layout_constraintTop_toBottomOf="@id/titleView"
+        app:layout_constraintEnd_toStartOf="@+id/mini_prev_button"
+        app:layout_constraintStart_toEndOf="@id/icon_view"
+        app:layout_constraintTop_toBottomOf="@id/title_view"
         tools:text="Artist name"/>
 
     <ImageView
-        android:id="@+id/miniPrevButton"
+        android:id="@+id/mini_prev_button"
         android:layout_width="48dp"
         android:layout_height="0dp"
         android:background="?selectableItemBackgroundBorderless"
@@ -76,11 +76,11 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <fr.nihilus.music.view.PlayPauseButton
-        android:id="@+id/playPauseButton"
+        android:id="@+id/play_pause_button"
         android:layout_width="48dp"
         android:layout_height="0dp"
         android:background="?selectableItemBackgroundBorderless"
@@ -89,11 +89,11 @@
         android:scaleType="fitCenter"
         android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/miniNextButton"
+        app:layout_constraintEnd_toStartOf="@+id/mini_next_button"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
-        android:id="@+id/miniNextButton"
+        android:id="@+id/mini_next_button"
         android:layout_width="48dp"
         android:layout_height="0dp"
         android:layout_marginEnd="16dp"

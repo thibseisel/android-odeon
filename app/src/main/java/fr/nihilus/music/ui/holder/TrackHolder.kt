@@ -35,7 +35,7 @@ internal class TrackHolder(
     private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_track_item) {
 
-    val albumArt: ImageView = itemView.findViewById(R.id.albumArt)
+    val albumArt: ImageView = itemView.findViewById(R.id.album_art)
     val title: TextView = itemView.findViewById(R.id.title)
     val duration: TextView = itemView.findViewById(R.id.duration)
 

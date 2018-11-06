@@ -37,8 +37,8 @@ internal class PlaylistHolder(
 ) : BaseAdapter.ViewHolder(parent, R.layout.playlist_item) {
 
     private val title: TextView = itemView.findViewById(R.id.title)
-    private val image: ImageView = itemView.findViewById(R.id.albumArt)
-    private val actionPlay: View = itemView.findViewById(R.id.playFab)
+    private val image: ImageView = itemView.findViewById(R.id.album_art)
+    private val actionPlay: View = itemView.findViewById(R.id.play_fab)
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
 

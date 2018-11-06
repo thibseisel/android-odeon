@@ -76,27 +76,27 @@ class PlayerView
         super.onFinishInflate()
 
         // Create target for loading album art into ImageSwitcher
-        albumArtTarget = SwitcherTarget(albumArtSwitcher)
+        albumArtTarget = SwitcherTarget(album_art_switcher)
 
         // Configure auto-update for SeekBar update and associated TextViews
-        autoUpdater = ProgressAutoUpdater(seekBar, seekPosition, seekDuration) { position ->
+        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) { position ->
             listener?.onSeek(position)
         }
 
-        seekBar.setOnSeekBarChangeListener(autoUpdater)
+        seek_bar.setOnSeekBarChangeListener(autoUpdater)
 
         // Change color when shuffle mode and repeat mode buttons are activated
         val activationStateList = AppCompatResources.getColorStateList(
             context,
             R.color.activation_state_list
         )
-        with(shuffleButton) {
+        with(shuffle_button) {
             val shuffleDrawable = DrawableCompat.wrap(this.drawable)
             DrawableCompat.setTintList(shuffleDrawable, activationStateList)
             setImageDrawable(shuffleDrawable)
         }
 
-        with(repeatButton) {
+        with(repeat_button) {
             val repeatDrawable = DrawableCompat.wrap(this.drawable)
             DrawableCompat.setTintList(repeatDrawable, activationStateList)
             setImageDrawable(repeatDrawable)
@@ -106,18 +106,18 @@ class PlayerView
         val clickListener = WidgetClickListener()
 
         // Buttons in top bar
-        playPauseButton.setOnClickListener(clickListener)
+        play_pause_button.setOnClickListener(clickListener)
 
         // Buttons that are only present in landscape mode
-        miniPrevButton?.setOnClickListener(clickListener)
-        miniNextButton?.setOnClickListener(clickListener)
+        mini_prev_button?.setOnClickListener(clickListener)
+        mini_next_button?.setOnClickListener(clickListener)
 
         // Playback control buttons at bottom
-        repeatButton.setOnClickListener(clickListener)
-        skipPrevButton.setOnClickListener(clickListener)
-        masterPlayPause.setOnClickListener(clickListener)
-        skipNextButton.setOnClickListener(clickListener)
-        shuffleButton.setOnClickListener(clickListener)
+        repeat_button.setOnClickListener(clickListener)
+        skip_prev_button.setOnClickListener(clickListener)
+        master_play_pause.setOnClickListener(clickListener)
+        skip_next_button.setOnClickListener(clickListener)
+        shuffle_button.setOnClickListener(clickListener)
 
     }
 
@@ -149,21 +149,21 @@ class PlayerView
 
         if (metadata != null) {
             val media = metadata.description
-            titleView.text = media.title
-            subtitleView.text = media.subtitle
+            title_view.text = media.title
+            subtitle_view.text = media.subtitle
 
             val bitmap = media.iconBitmap
             if (bitmap != null) {
-                iconView.setImageBitmap(media.iconBitmap)
+                icon_view.setImageBitmap(media.iconBitmap)
             } else {
-                iconView.setImageResource(R.drawable.ic_audiotrack_24dp)
+                icon_view.setImageResource(R.drawable.ic_audiotrack_24dp)
             }
 
         } else {
             // Reset views
-            titleView.text = null
-            subtitleView.text = null
-            iconView.setImageDrawable(null)
+            title_view.text = null
+            subtitle_view.text = null
+            icon_view.setImageDrawable(null)
         }
 
         // Only update PlayerView bottom if it is currently visible
@@ -204,13 +204,13 @@ class PlayerView
             toggleControls(newState.actions)
 
             val isPlaying = newState.state == PlaybackStateCompat.STATE_PLAYING
-            playPauseButton.isPlaying = isPlaying
-            masterPlayPause.isPlaying = isPlaying
+            play_pause_button.isPlaying = isPlaying
+            master_play_pause.isPlaying = isPlaying
 
         } else {
             toggleControls(0L)
-            playPauseButton.isPlaying = false
-            masterPlayPause.isPlaying = false
+            play_pause_button.isPlaying = false
+            master_play_pause.isPlaying = false
         }
     }
 
@@ -221,36 +221,36 @@ class PlayerView
      * @param actions A set of flags describing what actions are available on this media session.
      */
     private fun toggleControls(@PlaybackStateCompat.Actions actions: Long) {
-        playPauseButton.isEnabled = actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L
+        play_pause_button.isEnabled = actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L
 
-        miniPrevButton?.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L
-        miniNextButton?.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L
+        mini_prev_button?.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L
+        mini_next_button?.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L
 
-        repeatButton.isEnabled = actions and PlaybackStateCompat.ACTION_SET_REPEAT_MODE != 0L
-        skipPrevButton.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L
-        masterPlayPause.isEnabled = actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L
-        skipNextButton.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L
-        shuffleButton.isEnabled = actions and PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE != 0L
+        repeat_button.isEnabled = actions and PlaybackStateCompat.ACTION_SET_REPEAT_MODE != 0L
+        skip_prev_button.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS != 0L
+        master_play_pause.isEnabled = actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L
+        skip_next_button.isEnabled = actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L
+        shuffle_button.isEnabled = actions and PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE != 0L
     }
 
     private fun onOpen() {
         val eightDps = dipToPixels(context, 8f)
-        iconView.setPadding(eightDps, eightDps, eightDps, eightDps)
+        icon_view.setPadding(eightDps, eightDps, eightDps, eightDps)
 
-        playPauseButton.visibility = View.GONE
-        miniPrevButton?.visibility = View.GONE
-        miniNextButton?.visibility = View.GONE
+        play_pause_button.visibility = View.GONE
+        mini_prev_button?.visibility = View.GONE
+        mini_next_button?.visibility = View.GONE
 
         // Update display of the hidden part of PlayerView as it is made visible
         updateExpandedView(metadata)
     }
 
     private fun onClose() {
-        iconView.setPadding(0, 0, 0, 0)
+        icon_view.setPadding(0, 0, 0, 0)
 
-        playPauseButton.visibility = View.VISIBLE
-        miniPrevButton?.visibility = View.VISIBLE
-        miniNextButton?.visibility = View.VISIBLE
+        play_pause_button.visibility = View.VISIBLE
+        mini_prev_button?.visibility = View.VISIBLE
+        mini_next_button?.visibility = View.VISIBLE
     }
 
     /**
@@ -261,7 +261,7 @@ class PlayerView
      * @param mode The current shuffle mode for this media session.
      */
     fun setRepeatMode(@PlaybackStateCompat.RepeatMode mode: Int) {
-        with(repeatButton) {
+        with(repeat_button) {
             setImageLevel(mode)
             isActivated = mode != PlaybackStateCompat.REPEAT_MODE_NONE
         }
@@ -275,7 +275,7 @@ class PlayerView
      * @param mode The current repeat mode for this media session.
      */
     fun setShuffleMode(@PlaybackStateCompat.ShuffleMode mode: Int) {
-        shuffleButton.isActivated = mode != PlaybackStateCompat.SHUFFLE_MODE_NONE
+        shuffle_button.isActivated = mode != PlaybackStateCompat.SHUFFLE_MODE_NONE
     }
 
     /**
@@ -360,20 +360,20 @@ class PlayerView
         override fun onClick(view: View) {
             listener?.also {
                 when (view.id) {
-                    R.id.masterPlayPause, R.id.playPauseButton -> {
+                    R.id.master_play_pause, R.id.play_pause_button -> {
                         if (lastPlaybackState?.state == PlaybackStateCompat.STATE_PLAYING) {
                             it.onActionPause()
                         } else {
                             it.onActionPlay()
                         }
                     }
-                    R.id.skipPrevButton, R.id.miniPrevButton -> it.onSkipToPrevious()
-                    R.id.skipNextButton, R.id.miniNextButton -> it.onSkipToNext()
-                    R.id.shuffleButton -> it.onShuffleModeChanged(
-                        if (shuffleButton.isActivated) PlaybackStateCompat.SHUFFLE_MODE_NONE
+                    R.id.skip_prev_button, R.id.mini_prev_button -> it.onSkipToPrevious()
+                    R.id.skip_next_button, R.id.mini_next_button -> it.onSkipToNext()
+                    R.id.shuffle_button -> it.onShuffleModeChanged(
+                        if (shuffle_button.isActivated) PlaybackStateCompat.SHUFFLE_MODE_NONE
                         else PlaybackStateCompat.SHUFFLE_MODE_ALL
                     )
-                    R.id.repeatButton -> {
+                    R.id.repeat_button -> {
                         repeatMode = (repeatMode + 1) % 3
                         it.onRepeatModeChanged(repeatMode)
                     }
