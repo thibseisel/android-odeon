@@ -198,7 +198,15 @@ class MediaBrowserConnection
     private inner class ClientControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            _playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
+            val newState = state ?: EMPTY_PLAYBACK_STATE
+
+            when (newState.state) {
+                PlaybackStateCompat.STATE_NONE,
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.STATE_PAUSED,
+                PlaybackStateCompat.STATE_PLAYING,
+                PlaybackStateCompat.STATE_ERROR -> _playbackState.postValue(newState)
+            }
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
