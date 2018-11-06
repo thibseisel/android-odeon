@@ -39,15 +39,27 @@ annotation class ViewModelKey(val value: KClass<out ViewModel>)
  * Creates instances of ViewModel subclasses that are registered in [ViewModelModule].
  * This enables dependency injection into the created ViewModels.
  */
-class ViewModelFactory
+class DaggerViewModelFactory
 @Inject internal constructor(
-    private val creators: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
+    private val creators: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val creator = creators[modelClass]
-                ?: throw IllegalArgumentException("Unknown model class: $modelClass")
+        var creator = creators[modelClass]
+        if (creator == null) {
+            for ((key, value) in creators) {
+                if (modelClass.isAssignableFrom(key)) {
+                    creator = value
+                    break
+                }
+            }
+        }
+
+        if (creator == null) {
+            throw IllegalArgumentException("Unknown model class: $modelClass")
+        }
+
+        @Suppress("UNCHECKED_CAST")
         return creator.get() as T
     }
 }
