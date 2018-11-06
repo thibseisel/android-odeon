@@ -40,9 +40,7 @@ class NowPlayingViewModel
     val shuffleMode: LiveData<Int> get() = connection.shuffleMode
 
     fun markAsExpanded(isExpanded: Boolean) {
-        if (_isExpanded.value != isExpanded) {
-            _isExpanded.value = isExpanded
-        }
+        _isExpanded.value = isExpanded
     }
 
     fun togglePlayPause() = connection.post {

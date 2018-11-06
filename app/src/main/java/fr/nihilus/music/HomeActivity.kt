@@ -177,6 +177,11 @@ class HomeActivity : BaseActivity(),
             override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_SETTLING ||
+                    newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    return
+                }
+
                 val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
                         && newState != BottomSheetBehavior.STATE_HIDDEN
 
