@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.client
 
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.ComponentName
@@ -32,11 +30,11 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
-import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.service.MusicService
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * The playback state used as an alternative to `null`.
@@ -45,22 +43,30 @@ private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
     .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
     .build()
 
-@ActivityScoped
+/**
+ * Maintain a client-side connection to this application's media session,
+ * allowing to browser available media and send commands to the session transport controls.
+ *
+ * Rather than initiate a new connection for each client,
+ * this class will initiate a single connection when the first client connects,
+ * sharing it across all clients.
+ * The connection is disposed when the last client disconnects.
+ */
+@Singleton
 class MediaBrowserConnection
-@Inject constructor(
-    context: Context,
-    owner: LifecycleOwner
-) : DefaultLifecycleObserver {
+@Inject constructor(applicationContext: Context) {
 
     /** Requests sent while the MediaBrowser was disconnected. */
     private val pendingRequests = LinkedList<MediaControllerRequest>()
+    private val connectedClients = mutableSetOf<ClientToken>()
+
     private val controllerCallback = ClientControllerCallback()
     private lateinit var controller: MediaControllerCompat
 
     private val mediaBrowser = MediaBrowserCompat(
-        context.applicationContext,
-        ComponentName(context, MusicService::class.java),
-        ConnectionCallback(context),
+        applicationContext,
+        ComponentName(applicationContext, MusicService::class.java),
+        ConnectionCallback(applicationContext),
         null
     )
 
@@ -69,34 +75,50 @@ class MediaBrowserConnection
     private val _shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
     private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
 
-    val playbackState: MutableLiveData<PlaybackStateCompat> get() = _playbackState
-    val nowPlaying: MutableLiveData<MediaMetadataCompat?> get() = _nowPlaying
+    val playbackState: LiveData<PlaybackStateCompat> get() = _playbackState
+    val nowPlaying: LiveData<MediaMetadataCompat?> get() = _nowPlaying
     val shuffleMode: LiveData<Int> get() = _shuffleMode
     val repeatMode: LiveData<Int> get() = _repeatMode
 
     init {
-        // Automatically connect/disconnect following the Activity's lifecycle.
-        owner.lifecycle.addObserver(this)
-
         _playbackState.postValue(EMPTY_PLAYBACK_STATE)
         _shuffleMode.postValue(PlaybackStateCompat.SHUFFLE_MODE_INVALID)
         _repeatMode.postValue(PlaybackStateCompat.REPEAT_MODE_INVALID)
     }
 
-    override fun onCreate(owner: LifecycleOwner) {
-        mediaBrowser.connect()
+    /**
+     * Initiate connection to the media browser with the given [client]`.
+     *
+     * Make sure to [disconnect] the [client] from the media browser
+     * when it is no longer needed to avoid wasting resources.
+     *
+     * @param client A token used to identify clients that connects to the media browser.
+     */
+    fun connect(client: ClientToken) {
+        if (connectedClients.isEmpty()) {
+            mediaBrowser.connect()
+        }
+
+        connectedClients += client
     }
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        mediaBrowser.disconnect()
+    /**
+     * Disconnect the given [client] from the media browser.
+     *
+     * @param client The same token used when connecting with [connect].
+     */
+    fun disconnect(client: ClientToken) {
+        if (connectedClients.remove(client) && connectedClients.isEmpty()) {
+            mediaBrowser.disconnect()
+        }
     }
 
-    fun subscribe(mediaId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        mediaBrowser.subscribe(mediaId, callback)
+    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
+        mediaBrowser.subscribe(parentId, callback)
     }
 
-    fun unsubscribe(mediaId: String) {
-        mediaBrowser.unsubscribe(mediaId)
+    fun unsubscribe(parentId: String) {
+        mediaBrowser.unsubscribe(parentId)
     }
 
     /**
@@ -196,4 +218,9 @@ class MediaBrowserConnection
             controller.unregisterCallback(controllerCallback)
         }
     }
+
+    /**
+     * Defines data required to maintain a connection to a client-side MediaBrowser connection.
+     */
+    class ClientToken
 }
