@@ -16,12 +16,23 @@
 
 package fr.nihilus.music.utils
 
+import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MediatorLiveData
+import android.arch.lifecycle.Observer
 
 /**
  * Useful extensions to perform functional operations on LiveData.
  */
+
+/**
+ * Register an observer for this LiveData using a more idiomatic Kotlin syntax.
+ *
+ * @see LiveData.observe
+ */
+inline fun <T> LiveData<T>.observeK(owner: LifecycleOwner, crossinline observer: (T?) -> Unit) {
+    observe(owner, Observer { observer(it) })
+}
 
 /**
  * Filters values of this LiveData,

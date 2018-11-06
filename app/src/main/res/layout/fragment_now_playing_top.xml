@@ -19,7 +19,7 @@
        xmlns:app="http://schemas.android.com/apk/res-auto"
        xmlns:tools="http://schemas.android.com/tools"
        android:textDirection="locale"
-       tools:showIn="@layout/view_player">
+       tools:showIn="@layout/fragment_now_playing">
 
     <ImageView
         android:id="@+id/chevron"
@@ -30,7 +30,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="12dp"
-        app:srcCompat="@drawable/ic_chevron_up_24dp"
+        app:srcCompat="@drawable/level_chevron_up_down"
         android:scaleType="centerInside"/>
 
     <TextView
