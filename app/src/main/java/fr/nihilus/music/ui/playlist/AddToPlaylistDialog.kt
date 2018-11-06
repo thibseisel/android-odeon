@@ -207,8 +207,8 @@ class AddToPlaylistDialog : AppCompatDialogFragment() {
      * Holds references to views representing a playlist item.
      */
     private class PlaylistHolder(itemView: View) {
-        private val icon = itemView.findViewById<ImageView>(R.id.iconView)
-        private val title = itemView.findViewById<TextView>(R.id.titleView)
+        private val icon = itemView.findViewById<ImageView>(R.id.icon_view)
+        private val title = itemView.findViewById<TextView>(R.id.title_view)
 
         fun bind(playlist: MediaItem, glide: GlideRequest<*>) {
             title.text = playlist.description.title

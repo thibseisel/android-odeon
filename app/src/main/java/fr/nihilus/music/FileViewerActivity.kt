@@ -17,6 +17,7 @@
 package fr.nihilus.music
 
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
@@ -28,7 +29,6 @@ import android.widget.SeekBar
 import android.widget.TextView
 import dagger.android.AndroidInjection
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.view.PlayPauseButton
 import fr.nihilus.music.view.ProgressAutoUpdater
 import timber.log.Timber
@@ -36,7 +36,7 @@ import javax.inject.Inject
 
 class FileViewerActivity : AppCompatActivity() {
 
-    @Inject lateinit var modelFactory: ViewModelFactory
+    @Inject lateinit var modelFactory: ViewModelProvider.Factory
     private lateinit var viewModel: BrowserViewModel
     private lateinit var seekUpdater: ProgressAutoUpdater
 
@@ -59,10 +59,10 @@ class FileViewerActivity : AppCompatActivity() {
             }
         }
 
-        val albumArt = findViewById<ImageView>(R.id.albumArtView)
-        val titleView = findViewById<TextView>(R.id.titleView)
-        val subtitleView = findViewById<TextView>(R.id.subtitleView)
-        val playPauseButton = findViewById<PlayPauseButton>(R.id.playPauseButton)
+        val albumArt = findViewById<ImageView>(R.id.album_art_view)
+        val titleView = findViewById<TextView>(R.id.title_view)
+        val subtitleView = findViewById<TextView>(R.id.subtitle_view)
+        val playPauseButton = findViewById<PlayPauseButton>(R.id.play_pause_button)
         val seekBar = findViewById<SeekBar>(R.id.progress)
 
         // Configure seekBar auto-updates

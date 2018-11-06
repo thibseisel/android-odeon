@@ -37,7 +37,7 @@ internal class AlbumHolder(
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
-    private val albumArt: ImageView = itemView.findViewById(R.id.albumArtView)
+    private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.artist)
 

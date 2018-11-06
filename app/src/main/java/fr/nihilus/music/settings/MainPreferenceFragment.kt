@@ -17,6 +17,7 @@
 package fr.nihilus.music.settings
 
 import android.app.Activity
+import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
@@ -29,7 +30,6 @@ import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 import fr.nihilus.music.bundleOf
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.client.ViewModelFactory
 import fr.nihilus.music.media.service.TrimSilenceActionProvider
 import javax.inject.Inject
 
@@ -37,7 +37,7 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject lateinit var prefs: UiSettings
-    @Inject lateinit var vmFactory: ViewModelFactory
+    @Inject lateinit var vmFactory: ViewModelProvider.Factory
 
     private lateinit var keyNightMode: String
     private lateinit var keySkipSilence: String

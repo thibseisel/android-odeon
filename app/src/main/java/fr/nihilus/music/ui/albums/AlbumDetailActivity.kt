@@ -59,11 +59,11 @@ class AlbumDetailActivity : BaseActivity(),
         }
 
         with(pickedAlbum.description) {
-            titleView.text = title
-            subtitleView.text = subtitle
+            title_view.text = title
+            subtitle_view.text = subtitle
         }
 
-        playFab.setOnClickListener(this)
+        play_fab.setOnClickListener(this)
 
         setupToolbar()
         setupAlbumArt()
@@ -89,7 +89,7 @@ class AlbumDetailActivity : BaseActivity(),
     }
 
     private fun setupAlbumArt() {
-        val albumArtView: ImageView = findViewById(R.id.albumArtView)
+        val albumArtView: ImageView = findViewById(R.id.album_art_view)
         albumArtView.transitionName = ALBUM_ART_TRANSITION_NAME
 
         GlideApp.with(this).asBitmap()
@@ -120,9 +120,9 @@ class AlbumDetailActivity : BaseActivity(),
      * Apply colors picked from the album art to the user interface.
      */
     private fun applyPaletteTheme(palette: AlbumPalette) {
-        findViewById<View>(R.id.albumInfoLayout).setBackgroundColor(palette.primary)
-        titleView.setTextColor(palette.titleText)
-        subtitleView.setTextColor(palette.bodyText)
+        findViewById<View>(R.id.album_info_layout).setBackgroundColor(palette.primary)
+        title_view.setTextColor(palette.titleText)
+        subtitle_view.setTextColor(palette.bodyText)
 
         val darkStatusText = palette.bodyText.luminance < 0.5f
         setDarkHomeUpIndicator(darkStatusText)
@@ -130,17 +130,17 @@ class AlbumDetailActivity : BaseActivity(),
             window.darkSystemIcons = darkStatusText
         }
 
-        collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
-        collapsingToolbar.setContentScrimColor(palette.primary)
+        collapsing_toolbar.setStatusBarScrimColor(palette.primaryDark)
+        collapsing_toolbar.setContentScrimColor(palette.primary)
 
-        playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
-        playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
+        play_fab.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
         decoration = CurrentlyPlayingDecoration(this, palette.accent)
         recycler.addItemDecoration(decoration)
     }
 
     override fun onClick(view: View) {
-        if (R.id.playFab == view.id) {
+        if (R.id.play_fab == view.id) {
             playMediaItem(pickedAlbum)
         }
     }

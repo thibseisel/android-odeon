@@ -55,7 +55,7 @@
     <include layout="@layout/view_player_top"/>
 
     <ImageSwitcher
-        android:id="@+id/albumArtSwitcher"
+        android:id="@+id/album_art_switcher"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:animateFirstView="false"
@@ -83,7 +83,7 @@
 
     <!-- Progress bar -->
     <SeekBar
-        android:id="@+id/seekBar"
+        android:id="@+id/seek_bar"
         style="@style/Widget.AppTheme.SeekBar.FullWidth"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
         tools:progress="100"/>
 
     <TextView
-        android:id="@+id/seekPosition"
+        android:id="@+id/seek_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -105,7 +105,7 @@
         tools:text="11:42"/>
 
     <TextView
-        android:id="@+id/seekDuration"
+        android:id="@+id/seek_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
@@ -117,7 +117,7 @@
 
     <!-- Action buttons -->
     <ImageView
-        android:id="@+id/repeatButton"
+        android:id="@+id/repeat_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
@@ -127,12 +127,12 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_level_repeat"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/skipPrevButton"
+        app:layout_constraintEnd_toStartOf="@+id/skip_prev_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <ImageView
-        android:id="@+id/skipPrevButton"
+        android:id="@+id/skip_prev_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?selectableItemBackgroundBorderless"
@@ -140,12 +140,12 @@
         android:padding="4dp"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/masterPlayPause"
-        app:layout_constraintStart_toEndOf="@+id/repeatButton"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintEnd_toStartOf="@+id/master_play_pause"
+        app:layout_constraintStart_toEndOf="@+id/repeat_button"
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <fr.nihilus.music.view.FloatingPlayPauseButton
-        android:id="@+id/masterPlayPause"
+        android:id="@+id/master_play_pause"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:contentDescription="@string/play_or_pause"
@@ -154,12 +154,12 @@
         app:fabSize="normal"
         app:maxImageSize="36dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/skipNextButton"
-        app:layout_constraintStart_toEndOf="@+id/skipPrevButton"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintEnd_toStartOf="@+id/skip_next_button"
+        app:layout_constraintStart_toEndOf="@+id/skip_prev_button"
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <ImageView
-        android:id="@+id/skipNextButton"
+        android:id="@+id/skip_next_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?selectableItemBackgroundBorderless"
@@ -168,12 +168,12 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/shuffleButton"
-        app:layout_constraintStart_toEndOf="@+id/masterPlayPause"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintEnd_toStartOf="@+id/shuffle_button"
+        app:layout_constraintStart_toEndOf="@+id/master_play_pause"
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <ImageView
-        android:id="@+id/shuffleButton"
+        android:id="@+id/shuffle_button"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
@@ -184,7 +184,7 @@
         android:src="@drawable/ic_shuffle_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/skipNextButton"
-        app:layout_constraintTop_toBottomOf="@+id/seekBar"/>
+        app:layout_constraintStart_toEndOf="@+id/skip_next_button"
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
 </android.support.constraint.ConstraintLayout>

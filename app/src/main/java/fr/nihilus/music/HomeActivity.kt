@@ -144,36 +144,36 @@ class HomeActivity : BaseActivity(),
      */
     private fun setupNavigationDrawer() {
         drawerToggle = ActionBarDrawerToggle(
-            this, drawerLayout,
+            this, drawer_layout,
             R.string.drawer_opened, R.string.drawer_closed
         )
-        drawerLayout.addDrawerListener(drawerToggle)
+        drawer_layout.addDrawerListener(drawerToggle)
 
-        navDrawer.setNavigationItemSelectedListener(this)
+        nav_drawer.setNavigationItemSelectedListener(this)
 
         router.routeChangeListener = { fragmentId ->
-            navDrawer.setCheckedItem(fragmentId)
+            nav_drawer.setCheckedItem(fragmentId)
         }
     }
 
     private fun setupPlayerView() {
-        playerView.setEventListener(this)
-        bottomSheet = ScrimBottomSheetBehavior.from(playerView)
+        player_view.setEventListener(this)
+        bottomSheet = ScrimBottomSheetBehavior.from(player_view)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playbackState.value)
 
-        viewModel.currentMetadata.observe(this, Observer(playerView::updateMetadata))
+        viewModel.currentMetadata.observe(this, Observer(player_view::updateMetadata))
         viewModel.shuffleMode.observe(this, Observer {
-            playerView.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
+            player_view.setShuffleMode(it ?: PlaybackStateCompat.SHUFFLE_MODE_NONE)
         })
 
         viewModel.repeatMode.observe(this, Observer {
-            playerView.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
+            player_view.setRepeatMode(it ?: PlaybackStateCompat.REPEAT_MODE_NONE)
         })
 
         viewModel.playbackState.observe(this, Observer { newState ->
-            playerView.updatePlaybackState(newState)
+            player_view.updatePlaybackState(newState)
             togglePlayerVisibility(newState)
         })
 
@@ -193,8 +193,8 @@ class HomeActivity : BaseActivity(),
                 val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
                         && newState != BottomSheetBehavior.STATE_HIDDEN
 
-                playerView.setExpanded(isExpandedOrExpanding)
-                with(drawerLayout) {
+                player_view.setExpanded(isExpandedOrExpanding)
+                with(drawer_layout) {
                     requestDisallowInterceptTouchEvent(isExpandedOrExpanding)
                     setDrawerLockMode(
                         if (isExpandedOrExpanding) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
@@ -207,7 +207,7 @@ class HomeActivity : BaseActivity(),
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         onOptionsItemSelected(item)
-        drawerLayout.closeDrawer(GravityCompat.START)
+        drawer_layout.closeDrawer(GravityCompat.START)
         return true
     }
 
@@ -217,8 +217,8 @@ class HomeActivity : BaseActivity(),
      * or otherwise follow the default behavior (pop fragment back stack or finish activity).
      */
     override fun onBackPressed() = when {
-        drawerLayout.isDrawerOpen(GravityCompat.START) ->
-            drawerLayout.closeDrawer(GravityCompat.START)
+        drawer_layout.isDrawerOpen(GravityCompat.START) ->
+            drawer_layout.closeDrawer(GravityCompat.START)
 
         bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED ->
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
@@ -316,7 +316,7 @@ class HomeActivity : BaseActivity(),
         } else if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            playerView.post { bottomSheet.isHideable = false }
+            player_view.post { bottomSheet.isHideable = false }
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
             container.setPadding(0, 0, 0, playerViewHeight)
             bottomSheet.peekHeight = playerViewHeight
@@ -339,17 +339,17 @@ class HomeActivity : BaseActivity(),
                     return false
                 }
                 ACTION_ALBUMS -> {
-                    navDrawer.setCheckedItem(R.id.action_albums)
+                    nav_drawer.setCheckedItem(R.id.action_albums)
                     router.navigateToAlbums()
                     return true
                 }
                 ACTION_ARTISTS -> {
-                    navDrawer.setCheckedItem(R.id.action_artists)
+                    nav_drawer.setCheckedItem(R.id.action_artists)
                     router.navigateToArtists()
                     return true
                 }
                 ACTION_PLAYLISTS -> {
-                    navDrawer.setCheckedItem(R.id.action_playlist)
+                    nav_drawer.setCheckedItem(R.id.action_playlist)
                     router.navigateToPlaylists()
                     return true
                 }

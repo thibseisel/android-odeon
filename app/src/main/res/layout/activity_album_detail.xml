@@ -19,7 +19,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorLayout"
+    android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:textDirection="locale"
@@ -27,14 +27,14 @@
     tools:context="fr.nihilus.music.ui.albums.AlbumDetailActivity">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbarLayout"
+        android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
@@ -42,7 +42,7 @@
             app:titleEnabled="false">
 
             <com.github.thibseisel.ratioimageview.RatioImageView
-                android:id="@+id/albumArtView"
+                android:id="@+id/album_art_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="@string/album_art"
@@ -63,7 +63,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
 
         <LinearLayout
-            android:id="@+id/albumInfoLayout"
+            android:id="@+id/album_info_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -72,7 +72,7 @@
             android:theme="?actionBarTheme">
 
             <TextView
-                android:id="@+id/titleView"
+                android:id="@+id/title_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -82,7 +82,7 @@
                 tools:text="Title de l'album"/>
 
             <TextView
-                android:id="@+id/subtitleView"
+                android:id="@+id/subtitle_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
@@ -103,14 +103,14 @@
         tools:listitem="@layout/album_track_item"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/playFab"
+        android:id="@+id/play_fab"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_play_arrow_24dp"
         app:backgroundTint="?colorBackgroundFloating"
-        app:layout_anchor="@id/collapsingToolbar"
+        app:layout_anchor="@id/collapsing_toolbar"
         app:layout_anchorGravity="bottom|end"/>
 
 </android.support.design.widget.CoordinatorLayout>

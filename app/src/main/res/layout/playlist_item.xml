@@ -31,7 +31,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/albumArt"
+            android:id="@+id/album_art"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:contentDescription="@string/album_art"
@@ -46,20 +46,20 @@
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/albumArt"
+            android:layout_below="@id/album_art"
             android:layout_margin="16dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.AppCompat"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/playFab"
+            app:layout_constraintEnd_toStartOf="@+id/play_fab"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/albumArt"
+            app:layout_constraintTop_toBottomOf="@+id/album_art"
             tools:text="Playlist title"/>
 
         <ImageView
-            android:id="@+id/playFab"
+            android:id="@+id/play_fab"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_margin="16dp"
@@ -68,7 +68,7 @@
             android:src="@drawable/ic_play_arrow_24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/albumArt"/>
+            app:layout_constraintTop_toBottomOf="@id/album_art"/>
     </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>

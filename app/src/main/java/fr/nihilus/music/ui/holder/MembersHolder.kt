@@ -35,9 +35,9 @@ internal class MembersHolder(
     private val glide: GlideRequest<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.song_list_item) {
 
-    private val albumArt: ImageView = itemView.findViewById(R.id.albumArtView)
+    private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitleView)
+    private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
 
     private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
     private val durationBuilder = StringBuilder()

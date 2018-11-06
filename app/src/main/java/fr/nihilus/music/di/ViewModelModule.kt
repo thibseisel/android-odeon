@@ -22,11 +22,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.client.ViewModelFactory
+import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.client.ViewModelKey
 
 /**
- * Every ViewModel subclass that can be created with [ViewModelFactory]
+ * Every ViewModel subclass that can be created with [DaggerViewModelFactory]
  * must be registered in this module via a Map MultiBinding.
  *
  * The key must be the actual subclass of ViewModel.
@@ -36,7 +36,7 @@ import fr.nihilus.music.client.ViewModelKey
 abstract class ViewModelModule {
 
     @Binds
-    abstract fun bindsViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
+    abstract fun bindsViewModelFactory(factory: DaggerViewModelFactory): ViewModelProvider.Factory
 
     @Binds @IntoMap
     @ViewModelKey(BrowserViewModel::class)

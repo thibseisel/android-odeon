@@ -16,7 +16,7 @@
   -->
 
 <android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawerLayout"
+    android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -27,12 +27,12 @@
 
     <!-- Main content -->
     <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinatorLayout"
+        android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbarLayout"
+            android:id="@+id/appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay.Colored">
@@ -61,10 +61,10 @@
             android:elevation="@dimen/playerview_elevation"
             android:layout_gravity="center"
             android:background="@drawable/shape_top_shadow"
-            app:layout_anchor="@+id/playerView"/>
+            app:layout_anchor="@+id/player_view"/>
 
         <fr.nihilus.music.view.PlayerView
-            android:id="@+id/playerView"
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
@@ -76,7 +76,7 @@
 
     <!-- NavigationDrawer -->
     <android.support.design.widget.NavigationView
-        android:id="@+id/navDrawer"
+        android:id="@+id/nav_drawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
