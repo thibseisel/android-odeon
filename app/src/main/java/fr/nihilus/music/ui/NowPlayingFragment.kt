@@ -120,7 +120,7 @@ class NowPlayingFragment: Fragment() {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel = ViewModelProviders.of(this, vmFactory)[NowPlayingViewModel::class.java]
+        viewModel = ViewModelProviders.of(requireActivity(), vmFactory)[NowPlayingViewModel::class.java]
 
         viewModel.isExpanded.observeK(this) {
             onSheetExpansionChanged(it ?: false)
@@ -138,6 +138,10 @@ class NowPlayingFragment: Fragment() {
 
     private fun onSheetExpansionChanged(isExpanded: Boolean) {
         chevron.setImageLevel(if (isExpanded) LEVEL_CHEVRON_DOWN else LEVEL_CHEVRON_UP)
+        val targetVisibility = if (isExpanded) View.GONE else View.VISIBLE
+        play_pause_button.visibility = targetVisibility
+        mini_prev_button?.visibility = targetVisibility
+        mini_next_button?.visibility = targetVisibility
     }
 
     private fun onMetadataChanged(metadata: MediaMetadataCompat?) {
