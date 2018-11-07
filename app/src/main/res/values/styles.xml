@@ -82,9 +82,7 @@
     </style>
 
     <style name="Widget.AppTheme.CardView" parent="Base.CardView">
-        <item name="cardElevation">@dimen/cardview_default_elevation</item>
         <item name="cardMaxElevation">@dimen/card_max_elevation</item>
-        <item name="cardCornerRadius">@dimen/cardview_default_radius</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
 
