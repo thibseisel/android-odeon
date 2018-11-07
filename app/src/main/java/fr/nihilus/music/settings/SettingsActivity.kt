@@ -17,17 +17,11 @@
 package fr.nihilus.music.settings
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
 import dagger.android.AndroidInjection
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
+import fr.nihilus.music.BaseActivity
 import fr.nihilus.music.R
-import javax.inject.Inject
 
-class SettingsActivity : AppCompatActivity(), HasSupportFragmentInjector {
-
-    @Inject lateinit var dispatchingFragmentInjector: DispatchingAndroidInjector<Fragment>
+class SettingsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -40,15 +34,4 @@ class SettingsActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 .commit()
         }
     }
-
-    override fun onBackPressed() {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            super.onBackPressed()
-            return
-        }
-
-        finish()
-    }
-
-    override fun supportFragmentInjector() = dispatchingFragmentInjector
 }
