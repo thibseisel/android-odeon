@@ -44,19 +44,15 @@ class AlbumDetailActivity : BaseActivity(),
     BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
+    @Inject lateinit var pickedAlbum: MediaItem
 
     private lateinit var adapter: TrackAdapter
-    private lateinit var pickedAlbum: MediaItem
     private lateinit var decoration: CurrentlyPlayingDecoration
     private lateinit var viewModel: BrowserViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_detail)
-
-        pickedAlbum = checkNotNull(intent.getParcelableExtra(ARG_PICKED_ALBUM)) {
-            "Calling activity must specify the album to display."
-        }
 
         with(pickedAlbum.description) {
             title_view.text = title
@@ -72,7 +68,7 @@ class AlbumDetailActivity : BaseActivity(),
         val palette: AlbumPalette? = intent.getParcelableExtra(ARG_PALETTE)
         applyPaletteTheme(palette ?: defaultAlbumPalette)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[BrowserViewModel::class.java]
         viewModel.connect()
 
         // Change the decorated item when metadata changes
