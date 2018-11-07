@@ -120,7 +120,7 @@ class AlbumDetailActivity : BaseActivity(),
      * Apply colors picked from the album art to the user interface.
      */
     private fun applyPaletteTheme(palette: AlbumPalette) {
-        findViewById<View>(R.id.album_info_layout).setBackgroundColor(palette.primary)
+        album_info_layout.setBackgroundColor(palette.primary)
         title_view.setTextColor(palette.titleText)
         subtitle_view.setTextColor(palette.bodyText)
 
@@ -178,7 +178,7 @@ class AlbumDetailActivity : BaseActivity(),
             else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
         )
 
-        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.abc_ic_ab_back_material)
+        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
         with(supportActionBar!!) {
             setHomeAsUpIndicator(upArrow)
             setDisplayHomeAsUpEnabled(true)
