@@ -23,7 +23,6 @@ import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.SettingsModule
-import fr.nihilus.music.ui.albums.AlbumDetailActivity
 import javax.inject.Scope
 
 /**
@@ -50,7 +49,9 @@ annotation class FragmentScoped
  * Each activity defines its own scope by creating a subcomponent of AppComponent.
  */
 @Suppress("unused")
-@Module
+@Module(includes = [
+    AlbumDetailModule::class
+])
 abstract class ActivityBindingModule {
 
     @ActivityScoped
@@ -60,13 +61,6 @@ abstract class ActivityBindingModule {
         AlbumColorModule::class
     ])
     abstract fun contributeHomeActivity(): HomeActivity
-
-    @ActivityScoped
-    @ContributesAndroidInjector(modules = [
-        ViewModelModule::class,
-        AlbumColorModule::class
-    ])
-    abstract fun contributeAlbumDetailActivity(): AlbumDetailActivity
 
     @ActivityScoped
     @ContributesAndroidInjector(modules = [SettingsModule::class, ViewModelModule::class])
