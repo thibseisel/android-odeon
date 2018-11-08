@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Odeon</string>
     <string name="album_art">Album art</string>
     <string name="drawer_opened">Drawer opened</string>
@@ -61,7 +61,7 @@
         <item quantity="other">%d tracks added to playlist "\%s\"</item>
     </plurals>
 
-    <string name="song_item_subtitle" formatted="false" tools:ignore="StringFormatInvalid">%s &#8226; %s</string>
+    <string name="song_item_subtitle">%s \u2022 %s</string>
     <string name="ok">OK</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
