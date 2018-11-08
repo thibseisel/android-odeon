@@ -17,6 +17,7 @@
 package fr.nihilus.music.di
 
 import android.app.Activity
+import android.arch.lifecycle.ViewModel
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import dagger.Binds
 import dagger.BindsInstance
@@ -25,6 +26,8 @@ import dagger.Subcomponent
 import dagger.android.ActivityKey
 import dagger.android.AndroidInjector
 import dagger.multibindings.IntoMap
+import fr.nihilus.music.client.AlbumDetailViewModel
+import fr.nihilus.music.client.ViewModelKey
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
 import fr.nihilus.music.ui.albums.AlbumPalette
@@ -73,4 +76,8 @@ abstract class AlbumDetailModule {
     @Binds @IntoMap
     @ActivityKey(AlbumDetailActivity::class)
     abstract fun bindAlbumDetailActivityInjectorFactory(builder: AlbumDetailSubcomponent.Builder): AndroidInjector.Factory<out Activity>
+
+    @Binds @IntoMap
+    @ViewModelKey(AlbumDetailViewModel::class)
+    abstract fun bindAlbumDetailViewModel(viewModel: AlbumDetailViewModel): ViewModel
 }
