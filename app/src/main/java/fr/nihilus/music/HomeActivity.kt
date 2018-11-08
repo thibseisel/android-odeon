@@ -27,7 +27,6 @@ import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.KeyEvent
 import android.view.MenuItem
@@ -181,13 +180,7 @@ class HomeActivity : BaseActivity(),
                         && newState != BottomSheetBehavior.STATE_HIDDEN
 
                 playerViewModel.markAsExpanded(isExpandedOrExpanding)
-                with(drawer_layout) {
-                    requestDisallowInterceptTouchEvent(isExpandedOrExpanding)
-                    setDrawerLockMode(
-                        if (isExpandedOrExpanding) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-                        else DrawerLayout.LOCK_MODE_UNLOCKED
-                    )
-                }
+                drawer_layout.lock(isExpandedOrExpanding)
             }
         })
     }
