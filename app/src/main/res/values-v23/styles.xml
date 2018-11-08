@@ -19,7 +19,7 @@
     <style name="Base.AppTheme" parent="Base.V23.AppTheme"/>
     <style name="Base.V23.AppTheme" parent="Base.V21.AppTheme">
         <!-- Use dark icons on light status bar -->
-        <item name="android:windowLightStatusBar">?isLightTheme</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
     
 </resources>

@@ -22,6 +22,7 @@
     <color name="mtrl_blue_a400">#2979ff</color>
     <color name="mtrl_deeppurple_300">#9575cd</color>
     <color name="mtrl_deeppurple_500">#673ab7</color>
+    <color name="mtrl_deeppurple_700">#512DA8</color>
     <color name="mtrl_deeppurple_a400">#651FFF</color>
 
     <color name="mtrl_grey_100">#f5f5f5</color>
@@ -29,7 +30,7 @@
     <color name="album_band_default">#4c4c4c</color>
 
     <color name="color_primary">@color/mtrl_deeppurple_500</color>
-    <color name="color_primary_dark">@color/mtrl_grey_300</color>
+    <color name="color_primary_dark">@color/mtrl_deeppurple_700</color>
     <color name="color_accent">@color/mtrl_blue_a400</color>
     <color name="color_background_floating">@color/background_floating_material_light</color>
     <color name="text_color_primary">#DD000000</color>
