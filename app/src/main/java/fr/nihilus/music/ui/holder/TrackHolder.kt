@@ -40,7 +40,7 @@ internal class TrackHolder(
     val duration: TextView = itemView.findViewById(R.id.duration)
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-        itemView.setOnClickListener { _ ->
+        itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_play_item)
         }
     }

@@ -39,7 +39,7 @@ internal class ArtistHolder(
     private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-        itemView.setOnClickListener { _ ->
+        itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_browse_item)
         }
     }

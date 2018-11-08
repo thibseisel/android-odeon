@@ -16,6 +16,5 @@
   -->
 
 <resources>
-    <bool name="is_light_theme">true</bool>
     <bool name="pref_default_skip_silence">false</bool>
 </resources>
