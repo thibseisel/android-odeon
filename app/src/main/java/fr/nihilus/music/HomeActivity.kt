@@ -36,6 +36,7 @@ import android.view.View
 import android.widget.Toast
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
+import fr.nihilus.music.client.REQUEST_SETTINGS
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
@@ -131,8 +132,7 @@ class HomeActivity : BaseActivity(),
                 return true
             }
             R.id.action_settings -> {
-                val settingsActivity = Intent(this, SettingsActivity::class.java)
-                startActivityForResult(settingsActivity, REQUEST_SETTINGS)
+                router.navigateToSettings()
                 return true
             }
         }
@@ -378,7 +378,6 @@ class HomeActivity : BaseActivity(),
     }
 
     private companion object {
-        private const val REQUEST_SETTINGS = 42
         private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
         private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
         private const val ACTION_ARTISTS = "fr.nihilus.music.ACTION_ARTISTS"

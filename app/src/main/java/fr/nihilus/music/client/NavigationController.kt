@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.client
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -26,6 +27,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.di.ActivityScoped
 import fr.nihilus.music.media.*
+import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.ui.albums.AlbumGridFragment
 import fr.nihilus.music.ui.artists.ArtistDetailFragment
 import fr.nihilus.music.ui.artists.ArtistsFragment
@@ -43,6 +45,7 @@ import javax.inject.Inject
  * Type: `Int`
  */
 const val FRAGMENT_ID = "fragment_id"
+const val REQUEST_SETTINGS = 42
 
 private const val KEY_FIRST_TAG = "first_tag"
 
@@ -54,7 +57,9 @@ private const val KEY_FIRST_TAG = "first_tag"
  */
 @ActivityScoped
 class NavigationController
-@Inject constructor(activity: HomeActivity) {
+@Inject constructor(
+    private val activity: HomeActivity
+) {
 
     private val fm: FragmentManager = activity.supportFragmentManager
     private val containerId: Int = R.id.container
@@ -116,7 +121,6 @@ class NavigationController
         }
 
         showFragment(tag, fragment)
-
     }
 
     /**
@@ -143,6 +147,14 @@ class NavigationController
         }
 
         showFragment(tag, fragment)
+    }
+
+    /**
+     * Shows the settings screen.
+     */
+    fun navigateToSettings() {
+        val settingsActivity = Intent(activity, SettingsActivity::class.java)
+        activity.startActivityForResult(settingsActivity, REQUEST_SETTINGS)
     }
 
     /**
