@@ -22,6 +22,7 @@ import android.provider.MediaStore
 import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.widget.DrawerLayout
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
@@ -142,4 +143,17 @@ fun bundleOf(key: String, value: Int) = Bundle(1).apply {
 
 fun bundleOf(key: String, value: Boolean) = Bundle(1).apply {
     putBoolean(key, value)
+}
+
+/**
+ * Lock user interactions with the given [DrawerLayout].
+ * @param isLocked Whether interactions with this drawer should be ignored.
+ */
+fun DrawerLayout.lock(isLocked: Boolean) {
+    requestDisallowInterceptTouchEvent(isLocked)
+    setDrawerLockMode(
+        if (isLocked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        else DrawerLayout.LOCK_MODE_UNLOCKED,
+        this
+    )
 }
