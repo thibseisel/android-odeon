@@ -34,7 +34,7 @@
         android:layout_marginTop="8dp"
         android:contentDescription="@string/album_art"
         android:gravity="center"
-        tools:src="@drawable/dummy_album"/>
+        tools:src="@tools:sample/avatars"/>
 
     <TextView
         android:id="@+id/title"
@@ -47,7 +47,7 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="16sp"
-        tools:text="Track title"/>
+        tools:text="@sample/songs.json/data/title"/>
 
     <TextView
         android:id="@+id/duration"
@@ -61,7 +61,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="14sp"
-        tools:text="12:46"/>
+        tools:text="@sample/songs.json/data/duration"/>
 
 
 </RelativeLayout>

@@ -39,7 +39,7 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/dummy_album_art"/>
+        tools:src="@tools:sample/avatars"/>
 
     <TextView
         android:id="@+id/title_view"
@@ -55,7 +55,7 @@
         app:layout_constraintStart_toEndOf="@+id/album_art_view"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Title of the song"/>
+        tools:text="@sample/songs.json/data/title"/>
 
     <TextView
         android:id="@+id/subtitle_view"
@@ -72,7 +72,7 @@
         app:layout_constraintStart_toEndOf="@id/album_art_view"
         app:layout_constraintTop_toBottomOf="@+id/title_view"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Artist name"/>
+        tools:text="@sample/songs.json/data/artist"/>
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/play_pause_button"

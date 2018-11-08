@@ -43,7 +43,8 @@
                 android:layout_height="?actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                tools:title="@string/app_name"/>
         </android.support.design.widget.AppBarLayout>
 
         <FrameLayout

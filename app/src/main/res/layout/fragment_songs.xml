@@ -41,7 +41,7 @@
             android:fastScrollEnabled="true"
             android:listSelector="@android:color/transparent"
             android:nestedScrollingEnabled="true"
-            tools:listitem="@layout/song_list_item" />
+            tools:listitem="@layout/song_list_item"/>
 
         <!-- EmptyView -->
         <LinearLayout
@@ -59,7 +59,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@null"
                 android:scaleType="fitCenter"
-                android:src="@drawable/sad_panda" />
+                android:src="@drawable/sad_panda"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -67,7 +67,7 @@
                 android:layout_weight="3"
                 android:gravity="center"
                 android:text="@string/empty_songs"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>
