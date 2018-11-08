@@ -33,7 +33,7 @@ internal class AlbumTrackHolder(parent: ViewGroup) :
     private val timeBuilder = StringBuilder()
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-        itemView.setOnClickListener { _ ->
+        itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_play_item)
         }
     }

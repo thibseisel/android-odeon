@@ -225,6 +225,8 @@ class BufferAlbumArtDecoder(
             // Remove the limit, then go back to after the header bytes to read the palette colors
             source.limit(source.capacity())
             source.position(maybeHeaderPosition + HEADER_BYTE_SIZE)
+
+            @Suppress("UsePropertyAccessSyntax")
             AlbumPalette(
                 primary = source.getInt(),
                 accent = source.getInt(),

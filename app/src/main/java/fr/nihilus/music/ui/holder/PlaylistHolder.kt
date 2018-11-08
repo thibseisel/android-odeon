@@ -42,11 +42,11 @@ internal class PlaylistHolder(
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
 
-        itemView.setOnClickListener { _ ->
+        itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_browse_item)
         }
 
-        actionPlay.setOnClickListener { _ ->
+        actionPlay.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_play_item)
         }
     }

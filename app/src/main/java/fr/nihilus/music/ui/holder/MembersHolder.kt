@@ -43,7 +43,7 @@ internal class MembersHolder(
     private val durationBuilder = StringBuilder()
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-        itemView.setOnClickListener { _ ->
+        itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_play_item)
         }
     }
