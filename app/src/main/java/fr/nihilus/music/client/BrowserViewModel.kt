@@ -51,6 +51,8 @@ private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
 /**
  * A ViewModel that abstracts the connection to a MediaBrowserService.
  */
+@Deprecated("This ViewModel, because it is generic and shared across all Activities and Fragments, has serious flaws. " +
+        "It should be replaced by specific ViewModel implementations that references MediaBrowserConnection.")
 class BrowserViewModel
 @Inject constructor(context: Context) : ViewModel() {
 

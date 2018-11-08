@@ -70,8 +70,8 @@ class HomeActivity : BaseActivity(),
         setupNavigationDrawer()
 
         playerViewModel = ViewModelProviders.of(this, viewModelFactory)[NowPlayingViewModel::class.java]
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[BrowserViewModel::class.java]
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(BrowserViewModel::class.java)
         viewModel.connect()
 
         setupPlayerView()
