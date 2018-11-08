@@ -27,14 +27,14 @@ import dagger.android.AndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
+import fr.nihilus.music.ui.albums.AlbumPalette
 
 /**
  * Define an Android Injector that injects dependencies into [AlbumDetailActivity].
  */
 @ActivityScoped
 @Subcomponent(modules = [
-    ViewModelModule::class,
-    AlbumColorModule::class
+    ViewModelModule::class
 ])
 interface AlbumDetailSubcomponent : AndroidInjector<AlbumDetailActivity> {
 
@@ -51,17 +51,23 @@ interface AlbumDetailSubcomponent : AndroidInjector<AlbumDetailActivity> {
         @BindsInstance
         abstract fun pickedAlbum(albums: MediaItem): Builder
 
+        /**
+         * Provides the color palette calculated from the album art of the picked album.
+         */
+        @BindsInstance
+        abstract fun pickedAlbumPalette(palette: AlbumPalette): Builder
+
         override fun seedInstance(instance: AlbumDetailActivity) {
             val album = instance.intent?.getParcelableExtra<MediaItem>(AlbumDetailActivity.ARG_PICKED_ALBUM)
             checkNotNull(album) { "Calling activity must specify the album to display." }
             pickedAlbum(album)
+
+            val palette = instance.intent?.getParcelableExtra<AlbumPalette>(AlbumDetailActivity.ARG_PALETTE)
+            pickedAlbumPalette(palette ?: AlbumColorModule().providesDefaultAlbumPalette(instance))
         }
     }
 }
 
-/**
- * Binds
- */
 @Module(subcomponents = [AlbumDetailSubcomponent::class])
 abstract class AlbumDetailModule {
     @Binds @IntoMap

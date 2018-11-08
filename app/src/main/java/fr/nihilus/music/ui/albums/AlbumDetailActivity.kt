@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.albums
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.res.ColorStateList
 import android.os.Build
@@ -30,11 +29,12 @@ import android.view.View
 import android.widget.ImageView
 import fr.nihilus.music.BaseActivity
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.client.AlbumDetailViewModel
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.utils.darkSystemIcons
 import fr.nihilus.music.utils.luminance
+import fr.nihilus.music.utils.observeK
 import fr.nihilus.music.view.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.activity_album_detail.*
 import javax.inject.Inject
@@ -43,16 +43,20 @@ class AlbumDetailActivity : BaseActivity(),
     View.OnClickListener,
     BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var defaultAlbumPalette: AlbumPalette
+    @Inject lateinit var albumPalette: AlbumPalette
     @Inject lateinit var pickedAlbum: MediaItem
 
     private lateinit var adapter: TrackAdapter
     private lateinit var decoration: CurrentlyPlayingDecoration
-    private lateinit var viewModel: BrowserViewModel
+
+    private lateinit var viewModel: AlbumDetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_detail)
+
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
+        viewModel.loadChildrenOf(pickedAlbum.mediaId!!)
 
         with(pickedAlbum.description) {
             title_view.text = title
@@ -65,23 +69,17 @@ class AlbumDetailActivity : BaseActivity(),
         setupAlbumArt()
         setupTrackList()
 
-        val palette: AlbumPalette? = intent.getParcelableExtra(ARG_PALETTE)
-        applyPaletteTheme(palette ?: defaultAlbumPalette)
-
-        viewModel = ViewModelProviders.of(this, viewModelFactory)[BrowserViewModel::class.java]
-        viewModel.connect()
+        applyPaletteTheme(albumPalette)
 
         // Change the decorated item when metadata changes
-        viewModel.currentMetadata.observe(this, Observer(this::decoratePlayingTrack))
+        viewModel.nowPlaying.observeK(this, this::decoratePlayingTrack)
 
         // Subscribe to children of this album
-        viewModel.subscribeTo(pickedAlbum.mediaId!!).observe(this, Observer { children ->
+        viewModel.items.observeK(this) { children ->
             adapter.submitList(children.orEmpty())
-            recycler.swapAdapter(adapter, false)
-
-            val currentMetadata = viewModel.currentMetadata.value
+            val currentMetadata = viewModel.nowPlaying.value
             decoratePlayingTrack(currentMetadata)
-        })
+        }
     }
 
     private fun setupAlbumArt() {
@@ -147,9 +145,7 @@ class AlbumDetailActivity : BaseActivity(),
     }
 
     private fun playMediaItem(item: MediaItem) {
-        viewModel.post {
-            it.transportControls.playFromMediaId(item.mediaId, null)
-        }
+        viewModel.play(item)
     }
 
     /**

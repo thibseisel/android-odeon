@@ -113,10 +113,16 @@ class MediaBrowserConnection
         }
     }
 
+    /**
+     * @see MediaBrowserCompat.subscribe
+     */
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         mediaBrowser.subscribe(parentId, callback)
     }
 
+    /**
+     * @see MediaBrowserCompat.unsubscribe
+     */
     fun unsubscribe(parentId: String) {
         mediaBrowser.unsubscribe(parentId)
     }

@@ -30,6 +30,10 @@ import android.view.View
  * It is the client responsibility to set the opacity of the scrim rectangle when the BottomSheet
  * slides. For this purpose, you can use [BottomSheetBehavior.BottomSheetCallback.onSlide].
  */
+@Deprecated(
+    message = "This customization is no longer necessary.",
+    replaceWith = ReplaceWith("BottomSheetBehavior", imports = ["com.android.support.design.widget"])
+)
 internal class ScrimBottomSheetBehavior<V : View>(context: Context?, attrs: AttributeSet?)
     : BottomSheetBehavior<V>(context, attrs) {
 
