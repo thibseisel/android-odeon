@@ -153,7 +153,6 @@ fun DrawerLayout.lock(isLocked: Boolean) {
     requestDisallowInterceptTouchEvent(isLocked)
     setDrawerLockMode(
         if (isLocked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-        else DrawerLayout.LOCK_MODE_UNLOCKED,
-        this
+        else DrawerLayout.LOCK_MODE_UNLOCKED
     )
 }
