@@ -16,13 +16,16 @@
 
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <style name="Theme.MaterialComponents.DayNight" parent="Theme.MaterialComponents.Light"/>
+    <style name="Theme.MaterialComponents.DayNight.Dialog.MinWidth" parent="Theme.MaterialComponents.Light.Dialog.MinWidth"/>
+
     <!--
       - Pointer to the base theme used for both Light and Night.
       - Override this theme to apply API-level specific customizations.
       -->
     <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
 
-    <style name="Base.V21.AppTheme" parent="@style/Theme.AppCompat.DayNight">
+    <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
@@ -62,17 +65,10 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Light">
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
-        <item name="colorPrimary">@color/mtrl_grey_100</item>
-    </style>
-
-    <!-- Toolbar theme variant that has colored title text and icons -->
-    <style name="AppTheme.AppBarOverlay.Colored">
-        <item name="android:textColorPrimary">@color/mtrl_deeppurple_a400</item>
-        <item name="android:textColorSecondary">@color/mtrl_deeppurple_a400</item>
     </style>
 
     <!-- Style for SeekBar that removes horizontal padding. -->
@@ -90,7 +86,7 @@
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
-    <style name="AppTheme.FileViewer" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
+    <style name="AppTheme.FileViewer" parent="Theme.MaterialComponents.DayNight.Dialog.MinWidth">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/mtrl_deeppurple_500</item>

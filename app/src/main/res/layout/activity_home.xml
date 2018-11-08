@@ -35,7 +35,7 @@
             android:id="@+id/appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay.Colored">
+            android:theme="?actionBarTheme">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -43,7 +43,7 @@
                 android:layout_height="?actionBarSize"
                 android:background="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:popupTheme="?actionBarPopupTheme"
                 tools:title="@string/app_name"/>
         </android.support.design.widget.AppBarLayout>
 
