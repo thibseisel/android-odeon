@@ -31,6 +31,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="12dp"
         app:srcCompat="@drawable/level_chevron_up_down"
+        tools:srcCompat="@drawable/ic_chevron_down_24dp"
         android:scaleType="centerInside"/>
 
     <TextView
@@ -47,7 +48,7 @@
         app:layout_constraintStart_toEndOf="@+id/chevron"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="Title of the song"/>
+        tools:text="@sample/songs.json/data/title"/>
 
     <TextView
         android:id="@+id/subtitle_view"
@@ -63,7 +64,7 @@
         app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
         app:layout_constraintStart_toEndOf="@id/chevron"
         app:layout_constraintTop_toBottomOf="@id/title_view"
-        tools:text="Artist name"/>
+        tools:text="@sample/songs.json/data/artist"/>
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/play_pause_button"

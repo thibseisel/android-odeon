@@ -41,6 +41,7 @@
             android:layout_height="match_parent"
             app:layoutManager="android.support.v7.widget.GridLayoutManager"
             app:spanCount="@integer/artist_grid_span_count"
+            tools:itemCount="3"
             tools:listitem="@layout/playlist_item"/>
 
         <!-- Empty View -->

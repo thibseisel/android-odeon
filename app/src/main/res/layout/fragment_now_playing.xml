@@ -102,7 +102,7 @@
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
-        tools:text="11:42"/>
+        tools:text="@sample/songs.json/data/duration"/>
 
     <TextView
         android:id="@+id/seek_duration"
@@ -113,7 +113,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
-        tools:text="11:42"/>
+        tools:text="@sample/songs.json/data/duration"/>
 
     <!-- Action buttons -->
     <ImageView

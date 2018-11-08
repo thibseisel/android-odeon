@@ -56,7 +56,7 @@
             app:layout_constraintEnd_toStartOf="@+id/play_fab"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/album_art"
-            tools:text="Playlist title"/>
+            tools:text="@sample/playlists.json/data/title"/>
 
         <ImageView
             android:id="@+id/play_fab"
