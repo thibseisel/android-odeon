@@ -17,7 +17,6 @@
 package fr.nihilus.music
 
 import android.Manifest
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -45,6 +44,7 @@ import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.UiSettings
 import fr.nihilus.music.ui.NowPlayingViewModel
 import fr.nihilus.music.utils.ConfirmDialogFragment
+import fr.nihilus.music.utils.observeK
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
@@ -151,10 +151,7 @@ class HomeActivity : BaseActivity(),
         drawer_layout.addDrawerListener(drawerToggle)
 
         nav_drawer.setNavigationItemSelectedListener(this)
-
-        router.routeChangeListener = { fragmentId ->
-            nav_drawer.setCheckedItem(fragmentId)
-        }
+        router.routeChangeListener = nav_drawer::setCheckedItem
     }
 
     private fun setupPlayerView() {
@@ -163,15 +160,13 @@ class HomeActivity : BaseActivity(),
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playbackState.value)
 
-        viewModel.playbackState.observe(this, Observer { newState ->
-            togglePlayerVisibility(newState)
-        })
+        viewModel.playbackState.observeK(this, this::togglePlayerVisibility)
 
-        viewModel.playerError.observe(this, Observer { errorMessage ->
+        viewModel.playerError.observeK(this) { errorMessage ->
             if (errorMessage != null) {
-                Toast.makeText(this@HomeActivity, errorMessage, Toast.LENGTH_LONG).show()
+                Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
-        })
+        }
 
         bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
