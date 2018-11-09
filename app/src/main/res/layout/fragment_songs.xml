@@ -41,7 +41,8 @@
             android:fastScrollEnabled="true"
             android:listSelector="@android:color/transparent"
             android:nestedScrollingEnabled="true"
-            tools:listitem="@layout/song_list_item"/>
+            tools:listitem="@layout/song_list_item"
+            style="@style/MainScrollingView.List"/>
 
         <!-- EmptyView -->
         <LinearLayout

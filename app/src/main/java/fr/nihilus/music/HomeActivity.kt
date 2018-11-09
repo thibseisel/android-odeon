@@ -288,14 +288,12 @@ class HomeActivity : BaseActivity(),
             || state.state == PlaybackStateCompat.STATE_STOPPED) {
             bottomSheet.isHideable = true
             bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-            container.setPadding(0, 0, 0, 0)
 
         } else if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
             // Take action to show BottomSheet only if it is hidden
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
             player_container.post { bottomSheet.isHideable = false }
             val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
-            container.setPadding(0, 0, 0, playerViewHeight)
             bottomSheet.peekHeight = playerViewHeight
         }
     }
