@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -41,7 +42,7 @@ import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.UiSettings
-import fr.nihilus.music.ui.NowPlayingViewModel
+import fr.nihilus.music.ui.NowPlayingFragment
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.observeK
 import kotlinx.android.synthetic.main.activity_home.*
@@ -57,7 +58,7 @@ class HomeActivity : BaseActivity(),
 
     private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var viewModel: BrowserViewModel
-    private lateinit var playerViewModel: NowPlayingViewModel
+    private lateinit var playerFragment: NowPlayingFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +69,6 @@ class HomeActivity : BaseActivity(),
 
         setupNavigationDrawer()
 
-        playerViewModel = ViewModelProviders.of(this, viewModelFactory)[NowPlayingViewModel::class.java]
         viewModel = ViewModelProviders.of(this, viewModelFactory)[BrowserViewModel::class.java]
 
         viewModel.connect()
@@ -83,6 +83,18 @@ class HomeActivity : BaseActivity(),
                     showHomeScreen()
                 }
             } else this.requestExternalStoragePermission()
+        }
+    }
+
+    override fun onAttachFragment(fragment: Fragment?) {
+        super.onAttachFragment(fragment)
+        if (fragment is NowPlayingFragment) {
+            playerFragment = fragment
+            fragment.setOnRequestPlayerExpansionListener { shouldCollapse ->
+                bottomSheet.state =
+                        if (shouldCollapse) BottomSheetBehavior.STATE_COLLAPSED
+                        else BottomSheetBehavior.STATE_EXPANDED
+            }
         }
     }
 
@@ -178,8 +190,7 @@ class HomeActivity : BaseActivity(),
 
                 val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
                         && newState != BottomSheetBehavior.STATE_HIDDEN
-
-                playerViewModel.markAsExpanded(isExpandedOrExpanding)
+                playerFragment.setCollapsed(!isExpandedOrExpanding)
                 drawer_layout.lock(isExpandedOrExpanding)
             }
         })
