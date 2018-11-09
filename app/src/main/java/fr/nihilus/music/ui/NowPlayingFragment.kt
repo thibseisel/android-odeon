@@ -49,8 +49,13 @@ import javax.inject.Inject
 private const val LEVEL_CHEVRON_UP = 0
 private const val LEVEL_CHEVRON_DOWN = 1
 
+private const val KEY_IS_COLLAPSED = "fr.nihilus.music.ui.NowPlayingFragment.IS_COLLAPSED"
+
 class NowPlayingFragment: Fragment() {
     @Inject lateinit var vmFactory: ViewModelProvider.Factory
+
+    private var playerExpansionListener: ((Boolean) -> Unit)? = null
+    private var isCollapsed = true
 
     private lateinit var glideRequest: GlideRequest<Drawable>
     private lateinit var albumArtTarget: SwitcherTarget
@@ -61,6 +66,14 @@ class NowPlayingFragment: Fragment() {
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (savedInstanceState != null) {
+            this.isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)
+        }
     }
 
     override fun onCreateView(
@@ -97,19 +110,20 @@ class NowPlayingFragment: Fragment() {
             setImageDrawable(repeatDrawable)
         }
 
-        val clickListener = WidgetClickListener()
-        play_pause_button.setOnClickListener(clickListener)
+        val clickHandler = WidgetClickListener()
+        play_pause_button.setOnClickListener(clickHandler)
 
         // Buttons that are only present in landscape mode
-        mini_prev_button?.setOnClickListener(clickListener)
-        mini_next_button?.setOnClickListener(clickListener)
+        mini_prev_button?.setOnClickListener(clickHandler)
+        mini_next_button?.setOnClickListener(clickHandler)
 
         // Playback control buttons at bottom
-        repeat_button.setOnClickListener(clickListener)
-        skip_prev_button.setOnClickListener(clickListener)
-        master_play_pause.setOnClickListener(clickListener)
-        skip_next_button.setOnClickListener(clickListener)
-        shuffle_button.setOnClickListener(clickListener)
+        repeat_button.setOnClickListener(clickHandler)
+        skip_prev_button.setOnClickListener(clickHandler)
+        master_play_pause.setOnClickListener(clickHandler)
+        skip_next_button.setOnClickListener(clickHandler)
+        shuffle_button.setOnClickListener(clickHandler)
+        chevron.setOnClickListener(clickHandler)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -120,11 +134,7 @@ class NowPlayingFragment: Fragment() {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel = ViewModelProviders.of(requireActivity(), vmFactory)[NowPlayingViewModel::class.java]
-
-        viewModel.isExpanded.observeK(this) {
-            onSheetExpansionChanged(it ?: false)
-        }
+        viewModel = ViewModelProviders.of(this, vmFactory)[NowPlayingViewModel::class.java]
 
         viewModel.playbackState.observeK(this, this::onPlaybackStateChanged)
         viewModel.nowPlaying.observeK(this, this::onMetadataChanged)
@@ -136,12 +146,33 @@ class NowPlayingFragment: Fragment() {
         }
     }
 
-    private fun onSheetExpansionChanged(isExpanded: Boolean) {
-        chevron.setImageLevel(if (isExpanded) LEVEL_CHEVRON_DOWN else LEVEL_CHEVRON_UP)
-        val targetVisibility = if (isExpanded) View.GONE else View.VISIBLE
-        play_pause_button.visibility = targetVisibility
-        mini_prev_button?.visibility = targetVisibility
-        mini_next_button?.visibility = targetVisibility
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_IS_COLLAPSED, isCollapsed)
+    }
+
+    /**
+     * Listens for requests for this Fragment to expand the BottomSheet it is in, if any.
+     */
+    fun setOnRequestPlayerExpansionListener(listener: ((isCollapsed: Boolean) -> Unit)?) {
+        playerExpansionListener = listener
+    }
+
+    /**
+     * Requests this fragment to change its display to reflect a collapsed or an expanded state.
+     * When collapsed, only a part of its Views are visible at a time.
+     * When expanded, all its views are visible.
+     */
+    fun setCollapsed(isCollapsed: Boolean) {
+        if (this.isCollapsed != isCollapsed) {
+            this.isCollapsed = isCollapsed
+
+            chevron.setImageLevel(if (isCollapsed) LEVEL_CHEVRON_UP else LEVEL_CHEVRON_DOWN)
+            val targetVisibility = if (isCollapsed) View.VISIBLE else View.GONE
+            play_pause_button.visibility = targetVisibility
+            mini_prev_button?.visibility = targetVisibility
+            mini_next_button?.visibility = targetVisibility
+        }
     }
 
     private fun onMetadataChanged(metadata: MediaMetadataCompat?) {
@@ -221,13 +252,16 @@ class NowPlayingFragment: Fragment() {
 
     private inner class WidgetClickListener : View.OnClickListener {
 
-        override fun onClick(view: View) = when(view.id) {
-            R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
-            R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
-            R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
-            R.id.shuffle_button -> viewModel.toggleShuffleMode()
-            R.id.repeat_button -> viewModel.toggleRepeatMode()
-            else -> Timber.w("Unhandled click event for View : %s", view.javaClass.name)
+        override fun onClick(view: View) {
+            when(view.id) {
+                R.id.chevron -> playerExpansionListener?.invoke(isCollapsed)
+                R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
+                R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
+                R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
+                R.id.shuffle_button -> viewModel.toggleShuffleMode()
+                R.id.repeat_button -> viewModel.toggleRepeatMode()
+                else -> Timber.w("Unhandled click event for View : %s", view.javaClass.name)
+            }
         }
     }
 }

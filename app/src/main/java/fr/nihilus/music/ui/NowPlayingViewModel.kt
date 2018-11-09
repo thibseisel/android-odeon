@@ -17,7 +17,6 @@
 package fr.nihilus.music.ui
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
@@ -31,17 +30,10 @@ class NowPlayingViewModel
     connection: MediaBrowserConnection
 ) : MediaBrowserViewModel(connection) {
 
-    private val _isExpanded = MutableLiveData<Boolean>().apply { value = false }
-    val isExpanded: LiveData<Boolean> get() = _isExpanded
-
     val playbackState: LiveData<PlaybackStateCompat> get() = connection.playbackState
     val nowPlaying: LiveData<MediaMetadataCompat?> get() = connection.nowPlaying
     val repeatMode: LiveData<Int> get() = connection.repeatMode
     val shuffleMode: LiveData<Int> get() = connection.shuffleMode
-
-    fun markAsExpanded(isExpanded: Boolean) {
-        _isExpanded.value = isExpanded
-    }
 
     fun togglePlayPause() = connection.post {
         val isPlaying = playbackState.value?.isPlaying ?: false
