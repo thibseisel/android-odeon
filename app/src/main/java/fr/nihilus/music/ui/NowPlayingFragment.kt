@@ -16,12 +16,9 @@
 
 package fr.nihilus.music.ui
 
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -32,7 +29,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.BaseFragment
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -44,16 +41,13 @@ import fr.nihilus.music.view.ProgressAutoUpdater
 import kotlinx.android.synthetic.main.fragment_now_playing.*
 import kotlinx.android.synthetic.main.fragment_now_playing_top.*
 import timber.log.Timber
-import javax.inject.Inject
 
 private const val LEVEL_CHEVRON_UP = 0
 private const val LEVEL_CHEVRON_DOWN = 1
 
 private const val KEY_IS_COLLAPSED = "fr.nihilus.music.ui.NowPlayingFragment.IS_COLLAPSED"
 
-class NowPlayingFragment: Fragment() {
-    @Inject lateinit var vmFactory: ViewModelProvider.Factory
-
+class NowPlayingFragment: BaseFragment() {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
 
@@ -62,11 +56,6 @@ class NowPlayingFragment: Fragment() {
     private lateinit var autoUpdater: ProgressAutoUpdater
 
     private lateinit var viewModel: NowPlayingViewModel
-
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +123,7 @@ class NowPlayingFragment: Fragment() {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel = ViewModelProviders.of(this, vmFactory)[NowPlayingViewModel::class.java]
+        viewModel = ViewModelProviders.of(this, viewModelFactory)[NowPlayingViewModel::class.java]
 
         viewModel.playbackState.observeK(this, this::onPlaybackStateChanged)
         viewModel.nowPlaying.observeK(this, this::onMetadataChanged)

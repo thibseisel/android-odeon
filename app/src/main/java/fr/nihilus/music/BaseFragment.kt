@@ -17,12 +17,12 @@
 package fr.nihilus.music
 
 import android.arch.lifecycle.ViewModelProvider
-import dagger.android.support.DaggerAppCompatActivity
+import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
 /**
- * Base Activity class that supports Dagger injection of class members and into Fragments.
+ * Base Fragment class that supports Dagger injection of class members and into child fragments.
  */
-abstract class BaseActivity : DaggerAppCompatActivity() {
+abstract class BaseFragment : DaggerFragment() {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 }
