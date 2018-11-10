@@ -57,14 +57,6 @@ class NowPlayingFragment: BaseFragment() {
 
     private lateinit var viewModel: NowPlayingViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        if (savedInstanceState != null) {
-            this.isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -133,6 +125,11 @@ class NowPlayingFragment: BaseFragment() {
         viewModel.shuffleMode.observeK(this) {
             onShuffleModeChanged(it ?: SHUFFLE_MODE_INVALID)
         }
+
+        if (savedInstanceState != null) {
+            isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)
+            setCollapsedInternal(isCollapsed)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -155,13 +152,16 @@ class NowPlayingFragment: BaseFragment() {
     fun setCollapsed(isCollapsed: Boolean) {
         if (this.isCollapsed != isCollapsed) {
             this.isCollapsed = isCollapsed
-
-            chevron.setImageLevel(if (isCollapsed) LEVEL_CHEVRON_UP else LEVEL_CHEVRON_DOWN)
-            val targetVisibility = if (isCollapsed) View.VISIBLE else View.GONE
-            play_pause_button.visibility = targetVisibility
-            mini_prev_button?.visibility = targetVisibility
-            mini_next_button?.visibility = targetVisibility
+            setCollapsedInternal(isCollapsed)
         }
+    }
+
+    private fun setCollapsedInternal(isCollapsed: Boolean) {
+        chevron.setImageLevel(if (isCollapsed) LEVEL_CHEVRON_UP else LEVEL_CHEVRON_DOWN)
+        val targetVisibility = if (isCollapsed) View.VISIBLE else View.GONE
+        play_pause_button.visibility = targetVisibility
+        mini_prev_button?.visibility = targetVisibility
+        mini_next_button?.visibility = targetVisibility
     }
 
     private fun onMetadataChanged(metadata: MediaMetadataCompat?) {
@@ -243,7 +243,7 @@ class NowPlayingFragment: BaseFragment() {
 
         override fun onClick(view: View) {
             when(view.id) {
-                R.id.chevron -> playerExpansionListener?.invoke(isCollapsed)
+                R.id.chevron -> playerExpansionListener?.invoke(!isCollapsed)
                 R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
                 R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
                 R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
