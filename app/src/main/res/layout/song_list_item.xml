@@ -15,23 +15,27 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/song_item_height"
+    android:layout_height="72dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/item_background_activated"
     android:checkable="true"
-    android:paddingEnd="16dp"
-    android:paddingStart="16dp"
     android:textDirection="locale">
 
     <FrameLayout
-        android:layout_width="@dimen/album_art_item_side"
-        android:layout_height="@dimen/album_art_item_side"
+        android:id="@+id/art_wrapper"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_centerVertical="true"
         android:foreground="@drawable/selected_tick_mark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        style="@style/TwoLineList_LargeIcon">
 
         <ImageView
             android:id="@+id/album_art_view"
@@ -43,35 +47,24 @@
             tools:src="@tools:sample/avatars"/>
     </FrameLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="72dp"
-        android:orientation="vertical">
+        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="@sample/songs.json/data/title"
+        style="@style/TwoLineList_Title"/>
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat"
-            android:textSize="@dimen/song_title_size"
-            tools:text="@sample/songs.json/data/title"/>
+    <TextView
+        android:id="@+id/subtitle_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        tools:text="@sample/songs.json/data/subtitle"
+        style="@style/TwoLineList_Secondary"/>
 
-        <TextView
-            android:id="@+id/subtitle_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textSize="@dimen/song_subtitle_size"
-            tools:text="@sample/songs.json/data/subtitle"/>
 
-    </LinearLayout>
-
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>

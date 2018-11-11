@@ -17,6 +17,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.MaterialComponents.DayNight" parent="Theme.MaterialComponents.Light"/>
+
     <style name="Theme.MaterialComponents.DayNight.Dialog.MinWidth" parent="Theme.MaterialComponents.Light.Dialog.MinWidth"/>
 
     <!--
@@ -125,5 +126,41 @@
         <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
         <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
         <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
+    </style>
+
+    <style name="TwoLineList_Title">
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="firstBaselineToTopHeight">32dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.List.TwoLine.Title</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="TwoLineList_Secondary">
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.List.TwoLine.Secondary</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="TextAppearance.List.TwoLine.Title" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/two_line_list_title</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.List.TwoLine.Secondary" parent="TextAppearance.AppCompat">
+        <item name="android:lineHeight">20dp</item>
+        <item name="android:textColor">@color/two_line_list_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TwoLineList_LargeIcon">
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
     </style>
 </resources>
