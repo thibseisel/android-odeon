@@ -20,6 +20,7 @@ import android.os.Handler
 import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.util.TimeUtils
 import android.text.format.DateUtils
 import android.widget.SeekBar
 import android.widget.TextView
@@ -107,15 +108,19 @@ class ProgressAutoUpdater(
 
         if (state != null) {
             val isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
-            seekBar.progress = state.position.toInt()
-            seekPosition?.text = DateUtils.formatElapsedTime(builder, state.position / 1000L)
+            val position = state.position
+
+            if (position != PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN) {
+                seekBar.progress = position.toInt()
+            } else {
+                seekPosition?.text = null
+            }
 
             if (isPlaying) scheduleProgressUpdate()
             else stopProgressUpdate()
 
         } else {
-            seekBar.progress = 0
-            seekPosition?.text = DateUtils.formatElapsedTime(builder, 0L)
+            seekPosition?.text = null
             stopProgressUpdate()
         }
 
