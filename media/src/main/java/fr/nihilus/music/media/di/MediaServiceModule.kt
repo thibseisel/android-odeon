@@ -17,11 +17,13 @@
 package fr.nihilus.music.media.di
 
 import dagger.Module
+import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.command.CommandModule
 import fr.nihilus.music.media.database.DatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Scope
 
 /**
@@ -37,12 +39,13 @@ internal annotation class ServiceScoped
  * Configures [MusicService]-related bindings, providing dependency injection for the whole `media` library module.
  * This Dagger module should be installed in the root component.
  */
-@Module
+@Module()
 @Suppress("unused")
 abstract class MediaServiceModule {
 
     @ServiceScoped
     @ContributesAndroidInjector(modules = [
+        MusicServiceProvisions::class,
         ServiceBindingsModule::class,
         DatabaseModule::class,
         MediaSessionModule::class,
@@ -51,4 +54,11 @@ abstract class MediaServiceModule {
         CommandModule::class
     ])
     abstract fun contributesMusicService(): MusicService
+}
+
+@Module
+internal class MusicServiceProvisions {
+
+    @Provides @ServiceScoped
+    fun provideSubscriptionDisposer() = CompositeDisposable()
 }

@@ -32,7 +32,9 @@ import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.AlbumArtLoader
+import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -45,7 +47,8 @@ internal class MediaQueueManager
     private val mediaSession: MediaSessionCompat,
     private val repository: MusicRepository,
     private val prefs: MediaSettings,
-    private val iconLoader: AlbumArtLoader
+    private val iconLoader: AlbumArtLoader,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionConnector.QueueNavigator {
 
     private var lastMusicId: String? = null
@@ -155,7 +158,7 @@ internal class MediaQueueManager
 
         if (lastMusicId != musicId) {
             // Only update metadata if it has really changed.
-            repository.getMetadata(musicId)
+            subscriptions += repository.getMetadata(musicId)
                 .subscribeOn(Schedulers.io())
                 .flatMap { iconLoader.loadIntoMetadata(it) }
                 .observeOn(AndroidSchedulers.mainThread())

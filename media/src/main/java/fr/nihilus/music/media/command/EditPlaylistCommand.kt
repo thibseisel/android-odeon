@@ -18,13 +18,15 @@ package fr.nihilus.music.media.command
 
 import android.os.Bundle
 import android.os.ResultReceiver
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.database.PlaylistDao
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.database.PlaylistTrack
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
@@ -32,7 +34,8 @@ import javax.inject.Inject
 class EditPlaylistCommand
 @Inject internal constructor(
     private val service: MusicService,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionCommand {
 
     companion object {
@@ -79,7 +82,7 @@ class EditPlaylistCommand
 
         val tracks = trackIds.map { musicId -> PlaylistTrack(playlistId, musicId) }
 
-        Single.fromCallable { playlistDao.addTracks(tracks) }
+        subscriptions += Single.fromCallable { playlistDao.addTracks(tracks) }
             .subscribeOn(Schedulers.io())
             .doOnSuccess { service.notifyChildrenChanged(CATEGORY_PLAYLISTS) }
             .observeOn(AndroidSchedulers.mainThread())

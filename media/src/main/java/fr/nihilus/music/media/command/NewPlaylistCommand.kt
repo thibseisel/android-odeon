@@ -16,25 +16,27 @@
 
 package fr.nihilus.music.media.command
 
-import android.database.sqlite.SQLiteConstraintException
-import android.graphics.Bitmap
 //import android.graphics.Color
-import android.net.Uri
-import android.os.Bundle
-import android.os.ResultReceiver
 //import com.github.thibseisel.kdenticon.Identicon
 //import com.github.thibseisel.kdenticon.IdenticonStyle
 //import com.github.thibseisel.kdenticon.android.drawToBitmap
-import fr.nihilus.music.media.R
-import fr.nihilus.music.media.database.PlaylistDao
-import fr.nihilus.music.media.di.ServiceScoped
+import android.database.sqlite.SQLiteConstraintException
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Bundle
+import android.os.ResultReceiver
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.R
 import fr.nihilus.music.media.database.Playlist
+import fr.nihilus.music.media.database.PlaylistDao
 import fr.nihilus.music.media.database.PlaylistTrack
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
+import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
@@ -48,7 +50,8 @@ import javax.inject.Inject
 class NewPlaylistCommand
 @Inject internal constructor(
     private val service: MusicService,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
@@ -63,7 +66,7 @@ class NewPlaylistCommand
             created = Date()
         }
 
-        Single.fromCallable { savePlaylist(playlist) }
+        subscriptions += Single.fromCallable { savePlaylist(playlist) }
             .subscribeOn(Schedulers.io())
             .doOnSuccess { service.notifyChildrenChanged(CATEGORY_PLAYLISTS) }
             .map { playlistId ->

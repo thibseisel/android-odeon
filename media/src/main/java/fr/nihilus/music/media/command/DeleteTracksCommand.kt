@@ -21,13 +21,16 @@ import android.os.ResultReceiver
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.source.MusicDao
+import fr.nihilus.music.media.utils.plusAssign
+import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import javax.inject.Inject
 
 @ServiceScoped
 class DeleteTracksCommand
 @Inject internal constructor(
-    private val musicDao: MusicDao
+    private val musicDao: MusicDao,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
@@ -35,7 +38,7 @@ class DeleteTracksCommand
             "Required parameter: PARAM_TRACK_IDS"
         }
 
-        musicDao.deleteTracks(idsToDelete).subscribe(
+        subscriptions += musicDao.deleteTracks(idsToDelete).subscribe(
             { onSuccess(cb, it) },
             { Timber.e(it, "Unexpected error while deleting tracks with ids: $idsToDelete") }
         )

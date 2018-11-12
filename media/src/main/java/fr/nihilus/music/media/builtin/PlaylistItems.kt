@@ -19,11 +19,11 @@ package fr.nihilus.music.media.builtin
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.asMediaDescription
-import fr.nihilus.music.media.database.PlaylistDao
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.browseHierarchyOf
+import fr.nihilus.music.media.database.PlaylistDao
 import fr.nihilus.music.media.source.MusicDao
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -75,7 +75,7 @@ internal class PlaylistItems
         val builder = MediaDescriptionCompat.Builder()
         return playlistDao.getPlaylistTracks(playlistId.toLong())
             .subscribeOn(Schedulers.io())
-            .flatMapObservable { Observable.fromIterable(it) }
+            .flattenAsObservable { it }
             .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
             .map { member ->
                 val descr = member.asMediaDescription(builder, CATEGORY_PLAYLISTS, playlistId)

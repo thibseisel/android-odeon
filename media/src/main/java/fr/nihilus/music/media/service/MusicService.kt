@@ -37,10 +37,9 @@ import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.utils.PermissionDeniedException
-import io.reactivex.SingleObserver
+import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.lang.ref.WeakReference
@@ -56,6 +55,7 @@ class MusicService : MediaBrowserServiceCompat() {
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: MediaSettings
+    @Inject internal lateinit var subscriptions: CompositeDisposable
 
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
@@ -64,7 +64,6 @@ class MusicService : MediaBrowserServiceCompat() {
 
     private val controllerCallback = MediaControllerCallback()
     private val serviceStopper = ServiceStopper(this)
-    private val subscriptions = CompositeDisposable()
 
     private var isForegroundService = false
     private var isStarted = false
@@ -103,12 +102,11 @@ class MusicService : MediaBrowserServiceCompat() {
 
         // Listen for changes in the repository to notify media browsers.
         // If the changed media ID is a track, notify for its parent category.
-        repository.getMediaChanges()
+        subscriptions += repository.getMediaChanges()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { browseCategoryOf(it) }
             .subscribe(this::notifyChildrenChanged)
-            .also { subscriptions.add(it) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -150,27 +148,25 @@ class MusicService : MediaBrowserServiceCompat() {
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>, options: Bundle) {
         Timber.v("Start loading children for ID: %s", parentId)
         result.detach()
-        repository.getMediaItems(parentId)
+
+        subscriptions += repository.getMediaItems(parentId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<List<MediaBrowserCompat.MediaItem>> {
-                override fun onSubscribe(d: Disposable) {}
-
-                override fun onSuccess(items: List<MediaBrowserCompat.MediaItem>) {
+            .subscribe(
+                { items: List<MediaBrowserCompat.MediaItem> ->
                     Timber.v("Loaded items for %s: size=%d", parentId, items.size)
                     result.sendResult(items)
-                }
-
-                override fun onError(e: Throwable) {
-                    when (e) {
+                },
+                { error: Throwable ->
+                    when (error) {
                         is UnsupportedOperationException -> Timber.w("Unsupported parent id: %s", parentId)
-                        is PermissionDeniedException -> Timber.i(e)
-                        else -> throw e
+                        is PermissionDeniedException -> Timber.i(error)
+                        else -> throw error
                     }
 
                     result.sendResult(null)
                 }
-            })
+            )
     }
 
     override fun notifyChildrenChanged(parentId: String) {

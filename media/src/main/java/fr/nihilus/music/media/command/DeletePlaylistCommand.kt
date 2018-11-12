@@ -19,13 +19,15 @@ package fr.nihilus.music.media.command
 import android.os.Bundle
 import android.os.ResultReceiver
 import fr.nihilus.music.media.BuildConfig
+import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.database.PlaylistDao
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -33,7 +35,8 @@ import javax.inject.Inject
 class DeletePlaylistCommand
 @Inject internal constructor(
     private val service: MusicService,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionCommand {
 
     override fun handle(params: Bundle?, cb: ResultReceiver?) {
@@ -42,18 +45,21 @@ class DeletePlaylistCommand
         require(params.containsKey(PARAM_PLAYLIST_ID))
         val playlistId = params.getLong(PARAM_PLAYLIST_ID)
 
-        Single.fromCallable { playlistDao.deletePlaylist(playlistId) }
+        subscriptions += Single.fromCallable { playlistDao.deletePlaylist(playlistId) }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                service.notifyChildrenChanged(CATEGORY_PLAYLISTS)
-                cb?.send(R.id.abc_result_success, null)
-            }, { error ->
-                if (BuildConfig.DEBUG) {
-                    // Rethrow unexpected errors on debug builds
-                    throw error
+            .subscribe(
+                {
+                    service.notifyChildrenChanged(CATEGORY_PLAYLISTS)
+                    cb?.send(R.id.abc_result_success, null)
+                },
+                { error ->
+                    if (BuildConfig.DEBUG) {
+                        // Rethrow unexpected errors on debug builds
+                        throw error
+                    }
                 }
-            })
+            )
     }
 
     companion object {
