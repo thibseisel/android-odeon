@@ -23,8 +23,20 @@ import android.support.design.widget.Snackbar
  * Encapsulate data that is exposed via [LiveData] to represent it as an event.
  * This prevents observers from using the same data more than a single time,
  * such as the text of a [Snackbar] or the result of a background operation.
+ *
+ * @param data The data associated with the event.
  */
-class Event<out T>(private val _data: T) {
+class Event<out T>(data: T) {
+
+    /**
+     * The data associated with the event.
+     * Reading the data associated with this event marks it as handled.
+     */
+    val data: T = data
+        get() {
+            hasBeenHandled = true
+            return field
+        }
 
     /**
      * Whether the event has already been handled.
@@ -34,13 +46,12 @@ class Event<out T>(private val _data: T) {
         private set
 
     /**
-     * The data associated with the event.
-     * This will be `null` if the event has already been handled.
-     * Reading the data associated with this event marks it as handled.
+     * Handle the event only if it has not been already, consuming its associated data.
+     * @param consumer A block of code to be executed only if the event has not been handled.
      */
-    val data: T?
-        get() = if (!hasBeenHandled) {
-            hasBeenHandled = true
-            _data
-        } else null
+    inline fun handle(consumer: (T) -> Unit) {
+        if (!hasBeenHandled) {
+            consumer(data)
+        }
+    }
 }
