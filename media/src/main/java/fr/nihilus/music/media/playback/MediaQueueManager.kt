@@ -20,13 +20,10 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.musicIdFrom
@@ -66,56 +63,15 @@ internal class MediaQueueManager
         }
     }
 
-    /**
-     * Fixes a bug in ExoPlayer 2.8.1 where skipping to previous/next media
-     * in a in a [ConcatenatingMediaSource] cannot be performed when in shuffle mode.
-     */
-    override fun getSupportedQueueNavigatorActions(player: Player?): Long {
-        if (player == null || player.currentTimeline.windowCount < 2) {
-            return 0L
-        }
+    override fun getSupportedQueueNavigatorActions(player: Player?): Long =
+        navigator.getSupportedQueueNavigatorActions(player)
 
-        if (player.repeatMode != Player.REPEAT_MODE_OFF) {
-            return PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                    PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-        }
-
-        return PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM or when {
-            player.previousWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-            player.nextWindowIndex == C.INDEX_UNSET -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            else -> PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-        }
-    }
-
-    /**
-     * Called when skipping to the previous song in timeline.
-     * When repeat mode is REPEAT_ONE, allow skipping to previous item by temporarily setting
-     * player's repeat mode to REPEAT_ALL.
-     */
     override fun onSkipToPrevious(player: Player?) {
-        if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
-            player.repeatMode = Player.REPEAT_MODE_ALL
-            navigator.onSkipToPrevious(player)
-            player.repeatMode = Player.REPEAT_MODE_ONE
-        } else {
-            navigator.onSkipToPrevious(player)
-        }
+        navigator.onSkipToPrevious(player)
     }
 
-    /**
-     * Called when skipping to the next song in timeline.
-     * When repeat mode is REPEAT_ONE, allow skipping to next item by temporarily setting
-     * player's repeat mode to REPEAT_ALL.
-     */
     override fun onSkipToNext(player: Player?) {
-        if (player != null && player.repeatMode == Player.REPEAT_MODE_ONE) {
-            player.repeatMode = Player.REPEAT_MODE_ALL
-            navigator.onSkipToNext(player)
-            player.repeatMode = Player.REPEAT_MODE_ONE
-        } else {
-            navigator.onSkipToNext(player)
-        }
+        navigator.onSkipToNext(player)
     }
 
     override fun onSkipToQueueItem(player: Player?, id: Long) {

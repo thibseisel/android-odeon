@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 
-open class FakeAudioPlayer : ExoPlayer, Player.AudioComponent {
+open class FakeAudioPlayer : BasePlayer(), ExoPlayer, Player.AudioComponent {
 
     /*
      * CONTROL OF PLAYER STATE.
@@ -59,7 +59,6 @@ open class FakeAudioPlayer : ExoPlayer, Player.AudioComponent {
         throw UnsupportedOperationException("Fake method not implemented")
     }
 
-    override fun stop() = stop(false)
     override fun stop(reset: Boolean) {
         _playbackState = Player.STATE_IDLE
     }
@@ -92,23 +91,13 @@ open class FakeAudioPlayer : ExoPlayer, Player.AudioComponent {
         setPlaybackState(Player.STATE_READY)
     }
 
-    override fun isCurrentWindowDynamic(): Boolean = false
-
     override fun getCurrentTimeline(): Timeline {
         throw UnsupportedOperationException("Fake method not implemented")
     }
 
-    override fun getPreviousWindowIndex(): Int = C.INDEX_UNSET
-
     override fun getCurrentWindowIndex(): Int = C.INDEX_UNSET
 
     override fun getCurrentPeriodIndex(): Int = 0
-
-    override fun getNextWindowIndex(): Int = C.INDEX_UNSET
-
-    override fun isCurrentWindowSeekable(): Boolean = false
-
-    override fun getCurrentTag(): Any? = null
 
     /*
      * CONTROL OF PLAYBACK POSITION
@@ -122,14 +111,7 @@ open class FakeAudioPlayer : ExoPlayer, Player.AudioComponent {
 
     override fun getBufferedPosition(): Long = 0L
     override fun getTotalBufferedDuration(): Long = 0L
-    override fun getBufferedPercentage(): Int = 0
 
-    override fun seekToDefaultPosition() = seekToDefaultPosition(currentWindowIndex)
-    override fun seekToDefaultPosition(windowIndex: Int) {
-        _position = 0L
-    }
-
-    override fun seekTo(positionMs: Long) = seekTo(currentWindowIndex, positionMs)
     override fun seekTo(windowIndex: Int, positionMs: Long) {
         _position = positionMs
     }
@@ -246,8 +228,6 @@ open class FakeAudioPlayer : ExoPlayer, Player.AudioComponent {
 
     /** This fake implementation never play ads, and therefore always return `false`. */
     override fun isPlayingAd(): Boolean = false
-    /** As this implementation never plays ads, return the same result as [getDuration]. */
-    override fun getContentDuration(): Long = duration
     /** As this implementation never plays ads, returns the same result as [getCurrentPosition]. */
     override fun getContentPosition(): Long = currentPosition
     /** As this implementation never plays ads, return the same result as [getBufferedPosition] */
