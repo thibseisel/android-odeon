@@ -35,6 +35,8 @@ import fr.nihilus.music.media.command.MediaSessionCommand
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.utils.plusAssign
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 /**
@@ -47,7 +49,8 @@ internal class OdeonPlaybackPreparer
     private val player: ExoPlayer,
     private val repository: MusicRepository,
     private val settings: MediaSettings,
-    private val commandHandlers: Map<String, @JvmSuppressWildcards MediaSessionCommand>
+    private val commandHandlers: Map<String, @JvmSuppressWildcards MediaSessionCommand>,
+    private val subscriptions: CompositeDisposable
 ) : MediaSessionConnector.PlaybackPreparer {
 
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
@@ -114,7 +117,7 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun prepareFromMediaId(mediaId: String) {
-        repository.getMediaItems(mediaId).subscribe { items ->
+        subscriptions += repository.getMediaItems(mediaId).subscribe { items ->
             val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
             val mediaSources = Array(playableItems.size) {
                 val playableItem: MediaDescriptionCompat = playableItems[it]
