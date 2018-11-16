@@ -20,6 +20,8 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
+import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.usage.MediaUsageEvent
 
 /**
  * Definition of this application's local database.
@@ -29,12 +31,15 @@ import android.arch.persistence.room.TypeConverters
  */
 @Database(entities = [
     Playlist::class,
-    PlaylistTrack::class
+    PlaylistTrack::class,
+    MediaUsageEvent::class
 ], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract val playlistDao: PlaylistDao
+    internal abstract val playlistDao: PlaylistDao
+
+    internal abstract val usageDao: MediaUsageDao
 
     companion object {
         /** The name of the generated SQLite Database. */

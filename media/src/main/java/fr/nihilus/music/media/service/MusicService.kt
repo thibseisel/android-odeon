@@ -41,12 +41,16 @@ import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
-class MusicService : MediaBrowserServiceCompat() {
+class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
 
     @Inject internal lateinit var repository: MusicRepository
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
@@ -62,6 +66,10 @@ class MusicService : MediaBrowserServiceCompat() {
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
 
+    private lateinit var scopeJob: Job
+    override val coroutineContext: CoroutineContext
+        get() = scopeJob + Dispatchers.Main
+
     private val controllerCallback = MediaControllerCallback()
     private val serviceStopper = ServiceStopper(this)
 
@@ -71,6 +79,8 @@ class MusicService : MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         AndroidInjection.inject(this)
+
+        scopeJob = Job()
 
         // Make the media session discoverable and able to receive commands.
         session.isActive = true
@@ -125,6 +135,7 @@ class MusicService : MediaBrowserServiceCompat() {
 
         // Clear all subscriptions to prevent resource leaks
         subscriptions.clear()
+        scopeJob.cancel()
     }
 
     override fun onGetRoot(

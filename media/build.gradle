@@ -62,6 +62,9 @@ kapt {
 dependencies {
     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.koroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.koroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$rootProject.koroutinesVersion"
 
     // Android support libraries
     implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"

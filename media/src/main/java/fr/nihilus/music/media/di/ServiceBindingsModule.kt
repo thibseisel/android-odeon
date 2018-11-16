@@ -22,6 +22,8 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.SharedPreferencesMediaSettings
+import fr.nihilus.music.media.service.MusicService
+import kotlinx.coroutines.CoroutineScope
 
 @Module
 @Suppress("unused")
@@ -32,4 +34,7 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player
+
+    @Binds
+    abstract fun bindsCoroutineScope(service: MusicService): CoroutineScope
 }
