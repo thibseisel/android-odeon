@@ -17,10 +17,12 @@
 package fr.nihilus.music.media.builtin
 
 import android.content.Context
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.media.CATEGORY_MOST_RATED
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.asMediaDescription
 import fr.nihilus.music.media.source.MusicDao
@@ -40,8 +42,10 @@ internal class MostRatedTracks
         val builder = MediaDescriptionCompat.Builder()
         val description = builder.setMediaId(CATEGORY_MOST_RATED)
             .setTitle(context.getString(R.string.abc_most_rated))
+            .setExtras(Bundle(1).apply {
+                putInt(MediaItems.EXTRA_ICON_ID, R.drawable.abc_ic_most_rated_128dp)
+            })
             .build()
-        // TODO Icon
         val item = MediaItem(description, MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE)
         return Single.just(item)
     }

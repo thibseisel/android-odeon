@@ -17,4 +17,5 @@
 
 <resources>
     <color name="abc_mtrl_deeppurple_300">#9575cd</color>
+    <color name="abc_mtrl_amber_300">#FFD54F</color>
 </resources>
