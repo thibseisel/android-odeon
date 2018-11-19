@@ -23,6 +23,8 @@ import dagger.Module
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.SharedPreferencesMediaSettings
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.RxBridgeUsageManager
 import kotlinx.coroutines.CoroutineScope
 
 @Module
@@ -37,4 +39,7 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsCoroutineScope(service: MusicService): CoroutineScope
+
+    @Binds
+    abstract fun bindsMediaUsageManager(manager: RxBridgeUsageManager): MediaUsageManager
 }

@@ -53,4 +53,8 @@ internal abstract class BuiltinModule {
     @Binds @IntoMap
     @StringKey(CATEGORY_MOST_RECENT)
     abstract fun bindMostRecentTracks(impl: MostRecentTracks): BuiltinItem
+
+    @Binds @IntoMap
+    @StringKey(CATEGORY_MOST_RATED)
+    abstract fun bindMostRatedTracks(impl: MostRatedTracks): BuiltinItem
 }

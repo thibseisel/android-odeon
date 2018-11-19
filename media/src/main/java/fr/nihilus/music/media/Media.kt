@@ -48,6 +48,7 @@ const val CATEGORY_PLAYLISTS = "PLAYLISTS"
  */
 const val CATEGORY_BUILT_IN = "BUILT_IN"
 const val CATEGORY_MOST_RECENT = "RECENT"
+const val CATEGORY_MOST_RATED = "MOST_RATED"
 
 /**
  * Creates a String value that represents a playable or a browsable media.

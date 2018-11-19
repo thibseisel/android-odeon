@@ -27,6 +27,7 @@ import android.os.Handler
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.media.usage.MediaUsageManager
 import fr.nihilus.music.media.utils.PermissionDeniedException
 import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -54,6 +56,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
 
     @Inject internal lateinit var repository: MusicRepository
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
+    @Inject internal lateinit var usageManager: MediaUsageManager
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
@@ -105,6 +108,10 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
 
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for state changes.
         mediaController.registerCallback(controllerCallback)
+
+        // Listen to track completion events
+        val completionListener = TrackCompletionListener()
+        player.addListener(completionListener)
 
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
@@ -272,6 +279,23 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
             player.run {
                 stop()
                 release()
+            }
+        }
+    }
+
+    private inner class TrackCompletionListener : Player.EventListener {
+        override fun onPositionDiscontinuity(@Player.DiscontinuityReason reason: Int) {
+            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+                onTrackCompletion(player)
+            }
+        }
+
+        private fun onTrackCompletion(player: Player) {
+            val currentMedia = player.currentTag as? MediaDescriptionCompat
+            val completedTrackId = musicIdFrom(currentMedia?.mediaId)
+
+            if (completedTrackId != null) {
+                usageManager.reportCompletion(completedTrackId)
             }
         }
     }
