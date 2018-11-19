@@ -71,9 +71,9 @@ android {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
                 freeCompilerArgs = [
-                        'Xno-param-assertions',
-                        'Xno-call-assertions',
-                        'Xno-receiver-assertions'
+                        '-Xno-param-assertions',
+                        '-Xno-call-assertions',
+                        '-Xno-receiver-assertions'
                 ]
             }
         }

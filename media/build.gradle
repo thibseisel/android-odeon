@@ -43,6 +43,15 @@ android {
                 optimizeCode true
                 proguardFile 'proguard-rules.pro'
             }
+
+            // Configure Kotlin compiler optimisations for releases
+            kotlinOptions {
+                freeCompilerArgs = [
+                        '-Xno-param-assertions',
+                        '-Xno-call-assertions',
+                        '-Xno-receiver-assertions'
+                ]
+            }
         }
     }
 
