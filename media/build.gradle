@@ -59,6 +59,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
 }
 
 kapt {
@@ -115,7 +119,9 @@ dependencies {
     testImplementation "com.google.truth:truth:$rootProject.truthVersion"
 
     // Android-specific test dependencies
+    androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
     androidTestImplementation "com.android.support:support-annotations:$rootProject.supportLibVersion"
+    androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
     androidTestImplementation "com.android.support.test:runner:$rootProject.androidTestVersion"
     androidTestImplementation "org.mockito:mockito-android:$rootProject.mockitoVersion"
 }

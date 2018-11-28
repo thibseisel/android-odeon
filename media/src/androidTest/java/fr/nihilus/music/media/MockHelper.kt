@@ -4,8 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.assertThat
+import com.google.common.truth.Truth.assertThat
 
 private val descrBuilder = MediaDescriptionCompat.Builder()
 
@@ -49,13 +48,13 @@ internal fun assertMetadata(
     album: String, artist: String, duration: Long, discNo: Long,
     trackNo: Long, artUri: String
 ) {
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID), equalTo(mediaId))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE), equalTo(title))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM), equalTo(album))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ARTIST), equalTo(artist))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION), equalTo(duration))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER), equalTo(discNo))
-    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER), equalTo(trackNo))
-    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI), equalTo(artUri))
+    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)).isEqualTo(mediaId)
+    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_TITLE)).isEqualTo(title)
+    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM)).isEqualTo(album)
+    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)).isEqualTo(artist)
+    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)).isEqualTo(duration)
+    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)).isEqualTo(discNo)
+    assertThat(meta.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)).isEqualTo(trackNo)
+    assertThat(meta.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)).isEqualTo(artUri)
 }
 

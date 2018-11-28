@@ -28,7 +28,9 @@ internal class DatabaseModule {
 
     @[Provides ServiceScoped]
     fun provideDatabase(service: MusicService): AppDatabase =
-        Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME).build()
+        Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME)
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
 
     @[Provides ServiceScoped]
     fun providePlaylistDao(db: AppDatabase): PlaylistDao = db.playlistDao
