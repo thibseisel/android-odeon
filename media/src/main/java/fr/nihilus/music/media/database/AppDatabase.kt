@@ -55,10 +55,10 @@ abstract class AppDatabase : RoomDatabase() {
         internal val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // Delete the obsolete and unused table "music_info".
-                database.execSQL("DROP TABLE music_info")
+                database.execSQL("DROP TABLE IF EXISTS music_info")
                 // Create the new table "usage_event" to match the "UsageEvent" entity.
                 database.execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
-                database.execSQL("CREATE INDEX `index_usage_event_track_id` ON `usage_event` (`track_id`)")
+                database.execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
             }
         }
     }
