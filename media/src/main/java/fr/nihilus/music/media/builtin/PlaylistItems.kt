@@ -35,7 +35,8 @@ internal class PlaylistItems
     private val context: Context,
     private val playlistDao: PlaylistDao,
     private val musicDao: MusicDao,
-    private val mostRecentTracks: MostRecentTracks
+    private val mostRecentTracks: MostRecentTracks,
+    private val mostRatedTracks: MostRatedTracks
 ) : BuiltinItem {
 
     override fun asMediaItem(): Single<MediaItem> {
@@ -56,10 +57,10 @@ internal class PlaylistItems
         }
     }
 
-    private fun fetchBuiltInPlaylists(): Observable<MediaItem> {
-        // As the number of predefined playlists grow, use Single.concat(item1, item2...)
-        return mostRecentTracks.asMediaItem().toObservable()
-    }
+    private fun fetchBuiltInPlaylists(): Observable<MediaItem> = Single.concat(
+        mostRecentTracks.asMediaItem(),
+        mostRatedTracks.asMediaItem()
+    ).toObservable()
 
     private fun fetchUserPlaylists(): Observable<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()

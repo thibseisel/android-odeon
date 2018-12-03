@@ -18,9 +18,9 @@ package fr.nihilus.music.media
 
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.equalTo
-import org.junit.Assert.*
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import org.mockito.Mockito
 
 fun assertMediaDescription(
@@ -34,17 +34,17 @@ fun assertMediaDescription(
     extras: Map<String, Any>? = null
 ) {
 
-    assertThat(descr.mediaId, equalTo(mediaId))
-    assertThat(descr.title, equalTo(title))
-    assertThat(descr.subtitle, equalTo(subtitle))
-    assertThat(descr.description, equalTo(description))
-    assertThat(descr.iconUri, equalTo(iconUri))
-    assertThat(descr.mediaUri, equalTo(mediaUri))
+    assertThat(descr.mediaId).isEqualTo(mediaId)
+    assertThat(descr.title).isEqualTo(title)
+    assertThat(descr.subtitle).isEqualTo(subtitle)
+    assertThat(descr.description).isEqualTo(description)
+    assertThat(descr.iconUri).isEqualTo(iconUri)
+    assertThat(descr.mediaUri).isEqualTo(mediaUri)
 
     if (extras != null && descr.extras != null) {
-        assertThat(descr.extras?.size() ?: 0, `is`(extras.size))
+        assertThat(descr.extras?.size() ?: 0).isEqualTo(extras.size)
         for ((key, value) in extras) {
-            assertThat(descr.extras!!.get(key), equalTo(value))
+            assertThat(descr.extras!!.get(key)).isEqualTo(value)
         }
     } else {
         assertNull(descr.extras)

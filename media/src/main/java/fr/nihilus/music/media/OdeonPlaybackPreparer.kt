@@ -119,6 +119,12 @@ internal class OdeonPlaybackPreparer
     private fun prepareFromMediaId(mediaId: String) {
         subscriptions += repository.getMediaItems(mediaId).subscribe { items ->
             val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
+
+            // Short-circuit: if there are no playable items.
+            if (playableItems.isEmpty()) {
+                return@subscribe
+            }
+
             val mediaSources = Array(playableItems.size) {
                 val playableItem: MediaDescriptionCompat = playableItems[it]
                 val sourceUri = checkNotNull(playableItem.mediaUri) {
@@ -139,7 +145,7 @@ internal class OdeonPlaybackPreparer
             )
 
             // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(/* TODO Test with true */false,
+            val concatenatedSource = ConcatenatingMediaSource(false,
                 predictableShuffleOrder,
                 *mediaSources
             )

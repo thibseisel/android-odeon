@@ -21,14 +21,20 @@ import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.usage.MediaUsageDao
 
 @Module
 internal class DatabaseModule {
 
     @[Provides ServiceScoped]
     fun provideDatabase(service: MusicService): AppDatabase =
-        Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME).build()
+        Room.databaseBuilder(service, AppDatabase::class.java, AppDatabase.NAME)
+            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .build()
 
     @[Provides ServiceScoped]
     fun providePlaylistDao(db: AppDatabase): PlaylistDao = db.playlistDao
+
+    @[Provides ServiceScoped]
+    fun provideMediaUsageDao(db: AppDatabase): MediaUsageDao = db.usageDao
 }

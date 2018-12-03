@@ -6,15 +6,14 @@ import android.support.test.filters.SmallTest
 import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import com.google.common.truth.Truth
 import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.source.MediaStoreMusicDao
 import fr.nihilus.music.media.source.MusicDao
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
-import org.hamcrest.Matchers.equalTo
 import org.junit.After
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,14 +48,14 @@ class CachedMusicRepositoryTest {
         val metadata = sampleToMetadata(values)
 
         val description = metadata.asMediaDescription(MediaDescriptionCompat.Builder(), CATEGORY_MUSIC)
-        assertThat(description.mediaId, equalTo("$CATEGORY_MUSIC|${values[0]}"))
-        assertThat(description.title, equalTo(values[1] as CharSequence))
-        assertThat(description.subtitle, equalTo(values[3] as CharSequence))
-        assertThat(description.mediaUri, equalTo(Uri.parse(values[8] as String)))
+        Truth.assertThat(description.mediaId).isEqualTo("$CATEGORY_MUSIC|${values[0]}")
+        Truth.assertThat(description.title).isEqualTo(values[1] as CharSequence)
+        Truth.assertThat(description.subtitle).isEqualTo(values[3] as CharSequence)
+        Truth.assertThat(description.mediaUri).isEqualTo(Uri.parse(values[8] as String))
 
         val extras = description.extras!!
-        assertThat(extras.getString(MediaItems.EXTRA_TITLE_KEY), equalTo(values[9]))
-        assertThat(extras.getLong(MediaItems.EXTRA_DURATION), equalTo(values[4]))
+        Truth.assertThat(extras.getString(MediaItems.EXTRA_TITLE_KEY)).isEqualTo(values[9])
+        Truth.assertThat(extras.getLong(MediaItems.EXTRA_DURATION)).isEqualTo(values[4])
     }
 
     /**

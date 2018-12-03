@@ -16,10 +16,12 @@
 
 package fr.nihilus.music.media.database
 
+import android.arch.persistence.db.SupportSQLiteDatabase
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
+import android.arch.persistence.room.migration.Migration
 import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.usage.MediaUsageEvent
 
@@ -33,7 +35,7 @@ import fr.nihilus.music.media.usage.MediaUsageEvent
     Playlist::class,
     PlaylistTrack::class,
     MediaUsageEvent::class
-], version = 1)
+], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -41,8 +43,23 @@ abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val usageDao: MediaUsageDao
 
-    companion object {
+    internal companion object {
         /** The name of the generated SQLite Database. */
         const val NAME = "music.db"
+
+        /**
+         * Define instructions to be executed on the database to migrate from schema v1 to v2:
+         * - Delete the `music_info` table.
+         * - Create the `usage_event` table.
+         */
+        internal val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Delete the obsolete and unused table "music_info".
+                database.execSQL("DROP TABLE music_info")
+                // Create the new table "usage_event" to match the "UsageEvent" entity.
+                database.execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
+                database.execSQL("CREATE INDEX `index_usage_event_track_id` ON `usage_event` (`track_id`)")
+            }
+        }
     }
 }
