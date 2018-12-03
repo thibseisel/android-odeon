@@ -32,7 +32,9 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
@@ -284,6 +286,8 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
     }
 
     private inner class TrackCompletionListener : Player.EventListener {
+        private val windowBuffer = Timeline.Window()
+
         override fun onPositionDiscontinuity(@Player.DiscontinuityReason reason: Int) {
             if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
                 onTrackCompletion(player)
@@ -291,8 +295,15 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
         }
 
         private fun onTrackCompletion(player: Player) {
-            val currentMedia = player.currentTag as? MediaDescriptionCompat
-            val completedTrackId = musicIdFrom(currentMedia?.mediaId)
+            val completedTrackIndex = player.previousWindowIndex
+            if (completedTrackIndex == C.INDEX_UNSET) {
+                Timber.w("Attempt to retrieve information of a track that completed playback, but previous index is unset.")
+                return
+            }
+
+            player.currentTimeline.getWindow(completedTrackIndex, windowBuffer, true)
+            val completedMedia = windowBuffer.tag as? MediaDescriptionCompat
+            val completedTrackId = musicIdFrom(completedMedia?.mediaId)
 
             if (completedTrackId != null) {
                 usageManager.reportCompletion(completedTrackId)
