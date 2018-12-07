@@ -16,15 +16,15 @@
 
 package fr.nihilus.music.media.command
 
-//import android.graphics.Color
-//import com.github.thibseisel.kdenticon.Identicon
-//import com.github.thibseisel.kdenticon.IdenticonStyle
-//import com.github.thibseisel.kdenticon.android.drawToBitmap
 import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
+import com.github.thibseisel.kdenticon.Identicon
+import com.github.thibseisel.kdenticon.IdenticonStyle
+import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.database.Playlist
@@ -109,12 +109,12 @@ class NewPlaylistCommand
         if (service.hasExternalStoragePermission()) {
 
             val bitmap = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888)
-            /*Identicon.fromValue(seed, 320).apply {
+            Identicon.fromValue(seed, 320).apply {
                 style = IdenticonStyle(
                     backgroundColor = Color.TRANSPARENT,
                     padding = 0f
                 )
-            }.drawToBitmap(bitmap)*/
+            }.drawToBitmap(bitmap)
 
             // Create the directory that stores generated identicons in internal storage
             val iconsDirectory = File(service.filesDir, "identicons")

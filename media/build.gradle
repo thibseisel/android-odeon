@@ -110,7 +110,7 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
 
     // Other libraries
-    //implementation "com.github.thibseisel:kdenticon-android:$rootProject.kdenticonVersion"
+    implementation "com.github.thibseisel:kdenticon-android:$rootProject.kdenticonVersion"
 
     // Test dependencies
     testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"

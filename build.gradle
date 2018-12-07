@@ -77,7 +77,6 @@ allprojects {
         } else {
             google()
             jcenter()
-            maven { url "https://dl.bintray.com/nihilus/android/" }
         }
     }
 }
