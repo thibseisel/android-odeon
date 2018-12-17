@@ -62,12 +62,6 @@ internal class MediaNotificationBuilder
      */
     private val noOpAction = NotificationCompat.Action(0, null, null)
 
-    private val rewindAction = NotificationCompat.Action(
-        R.drawable.abc_ic_fast_rewind_36dp,
-        context.getString(R.string.abc_action_rewind),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_REWIND)
-    )
-
     private val previousAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_previous_36dp,
         context.getString(R.string.abc_action_previous),
@@ -92,12 +86,6 @@ internal class MediaNotificationBuilder
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
     )
 
-    private val fastForwardAction = NotificationCompat.Action(
-        R.drawable.abc_ic_fast_forward_36dp,
-        context.getString(R.string.abc_action_fast_forward),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_FAST_FORWARD)
-    )
-
     private val stopPendingIntent: PendingIntent =
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
@@ -116,13 +104,11 @@ internal class MediaNotificationBuilder
         // Display notification actions depending on playback state and actions availability
         val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
         builder.addAction(if (playbackState.isSkipToPreviousEnabled) previousAction else noOpAction)
-        builder.addAction(rewindAction)
         if (isPlaying) {
             builder.addAction(pauseAction)
         } else if (playbackState.isPlayEnabled) {
             builder.addAction(playAction)
         }
-        builder.addAction(fastForwardAction)
         builder.addAction(if (playbackState.isSkipToNextEnabled) nextAction else noOpAction)
 
         // Display current playback position as a chronometer
@@ -140,7 +126,7 @@ internal class MediaNotificationBuilder
         val mediaStyle = MediaStyle()
             .setCancelButtonIntent(stopPendingIntent)
             .setMediaSession(controller.sessionToken)
-            .setShowActionsInCompactView(0, 2, 4)
+            .setShowActionsInCompactView(0, 1, 2)
             .setShowCancelButton(true)
 
         return builder.setContentIntent(controller.sessionActivity)
