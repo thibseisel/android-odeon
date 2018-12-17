@@ -16,14 +16,8 @@
 
 package fr.nihilus.music.media.service
 
-import android.app.Service
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.media.AudioManager
 import android.os.Bundle
-import android.os.Handler
 import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
@@ -36,8 +30,8 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import dagger.android.AndroidInjection
 import fr.nihilus.music.media.*
+import fr.nihilus.music.media.extensions.stateName
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.usage.MediaUsageManager
 import fr.nihilus.music.media.utils.PermissionDeniedException
@@ -45,16 +39,10 @@ import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import timber.log.Timber
-import java.lang.ref.WeakReference
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
-class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
+class MusicService : BaseBrowserService() {
 
     @Inject internal lateinit var repository: MusicRepository
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
@@ -71,35 +59,10 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
 
-    private lateinit var scopeJob: Job
-    override val coroutineContext: CoroutineContext
-        get() = scopeJob + Dispatchers.Main
-
     private val controllerCallback = MediaControllerCallback()
-    private val serviceStopper = ServiceStopper(this)
-
-    private var isForegroundService = false
-    private var isStarted = false
 
     override fun onCreate() {
         super.onCreate()
-        AndroidInjection.inject(this)
-
-        scopeJob = Job()
-
-        // Make the media session discoverable and able to receive commands.
-        session.isActive = true
-
-        /**
-         * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
-         * a [MediaSessionCompat.Token] needs to be set on the [MediaBrowserServiceCompat].
-         *
-         * It is possible to wait to set the session token, if required for a specific use-case.
-         * However, the token *must* be set by the time [MediaBrowserServiceCompat.onGetRoot]
-         * returns, or the connection will fail silently. (The system will not even call
-         * [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
-         */
-        sessionToken = session.sessionToken
 
         // Restore shuffle and repeat mode for the media session and the player (through callbacks)
         mediaController = MediaControllerCompat(this, session)
@@ -126,25 +89,26 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
             .observeOn(AndroidSchedulers.mainThread())
             .map { browseCategoryOf(it) }
             .subscribe(this::notifyChildrenChanged)
-    }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        isStarted = true
-        return Service.START_NOT_STICKY
+        /**
+         * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
+         * a [MediaSessionCompat.Token] needs to be set on the [MediaBrowserServiceCompat].
+         *
+         * It is possible to wait to set the session token, if required for a specific use-case.
+         * However, the token *must* be set by the time [MediaBrowserServiceCompat.onGetRoot]
+         * returns, or the connection will fail silently. (The system will not even call
+         * [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
+         */
+        sessionToken = session.sessionToken
     }
 
     override fun onDestroy() {
         Timber.i("Destroying service.")
-
-        session.run {
-            isActive = false
-            release()
-        }
+        session.release()
 
         // Clear all subscriptions to prevent resource leaks
         subscriptions.clear()
-        scopeJob.cancel()
+        cancelCoroutines()
     }
 
     override fun onGetRoot(
@@ -152,7 +116,7 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
         clientUid: Int,
         rootHints: Bundle?
     ): MediaBrowserServiceCompat.BrowserRoot? {
-        /**
+        /*
          * Allow connections to the MediaBrowserService in debug builds, otherwise
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
@@ -194,11 +158,6 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
         super.notifyChildrenChanged(parentId)
     }
 
-    internal fun stopService() {
-        stopSelf()
-        isStarted = false
-    }
-
     /**
      * Receive callbacks about state changes to the [MediaSessionCompat].
      * In response to those callbacks, this class:
@@ -211,11 +170,11 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            mediaController.playbackState?.let { updateNotification(it) }
+            mediaController.playbackState?.let(this::updateServiceState)
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            state?.let { updateNotification(it) }
+            state?.let(this::updateServiceState)
         }
 
         override fun onShuffleModeChanged(shuffleMode: Int) {
@@ -226,55 +185,74 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
             settings.repeatMode = repeatMode
         }
 
-        private fun updateNotification(state: PlaybackStateCompat) {
+        private fun updateServiceState(state: PlaybackStateCompat) {
             val updatedState = state.state
             if (mediaController.metadata == null) {
-                // Do not update notification when no metadata.
+                // Do not update service when no metadata.
                 return
             }
 
-            // Skip building a notification when state is NONE.
-            val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
-                notificationBuilder.buildNotification()
-            } else null
+            Timber.d("Updating service state. Playback state = ${state.stateName}")
 
             when (updatedState) {
 
-                PlaybackStateCompat.STATE_BUFFERING,
-                PlaybackStateCompat.STATE_PLAYING -> {
-                    becomingNoisyReceiver.register()
-                    startForeground(NOW_PLAYING_NOTIFICATION, notification)
-                    isForegroundService = true
+                // Playback started or has been resumed.
+                PlaybackStateCompat.STATE_PLAYING -> onPlaybackStarted()
 
-                    if (!isStarted) {
-                        // Start service to keep it running while playing.
-                        startService(Intent(this@MusicService, MusicService::class.java))
-                    } else {
-                        // Cancel the scheduled stop of the service.
-                        serviceStopper.cancel()
-                    }
-                }
+                // Playback has been paused.
+                PlaybackStateCompat.STATE_PAUSED -> onPlaybackPaused()
 
-                else -> {
-                    becomingNoisyReceiver.unregister()
-
-                    if (isForegroundService) {
-                        stopForeground(false)
-                        if (notification != null) {
-                            notificationManager.notify(NOW_PLAYING_NOTIFICATION, notification)
-                        } else {
-                            stopForeground(true)
-                        }
-
-                        isForegroundService = false
-                    }
-
-                    // If the service is started, schedule to stop it automatically at a later time.
-                    if (isStarted) {
-                        serviceStopper.schedule(30L, TimeUnit.SECONDS)
-                    }
-                }
+                // Playback ended or an error occurred.
+                PlaybackStateCompat.STATE_NONE,
+                PlaybackStateCompat.STATE_STOPPED,
+                PlaybackStateCompat.STATE_ERROR -> onPlaybackStopped()
             }
+        }
+
+        private fun onPlaybackStarted() {
+            // Activate the media session if not active
+            if (!session.isActive) {
+                session.isActive = true
+            }
+
+            // Start listening for audio becoming noisy events
+            becomingNoisyReceiver.register()
+
+            // Display a notification, putting the service to the foreground.
+            val notification = notificationBuilder.buildNotification()
+            startForeground(NOW_PLAYING_NOTIFICATION, notification)
+
+            // Start the service to keep it playing even when all clients unbound.
+            this@MusicService.startSelf()
+        }
+
+        private fun onPlaybackPaused() {
+            // Stop listening for audio becoming noisy events since playback is already paused.
+            becomingNoisyReceiver.unregister()
+
+            // Put the service back to the background, keeping the notification
+            stopForeground(false)
+
+            // Update the notification content if the session is active
+            if (session.isActive) {
+                notificationManager.notify(NOW_PLAYING_NOTIFICATION, notificationBuilder.buildNotification())
+            }
+        }
+
+        private fun onPlaybackStopped() {
+            // We should not receive "audio becoming noisy" events at this point.
+            becomingNoisyReceiver.unregister()
+
+            // Clear notification and service foreground status
+            stopForeground(true)
+
+            // De-activate the media session.
+            if (session.isActive) {
+                session.isActive = false
+            }
+
+            // Stop the service, killing it if it is not bound.
+            this@MusicService.stop()
         }
 
         override fun onSessionDestroyed() {
@@ -308,66 +286,6 @@ class MusicService : MediaBrowserServiceCompat(), CoroutineScope {
             if (completedTrackId != null) {
                 usageManager.reportCompletion(completedTrackId)
             }
-        }
-    }
-}
-
-/**
- * A receiver that listens for when headphones are unplugged.
- * This pauses playback to prevent it from being noisy.
- */
-private class BecomingNoisyReceiver(
-    private val context: Context,
-    sessionToken: MediaSessionCompat.Token
-) : BroadcastReceiver() {
-
-    private val noisyIntentFilter = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-    private val controller = MediaControllerCompat(context, sessionToken)
-
-    private var isRegistered = false
-
-    fun register() {
-        if (!isRegistered) {
-            context.registerReceiver(this, noisyIntentFilter)
-            isRegistered = true
-        }
-    }
-
-    fun unregister() {
-        if (isRegistered) {
-            context.unregisterReceiver(this)
-            isRegistered = false
-        }
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
-            controller.transportControls.pause()
-        }
-    }
-}
-
-private class ServiceStopper(service: MusicService) {
-    private val serviceRef = WeakReference<MusicService>(service)
-    private val handler = Handler()
-
-    private var scheduled = false
-
-    private val stopServiceTask = Runnable {
-        serviceRef.get()?.stopService()
-    }
-
-    fun schedule(time: Long, unit: TimeUnit) {
-        if (!scheduled) {
-            handler.postDelayed(stopServiceTask, unit.toMillis(time))
-            scheduled = true
-        }
-    }
-
-    fun cancel() {
-        if (scheduled) {
-            handler.removeCallbacks(stopServiceTask)
-            scheduled = false
         }
     }
 }
