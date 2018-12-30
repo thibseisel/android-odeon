@@ -31,7 +31,7 @@ buildscript {
         buildToolsVersion = '3.2.1'
 
         supportLibVersion = '28.0.0'
-        koroutinesVersion = '1.0.1'
+        koroutinesVersion = '1.1.0'
         glideVersion = '4.8.0'
         daggerVersion = '2.19'
         junitVersion = '4.12'

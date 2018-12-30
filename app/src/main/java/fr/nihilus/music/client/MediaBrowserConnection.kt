@@ -22,7 +22,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.os.RemoteException
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -31,10 +30,13 @@ import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
 import fr.nihilus.music.media.service.MusicService
+import kotlinx.coroutines.CompletableDeferred
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * The playback state used as an alternative to `null`.
@@ -63,6 +65,9 @@ class MediaBrowserConnection
     private val controllerCallback = ClientControllerCallback()
     private lateinit var controller: MediaControllerCompat
 
+    @Volatile
+    private var deferredController = CompletableDeferred<MediaControllerCompat>()
+
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
         ComponentName(applicationContext, MusicService::class.java),
@@ -71,14 +76,20 @@ class MediaBrowserConnection
     )
 
     private val _playbackState = MutableLiveData<PlaybackStateCompat>()
-    private val _nowPlaying = MutableLiveData<MediaMetadataCompat?>()
-    private val _shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
-    private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
+    val playbackState: LiveData<PlaybackStateCompat>
+        get() = _playbackState
 
-    val playbackState: LiveData<PlaybackStateCompat> get() = _playbackState
-    val nowPlaying: LiveData<MediaMetadataCompat?> get() = _nowPlaying
-    val shuffleMode: LiveData<Int> get() = _shuffleMode
-    val repeatMode: LiveData<Int> get() = _repeatMode
+    private val _nowPlaying = MutableLiveData<MediaMetadataCompat?>()
+    val nowPlaying: LiveData<MediaMetadataCompat?>
+        get() = _nowPlaying
+
+    private val _shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
+    val shuffleMode: LiveData<Int>
+        get() = _shuffleMode
+
+    private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
+    val repeatMode: LiveData<Int>
+        get() = _repeatMode
 
     init {
         _playbackState.postValue(EMPTY_PLAYBACK_STATE)
@@ -88,6 +99,7 @@ class MediaBrowserConnection
 
     /**
      * Initiate connection to the media browser with the given [client]`.
+     * Operations on the Media Session are only available once the media browser is connected.
      *
      * Make sure to [disconnect] the [client] from the media browser
      * when it is no longer needed to avoid wasting resources.
@@ -138,6 +150,7 @@ class MediaBrowserConnection
      *
      * @param request The request to issue.
      */
+    @Deprecated("Use dedicated suspending functions instead.")
     fun post(request: MediaControllerRequest) {
         if (mediaBrowser.isConnected) {
             // if connected, satisfy incoming requests immediately.
@@ -147,6 +160,53 @@ class MediaBrowserConnection
 
         // Otherwise, enqueue the request until media browser is connected
         pendingRequests.offer(request)
+    }
+
+    suspend fun play() {
+        val controller = deferredController.await()
+        controller.transportControls.play()
+    }
+
+    suspend fun pause() {
+        val controller = deferredController.await()
+        controller.transportControls.pause()
+    }
+
+    suspend fun playFromMediaId(mediaId: String) {
+        val controller = deferredController.await()
+        controller.transportControls.playFromMediaId(mediaId, null)
+    }
+
+    suspend fun setShuffleModeEnabled(enabled: Boolean) {
+        val controller = deferredController.await()
+        controller.transportControls.setShuffleMode(
+            if (enabled)
+                PlaybackStateCompat.SHUFFLE_MODE_ALL else
+                PlaybackStateCompat.SHUFFLE_MODE_NONE
+        )
+    }
+
+    suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
+        if (
+            repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ||
+            repeatMode == PlaybackStateCompat.REPEAT_MODE_ONE ||
+            repeatMode == PlaybackStateCompat.REPEAT_MODE_ALL
+        ) {
+            val controller = deferredController.await()
+            controller.transportControls.setRepeatMode(repeatMode)
+        }
+    }
+
+    suspend fun sendCommand(name: String, params: Bundle?): CommandResult {
+        val controller = deferredController.await()
+
+        return suspendCoroutine {
+            controller.sendCommand(name, params, object : ResultReceiver(Handler()) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    it.resume(CommandResult(resultCode, resultData))
+                }
+            })
+        }
     }
 
     /**
@@ -162,6 +222,7 @@ class MediaBrowserConnection
      * They may be required or optional depending on the command to execute.
      * @param onResultReceived The function to be called when the command has been processed.
      */
+    @Deprecated("Use the coroutine-based sendCommand instead.")
     inline fun postCommand(
         commandName: String,
         params: Bundle?,
@@ -178,8 +239,8 @@ class MediaBrowserConnection
         private val context: Context
     ) : MediaBrowserCompat.ConnectionCallback() {
 
-        override fun onConnected() = try {
-            controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
+        override fun onConnected() {
+            val controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
                 it.registerCallback(controllerCallback)
                 _playbackState.postValue(it.playbackState ?: EMPTY_PLAYBACK_STATE)
                 _nowPlaying.postValue(it.metadata)
@@ -187,8 +248,7 @@ class MediaBrowserConnection
                 _shuffleMode.value = it.shuffleMode
             }
 
-        } catch (re: RemoteException) {
-            Timber.e(re, "Error while connecting through remote service binder.")
+            deferredController.complete(controller)
         }
 
         override fun onConnectionSuspended() {
@@ -237,4 +297,9 @@ class MediaBrowserConnection
      * Defines data required to maintain a connection to a client-side MediaBrowser connection.
      */
     class ClientToken
+
+    data class CommandResult(
+        val resultCode: Int,
+        val resultData: Bundle?
+    )
 }
