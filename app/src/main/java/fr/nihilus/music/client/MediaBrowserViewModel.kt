@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.client
 
-import android.arch.lifecycle.ViewModel
-
 /**
  * A ViewModel that connects to this application's media browser through [MediaBrowserConnection]
  * when it is initiated and disconnects from it when destroyed.
@@ -30,7 +28,7 @@ import android.arch.lifecycle.ViewModel
  */
 abstract class MediaBrowserViewModel(
     protected val connection: MediaBrowserConnection
-) : ViewModel() {
+) : BaseViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
     init {
