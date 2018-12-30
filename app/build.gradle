@@ -97,6 +97,7 @@ dependencies {
 
     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.koroutinesVersion"
 
     // Support library dependencies
     implementation "com.android.support:support-v4:$rootProject.supportLibVersion"
