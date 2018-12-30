@@ -156,3 +156,13 @@ fun DrawerLayout.lock(isLocked: Boolean) {
         else DrawerLayout.LOCK_MODE_UNLOCKED
     )
 }
+
+/**
+ * Whether a View is visible.
+ * Setting this property to `false` will set the View's visibility to [View.GONE].
+ */
+var View.isVisible: Boolean
+    get() = visibility == View.VISIBLE
+    set(value) {
+        visibility = if (value) View.VISIBLE else View.GONE
+    }

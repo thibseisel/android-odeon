@@ -18,40 +18,34 @@ package fr.nihilus.music.ui.songs
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.media.session.PlaybackStateCompat
+import android.support.v4.media.MediaBrowserCompat
 import android.view.*
 import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
-import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.BaseFragment
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.FRAGMENT_ID
+import fr.nihilus.music.isVisible
+import fr.nihilus.music.library.songs.SongListViewModel
 import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
+import fr.nihilus.music.utils.LoadRequest
+import fr.nihilus.music.utils.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_songs.*
 
-class SongListFragment : Fragment(),
-    AdapterView.OnItemClickListener {
+class SongListFragment : BaseFragment() {
 
     private val multiSelectMode = SongListActionMode()
 
     private lateinit var songAdapter: SongAdapter
-    private lateinit var viewModel: BrowserViewModel
-
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
+    private lateinit var viewModel: SongListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,18 +56,11 @@ class SongListFragment : Fragment(),
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_songlist, menu)
-        //val searchView = menu.findItem(R.id.action_search).actionView as SearchView
-        // TODO Search and filtering features
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_play_shuffled -> {
-            viewModel.post { controller ->
-                controller.transportControls.run {
-                    setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                    playFromMediaId(CATEGORY_MUSIC, null)
-                }
-            }
+            viewModel.playAllShuffled()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -86,28 +73,42 @@ class SongListFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(SongListViewModel::class.java)
+        viewModel.loadChildrenOf(CATEGORY_MUSIC)
 
-        with(list) {
+        val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
+            progress_indicator.isVisible = shouldShowProgress
+            songs_listview.isVisible = !shouldShowProgress
+        }
+
+        songs_listview.run {
             adapter = songAdapter
-            onItemClickListener = this@SongListFragment
-            emptyView = view.findViewById(android.R.id.empty)
             choiceMode = ListView.CHOICE_MODE_MULTIPLE_MODAL
             setMultiChoiceModeListener(multiSelectMode)
+
+            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                viewModel.onSongSelected(songAdapter.getItem(position))
+            }
         }
 
-        list_container.visibility = View.GONE
-        if (savedInstanceState == null) {
-            progress.show()
-        }
-    }
+        viewModel.items.observe(this, Observer { itemRequest ->
+            when (itemRequest) {
+                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
+                is LoadRequest.Success -> {
+                    progressBarLatch.isRefreshing = false
+                    songAdapter.updateItems(itemRequest.data)
+                    group_empty_view.isVisible = itemRequest.data.isEmpty()
+                }
+                is LoadRequest.Error -> {
+                    progressBarLatch.isRefreshing = false
+                }
+            }
+        })
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
-        viewModel.subscribeTo(CATEGORY_MUSIC).observe(this, Observer {
-            songAdapter.updateItems(it.orEmpty())
-            progress.hide()
-            list_container.visibility = View.VISIBLE
+        viewModel.toastMessage.observe(this, Observer { toastMessageEvent ->
+            toastMessageEvent?.handle { message ->
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
         })
     }
 
@@ -116,16 +117,8 @@ class SongListFragment : Fragment(),
         activity!!.setTitle(R.string.all_music)
     }
 
-    override fun onItemClick(listView: AdapterView<*>, view: View, position: Int, id: Long) {
-        viewModel.post { controller ->
-            val controls = controller.transportControls
-            val clickedItem = songAdapter.getItem(position)
-            controls.playFromMediaId(clickedItem.mediaId, null)
-        }
-    }
-
     private fun showDeleteDialog() {
-        val checkedItemCount = list.checkedItemCount
+        val checkedItemCount = songs_listview.checkedItemCount
         val dialogMessage = resources.getQuantityString(
             R.plurals.delete_dialog_message,
             checkedItemCount, checkedItemCount
@@ -136,30 +129,25 @@ class SongListFragment : Fragment(),
             getString(R.string.delete_dialog_title), dialogMessage,
             R.string.action_delete, R.string.cancel, 0
         )
-        confirm.show(fragmentManager!!, null)
+        confirm.show(fragmentManager, null)
     }
 
     private fun deleteSelectedTracks() {
-        val checkedItemIds = list.checkedItemIds
-        val params = Bundle(1)
-        params.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, checkedItemIds)
-
-        viewModel.postCommand(DeleteTracksCommand.CMD_NAME, params) { resultCode, _ ->
-            val rootView = view
-            if (resultCode == R.id.abc_result_success && rootView != null) {
-                val userMessage = resources.getQuantityString(
-                    R.plurals.deleted_songs_confirmation,
-                    checkedItemIds.size
-                )
-                Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
+        val checkedSongPositions = songs_listview.checkedItemPositions
+        val songsToDelete = mutableListOf<MediaBrowserCompat.MediaItem>()
+        for (pos in 0 until checkedSongPositions.size()) {
+            if (checkedSongPositions[pos]) {
+                songsToDelete += songAdapter.getItem(pos)
             }
         }
+
+        viewModel.deleteSongs(songsToDelete)
     }
 
     private fun openPlaylistChooserDialog() {
-        val checkedIds = list.checkedItemIds
+        val checkedIds = songs_listview.checkedItemIds
         val dialog = AddToPlaylistDialog.newInstance(this, R.id.request_add_to_playlist, checkedIds)
-        dialog.show(fragmentManager!!, AddToPlaylistDialog.TAG)
+        dialog.show(fragmentManager, AddToPlaylistDialog.TAG)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -191,8 +179,7 @@ class SongListFragment : Fragment(),
 
                 R.id.abc_error_playlist_already_exists -> {
                     // Failed to insert to a playlist due to its name being already taken
-                    data ?: throw IllegalStateException("Dialog should send information back")
-                    val title = data.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)
+                    val title = data!!.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)
 
                     val userMessage = getString(R.string.error_playlist_title_taken, title)
                     Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
@@ -209,7 +196,7 @@ class SongListFragment : Fragment(),
 
         override fun onItemCheckedStateChanged(mode: ActionMode, position: Int,
                                                id: Long, checked: Boolean) {
-            mode.title = list.checkedItemCount.toString()
+            mode.title = songs_listview.checkedItemCount.toString()
         }
 
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {

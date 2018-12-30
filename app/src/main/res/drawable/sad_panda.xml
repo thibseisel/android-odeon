@@ -17,8 +17,8 @@
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:width="375dp"
-        android:height="375dp"
+    android:width="256dp"
+        android:height="256dp"
         android:viewportHeight="375"
         android:viewportWidth="375"
         android:tint="?colorControlNormal">
