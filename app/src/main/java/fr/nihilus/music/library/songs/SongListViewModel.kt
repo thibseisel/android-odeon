@@ -18,33 +18,39 @@ package fr.nihilus.music.library.songs
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.R
+import fr.nihilus.music.client.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.client.MediaListViewModel
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.utils.Event
+import fr.nihilus.music.utils.LoadRequest
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SongListViewModel
 @Inject constructor(
-    private val context: Context,
-    connection: MediaBrowserConnection
-) : MediaListViewModel(connection) {
+    private val connection: MediaBrowserConnection
+) : BaseViewModel() {
 
-    private val _toastMessage = MutableLiveData<Event<CharSequence>>()
-    val toastMessage: LiveData<Event<CharSequence>>
-        get() = _toastMessage
+    private val _songList = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
+    val songList: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
+        get() = _songList
 
-    fun playAllShuffled() {
+    private val _deleteTracksConfirmation = MutableLiveData<Event<Int>>()
+    val deleteTracksConfirmation: LiveData<Event<Int>>
+        get() = _deleteTracksConfirmation
+
+    init {
         launch {
-            connection.setShuffleModeEnabled(true)
-            connection.playFromMediaId(CATEGORY_MUSIC)
+            _songList.postValue(LoadRequest.Pending())
+            connection.subscribe(CATEGORY_MUSIC).consumeEach { allSongs ->
+                _songList.postValue(LoadRequest.Success(allSongs))
+            }
         }
     }
 
@@ -67,12 +73,7 @@ class SongListViewModel
 
             if (result.resultCode == R.id.abc_result_success) {
                 val deletedTracksCount = result.resultData?.getInt(DeleteTracksCommand.RESULT_DELETE_COUNT) ?: 0
-                val successMessage = context.resources.getQuantityString(
-                    R.plurals.deleted_songs_confirmation,
-                    deletedTracksCount,
-                    deletedTracksCount
-                )
-                _toastMessage.value = Event(successMessage)
+                _deleteTracksConfirmation.value = Event(deletedTracksCount)
             }
         }
     }

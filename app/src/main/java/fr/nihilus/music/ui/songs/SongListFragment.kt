@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.songs
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.content.Intent
@@ -31,21 +30,28 @@ import fr.nihilus.music.BaseFragment
 import fr.nihilus.music.R
 import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.isVisible
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.songs.SongListViewModel
-import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.ui.playlist.AddToPlaylistDialog
 import fr.nihilus.music.ui.playlist.NewPlaylistDialog
 import fr.nihilus.music.utils.ConfirmDialogFragment
 import fr.nihilus.music.utils.LoadRequest
 import fr.nihilus.music.utils.ProgressTimeLatch
+import fr.nihilus.music.utils.observeK
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment() {
 
     private val multiSelectMode = SongListActionMode()
-
     private lateinit var songAdapter: SongAdapter
-    private lateinit var viewModel: SongListViewModel
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
+    }
+
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[SongListViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +66,7 @@ class SongListFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_play_shuffled -> {
-            viewModel.playAllShuffled()
+            hostViewModel.playAllShuffled()
             true
         }
         else -> super.onOptionsItemSelected(item)
@@ -73,8 +79,6 @@ class SongListFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(SongListViewModel::class.java)
-        viewModel.loadChildrenOf(CATEGORY_MUSIC)
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
             progress_indicator.isVisible = shouldShowProgress
@@ -91,7 +95,7 @@ class SongListFragment : BaseFragment() {
             }
         }
 
-        viewModel.items.observe(this, Observer { itemRequest ->
+        viewModel.songList.observeK(this) { itemRequest ->
             when (itemRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -101,15 +105,23 @@ class SongListFragment : BaseFragment() {
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
+                    songAdapter.updateItems(emptyList())
+                    group_empty_view.isVisible = true
                 }
             }
-        })
+        }
 
-        viewModel.toastMessage.observe(this, Observer { toastMessageEvent ->
-            toastMessageEvent?.handle { message ->
+        viewModel.deleteTracksConfirmation.observeK(this) { toastMessageEvent ->
+            toastMessageEvent?.handle { deletedTracksCount ->
+                val message = resources.getQuantityString(
+                    R.plurals.deleted_songs_confirmation,
+                    deletedTracksCount,
+                    deletedTracksCount
+                )
+
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
-        })
+        }
     }
 
     override fun onStart() {
@@ -133,20 +145,13 @@ class SongListFragment : BaseFragment() {
     }
 
     private fun deleteSelectedTracks() {
-        val checkedSongPositions = songs_listview.checkedItemPositions
-        val songsToDelete = mutableListOf<MediaBrowserCompat.MediaItem>()
-        for (pos in 0 until checkedSongPositions.size()) {
-            if (checkedSongPositions[pos]) {
-                songsToDelete += songAdapter.getItem(pos)
-            }
-        }
-
+        val songsToDelete = getSelectedTrack()
         viewModel.deleteSongs(songsToDelete)
     }
 
     private fun openPlaylistChooserDialog() {
-        val checkedIds = songs_listview.checkedItemIds
-        val dialog = AddToPlaylistDialog.newInstance(this, R.id.request_add_to_playlist, checkedIds)
+        val songsToAddToPlaylist = getSelectedTrack()
+        val dialog = AddToPlaylistDialog.newInstance(this, R.id.request_add_to_playlist, songsToAddToPlaylist)
         dialog.show(fragmentManager, AddToPlaylistDialog.TAG)
     }
 
@@ -226,6 +231,21 @@ class SongListFragment : BaseFragment() {
 
         fun finish() {
             actionMode?.finish()
+        }
+    }
+
+    private fun getSelectedTrack(): List<MediaBrowserCompat.MediaItem> {
+        return if (songs_listview.choiceMode == ListView.CHOICE_MODE_MULTIPLE_MODAL) {
+            val selectedTrackPositions = songs_listview.checkedItemPositions
+            mutableListOf<MediaBrowserCompat.MediaItem>().also {
+                for (pos in 0 until selectedTrackPositions.size()) {
+                    if (selectedTrackPositions[pos]) {
+                        it.add(songAdapter.getItem(pos))
+                    }
+                }
+            }
+        } else {
+            emptyList()
         }
     }
 

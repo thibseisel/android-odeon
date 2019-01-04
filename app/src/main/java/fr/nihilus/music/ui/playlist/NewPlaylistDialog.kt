@@ -21,18 +21,22 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatDialogFragment
 import android.text.InputType
+import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.media.command.NewPlaylistCommand
+import fr.nihilus.music.ui.BaseDialogFragment
+import fr.nihilus.music.utils.observeK
 
-class NewPlaylistDialog : AppCompatDialogFragment() {
+class NewPlaylistDialog : BaseDialogFragment() {
 
-    private lateinit var browserModel: BrowserViewModel
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[NewPlaylistViewModel::class.java]
+    }
+
     private lateinit var titleInputView: EditText
 
     companion object Factory {
@@ -59,18 +63,16 @@ class NewPlaylistDialog : AppCompatDialogFragment() {
          */
         const val RESULT_TAKEN_PLAYLIST_TITLE = "taken_playlist_name"
 
-        fun newInstance(caller: Fragment, requestCode: Int, memberTracks: LongArray) =
-            NewPlaylistDialog().apply {
+        fun newInstance(
+            caller: Fragment,
+            requestCode: Int,
+            memberTracks: Array<MediaBrowserCompat.MediaItem>
+        ) = NewPlaylistDialog().apply {
                 setTargetFragment(caller, requestCode)
                 arguments = Bundle(1).apply {
-                    putLongArray(ARG_MEMBER_TRACKS, memberTracks)
+                    putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
                 }
             }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        browserModel = ViewModelProviders.of(activity!!)[BrowserViewModel::class.java]
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -89,41 +91,43 @@ class NewPlaylistDialog : AppCompatDialogFragment() {
             .create()
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        // Make the keyboard immediately visible when displaying the dialog.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+
+        viewModel.createPlaylistResult.observeK(this) { createPlaylistEvent ->
+            createPlaylistEvent?.handle(this::onReceivePlaylistCreationResult)
+        }
+    }
+
+    private fun onReceivePlaylistCreationResult(result: PlaylistEditionResult) {
+        when (result) {
+            is PlaylistEditionResult.Success -> {
+                val data = Intent().apply {
+                    putExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE, result.playlistTitle)
+                    putExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, result.trackCount)
+                }
+
+                targetFragment?.onActivityResult(targetRequestCode, R.id.abc_result_success, data)
+            }
+
+            is PlaylistEditionResult.AlreadyTaken -> {
+                val data = Intent().apply {
+                    putExtra(RESULT_TAKEN_PLAYLIST_TITLE, result.requestedPlaylistName)
+                }
+
+                targetFragment?.onActivityResult(targetRequestCode, ERROR_ALREADY_EXISTS, data)
+            }
+        }
     }
 
     private fun onRequestCreatePlaylist() {
         val playlistTitle = titleInputView.text.toString()
-        val memberTrackIds = arguments?.getLongArray(ARG_MEMBER_TRACKS) ?: LongArray(0)
+        val members = arguments?.getParcelableArray(ARG_MEMBER_TRACKS)
+                as? Array<MediaBrowserCompat.MediaItem> ?: emptyArray()
 
-        val params = Bundle(2).apply {
-            putString(NewPlaylistCommand.PARAM_TITLE, playlistTitle)
-            putLongArray(NewPlaylistCommand.PARAM_TRACK_IDS, memberTrackIds)
-        }
-
-        browserModel.postCommand(NewPlaylistCommand.CMD_NAME, params) { resultCode, _ ->
-            when (resultCode) {
-                R.id.abc_result_success -> {
-                    val data = Intent().apply {
-                        putExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE, playlistTitle)
-                        putExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, memberTrackIds.size)
-                    }
-
-                    targetFragment?.onActivityResult(targetRequestCode, R.id.abc_result_success, data)
-                }
-
-                R.id.abc_error_playlist_already_exists -> {
-                    val data = Intent().apply {
-                        putExtra(RESULT_TAKEN_PLAYLIST_TITLE, playlistTitle)
-                    }
-
-                    targetFragment?.onActivityResult(targetRequestCode,
-                        R.id.abc_error_playlist_already_exists, data)
-                }
-            }
-        }
+        viewModel.createPlaylist(playlistTitle, members)
     }
 }
