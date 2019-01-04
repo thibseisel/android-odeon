@@ -26,37 +26,4 @@
             android:targetClass="fr.nihilus.music.HomeActivity"
             android:targetPackage="fr.nihilus.music"/>
     </shortcut>
-
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/shortcut_albums"
-        android:shortcutId="albums"
-        android:shortcutShortLabel="@string/action_albums">
-        <intent
-            android:action="fr.nihilus.music.ACTION_ALBUMS"
-            android:targetClass="fr.nihilus.music.HomeActivity"
-            android:targetPackage="fr.nihilus.music"/>
-    </shortcut>
-
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/shortcut_artists"
-        android:shortcutId="artists"
-        android:shortcutShortLabel="@string/action_artists">
-        <intent
-            android:action="fr.nihilus.music.ACTION_ARTISTS"
-            android:targetClass="fr.nihilus.music.HomeActivity"
-            android:targetPackage="fr.nihilus.music"/>
-    </shortcut>
-
-    <shortcut
-        android:enabled="true"
-        android:icon="@drawable/shortcut_playlists"
-        android:shortcutId="playlists"
-        android:shortcutShortLabel="@string/action_playlists">
-        <intent
-            android:action="fr.nihilus.music.ACTION_PLAYLISTS"
-            android:targetClass="fr.nihilus.music.HomeActivity"
-            android:targetPackage="fr.nihilus.music"/>
-    </shortcut>
 </shortcuts>

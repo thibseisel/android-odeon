@@ -21,20 +21,20 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import fr.nihilus.music.utils.DataRequest
+import fr.nihilus.music.utils.LoadRequest
 import timber.log.Timber
 
+@Deprecated("Since ViewModels may maintain multiple subscriptions at once. " +
+        "Subscribe to media in concrete implementations.")
 abstract class MediaListViewModel(
     connection: MediaBrowserConnection
 ) : MediaBrowserViewModel(connection) {
 
-    private val _items = MutableLiveData<DataRequest<List<MediaItem>>>()
+    private val _items = MutableLiveData<LoadRequest<List<MediaItem>>>()
     private var parentId: String? = null
 
-    /**
-     * The list of items that are direct children of the item specified in [loadChildrenOf].
-     */
-    val items: LiveData<DataRequest<List<MediaItem>>> get() = _items
+    val items: LiveData<LoadRequest<List<MediaItem>>>
+        get() = _items
 
     private val childrenUpdateCallback = object : MediaBrowserCompat.SubscriptionCallback() {
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
@@ -42,7 +42,7 @@ abstract class MediaListViewModel(
         }
 
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>, options: Bundle) {
-            _items.value = DataRequest.Success(children)
+            _items.value = LoadRequest.Success(children)
         }
 
         override fun onError(parentId: String) {
@@ -51,7 +51,7 @@ abstract class MediaListViewModel(
 
         override fun onError(parentId: String, options: Bundle) {
             Timber.w("Error while loading children of media ID: %s", parentId)
-            _items.value = DataRequest.Error(null)
+            _items.value = LoadRequest.Error(null)
         }
     }
 
@@ -67,7 +67,7 @@ abstract class MediaListViewModel(
         parentId?.let(connection::unsubscribe)
         parentId = parentMediaId
         connection.subscribe(parentMediaId, childrenUpdateCallback)
-        _items.postValue(DataRequest.Loading())
+        _items.postValue(LoadRequest.Pending())
     }
 
     override fun onCleared() {

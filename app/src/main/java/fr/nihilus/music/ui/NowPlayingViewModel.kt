@@ -20,46 +20,57 @@ import android.arch.lifecycle.LiveData
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import fr.nihilus.music.client.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.client.MediaBrowserViewModel
 import fr.nihilus.music.media.extensions.isPlaying
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class NowPlayingViewModel
 @Inject constructor(
-    connection: MediaBrowserConnection
-) : MediaBrowserViewModel(connection) {
+    private val connection: MediaBrowserConnection
+) : BaseViewModel() {
 
     val playbackState: LiveData<PlaybackStateCompat> get() = connection.playbackState
     val nowPlaying: LiveData<MediaMetadataCompat?> get() = connection.nowPlaying
     val repeatMode: LiveData<Int> get() = connection.repeatMode
     val shuffleMode: LiveData<Int> get() = connection.shuffleMode
 
-    fun togglePlayPause() = connection.post {
-        val isPlaying = playbackState.value?.isPlaying ?: false
-        if (isPlaying) it.transportControls.pause() else it.transportControls.play()
+    fun togglePlayPause() {
+        launch {
+            val isPlaying = playbackState.value?.isPlaying ?: false
+            if (isPlaying) connection.pause() else connection.play()
+        }
     }
 
-    fun skipToPrevious() = connection.post { it.transportControls.skipToPrevious() }
+    fun skipToPrevious() {
+        launch { connection.skipToPrevious() }
+    }
 
-    fun skipToNext() = connection.post { it.transportControls.skipToNext() }
+    fun skipToNext() {
+        launch { connection.skipToNext() }
+    }
 
-    fun seekTo(position: Long) = connection.post { it.transportControls.seekTo(position) }
+    fun seekTo(position: Long) {
+        launch { connection.seekTo(position) }
+    }
 
-    fun toggleShuffleMode() = connection.post { controller ->
-        val currentMode = shuffleMode.value ?: SHUFFLE_MODE_INVALID
-        with(controller.transportControls) {
+    fun toggleShuffleMode() {
+        launch {
+            val currentMode = shuffleMode.value ?: SHUFFLE_MODE_INVALID
             when (currentMode) {
-                SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> setShuffleMode(SHUFFLE_MODE_ALL)
-                SHUFFLE_MODE_ALL -> setShuffleMode(SHUFFLE_MODE_NONE)
+                SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> connection.setShuffleModeEnabled(true)
+                SHUFFLE_MODE_ALL -> connection.setShuffleModeEnabled(false)
             }
         }
     }
 
-    fun toggleRepeatMode() = connection.post { controller ->
-        val currentMode = repeatMode.value ?: REPEAT_MODE_INVALID
-        if (currentMode != REPEAT_MODE_INVALID) {
-            controller.transportControls.setRepeatMode((currentMode + 1) % 3)
+    fun toggleRepeatMode() {
+        launch {
+            val currentMode = repeatMode.value ?: REPEAT_MODE_INVALID
+            if (currentMode != REPEAT_MODE_INVALID) {
+                connection.setRepeatMode((currentMode + 1) % 3)
+            }
         }
     }
 }

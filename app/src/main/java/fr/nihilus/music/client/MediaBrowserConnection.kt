@@ -29,8 +29,12 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
+import fr.nihilus.music.media.extensions.isPrepared
 import fr.nihilus.music.media.service.MusicService
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.sendBlocking
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -128,6 +132,7 @@ class MediaBrowserConnection
     /**
      * @see MediaBrowserCompat.subscribe
      */
+    @Deprecated("Use the Channel-based overload.")
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         mediaBrowser.subscribe(parentId, callback)
     }
@@ -135,8 +140,40 @@ class MediaBrowserConnection
     /**
      * @see MediaBrowserCompat.unsubscribe
      */
+    @Deprecated("Use the Channel-based overload. Close the channel to unsubscribe.")
     fun unsubscribe(parentId: String) {
         mediaBrowser.unsubscribe(parentId)
+    }
+
+    fun subscribe(parentId: String): ReceiveChannel<List<MediaBrowserCompat.MediaItem>> {
+        val output = Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED)
+
+        val callback = object : MediaBrowserCompat.SubscriptionCallback() {
+            override fun onChildrenLoaded(
+                parentId: String,
+                children: List<MediaBrowserCompat.MediaItem>
+            ) = output.sendBlocking(children)
+
+            override fun onChildrenLoaded(
+                parentId: String,
+                children: List<MediaBrowserCompat.MediaItem>,
+                options: Bundle
+            ) = onChildrenLoaded(parentId, children)
+
+            override fun onError(parentId: String) {
+                Timber.e("Failed to load children of %s", parentId)
+                output.close(IllegalArgumentException("$parentId is not a valid parent media id."))
+            }
+
+            override fun onError(parentId: String, options: Bundle) = onError(parentId)
+        }
+
+        mediaBrowser.subscribe(parentId, callback)
+        output.invokeOnClose {
+            mediaBrowser.unsubscribe(parentId, callback)
+        }
+
+        return output
     }
 
     /**
@@ -175,6 +212,21 @@ class MediaBrowserConnection
     suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
+    }
+
+    suspend fun seekTo(positionMs: Long) {
+        val controller = deferredController.await()
+        controller.transportControls.seekTo(positionMs)
+    }
+
+    suspend fun skipToPrevious() {
+        val controller = deferredController.await()
+        controller.transportControls.skipToPrevious()
+    }
+
+    suspend fun skipToNext() {
+        val controller = deferredController.await()
+        controller.transportControls.skipToNext()
     }
 
     suspend fun setShuffleModeEnabled(enabled: Boolean) {
@@ -248,7 +300,19 @@ class MediaBrowserConnection
                 _shuffleMode.value = it.shuffleMode
             }
 
+            // Deprecated: execute pending requests.
+            while (pendingRequests.isEmpty()) {
+                val request = pendingRequests.poll()
+                request.invoke(controller)
+            }
+
+            // Trigger all operations waiting for the browser to be connected.
             deferredController.complete(controller)
+
+            // Prepare last played playlist if nothing to playMedia.
+            if (controller.playbackState?.isPrepared != true) {
+                controller.transportControls.prepare()
+            }
         }
 
         override fun onConnectionSuspended() {

@@ -26,6 +26,9 @@ package fr.nihilus.music.client
  * @constructor Initiate a connection to the media browser using the given [connection].
  * @param connection The connection to initiate between this ViewModel and the media browser.
  */
+@Deprecated("This base class does not help that much. " +
+        "Inject MediaBrowserConnection into ViewModels. " +
+        "ViewModels linked to the parent activity can establish and dispose the connection.")
 abstract class MediaBrowserViewModel(
     protected val connection: MediaBrowserConnection
 ) : BaseViewModel() {

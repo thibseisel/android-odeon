@@ -26,17 +26,14 @@ import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
-import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.NavigationController
 import fr.nihilus.music.client.REQUEST_SETTINGS
-import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
@@ -48,6 +45,8 @@ import fr.nihilus.music.utils.observeK
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
+private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
+
 class HomeActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,8 +55,11 @@ class HomeActivity : BaseActivity(),
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[MusicLibraryViewModel::class.java]
+    }
+
     private lateinit var bottomSheet: BottomSheetBehavior<*>
-    private lateinit var viewModel: BrowserViewModel
     private lateinit var playerFragment: NowPlayingFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,13 +68,9 @@ class HomeActivity : BaseActivity(),
 
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        viewModel.toolbarTitle.observeK(this, toolbar::setTitle)
 
         setupNavigationDrawer()
-
-        viewModel = ViewModelProviders.of(this, viewModelFactory)[BrowserViewModel::class.java]
-
-        viewModel.connect()
-
         setupPlayerView()
 
         if (savedInstanceState == null) {
@@ -106,18 +104,6 @@ class HomeActivity : BaseActivity(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         drawerToggle.onConfigurationChanged(newConfig)
-    }
-
-    /**
-     * Allow dispatching media key events to the playback service for API < 21.
-     */
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY -> viewModel.post {
-                it.dispatchMediaButtonEvent(event)
-            }
-        }
-        return super.onKeyDown(keyCode, event)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -169,12 +155,11 @@ class HomeActivity : BaseActivity(),
         bottomSheet = BottomSheetBehavior.from(player_container)
 
         // Show / hide BottomSheet on startup without an animation
-        setInitialBottomSheetVisibility(viewModel.playbackState.value)
+        setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value)
+        viewModel.playerSheetVisible.observeK(this, this::onSheetVisibilityChanged)
 
-        viewModel.playbackState.observeK(this, this::togglePlayerVisibility)
-
-        viewModel.playerError.observeK(this) { errorMessage ->
-            if (errorMessage != null) {
+        viewModel.playerError.observeK(this) { playerErrorEvent ->
+            playerErrorEvent?.handle { errorMessage ->
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         }
@@ -277,26 +262,16 @@ class HomeActivity : BaseActivity(),
      * Show or hide the player view depending on the passed playback state.
      * This method is meant to be called only once to show or hide player view without animation.
      */
-    private fun setInitialBottomSheetVisibility(state: PlaybackStateCompat?) {
-        bottomSheet.peekHeight = if (state == null
-            || state.state == PlaybackStateCompat.STATE_NONE
-            || state.state == PlaybackStateCompat.STATE_STOPPED) {
+    private fun setInitialBottomSheetVisibility(shouldShow: Boolean?) {
+        bottomSheet.peekHeight = if (shouldShow == true) {
             resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         } else {
             resources.getDimensionPixelSize(R.dimen.playerview_height)
         }
     }
 
-    /**
-     * Show or hide the player view depending on the passed playback state.
-     * If the playback state is undefined or stopped, the player view will be hidden.
-     *
-     * @param state The most recent playback state
-     */
-    private fun togglePlayerVisibility(state: PlaybackStateCompat?) {
-        if (state == null
-            || state.state == PlaybackStateCompat.STATE_NONE
-            || state.state == PlaybackStateCompat.STATE_STOPPED) {
+    private fun onSheetVisibilityChanged(sheetVisible: Boolean?) {
+        if (sheetVisible == true) {
             bottomSheet.isHideable = true
             bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
 
@@ -317,40 +292,13 @@ class HomeActivity : BaseActivity(),
      * @return true if intent was handled, false otherwise
      */
     private fun handleIntent(intent: Intent?): Boolean {
-            when (intent?.action) {
-                ACTION_RANDOM -> {
-                    startRandomMix()
-                    // Intent is purposely marked as not handled to trigger home screen display
-                    return false
-                }
-                ACTION_ALBUMS -> {
-                    nav_drawer.setCheckedItem(R.id.action_albums)
-                    router.navigateToAlbums()
-                    return true
-                }
-                ACTION_ARTISTS -> {
-                    nav_drawer.setCheckedItem(R.id.action_artists)
-                    router.navigateToArtists()
-                    return true
-                }
-                ACTION_PLAYLISTS -> {
-                    nav_drawer.setCheckedItem(R.id.action_playlist)
-                    router.navigateToPlaylists()
-                    return true
-                }
-                Intent.ACTION_MAIN -> {
-                    // Activity has been started normally from the launcher.
-                    // Prepare playback when connection is established.
-                    viewModel.post { controller ->
-                        val playbackState = controller.playbackState
-                        if (playbackState == null
-                            || playbackState.state == PlaybackStateCompat.STATE_NONE
-                            || playbackState.state == PlaybackStateCompat.STATE_STOPPED) {
-                            controller.transportControls.prepare()
-                        }
-                    }
-                }
+        when (intent?.action) {
+            ACTION_RANDOM -> {
+                startRandomMix()
+                // Intent is purposely marked as not handled to trigger home screen display
+                return false
             }
+        }
 
         return false
     }
@@ -366,18 +314,6 @@ class HomeActivity : BaseActivity(),
     }
 
     private fun startRandomMix() {
-        viewModel.post { controller ->
-            with(controller.transportControls) {
-                setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-                playFromMediaId(CATEGORY_MUSIC, null)
-            }
-        }
-    }
-
-    private companion object {
-        private const val ACTION_ALBUMS = "fr.nihilus.music.ACTION_ALBUMS"
-        private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
-        private const val ACTION_ARTISTS = "fr.nihilus.music.ACTION_ARTISTS"
-        private const val ACTION_PLAYLISTS = "fr.nihilus.music.ACTION_PLAYLISTS"
+        viewModel.playAllShuffled()
     }
 }

@@ -23,7 +23,9 @@ import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
 /**
- * A base ViewModel that limit the scope of Kotlin coroutines launched in its context.
+ * A base ViewModel that define the scope of launched Kotlin coroutines
+ * to the lifecycle of the ViewModel.
+ * All running coroutines will be canceled when the ViewModel is cleared.
  */
 abstract class BaseViewModel : ViewModel(), CoroutineScope {
     private val lifetime = Job()
@@ -32,5 +34,6 @@ abstract class BaseViewModel : ViewModel(), CoroutineScope {
 
     override fun onCleared() {
         lifetime.cancel()
+        super.onCleared()
     }
 }

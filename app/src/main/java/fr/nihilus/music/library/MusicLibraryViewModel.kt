@@ -1,0 +1,91 @@
+/*
+ * Copyright 2018 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package fr.nihilus.music.library
+
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Observer
+import android.content.Context
+import android.support.annotation.StringRes
+import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.R
+import fr.nihilus.music.client.BaseViewModel
+import fr.nihilus.music.client.MediaBrowserConnection
+import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.utils.Event
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+class MusicLibraryViewModel
+@Inject constructor(
+    context: Context,
+    private val connection: MediaBrowserConnection
+) : BaseViewModel() {
+    private val resources = context.resources
+    private val client = MediaBrowserConnection.ClientToken()
+
+    private val _toolbarTitle = MutableLiveData<CharSequence?>()
+    val toolbarTitle: LiveData<CharSequence?>
+        get() = _toolbarTitle
+
+    private val _playerSheetVisible = MutableLiveData<Boolean>()
+    val playerSheetVisible: LiveData<Boolean>
+        get() = _playerSheetVisible
+
+    private val _playerError = MutableLiveData<Event<CharSequence>>()
+    val playerError: LiveData<Event<CharSequence>>
+        get() = _playerError
+
+    private val playbackStateObserver = Observer<PlaybackStateCompat> {
+        when (it?.state) {
+            PlaybackStateCompat.STATE_NONE,
+            PlaybackStateCompat.STATE_STOPPED -> {
+                _playerSheetVisible.value = false
+            }
+
+            PlaybackStateCompat.STATE_ERROR -> {
+                _playerSheetVisible.value = false
+                _playerError.value = Event(it.errorMessage)
+            }
+
+            else -> _playerSheetVisible.value = true
+        }
+    }
+
+    init {
+        _toolbarTitle.postValue(resources.getText(R.string.music_library))
+
+        connection.connect(client)
+        connection.playbackState.observeForever(playbackStateObserver)
+    }
+
+    fun setToolbarTitle(@StringRes titleRes: Int) {
+        _toolbarTitle.value = resources.getString(titleRes)
+    }
+
+    fun playAllShuffled() {
+        launch {
+            connection.setShuffleModeEnabled(true)
+            connection.playFromMediaId(CATEGORY_MUSIC)
+        }
+    }
+
+    override fun onCleared() {
+        connection.playbackState.removeObserver(playbackStateObserver)
+        connection.disconnect(client)
+    }
+}

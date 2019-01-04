@@ -21,6 +21,9 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 
+@Deprecated("This LiveData implementation has flaws: " +
+        "its value is not updated when it is not observed, resulting is lost value updates. " +
+        "Use the ReceiveChannel returned by MediaBrowserConnection.subscribe instead.")
 class SubscriptionLiveData(
     private val browser: MediaBrowserCompat,
     private val parentMediaId: String

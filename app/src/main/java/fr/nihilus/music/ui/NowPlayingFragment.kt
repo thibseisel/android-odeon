@@ -55,7 +55,9 @@ class NowPlayingFragment: BaseFragment() {
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
-    private lateinit var viewModel: NowPlayingViewModel
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory).get(NowPlayingViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -114,8 +116,6 @@ class NowPlayingFragment: BaseFragment() {
             .fallback(R.drawable.ic_audiotrack_24dp)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
-
-        viewModel = ViewModelProviders.of(this, viewModelFactory)[NowPlayingViewModel::class.java]
 
         viewModel.playbackState.observeK(this, this::onPlaybackStateChanged)
         viewModel.nowPlaying.observeK(this, this::onMetadataChanged)
