@@ -29,9 +29,9 @@ import android.view.View
 import android.widget.ImageView
 import fr.nihilus.music.BaseActivity
 import fr.nihilus.music.R
-import fr.nihilus.music.client.AlbumDetailViewModel
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.utils.LoadRequest
 import fr.nihilus.music.utils.darkSystemIcons
 import fr.nihilus.music.utils.luminance
 import fr.nihilus.music.utils.observeK
@@ -49,14 +49,15 @@ class AlbumDetailActivity : BaseActivity(),
     private lateinit var adapter: TrackAdapter
     private lateinit var decoration: CurrentlyPlayingDecoration
 
-    private lateinit var viewModel: AlbumDetailViewModel
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_detail)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
-        viewModel.loadChildrenOf(pickedAlbum.mediaId!!)
+        viewModel.loadTracksOfAlbum(pickedAlbum)
 
         with(pickedAlbum.description) {
             title_view.text = title
@@ -75,10 +76,14 @@ class AlbumDetailActivity : BaseActivity(),
         viewModel.nowPlaying.observeK(this, this::decoratePlayingTrack)
 
         // Subscribe to children of this album
-        viewModel.items.observeK(this) { children ->
-            adapter.submitList(children.orEmpty())
-            val currentMetadata = viewModel.nowPlaying.value
-            decoratePlayingTrack(currentMetadata)
+        viewModel.albumTracks.observeK(this) { tracksUpdateRequest ->
+            when (tracksUpdateRequest) {
+                is LoadRequest.Success -> {
+                    adapter.submitList(tracksUpdateRequest.data)
+                    val currentMetadata = viewModel.nowPlaying.value
+                    decoratePlayingTrack(currentMetadata)
+                }
+            }
         }
     }
 
@@ -145,7 +150,7 @@ class AlbumDetailActivity : BaseActivity(),
     }
 
     private fun playMediaItem(item: MediaItem) {
-        viewModel.play(item)
+        viewModel.playMedia(item)
     }
 
     /**

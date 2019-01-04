@@ -16,64 +16,69 @@
 
 package fr.nihilus.music.ui.albums
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.BaseFragment
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.FRAGMENT_ID
 import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.media.CATEGORY_ALBUMS
+import fr.nihilus.music.isVisible
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.holder.AlbumHolder
-import fr.nihilus.recyclerfragment.RecyclerFragment
+import fr.nihilus.music.utils.LoadRequest
+import fr.nihilus.music.utils.ProgressTimeLatch
+import fr.nihilus.music.utils.observeK
+import kotlinx.android.synthetic.main.fragment_albums.*
 import javax.inject.Inject
 
 @ActivityScoped
-class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
-
-    private lateinit var adapter: AlbumsAdapter
-    private lateinit var viewModel: BrowserViewModel
+class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[AlbumGridViewModel::class.java]
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = AlbumsAdapter(this, defaultAlbumPalette, this)
-    }
+    private lateinit var albumAdapter: AlbumsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.fragment_albums, container, false)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        viewModel.subscribeTo(CATEGORY_ALBUMS).observe(this, Observer { albums ->
-            adapter.submitList(albums.orEmpty())
-            setRecyclerShown(true)
-        })
+        val refreshToggle = ProgressTimeLatch { progressVisible ->
+            progress_indicator.isVisible = progressVisible
+        }
 
-        setAdapter(adapter)
-        recyclerView.setHasFixedSize(true)
+        albumAdapter = AlbumsAdapter(this, defaultAlbumPalette, this)
+        with(album_recycler) {
+            adapter = albumAdapter
+            setHasFixedSize(true)
+        }
 
-        if (savedInstanceState == null) {
-            // Show progress indicator while loading album items
-            setRecyclerShown(false)
+        viewModel.albums.observeK(this) { albumRequest ->
+            when (albumRequest) {
+                is LoadRequest.Pending -> refreshToggle.isRefreshing = true
+                is LoadRequest.Success -> {
+                    refreshToggle.isRefreshing = false
+                    albumAdapter.submitList(albumRequest.data)
+                    group_empty_view.isVisible = albumRequest.data.isEmpty()
+                }
+                is LoadRequest.Error -> {
+                    refreshToggle.isRefreshing = false
+                    albumAdapter.submitList(emptyList())
+                    group_empty_view.isVisible = true
+                }
+            }
         }
     }
 
@@ -83,8 +88,8 @@ class AlbumGridFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
-        val album = adapter.getItem(position)
-        val holder = recyclerView.findViewHolderForAdapterPosition(position) as AlbumHolder
+        val album = albumAdapter.getItem(position)
+        val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME

@@ -25,10 +25,10 @@ import dagger.Subcomponent
 import dagger.android.AndroidInjector
 import dagger.multibindings.ClassKey
 import dagger.multibindings.IntoMap
-import fr.nihilus.music.client.AlbumDetailViewModel
 import fr.nihilus.music.client.ViewModelKey
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.ui.albums.AlbumDetailActivity
+import fr.nihilus.music.ui.albums.AlbumDetailViewModel
 import fr.nihilus.music.ui.albums.AlbumPalette
 
 /**
