@@ -67,7 +67,7 @@
 
         <!-- Activity showing detail and tracks of an album. -->
         <activity
-            android:name=".ui.albums.AlbumDetailActivity"
+            android:name=".library.albums.AlbumDetailActivity"
             android:parentActivityName=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 

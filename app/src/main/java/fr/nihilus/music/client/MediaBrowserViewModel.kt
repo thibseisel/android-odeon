@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.client
 
+import fr.nihilus.music.base.BaseViewModel
+
 /**
  * A ViewModel that connects to this application's media browser through [MediaBrowserConnection]
  * when it is initiated and disconnects from it when destroyed.

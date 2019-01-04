@@ -31,17 +31,19 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import fr.nihilus.music.client.NavigationController
-import fr.nihilus.music.client.REQUEST_SETTINGS
+import fr.nihilus.music.base.BaseActivity
+import fr.nihilus.music.extensions.lockDrawer
+import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.MusicLibraryViewModel
+import fr.nihilus.music.library.NavigationController
+import fr.nihilus.music.library.REQUEST_SETTINGS
+import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
 import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.UiSettings
-import fr.nihilus.music.ui.NowPlayingFragment
-import fr.nihilus.music.utils.ConfirmDialogFragment
-import fr.nihilus.music.utils.observeK
+import fr.nihilus.music.ui.ConfirmDialogFragment
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
 
@@ -176,7 +178,7 @@ class HomeActivity : BaseActivity(),
                 val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
                         && newState != BottomSheetBehavior.STATE_HIDDEN
                 playerFragment.setCollapsed(!isExpandedOrExpanding)
-                drawer_layout.lock(isExpandedOrExpanding)
+                drawer_layout.lockDrawer(isExpandedOrExpanding)
             }
         })
     }

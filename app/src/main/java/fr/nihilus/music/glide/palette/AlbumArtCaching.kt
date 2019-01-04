@@ -27,9 +27,9 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
+import fr.nihilus.music.extensions.toHsl
 import fr.nihilus.music.glide.GlideExtensions
-import fr.nihilus.music.ui.albums.AlbumPalette
-import fr.nihilus.music.utils.toHsl
+import fr.nihilus.music.library.albums.AlbumPalette
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -170,7 +170,13 @@ private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): A
         textOnAccent = defaultPalette.textOnAccent
     }
 
-    return AlbumPalette(primaryColor, accent, titleText, bodyText, textOnAccent)
+    return AlbumPalette(
+        primaryColor,
+        accent,
+        titleText,
+        bodyText,
+        textOnAccent
+    )
 }
 
 /**
@@ -227,13 +233,13 @@ class BufferAlbumArtDecoder(
             source.position(maybeHeaderPosition + HEADER_BYTE_SIZE)
 
             @Suppress("UsePropertyAccessSyntax")
-            AlbumPalette(
-                primary = source.getInt(),
-                accent = source.getInt(),
-                titleText = source.getInt(),
-                bodyText = source.getInt(),
-                textOnAccent = source.getInt()
-            )
+            (AlbumPalette(
+        primary = source.getInt(),
+        accent = source.getInt(),
+        titleText = source.getInt(),
+        bodyText = source.getInt(),
+        textOnAccent = source.getInt()
+    ))
         } else {
             val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
             extractColorPalette(bitmapResource.get(), defaultPalette)

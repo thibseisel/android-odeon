@@ -24,7 +24,7 @@ import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.load.Option
 import com.bumptech.glide.request.RequestOptions
 import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.ui.albums.AlbumPalette
+import fr.nihilus.music.library.albums.AlbumPalette
 
 @GlideExtension
 object GlideExtensions {
@@ -47,12 +47,14 @@ object GlideExtensions {
         options.set(OPTION_DEFAULT_PALETTE, palette)
 
     val OPTION_DEFAULT_PALETTE: Option<AlbumPalette> =
-        Option.memory("fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE", AlbumPalette(
-            primary = 0xFFC4C4C,
-            accent = Color.WHITE,
-            titleText = Color.WHITE,
-            bodyText = Color.WHITE,
-            textOnAccent = Color.WHITE
-        ))
+        Option.memory("fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE",
+            AlbumPalette(
+                primary = 0xFFC4C4C,
+                accent = Color.WHITE,
+                titleText = Color.WHITE,
+                bodyText = Color.WHITE,
+                textOnAccent = Color.WHITE
+            )
+        )
 
 }

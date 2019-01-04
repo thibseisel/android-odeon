@@ -18,8 +18,8 @@ package fr.nihilus.music.settings
 
 import android.os.Bundle
 import dagger.android.AndroidInjection
-import fr.nihilus.music.BaseActivity
 import fr.nihilus.music.R
+import fr.nihilus.music.base.BaseActivity
 
 class SettingsActivity : BaseActivity() {
 

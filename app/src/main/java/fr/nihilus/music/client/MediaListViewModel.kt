@@ -21,7 +21,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import fr.nihilus.music.utils.LoadRequest
+import fr.nihilus.music.ui.LoadRequest
 import timber.log.Timber
 
 @Deprecated("Since ViewModels may maintain multiple subscriptions at once. " +

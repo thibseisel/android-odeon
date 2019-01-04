@@ -68,7 +68,7 @@
                 android:id="@+id/fragment_now_playing"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:name="fr.nihilus.music.ui.NowPlayingFragment"
+                android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
                 tools:layout="@layout/fragment_now_playing"/>
 
         </android.support.design.card.MaterialCardView>

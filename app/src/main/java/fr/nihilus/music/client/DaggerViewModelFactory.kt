@@ -19,7 +19,7 @@ package fr.nihilus.music.client
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import dagger.MapKey
-import fr.nihilus.music.di.ViewModelModule
+import fr.nihilus.music.dagger.ViewModelModule
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass

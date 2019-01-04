@@ -17,6 +17,6 @@
 package fr.nihilus.music.glide.palette
 
 import android.graphics.Bitmap
-import fr.nihilus.music.ui.albums.AlbumPalette
+import fr.nihilus.music.library.albums.AlbumPalette
 
 data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)

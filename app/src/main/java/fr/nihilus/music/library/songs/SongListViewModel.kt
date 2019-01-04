@@ -21,13 +21,13 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BaseViewModel
+import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.utils.Event
-import fr.nihilus.music.utils.LoadRequest
+import fr.nihilus.music.ui.Event
+import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject

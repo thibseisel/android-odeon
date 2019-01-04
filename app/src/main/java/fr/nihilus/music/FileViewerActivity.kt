@@ -29,8 +29,8 @@ import android.widget.SeekBar
 import android.widget.TextView
 import dagger.android.AndroidInjection
 import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.ui.ProgressAutoUpdater
 import fr.nihilus.music.view.PlayPauseButton
-import fr.nihilus.music.view.ProgressAutoUpdater
 import timber.log.Timber
 import javax.inject.Inject
 

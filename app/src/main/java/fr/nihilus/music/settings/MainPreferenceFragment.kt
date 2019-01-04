@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatDelegate
 import android.support.v7.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
-import fr.nihilus.music.bundleOf
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.media.service.TrimSilenceActionProvider
 import javax.inject.Inject
@@ -91,7 +90,9 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
         browserVm.post {
             it.transportControls.sendCustomAction(
                 TrimSilenceActionProvider.ACTION_SKIP_SILENCE,
-                bundleOf(TrimSilenceActionProvider.EXTRA_ENABLED, skipSilenceEnabled)
+                Bundle(1).apply {
+                    putBoolean(TrimSilenceActionProvider.EXTRA_ENABLED, skipSilenceEnabled)
+                }
             )
         }
     }

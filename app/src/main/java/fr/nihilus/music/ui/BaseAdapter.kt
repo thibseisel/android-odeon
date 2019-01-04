@@ -21,8 +21,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import fr.nihilus.music.inflate
-import fr.nihilus.music.utils.MediaItemDiffer
+import fr.nihilus.music.extensions.inflate
 
 /**
  * A RecyclerView adapter dedicated to the display of a set of media items.

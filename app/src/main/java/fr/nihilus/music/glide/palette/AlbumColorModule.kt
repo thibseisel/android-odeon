@@ -22,19 +22,20 @@ import android.support.v4.content.ContextCompat
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.R
-import fr.nihilus.music.di.ActivityScoped
-import fr.nihilus.music.ui.albums.AlbumPalette
+import fr.nihilus.music.dagger.ActivityScoped
+import fr.nihilus.music.library.albums.AlbumPalette
 
 @Module
 class AlbumColorModule {
 
     @Provides
     @ActivityScoped
-    fun providesDefaultAlbumPalette(context: Context) = AlbumPalette(
-        primary = ContextCompat.getColor(context, R.color.album_band_default),
-        accent = ContextCompat.getColor(context, R.color.color_accent),
-        titleText = ContextCompat.getColor(context, android.R.color.white),
-        bodyText = ContextCompat.getColor(context, android.R.color.white),
-        textOnAccent = ContextCompat.getColor(context, R.color.color_control_normal_compat)
-    )
+    fun providesDefaultAlbumPalette(context: Context) =
+        AlbumPalette(
+            primary = ContextCompat.getColor(context, R.color.album_band_default),
+            accent = ContextCompat.getColor(context, R.color.color_accent),
+            titleText = ContextCompat.getColor(context, android.R.color.white),
+            bodyText = ContextCompat.getColor(context, android.R.color.white),
+            textOnAccent = ContextCompat.getColor(context, R.color.color_control_normal_compat)
+        )
 }

@@ -31,10 +31,9 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.R
-import fr.nihilus.music.doIfPresent
+import fr.nihilus.music.extensions.filter
 import fr.nihilus.music.media.extensions.isPlaying
 import fr.nihilus.music.media.service.MusicService
-import fr.nihilus.music.utils.filter
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.*
@@ -200,24 +199,26 @@ class BrowserViewModel
 
         private val contextRef = WeakReference<Context>(context)
 
-        override fun onConnected() = try {
-            contextRef.doIfPresent {
-                Timber.v("onConnected: browser is now connected to MediaBrowserService.")
-                val controller = MediaControllerCompat(it, mediaBrowser.sessionToken)
-                controller.registerCallback(mControllerCallback)
-                this@BrowserViewModel.controller = controller
-                _currentMetadata.value = controller.metadata
-                _playbackState.value = controller.playbackState ?: EMPTY_PLAYBACK_STATE
-                _shuffleMode.value = controller.shuffleMode
-                _repeatMode.value = controller.repeatMode
+        override fun onConnected() {
+            try {
+                contextRef.get()?.let {
+                    Timber.v("onConnected: browser is now connected to MediaBrowserService.")
+                    val controller = MediaControllerCompat(it, mediaBrowser.sessionToken)
+                    controller.registerCallback(mControllerCallback)
+                    this@BrowserViewModel.controller = controller
+                    _currentMetadata.value = controller.metadata
+                    _playbackState.value = controller.playbackState ?: EMPTY_PLAYBACK_STATE
+                    _shuffleMode.value = controller.shuffleMode
+                    _repeatMode.value = controller.repeatMode
 
-                while (requestQueue.isNotEmpty()) {
-                    val request = requestQueue.poll()
-                    request.invoke(controller)
+                    while (requestQueue.isNotEmpty()) {
+                        val request = requestQueue.poll()
+                        request.invoke(controller)
+                    }
                 }
+            } catch (re: RemoteException) {
+                Timber.e(re, "onConnected: failed to create a MediaController")
             }
-        } catch (re: RemoteException) {
-            Timber.e(re, "onConnected: failed to create a MediaController")
         }
 
         override fun onConnectionSuspended() {

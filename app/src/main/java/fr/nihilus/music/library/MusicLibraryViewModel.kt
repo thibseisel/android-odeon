@@ -23,10 +23,10 @@ import android.content.Context
 import android.support.annotation.StringRes
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BaseViewModel
+import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.utils.Event
+import fr.nihilus.music.ui.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

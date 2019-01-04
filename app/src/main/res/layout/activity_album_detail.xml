@@ -24,7 +24,7 @@
     android:layout_height="match_parent"
     android:textDirection="locale"
     android:fitsSystemWindows="true"
-    tools:context="fr.nihilus.music.ui.albums.AlbumDetailActivity">
+    tools:context="fr.nihilus.music.library.albums.AlbumDetailActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar_layout"

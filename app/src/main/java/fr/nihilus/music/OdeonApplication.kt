@@ -19,7 +19,7 @@ package fr.nihilus.music
 import android.support.v7.app.AppCompatDelegate
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
-import fr.nihilus.music.di.DaggerAppComponent
+import fr.nihilus.music.dagger.DaggerAppComponent
 import fr.nihilus.music.settings.UiSettings
 import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
