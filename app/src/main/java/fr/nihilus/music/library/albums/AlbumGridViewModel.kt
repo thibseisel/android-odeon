@@ -25,8 +25,10 @@ import fr.nihilus.music.media.CATEGORY_ALBUMS
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AlbumGridViewModel(
+class AlbumGridViewModel
+@Inject constructor(
     private val connection: MediaBrowserConnection
 ) : BaseViewModel() {
 
