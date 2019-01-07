@@ -27,8 +27,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.library.albums.AlbumGridFragment
-import fr.nihilus.music.library.artists.ArtistDetailFragment
-import fr.nihilus.music.library.artists.ArtistsFragment
+import fr.nihilus.music.library.artists.ArtistListFragment
+import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
 import fr.nihilus.music.library.playlists.MembersFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
@@ -104,7 +104,7 @@ class NavigationController
      */
     fun navigateToArtists() {
         val fragment =
-            findOrCreateFragment(CATEGORY_ARTISTS, ArtistsFragment.Factory::newInstance)
+            findOrCreateFragment(CATEGORY_ARTISTS, ArtistListFragment.Factory::newInstance)
         showFragment(CATEGORY_ARTISTS, fragment)
     }
 

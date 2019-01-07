@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.artists
+package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat

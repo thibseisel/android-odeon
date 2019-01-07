@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.artists
+package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.support.v4.app.Fragment
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
@@ -57,27 +56,11 @@ internal class ArtistDetailAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseAdapter.ViewHolder {
         return when (viewType) {
-            R.id.view_type_album -> AlbumHolder(
-                parent,
-                paletteLoader,
-                defaultPalette,
-                true
-            )
-            R.id.view_type_track -> TrackHolder(
-                parent,
-                bitmapLoader
-            )
+            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, true)
+            R.id.view_type_track -> TrackHolder(parent, bitmapLoader)
             else -> error("Unexpected view type: $viewType")
         }.apply {
             onAttachListeners(listener)
         }
     }
-
-    override fun getItemId(position: Int): Long {
-        return if (hasStableIds()) {
-            val mediaId = getItem(position).mediaId!!
-            mediaId.hashCode().toLong()
-        } else RecyclerView.NO_ID
-    }
-
 }

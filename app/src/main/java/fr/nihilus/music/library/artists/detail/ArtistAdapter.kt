@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.artists
+package fr.nihilus.music.library.artists.detail
 
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.library.artists.ArtistHolder
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 

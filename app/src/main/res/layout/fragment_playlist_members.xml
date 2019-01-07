@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -35,44 +36,10 @@
         tools:visibility="visible"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/playlist_recycler"
+        android:id="@+id/members_recycler"
         style="@style/MainScrollingView.FastScrollRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="android.support.v7.widget.GridLayoutManager"
-        app:spanCount="@integer/artist_grid_span_count"
-        tools:listitem="@layout/artist_grid_item"/>
-
-    <ImageView
-        android:id="@+id/empty_icon"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:layout_marginStart="64dp"
-        android:layout_marginEnd="64dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_playlist_24dp"
-        app:layout_constraintBottom_toTopOf="@id/empty_label"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"/>
-
-    <TextView
-        android:id="@+id/empty_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_playlist"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/empty_icon"/>
-
-    <android.support.constraint.Group
-        android:id="@+id/group_empty_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="empty_icon,empty_label"/>
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:listitem="@layout/album_grid_item"/>
 </android.support.constraint.ConstraintLayout>

@@ -20,8 +20,8 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.dagger.FragmentScoped
 import fr.nihilus.music.library.albums.AlbumGridFragment
-import fr.nihilus.music.library.artists.ArtistDetailFragment
-import fr.nihilus.music.library.artists.ArtistsFragment
+import fr.nihilus.music.library.artists.ArtistListFragment
+import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.MembersFragment
@@ -47,7 +47,7 @@ abstract class MusicLibraryModule {
     abstract fun contributeAlbumGridFragment(): AlbumGridFragment
 
     @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeArtistsFragment(): ArtistsFragment
+    abstract fun contributeArtistsFragment(): ArtistListFragment
 
     @FragmentScoped @ContributesAndroidInjector
     abstract fun contributeArtistDetailFragment(): ArtistDetailFragment

@@ -16,52 +16,74 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import dagger.android.support.AndroidSupportInjection
+import android.view.*
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.dagger.ActivityScoped
+import fr.nihilus.music.extensions.isVisible
+import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
 import fr.nihilus.music.library.NavigationController
-import fr.nihilus.music.media.command.DeletePlaylistCommand
-import fr.nihilus.music.media.utils.MediaID
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.ConfirmDialogFragment
-import fr.nihilus.recyclerfragment.RecyclerFragment
-import timber.log.Timber
+import fr.nihilus.music.ui.LoadRequest
+import fr.nihilus.music.ui.ProgressTimeLatch
+import kotlinx.android.synthetic.main.fragment_artists.*
 import javax.inject.Inject
 
 @ActivityScoped
-class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
-
-    private lateinit var adapter: MembersAdapter
-    private lateinit var playlist: MediaItem
-    private lateinit var viewModel: BrowserViewModel
+class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var router: NavigationController
+    private lateinit var adapter: MembersAdapter
 
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
+    private val playlist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
+        arguments?.getParcelable(ARG_PLAYLIST) ?: error("Fragment must be initialized with newInstance")
+    }
+
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[MembersViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
         adapter = MembersAdapter(this, this)
+    }
 
-        playlist = arguments?.getParcelable(ARG_PLAYLIST)
-                ?: throw IllegalStateException("Fragment must be instantiated with newInstance")
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = inflater.inflate(R.layout.fragment_playlist_members, container, false)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        viewModel.loadTracksOfPlaylist(playlist)
+
+        val progressBarLatch = ProgressTimeLatch { shouldShow ->
+            progress_indicator.isVisible = shouldShow
+        }
+
+        viewModel.playlistMembers.observeK(this) { membersRequest ->
+            when (membersRequest) {
+                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
+                is LoadRequest.Success -> {
+                    progressBarLatch.isRefreshing = false
+                    adapter.submitList(membersRequest.data)
+                }
+                is LoadRequest.Error -> {
+                    progressBarLatch.isRefreshing = false
+                    adapter.submitList(emptyList())
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -90,23 +112,6 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        viewModel = ViewModelProviders.of(activity!!).get(BrowserViewModel::class.java)
-        viewModel.subscribeTo(playlist.mediaId!!).observe(this, Observer {
-            adapter.submitList(it.orEmpty())
-            setRecyclerShown(true)
-        })
-
-        setAdapter(adapter)
-        recyclerView.setHasFixedSize(true)
-
-        if (savedInstanceState == null) {
-            setRecyclerShown(false)
-        }
-    }
-
     override fun onStart() {
         super.onStart()
         activity!!.title = playlist.description.title
@@ -114,26 +119,13 @@ class MembersFragment : RecyclerFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val member = adapter.getItem(position)
-        viewModel.post { controller ->
-            controller.transportControls.playFromMediaId(member.mediaId, null)
-        }
+        viewModel.playTrack(member)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_DELETE_PLAYLIST && resultCode == DialogInterface.BUTTON_POSITIVE) {
-            deleteThisPlaylist()
-        }
-    }
-
-    private fun deleteThisPlaylist() {
-        val playlistId = MediaID.categoryValueOf(playlist.mediaId!!).toLong()
-        val params = Bundle(1).apply {
-            putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
-        }
-
-        viewModel.postCommand(DeletePlaylistCommand.CMD_NAME, params) { resultCode, _ ->
-            if (resultCode == R.id.abc_result_success) router.navigateBack()
-            else Timber.e("Delete playlist: unexpected resultCode = %d", resultCode)
+            viewModel.deletePlaylist(playlist)
+            router.navigateBack()
         }
     }
 
