@@ -118,8 +118,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
 
     // My libraries
-    implementation "fr.nihilus:recyclerfragment:$rootProject.recyclerVersion"
-    implementation 'com.github.thibseisel:ratioimageview:1.0.0'
+    implementation "com.github.thibseisel:ratioimageview:$rootProject.ratioImageVersion"
 
     // Dagger
     implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
