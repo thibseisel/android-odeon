@@ -238,8 +238,9 @@ class SongListFragment : BaseFragment() {
             val selectedTrackPositions = songs_listview.checkedItemPositions
             mutableListOf<MediaBrowserCompat.MediaItem>().also {
                 for (pos in 0 until selectedTrackPositions.size()) {
-                    if (selectedTrackPositions[pos]) {
-                        it.add(songAdapter.getItem(pos))
+                    if (selectedTrackPositions.valueAt(pos)) {
+                        val itemAdapterPosition = selectedTrackPositions.keyAt(pos)
+                        it.add(songAdapter.getItem(itemAdapterPosition))
                     }
                 }
             }
