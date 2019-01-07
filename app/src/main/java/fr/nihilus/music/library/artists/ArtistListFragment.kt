@@ -27,6 +27,7 @@ import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
 import fr.nihilus.music.ui.BaseAdapter
@@ -38,6 +39,10 @@ import javax.inject.Inject
 @ActivityScoped
 class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     @Inject lateinit var router: NavigationController
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
+    }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[ArtistListViewModel::class.java]
@@ -64,7 +69,7 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
         adapter = ArtistAdapter(this, this)
 
-        viewModel.artists.observeK(this) { artistRequest ->
+        viewModel.children.observeK(this) { artistRequest ->
             when (artistRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -83,7 +88,7 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onStart() {
         super.onStart()
-        activity!!.setTitle(R.string.action_artists)
+        hostViewModel.setToolbarTitle(getString(R.string.action_artists))
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {

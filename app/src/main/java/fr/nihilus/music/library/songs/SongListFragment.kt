@@ -90,11 +90,12 @@ class SongListFragment : BaseFragment() {
             setMultiChoiceModeListener(multiSelectMode)
 
             onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                viewModel.onSongSelected(songAdapter.getItem(position))
+                val selectedTrack = songAdapter.getItem(position)
+                hostViewModel.playMedia(selectedTrack)
             }
         }
 
-        viewModel.songList.observeK(this) { itemRequest ->
+        viewModel.children.observeK(this) { itemRequest ->
             when (itemRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -125,7 +126,7 @@ class SongListFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        activity!!.setTitle(R.string.all_music)
+        hostViewModel.setToolbarTitle(getString(R.string.all_music))
     }
 
     private fun showDeleteDialog() {

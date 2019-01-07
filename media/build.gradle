@@ -27,12 +27,6 @@ android {
         versionCode rootProject.appVersionCode
         versionName rootProject.appVersionName
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = ['room.schemaLocation': "$projectDir/schemas".toString()]
-            }
-        }
     }
 
     buildTypes {
@@ -61,12 +55,13 @@ android {
     }
 
     sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
     }
 }
 
 kapt {
     arguments {
+        arg('room.schemaLocation', "$projectDir/schemas".toString())
         arg('dagger.formatGeneratedSource', 'disabled')
         arg('dagger.fastInit', 'enabled')
     }

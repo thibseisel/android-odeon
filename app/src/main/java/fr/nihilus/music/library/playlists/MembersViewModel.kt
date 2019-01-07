@@ -16,46 +16,25 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.command.DeletePlaylistCommand
 import fr.nihilus.music.media.utils.MediaID
-import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MembersViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-): BaseViewModel() {
-
-    private val _playlistMembers = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val playlistMembers: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _playlistMembers
-
-    private var loadMembersJob: Job? = null
+): BrowsableContentViewModel(connection) {
+    private var observeMembersJob: Job? = null
 
     fun loadTracksOfPlaylist(playlist: MediaBrowserCompat.MediaItem) {
-        loadMembersJob?.cancel()
-        _playlistMembers.postValue(LoadRequest.Pending())
-
-        launch {
-            connection.subscribe(playlist.mediaId!!).consumeEach { membersUpdate ->
-                _playlistMembers.postValue(LoadRequest.Success(membersUpdate))
-            }
-        }
-    }
-
-    fun playTrack(track: MediaBrowserCompat.MediaItem) {
-        launch {
-            connection.playFromMediaId(track.mediaId!!)
-        }
+        observeMembersJob?.cancel()
+        observeMembersJob = observeChildren(playlist.mediaId!!)
     }
 
     fun deletePlaylist(playlist: MediaBrowserCompat.MediaItem) {

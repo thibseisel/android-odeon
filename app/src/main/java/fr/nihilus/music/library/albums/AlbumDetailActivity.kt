@@ -76,7 +76,7 @@ class AlbumDetailActivity : BaseActivity(),
         viewModel.nowPlaying.observeK(this, this::decoratePlayingTrack)
 
         // Subscribe to children of this album
-        viewModel.albumTracks.observeK(this) { tracksUpdateRequest ->
+        viewModel.children.observeK(this) { tracksUpdateRequest ->
             when (tracksUpdateRequest) {
                 is LoadRequest.Success -> {
                     adapter.submitList(tracksUpdateRequest.data)

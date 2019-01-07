@@ -16,30 +16,15 @@
 
 package fr.nihilus.music.library.albums
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_ALBUMS
-import fr.nihilus.music.ui.LoadRequest
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 
 class AlbumGridViewModel(
-    private val connection: MediaBrowserConnection
-) : BaseViewModel() {
-
-    private val _albums = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val albums: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _albums
+    connection: MediaBrowserConnection
+) : BrowsableContentViewModel(connection) {
 
     init {
-        launch {
-            _albums.postValue(LoadRequest.Pending())
-            connection.subscribe(CATEGORY_ALBUMS).consumeEach { albumsUpdate ->
-                _albums.postValue(LoadRequest.Success(albumsUpdate))
-            }
-        }
+        observeChildren(CATEGORY_ALBUMS)
     }
 }

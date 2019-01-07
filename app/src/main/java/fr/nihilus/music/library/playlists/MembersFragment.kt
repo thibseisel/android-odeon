@@ -28,6 +28,7 @@ import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.ConfirmDialogFragment
@@ -44,6 +45,10 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     private val playlist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
         arguments?.getParcelable(ARG_PLAYLIST) ?: error("Fragment must be initialized with newInstance")
+    }
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
     }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
@@ -71,7 +76,7 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
             progress_indicator.isVisible = shouldShow
         }
 
-        viewModel.playlistMembers.observeK(this) { membersRequest ->
+        viewModel.children.observeK(this) { membersRequest ->
             when (membersRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -114,12 +119,12 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onStart() {
         super.onStart()
-        activity!!.title = playlist.description.title
+        hostViewModel.setToolbarTitle(playlist.description.title)
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val member = adapter.getItem(position)
-        viewModel.playTrack(member)
+        hostViewModel.playMedia(member)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

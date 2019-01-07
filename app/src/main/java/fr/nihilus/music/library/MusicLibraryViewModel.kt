@@ -20,7 +20,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
 import android.content.Context
-import android.support.annotation.StringRes
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseViewModel
@@ -73,8 +73,18 @@ class MusicLibraryViewModel
         connection.playbackState.observeForever(playbackStateObserver)
     }
 
-    fun setToolbarTitle(@StringRes titleRes: Int) {
-        _toolbarTitle.value = resources.getString(titleRes)
+    fun setToolbarTitle(title: CharSequence?) {
+        _toolbarTitle.value = title
+    }
+
+    fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
+        if (!playableMedia.isPlayable) {
+            throw IllegalArgumentException("The specified media is not playable.")
+        }
+
+        launch {
+            connection.playFromMediaId(playableMedia.mediaId!!)
+        }
     }
 
     fun playAllShuffled() {

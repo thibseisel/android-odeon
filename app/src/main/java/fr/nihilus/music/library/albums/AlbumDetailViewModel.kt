@@ -17,41 +17,28 @@
 package fr.nihilus.music.library.albums
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AlbumDetailViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : BrowsableContentViewModel(connection) {
     private val token = MediaBrowserConnection.ClientToken()
-    private var loadTracksJob: Job? = null
-
-    private val _albumTracks = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val albumTracks: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _albumTracks
+    private var observeTracksJob: Job? = null
 
     init {
         connection.connect(token)
     }
 
     fun loadTracksOfAlbum(album: MediaBrowserCompat.MediaItem) {
-        loadTracksJob?.cancel()
-        _albumTracks.postValue(LoadRequest.Pending())
-
-        loadTracksJob = launch {
-            connection.subscribe(album.mediaId!!).consumeEach { tracksUpdate ->
-                _albumTracks.postValue(LoadRequest.Success(tracksUpdate))
-            }
-        }
+        observeTracksJob?.cancel()
+        observeTracksJob = observeChildren(album.mediaId!!)
     }
 
     /**

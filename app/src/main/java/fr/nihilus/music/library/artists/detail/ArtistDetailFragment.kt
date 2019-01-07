@@ -31,6 +31,7 @@ import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumDetailActivity
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.albums.AlbumPalette
@@ -49,6 +50,10 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
 
     private val pickedArtist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
         arguments?.getParcelable(KEY_ARTIST) ?: error("Callers must specify the artist to display.")
+    }
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
     }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
@@ -87,7 +92,7 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
             progress_indicator.isVisible = shouldShow
         }
 
-        viewModel.artistChildren.observeK(this) { childrenRequest ->
+        viewModel.children.observeK(this) { childrenRequest ->
             when  (childrenRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -104,7 +109,7 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
 
     override fun onStart() {
         super.onStart()
-        activity!!.title = pickedArtist.description.title
+        hostViewModel.setToolbarTitle(pickedArtist.description.title)
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
@@ -130,7 +135,7 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
     }
 
     private fun onTrackSelected(track: MediaItem) {
-        viewModel.playMedia(track)
+        hostViewModel.playMedia(track)
     }
 
     companion object Factory {

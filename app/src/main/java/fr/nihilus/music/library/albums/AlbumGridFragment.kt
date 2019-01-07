@@ -29,6 +29,7 @@ import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
@@ -39,6 +40,10 @@ import javax.inject.Inject
 class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
+    }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[AlbumGridViewModel::class.java]
@@ -58,14 +63,13 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
             progress_indicator.isVisible = progressVisible
         }
 
-        albumAdapter =
-                AlbumsAdapter(this, defaultAlbumPalette, this)
+        albumAdapter = AlbumsAdapter(this, defaultAlbumPalette, this)
         with(album_recycler) {
             adapter = albumAdapter
             setHasFixedSize(true)
         }
 
-        viewModel.albums.observeK(this) { albumRequest ->
+        viewModel.children.observeK(this) { albumRequest ->
             when (albumRequest) {
                 is LoadRequest.Pending -> refreshToggle.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -84,7 +88,7 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onStart() {
         super.onStart()
-        activity!!.setTitle(R.string.action_albums)
+        hostViewModel.setToolbarTitle(getString(R.string.action_albums))
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {

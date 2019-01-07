@@ -16,38 +16,17 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
-import fr.nihilus.music.ui.LoadRequest
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PlaylistsViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
-) : BaseViewModel() {
-
-    private val _playlists = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val playlists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _playlists
+    connection: MediaBrowserConnection
+) : BrowsableContentViewModel(connection) {
 
     init {
-        launch {
-            _playlists.postValue(LoadRequest.Pending())
-            connection.subscribe(CATEGORY_PLAYLISTS).consumeEach { playlistsUpdate ->
-                _playlists.postValue(LoadRequest.Success(playlistsUpdate))
-            }
-        }
-    }
-
-    fun playAllOfPlaylist(playlist: MediaBrowserCompat.MediaItem) {
-        launch {
-            connection.playFromMediaId(playlist.mediaId!!)
-        }
+        observeChildren(CATEGORY_PLAYLISTS)
     }
 }

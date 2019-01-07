@@ -16,32 +16,17 @@
 
 package fr.nihilus.music.library.artists
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_ARTISTS
-import fr.nihilus.music.ui.LoadRequest
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ArtistListViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
-): BaseViewModel() {
-
-    private val _artists = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val artists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _artists
+    connection: MediaBrowserConnection
+): BrowsableContentViewModel(connection) {
 
     init {
-        launch {
-            _artists.postValue(LoadRequest.Pending())
-            connection.subscribe(CATEGORY_ARTISTS).consumeEach { artistUpdate ->
-                _artists.postValue(LoadRequest.Success(artistUpdate))
-            }
-        }
+        observeChildren(CATEGORY_ARTISTS)
     }
 }

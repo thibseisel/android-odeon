@@ -21,37 +21,26 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseViewModel
+import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_MUSIC
 import fr.nihilus.music.media.command.DeleteTracksCommand
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.Event
-import fr.nihilus.music.ui.LoadRequest
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SongListViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
-
-    private val _songList = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val songList: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _songList
+) : BrowsableContentViewModel(connection) {
 
     private val _deleteTracksConfirmation = MutableLiveData<Event<Int>>()
     val deleteTracksConfirmation: LiveData<Event<Int>>
         get() = _deleteTracksConfirmation
 
     init {
-        launch {
-            _songList.postValue(LoadRequest.Pending())
-            connection.subscribe(CATEGORY_MUSIC).consumeEach { allSongs ->
-                _songList.postValue(LoadRequest.Success(allSongs))
-            }
-        }
+        observeChildren(CATEGORY_MUSIC)
     }
 
     fun onSongSelected(song: MediaBrowserCompat.MediaItem) {

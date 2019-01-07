@@ -27,6 +27,7 @@ import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.LoadRequest
@@ -39,6 +40,10 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var router: NavigationController
     private lateinit var adapter: PlaylistsAdapter
+
+    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
+    }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[PlaylistsViewModel::class.java]
@@ -62,7 +67,7 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
             progress_indicator.isVisible = shouldShow
         }
 
-        viewModel.playlists.observeK(this) { playlistsRequest ->
+        viewModel.children.observeK(this) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -81,14 +86,14 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onStart() {
         super.onStart()
-        activity!!.setTitle(R.string.action_playlists)
+        hostViewModel.setToolbarTitle(getString(R.string.action_playlists))
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedPlaylist = adapter.getItem(position)
         when (actionId) {
             R.id.action_browse_item -> router.navigateToPlaylistDetails(selectedPlaylist)
-            R.id.action_play_item -> viewModel.playAllOfPlaylist(selectedPlaylist)
+            R.id.action_play_item -> hostViewModel.playMedia(selectedPlaylist)
         }
     }
 
