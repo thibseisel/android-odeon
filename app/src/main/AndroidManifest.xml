@@ -81,7 +81,7 @@
             Activity to be opened as a dialog window when a track is selected
             from the file explorer.
          -->
-        <activity android:name=".FileViewerActivity"
+        <activity android:name=".fileviewer.FileViewerActivity"
             android:theme="@style/AppTheme.FileViewer"
             android:excludeFromRecents="true">
             <!-- TODO Comment out when able to decode URIs. -->

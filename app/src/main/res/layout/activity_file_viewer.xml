@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:textDirection="locale"
-    tools:context="fr.nihilus.music.FileViewerActivity">
+    tools:context="fr.nihilus.music.fileviewer.FileViewerActivity">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

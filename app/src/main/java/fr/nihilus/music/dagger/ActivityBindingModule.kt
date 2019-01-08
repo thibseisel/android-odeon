@@ -18,8 +18,8 @@ package fr.nihilus.music.dagger
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.FileViewerActivity
 import fr.nihilus.music.HomeActivity
+import fr.nihilus.music.fileviewer.FileViewerActivity
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.library.MusicLibraryModule
 import fr.nihilus.music.settings.SettingsActivity
