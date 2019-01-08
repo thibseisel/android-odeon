@@ -19,7 +19,7 @@ package fr.nihilus.music.base
 import android.arch.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -28,7 +28,7 @@ import kotlin.coroutines.CoroutineContext
  * All running coroutines will be canceled when the ViewModel is cleared.
  */
 abstract class BaseViewModel : ViewModel(), CoroutineScope {
-    private val lifetime = Job()
+    private val lifetime = SupervisorJob()
     override val coroutineContext: CoroutineContext
         get() = lifetime + Dispatchers.Main
 
