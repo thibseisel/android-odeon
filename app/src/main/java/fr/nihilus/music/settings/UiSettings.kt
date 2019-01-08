@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.support.v7.app.AppCompatDelegate
 import fr.nihilus.music.R
-import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,7 +42,6 @@ interface UiSettings {
      */
     val startupScreenMediaId: String
     val shouldSkipSilence: Boolean
-    val skipSilenceUpdates: Observable<Boolean>
 }
 
 @Singleton
@@ -61,17 +59,4 @@ internal class SharedPreferencesUiSettings
 
     override val shouldSkipSilence: Boolean
         get() = prefs.getBoolean(KEY_SKIP_SILENCE, false)
-
-    override val skipSilenceUpdates: Observable<Boolean>
-        get() = Observable.create {
-            val preferenceListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key != KEY_SKIP_SILENCE) return@OnSharedPreferenceChangeListener
-                it.onNext(shouldSkipSilence)
-            }
-
-            prefs.registerOnSharedPreferenceChangeListener(preferenceListener)
-            it.setCancellable {
-                prefs.unregisterOnSharedPreferenceChangeListener(preferenceListener)
-            }
-        }
 }

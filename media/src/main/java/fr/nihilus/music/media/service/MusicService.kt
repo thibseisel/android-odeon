@@ -39,6 +39,10 @@ import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.rx2.consumeEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -82,13 +86,12 @@ class MusicService : BaseBrowserService() {
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.abc_allowed_media_browser_callers)
 
+        // Observe changes to the "skip silence" settings, applying it to the player when changed.
+        observeSkipSilenceSettings()
+
         // Listen for changes in the repository to notify media browsers.
         // If the changed media ID is a track, notify for its parent category.
-        subscriptions += repository.getMediaChanges()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { browseCategoryOf(it) }
-            .subscribe(this::notifyChildrenChanged)
+        observeMediaChanges()
 
         /**
          * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
@@ -260,6 +263,24 @@ class MusicService : BaseBrowserService() {
                 stop()
                 release()
             }
+        }
+    }
+
+    private fun CoroutineScope.observeSkipSilenceSettings() = launch {
+        settings.skipSilenceUpdates.consumeEach { shouldSkipSilence ->
+            mediaController.transportControls.sendCustomAction(
+                TrimSilenceActionProvider.ACTION_SKIP_SILENCE,
+                Bundle(1).apply {
+                    putBoolean(TrimSilenceActionProvider.EXTRA_ENABLED, shouldSkipSilence)
+                }
+            )
+        }
+    }
+
+    private fun CoroutineScope.observeMediaChanges() = launch {
+        repository.getMediaChanges().subscribeOn(Schedulers.io()).consumeEach { changedMediaId ->
+            val parentId = browseCategoryOf(changedMediaId)
+            notifyChildrenChanged(parentId)
         }
     }
 
