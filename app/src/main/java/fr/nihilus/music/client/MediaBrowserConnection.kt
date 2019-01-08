@@ -20,6 +20,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
@@ -28,7 +29,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.MediaControllerRequest
-import fr.nihilus.music.R
 import fr.nihilus.music.media.extensions.isPrepared
 import fr.nihilus.music.media.service.MusicService
 import kotlinx.coroutines.CompletableDeferred
@@ -129,22 +129,6 @@ class MediaBrowserConnection
         }
     }
 
-    /**
-     * @see MediaBrowserCompat.subscribe
-     */
-    @Deprecated("Use the Channel-based overload.")
-    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        mediaBrowser.subscribe(parentId, callback)
-    }
-
-    /**
-     * @see MediaBrowserCompat.unsubscribe
-     */
-    @Deprecated("Use the Channel-based overload. Close the channel to unsubscribe.")
-    fun unsubscribe(parentId: String) {
-        mediaBrowser.unsubscribe(parentId)
-    }
-
     fun subscribe(parentId: String): ReceiveChannel<List<MediaBrowserCompat.MediaItem>> {
         val output = Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED)
 
@@ -176,29 +160,6 @@ class MediaBrowserConnection
         return output
     }
 
-    /**
-     * Post a request to execute instructions on a media controller.
-     * If the media browser is not actually connected to its service, requests are delayed
-     * then processed in order as soon as the media browser (re)connects.
-     *
-     * The provided controller instance is guaranteed to be connected to the service
-     * at the time this method is called, but should not be cached as it may become
-     * invalid at a later time.
-     *
-     * @param request The request to issue.
-     */
-    @Deprecated("Use dedicated suspending functions instead.")
-    fun post(request: MediaControllerRequest) {
-        if (mediaBrowser.isConnected) {
-            // if connected, satisfy incoming requests immediately.
-            request.invoke(controller)
-            return
-        }
-
-        // Otherwise, enqueue the request until media browser is connected
-        pendingRequests.offer(request)
-    }
-
     suspend fun play() {
         val controller = deferredController.await()
         controller.transportControls.play()
@@ -212,6 +173,11 @@ class MediaBrowserConnection
     suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
+    }
+
+    suspend fun playFromUri(uri: Uri?) {
+        val controller = deferredController.await()
+        controller.transportControls.playFromUri(uri, null)
     }
 
     suspend fun seekTo(positionMs: Long) {
@@ -261,32 +227,6 @@ class MediaBrowserConnection
         }
     }
 
-    /**
-     * Post a command to be sent to the MediaBrowserService.
-     * If the media browser is not actually connected to its service, requests are delayed
-     * then processed in order as soon as the media browser (re)connects.
-     *
-     * If the specified command is not supported, the passed callback function will be called with
-     * the result code [R.id.abc_error_unknown_command].
-     *
-     * @param commandName The name of the command to execute.
-     * @param params The parameters to be passed to the command.
-     * They may be required or optional depending on the command to execute.
-     * @param onResultReceived The function to be called when the command has been processed.
-     */
-    @Deprecated("Use the coroutine-based sendCommand instead.")
-    inline fun postCommand(
-        commandName: String,
-        params: Bundle?,
-        crossinline onResultReceived: (resultCode: Int, resultData: Bundle?) -> Unit
-    ) = post { controller ->
-        controller.sendCommand(commandName, params, object : ResultReceiver(Handler()) {
-            override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                onResultReceived.invoke(resultCode, resultData)
-            }
-        })
-    }
-
     private inner class ConnectionCallback(
         private val context: Context
     ) : MediaBrowserCompat.ConnectionCallback() {
@@ -301,7 +241,7 @@ class MediaBrowserConnection
             }
 
             // Deprecated: execute pending requests.
-            while (pendingRequests.isEmpty()) {
+            while (!pendingRequests.isEmpty()) {
                 val request = pendingRequests.poll()
                 request.invoke(controller)
             }
@@ -353,7 +293,6 @@ class MediaBrowserConnection
 
         override fun onSessionDestroyed() {
             Timber.i("MediaSession has been destroyed.")
-            controller.unregisterCallback(controllerCallback)
         }
     }
 

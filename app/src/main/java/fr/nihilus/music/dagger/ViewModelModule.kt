@@ -21,7 +21,6 @@ import android.arch.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
-import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.client.ViewModelKey
 import fr.nihilus.music.library.MusicLibraryViewModel
@@ -41,16 +40,11 @@ import fr.nihilus.music.library.songs.SongListViewModel
  *
  * The key must be the actual subclass of ViewModel.
  */
-@Suppress("unused")
 @Module
 abstract class ViewModelModule {
 
     @Binds
     abstract fun bindsViewModelFactory(factory: DaggerViewModelFactory): ViewModelProvider.Factory
-
-    @Binds @IntoMap
-    @ViewModelKey(BrowserViewModel::class)
-    abstract fun bindsBrowserViewModel(viewModel: BrowserViewModel): ViewModel
 
     @Binds @IntoMap
     @ViewModelKey(MusicLibraryViewModel::class)
