@@ -67,6 +67,9 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
             progress_indicator.isVisible = shouldShow
         }
 
+        playlist_recycler.adapter = adapter
+        playlist_recycler.setHasFixedSize(true)
+
         viewModel.children.observeK(this) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true

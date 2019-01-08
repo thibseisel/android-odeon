@@ -49,7 +49,7 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
     private lateinit var adapter: ArtistDetailAdapter
 
     private val pickedArtist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable(KEY_ARTIST) ?: error("Callers must specify the artist to display.")
+        arguments?.getParcelable<MediaItem>(KEY_ARTIST) ?: error("Callers must specify the artist to display.")
     }
 
     private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
@@ -78,8 +78,9 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
         val manager = GridLayoutManager(context, spanCount)
-        artist_detail_recycler.setHasFixedSize(true)
+        artist_detail_recycler.adapter = adapter
         artist_detail_recycler.layoutManager = manager
+        artist_detail_recycler.setHasFixedSize(true)
 
         manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {

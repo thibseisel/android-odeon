@@ -68,6 +68,8 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         }
 
         adapter = ArtistAdapter(this, this)
+        artist_recycler.adapter = adapter
+        artist_recycler.setHasFixedSize(true)
 
         viewModel.children.observeK(this) { artistRequest ->
             when (artistRequest) {

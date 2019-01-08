@@ -31,6 +31,7 @@ import fr.nihilus.music.ui.Event
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class PlaylistEditionResult {
     data class Success(val trackCount: Int, val playlistTitle: CharSequence?) : PlaylistEditionResult()
@@ -38,7 +39,8 @@ sealed class PlaylistEditionResult {
     data class NonExistingPlaylist(val requestedPlaylistId: String) : PlaylistEditionResult()
 }
 
-class AddToPlaylistViewModel(
+class AddToPlaylistViewModel
+@Inject constructor(
     private val connection: MediaBrowserConnection
 ) : BaseViewModel() {
 

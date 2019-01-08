@@ -62,7 +62,10 @@ class MusicLibraryViewModel
                 _playerError.value = Event(it.errorMessage)
             }
 
-            else -> _playerSheetVisible.value = true
+            PlaybackStateCompat.STATE_PAUSED,
+            PlaybackStateCompat.STATE_PLAYING -> {
+                _playerSheetVisible.value = true
+            }
         }
     }
 

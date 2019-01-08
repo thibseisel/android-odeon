@@ -24,7 +24,15 @@ import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.BrowserViewModel
 import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.client.ViewModelKey
+import fr.nihilus.music.library.MusicLibraryViewModel
+import fr.nihilus.music.library.albums.AlbumGridViewModel
+import fr.nihilus.music.library.artists.ArtistListViewModel
+import fr.nihilus.music.library.artists.detail.ArtistDetailViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingViewModel
+import fr.nihilus.music.library.playlists.AddToPlaylistViewModel
+import fr.nihilus.music.library.playlists.MembersViewModel
+import fr.nihilus.music.library.playlists.NewPlaylistViewModel
+import fr.nihilus.music.library.playlists.PlaylistsViewModel
 import fr.nihilus.music.library.songs.SongListViewModel
 
 /**
@@ -45,10 +53,42 @@ abstract class ViewModelModule {
     abstract fun bindsBrowserViewModel(viewModel: BrowserViewModel): ViewModel
 
     @Binds @IntoMap
+    @ViewModelKey(MusicLibraryViewModel::class)
+    abstract fun bindsMusicLibraryViewModel(viewModel: MusicLibraryViewModel): ViewModel
+
+    @Binds @IntoMap
     @ViewModelKey(NowPlayingViewModel::class)
     abstract fun bindsNowPlayingViewModel(viewModel: NowPlayingViewModel): ViewModel
 
     @Binds @IntoMap
     @ViewModelKey(SongListViewModel::class)
     abstract fun bindsSongListViewModel(viewModel: SongListViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(AddToPlaylistViewModel::class)
+    abstract fun bindsAddToPlaylistViewModel(viewModel: AddToPlaylistViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(NewPlaylistViewModel::class)
+    abstract fun bindsNewPlaylistViewModel(viewModel: NewPlaylistViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(AlbumGridViewModel::class)
+    abstract fun bindsAlbumGridViewModel(viewModel: AlbumGridViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(ArtistListViewModel::class)
+    abstract fun bindsArtistListViewModel(viewModel: ArtistListViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(ArtistDetailViewModel::class)
+    abstract fun bindsArtistDetailViewModel(viewModel: ArtistDetailViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(PlaylistsViewModel::class)
+    abstract fun bindsPlaylistsViewModel(viewModel: PlaylistsViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(MembersViewModel::class)
+    abstract fun bindsMembersViewModel(viewModel: MembersViewModel): ViewModel
 }

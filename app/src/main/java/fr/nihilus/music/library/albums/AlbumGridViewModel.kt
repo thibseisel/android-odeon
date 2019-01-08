@@ -19,8 +19,10 @@ package fr.nihilus.music.library.albums
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_ALBUMS
+import javax.inject.Inject
 
-class AlbumGridViewModel(
+class AlbumGridViewModel
+@Inject constructor(
     connection: MediaBrowserConnection
 ) : BrowsableContentViewModel(connection) {
 

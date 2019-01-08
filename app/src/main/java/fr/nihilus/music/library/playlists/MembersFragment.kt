@@ -34,7 +34,7 @@ import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
-import kotlinx.android.synthetic.main.fragment_artists.*
+import kotlinx.android.synthetic.main.fragment_playlist_members.*
 import javax.inject.Inject
 
 @ActivityScoped
@@ -44,7 +44,7 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     private lateinit var adapter: MembersAdapter
 
     private val playlist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable(ARG_PLAYLIST) ?: error("Fragment must be initialized with newInstance")
+        arguments?.getParcelable<MediaItem>(ARG_PLAYLIST) ?: error("Fragment must be initialized with newInstance")
     }
 
     private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
@@ -75,6 +75,9 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
             progress_indicator.isVisible = shouldShow
         }
+
+        members_recycler.adapter = adapter
+        members_recycler.setHasFixedSize(true)
 
         viewModel.children.observeK(this) { membersRequest ->
             when (membersRequest) {

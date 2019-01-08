@@ -266,23 +266,25 @@ class HomeActivity : BaseActivity(),
      */
     private fun setInitialBottomSheetVisibility(shouldShow: Boolean?) {
         bottomSheet.peekHeight = if (shouldShow == true) {
-            resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
-        } else {
             resources.getDimensionPixelSize(R.dimen.playerview_height)
+        } else {
+            resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         }
     }
 
     private fun onSheetVisibilityChanged(sheetVisible: Boolean?) {
         if (sheetVisible == true) {
+            if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
+                // Take action to show BottomSheet only if it is hidden
+                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+                player_container.post { bottomSheet.isHideable = false }
+                val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
+                bottomSheet.peekHeight = playerViewHeight
+            }
+        } else {
             bottomSheet.isHideable = true
             bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
 
-        } else if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
-            // Take action to show BottomSheet only if it is hidden
-            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-            player_container.post { bottomSheet.isHideable = false }
-            val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
-            bottomSheet.peekHeight = playerViewHeight
         }
     }
 
