@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,49 +14,39 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music
+package fr.nihilus.music.fileviewer
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v7.app.AppCompatActivity
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import dagger.android.AndroidInjection
-import fr.nihilus.music.client.BrowserViewModel
+import fr.nihilus.music.R
+import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.ui.ProgressAutoUpdater
 import fr.nihilus.music.view.PlayPauseButton
-import timber.log.Timber
-import javax.inject.Inject
 
-class FileViewerActivity : AppCompatActivity() {
-
-    @Inject lateinit var modelFactory: ViewModelProvider.Factory
-    private lateinit var viewModel: BrowserViewModel
+class FileViewerActivity : BaseActivity() {
     private lateinit var seekUpdater: ProgressAutoUpdater
 
+    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[FileViewerViewModel::class.java]
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file_viewer)
-
-        viewModel = ViewModelProviders.of(this, modelFactory).get(BrowserViewModel::class.java)
-        viewModel.connect()
 
         with(intent) {
             check(action == Intent.ACTION_VIEW) {
                 "This activity should only be started by an Intent with action ACTION_VIEW."
             }
 
-            viewModel.post { controller ->
-                Timber.d("File URI: %s", data)
-                controller.transportControls.playFromUri(data, null)
-            }
+            viewModel.playMediaFromUri(data)
         }
 
         val albumArt = findViewById<ImageView>(R.id.album_art_view)
@@ -67,12 +57,10 @@ class FileViewerActivity : AppCompatActivity() {
 
         // Configure seekBar auto-updates
         seekUpdater = ProgressAutoUpdater(seekBar) { position ->
-            viewModel.post { controller ->
-                controller.transportControls.seekTo(position)
-            }
+            viewModel.seekToPosition(position)
         }
 
-        viewModel.currentMetadata.observe(this, Observer { metadata ->
+        viewModel.nowPlaying.observe(this, Observer { metadata ->
             seekUpdater.setMetadata(metadata)
             if (metadata != null) {
                 albumArt.setImageBitmap(metadata.getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART))

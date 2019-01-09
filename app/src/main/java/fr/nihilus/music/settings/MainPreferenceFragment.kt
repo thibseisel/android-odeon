@@ -17,8 +17,6 @@
 package fr.nihilus.music.settings
 
 import android.app.Activity
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -28,20 +26,14 @@ import android.support.v7.app.AppCompatDelegate
 import android.support.v7.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
-import fr.nihilus.music.client.BrowserViewModel
-import fr.nihilus.music.media.service.TrimSilenceActionProvider
 import javax.inject.Inject
 
 class MainPreferenceFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Inject lateinit var prefs: UiSettings
-    @Inject lateinit var vmFactory: ViewModelProvider.Factory
 
     private lateinit var keyNightMode: String
-    private lateinit var keySkipSilence: String
-    private lateinit var browserVm: BrowserViewModel
-
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -51,12 +43,6 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.prefs_main)
         keyNightMode = context!!.getString(R.string.pref_night_mode)
-        keySkipSilence = getString(R.string.pref_skip_silence)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        browserVm = ViewModelProviders.of(this, vmFactory)[BrowserViewModel::class.java]
     }
 
     override fun onResume() {
@@ -71,7 +57,6 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
 
     override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String) = when(key) {
         keyNightMode -> onNightModeChanged(this.prefs.nightMode)
-        keySkipSilence -> onSkipSilenceChanged(this.prefs.shouldSkipSilence)
         else -> Unit
     }
 
@@ -84,16 +69,5 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
         intent.putExtra("night_mode", newMode)
 
         hostActivity.setResult(Activity.RESULT_OK, intent)
-    }
-
-    private fun onSkipSilenceChanged(skipSilenceEnabled: Boolean) {
-        browserVm.post {
-            it.transportControls.sendCustomAction(
-                TrimSilenceActionProvider.ACTION_SKIP_SILENCE,
-                Bundle(1).apply {
-                    putBoolean(TrimSilenceActionProvider.EXTRA_ENABLED, skipSilenceEnabled)
-                }
-            )
-        }
     }
 }

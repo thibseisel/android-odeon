@@ -23,6 +23,7 @@ import dagger.android.AndroidInjection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope {
@@ -36,7 +37,7 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
     override fun onCreate() {
         super.onCreate()
         AndroidInjection.inject(this)
-        scopeJob = Job()
+        scopeJob = SupervisorJob()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
