@@ -18,7 +18,7 @@
 
 -keep class android.support.v7.widget.SearchView { *; }
 
-# Glide
+# Glide #
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
@@ -27,3 +27,13 @@
 }
 
 -dontwarn com.google.errorprone.annotations.*
+
+# kotlinx.coroutines #
+# ServiceLoader support
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+
+# Most of volatile fields are updated with AFU and should not be mangled
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
