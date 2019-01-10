@@ -16,10 +16,10 @@
   -->
 
 <android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -58,19 +58,20 @@
             android:id="@+id/player_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/bg_floating"
+            android:backgroundTint="?colorBackgroundFloating"
+            android:clickable="true"
             android:elevation="8dp"
             android:focusable="true"
-            android:clickable="true"
-            android:background="@drawable/bg_floating"
-            app:layout_behavior="@string/bottom_sheet_behavior"
             app:behavior_peekHeight="@dimen/playerview_height"
+            app:layout_behavior="@string/bottom_sheet_behavior"
             tools:ignore="MissingPrefix">
 
             <fragment
                 android:id="@+id/fragment_now_playing"
+                android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
                 tools:layout="@layout/fragment_now_playing"/>
 
         </FrameLayout>
