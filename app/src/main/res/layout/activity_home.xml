@@ -51,18 +51,20 @@
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:filterTouchesWhenObscured="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-        <android.support.design.card.MaterialCardView
+        <FrameLayout
             android:id="@+id/player_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardMaxElevation="@dimen/playerview_elevation"
-            app:cardElevation="@dimen/playerview_elevation"
-            android:clickable="true"
+            android:elevation="8dp"
             android:focusable="true"
+            android:clickable="true"
+            android:background="@drawable/bg_floating"
             app:layout_behavior="@string/bottom_sheet_behavior"
-            app:behavior_peekHeight="@dimen/playerview_height">
+            app:behavior_peekHeight="@dimen/playerview_height"
+            tools:ignore="MissingPrefix">
 
             <fragment
                 android:id="@+id/fragment_now_playing"
@@ -71,7 +73,7 @@
                 android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
                 tools:layout="@layout/fragment_now_playing"/>
 
-        </android.support.design.card.MaterialCardView>
+        </FrameLayout>
 
     </android.support.design.widget.CoordinatorLayout>
 
