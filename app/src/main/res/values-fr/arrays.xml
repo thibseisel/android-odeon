@@ -16,11 +16,11 @@
   -->
 
 <resources>
-    <string-array name="prefs_entries_night_mode">
+    <string-array name="prefs_night_mode_titles">
         <item>Par défaut</item>
-        <item>Automatique</item>
-        <item>Jamais</item>
         <item>Toujours</item>
+        <item>Automatiquement (la nuit)</item>
+        <item>Economiseur de batterie uniquement</item>
     </string-array>
 
     <string-array name="pref_entries_home_screen">

@@ -19,9 +19,9 @@
     <PreferenceCategory android:title="@string/prefs_category_appearance">
 
         <ListPreference
-            android:defaultValue="-1"
-            android:entries="@array/prefs_entries_night_mode"
-            android:entryValues="@array/prefs_values_night_mode"
+            android:defaultValue="system"
+            android:entries="@array/prefs_night_mode_titles"
+            android:entryValues="@array/prefs_night_mode_values"
             android:summary="%s"
             android:key="@string/pref_night_mode"
             android:title="@string/night_mode"/>

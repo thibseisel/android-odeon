@@ -16,24 +16,13 @@
 
 package fr.nihilus.music.settings
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.app.AppCompatDelegate
 import android.support.v7.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
-import javax.inject.Inject
 
-class MainPreferenceFragment : PreferenceFragmentCompat(),
-    SharedPreferences.OnSharedPreferenceChangeListener {
-
-    @Inject lateinit var prefs: UiSettings
-
-    private lateinit var keyNightMode: String
+class MainPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onAttach(context: Context?) {
         AndroidSupportInjection.inject(this)
@@ -42,32 +31,5 @@ class MainPreferenceFragment : PreferenceFragmentCompat(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.prefs_main)
-        keyNightMode = context!!.getString(R.string.pref_night_mode)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
-    }
-
-    override fun onPause() {
-        preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
-        super.onPause()
-    }
-
-    override fun onSharedPreferenceChanged(prefs: SharedPreferences, key: String) = when(key) {
-        keyNightMode -> onNightModeChanged(this.prefs.nightMode)
-        else -> Unit
-    }
-
-    private fun onNightModeChanged(@AppCompatDelegate.NightMode newMode: Int) {
-        AppCompatDelegate.setDefaultNightMode(newMode)
-        val hostActivity = (activity as AppCompatActivity)
-        hostActivity.delegate.applyDayNight()
-
-        val intent = Intent()
-        intent.putExtra("night_mode", newMode)
-
-        hostActivity.setResult(Activity.RESULT_OK, intent)
     }
 }
