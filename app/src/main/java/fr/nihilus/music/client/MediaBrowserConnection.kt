@@ -28,7 +28,6 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.MediaControllerRequest
 import fr.nihilus.music.media.extensions.isPrepared
 import fr.nihilus.music.media.service.MusicService
 import kotlinx.coroutines.CompletableDeferred
@@ -36,7 +35,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.sendBlocking
 import timber.log.Timber
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -62,10 +60,7 @@ private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
 class MediaBrowserConnection
 @Inject constructor(applicationContext: Context) {
 
-    /** Requests sent while the MediaBrowser was disconnected. */
-    private val pendingRequests = LinkedList<MediaControllerRequest>()
     private val connectedClients = mutableSetOf<ClientToken>()
-
     private val controllerCallback = ClientControllerCallback()
     private lateinit var controller: MediaControllerCompat
 
@@ -238,12 +233,6 @@ class MediaBrowserConnection
                 _nowPlaying.postValue(it.metadata)
                 _repeatMode.value = it.repeatMode
                 _shuffleMode.value = it.shuffleMode
-            }
-
-            // Deprecated: execute pending requests.
-            while (!pendingRequests.isEmpty()) {
-                val request = pendingRequests.poll()
-                request.invoke(controller)
             }
 
             // Trigger all operations waiting for the browser to be connected.

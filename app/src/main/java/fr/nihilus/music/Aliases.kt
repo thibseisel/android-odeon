@@ -16,12 +16,6 @@
 
 package fr.nihilus.music
 
-import android.support.v4.media.session.MediaControllerCompat
-
-/**
- * Defines a task to be executed on a [MediaControllerCompat].
- */
-typealias MediaControllerRequest = (MediaControllerCompat) -> Unit
 
 /**
  * Represents an event that is fired when the currently shown screen changes.
