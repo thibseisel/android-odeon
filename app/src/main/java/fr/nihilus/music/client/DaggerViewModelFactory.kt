@@ -19,9 +19,10 @@ package fr.nihilus.music.client
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import dagger.MapKey
-import fr.nihilus.music.dagger.ViewModelModule
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.*
 import kotlin.reflect.KClass
 
 /**
@@ -29,15 +30,15 @@ import kotlin.reflect.KClass
  */
 @MapKey
 @MustBeDocumented
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(RUNTIME)
+@Target(FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
 annotation class ViewModelKey(val value: KClass<out ViewModel>)
 
 /**
- * Creates instances of ViewModel subclasses that are registered in [ViewModelModule].
+ * Creates instances of ViewModel subclasses that are bound into the ViewModel map.
  * This enables dependency injection into the created ViewModels.
  */
-class DaggerViewModelFactory
+internal class DaggerViewModelFactory
 @Inject internal constructor(
     private val creators: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>
 ) : ViewModelProvider.Factory {

@@ -28,9 +28,11 @@ import javax.inject.Singleton
  * The main module for this application.
  * It defines dependencies that cannot be instantiated with a constructor,
  * such as implementations for abstract types or calls to factory methods.
+ *
+ * All dependencies defined here can be used in both app modules: client and service.
  */
 @Module(includes = [AppBindingsModule::class])
-class AppModule {
+class CommonModule {
 
     @Provides
     fun provideContext(application: OdeonApplication): Context = application.applicationContext

@@ -25,7 +25,6 @@ import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
-import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
 import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
@@ -55,7 +54,7 @@ private const val KEY_FIRST_TAG = "first_tag"
  * Clients are required to save and restore this navigation controller's state
  * on configuration changes with the [saveState] and [restoreState].
  */
-@ActivityScoped
+@MusicLibraryScope
 class NavigationController
 @Inject constructor(
     private val activity: HomeActivity

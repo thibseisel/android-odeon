@@ -16,52 +16,48 @@
 
 package fr.nihilus.music.library
 
+import android.arch.lifecycle.ViewModel
+import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.dagger.FragmentScoped
-import fr.nihilus.music.library.albums.AlbumGridFragment
-import fr.nihilus.music.library.artists.ArtistListFragment
-import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
-import fr.nihilus.music.library.nowplaying.NowPlayingFragment
-import fr.nihilus.music.library.playlists.AddToPlaylistDialog
-import fr.nihilus.music.library.playlists.MembersFragment
-import fr.nihilus.music.library.playlists.NewPlaylistDialog
-import fr.nihilus.music.library.playlists.PlaylistsFragment
-import fr.nihilus.music.library.songs.SongListFragment
+import dagger.multibindings.IntoMap
+import fr.nihilus.music.HomeActivity
+import fr.nihilus.music.client.ViewModelKey
+import fr.nihilus.music.dagger.AlbumDetailModule
+import fr.nihilus.music.library.albums.AlbumsModule
+import fr.nihilus.music.library.artists.ArtistsModule
+import fr.nihilus.music.library.nowplaying.NowPlayingModule
+import fr.nihilus.music.library.playlists.PlaylistsModule
+import fr.nihilus.music.library.songs.SongsModule
+import javax.inject.Scope
 
 /**
- * Enable dependency injection for Fragments attached to the main activity.
- * Every fragment defines its own scope by creating a subcomponent.
+ * Define the scope of the client-side music library browser.
+ * Dependencies annotated with this scope are alive
+ * as long as the user is browsing the music library.
  */
-@Suppress("unused")
-@Module
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class MusicLibraryScope
+
+/**
+ * Configure dependencies for the music library browsing feature.
+ */
+@Module(includes = [AlbumDetailModule::class])
 abstract class MusicLibraryModule {
 
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeNowPlayingFragment(): NowPlayingFragment
+    @MusicLibraryScope
+    @ContributesAndroidInjector(modules = [
+        NowPlayingModule::class,
+        SongsModule::class,
+        AlbumsModule::class,
+        ArtistsModule::class,
+        PlaylistsModule::class
+    ])
+    abstract fun homeActivity(): HomeActivity
 
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeSongListFragment(): SongListFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeAlbumGridFragment(): AlbumGridFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeArtistsFragment(): ArtistListFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeArtistDetailFragment(): ArtistDetailFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributePlaylistsFragment(): PlaylistsFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeMembersFragment(): MembersFragment
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeAddToPlaylistDialog(): AddToPlaylistDialog
-
-    @FragmentScoped @ContributesAndroidInjector
-    abstract fun contributeNewPlaylistDialog(): NewPlaylistDialog
-
+    @Binds @IntoMap
+    @ViewModelKey(MusicLibraryViewModel::class)
+    abstract fun bindsMusicLibraryViewModel(viewModel: MusicLibraryViewModel): ViewModel
 }

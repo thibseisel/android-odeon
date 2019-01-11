@@ -18,18 +18,15 @@ package fr.nihilus.music.glide.palette
 
 import android.content.Context
 import android.support.v4.content.ContextCompat
-
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.R
-import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.library.albums.AlbumPalette
 
 @Module
 class AlbumColorModule {
 
     @Provides
-    @ActivityScoped
     fun providesDefaultAlbumPalette(context: Context) =
         AlbumPalette(
             primary = ContextCompat.getColor(context, R.color.album_band_default),

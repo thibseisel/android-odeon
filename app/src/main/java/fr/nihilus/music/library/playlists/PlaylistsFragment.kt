@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
-import fr.nihilus.music.dagger.ActivityScoped
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
@@ -35,7 +34,6 @@ import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_playlist.*
 import javax.inject.Inject
 
-@ActivityScoped
 class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var router: NavigationController

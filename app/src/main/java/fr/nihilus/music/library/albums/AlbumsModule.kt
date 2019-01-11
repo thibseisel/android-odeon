@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.settings
+package fr.nihilus.music.library.albums
 
+import android.arch.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import dagger.multibindings.IntoMap
+import fr.nihilus.music.client.ViewModelKey
 
 @Module
-internal abstract class SettingsModule {
-    @Binds
-    internal abstract fun bindsUiSettings(settings: SharedPreferencesUiSettings): UiSettings
+internal abstract class AlbumsModule {
 
     @ContributesAndroidInjector
-    abstract fun settingsActivity(): SettingsActivity
+    abstract fun albumGridFragment(): AlbumGridFragment
 
-    @ContributesAndroidInjector
-    abstract fun mainPreferenceFragment(): MainPreferenceFragment
+    @Binds @IntoMap
+    @ViewModelKey(AlbumGridViewModel::class)
+    abstract fun bindsAlbumGridViewModel(viewModel: AlbumGridViewModel): ViewModel
 }

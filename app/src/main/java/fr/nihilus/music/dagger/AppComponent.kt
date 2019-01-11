@@ -31,9 +31,10 @@ import javax.inject.Singleton
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
-        AppModule::class,
-        ActivityBindingModule::class,
-        MediaServiceModule::class
+        CommonModule::class,
+        MediaServiceModule::class,
+        ClientModule::class,
+        FileViewerModule::class
     ]
 )
 interface AppComponent : AndroidInjector<OdeonApplication> {

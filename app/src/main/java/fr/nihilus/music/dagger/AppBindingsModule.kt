@@ -16,15 +16,9 @@
 
 package fr.nihilus.music.dagger
 
-import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.settings.SharedPreferencesUiSettings
-import fr.nihilus.music.settings.UiSettings
 
-@Suppress("unused")
 @Module
 abstract class AppBindingsModule {
 
-    @Binds
-    internal abstract fun bindsUiSettings(settings: SharedPreferencesUiSettings): UiSettings
 }

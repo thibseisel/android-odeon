@@ -37,20 +37,26 @@ import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.CurrentlyPlayingDecoration
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.activity_album_detail.*
-import javax.inject.Inject
 
 class AlbumDetailActivity : BaseActivity(),
     View.OnClickListener,
     BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var albumPalette: AlbumPalette
-    @Inject lateinit var pickedAlbum: MediaItem
+    private val albumPalette: AlbumPalette by lazy(LazyThreadSafetyMode.NONE) {
+        intent?.getParcelableExtra<AlbumPalette>(ARG_PALETTE)
+                ?: error("Missing required intent extra: $ARG_PALETTE")
+    }
+
+    private val pickedAlbum: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
+        intent?.getParcelableExtra<MediaItem>(ARG_PICKED_ALBUM)
+                ?: error("Missing required intent extra: $ARG_PICKED_ALBUM")
+    }
 
     private lateinit var adapter: TrackAdapter
     private lateinit var decoration: CurrentlyPlayingDecoration
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
+        ViewModelProviders.of(this, viewModelFactory).get(AlbumDetailViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.settings
+package fr.nihilus.music.dagger
 
-import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.fileviewer.FileViewerActivity
 
+/**
+ * Configure dependencies of [FileViewerActivity].
+ */
 @Module
-internal abstract class SettingsModule {
-    @Binds
-    internal abstract fun bindsUiSettings(settings: SharedPreferencesUiSettings): UiSettings
+abstract class FileViewerModule {
 
     @ContributesAndroidInjector
-    abstract fun settingsActivity(): SettingsActivity
-
-    @ContributesAndroidInjector
-    abstract fun mainPreferenceFragment(): MainPreferenceFragment
+    abstract fun fileViewerActivity(): FileViewerActivity
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.dagger
+package fr.nihilus.music.library.artists
 
 import android.arch.lifecycle.ViewModel
 import dagger.Binds
@@ -22,16 +22,22 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.ViewModelKey
-import fr.nihilus.music.library.albums.AlbumDetailActivity
-import fr.nihilus.music.library.albums.AlbumDetailViewModel
+import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
+import fr.nihilus.music.library.artists.detail.ArtistDetailViewModel
 
 @Module
-internal abstract class AlbumDetailModule {
-
+internal abstract class ArtistsModule {
     @ContributesAndroidInjector
-    abstract fun albumDetailActivity(): AlbumDetailActivity
+    abstract fun artistListFragment(): ArtistListFragment
 
     @Binds @IntoMap
-    @ViewModelKey(AlbumDetailViewModel::class)
-    abstract fun bindAlbumDetailViewModel(viewModel: AlbumDetailViewModel): ViewModel
+    @ViewModelKey(ArtistListViewModel::class)
+    abstract fun bindsArtistListViewModel(viewModel: ArtistListViewModel): ViewModel
+
+    @ContributesAndroidInjector
+    abstract fun artistDetailFragment(): ArtistDetailFragment
+
+    @Binds @IntoMap
+    @ViewModelKey(ArtistDetailViewModel::class)
+    abstract fun bindsArtistDetailViewModel(viewModel: ArtistDetailViewModel): ViewModel
 }
