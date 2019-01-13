@@ -111,7 +111,7 @@ class MusicService : BaseBrowserService() {
 
         // Clear all subscriptions to prevent resource leaks
         subscriptions.clear()
-        cancelCoroutines()
+        super.onDestroy()
     }
 
     override fun onGetRoot(

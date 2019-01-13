@@ -59,7 +59,8 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
         }
     }
 
-    protected fun cancelCoroutines() {
+    override fun onDestroy() {
         scopeJob.cancel()
+        super.onDestroy()
     }
 }
