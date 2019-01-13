@@ -36,12 +36,10 @@ import fr.nihilus.music.extensions.lockDrawer
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
-import fr.nihilus.music.library.REQUEST_SETTINGS
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
-import fr.nihilus.music.settings.SettingsActivity
 import fr.nihilus.music.settings.UiSettings
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import kotlinx.android.synthetic.main.activity_home.*
@@ -202,18 +200,6 @@ class HomeActivity : BaseActivity(),
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
 
         else -> super.onBackPressed()
-    }
-
-    /**
-     * Called when an activity launched by this one exits and returns a result.
-     * This allows this activity to recreate itself if a preference that changed
-     * in [SettingsActivity] affects the visual state (such as the night mode preference).
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_SETTINGS) {
-            recreate()
-        }
     }
 
     /**
