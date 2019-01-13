@@ -28,15 +28,26 @@ import kotlinx.coroutines.launch
 abstract class BrowsableContentViewModel(
     private val connection: MediaBrowserConnection
 ) : BaseViewModel() {
+    private val token = MediaBrowserConnection.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
     val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
         get() = _children
 
+    init {
+        connection.connect(token)
+    }
+
     protected fun observeChildren(parentId: String): Job = launch {
         _children.postValue(LoadRequest.Pending())
-        connection.subscribe(parentId).consumeEach { childrenUpdate ->
+        val subscription = connection.subscribe(parentId)
+        subscription.consumeEach { childrenUpdate ->
             _children.postValue(LoadRequest.Success(childrenUpdate))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        connection.disconnect(token)
     }
 }

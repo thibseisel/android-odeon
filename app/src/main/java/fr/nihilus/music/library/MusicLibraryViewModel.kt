@@ -99,6 +99,7 @@ class MusicLibraryViewModel
 
     override fun onCleared() {
         connection.playbackState.removeObserver(playbackStateObserver)
+        super.onCleared()
         connection.disconnect(client)
     }
 }

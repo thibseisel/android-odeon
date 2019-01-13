@@ -62,7 +62,7 @@ class MediaBrowserConnection
 
     private val connectedClients = mutableSetOf<ClientToken>()
     private val controllerCallback = ClientControllerCallback()
-    private lateinit var controller: MediaControllerCompat
+    private val connectionCallback = ConnectionCallback(applicationContext)
 
     @Volatile
     private var deferredController = CompletableDeferred<MediaControllerCompat>()
@@ -70,7 +70,7 @@ class MediaBrowserConnection
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
         ComponentName(applicationContext, MusicService::class.java),
-        ConnectionCallback(applicationContext),
+        connectionCallback,
         null
     )
 
@@ -124,7 +124,10 @@ class MediaBrowserConnection
         }
     }
 
-    fun subscribe(parentId: String): ReceiveChannel<List<MediaBrowserCompat.MediaItem>> {
+    suspend fun subscribe(parentId: String): ReceiveChannel<List<MediaBrowserCompat.MediaItem>> {
+        // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
+        // Wait for the media browser to be connected before registering subscription.
+        deferredController.await()
         val output = Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED)
 
         val callback = object : MediaBrowserCompat.SubscriptionCallback() {
@@ -227,6 +230,7 @@ class MediaBrowserConnection
     ) : MediaBrowserCompat.ConnectionCallback() {
 
         override fun onConnected() {
+            Timber.i("MediaBrowser is connected.")
             val controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
                 it.registerCallback(controllerCallback)
                 _playbackState.postValue(it.playbackState ?: EMPTY_PLAYBACK_STATE)
@@ -246,7 +250,14 @@ class MediaBrowserConnection
 
         override fun onConnectionSuspended() {
             Timber.i("Connection to the MediaBrowserService has been suspended.")
-            controller.unregisterCallback(controllerCallback)
+            if (deferredController.isCompleted) {
+                val controller = deferredController.getCompleted()
+                controller.unregisterCallback(controllerCallback)
+            } else {
+                deferredController.cancel()
+            }
+
+            deferredController = CompletableDeferred()
         }
 
         override fun onConnectionFailed() {
@@ -282,6 +293,7 @@ class MediaBrowserConnection
 
         override fun onSessionDestroyed() {
             Timber.i("MediaSession has been destroyed.")
+            connectionCallback.onConnectionSuspended()
         }
     }
 
