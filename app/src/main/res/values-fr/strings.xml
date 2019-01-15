@@ -60,7 +60,7 @@
         <item quantity="other">%d titres ajoutés à la playlist \"%s\"</item>
     </plurals>
 
-    <string name="song_item_subtitle">%s \u2022 %s</string>
+    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
     <string name="ok">OK</string>
     <string name="action_play">Lire</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
