@@ -17,9 +17,7 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
-import android.support.v4.app.Fragment
 import android.view.ViewGroup
-import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
@@ -28,7 +26,7 @@ import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
-    fragment: Fragment,
+    fragment: androidx.fragment.app.Fragment,
     private val defaultPalette: AlbumPalette,
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {

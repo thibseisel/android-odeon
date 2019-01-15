@@ -18,7 +18,7 @@ package fr.nihilus.music.library.albums
 
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 import fr.nihilus.music.extensions.darker
 
 data class AlbumPalette(

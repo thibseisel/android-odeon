@@ -17,9 +17,9 @@
 package fr.nihilus.music.extensions
 
 import android.graphics.Color
-import android.support.annotation.ColorInt
-import android.support.annotation.FloatRange
-import android.support.v4.graphics.ColorUtils
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
+import androidx.core.graphics.ColorUtils
 
 /**
  * Produce a darker shade of this color by a given factor.

@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.ui
 
-import android.arch.lifecycle.LiveData
-import android.support.design.widget.Snackbar
+import androidx.lifecycle.LiveData
+import com.google.android.material.snackbar.Snackbar
 
 /**
  * Encapsulate data that is exposed via [LiveData] to represent it as an event.

@@ -17,17 +17,16 @@
 package fr.nihilus.music.library.playlists
 
 import android.app.Dialog
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v7.app.AlertDialog
 import android.text.InputType
 import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
-import fr.nihilus.music.R
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseDialogFragment
 import fr.nihilus.music.extensions.observeK
 
@@ -64,7 +63,7 @@ class NewPlaylistDialog : BaseDialogFragment() {
         const val RESULT_TAKEN_PLAYLIST_TITLE = "taken_playlist_name"
 
         fun newInstance(
-            caller: Fragment,
+            caller: androidx.fragment.app.Fragment,
             requestCode: Int,
             memberTracks: Array<MediaBrowserCompat.MediaItem>
         ) = NewPlaylistDialog().apply {

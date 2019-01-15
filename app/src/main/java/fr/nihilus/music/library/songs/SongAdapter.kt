@@ -17,7 +17,6 @@
 package fr.nihilus.music.library.songs
 
 import android.graphics.Bitmap
-import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
 import android.view.View
@@ -28,7 +27,6 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import fr.nihilus.music.R
 import fr.nihilus.music.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -36,7 +34,7 @@ import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
-class SongAdapter(fragment: Fragment) : BaseAdapter(), SectionIndexer {
+class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), SectionIndexer {
 
     private val songs = ArrayList<MediaBrowserCompat.MediaItem>()
     private val indexer = AlphaSectionIndexer()

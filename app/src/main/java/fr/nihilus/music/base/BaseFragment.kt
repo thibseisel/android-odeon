@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.base
 
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 

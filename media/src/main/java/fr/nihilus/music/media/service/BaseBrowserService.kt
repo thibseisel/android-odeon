@@ -18,7 +18,7 @@ package fr.nihilus.music.media.service
 
 import android.app.Service
 import android.content.Intent
-import android.support.v4.media.MediaBrowserServiceCompat
+import androidx.media.MediaBrowserServiceCompat
 import dagger.android.AndroidInjection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -17,8 +17,8 @@
 package fr.nihilus.music.view
 
 import android.content.Context
-import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatImageView
 
 /**
  * Extension of ImageView specialized for a play/pause button.

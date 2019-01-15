@@ -26,7 +26,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         versionCode rootProject.appVersionCode
         versionName rootProject.appVersionName
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
@@ -69,54 +69,52 @@ kapt {
 
 dependencies {
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlinVersion"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.koroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.koroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:$rootProject.koroutinesVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
 
     // Android support libraries
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:support-media-compat:$rootProject.supportLibVersion"
+    implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
+    implementation "androidx.media:media:${versions.androidx.media}"
 
     // Android Room
-    api "android.arch.persistence.room:runtime:$rootProject.roomVersion"
-    implementation "android.arch.persistence.room:rxjava2:$rootProject.roomVersion"
-    kapt "android.arch.persistence.room:compiler:$rootProject.roomVersion"
+    api "androidx.room:room-runtime:${versions.androidx.room}"
+    kapt "androidx.room:room-compiler:${versions.androidx.room}"
+    implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
 
     // ExoPlayer
-    api "com.google.android.exoplayer:exoplayer-core:$rootProject.exoplayerVersion"
-    api "com.google.android.exoplayer:extension-mediasession:$rootProject.exoplayerVersion"
+    api "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer}"
+    api "com.google.android.exoplayer:extension-mediasession:${versions.exoplayer}"
 
     // Dagger
-    implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger:${versions.dagger}"
+    implementation "com.google.dagger:dagger-android:${versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
     // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
+    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
     // Glide
-    implementation "com.github.bumptech.glide:glide:$rootProject.glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
+    implementation "com.github.bumptech.glide:glide:${versions.glide}"
+    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
     // Timber Logging
-    implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
+    implementation "com.jakewharton.timber:timber:${versions.timber}"
 
     // Other libraries
-    implementation "com.github.thibseisel:kdenticon-android:$rootProject.kdenticonVersion"
+    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
 
     // Test dependencies
-    testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
-    testImplementation "junit:junit:$rootProject.junitVersion"
-    testImplementation "org.robolectric:robolectric:$rootProject.robolectricVersion"
-    testImplementation "com.google.truth:truth:$rootProject.truthVersion"
+    testImplementation "org.mockito:mockito-core:${versions.mockito}"
+    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+    testImplementation "com.google.truth:truth:${versions.truth}"
 
     // Android-specific test dependencies
-    androidTestImplementation "com.google.truth:truth:$rootProject.truthVersion"
-    androidTestImplementation "com.android.support:support-annotations:$rootProject.supportLibVersion"
-    androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
-    androidTestImplementation "com.android.support.test:runner:$rootProject.androidTestVersion"
-    androidTestImplementation "org.mockito:mockito-android:$rootProject.mockitoVersion"
+    androidTestImplementation "com.google.truth:truth:${versions.truth}"
+    androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
 }

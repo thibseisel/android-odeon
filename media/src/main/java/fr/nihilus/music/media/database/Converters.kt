@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.media.database
 
-import android.arch.persistence.room.TypeConverter
 import android.net.Uri
+import androidx.room.TypeConverter
 import fr.nihilus.music.media.toUri
 import java.util.*
 

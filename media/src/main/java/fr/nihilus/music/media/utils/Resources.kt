@@ -22,9 +22,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
-import android.support.annotation.*
-import android.support.v4.content.ContextCompat
 import android.util.TypedValue
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 
 /**
  * Resolve a color attribute from the application theme such as `colorPrimary` or `colorAccent`.

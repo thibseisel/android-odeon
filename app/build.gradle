@@ -27,7 +27,7 @@ android {
         targetSdkVersion rootProject.targetSdkVersion
         versionCode rootProject.appVersionCode
         versionName rootProject.appVersionName
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     // Retrieve keystore properties from this machine's global Gradle properties.
@@ -96,53 +96,56 @@ dependencies {
     api project(':media')
 
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$rootProject.kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.koroutinesVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
 
     // Support library dependencies
-    implementation "com.android.support:support-v4:$rootProject.supportLibVersion"
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:cardview-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:recyclerview-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:palette-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support:design:$rootProject.supportLibVersion"
-    implementation "com.android.support:preference-v7:$rootProject.supportLibVersion"
-    implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintVersion"
+    implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
+    implementation "androidx.fragment:fragment-ktx:${versions.androidx.fragment}"
+    implementation "androidx.cardview:cardview:${versions.androidx.cardview}"
+    implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
+    implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
+    implementation "androidx.preference:preference-ktx:${versions.androidx.preference}"
+    implementation "androidx.constraintlayout:constraintlayout:${versions.androidx.constraint_layout}"
+
+    // Material Components
+    implementation "com.google.android.material:material:${versions.material}"
 
     // Android Arch Components
-    implementation "android.arch.lifecycle:extensions:$rootProject.lifecycleVersion"
-    implementation "android.arch.lifecycle:common-java8:$rootProject.lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:${versions.androidx.lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.androidx.lifecycle}"
+    kapt "androidx.lifecycle:lifecycle-compiler:${versions.androidx.lifecycle}"
 
     // Glide
-    implementation "com.github.bumptech.glide:glide:$rootProject.glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$rootProject.glideVersion"
+    implementation "com.github.bumptech.glide:glide:${versions.glide}"
+    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
     // My libraries
-    implementation "com.github.thibseisel:ratioimageview:$rootProject.ratioImageVersion"
+    implementation "com.github.thibseisel:ratioimageview:${versions.ratioimageview}"
 
     // Dagger
-    implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
-    implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
+    implementation "com.google.dagger:dagger:${versions.dagger}"
+    implementation "com.google.dagger:dagger-android:${versions.dagger}"
+    implementation "com.google.dagger:dagger-android-support:${versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
     // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
-    implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
+    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
+    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
     // Timber Logging
-    implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
+    implementation "com.jakewharton.timber:timber:${versions.timber}"
 
     // Test dependencies
-    testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
-    testImplementation "junit:junit:$rootProject.junitVersion"
-    testImplementation "org.robolectric:robolectric:$rootProject.robolectricVersion"
-    testImplementation "com.google.truth:truth:$rootProject.truthVersion"
+    testImplementation "org.mockito:mockito-core:${versions.mockito}"
+    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+    testImplementation "com.google.truth:truth:${versions.truth}"
+    testImplementation "androidx.arch.core:core-testing:${versions.androidx.lifecycle}"
 
-    androidTestImplementation "com.android.support:support-annotations:$rootProject.supportLibVersion"
-    androidTestImplementation "com.android.support.test:rules:$rootProject.androidTestVersion"
-    androidTestImplementation "com.android.support.test:runner:$rootProject.androidTestVersion"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
-    androidTestImplementation "org.mockito:mockito-android:$rootProject.mockitoVersion"
+    androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${versions.espresso}"
+    androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
 }

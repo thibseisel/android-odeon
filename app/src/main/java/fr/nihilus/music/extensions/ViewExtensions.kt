@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.extensions
 
-import android.support.annotation.LayoutRes
-import android.support.v4.widget.DrawerLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
+import androidx.drawerlayout.widget.DrawerLayout
 
 /**
  * Inflate the given layout as a child of this view group.
@@ -49,10 +49,10 @@ var View.isVisible: Boolean
  * Lock user interactions with the given [DrawerLayout].
  * @param isLocked Whether interactions with this drawer should be ignored.
  */
-fun DrawerLayout.lockDrawer(isLocked: Boolean) {
+fun androidx.drawerlayout.widget.DrawerLayout.lockDrawer(isLocked: Boolean) {
     requestDisallowInterceptTouchEvent(isLocked)
     setDrawerLockMode(
-        if (isLocked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-        else DrawerLayout.LOCK_MODE_UNLOCKED
+        if (isLocked) androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
     )
 }

@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library.songs
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -26,7 +25,7 @@ import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
-import fr.nihilus.music.R
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK

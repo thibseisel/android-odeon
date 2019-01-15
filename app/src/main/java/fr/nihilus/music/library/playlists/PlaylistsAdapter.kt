@@ -16,11 +16,9 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import fr.nihilus.music.R
+import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
@@ -30,7 +28,7 @@ import java.util.*
  * Display playlist media items as a grid of floating cards.
  */
 internal class PlaylistsAdapter(
-    fragment: Fragment,
+    fragment: androidx.fragment.app.Fragment,
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<PlaylistHolder>() {
 
@@ -47,8 +45,8 @@ internal class PlaylistsAdapter(
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
             val mediaId = playlists[position].mediaId
-            musicIdFrom(mediaId)?.toLong() ?: RecyclerView.NO_ID
-        } else RecyclerView.NO_ID
+            musicIdFrom(mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
+        } else androidx.recyclerview.widget.RecyclerView.NO_ID
     }
 
 }

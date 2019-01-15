@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.dagger
 
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.client.DaggerViewModelFactory

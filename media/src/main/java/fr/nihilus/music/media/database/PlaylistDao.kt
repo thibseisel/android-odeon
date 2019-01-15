@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.media.database
 
-import android.arch.persistence.room.*
-import android.support.annotation.WorkerThread
+import androidx.annotation.WorkerThread
+import androidx.room.*
 import io.reactivex.Single
 
 @Dao

@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.glide.palette
 
-import android.support.annotation.ColorInt
-import android.support.v7.graphics.Palette
+import androidx.annotation.ColorInt
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import fr.nihilus.music.extensions.toHsl
@@ -110,13 +109,13 @@ class PrimaryHueFilterTest {
         }
     }
 
-    private fun Palette.Filter.assertNotAllowed(@ColorInt accentColor: Int) {
+    private fun androidx.palette.graphics.Palette.Filter.assertNotAllowed(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
         assertWithMessage("Color should have been rejected. Hue = %s", hsl[0])
             .that(isAllowed(accentColor, hsl)).isFalse()
     }
 
-    private fun Palette.Filter.assertAccepted(@ColorInt accentColor: Int) {
+    private fun androidx.palette.graphics.Palette.Filter.assertAccepted(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
         assertWithMessage("Color should have been accepted. Hue = %s", hsl[0])
             .that(isAllowed(accentColor, hsl)).isTrue()

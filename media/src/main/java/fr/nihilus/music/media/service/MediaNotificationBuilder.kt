@@ -22,14 +22,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
-import android.support.annotation.RequiresApi
-import android.support.v4.app.NotificationCompat
-import android.support.v4.media.app.NotificationCompat.MediaStyle
-import android.support.v4.media.session.MediaButtonReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import fr.nihilus.music.media.R
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.media.app.NotificationCompat.MediaStyle
 import fr.nihilus.music.media.assert
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.extensions.isPlayEnabled
@@ -65,29 +63,29 @@ internal class MediaNotificationBuilder
     private val previousAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_previous_36dp,
         context.getString(R.string.abc_action_previous),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
+        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
     )
 
     private val playAction = NotificationCompat.Action(
         R.drawable.abc_ic_play_arrow_48dp,
         context.getString(R.string.abc_action_play),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
+        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
     )
 
     private val pauseAction = NotificationCompat.Action(
         R.drawable.abc_ic_pause_48dp,
         context.getString(R.string.abc_action_pause),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
+        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
 
     private val nextAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_next_36dp,
         context.getString(R.string.abc_action_next),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
+        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
     )
 
     private val stopPendingIntent: PendingIntent =
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
+        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
     fun buildNotification(): Notification {
         if (shouldCreateNowPlayingChannel()) {

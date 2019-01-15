@@ -18,12 +18,12 @@ package fr.nihilus.music.extensions
 
 import android.content.Context
 import android.os.Build
-import android.support.annotation.Dimension
-import android.support.annotation.Px
-import android.support.annotation.RequiresApi
 import android.util.TypedValue
 import android.view.View
 import android.view.Window
+import androidx.annotation.Dimension
+import androidx.annotation.Px
+import androidx.annotation.RequiresApi
 import kotlin.math.roundToInt
 
 /**

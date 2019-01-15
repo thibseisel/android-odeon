@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.base
 
-import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.os.Bundle
 import android.os.PowerManager
-import android.support.v7.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.DaggerAppCompatActivity
 import fr.nihilus.music.settings.UiSettings
 import fr.nihilus.music.settings.UiSettings.NightMode

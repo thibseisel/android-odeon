@@ -18,18 +18,17 @@ package fr.nihilus.music.library.playlists
 
 import android.app.Activity
 import android.app.Dialog
-import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v7.app.AlertDialog
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import fr.nihilus.music.R
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseDialogFragment
 import fr.nihilus.music.extensions.inflate
 import fr.nihilus.music.extensions.observeK
@@ -78,7 +77,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
          */
         const val RESULT_PLAYLIST_TITLE = "playlist_title"
 
-        fun newInstance(caller: Fragment, requestCode: Int, selectedTracksIds: List<MediaItem>) =
+        fun newInstance(caller: androidx.fragment.app.Fragment, requestCode: Int, selectedTracksIds: List<MediaItem>) =
             AddToPlaylistDialog().apply {
                 setTargetFragment(caller, requestCode)
                 arguments = Bundle(1).apply {
@@ -161,7 +160,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     /**
      * The adapter used to display available playlists in the dialog's body.
      */
-    private class TargetPlaylistsAdapter(fragment: Fragment) : ListAdapter<MediaItem, PlaylistHolder>() {
+    private class TargetPlaylistsAdapter(fragment: androidx.fragment.app.Fragment) : ListAdapter<MediaItem, PlaylistHolder>() {
         private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
 
         override fun onCreateViewHolder(container: ViewGroup): PlaylistHolder =

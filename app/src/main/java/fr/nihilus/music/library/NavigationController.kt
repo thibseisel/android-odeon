@@ -18,12 +18,8 @@ package fr.nihilus.music.library
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
@@ -60,7 +56,7 @@ class NavigationController
     private val activity: HomeActivity
 ) {
 
-    private val fm: FragmentManager = activity.supportFragmentManager
+    private val fm: androidx.fragment.app.FragmentManager = activity.supportFragmentManager
     private val containerId: Int = R.id.container
     private var firstTag: String? = null
 
@@ -206,7 +202,7 @@ class NavigationController
      * @param provider a function that provides the requested fragment if does not exist
      * @return the retrieved fragment, or the provided one if not in fragment manager
      */
-    private inline fun findOrCreateFragment(tag: String, provider: () -> Fragment) =
+    private inline fun findOrCreateFragment(tag: String, provider: () -> androidx.fragment.app.Fragment) =
         fm.findFragmentByTag(tag) ?: provider()
 
     /**
@@ -232,13 +228,13 @@ class NavigationController
      * It will be used when checking if fragment has already been shown.
      * @param fragment the fragment to show
      */
-    private fun showFragment(tag: String, fragment: Fragment) {
+    private fun showFragment(tag: String, fragment: androidx.fragment.app.Fragment) {
         if (fm.findFragmentById(containerId) != null) {
             // Is the fragment to show already on the back stack ?
             if (fm.findFragmentByTag(tag) != null) {
                 if (tag == firstTag) {
                     // Pop all transactions if the fragment to show is the first one added
-                    fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    fm.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
                 } else {
                     // Pop until showing the fragment
                     fm.popBackStack(tag, 0)
@@ -246,7 +242,7 @@ class NavigationController
             } else {
                 fm.beginTransaction()
                     .replace(containerId, fragment, tag)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .setTransition(androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .addToBackStack(tag)
                     .commit()
             }

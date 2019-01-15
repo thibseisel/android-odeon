@@ -23,10 +23,9 @@ import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.os.Build
 import android.os.Process
-import android.support.annotation.XmlRes
-import android.support.v4.media.MediaBrowserServiceCompat
 import android.util.Base64
-import fr.nihilus.music.media.R
+import androidx.annotation.XmlRes
+import androidx.media.MediaBrowserServiceCompat
 import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.io.IOException

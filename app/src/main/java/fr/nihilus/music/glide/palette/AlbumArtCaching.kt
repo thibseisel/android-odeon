@@ -17,9 +17,7 @@
 package fr.nihilus.music.glide.palette
 
 import android.graphics.Bitmap
-import android.support.annotation.ColorInt
-import android.support.v7.graphics.Palette
-import android.support.v7.graphics.Target
+import androidx.annotation.ColorInt
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.ResourceDecoder
 import com.bumptech.glide.load.ResourceEncoder
@@ -71,7 +69,7 @@ private const val HUE_DELTA = 15f
  * The primary color should be one of the most represented colors
  * and prefer moderately-saturated colors when available.
  */
-private val PRIMARY_TARGET = Target.Builder()
+private val PRIMARY_TARGET = androidx.palette.graphics.Target.Builder()
     .setPopulationWeight(0.7f)
     .setSaturationWeight(0.3f)
     .setTargetSaturation(0.6f)
@@ -84,7 +82,7 @@ private val PRIMARY_TARGET = Target.Builder()
  * The accent color should preferably be of average lightness and high saturation,
  * and be part of small, isolated parts of the image.
  */
-private val ACCENT_TARGET = Target.Builder()
+private val ACCENT_TARGET = androidx.palette.graphics.Target.Builder()
     .setPopulationWeight(0.1f)
     .setSaturationWeight(0.5f)
     .setLightnessWeight(0.4f)
@@ -127,7 +125,7 @@ private fun ByteArray.writeInt(startIndex: Int, value: Int) {
  */
 private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): AlbumPalette {
     // Generate a coarse Palette to extract the primary color from the bottom of the image.
-    val primaryPalette = Palette.from(bitmap)
+    val primaryPalette = androidx.palette.graphics.Palette.from(bitmap)
         .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
         .resizeBitmapArea(MAX_BITMAP_AREA)
         .clearFilters()
@@ -140,7 +138,7 @@ private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): A
     val primaryColor = primaryPalette.getColorForTarget(PRIMARY_TARGET, defaultPalette.primary)
     val primaryColorFilter = PrimaryHueFilter(primaryColor)
 
-    val accentPalette = Palette.from(bitmap)
+    val accentPalette = androidx.palette.graphics.Palette.from(bitmap)
         .clearTargets()
         .addTarget(ACCENT_TARGET)
         .addFilter(primaryColorFilter)
@@ -326,7 +324,7 @@ class AlbumArtEncoder(
  *
  * @param primaryColor The selected primary color.
  */
-class PrimaryHueFilter(@ColorInt primaryColor: Int) : Palette.Filter {
+class PrimaryHueFilter(@ColorInt primaryColor: Int) : androidx.palette.graphics.Palette.Filter {
 
     /**
      * Whether the primary color is perceived as a shade of grey to the human eye.

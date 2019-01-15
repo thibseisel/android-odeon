@@ -2,10 +2,10 @@ package fr.nihilus.music.media
 
 import android.net.Uri
 import android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-import android.support.test.filters.SmallTest
-import android.support.test.runner.AndroidJUnit4
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import androidx.test.filters.SmallTest
+import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth
 import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.repo.CachedMusicRepository

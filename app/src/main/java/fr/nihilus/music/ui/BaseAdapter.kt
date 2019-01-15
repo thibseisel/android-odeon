@@ -16,11 +16,10 @@
 
 package fr.nihilus.music.ui
 
-import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v7.recyclerview.extensions.ListAdapter
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.ListAdapter
 import fr.nihilus.music.extensions.inflate
 
 /**
@@ -59,7 +58,7 @@ abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : ListAdapter<MediaItem,
     abstract class ViewHolder(
         parent: ViewGroup,
         @LayoutRes layoutResId: Int
-    ) : RecyclerView.ViewHolder(parent.inflate(layoutResId)) {
+    ) : androidx.recyclerview.widget.RecyclerView.ViewHolder(parent.inflate(layoutResId)) {
 
         /**
          * Called when this ViewHolder needs to configure view events to which it responds.

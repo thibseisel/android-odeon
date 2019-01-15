@@ -19,26 +19,25 @@ package fr.nihilus.music.ui
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.support.v7.widget.RecyclerView
-import fr.nihilus.music.R
+import androidx.recyclerview.widget.RecyclerView
 
 class CurrentlyPlayingDecoration(
     context: Context,
     iconColor: Int
-) : RecyclerView.ItemDecoration() {
+) : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
 
     private val icon: Drawable = context.getDrawable(R.drawable.currently_playing_decoration)
             ?: throw IllegalStateException("Icon should not be null")
     private val paddingStart =
         context.resources.getDimensionPixelSize(R.dimen.list_item_horizontal_padding)
-    var decoratedPosition = RecyclerView.NO_POSITION
+    var decoratedPosition = androidx.recyclerview.widget.RecyclerView.NO_POSITION
 
     init {
         icon.setTint(iconColor)
     }
 
-    override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        if (decoratedPosition != RecyclerView.NO_POSITION) {
+    override fun onDrawOver(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+        if (decoratedPosition != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
             val child = parent.getChildAt(decoratedPosition)
             if (child != null) {
                 val left = paddingStart

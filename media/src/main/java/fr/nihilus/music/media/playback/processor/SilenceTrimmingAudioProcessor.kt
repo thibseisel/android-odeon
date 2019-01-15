@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.playback.processor
 
-import android.support.annotation.IntDef
+import androidx.annotation.IntDef
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.audio.AudioProcessor

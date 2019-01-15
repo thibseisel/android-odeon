@@ -16,18 +16,16 @@
 
 package fr.nihilus.music.library.albums
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v7.view.ContextThemeWrapper
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.ImageView
-import fr.nihilus.music.R
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.extensions.luminance
@@ -107,7 +105,7 @@ class AlbumDetailActivity : BaseActivity(),
 
     private fun setupTrackList() {
         recycler.let {
-            it.layoutManager = LinearLayoutManager(this)
+            it.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
             adapter = TrackAdapter(this)
             it.adapter = adapter
         }

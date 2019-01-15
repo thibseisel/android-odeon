@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.media.database
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.Index
-import android.arch.persistence.room.PrimaryKey
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.mediaIdOf
 import java.util.*

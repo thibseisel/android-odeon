@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.base
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.support.v4.media.MediaBrowserCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.Job

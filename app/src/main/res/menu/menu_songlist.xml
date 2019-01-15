@@ -25,7 +25,7 @@
         android:orderInCategory="1"
         android:title="@string/action_search"
         android:visible="false"
-        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView" />
 
     <item

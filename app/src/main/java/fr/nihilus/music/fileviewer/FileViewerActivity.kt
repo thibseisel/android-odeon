@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.fileviewer
 
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
@@ -25,7 +23,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import fr.nihilus.music.R
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.ui.ProgressAutoUpdater
 import fr.nihilus.music.view.PlayPauseButton

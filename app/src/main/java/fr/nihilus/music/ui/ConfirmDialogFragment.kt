@@ -20,10 +20,9 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
 
 /**
  * A Fragment that displays an AlertDialog that can be used to confirm user decisions.
@@ -38,7 +37,7 @@ import android.support.v7.app.AlertDialog
  * - [Activity.RESULT_CANCELED] if the dialog is canceled as a result of pressing back button
  * or taping out of the dialog frame.
  */
-class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
+class ConfirmDialogFragment : androidx.fragment.app.DialogFragment(), DialogInterface.OnClickListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val args = checkNotNull(arguments) {
@@ -101,7 +100,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
          * to display in the neutral button. If 0, no neutral button will be shown.
          */
         @JvmStatic fun newInstance(
-            caller: Fragment?,
+            caller: androidx.fragment.app.Fragment?,
             requestCode: Int,
             title: String? = null,
             message: String? = null,

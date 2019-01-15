@@ -17,20 +17,19 @@
 package fr.nihilus.music
 
 import android.Manifest
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.NavigationView
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.app.ActivityCompat
+import androidx.core.view.GravityCompat
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.navigation.NavigationView
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.extensions.lockDrawer
 import fr.nihilus.music.extensions.observeK
@@ -55,7 +54,7 @@ class HomeActivity : BaseActivity(),
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
+    private val viewModel: MusicLibraryViewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[MusicLibraryViewModel::class.java]
     }
 
@@ -84,7 +83,7 @@ class HomeActivity : BaseActivity(),
         }
     }
 
-    override fun onAttachFragment(fragment: Fragment?) {
+    override fun onAttachFragment(fragment: androidx.fragment.app.Fragment?) {
         super.onAttachFragment(fragment)
         if (fragment is NowPlayingFragment) {
             playerFragment = fragment

@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.client
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
 import android.net.Uri
@@ -28,6 +26,8 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.media.extensions.isPrepared
 import fr.nihilus.music.media.service.MusicService
 import kotlinx.coroutines.CompletableDeferred

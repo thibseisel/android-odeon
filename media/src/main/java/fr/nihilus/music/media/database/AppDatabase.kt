@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.media.database
 
-import android.arch.persistence.db.SupportSQLiteDatabase
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.TypeConverters
-import android.arch.persistence.room.migration.Migration
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.usage.MediaUsageEvent
 

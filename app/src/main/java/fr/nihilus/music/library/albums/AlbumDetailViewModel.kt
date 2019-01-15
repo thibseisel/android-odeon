@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.library.albums
 
-import android.arch.lifecycle.LiveData
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
+import androidx.lifecycle.LiveData
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import kotlinx.coroutines.Job

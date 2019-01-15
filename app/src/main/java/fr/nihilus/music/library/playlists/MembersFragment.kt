@@ -16,13 +16,12 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.*
-import fr.nihilus.music.R
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK

@@ -17,8 +17,8 @@
 package fr.nihilus.music.ui
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v7.util.DiffUtil
 import android.text.TextUtils
+import androidx.recyclerview.widget.DiffUtil
 
 /**
  * Defines conditions under which two media item instances are considered the same.

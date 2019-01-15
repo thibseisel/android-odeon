@@ -16,11 +16,10 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.R
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.command.NewPlaylistCommand

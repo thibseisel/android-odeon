@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.fileviewer
 
-import android.arch.lifecycle.LiveData
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.lifecycle.LiveData
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import kotlinx.coroutines.launch

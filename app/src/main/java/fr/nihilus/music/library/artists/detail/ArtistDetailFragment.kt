@@ -16,16 +16,14 @@
 
 package fr.nihilus.music.library.artists.detail
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import fr.nihilus.music.R
+import androidx.core.app.ActivityOptionsCompat
+import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK
@@ -75,12 +73,12 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
         viewModel.loadChildrenOfArtist(pickedArtist)
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
-        val manager = GridLayoutManager(context, spanCount)
+        val manager = androidx.recyclerview.widget.GridLayoutManager(context, spanCount)
         artist_detail_recycler.adapter = adapter
         artist_detail_recycler.layoutManager = manager
         artist_detail_recycler.setHasFixedSize(true)
 
-        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+        manager.spanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
                 val viewType = adapter.getItemViewType(position)
                 return if (viewType == R.id.view_type_album) 1 else spanCount

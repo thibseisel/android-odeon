@@ -19,12 +19,12 @@ package fr.nihilus.music.media
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.support.annotation.LayoutRes
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import com.google.android.exoplayer2.Player
 import fr.nihilus.music.media.extensions.*
 import java.lang.ref.WeakReference

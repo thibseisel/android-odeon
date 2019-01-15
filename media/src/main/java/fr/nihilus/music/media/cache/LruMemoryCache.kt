@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.cache
 
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.util.LruCache
 import fr.nihilus.music.media.di.ServiceScoped
 import javax.inject.Inject
 
@@ -28,7 +27,8 @@ import javax.inject.Inject
 internal class LruMemoryCache
 @Inject constructor() : MediaCache {
 
-    private val itemsCache = LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
+    private val itemsCache =
+        androidx.collection.LruCache<String, List<MediaBrowserCompat.MediaItem>>(5)
 
     override fun put(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
         itemsCache.put(mediaId, items)

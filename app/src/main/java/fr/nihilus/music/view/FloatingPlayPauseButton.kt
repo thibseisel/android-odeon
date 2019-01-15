@@ -17,8 +17,8 @@
 package fr.nihilus.music.view
 
 import android.content.Context
-import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
  * Extension of a FloatingActionButton specialized for a play/pause button.

@@ -16,10 +16,8 @@
 
 package fr.nihilus.music.library.albums
 
-import android.support.v4.app.Fragment
-import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import fr.nihilus.music.R
+import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
@@ -27,7 +25,7 @@ import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class AlbumsAdapter(
-    fragment: Fragment,
+    fragment: androidx.fragment.app.Fragment,
     private val defaultPalette: AlbumPalette,
     private val listener: BaseAdapter.OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
@@ -57,8 +55,8 @@ internal class AlbumsAdapter(
     override fun getItemId(position: Int): Long {
         return if (hasStableIds()) {
             val item = getItem(position)
-            musicIdFrom(item.mediaId)?.toLong() ?: RecyclerView.NO_ID
-        } else RecyclerView.NO_ID
+            musicIdFrom(item.mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
+        } else androidx.recyclerview.widget.RecyclerView.NO_ID
     }
 
 }

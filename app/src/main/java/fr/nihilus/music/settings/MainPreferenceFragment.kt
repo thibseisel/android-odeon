@@ -18,9 +18,8 @@ package fr.nihilus.music.settings
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
-import fr.nihilus.music.R
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
