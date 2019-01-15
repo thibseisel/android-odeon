@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.HomeActivity
+import fr.nihilus.music.R
 import fr.nihilus.music.RouteChangeListener
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment

@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.*
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK

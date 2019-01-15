@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.R
 import fr.nihilus.music.library.albums.AlbumPalette
 
 @Module

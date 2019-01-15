@@ -22,6 +22,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 
 /**
@@ -37,7 +38,7 @@ import androidx.fragment.app.Fragment
  * - [Activity.RESULT_CANCELED] if the dialog is canceled as a result of pressing back button
  * or taping out of the dialog frame.
  */
-class ConfirmDialogFragment : androidx.fragment.app.DialogFragment(), DialogInterface.OnClickListener {
+class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val args = checkNotNull(arguments) {
@@ -100,7 +101,7 @@ class ConfirmDialogFragment : androidx.fragment.app.DialogFragment(), DialogInte
          * to display in the neutral button. If 0, no neutral button will be shown.
          */
         @JvmStatic fun newInstance(
-            caller: androidx.fragment.app.Fragment?,
+            caller: Fragment?,
             requestCode: Int,
             title: String? = null,
             message: String? = null,

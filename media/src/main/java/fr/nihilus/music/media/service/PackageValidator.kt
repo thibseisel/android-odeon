@@ -26,6 +26,7 @@ import android.os.Process
 import android.util.Base64
 import androidx.annotation.XmlRes
 import androidx.media.MediaBrowserServiceCompat
+import fr.nihilus.music.media.R
 import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.io.IOException

@@ -27,6 +27,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseDialogFragment
 import fr.nihilus.music.extensions.observeK
 

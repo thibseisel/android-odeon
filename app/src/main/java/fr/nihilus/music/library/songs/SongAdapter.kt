@@ -27,6 +27,7 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import fr.nihilus.music.R
 import fr.nihilus.music.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest

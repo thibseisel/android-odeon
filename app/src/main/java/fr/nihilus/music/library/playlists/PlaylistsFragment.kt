@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK

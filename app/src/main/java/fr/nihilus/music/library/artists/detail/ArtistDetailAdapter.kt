@@ -18,6 +18,7 @@ package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.view.ViewGroup
+import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt

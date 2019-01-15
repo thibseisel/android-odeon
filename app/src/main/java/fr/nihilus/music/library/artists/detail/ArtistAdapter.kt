@@ -18,6 +18,7 @@ package fr.nihilus.music.library.artists.detail
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.library.artists.ArtistHolder
 import fr.nihilus.music.media.musicIdFrom

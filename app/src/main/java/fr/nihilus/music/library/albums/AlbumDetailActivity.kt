@@ -26,6 +26,7 @@ import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.extensions.luminance

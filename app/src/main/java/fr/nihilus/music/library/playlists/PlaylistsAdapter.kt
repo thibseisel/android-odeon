@@ -19,6 +19,7 @@ package fr.nihilus.music.library.playlists
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter

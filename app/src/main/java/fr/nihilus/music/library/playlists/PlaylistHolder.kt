@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
@@ -63,6 +64,6 @@ internal class PlaylistHolder(
         }
 
         // The play button is only shown if the item is playable
-        actionPlay.visibility = if (item.isPlayable) View.VISIBLE else View.GONE
+        actionPlay.isVisible = item.isPlayable
     }
 }

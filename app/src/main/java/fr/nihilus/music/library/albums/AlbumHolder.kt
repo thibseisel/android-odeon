@@ -20,8 +20,10 @@ import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
+import fr.nihilus.music.R
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
@@ -33,7 +35,7 @@ internal class AlbumHolder(
     private val isArtistAlbum: Boolean
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
-    private val card: androidx.cardview.widget.CardView = itemView.findViewById(R.id.card)
+    private val card: CardView = itemView.findViewById(R.id.card)
     private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.artist)

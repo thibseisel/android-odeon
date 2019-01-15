@@ -29,6 +29,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.glide.GlideApp
@@ -69,11 +70,7 @@ class NowPlayingFragment: BaseFragment() {
 
         val context = requireContext()
         albumArtTarget = SwitcherTarget(album_art_switcher)
-        autoUpdater = ProgressAutoUpdater(
-            seek_bar,
-            seek_position,
-            seek_duration
-        ) { position ->
+        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) { position ->
             viewModel.seekTo(position)
         }
 

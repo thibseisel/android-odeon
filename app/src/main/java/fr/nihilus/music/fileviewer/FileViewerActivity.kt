@@ -25,6 +25,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.ui.ProgressAutoUpdater
 import fr.nihilus.music.view.PlayPauseButton

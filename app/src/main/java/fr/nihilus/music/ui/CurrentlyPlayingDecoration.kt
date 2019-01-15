@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import androidx.recyclerview.widget.RecyclerView
+import fr.nihilus.music.R
 
 class CurrentlyPlayingDecoration(
     context: Context,

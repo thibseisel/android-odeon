@@ -26,6 +26,7 @@ import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
+import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
 import fr.nihilus.music.extensions.observeK

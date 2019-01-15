@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
 import dagger.android.support.AndroidSupportInjection
+import fr.nihilus.music.R
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
