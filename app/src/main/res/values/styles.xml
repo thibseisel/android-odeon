@@ -151,7 +151,6 @@
     </style>
 
     <style name="TextAppearance.List.TwoLine.Secondary" parent="TextAppearance.AppCompat">
-        <item name="android:lineHeight">20dp</item>
         <item name="android:textColor">@color/two_line_list_secondary</item>
         <item name="android:textSize">14sp</item>
     </style>

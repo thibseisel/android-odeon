@@ -51,6 +51,7 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/art_wrapper"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/songs.json/data/title"
