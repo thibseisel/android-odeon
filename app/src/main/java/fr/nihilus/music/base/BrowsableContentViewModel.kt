@@ -20,6 +20,7 @@ import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.client.MediaBrowserConnection
+import fr.nihilus.music.client.MediaSubscriptionException
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
@@ -39,10 +40,14 @@ abstract class BrowsableContentViewModel(
     }
 
     protected fun observeChildren(parentId: String): Job = launch {
-        _children.postValue(LoadRequest.Pending())
+        _children.postValue(LoadRequest.Pending)
         val subscription = connection.subscribe(parentId)
-        subscription.consumeEach { childrenUpdate ->
-            _children.postValue(LoadRequest.Success(childrenUpdate))
+        try {
+            subscription.consumeEach { childrenUpdate ->
+                _children.postValue(LoadRequest.Success(childrenUpdate))
+            }
+        } catch (e: MediaSubscriptionException) {
+            _children.value = LoadRequest.Error(e)
         }
     }
 

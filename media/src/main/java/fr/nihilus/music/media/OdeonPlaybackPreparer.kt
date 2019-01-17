@@ -19,6 +19,7 @@ package fr.nihilus.music.media
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -37,6 +38,7 @@ import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -117,46 +119,52 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun prepareFromMediaId(mediaId: String) {
-        subscriptions += repository.getMediaItems(mediaId).subscribe { items ->
-            val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
+        subscriptions += repository.getMediaItems(mediaId).subscribe(
+            { onMediaItemsLoaded(mediaId, it) },
+            { Timber.i(it, "Error while preparing queue.") }
+        )
+    }
 
-            // Short-circuit: if there are no playable items.
-            if (playableItems.isEmpty()) {
-                return@subscribe
+    private fun onMediaItemsLoaded(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
+        val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
+
+        // Short-circuit: if there are no playable items.
+        if (playableItems.isEmpty()) {
+            return
+        }
+
+        val mediaSources = Array(playableItems.size) {
+            val playableItem: MediaDescriptionCompat = playableItems[it]
+            val sourceUri = checkNotNull(playableItem.mediaUri) {
+                "Every item should have an Uri."
             }
 
-            val mediaSources = Array(playableItems.size) {
-                val playableItem: MediaDescriptionCompat = playableItems[it]
-                val sourceUri = checkNotNull(playableItem.mediaUri) {
-                    "Every item should have an Uri."
-                }
+            ExtractorMediaSource.Factory(appDataSourceFactory)
+                .setExtractorsFactory(audioOnlyExtractors)
+                .setTag(playableItem)
+                .createMediaSource(sourceUri)
+        }
 
-                ExtractorMediaSource.Factory(appDataSourceFactory)
-                    .setExtractorsFactory(audioOnlyExtractors)
-                    .setTag(playableItem)
-                    .createMediaSource(sourceUri)
-            }
+        // Defines a shuffle order for the loaded media sources that is predictable.
+        // It depends on the number of time a new queue has been built.
+        val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
+            mediaSources.size,
+            settings.queueCounter
+        )
 
-            // Defines a shuffle order for the loaded media sources that is predictable.
-            // It depends on the number of time a new queue has been built.
-            val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
-                mediaSources.size,
-                settings.queueCounter
-            )
+        // Concatenate all media source to play them all in the same Timeline.
+        val concatenatedSource = ConcatenatingMediaSource(
+            false,
+            predictableShuffleOrder,
+            *mediaSources
+        )
 
-            // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(false,
-                predictableShuffleOrder,
-                *mediaSources
-            )
+        player.prepare(concatenatedSource)
 
-            player.prepare(concatenatedSource)
-
-            // Start at a given track if it is mentioned in the passed media id.
-            val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
-            if (startIndex != -1) {
-                player.seekTo(startIndex, C.TIME_UNSET)
-            }
+        // Start at a given track if it is mentioned in the passed media id.
+        val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
+        if (startIndex != -1) {
+            player.seekTo(startIndex, C.TIME_UNSET)
         }
     }
 }

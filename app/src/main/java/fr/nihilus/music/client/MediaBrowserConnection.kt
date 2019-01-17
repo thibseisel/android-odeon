@@ -48,6 +48,16 @@ private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
     .build()
 
 /**
+ * Thrown when subscribing for children of a given media failed for some reason.
+ *
+ * @param parentId The parent media of the subscribed children.
+ */
+class MediaSubscriptionException(val parentId: String) : Exception() {
+    override val message: String?
+        get() = "Unable to load children of parent $parentId."
+}
+
+/**
  * Maintain a client-side connection to this application's media session,
  * allowing to browser available media and send commands to the session transport controls.
  *
@@ -144,7 +154,7 @@ class MediaBrowserConnection
 
             override fun onError(parentId: String) {
                 Timber.e("Failed to load children of %s", parentId)
-                output.close(IllegalArgumentException("$parentId is not a valid parent media id."))
+                output.close(MediaSubscriptionException(parentId))
             }
 
             override fun onError(parentId: String, options: Bundle) = onError(parentId)
@@ -242,7 +252,7 @@ class MediaBrowserConnection
             // Trigger all operations waiting for the browser to be connected.
             deferredController.complete(controller)
 
-            // Prepare last played playlist if nothing to playMedia.
+            // Prepare last played playlist if nothing to play.
             if (controller.playbackState?.isPrepared != true) {
                 controller.transportControls.prepare()
             }
@@ -306,4 +316,5 @@ class MediaBrowserConnection
         val resultCode: Int,
         val resultData: Bundle?
     )
+
 }
