@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
@@ -54,7 +53,7 @@ class AddToPlaylistViewModel
 
     init {
         launch {
-            _targetPlaylists.postValue(LoadRequest.Pending())
+            _targetPlaylists.postValue(LoadRequest.Pending)
             connection.subscribe(CATEGORY_PLAYLISTS).consumeEach { playlistUpdates ->
                 val userCreatedPlaylists = playlistUpdates.filter {
                     MediaID.getIdRoot(it.mediaId!!) == CATEGORY_PLAYLISTS

@@ -24,9 +24,8 @@ sealed class LoadRequest<out T> {
 
     /**
      * State of a data load that is pending.
-     * @param T The type of data currently being loaded.
      */
-    class Pending<T> : LoadRequest<T>()
+    object Pending : LoadRequest<Nothing>()
 
     /**
      * State of a data load where the data is available.
@@ -37,8 +36,7 @@ sealed class LoadRequest<out T> {
 
     /**
      * State of a data load that has failed for some reason.
-     * @param T The type of data that should have been loaded in case of success.
      * @param error An exception describing the error that occurred.
      */
-    class Error<T>(val error: Exception?) : LoadRequest<T>()
+    class Error(val error: Exception?) : LoadRequest<Nothing>()
 }
