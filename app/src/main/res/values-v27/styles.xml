@@ -19,9 +19,10 @@
     <style name="Base.AppTheme" parent="Base.V27.AppTheme"/>
     <style name="Base.V27.AppTheme" parent="Base.V23.AppTheme">
         <!-- Set a light navigation bar on API 27 on light theme -->
-        <item name="android:windowDrawsSystemBarBackgrounds">?isLightTheme</item>
+        <!-- TODO Uncomment when found a fix for moving from light navigation bar to dark navigation bar. -->
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">?isLightTheme</item>
         <item name="android:navigationBarColor">@color/navigation_bar_color</item>
         <item name="android:navigationBarDividerColor">@color/navigation_bar_divider_color</item>
-        <item name="android:windowLightNavigationBar">?isLightTheme</item>
+        <item name="android:windowLightNavigationBar">?isLightTheme</item>-->
     </style>
 </resources>
