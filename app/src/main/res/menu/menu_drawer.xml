@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/category_library"
@@ -31,7 +32,8 @@
                 <item
                     android:id="@+id/action_all"
                     android:icon="@drawable/ic_library_music_24dp"
-                    android:title="@string/all_music"/>
+                    android:title="@string/all_music"
+                    tools:checked="true"/>
 
                 <item
                     android:id="@+id/action_albums"
