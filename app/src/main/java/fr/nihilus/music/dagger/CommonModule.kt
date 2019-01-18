@@ -31,7 +31,7 @@ import javax.inject.Singleton
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module(includes = [AppBindingsModule::class])
+@Module
 class CommonModule {
 
     @Provides
