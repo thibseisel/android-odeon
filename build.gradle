@@ -21,7 +21,7 @@ buildscript {
         // SDK and tools
         compileSdkVersion = 28
         minSdkVersion = 21
-        targetSdkVersion = 27
+        targetSdkVersion = 28
 
         // App Version shared across modules
         appVersionCode = 1002
