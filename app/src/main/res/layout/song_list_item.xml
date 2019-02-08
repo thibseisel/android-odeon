@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="72dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/item_background_activated"
+    android:background="?selectableItemBackground"
     android:checkable="true"
     android:textDirection="locale">
 
