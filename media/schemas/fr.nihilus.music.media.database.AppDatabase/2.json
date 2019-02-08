@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "884410531a9ac232b10975123026e431",
+    "identityHash": "c821b502543af642d2d29ddeaece6929",
     "entities": [
       {
         "tableName": "playlist",
@@ -45,16 +45,7 @@
           ],
           "autoGenerate": true
         },
-        "indices": [
-          {
-            "name": "index_playlist_title",
-            "unique": true,
-            "columnNames": [
-              "title"
-            ],
-            "createSql": "CREATE UNIQUE INDEX `index_playlist_title` ON `${TABLE_NAME}` (`title`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": []
       },
       {
@@ -134,7 +125,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"884410531a9ac232b10975123026e431\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"c821b502543af642d2d29ddeaece6929\")"
     ]
   }
 }

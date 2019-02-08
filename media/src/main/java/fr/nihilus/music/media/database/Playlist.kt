@@ -20,7 +20,6 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.mediaIdOf
@@ -31,11 +30,7 @@ import java.util.*
  * Each playlist has an unique identifier that its [PlaylistTrack] children must reference
  * to be included.
  */
-@Entity(
-    tableName = "playlist", indices = [
-        Index(value = ["title"], unique = true)
-    ]
-)
+@Entity(tableName = "playlist")
 class Playlist {
 
     /**
