@@ -54,18 +54,15 @@
             android:filterTouchesWhenObscured="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-        <FrameLayout
+        <fr.nihilus.music.view.BottomSheetHost
             android:id="@+id/player_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/bg_floating"
             android:backgroundTint="?colorBackgroundFloating"
-            android:clickable="true"
             android:elevation="8dp"
-            android:focusable="true"
             app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            tools:ignore="MissingPrefix">
+            app:layout_behavior="@string/bottom_sheet_behavior">
 
             <fragment
                 android:id="@+id/fragment_now_playing"
@@ -74,7 +71,7 @@
                 android:layout_height="match_parent"
                 tools:layout="@layout/fragment_now_playing"/>
 
-        </FrameLayout>
+        </fr.nihilus.music.view.BottomSheetHost>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

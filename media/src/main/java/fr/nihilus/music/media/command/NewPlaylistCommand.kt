@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.command
 
-import android.database.sqlite.SQLiteConstraintException
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
@@ -97,12 +96,7 @@ class NewPlaylistCommand
     }
 
     private fun onError(error: Throwable, cb: ResultReceiver?) {
-        // TODO Maybe the unique constraint on the title could be removed
-        if (error is SQLiteConstraintException) {
-            cb?.send(R.id.abc_error_playlist_already_exists, null)
-        } else {
-            Timber.w(error, "An error occurred while creating playlist")
-        }
+        Timber.e(error, "An error occurred while creating playlist.")
     }
 
     private fun generateIcon(seed: CharSequence): Uri {

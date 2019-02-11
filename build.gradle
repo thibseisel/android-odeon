@@ -21,19 +21,19 @@ buildscript {
         // SDK and tools
         compileSdkVersion = 28
         minSdkVersion = 21
-        targetSdkVersion = 27
+        targetSdkVersion = 28
 
         // App Version shared across modules
         appVersionCode = 1002
         appVersionName = '1.0.2'
 
         versions = [
-                'kotlin': '1.3.11',
+                'kotlin': '1.3.21',
                 'koroutines': '1.1.0',
                 'androidx': [
                         'appcompat': '1.0.2',
                         'fragment': '1.0.0',
-                        'media': '1.0.0',
+                        'media': '1.0.1',
                         'recyclerview': '1.0.0',
                         'palette': '1.0.0',
                         'cardview': '1.0.0',
@@ -46,9 +46,9 @@ buildscript {
                         'test_runner': '1.1.1'
                 ],
                 'material': '1.0.0',
-                'dagger': '2.20',
+                'dagger': '2.21',
                 'glide': '4.8.0',
-                'exoplayer': '2.9.1',
+                'exoplayer': '2.9.4',
                 'rxjava': '2.2.5',
                 'rxandroid': '2.1.0',
                 'timber': '4.7.1',
@@ -75,7 +75,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0'
+        classpath 'com.android.tools.build:gradle:3.3.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
     }
 }
@@ -107,4 +107,20 @@ task clean(type: Delete) {
 def <T> T propOrDefault(String propertyName, T defaultValue) {
     def propertyValue = project.properties[propertyName]
     return propertyValue ?: defaultValue
+}
+
+/**
+ * Resolve the path of a file relatively to the root project.
+ * This is meant to be used by sub-projects to reference a file from the root project.
+ *
+ * @param filename The path of the file whose path is to be resolved.
+ * @return The path of the specified file.
+ */
+String rootProjectFile(String filename) {
+    def file = project.file(filename)
+    if (!file.exists()) {
+        throw new FileNotFoundException("No such file: ${file.path}")
+    }
+
+    return file.path
 }

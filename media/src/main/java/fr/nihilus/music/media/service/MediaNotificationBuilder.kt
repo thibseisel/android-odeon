@@ -155,6 +155,7 @@ internal class MediaNotificationBuilder
         ).apply {
             description = context.getString(R.string.abc_channel_mediasession_description)
             lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+            setShowBadge(false)
         }
 
         notificationManager.createNotificationChannel(notificationChannel)

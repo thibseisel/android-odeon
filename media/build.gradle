@@ -35,7 +35,7 @@ android {
                 removeUnusedCode true
                 obfuscate true
                 optimizeCode true
-                proguardFile 'proguard-rules.pro'
+                proguardFiles 'proguard-rules.pro', rootProjectFile('coroutines.pro')
             }
 
             // Configure Kotlin compiler optimisations for releases
