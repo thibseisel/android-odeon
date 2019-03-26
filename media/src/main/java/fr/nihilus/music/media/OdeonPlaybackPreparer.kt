@@ -23,6 +23,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -39,7 +40,6 @@ import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.random.Random
 
 /**
  * Handle requests to prepare media that can be played from the Odeon Media Player.
@@ -126,10 +126,7 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun onMediaItemsLoaded(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
-        val playableItems = items.asSequence()
-            .filterNot { it.isBrowsable }
-            .map { it.description }
-            .toList()
+        val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
 
         // Short-circuit: if there are no playable items.
         if (playableItems.isEmpty()) {
@@ -148,46 +145,26 @@ internal class OdeonPlaybackPreparer
                 .createMediaSource(sourceUri)
         }
 
-        val queueIdentifier = settings.queueCounter
-        val firstIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
-
-        val shuffleOrder = if (firstIndex == -1) {
-            ShuffleOrder.DefaultShuffleOrder(mediaSources.size, queueIdentifier)
-        } else {
-            val shuffledIndices = createShuffledIndices(firstIndex, mediaSources.size, queueIdentifier)
-            ShuffleOrder.DefaultShuffleOrder(shuffledIndices, queueIdentifier)
-        }
+        // Defines a shuffle order for the loaded media sources that is predictable.
+        // It depends on the number of time a new queue has been built.
+        val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
+            mediaSources.size,
+            settings.queueCounter
+        )
 
         // Concatenate all media source to play them all in the same Timeline.
-        val concatenatedSource = ConcatenatingMediaSource(false, shuffleOrder, *mediaSources)
+        val concatenatedSource = ConcatenatingMediaSource(
+            false,
+            predictableShuffleOrder,
+            *mediaSources
+        )
+
         player.prepare(concatenatedSource)
-    }
 
-    /**
-     * Create a sequence consisting of consecutive numbers in `[0 ; length[` in shuffled order,
-     * starting by the given [firstIndex].
-     *
-     * @param firstIndex The first value in the produces array.
-     * @param length The length of the produced array.
-     * @param randomSeed The seed for shuffling numbers.
-     */
-    private fun createShuffledIndices(firstIndex: Int, length: Int, randomSeed: Long): IntArray {
-        val random = Random(randomSeed)
-        val shuffled = IntArray(length)
-        shuffled[0] = firstIndex
-
-        for (i in 1..firstIndex) {
-            val swapIndex = random.nextInt(1, i + 1)
-            shuffled[i] = shuffled[swapIndex]
-            shuffled[swapIndex] = i - 1
+        // Start at a given track if it is mentioned in the passed media id.
+        val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
+        if (startIndex != -1) {
+            player.seekTo(startIndex, C.TIME_UNSET)
         }
-
-        for (i in (firstIndex + 1) until length) {
-            val swapIndex = random.nextInt(1, i + 1)
-            shuffled[i] = shuffled[swapIndex]
-            shuffled[swapIndex] = i
-        }
-
-        return shuffled
     }
 }
