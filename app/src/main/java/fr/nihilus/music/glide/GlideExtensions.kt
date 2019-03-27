@@ -22,7 +22,7 @@ import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.load.Option
-import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.BaseRequestOptions
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumPalette
 
@@ -43,7 +43,7 @@ object GlideExtensions {
      * when one or more color is not available.
      */
     @[JvmStatic GlideOption]
-    fun fallbackColors(options: RequestOptions, palette: AlbumPalette): RequestOptions =
+    fun fallbackColors(options: BaseRequestOptions<*>, palette: AlbumPalette): BaseRequestOptions<*> =
         options.set(OPTION_DEFAULT_PALETTE, palette)
 
     val OPTION_DEFAULT_PALETTE: Option<AlbumPalette> =
