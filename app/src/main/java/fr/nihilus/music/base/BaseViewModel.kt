@@ -29,8 +29,7 @@ import kotlin.coroutines.CoroutineContext
  */
 abstract class BaseViewModel : ViewModel(), CoroutineScope {
     private val lifetime = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = lifetime + Dispatchers.Main
+    override val coroutineContext: CoroutineContext = lifetime + Dispatchers.Main.immediate
 
     override fun onCleared() {
         lifetime.cancel()

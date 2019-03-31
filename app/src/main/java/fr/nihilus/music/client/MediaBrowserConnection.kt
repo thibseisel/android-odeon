@@ -131,6 +131,7 @@ class MediaBrowserConnection
     fun disconnect(client: ClientToken) {
         if (connectedClients.remove(client) && connectedClients.isEmpty()) {
             mediaBrowser.disconnect()
+            deferredController = CompletableDeferred()
         }
     }
 
@@ -138,34 +139,33 @@ class MediaBrowserConnection
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
-        val output = Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED)
 
-        val callback = object : MediaBrowserCompat.SubscriptionCallback() {
-            override fun onChildrenLoaded(
-                parentId: String,
-                children: List<MediaBrowserCompat.MediaItem>
-            ) = output.sendBlocking(children)
+        return Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED).also {
+            val callback = object : MediaBrowserCompat.SubscriptionCallback() {
+                override fun onChildrenLoaded(
+                    parentId: String,
+                    children: List<MediaBrowserCompat.MediaItem>
+                ) = it.sendBlocking(children)
 
-            override fun onChildrenLoaded(
-                parentId: String,
-                children: List<MediaBrowserCompat.MediaItem>,
-                options: Bundle
-            ) = onChildrenLoaded(parentId, children)
+                override fun onChildrenLoaded(
+                    parentId: String,
+                    children: List<MediaBrowserCompat.MediaItem>,
+                    options: Bundle
+                ) = onChildrenLoaded(parentId, children)
 
-            override fun onError(parentId: String) {
-                Timber.e("Failed to load children of %s", parentId)
-                output.close(MediaSubscriptionException(parentId))
+                override fun onError(parentId: String) {
+                    Timber.e("Failed to load children of %s", parentId)
+                    it.close(MediaSubscriptionException(parentId))
+                }
+
+                override fun onError(parentId: String, options: Bundle) = onError(parentId)
             }
 
-            override fun onError(parentId: String, options: Bundle) = onError(parentId)
+            mediaBrowser.subscribe(parentId, callback)
+            it.invokeOnClose {
+                mediaBrowser.unsubscribe(parentId, callback)
+            }
         }
-
-        mediaBrowser.subscribe(parentId, callback)
-        output.invokeOnClose {
-            mediaBrowser.unsubscribe(parentId, callback)
-        }
-
-        return output
     }
 
     suspend fun play() {
