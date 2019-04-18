@@ -40,5 +40,5 @@ class OdeonApplication : DaggerApplication() {
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-        DaggerAppComponent.builder().create(this)
+        DaggerAppComponent.factory().create(this)
 }

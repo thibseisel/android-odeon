@@ -44,6 +44,6 @@ interface AppComponent : AndroidInjector<OdeonApplication> {
      * This builder binds instance of the Android Application to the newly created component in
      * order to provide it as a dependency to any other object.
      */
-    @Component.Builder
-    abstract class Builder : AndroidInjector.Builder<OdeonApplication>()
+    @Component.Factory
+    interface Builder : AndroidInjector.Factory<OdeonApplication>
 }
