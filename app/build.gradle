@@ -150,6 +150,6 @@ dependencies {
 
     androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"
     androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
-    androidTestImplementation "androidx.test.espresso:espresso-core:${versions.espresso}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${versions.androidx.espresso}"
     androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
 }
