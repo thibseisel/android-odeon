@@ -42,6 +42,8 @@
         <!--
             A receiver that will receive media buttons and send as intents to MusicService.
             Required on pre-Lollipop.
+			Additionally, this is used to resume the service from an inactive state upon
+            receiving a media button event (such as "play").
         -->
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
