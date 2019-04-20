@@ -241,6 +241,10 @@ open class FakeAudioPlayer : BasePlayer(), ExoPlayer, Player.AudioComponent {
      * MISCELLANEOUS
      */
 
+    override fun getMetadataComponent(): Player.MetadataComponent? {
+        throw UnsupportedOperationException("Fake method not implemented")
+    }
+
     override fun getCurrentTrackGroups(): TrackGroupArray {
         throw UnsupportedOperationException("Fake method not implemented")
     }
