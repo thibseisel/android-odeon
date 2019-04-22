@@ -45,5 +45,5 @@ interface AppComponent : AndroidInjector<OdeonApplication> {
      * order to provide it as a dependency to any other object.
      */
     @Component.Factory
-    interface Builder : AndroidInjector.Factory<OdeonApplication>
+    interface Factory : AndroidInjector.Factory<OdeonApplication>
 }
