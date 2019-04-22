@@ -57,8 +57,9 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val refreshToggle = ProgressTimeLatch { progressVisible ->
-            progress_indicator.isVisible = progressVisible
+            progressIndicator.isVisible = progressVisible
         }
 
         albumAdapter = AlbumsAdapter(this, defaultAlbumPalette, this)

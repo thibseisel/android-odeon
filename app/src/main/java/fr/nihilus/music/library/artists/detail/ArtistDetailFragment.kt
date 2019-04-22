@@ -86,8 +86,9 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
             }
         }
 
+        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progress_indicator.isVisible = shouldShow
+            progressIndicator.isVisible = shouldShow
         }
 
         viewModel.children.observeK(this) { childrenRequest ->

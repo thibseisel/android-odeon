@@ -70,8 +70,9 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
         viewModel.loadTracksOfPlaylist(playlist)
 
+        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progress_indicator.isVisible = shouldShow
+            progressIndicator.isVisible = shouldShow
         }
 
         members_recycler.adapter = adapter

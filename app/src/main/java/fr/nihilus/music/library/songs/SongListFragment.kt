@@ -79,12 +79,15 @@ class SongListFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
+        val songsListView = view.findViewById<ListView>(R.id.songs_listview)
+
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
-            progress_indicator.isVisible = shouldShowProgress
-            songs_listview.isVisible = !shouldShowProgress
+            progressIndicator.isVisible = shouldShowProgress
+            songsListView.isVisible = !shouldShowProgress
         }
 
-        songs_listview.run {
+        songsListView.run {
             adapter = songAdapter
             choiceMode = ListView.CHOICE_MODE_MULTIPLE_MODAL
             setMultiChoiceModeListener(multiSelectMode)

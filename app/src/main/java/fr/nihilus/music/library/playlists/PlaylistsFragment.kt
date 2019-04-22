@@ -61,8 +61,9 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progress_indicator.isVisible = shouldShow
+            progressIndicator.isVisible = shouldShow
         }
 
         playlist_recycler.adapter = adapter
