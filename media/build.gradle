@@ -31,12 +31,8 @@ android {
 
     buildTypes {
         release {
-            postprocessing {
-                removeUnusedCode true
-                obfuscate true
-                optimizeCode true
-                proguardFiles 'proguard-rules.pro', rootProjectFile('coroutines.pro')
-            }
+            minifyEnabled true
+            proguardFiles 'proguard-rules.pro', rootProjectFile('coroutines.pro')
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -52,6 +48,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    testOptions {
+        unitTests.includeAndroidResources = true
     }
 
     sourceSets {
@@ -110,11 +110,15 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
     testImplementation "junit:junit:${versions.junit}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+    testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
+    testImplementation "androidx.test:core:${versions.androidx.test_core}"
+    testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
 
     // Android-specific test dependencies
     androidTestImplementation "com.google.truth:truth:${versions.truth}"
     androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
-    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
+    androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
 }

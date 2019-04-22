@@ -20,7 +20,6 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertNull
-import org.junit.Assert.fail
 import org.mockito.Mockito
 
 fun assertMediaDescription(
@@ -48,22 +47,6 @@ fun assertMediaDescription(
         }
     } else {
         assertNull(descr.extras)
-    }
-}
-
-/**
- * Assert that the following block function throws a given [Exception].
- *
- * @param T The type of the expected exception
- */
-inline fun <reified T : Throwable> assertThrows(block: () -> Unit) {
-    try {
-        block()
-        fail("An ${T::class.java.name} should have been thrown")
-    } catch (thr: Throwable) {
-        if (thr !is T) {
-            fail("Unexpected exception: $thr")
-        }
     }
 }
 
