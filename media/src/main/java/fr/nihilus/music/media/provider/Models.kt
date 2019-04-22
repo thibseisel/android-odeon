@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.media
+package fr.nihilus.music.media.provider
 
 /**
  * The metadata of a track that is saved on the device's storage.

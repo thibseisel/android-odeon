@@ -22,7 +22,7 @@ package fr.nihilus.music.media
  * @param E The type of the expected exception.
  * @param block The code block that should throw an exception of type [E].
  *
- * @return The excepted exception.
+ * @return The expected exception.
  */
 inline fun <reified E : Exception> assertThrows(block: () -> Unit): E {
     try {

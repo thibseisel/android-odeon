@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.media
+package fr.nihilus.music.media.provider
 
 import android.Manifest
 import android.content.ContentUris

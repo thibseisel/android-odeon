@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.media
+package fr.nihilus.music.media.provider
 
 import android.Manifest
 import android.database.ContentObserver
@@ -26,10 +26,10 @@ import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.assertThrows
-import fr.nihilus.music.media.media.FailingMediaStore.query
 import fr.nihilus.music.media.permissions.DeniedPermission
 import fr.nihilus.music.media.permissions.GrantedPermission
 import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.media.provider.FailingMediaStore.query
 import org.junit.After
 import org.junit.AssumptionViolatedException
 import org.junit.Before

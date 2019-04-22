@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.media
+package fr.nihilus.music.media.provider
 
 /**
  * Interface to perform read and write operations on music media stored locally on the device.
