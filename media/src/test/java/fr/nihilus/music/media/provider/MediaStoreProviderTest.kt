@@ -37,6 +37,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 
+private const val MUSIC_FOLDER_NAME = "Music"
+private const val TEST_FILENAME = "1741_(The_Battle_of_Cartagena).mp3"
+
 @RunWith(AndroidJUnit4::class)
 class MediaStoreProviderTest {
     private lateinit var mediaStoreSurrogate: MediaStoreSurrogate
@@ -280,8 +283,8 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenDeletingTrack_thenDeleteTheCorrespondingFile() {
-        val tracksDir = File("tracks")
-        val trackFile = File(tracksDir, "1741_(the_battle_of_cartagena).mp3")
+        val tracksDir = File(MUSIC_FOLDER_NAME)
+        val trackFile = File(tracksDir, TEST_FILENAME)
 
         try {
             tracksDir.mkdir()
@@ -300,8 +303,8 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenTrackIsDeleted_thenDeleteItsMetadataFromDatabase() {
-        val tracksDir = File("tracks")
-        val trackFile = File(tracksDir, "1741_(the_battle_of_cartagena).mp3")
+        val tracksDir = File(MUSIC_FOLDER_NAME)
+        val trackFile = File(tracksDir, TEST_FILENAME)
 
         try {
             tracksDir.mkdir()
