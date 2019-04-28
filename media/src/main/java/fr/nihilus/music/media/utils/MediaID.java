@@ -18,6 +18,11 @@ package fr.nihilus.music.media.utils;
 
 import androidx.annotation.NonNull;
 
+/**
+ * @deprecated Use MediaId class instead.
+ * It provides safe media id instances with utility for extracting its parts.
+ */
+@Deprecated
 public final class MediaID {
 
     /**

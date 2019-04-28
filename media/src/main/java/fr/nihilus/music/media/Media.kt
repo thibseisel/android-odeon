@@ -21,33 +21,66 @@ import org.jetbrains.annotations.Contract
 private const val CATEGORY_SEPARATOR = "/"
 private const val LEAF_SEPARATOR = "|"
 
+@Deprecated(
+    "Use MediaId.TYPE_ROOT instead.",
+    ReplaceWith("MediaId.TYPE_ROOT", "fr.nihilus.music.media.MediaId"))
 const val BROWSER_ROOT = "__ROOT__"
 
 /**
  * The whole music library composed of all available tracks.
  */
+@Deprecated(
+    "\"tracks/all\" is the new media id for the music category",
+    ReplaceWith(
+        "MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL)",
+        "fr.nihilus.music.media.MediaId"
+    )
+)
 const val CATEGORY_MUSIC = "MUSIC"
 
 /**
  * All available music albums.
  */
+@Deprecated(
+    "\"${MediaId.TYPE_ALBUMS}\" is the new media id for the album category",
+    ReplaceWith("MediaId.TYPE_ALBUMS", "fr.nihilus.music.media.MediaId")
+)
 const val CATEGORY_ALBUMS = "ALBUMS"
 
 /**
  * All artists that produced the available songs.
  */
+@Deprecated(
+    "\"${MediaId.TYPE_ARTISTS}\" is the new media id for the artist category",
+    ReplaceWith("MediaId.TYPE_ARTISTS", "fr.nihilus.music.media.MediaId")
+)
 const val CATEGORY_ARTISTS = "ARTISTS"
 
 /**
  * All user-defined getPlaylists.
  */
+@Deprecated(
+    "\"${MediaId.TYPE_PLAYLISTS}\" is the new media id for the playlist category",
+    ReplaceWith("MediaId.TYPE_PLAYLISTS", "fr.nihilus.music.media.MediaId")
+)
 const val CATEGORY_PLAYLISTS = "PLAYLISTS"
 
-/**
- * A special selection of the most recently added songs.
- */
-const val CATEGORY_BUILT_IN = "BUILT_IN"
+@Deprecated(
+    "\"${MediaId.TYPE_TRACKS}/${MediaId.CATEGORY_RECENTLY_ADDED}\" is the new media id for the most recent category",
+    ReplaceWith(
+        "MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_RECENTLY_ADDED)",
+        "fr.nihilus.music.media.MediaId"
+    )
+)
 const val CATEGORY_MOST_RECENT = "RECENT"
+
+@Deprecated(
+    "\"${MediaId.TYPE_TRACKS}/${MediaId.CATEGORY_MOST_RATED}\" is the new media id for the most rated category",
+    ReplaceWith(
+        "MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_MOST_RATED)",
+        "fr.nihilus.music.media.MediaId"
+    )
+)
 const val CATEGORY_MOST_RATED = "MOST_RATED"
 
 /**
@@ -72,6 +105,7 @@ const val CATEGORY_MOST_RATED = "MOST_RATED"
  * @param musicId If specified, unique music ID of the playable item.
  * @return a hierarchy-aware media ID.
  */
+@Deprecated("Use MediaId factory functions to create a media id in a safer way.")
 fun mediaIdOf(vararg categories: String, musicId: Long = -1L): String = buildString {
     require(categories.all(::isValidCategory)) {
         "Categories cannot contain the following characters: $CATEGORY_SEPARATOR or $LEAF_SEPARATOR"
@@ -88,6 +122,7 @@ fun mediaIdOf(vararg categories: String, musicId: Long = -1L): String = buildStr
  * Indicates if a category is considered valid.
  * The only restriction is to avoid using the separator characters `/` and `|`.
  */
+@Deprecated("Create media ids using factories defined in MediaId.")
 private fun isValidCategory(category: String) =
     category.indexOf(CATEGORY_SEPARATOR) < 0 && category.indexOf(LEAF_SEPARATOR) < 0
 
@@ -97,6 +132,7 @@ private fun isValidCategory(category: String) =
  * @return The music id in its String form,
  * or `null` if it does not have a music id or [mediaId] is `null`.
  */
+@Deprecated("Music id can be extracted from MediaId instances.")
 @Contract("null -> null")
 fun musicIdFrom(mediaId: String?): String? =
     mediaId?.substringAfter(LEAF_SEPARATOR, "")?.takeUnless(String::isEmpty)
@@ -108,6 +144,7 @@ fun musicIdFrom(mediaId: String?): String? =
  * @return The browse category that is the direct parent of the specified media,
  * or the same [mediaId] if it is already browsable.
  */
+@Deprecated("Browse category doesn't exist anymore. See MediaId for more detail on the new structure of media ids.")
 fun browseCategoryOf(mediaId: String): String = mediaId.substringBefore(LEAF_SEPARATOR)
 
 /**
@@ -116,5 +153,6 @@ fun browseCategoryOf(mediaId: String): String = mediaId.substringBefore(LEAF_SEP
  * @return A list whose first element is the browse category
  * and the second element, if present, is the category value.
  */
+@Deprecated("Browse hierarchy doesn't exist anymore. See MediaId for more detail on the new structure of media ids.")
 fun browseHierarchyOf(mediaId: String): List<String> =
     mediaId.substringBefore(LEAF_SEPARATOR).split(CATEGORY_SEPARATOR)
