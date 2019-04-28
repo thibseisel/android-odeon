@@ -74,7 +74,7 @@ internal class MediaUsageEvent(
  */
 internal class TrackScore(
     @ColumnInfo(name = "track_id")
-    val trackId: String,
+    val trackId: Long,
 
     @ColumnInfo(name = "event_count")
     val score: Int

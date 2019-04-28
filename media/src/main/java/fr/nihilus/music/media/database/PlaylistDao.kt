@@ -17,13 +17,16 @@
 package fr.nihilus.music.media.database
 
 import androidx.annotation.WorkerThread
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import io.reactivex.Single
 
 @Dao
-interface PlaylistDao {
+internal interface PlaylistDao {
 
-    @Query("SELECT * FROM playlist ORDER BY date_last_played DESC")
+    @Query("SELECT * FROM playlist ORDER BY date_created ASC")
     fun getPlaylists(): Single<List<Playlist>>
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :id ORDER BY position ASC")
@@ -40,8 +43,4 @@ interface PlaylistDao {
     @WorkerThread
     @Query("DELETE FROM playlist WHERE id = :playlistId")
     fun deletePlaylist(playlistId: Long)
-
-    @WorkerThread
-    @Delete
-    fun deleteTracks(vararg tracks: PlaylistTrack)
 }

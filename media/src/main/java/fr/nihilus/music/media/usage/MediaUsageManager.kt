@@ -36,12 +36,6 @@ internal interface MediaUsageManager {
     fun getMostRatedTracks(): Single<List<TrackScore>>
 
     /**
-     * Retrieve the least rated tracks from the music library.
-     * Tracks are sorted by ascending score.
-     */
-    fun getLeastRatedTracks(): Single<List<TrackScore>>
-
-    /**
      * Report that the track with the given [trackId] has been played until the end.
      *
      * @param trackId The unique identifier of the track that has been played.
@@ -70,14 +64,6 @@ internal class RxBridgeUsageManager
 
     override fun getMostRatedTracks(): Single<List<TrackScore>> = scope.rxSingle(Dispatchers.IO) {
         usageDao.getMostRatedTracks(TOP_MOST_RATED)
-    }
-
-    override fun getLeastRatedTracks(): Single<List<TrackScore>> = scope.rxSingle(Dispatchers.IO) {
-        val ratedTracks = usageDao.getRatedTracks()
-
-        // We only consider a fifth of the whole music library.
-        // Since tracks are already sorted by ascending score, take the worst rated fifth first.
-        ratedTracks.take(ratedTracks.size / 5)
     }
 
     override fun reportCompletion(trackId: String) {

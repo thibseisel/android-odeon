@@ -33,6 +33,6 @@ internal interface MediaUsageDao {
     @Query("SELECT track_id, COUNT(*) AS event_count FROM usage_event GROUP BY track_id ORDER BY COUNT(*) DESC LIMIT :limit")
     fun getMostRatedTracks(limit: Int): List<TrackScore>
 
-    @Query("SELECT track_id, COUNT(*) AS event_count FROM usage_event GROUP BY track_id ORDER BY COUNT(*) ASC")
-    fun getRatedTracks(): List<TrackScore>
+    @Query("DELETE FROM usage_event WHERE track_id IN (:trackIds)")
+    fun deleteEventsForTracks(trackIds: LongArray)
 }

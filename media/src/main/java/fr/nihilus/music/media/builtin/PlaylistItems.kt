@@ -77,7 +77,7 @@ internal class PlaylistItems
         return playlistDao.getPlaylistTracks(playlistId.toLong())
             .subscribeOn(Schedulers.io())
             .flattenAsObservable { it }
-            .flatMapMaybe { musicDao.findTrack(it.musicId.toString()) }
+            .flatMapMaybe { musicDao.findTrack(it.trackId.toString()) }
             .map { member ->
                 val descr = member.asMediaDescription(builder, CATEGORY_PLAYLISTS, playlistId)
                 MediaItem(descr, MediaItem.FLAG_PLAYABLE)

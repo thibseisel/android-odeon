@@ -35,7 +35,7 @@ import fr.nihilus.music.media.usage.MediaUsageEvent
     Playlist::class,
     PlaylistTrack::class,
     MediaUsageEvent::class
-], version = 2)
+], version = 3)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -59,6 +59,18 @@ abstract class AppDatabase : RoomDatabase() {
                 // Create the new table "usage_event" to match the "UsageEvent" entity.
                 database.execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
                 database.execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
+            }
+        }
+
+        internal val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Recreate the whole playlist table without the unused "date_last_played" column.
+                // All data are copied to the "playlist_tmp" table with the new schema, then the old table is dropped.
+                // This is necessary because SQLite doesn't support deleting columns.
+                database.execSQL("CREATE TABLE `playlist_tmp` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                database.execSQL("INSERT INTO `playlist_tmp` SELECT id, title, date_created, art_uri AS icon_uri FROM playlist")
+                database.execSQL("DROP TABLE `playlist`")
+                database.execSQL("ALTER TABLE `playlist_tmp` RENAME TO `playlist`")
             }
         }
     }

@@ -31,14 +31,14 @@ import androidx.room.ForeignKey
  * Create an association between a music track and a playlist.
  * Note that this class performs no check on the music id and the playlist id.
  * @param playlistId id of the playlist this track belongs to
- * @param musicId id of the music track this object represents
+ * @param trackId id of the music track this object represents
  */
 @Entity(tableName = "playlist_track", primaryKeys = ["music_id", "playlist_id"])
 @ForeignKey(
     entity = Playlist::class, onDelete = ForeignKey.CASCADE,
     childColumns = ["playlist_id"], parentColumns = ["id"]
 )
-class PlaylistTrack(
+internal class PlaylistTrack(
 
     /**
      * Id of the playlist this track belongs to.
@@ -50,7 +50,7 @@ class PlaylistTrack(
      * Id of the music track this object represents.
      */
     @ColumnInfo(name = "music_id")
-    val musicId: Long
+    val trackId: Long
 ) {
 
     /**

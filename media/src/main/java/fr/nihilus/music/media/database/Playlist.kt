@@ -20,6 +20,7 @@ import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.mediaIdOf
@@ -31,7 +32,7 @@ import java.util.*
  * to be included.
  */
 @Entity(tableName = "playlist")
-class Playlist {
+internal class Playlist(
 
     /**
      * The unique identifier of this playlist.
@@ -39,52 +40,45 @@ class Playlist {
      */
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Long? = null
+    val id: Long?,
 
     /**
      * The title given by the user to this playlist.
      */
     @ColumnInfo(name = "title")
-    var title: String = ""
+    val title: String,
 
     /**
      * The date at which this playlist has been created.
      */
     @ColumnInfo(name = "date_created")
-    var created: Date = Date()
+    val created: Date,
 
     /**
-     * The date a which this playlist has been played for the last time.
-     * This will be `null` if this playlist has never been played.
+     * Uri pointing to a Bitmap that illustrates this playlist.
      */
-    @ColumnInfo(name = "date_last_played")
-    var lastPlayed: Date? = null
+    @ColumnInfo(name = "icon_uri")
+    val iconUri: Uri?
+) {
 
     /**
-     * URI pointing to a Bitmap that features this playlist.
+     * Create a new unsaved playlist that has the given [title] and an optional icon.
+     *
+     * @param title The title of the new playlist.
+     * @param iconUri The Uri pointing to an image file that represents the playlist.
      */
-    @ColumnInfo(name = "art_uri")
-    var artUri: Uri = Uri.EMPTY
+    @Ignore
+    constructor(
+        title: CharSequence,
+        iconUri: Uri? = null
+    ) : this(null, title.toString(), Date(), iconUri)
 
     fun asMediaDescription(builder: MediaDescriptionCompat.Builder): MediaDescriptionCompat {
         val playlistId = checkNotNull(id) { "Cant create MediaDescription of an unsaved playlist" }
         val mediaId = mediaIdOf(CATEGORY_PLAYLISTS, playlistId.toString())
         return builder.setMediaId(mediaId)
             .setTitle(title)
-            .setIconUri(artUri)
+            .setIconUri(iconUri)
             .build()
-    }
-
-    companion object {
-        /**
-         * Create a new playlist from the given title without saving it.
-         * @param playlistTitle Title to given to this playlist.
-         */
-        fun create(playlistTitle: CharSequence): Playlist {
-            return Playlist().apply {
-                title = playlistTitle.toString()
-                created = Date()
-            }
-        }
     }
 }

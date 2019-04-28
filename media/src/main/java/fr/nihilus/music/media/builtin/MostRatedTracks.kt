@@ -54,7 +54,7 @@ internal class MostRatedTracks
         val builder = MediaDescriptionCompat.Builder()
         return usageManager.getMostRatedTracks()
             .flattenAsObservable { it }
-            .flatMapMaybe { mediaDao.findTrack(it.trackId) }
+            .flatMapMaybe { mediaDao.findTrack(it.trackId.toString()) }
             .map {
                 val description = it.asMediaDescription(builder, CATEGORY_MOST_RATED)
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)

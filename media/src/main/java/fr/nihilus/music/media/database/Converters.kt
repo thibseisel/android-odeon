@@ -27,12 +27,12 @@ internal class Converters {
     fun fromTimestamp(value: Long?) = if (value != null) Date(value) else null
 
     @TypeConverter
-    fun dateToTimestamp(date: Date?) = date?.time
+    fun dateToTimestamp(date: Date?): Long? = date?.time
 
     @TypeConverter
-    fun fromString(str: String?): Uri = str?.toUri() ?: Uri.EMPTY
+    fun fromString(str: String?): Uri? = str?.toUri()
 
     @TypeConverter
-    fun toUriString(uri: Uri?) = uri?.toString()
+    fun toUriString(uri: Uri?): String? = uri?.toString()
 
 }

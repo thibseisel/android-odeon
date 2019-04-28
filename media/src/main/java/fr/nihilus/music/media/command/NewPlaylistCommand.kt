@@ -39,7 +39,6 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -59,11 +58,8 @@ class NewPlaylistCommand
                 ?: throw IllegalArgumentException("Missing parameter: PARAM_TITLE")
         val trackIds = params.getLongArray(PARAM_TRACK_IDS) ?: LongArray(0)
 
-        val playlist = Playlist().apply {
-            title = playlistTitle
-            artUri = generateIcon(playlistTitle)
-            created = Date()
-        }
+        val iconUri = generateIcon(playlistTitle)
+        val playlist = Playlist(playlistTitle, iconUri)
 
         subscriptions += Single.fromCallable { savePlaylist(playlist) }
             .subscribeOn(Schedulers.io())
