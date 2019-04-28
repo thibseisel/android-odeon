@@ -23,7 +23,7 @@ import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.asMediaDescription
 import fr.nihilus.music.media.browseHierarchyOf
-import fr.nihilus.music.media.database.PlaylistDao
+import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.source.MusicDao
 import io.reactivex.Observable
 import io.reactivex.Single

@@ -21,8 +21,8 @@ import android.os.ResultReceiver
 import fr.nihilus.music.media.BuildConfig
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
-import fr.nihilus.music.media.database.PlaylistDao
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.utils.plusAssign
 import io.reactivex.Single

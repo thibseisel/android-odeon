@@ -26,10 +26,10 @@ import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.R
-import fr.nihilus.music.media.database.Playlist
-import fr.nihilus.music.media.database.PlaylistDao
-import fr.nihilus.music.media.database.PlaylistTrack
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.playlists.Playlist
+import fr.nihilus.music.media.playlists.PlaylistDao
+import fr.nihilus.music.media.playlists.PlaylistTrack
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.plusAssign

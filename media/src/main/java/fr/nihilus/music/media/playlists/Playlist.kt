@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.database
+package fr.nihilus.music.media.playlists
 
 import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
@@ -24,7 +24,6 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import fr.nihilus.music.media.CATEGORY_PLAYLISTS
 import fr.nihilus.music.media.mediaIdOf
-import java.util.*
 
 /**
  * A class that groups information associated with a playlist.
@@ -52,7 +51,7 @@ internal class Playlist(
      * The date at which this playlist has been created.
      */
     @ColumnInfo(name = "date_created")
-    val created: Date,
+    val created: Long,
 
     /**
      * Uri pointing to a Bitmap that illustrates this playlist.
@@ -71,7 +70,7 @@ internal class Playlist(
     constructor(
         title: CharSequence,
         iconUri: Uri? = null
-    ) : this(null, title.toString(), Date(), iconUri)
+    ) : this(null, title.toString(), System.currentTimeMillis(), iconUri)
 
     fun asMediaDescription(builder: MediaDescriptionCompat.Builder): MediaDescriptionCompat {
         val playlistId = checkNotNull(id) { "Cant create MediaDescription of an unsaved playlist" }

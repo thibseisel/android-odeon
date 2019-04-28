@@ -20,6 +20,7 @@ import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.usage.MediaUsageDao
 

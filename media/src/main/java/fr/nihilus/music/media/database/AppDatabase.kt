@@ -22,6 +22,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import fr.nihilus.music.media.playlists.Playlist
+import fr.nihilus.music.media.playlists.PlaylistDao
+import fr.nihilus.music.media.playlists.PlaylistTrack
 import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.usage.MediaUsageEvent
 
