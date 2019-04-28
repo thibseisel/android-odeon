@@ -20,6 +20,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 
+@Deprecated("This test is no longer maintained. The class under test will be deprecated in the near future.")
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CachedMusicRepositoryTest {

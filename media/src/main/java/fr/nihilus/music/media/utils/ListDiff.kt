@@ -16,43 +16,6 @@
 
 package fr.nihilus.music.media.utils
 
-@Deprecated(
-    "Diffing should be done with the new diffList function",
-    ReplaceWith("diffList(oldList, newList)")
-)
-internal fun <K, E> diffList(
-    oldList: List<E>,
-    newList: List<E>,
-    keySelector: (E) -> K
-): ListDiff<E> {
-    val oldItemMap = oldList.associateByTo(HashMap(), keySelector)
-    val newItemMap = newList.associateByTo(HashMap(), keySelector)
-
-    val additions = mutableSetOf<E>()
-    val deletions = mutableSetOf<E>()
-
-    for ((oldKey, oldValue) in oldItemMap) {
-        val maybeDeleted = newItemMap[oldKey]
-        if (maybeDeleted == null) {
-            // Was in old but not in new: item was removed.
-            deletions.add(oldValue)
-        } else {
-            // Both in old and new: remove its key to speed up processing.
-            newItemMap.remove(oldKey)
-        }
-    }
-
-    for ((newKey, newValue) in newItemMap) {
-        val maybeAdded = oldItemMap[newKey]
-        if (maybeAdded == null) {
-            // Was not in old but is in new: item was added.
-            additions.add(newValue)
-        }
-    }
-
-    return ListDiff(additions.toList(), deletions.toList())
-}
-
 internal class ListDiff<out E>(
     val additions: List<E>,
     val deletions: List<E>

@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.provider
 
+import fr.nihilus.music.media.permissions.PermissionDeniedException
+
 /**
  * Interface to perform read and write operations on music media stored locally on the device.
  * This acts as an abstraction layer over the Android MediaStore.

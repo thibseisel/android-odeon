@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.provider
 
+import fr.nihilus.music.media.playlists.Playlist
+
 internal val SAMPLE_TRACKS = listOf(
     Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1000003673, 26, 65),
     Track(309, "The 2nd Law: Isolated System", "Muse", "The 2nd Law", 300042, 1, 13, "", null, 1000001838, 18, 40),
@@ -45,4 +47,16 @@ internal val SAMPLE_ARTISTS = listOf(
     Artist(4, "Avenged Sevenfold", 1, 1, null),
     Artist(13, "Foo Fighters", 4, 3, null),
     Artist(18, "Muse", 2, 2, null)
+)
+
+internal val SAMPLE_PLAYLISTS = listOf(
+    Playlist(1, "Zen", 1551434321, null),
+    Playlist(2, "Sport", 1551435123, null),
+    Playlist(3, "Metal", 1551436125, null)
+)
+
+internal val SAMPLE_PLAYLIST_TRACKS = mapOf(
+    1L to listOf(SAMPLE_TRACKS[1]),
+    2L to listOf(SAMPLE_TRACKS[9], SAMPLE_TRACKS[3], SAMPLE_TRACKS[4]),
+    3L to listOf(SAMPLE_TRACKS[7], SAMPLE_TRACKS[0])
 )
