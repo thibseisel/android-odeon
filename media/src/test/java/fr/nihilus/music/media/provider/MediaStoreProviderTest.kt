@@ -26,12 +26,13 @@ import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.assertThrows
+import fr.nihilus.music.media.fail
+import fr.nihilus.music.media.failAssumption
 import fr.nihilus.music.media.permissions.DeniedPermission
 import fr.nihilus.music.media.permissions.GrantedPermission
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.provider.FailingMediaStore.query
 import org.junit.After
-import org.junit.AssumptionViolatedException
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,8 +81,7 @@ class MediaStoreProviderTest {
     fun whenQueryingTracks_thenTrackInfoShouldMatch() {
         val provider = MediaStoreProvider(mediaStoreSurrogate, GrantedPermission)
         val allTracks = provider.queryTracks()
-        val aTrack = allTracks.find { it.id == 161L }
-            ?: throw AssumptionViolatedException("Unable to find a track with id = 161")
+        val aTrack = allTracks.find { it.id == 161L } ?: failAssumption("Missing a track with id = 161")
 
         assertThat(aTrack.id).isEqualTo(161L)
         assertThat(aTrack.title).isEqualTo("1741 (The Battle of Cartagena)")
@@ -98,8 +98,7 @@ class MediaStoreProviderTest {
         val provider = MediaStoreProvider(mediaStoreSurrogate, GrantedPermission)
 
         val allTracks = provider.queryTracks()
-        val aTrack = allTracks.find { it.id == 161L }
-            ?: throw AssumptionViolatedException("Missing track with id = 161")
+        val aTrack = allTracks.find { it.id == 161L } ?: failAssumption("Missing a track with id = 161")
 
         assertThat(aTrack.mediaUri).isEqualTo("${Media.EXTERNAL_CONTENT_URI}/161")
     }
@@ -110,14 +109,12 @@ class MediaStoreProviderTest {
         val allTracks = provider.queryTracks()
 
         // Test with a track present on disc 1 : "Give It Up"
-        val trackOnDiscOne = allTracks.find { it.id == 48L }
-            ?: throw AssumptionViolatedException("Unable to find a track on disc 1")
+        val trackOnDiscOne = allTracks.find { it.id == 48L } ?: failAssumption("Missing a track on disc 1")
         assertThat(trackOnDiscOne.discNumber).isEqualTo(1)
         assertThat(trackOnDiscOne.trackNumber).isEqualTo(19)
 
         // Test with a track present on disc 2 : "Jailbreak"
-        val trackOnDiscTwo = allTracks.find { it.id == 125L }
-            ?: throw AssumptionViolatedException("Unable to find a track on disc 2")
+        val trackOnDiscTwo = allTracks.find { it.id == 125L } ?: failAssumption("Missing a track on disc 2")
         assertThat(trackOnDiscTwo.discNumber).isEqualTo(2)
         assertThat(trackOnDiscTwo.trackNumber).isEqualTo(14)
     }
@@ -156,8 +153,7 @@ class MediaStoreProviderTest {
         val provider = MediaStoreProvider(mediaStoreSurrogate, GrantedPermission)
 
         val allAlbums = provider.queryAlbums()
-        val anAlbum = allAlbums.find { it.id == 40L }
-            ?: throw AssertionError("Missing album with id = 40")
+        val anAlbum = allAlbums.find { it.id == 40L } ?: fail("Missing an album with id = 40")
 
         assertThat(anAlbum.id).isEqualTo(40L)
         assertThat(anAlbum.title).isEqualTo("The 2nd Law")
@@ -191,8 +187,7 @@ class MediaStoreProviderTest {
     fun whenQueryingArtists_thenArtistInfoShouldMatch() {
         val provider = MediaStoreProvider(mediaStoreSurrogate, GrantedPermission)
         val allArtists = provider.queryArtists()
-        val anArtist = allArtists.find { it.id == 5L }
-            ?: throw AssumptionViolatedException("Unable to fin an artist with id = 5")
+        val anArtist = allArtists.find { it.id == 5L } ?: failAssumption("Missing an artist with id = 5")
 
         assertThat(anArtist.id).isEqualTo(5L)
         assertThat(anArtist.name).isEqualTo("AC/DC")
@@ -206,13 +201,11 @@ class MediaStoreProviderTest {
         val allArtists = provider.queryArtists()
 
         // Alestorm only have one album here ; its icon should be that of that album
-        val artistWithOneAlbum = allArtists.find { it.id == 26L }
-            ?: throw AssumptionViolatedException("Missing artist with id = 26")
+        val artistWithOneAlbum = allArtists.find { it.id == 26L } ?: failAssumption("Missing an artist with id = 26")
         assertThat(artistWithOneAlbum.iconUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548")
 
         // Foo Fighters have 3 albums, use the icon of "Concrete and Gold"
-        val artistWithMultipleAlbums = allArtists.find { it.id == 13L }
-            ?: throw AssumptionViolatedException("Missing artist with id = 13")
+        val artistWithMultipleAlbums = allArtists.find { it.id == 13L } ?: failAssumption("Missing an artist with id = 13")
         assertThat(artistWithMultipleAlbums.iconUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029")
     }
 

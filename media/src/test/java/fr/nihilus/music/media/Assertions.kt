@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media
 
+import org.junit.AssumptionViolatedException
+
 /**
  * Assert that the following block function throws a given [Exception].
  *
@@ -35,4 +37,20 @@ inline fun <reified E : Exception> assertThrows(block: () -> Unit): E {
 
         return e
     }
+}
+
+/**
+ * Make the current test fail.
+ * @param message Description of the assertion that failed.
+ */
+fun fail(message: String): Nothing {
+    throw AssertionError(message)
+}
+
+/**
+ * Denote that the current test is not relevant because an assumption is invalid.
+ * @param message Description of the assumption that failed.
+ */
+fun failAssumption(message: String): Nothing {
+    throw AssumptionViolatedException(message)
 }

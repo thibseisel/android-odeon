@@ -80,7 +80,7 @@ internal interface MediaProvider {
      * The registered [observer] will be notified for each change to the list returned by [queryTracks],
      * [queryAlbums] or [queryArtists], depending on the [type][Observer.type] of media it observes.
      * Media lists queried before a change notification is dispatched to an observer are then considered outdated
-     * and should be requeried.
+     * and should be re-queried.
      *
      * Observers should be unregistered via [unregisterObserver] after use.
      * The same observer can only be registered once.
@@ -121,17 +121,17 @@ internal interface MediaProvider {
 
         /**
          * The type of media that can be queried from [MediaProvider.queryTracks].
-         * Corresponds to the [Track] class.
+         * Maps to the [Track] class.
          */
         TRACKS,
         /**
          * The type of media that can be queried from [MediaProvider.queryAlbums].
-         * Corresponds to the [Album] class.
+         * Maps to the [Album] class.
          */
         ALBUMS,
         /**
          * The type of media that can e queried from [MediaProvider.queryArtists].
-         * Corresponds to the [Artist] class.
+         * Maps to the [Artist] class.
          */
         ARTISTS
     }
