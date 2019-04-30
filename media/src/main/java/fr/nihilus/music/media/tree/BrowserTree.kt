@@ -23,11 +23,14 @@ import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
+import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.media.MediaId.Builder.fromParts
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.mediaId
 import fr.nihilus.music.media.toUri
@@ -93,8 +96,11 @@ internal class BrowserTreeImpl(
             }
 
             category(CATEGORY_MOST_RATED, title = "Most Rated") {
-                // TODO
-                emptyList()
+                val builder = MediaDescriptionCompat.Builder()
+                repository.getMostRatedTracks().map { track ->
+                    val mediaId = MediaId.encode(type, CATEGORY_MOST_RATED, track.id.toString())
+                    track.toMediaItem(mediaId, builder)
+                }
             }
 
             category(CATEGORY_RECENTLY_ADDED, title = "Recently Added") {
@@ -214,7 +220,11 @@ internal class BrowserTreeImpl(
     private fun Album.toMediaItem(mediaId: String, builder: MediaDescriptionCompat.Builder): MediaItem {
         val albumDescription = builder.setMediaId(mediaId)
             .setTitle(title)
+            .setSubtitle(artist)
             .setIconUri(albumArtUri?.toUri())
+            .setExtras(Bundle().apply {
+                putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
+            })
             .build()
         return MediaItem(albumDescription, MediaItem.FLAG_BROWSABLE)
     }
@@ -223,6 +233,9 @@ internal class BrowserTreeImpl(
         val artistDescription = builder.setMediaId(mediaId)
             .setTitle(name)
             .setIconUri(iconUri?.toUri())
+            .setExtras(Bundle().apply {
+                putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
+            })
             .build()
         return MediaItem(artistDescription, MediaItem.FLAG_BROWSABLE)
     }
@@ -245,6 +258,12 @@ internal class BrowserTreeImpl(
     }
 
     override val updatedParentIds: Flowable<MediaId>
-        get() = repository.changeNotifications.map { it.mediaId }
+        get() = repository.changeNotifications.flatMap {
+            if (it is ChangeNotification.AllTracks) Flowable.just(
+                fromParts(TYPE_TRACKS, CATEGORY_ALL),
+                fromParts(TYPE_TRACKS, CATEGORY_MOST_RATED),
+                fromParts(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
+            ) else Flowable.just(it.mediaId)
+        }
 }
 

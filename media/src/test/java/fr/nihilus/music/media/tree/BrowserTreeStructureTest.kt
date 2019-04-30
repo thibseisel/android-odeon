@@ -33,7 +33,6 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.parse
-import fr.nihilus.music.media.mediaId
 import fr.nihilus.music.media.provider.generateRandomTrackSequence
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.TestMediaRepository
@@ -253,7 +252,7 @@ class BrowserTreeStructureTest {
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|464",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|48",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|477",
-            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|219"
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|294"
         ).inOrder()
 
         assertThatAllArePlayableAmong(mostRatedTracks)
@@ -282,7 +281,16 @@ class BrowserTreeStructureTest {
         val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
 
         assertThat(mostRecentTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            // TODO Rewrite availability date of tracks
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|481", // September 25th, 2019 (21:22)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|477", // September 25th, 2019 (21:22)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|161", // June 18th, 2016
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|125", // February 12th, 2016 (21:49)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|48",  // February 12th, 2016 (21:48)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|309", // August 15th, 2015 (15:49)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|464", // August 15th, 2015 (15:49)
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|75",  // August 14th, 2015
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|294", // November 1st, 2014
+            "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|219"  // February 12th, 2013
         ).inOrder()
     }
 
@@ -361,7 +369,7 @@ class BrowserTreeStructureTest {
     fun whenLoadingChildrenOfAnArtist_thenReturnAlbumsFromThatArtistSortedByDescReleaseDate(): Unit = runBlocking {
         assertArtistHasAlbumsChildren(26L, listOf("$TYPE_ALBUMS/65"))
         assertArtistHasAlbumsChildren(18L, listOf("$TYPE_ALBUMS/40", "$TYPE_ALBUMS/38"))
-        assertArtistHasAlbumsChildren(13L, listOf("$TYPE_ALBUMS/26", "$TYPE_ALBUMS/95"))
+        assertArtistHasAlbumsChildren(13L, listOf("$TYPE_ALBUMS/102", "$TYPE_ALBUMS/26", "$TYPE_ALBUMS/95"))
     }
 
     private suspend fun assertArtistHasAlbumsChildren(artistId: Long, expectedAlbumIds: List<String>) {

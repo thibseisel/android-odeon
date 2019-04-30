@@ -26,11 +26,8 @@ import android.support.v4.media.MediaMetadataCompat
 import android.util.LongSparseArray
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.utils.PermissionDeniedException
-import org.junit.After
+import org.junit.*
 import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.BDDMockito.given
 import org.mockito.BDDMockito.willThrow
@@ -303,7 +300,7 @@ class MediaStoreMusicDaoTest {
                 assertEquals("""C/?)U""", getString(MediaItems.EXTRA_ALBUM_KEY))
                 assertEquals(1, getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS))
                 assertEquals(2012, getInt(MediaItems.EXTRA_YEAR))
-            } ?: fail("Albums should have extras")
+            } ?: Assert.fail("Albums should have extras")
         }
     }
 
@@ -442,7 +439,7 @@ class MediaStoreMusicDaoTest {
                     getString(MediaItems.EXTRA_TITLE_KEY)
                 )
                 assertEquals(1, getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS))
-            } ?: fail("Artists should have extras")
+            } ?: Assert.fail("Artists should have extras")
         }
     }
 

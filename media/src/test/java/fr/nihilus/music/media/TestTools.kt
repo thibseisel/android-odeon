@@ -19,7 +19,6 @@ package fr.nihilus.music.media
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import org.junit.AssumptionViolatedException
 
 /**
  * Run the given [block] in a new coroutine scope based on the context of the receiver.

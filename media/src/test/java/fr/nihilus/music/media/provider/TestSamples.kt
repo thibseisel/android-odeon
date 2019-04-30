@@ -20,16 +20,16 @@ import fr.nihilus.music.media.playlists.Playlist
 import kotlin.random.Random
 
 internal val SAMPLE_TRACKS = listOf(
-    Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1000003673, 26, 65),
-    Track(309, "The 2nd Law: Isolated System", "Muse", "The 2nd Law", 300042, 1, 13, "", null, 1000001838, 18, 40),
-    Track(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 320914, 1, 6, "", null, 1000009113, 13, 102),
-    Track(48, "Give It Up", "AC/DC", "Greatest Hits 30 Anniversary Edition", 233592, 1, 19, "", null, 1000003095, 5, 7),
-    Track(125, "Jailbreak", "AC/DC", "Greatest Hits 30 Anniversary Edition", 276668, 2, 14, "", null, 1000003503, 5, 7),
-    Track(294, "Knights of Cydonia", "Muse", "Black Holes and Revelations", 366946, 1, 11, "", null, 1000001838, 18, 38),
-    Track(219, "A Matter of Time", "Foo Fighters", "Wasting Light", 276140, 1, 8, "", null, 1000002658, 13, 26),
-    Track(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 374648, 1, 1, "", null, 1000003075, 4, 6),
-    Track(464, "The Pretenders", "Foo Fighters", "Echoes, Silence, Patience & Grace", 266509, 1, 1, "", null, 1000001624, 13, 95),
-    Track(477, "Run", "Foo Fighters", "Concrete and Gold", 323424, 1, 2, "", null, 1000007047, 13, 102)
+    Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1466283480, 26, 65),
+    Track(309, "The 2nd Law: Isolated System", "Muse", "The 2nd Law", 300042, 1, 13, "", null, 1439653800, 18, 40),
+    Track(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 320914, 1, 6, "", null, 1506374520, 13, 102),
+    Track(48, "Give It Up", "AC/DC", "Greatest Hits 30 Anniversary Edition", 233592, 1, 19, "", null, 1455310080, 5, 7),
+    Track(125, "Jailbreak", "AC/DC", "Greatest Hits 30 Anniversary Edition", 276668, 2, 14, "", null, 1455310140, 5, 7),
+    Track(294, "Knights of Cydonia", "Muse", "Black Holes and Revelations", 366946, 1, 11, "", null, 1414880700, 18, 38),
+    Track(219, "A Matter of Time", "Foo Fighters", "Wasting Light", 276140, 1, 8, "", null, 1360677660, 13, 26),
+    Track(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 374648, 1, 1, "", null, 1439590380, 4, 6),
+    Track(464, "The Pretenders", "Foo Fighters", "Echoes, Silence, Patience & Grace", 266509, 1, 1, "", null, 1439653740, 13, 95),
+    Track(477, "Run", "Foo Fighters", "Concrete and Gold", 323424, 1, 2, "", null, 1506374520, 13, 102)
 )
 internal val SAMPLE_ALBUMS = listOf(
     Album(40, "The 2nd Law", "Muse", 1, 2012, null, 18),
@@ -43,7 +43,7 @@ internal val SAMPLE_ALBUMS = listOf(
 )
 
 internal val SAMPLE_ARTISTS = listOf(
-    Artist(5, "AC/DC", 2, 1, null),
+    Artist(5, "AC/DC", 1, 2, null),
     Artist(26, "Alestorm", 1, 1, null),
     Artist(4, "Avenged Sevenfold", 1, 1, null),
     Artist(13, "Foo Fighters", 4, 3, null),
@@ -67,7 +67,7 @@ internal val SAMPLE_MOST_RATED_TRACKS = listOf(
     SAMPLE_TRACKS[8], // 464 - The Pretenders
     SAMPLE_TRACKS[3], // 48 - Give It Up
     SAMPLE_TRACKS[9], // 477 - Run
-    SAMPLE_TRACKS[5] // 219 - Knights of Cydonia
+    SAMPLE_TRACKS[5] // 294 - Knights of Cydonia
 )
 
 private const val ALPHABET_SIZE = 26
@@ -120,7 +120,7 @@ internal val randomCamelWordsSequence = generateSequence {
 private const val APRIL_30TH_2019 = 1556575200L
 private const val ONE_DAY_MILLIS = 24 * 3600 * 1000L
 
-internal fun generateRandomTrackSequence(): Sequence<Track> = sequence<Track> {
+internal fun generateRandomTrackSequence(): Sequence<Track> = sequence {
     val alphabetTitles = alphabetSequence.iterator()
     val randomTitles = randomCamelWordsSequence.iterator()
     val releaseDates = generateSequence(APRIL_30TH_2019) { it - ONE_DAY_MILLIS }.iterator()
