@@ -23,7 +23,7 @@ import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
-import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.*
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -33,12 +33,9 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.parse
-import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.media.failAssumption
 import fr.nihilus.music.media.mediaId
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.TestMediaRepository
-import io.kotlintest.fail
 import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -128,7 +125,7 @@ class BrowserTreeStructureTest {
     }
 
     @Test
-    fun whenLoadingChildrenOfArtistType_thenReturnAllArtistWithMediaIdBasedOnTheArtistId() = runBlocking {
+    fun whenLoadingChildrenOfArtistType_thenReturnAllArtistWithMediaIdBasedOnTheArtistId(): Unit = runBlocking {
         val allArtists = loadChildrenOf(mediaId(TYPE_ARTISTS))
 
         assertThat(allArtists).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
@@ -574,58 +571,54 @@ class BrowserTreeStructureTest {
 
     private fun assertThatAllAreBrowsableAmong(children: List<MediaItem>) {
         val nonBrowsableItems = children.filterNot { it.isBrowsable }
+
         if (nonBrowsableItems.isNotEmpty()) {
-            val failureMessage = buildString {
+            fail(buildString {
                 append("Expected all items to be browsable, but ")
                 nonBrowsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" were not.")
-            }
-
-            throw AssertionError(failureMessage)
+            })
         }
     }
 
     private fun assertThatNoneArePlayableAmong(children: List<MediaItem>) {
         val playableItems = children.filter { it.isPlayable }
+
         if (playableItems.isNotEmpty()) {
-            val failureMessage = buildString {
+            fail(buildString {
                 append("Expected all items not to be playable, but ")
                 playableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" were.")
-            }
-
-            throw AssertionError(failureMessage)
+            })
         }
     }
 
     private inline fun assertOn(extras: Bundle?, assertions: BundleSubject.() -> Unit) {
-        assertThat(extras).named("Extras").isNotNull()
+        assertThat(extras).named("extras").isNotNull()
         assertThatBundle(extras).run(assertions)
     }
 
     private fun assertThatNoneAreBrowsableAmong(children: List<MediaItem>) {
         val browsableItems = children.filter(MediaItem::isBrowsable)
+
         if (browsableItems.isNotEmpty()) {
-            val failureMessage = buildString {
+            fail(buildString {
                 append("Expected all items not to be browsable, but ")
                 browsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" were.")
-            }
-
-            throw AssertionError(failureMessage)
+            })
         }
     }
 
     private fun assertThatAllArePlayableAmong(children: List<MediaItem>) {
         val nonPlayableItems = children.filterNot(MediaItem::isPlayable)
+
         if (nonPlayableItems.isNotEmpty()) {
-            val failureMessage = buildString {
+            fail(buildString {
                 append("Expected all items to be playable, but ")
                 nonPlayableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" weren't.")
-            }
-
-            throw AssertionError(failureMessage)
+            })
         }
     }
 }

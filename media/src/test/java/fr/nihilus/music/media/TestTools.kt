@@ -42,7 +42,3 @@ internal inline fun CoroutineScope.usingScope(block: (CoroutineScope) -> Unit) {
 @Suppress("nothing_to_inline")
 internal inline fun mediaId(type: String, category: String? = null, track: String? = null): MediaId =
     MediaId.fromParts(type, category, track)
-
-internal fun failAssumption(failureMessage: String): Nothing {
-    throw AssumptionViolatedException(failureMessage)
-}
