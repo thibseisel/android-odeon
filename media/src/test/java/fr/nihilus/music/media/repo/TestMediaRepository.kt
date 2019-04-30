@@ -26,14 +26,13 @@ internal class TestMediaRepository(
     private val artists: List<Artist> = SAMPLE_ARTISTS,
     private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
     private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_PLAYLIST_TRACKS,
-    private val mostRatedTracks: List<Track> = emptyList(),
-    notifications: Flowable<ChangeNotification> = Flowable.empty()
+    private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
+    override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
 ) : MediaRepository {
     override suspend fun getAllTracks(): List<Track> = tracks
     override suspend fun getAllAlbums(): List<Album> = albums
     override suspend fun getAllArtists(): List<Artist> = artists
     override suspend fun getAllPlaylists(): List<Playlist> = playlists
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
-    override val changeNotifications: Flowable<ChangeNotification> = notifications
     override suspend fun getMostRatedTracks(): List<Track> = mostRatedTracks
 }

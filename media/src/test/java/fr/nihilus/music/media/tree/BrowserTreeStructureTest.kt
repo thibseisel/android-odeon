@@ -34,6 +34,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.parse
 import fr.nihilus.music.media.mediaId
+import fr.nihilus.music.media.provider.generateRandomTrackSequence
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.TestMediaRepository
 import io.reactivex.processors.PublishProcessor
@@ -120,8 +121,7 @@ class BrowserTreeStructureTest {
             assertThat(subtitle).isEqualTo("Muse")
         }
 
-        val albumExtras = anAlbum.description.extras
-        assertThatBundle(albumExtras).integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
+        assertThatBundle(anAlbum.description.extras).integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
     }
 
     @Test
@@ -242,28 +242,22 @@ class BrowserTreeStructureTest {
                 integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(14)
             }
         }
-
     }
 
     @Test
     fun whenLoadingChildrenOfMostRated_thenReturnMostRatedTracksFromRepository(): Unit = runBlocking {
         val mostRatedTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
 
+        assertThat(mostRatedTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|75",
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|464",
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|48",
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|477",
+            "$TYPE_TRACKS/$CATEGORY_MOST_RATED|219"
+        ).inOrder()
+
         assertThatAllArePlayableAmong(mostRatedTracks)
         assertThatNoneAreBrowsableAmong(mostRatedTracks)
-
-        TODO("Check number and order")
-    }
-
-    @Test
-    fun whenLoadingChildrenOfMostRated_thenTheirCategoryShouldBeMostRated(): Unit = runBlocking {
-        val mostRatedTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
-        val nonCompliant = mostRatedTracks.asSequence()
-            .map { parse(it.mediaId) }
-            .filter { it.category == CATEGORY_MOST_RATED }
-            .toList()
-
-        assertThat(nonCompliant).isEmpty()
     }
 
     @Test
@@ -276,7 +270,7 @@ class BrowserTreeStructureTest {
             assertThat(subtitle).isEqualTo("Avenged Sevenfold")
 
             assertOn(extras) {
-                integer(MediaItems.EXTRA_DURATION).isEqualTo(374648L)
+                containsKey(MediaItems.EXTRA_DURATION)
                 integer(MediaItems.EXTRA_DISC_NUMBER).isEqualTo(1)
                 integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(1)
             }
@@ -284,24 +278,32 @@ class BrowserTreeStructureTest {
     }
 
     @Test
-    fun whenLoadingChildrenOfRecentlyAdded_thenReturnMostRecentTracksFromRepository(): Unit = runBlocking {
+    fun whenLoadingChildrenOfRecentlyAdded_thenItemsAreTracksSortedByDescendingAvailabilityDate(): Unit = runBlocking {
+        val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
+
+        assertThat(mostRecentTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+            // TODO Rewrite availability date of tracks
+        ).inOrder()
+    }
+
+    @Test
+    fun whenLoadingChildrenOfRecentlyAdded_thenItemsArePlayableOnly(): Unit = runBlocking {
         val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
 
         assertThatAllArePlayableAmong(mostRecentTracks)
         assertThatNoneAreBrowsableAmong(mostRecentTracks)
-
-        TODO("Check number and order")
     }
 
     @Test
-    fun whenLoadingChildrenOfRecentlyAdded_thenTheirCategoryShouldBeRecentlyAdded(): Unit = runBlocking {
-        val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
-        val nonCompliant = mostRecentTracks.asSequence()
-            .map { parse(it.mediaId) }
-            .filterNot { it.category == CATEGORY_RECENTLY_ADDED }
-            .toList()
+    fun whenLoadingChildrenOfRecentlyAdded_thenReturnNoMoreThan25Tracks(): Unit = runBlocking {
+        val testTracks = generateRandomTrackSequence().take(50).toList()
+        val repository = TestMediaRepository(tracks = testTracks)
+        val browserTree = BrowserTreeImpl(repository)
 
-        assertThat(nonCompliant).isEmpty()
+        val mostRecentTracks = browserTree.getChildren(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
+            ?: failAssumption("Expected $TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED to have children")
+
+        assertThat(mostRecentTracks.size).named("Number of most recent tracks").isAtMost(25)
     }
 
     @Test
@@ -486,25 +488,25 @@ class BrowserTreeStructureTest {
     @Test
     fun whenReceivingChangeNotification_thenMapToTheCorrespondingMediaId() {
         assertNotifyParentChanged(ChangeNotification.AllTracks, mediaId(TYPE_TRACKS, CATEGORY_ALL))
+        assertNotifyParentChanged(ChangeNotification.AllTracks, mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
+        assertNotifyParentChanged(ChangeNotification.AllTracks, mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
         assertNotifyParentChanged(ChangeNotification.AllAlbums, mediaId(TYPE_ALBUMS))
         assertNotifyParentChanged(ChangeNotification.Album(40L), mediaId(TYPE_ALBUMS, "40"))
         assertNotifyParentChanged(ChangeNotification.AllArtists, mediaId(TYPE_ARTISTS))
         assertNotifyParentChanged(ChangeNotification.Artist(5L), mediaId(TYPE_ARTISTS, "5"))
         assertNotifyParentChanged(ChangeNotification.AllPlaylists, mediaId(TYPE_PLAYLISTS))
         assertNotifyParentChanged(ChangeNotification.Playlist(1L), mediaId(TYPE_PLAYLISTS, "1"))
-
-        // TODO ChangeNotification.AllTracks should also notify for CATEGORY_MOST_RECENT and CATEGORY_MOST_RATED
     }
 
     private fun assertNotifyParentChanged(notification: ChangeNotification, changedParentId: MediaId) {
         val changeNotifier = PublishProcessor.create<ChangeNotification>()
-        val repository = TestMediaRepository(notifications = changeNotifier)
+        val repository = TestMediaRepository(changeNotifications = changeNotifier)
         val browserTree = BrowserTreeImpl(repository)
 
         val subscriber = browserTree.updatedParentIds.test()
         changeNotifier.onNext(notification)
 
-        subscriber.assertValue(changedParentId)
+        assertThat(subscriber.values()).contains(changedParentId)
     }
 
     private suspend fun assertItemIsPartOfItsParentsChildren(parentId: MediaId, itemId: MediaId) {
@@ -569,6 +571,11 @@ class BrowserTreeStructureTest {
         return children ?: fail("Expected $parentId to have children.")
     }
 
+    private inline fun assertOn(extras: Bundle?, assertions: BundleSubject.() -> Unit) {
+        assertThat(extras).named("extras").isNotNull()
+        assertThatBundle(extras).run(assertions)
+    }
+
     private fun assertThatAllAreBrowsableAmong(children: List<MediaItem>) {
         val nonBrowsableItems = children.filterNot { it.isBrowsable }
 
@@ -577,6 +584,18 @@ class BrowserTreeStructureTest {
                 append("Expected all items to be browsable, but ")
                 nonBrowsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" were not.")
+            })
+        }
+    }
+
+    private fun assertThatAllArePlayableAmong(children: List<MediaItem>) {
+        val nonPlayableItems = children.filterNot(MediaItem::isPlayable)
+
+        if (nonPlayableItems.isNotEmpty()) {
+            fail(buildString {
+                append("Expected all items to be playable, but ")
+                nonPlayableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
+                append(" weren't.")
             })
         }
     }
@@ -593,11 +612,6 @@ class BrowserTreeStructureTest {
         }
     }
 
-    private inline fun assertOn(extras: Bundle?, assertions: BundleSubject.() -> Unit) {
-        assertThat(extras).named("extras").isNotNull()
-        assertThatBundle(extras).run(assertions)
-    }
-
     private fun assertThatNoneAreBrowsableAmong(children: List<MediaItem>) {
         val browsableItems = children.filter(MediaItem::isBrowsable)
 
@@ -606,18 +620,6 @@ class BrowserTreeStructureTest {
                 append("Expected all items not to be browsable, but ")
                 browsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
                 append(" were.")
-            })
-        }
-    }
-
-    private fun assertThatAllArePlayableAmong(children: List<MediaItem>) {
-        val nonPlayableItems = children.filterNot(MediaItem::isPlayable)
-
-        if (nonPlayableItems.isNotEmpty()) {
-            fail(buildString {
-                append("Expected all items to be playable, but ")
-                nonPlayableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
-                append(" weren't.")
             })
         }
     }

@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.media.playlists.Playlist
+import kotlin.random.Random
 
 internal val SAMPLE_TRACKS = listOf(
     Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1000003673, 26, 65),
@@ -60,3 +61,88 @@ internal val SAMPLE_PLAYLIST_TRACKS = mapOf(
     2L to listOf(SAMPLE_TRACKS[9], SAMPLE_TRACKS[3], SAMPLE_TRACKS[4]),
     3L to listOf(SAMPLE_TRACKS[7], SAMPLE_TRACKS[0])
 )
+
+internal val SAMPLE_MOST_RATED_TRACKS = listOf(
+    SAMPLE_TRACKS[7], // 75 - Nightmare
+    SAMPLE_TRACKS[8], // 464 - The Pretenders
+    SAMPLE_TRACKS[3], // 48 - Give It Up
+    SAMPLE_TRACKS[9], // 477 - Run
+    SAMPLE_TRACKS[5] // 219 - Knights of Cydonia
+)
+
+private const val ALPHABET_SIZE = 26
+
+/**
+ * Generate a sequence of letters from the english alphabet in order.
+ * Letters are combined after reaching Z.
+ *
+ * `A, B, C, [...], Y, Z, AA, AB, AC, [...], ZY, ZZ, AAA, AAB, etc.`
+ */
+internal val alphabetSequence = generateSequence(0) { it + 1 }
+    .map { seed ->
+        buildString {
+            var n = seed
+            while (n >= ALPHABET_SIZE) {
+                val code = n % ALPHABET_SIZE
+                append('A' + code)
+                n = (n - code) / ALPHABET_SIZE - 1
+            }
+
+            append('A' + n)
+            reverse()
+        }
+    }
+
+internal val randomCamelWordsSequence = generateSequence {
+    // Generate titles consisting of a maximum of 3 words, each word having between 1 and 10 letters.
+    val numberOfWords = Random.nextInt(1, 4)
+
+    buildString {
+        repeat(numberOfWords) { wordIndex ->
+            // Separate words with spaces
+            if (wordIndex > 0) {
+                append(' ')
+            }
+
+            // The first letter of a word is an uppercase letter.
+            val firstLetter = Random.nextInt('A'.toInt(), 'Z'.toInt()).toChar()
+            append(firstLetter)
+
+            val numberOfLowercases = Random.nextInt(1, 10)
+            repeat(numberOfLowercases) {
+                val letter = Random.nextInt('a'.toInt(), 'z'.toInt()).toChar()
+                append(letter)
+            }
+        }
+    }
+}
+
+private const val APRIL_30TH_2019 = 1556575200L
+private const val ONE_DAY_MILLIS = 24 * 3600 * 1000L
+
+internal fun generateRandomTrackSequence(): Sequence<Track> = sequence<Track> {
+    val alphabetTitles = alphabetSequence.iterator()
+    val randomTitles = randomCamelWordsSequence.iterator()
+    val releaseDates = generateSequence(APRIL_30TH_2019) { it - ONE_DAY_MILLIS }.iterator()
+
+    while (true) {
+        val trackId = Random.nextLong(0, 512)
+
+        yield(
+            Track(
+                id = trackId,
+                title = alphabetTitles.next(),
+                album = randomTitles.next(),
+                artist = randomTitles.next(),
+                duration = Random.nextLong(30_000L, 15 * 60 * 1000L),
+                discNumber = 1,
+                trackNumber = Random.nextInt(1, 16),
+                mediaUri = "path/to/file_$trackId",
+                albumArtUri = null,
+                availabilityDate = releaseDates.next(),
+                albumId = Random.nextLong(0, 256),
+                artistId = Random.nextLong(0, 128)
+            )
+        )
+    }
+}
