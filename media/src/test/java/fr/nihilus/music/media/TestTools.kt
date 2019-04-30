@@ -19,6 +19,7 @@ package fr.nihilus.music.media
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import org.junit.AssumptionViolatedException
 
 /**
  * Run the given [block] in a new coroutine scope based on the context of the receiver.
@@ -41,3 +42,7 @@ internal inline fun CoroutineScope.usingScope(block: (CoroutineScope) -> Unit) {
 @Suppress("nothing_to_inline")
 internal inline fun mediaId(type: String, category: String? = null, track: String? = null): MediaId =
     MediaId.fromParts(type, category, track)
+
+internal fun failAssumption(failureMessage: String): Nothing {
+    throw AssumptionViolatedException(failureMessage)
+}
