@@ -37,6 +37,7 @@ import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import org.robolectric.RobolectricTestRunner
 
+@Deprecated("This test is no longer maintained. The MusicDao API will be deprecated soon.")
 @RunWith(RobolectricTestRunner::class)
 class MediaStoreMusicDaoTest {
 

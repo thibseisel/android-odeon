@@ -28,6 +28,7 @@ import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.fail
 import fr.nihilus.music.media.failAssumption
+import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.permissions.DeniedPermission
 import fr.nihilus.music.media.permissions.GrantedPermission
 import fr.nihilus.music.media.permissions.PermissionDeniedException

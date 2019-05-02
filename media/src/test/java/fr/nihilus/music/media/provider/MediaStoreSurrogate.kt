@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
+import fr.nihilus.music.media.os.ContentResolverDelegate
 import java.io.File
 
 private const val TABLE_MEDIA = "media"
@@ -52,7 +53,7 @@ internal class MediaStoreSurrogate(
         selectionArgs: Array<String>?,
         sortOrder: String?
     ): Cursor? {
-        val tableName = getTableNameFor(uri) ?: error("Unsupported Uri: $uri")
+        val tableName = requireNotNull(getTableNameFor(uri)) { "Unsupported Uri: $uri" }
         val db = inMemoryDatabaseHelper.readableDatabase
         return db.query(tableName, projection, selection, selectionArgs, null, null, sortOrder)
     }
@@ -65,7 +66,7 @@ internal class MediaStoreSurrogate(
     }
 
     override fun delete(uri: Uri, where: String?, whereArgs: Array<String>?): Int {
-        val tableName = getTableNameFor(uri) ?: throw IllegalArgumentException("Unsupported Uri: $uri")
+        val tableName = requireNotNull(getTableNameFor(uri)) { "Unsupported Uri: $uri" }
         return inMemoryDatabaseHelper.writableDatabase.delete(tableName, where, whereArgs)
     }
 
@@ -187,16 +188,16 @@ private class InMemoryMediaStoreDatabase(context: Context) : SQLiteOpenHelper(co
     }
 
     private fun insertSampleMedia(db: SQLiteDatabase) {
-        db.track(161, "1741 (The Battle of Cartagena)", 65, "Sunset on the Golden Age", 26, "Alestorm", 437603, 1004, "Music/1741_(The_Battle_of_Cartagena).mp3", 1000003673)
-        db.track(309, "The 2nd Law: Isolated System", 40, "The 2nd Law", 18, "Muse", 300042, 1013, "Music/The_2nd_Law_(Isolated_System).mp3", 1000001838)
-        db.track(481, "Dirty Water", 102, "Concrete and Gold", 13, "Foo Fighters", 320914, 1006, "Music/Concrete And Gold/Dirty_Water.mp3", 1000009113)
-        db.track(48, "Give It Up", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 233592, 1019, "Music/Give_It_Up.mp3", 1000003095)
-        db.track(125, "Jailbreak", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 276668, 2014, "Music/Jailbreak.mp3", 1000003503)
-        db.track(294, "Knights of Cydonia", 38, "Black Holes and Revelations", 18, "Muse", 366946, 1011, "Music/Knights_of_Cydonia.mp3", 1000001838)
-        db.track(219, "A Matter of Time", 26, "Wasting Light", 18, "Foo Fighters", 276140, 1008, "Music/Wasting Light/A_Matter_of_Time.mp3", 1000002658)
-        db.track(75, "Nightmare", 6, "Nightmare", 4, "Avenged Sevenfold", 374648, 1001, "Music/Nightmare.mp3", 1000003075)
-        db.track(464, "The Pretenders", 95, "Echoes, Silence, Patience & Grace", 13, "Foo Fighters", 266509, 1001, "Music/The_Pretenders.mp3", 1000001624)
-        db.track(477, "Run", 102, "Concrete and Gold", 13, "Foo Fighters", 323424, 1002, "Music/Concrete And Gold/Run.mp3", 1000007047)
+        db.track(161, "1741 (The Battle of Cartagena)", 65, "Sunset on the Golden Age", 26, "Alestorm", 437603, 1004, "Music/1741_(The_Battle_of_Cartagena).mp3", 1466283480)
+        db.track(309, "The 2nd Law: Isolated System", 40, "The 2nd Law", 18, "Muse", 300042, 1013, "Music/The_2nd_Law_(Isolated_System).mp3", 1439653800)
+        db.track(481, "Dirty Water", 102, "Concrete and Gold", 13, "Foo Fighters", 320914, 1006, "Music/Concrete And Gold/Dirty_Water.mp3", 1506374520)
+        db.track(48, "Give It Up", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 233592, 1019, "Music/Give_It_Up.mp3", 1455310080)
+        db.track(125, "Jailbreak", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 276668, 2014, "Music/Jailbreak.mp3", 1455310140)
+        db.track(294, "Knights of Cydonia", 38, "Black Holes and Revelations", 18, "Muse", 366946, 1011, "Music/Knights_of_Cydonia.mp3", 1414880700)
+        db.track(219, "A Matter of Time", 26, "Wasting Light", 18, "Foo Fighters", 276140, 1008, "Music/Wasting Light/A_Matter_of_Time.mp3", 1360677660)
+        db.track(75, "Nightmare", 6, "Nightmare", 4, "Avenged Sevenfold", 374648, 1001, "Music/Nightmare.mp3", 1439590380)
+        db.track(464, "The Pretenders", 95, "Echoes, Silence, Patience & Grace", 13, "Foo Fighters", 266509, 1001, "Music/The_Pretenders.mp3", 1439653740)
+        db.track(477, "Run", 102, "Concrete and Gold", 13, "Foo Fighters", 323424, 1002, "Music/Concrete And Gold/Run.mp3", 1506374520)
     }
 
     private fun insertSampleAlbums(db: SQLiteDatabase) {

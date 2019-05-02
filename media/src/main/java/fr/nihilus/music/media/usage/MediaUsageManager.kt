@@ -68,7 +68,7 @@ internal class RxBridgeUsageManager
 
     override fun reportCompletion(trackId: String) {
         scope.launch(Dispatchers.IO) {
-            val singleEventList = listOf(MediaUsageEvent(trackId))
+            val singleEventList = listOf(MediaUsageEvent(trackId.toLong()))
             usageDao.recordUsageEvents(singleEventList)
         }
     }

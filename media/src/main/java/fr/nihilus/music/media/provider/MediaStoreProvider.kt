@@ -23,6 +23,7 @@ import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import java.io.File

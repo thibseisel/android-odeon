@@ -17,6 +17,8 @@
 package fr.nihilus.music.media.repo
 
 import fr.nihilus.music.media.playlists.Playlist
+import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
+import fr.nihilus.music.media.playlists.SAMPLE_TRACKS_FOR_PLAYLIST
 import fr.nihilus.music.media.provider.*
 import io.reactivex.Flowable
 
@@ -25,7 +27,7 @@ internal class TestMediaRepository(
     private val albums: List<Album> = SAMPLE_ALBUMS,
     private val artists: List<Artist> = SAMPLE_ARTISTS,
     private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
-    private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_PLAYLIST_TRACKS,
+    private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_TRACKS_FOR_PLAYLIST,
     private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
 ) : MediaRepository {

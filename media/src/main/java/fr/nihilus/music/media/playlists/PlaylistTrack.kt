@@ -58,4 +58,7 @@ internal class PlaylistTrack(
      */
     @ColumnInfo(name = "position")
     var position: Int = 0
+
+    operator fun component1(): Long = playlistId
+    operator fun component2(): Long = trackId
 }

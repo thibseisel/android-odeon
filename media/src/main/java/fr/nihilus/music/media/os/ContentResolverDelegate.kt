@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.os
 
 import android.content.ContentResolver
 import android.database.ContentObserver

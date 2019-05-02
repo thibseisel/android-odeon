@@ -49,8 +49,8 @@ internal class MediaUsageEvent(
     /**
      * The unique identifier of the track that generated the event.
      */
-    @ColumnInfo(name = "track_id", index = true)
-    val trackId: String,
+    @ColumnInfo(name = "track_id")
+    val trackId: Long,
 
     /**
      * The time at which the event occurred, expressed as an Unix Epoch.
@@ -65,14 +65,14 @@ internal class MediaUsageEvent(
      * @param trackId The unique identifier of the track that generated this event.
      */
     @Ignore
-    constructor(trackId: String) : this(0L, trackId, System.currentTimeMillis() / 1000L)
+    constructor(trackId: Long) : this(0L, trackId, System.currentTimeMillis() / 1000L)
 }
 
 /**
  * A track associated with a given numeric score.
  * The higher the score, the more the related track is appreciated by users.
  */
-internal class TrackScore(
+internal data class TrackScore(
     @ColumnInfo(name = "track_id")
     val trackId: Long,
 

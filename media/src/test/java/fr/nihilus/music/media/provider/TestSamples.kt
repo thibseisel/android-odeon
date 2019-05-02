@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.playlists.Playlist
 import kotlin.random.Random
 
 internal val SAMPLE_TRACKS = listOf(
@@ -48,18 +47,6 @@ internal val SAMPLE_ARTISTS = listOf(
     Artist(4, "Avenged Sevenfold", 1, 1, null),
     Artist(13, "Foo Fighters", 4, 3, null),
     Artist(18, "Muse", 2, 2, null)
-)
-
-internal val SAMPLE_PLAYLISTS = listOf(
-    Playlist(1, "Zen", 1551434321, null),
-    Playlist(2, "Sport", 1551435123, null),
-    Playlist(3, "Metal", 1551436125, null)
-)
-
-internal val SAMPLE_PLAYLIST_TRACKS = mapOf(
-    1L to listOf(SAMPLE_TRACKS[1]),
-    2L to listOf(SAMPLE_TRACKS[9], SAMPLE_TRACKS[3], SAMPLE_TRACKS[4]),
-    3L to listOf(SAMPLE_TRACKS[7], SAMPLE_TRACKS[0])
 )
 
 internal val SAMPLE_MOST_RATED_TRACKS = listOf(
@@ -118,12 +105,12 @@ internal val randomCamelWordsSequence = generateSequence {
 }
 
 private const val APRIL_30TH_2019 = 1556575200L
-private const val ONE_DAY_MILLIS = 24 * 3600 * 1000L
+private const val ONE_DAY = 24 * 3600L
 
 internal fun generateRandomTrackSequence(): Sequence<Track> = sequence {
     val alphabetTitles = alphabetSequence.iterator()
     val randomTitles = randomCamelWordsSequence.iterator()
-    val releaseDates = generateSequence(APRIL_30TH_2019) { it - ONE_DAY_MILLIS }.iterator()
+    val releaseDates = generateSequence(APRIL_30TH_2019) { it - ONE_DAY }.iterator()
 
     while (true) {
         val trackId = Random.nextLong(0, 512)

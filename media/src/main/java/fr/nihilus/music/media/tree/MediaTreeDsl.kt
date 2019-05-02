@@ -130,14 +130,14 @@ private constructor(
             title: CharSequence? = null,
             subtitle: CharSequence? = null,
             description: CharSequence? = null,
-            childrenProvider: suspend () -> List<MediaItem>?
+            children: suspend () -> List<MediaItem>?
         ) {
             staticCategories[categoryName] = Category(
                 mediaId = MediaId.encode(type, categoryName),
                 title = title,
                 subtitle = subtitle,
                 description = description,
-                provider = childrenProvider
+                provider = children
             )
         }
 

@@ -33,21 +33,6 @@ internal interface MediaRepository {
     suspend fun getMostRatedTracks(): List<Track>
 }
 
-internal suspend fun MediaRepository.getAlbumTracks(albumId: Long): List<Track>? =
-    getAllTracks()
-        .filter { it.albumId == albumId }
-        .takeUnless { it.isEmpty() }
-
-internal suspend fun MediaRepository.getArtistTracks(artistId: Long): List<Track>? =
-    getAllTracks()
-        .filter { it.artistId == artistId }
-        .takeUnless { it.isEmpty() }
-
-internal suspend fun MediaRepository.getArtistAlbums(artistId: Long): List<Album>? =
-    getAllAlbums()
-        .filter { it.artistId == artistId }
-        .takeUnless { it.isEmpty() }
-
 internal sealed class ChangeNotification(private val name: String) {
     override fun toString(): String = "NotificationChange ($name)"
 

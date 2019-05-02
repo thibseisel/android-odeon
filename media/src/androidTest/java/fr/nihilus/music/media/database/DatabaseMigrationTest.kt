@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,17 +60,31 @@ class DatabaseMigrationTest {
             VALUES (42, 'Summertime', 1556447033, NULL, 'path/to/icon.png')
         """.trimIndent())
 
+        db.execSQL("""
+            INSERT INTO usage_event (event_uid, track_id, event_time)
+            VALUES (12, '123', 1556447033)
+        """.trimIndent())
+
         db.close()
         db = helper.runMigrationsAndValidate(TEST_DB, 3, false, AppDatabase.MIGRATION_2_3)
 
-        // Check that the playlist was properly migrated.
-        val cursor = db.query("SELECT id, title, date_created, icon_uri FROM playlist")
-        assertThat(cursor.moveToFirst()).isTrue()
-        assertThat(cursor.count).isEqualTo(1)
+        // Check that the playlist has been properly migrated.
+        db.query("SELECT id, title, date_created, icon_uri FROM playlist").use {
+            assertThat(it.moveToFirst()).isTrue()
 
-        assertThat(cursor.getLong(0)).isEqualTo(42L)
-        assertThat(cursor.getString(1)).isEqualTo("Summertime")
-        assertThat(cursor.getLong(2)).isEqualTo(1556447033L)
-        assertThat(cursor.getString(3)).isEqualTo("path/to/icon.png")
+            assertThat(it.getLong(0)).isEqualTo(42L)
+            assertThat(it.getString(1)).isEqualTo("Summertime")
+            assertThat(it.getLong(2)).isEqualTo(1556447033L)
+            assertThat(it.getString(3)).isEqualTo("path/to/icon.png")
+        }
+
+        // Check that usage events have been properly migrated.
+        db.query("SELECT event_uid, track_id, event_time FROM usage_event").use {
+            assertThat(it.moveToFirst()).isTrue()
+
+            assertThat(it.getLong(0)).isEqualTo(12L)
+            assertThat(it.getLong(1)).isEqualTo(123L)
+            assertThat(it.getLong(2)).isEqualTo(1556447033L)
+        }
     }
 }

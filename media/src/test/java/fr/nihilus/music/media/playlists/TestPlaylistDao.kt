@@ -16,46 +16,98 @@
 
 package fr.nihilus.music.media.playlists
 
+import fr.nihilus.music.media.provider.TestDao
+import fr.nihilus.music.media.utils.diffList
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 
 internal class TestPlaylistDao(
-    initialPlaylists: List<Playlist>? = null
-) : PlaylistDao {
+    initialPlaylists: List<Playlist>? = null,
+    initialPlaylistTracks: List<PlaylistTrack> = emptyList()
+) : PlaylistDao, TestDao<Playlist> {
 
     private val _playlists =
         if (initialPlaylists != null) BehaviorProcessor.createDefault(initialPlaylists)
         else BehaviorProcessor.create()
 
+    private val _playlistTracks = initialPlaylistTracks.toMutableList()
+    val playlistTracks: List<PlaylistTrack>
+        get() = _playlistTracks.toList()
+
     override val playlistsFlow: Flowable<List<Playlist>>
         get() = _playlists.onBackpressureBuffer()
 
-    override fun getPlaylists(): Single<List<Playlist>> = _playlists.singleOrError()
+    override fun getPlaylists(): Single<List<Playlist>> = _playlists.firstOrError()
 
-    override fun savePlaylist(playlist: Playlist): Long = 0L
+    override fun savePlaylist(playlist: Playlist): Long {
+        val currentPlaylists = _playlists.value.orEmpty()
+        val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
+
+        val identifier = playlistIds.max() ?: 1L
+        _playlists.onNext(currentPlaylists + playlist.copy(id = identifier))
+
+        return identifier
+    }
 
     override fun addTracks(tracks: Iterable<PlaylistTrack>) {
-        // Not required for tests.
+        val currentPlaylists = _playlists.value.orEmpty()
+        val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
+
+        val invalidPlaylistTracks = tracks.filterNot { it.playlistId in playlistIds }
+        require(invalidPlaylistTracks.isNotEmpty()) {
+            buildString {
+                append("Attempt to add playlist tracks ")
+                invalidPlaylistTracks.joinTo(this, ", ", "[", "]")
+                append(" that does not match to an existing playlist.")
+            }
+        }
+
+        _playlistTracks += tracks
     }
 
     override fun deletePlaylist(playlistId: Long) {
-        // Not required for tests.
+        _playlists.value?.let { currentPlaylists ->
+            _playlists.onNext(currentPlaylists.filter { it.id == playlistId })
+
+            // Apply on-delete cascade
+            _playlistTracks.removeAll { it.playlistId == playlistId }
+        }
     }
 
-    override fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>> {
-        // TODO Implement playlist content
-        return Single.just(emptyList())
+    override fun getPlaylistTracks(playlistId: Long) = Single.fromCallable {
+        _playlistTracks.filter { it.playlistId == playlistId }
     }
 
-    override fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray> {
-        // TODO Implement playlist content
-        return Single.just(LongArray(0))
+    override fun getPlaylistsHavingTracks(trackIds: LongArray) = Single.fromCallable<LongArray> {
+        val playlistIds = _playlistTracks.asSequence()
+            .filter { it.trackId in trackIds }
+            .map { it.playlistId }
+            .distinct()
+            .toList()
+        LongArray(playlistIds.size) { playlistIds[it] }
     }
 
-    override fun deletePlaylistTracks(trackIds: LongArray) = Unit
+    override fun deletePlaylistTracks(trackIds: LongArray) {
+        _playlistTracks.removeAll { it.trackId in trackIds }
+    }
 
-    fun updatePlaylists(newPlaylists: List<Playlist>?) =
-        if (newPlaylists != null) _playlists.onNext(newPlaylists)
-        else _playlists.onComplete()
+    override fun update(updatedList: List<Playlist>) {
+        val currentPlaylists = _playlists.value.orEmpty()
+        val (_, deleted) = diffList(currentPlaylists, updatedList) { a, b -> a.id == b.id }
+        _playlists.onNext(updatedList)
+
+        // Also remove associated playlist tracks.
+        deleted.forEach {deletedPlaylist ->
+            _playlistTracks.removeAll { it.playlistId == deletedPlaylist.id }
+        }
+    }
+
+    override fun complete() {
+        _playlists.onComplete()
+    }
+
+    override fun failWith(exception: Exception) {
+        _playlists.onError(exception)
+    }
 }

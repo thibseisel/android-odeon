@@ -33,7 +33,6 @@ import kotlinx.coroutines.reactive.openSubscription
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.selects.select
 
-@ObsoleteCoroutinesApi
 private fun <M : Any> CoroutineScope.syncCache(
     mediaUpdateStream: Flowable<List<M>>,
     onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
@@ -160,11 +159,11 @@ internal class MediaRepositoryImpl(
         val playlistMembers = playlistsDao.getPlaylistTracks(playlistId).await()
 
         val tracksById = allTracks.associateBy(Track::id)
-        return playlistMembers.mapNotNull { tracksById[it.trackId] }
+        return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
     }
 
     override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = getAllTracks().associateBy { it.id }
+        val tracksById = request(tracksCache).associateBy { it.id }
         val trackScores = withContext(Dispatchers.IO) {
             usageDao.getMostRatedTracks(25)
         }

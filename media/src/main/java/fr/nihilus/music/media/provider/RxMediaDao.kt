@@ -16,15 +16,9 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.RxSchedulers
 import fr.nihilus.music.media.permissions.PermissionDeniedException
-import fr.nihilus.music.media.provider.MediaProvider.MediaType
-import fr.nihilus.music.media.provider.MediaProvider.Observer
-import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.disposables.Disposables
 
 /**
  * Provides an entry point for performing read and write operations on media stored on the device's external storage.
@@ -93,66 +87,3 @@ internal interface RxMediaDao {
      */
     fun deleteTracks(trackIds: LongArray): Completable
 }
-
-/**
- * Implementation of [RxMediaDao] that wraps a [MediaProvider], delegating read/write operations to it
- * while adding a provider layer and thread confinement.
- *
- * @param provider The media provider to which operations should be delegated.
- * @param schedulers The pool of RxJava schedulers on which background operations should be performed.
- */
-internal class RxMediaDaoImpl(
-    private val provider: MediaProvider,
-    private val schedulers: RxSchedulers
-) : RxMediaDao {
-
-    override val tracks: Flowable<List<Track>> = produceUpToDateMediaList(
-        MediaType.TRACKS,
-        provider::queryTracks
-    )
-
-    override val albums: Flowable<List<Album>> = produceUpToDateMediaList(
-        MediaType.ALBUMS,
-        provider::queryAlbums
-    )
-
-    override val artists: Flowable<List<Artist>> = produceUpToDateMediaList(
-        MediaType.ARTISTS,
-        provider::queryArtists
-    )
-
-    override fun deleteTracks(trackIds: LongArray): Completable = Completable.fromAction {
-        provider.deleteTracks(trackIds)
-    }.subscribeOn(schedulers.Database)
-
-    private fun produceUpdateQueryTrigger(mediaType: MediaType) = Flowable.create<Unit>({ emitter ->
-        val observer = object : Observer(mediaType) {
-            override fun onChanged() {
-                // Request to reload the list as it has been updated.
-                if (!emitter.isCancelled) {
-                    emitter.onNext(Unit)
-                }
-            }
-        }
-
-        if (!emitter.isCancelled) {
-            provider.registerObserver(observer)
-            emitter.setDisposable(Disposables.fromAction {
-                provider.unregisterObserver(observer)
-            })
-        }
-
-        // Emit the current media list. This behavior is the same as Rooms'.
-        if (!emitter.isCancelled) {
-            emitter.onNext(Unit)
-        }
-    }, BackpressureStrategy.LATEST)
-
-    private fun <E> produceUpToDateMediaList(
-        mediaType: MediaType,
-        mediaListProvider: () -> List<E>
-    ): Flowable<List<E>> = produceUpdateQueryTrigger(mediaType)
-        .observeOn(schedulers.Database)
-        .flatMapSingle { Single.fromCallable(mediaListProvider) }
-}
-

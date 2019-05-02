@@ -17,14 +17,9 @@
 package fr.nihilus.music.media.repo
 
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.media.playlists.Playlist
-import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.playlists.PlaylistTrack
-import fr.nihilus.music.media.playlists.TestPlaylistDao
+import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
-import fr.nihilus.music.media.usage.MediaUsageDao
-import fr.nihilus.music.media.usage.MediaUsageEvent
-import fr.nihilus.music.media.usage.TrackScore
+import fr.nihilus.music.media.usage.*
 import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -63,11 +58,11 @@ class MediaRepositoryTest {
     }
 
     @[JvmField Rule]
-    val timeoutRule = CoroutinesTimeout.seconds(2)
+    val timeoutRule = CoroutinesTimeout.seconds(5)
 
     @Test
     fun whenLoadingAllTracks_thenReturnTracksFromDao() {
-        val mediaDao = TrackDao(SAMPLE_TRACKS)
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         assertInitialLoadFromDao(mediaDao, SAMPLE_TRACKS, MediaRepository::getAllTracks)
     }
 
@@ -75,7 +70,7 @@ class MediaRepositoryTest {
     fun whenLoadingAllTracks_thenReturnLatestTrackList() {
         val initialTracks = listOf(SAMPLE_TRACKS[0])
         val updatedTracks = listOf(SAMPLE_TRACKS[1])
-        val mediaDao = TrackDao(initialTracks)
+        val mediaDao = TestTrackDao(initialTracks)
 
         assertAlwaysLoadLatestMediaList(mediaDao, initialTracks, updatedTracks, MediaRepository::getAllTracks)
     }
@@ -83,14 +78,14 @@ class MediaRepositoryTest {
     @Test
     fun givenFiniteTrackStream_whenLoadingAllTracks_thenStillReturnTheLatestTrackList() {
         val initialTracks = listOf(SAMPLE_TRACKS[0])
-        val mediaDao = TrackDao(initialTracks)
+        val mediaDao = TestTrackDao(initialTracks)
 
         assertStillLoadsLatestMediaListAfterStreamCompleted(mediaDao, initialTracks, MediaRepository::getAllTracks)
     }
 
     @Test
-    fun whenLoadingAllAlbums_thenReturnAlbumsFromDao() = runBlocking {
-        val mediaDao = AlbumDao(SAMPLE_ALBUMS)
+    fun whenLoadingAllAlbums_thenReturnAlbumsFromDao() : Unit = runBlocking {
+        val mediaDao = TestAlbumDao(SAMPLE_ALBUMS)
         assertInitialLoadFromDao(mediaDao, SAMPLE_ALBUMS, MediaRepository::getAllAlbums)
     }
 
@@ -98,7 +93,7 @@ class MediaRepositoryTest {
     fun whenLoadingAllAlbums_thenReturnLatestAlbumList() {
         val initialAlbums = listOf(SAMPLE_ALBUMS[0])
         val updatedAlbums = listOf(SAMPLE_ALBUMS[1])
-        val mediaDao = AlbumDao(initialAlbums)
+        val mediaDao = TestAlbumDao(initialAlbums)
 
         assertAlwaysLoadLatestMediaList(mediaDao, initialAlbums, updatedAlbums, MediaRepository::getAllAlbums)
     }
@@ -106,14 +101,14 @@ class MediaRepositoryTest {
     @Test
     fun givenFiniteAlbumStream_whenLoadingAllAlbums_thenStillReturnTheLatestAlbumList() {
         val initialAlbums = listOf(SAMPLE_ALBUMS[0])
-        val mediaDao = AlbumDao(initialAlbums)
+        val mediaDao = TestAlbumDao(initialAlbums)
 
         assertStillLoadsLatestMediaListAfterStreamCompleted(mediaDao, initialAlbums, MediaRepository::getAllAlbums)
     }
 
     @Test
     fun whenLoadingAllArtists_thenReturnArtistsFromDao() {
-        val mediaDao = ArtistDao(SAMPLE_ARTISTS)
+        val mediaDao = TestArtistDao(SAMPLE_ARTISTS)
         assertInitialLoadFromDao(mediaDao, SAMPLE_ARTISTS, MediaRepository::getAllArtists)
     }
 
@@ -121,7 +116,7 @@ class MediaRepositoryTest {
     fun whenLoadingAllArtists_thenReturnLatestArtistList() {
         val initialArtists = listOf(SAMPLE_ARTISTS[0])
         val updatedArtists = listOf(SAMPLE_ARTISTS[1])
-        val mediaDao = ArtistDao(initialArtists)
+        val mediaDao = TestArtistDao(initialArtists)
 
         assertAlwaysLoadLatestMediaList(mediaDao, initialArtists, updatedArtists, MediaRepository::getAllArtists)
     }
@@ -129,14 +124,103 @@ class MediaRepositoryTest {
     @Test
     fun givenFiniteArtistStream_whenLoadingAllArtists_thenStillReturnTheLatestArtistList() {
         val artists = listOf(SAMPLE_ARTISTS[0])
-        val mediaDao = ArtistDao(artists)
+        val mediaDao = TestArtistDao(artists)
 
         assertStillLoadsLatestMediaListAfterStreamCompleted(mediaDao, artists, MediaRepository::getAllArtists)
     }
 
     @Test
-    fun whenTrackListChangedForTheFirstTime_thenDontDispatchChangeNotifications() = runBlocking {
-        val mediaDao = TestMediaDao(initialTracks = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
+    fun whenLoadingAllPlaylists_thenReturnPlaylistsFromDao() : Unit = runBlocking {
+        val dao = TestPlaylistDao(
+            SAMPLE_PLAYLISTS,
+            SAMPLE_PLAYLIST_TRACKS
+        )
+        
+        usingScope {
+            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao)
+            val playlists = repository.getAllPlaylists()
+            assertThat(playlists).containsExactlyElementsIn(SAMPLE_PLAYLISTS).inOrder()
+        }
+    }
+
+    @Test
+    fun whenLoadingAllPlaylists_thenReturnLatestPlaylists(): Unit = runBlocking {
+        val original = listOf(SAMPLE_PLAYLISTS[0])
+        val updated = listOf(SAMPLE_PLAYLISTS[1])
+        val dao = TestPlaylistDao(original, emptyList())
+
+        usingScope {
+            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao)
+            repeat(2) {
+                val currentPlaylists = repository.getAllPlaylists()
+                assertThat(currentPlaylists).containsExactlyElementsIn(original).inOrder()
+            }
+
+            dao.update(updated)
+            yield()
+
+            repeat(2) {
+                val currentPlaylists = repository.getAllPlaylists()
+                assertThat(currentPlaylists).containsExactlyElementsIn(updated).inOrder()
+            }
+        }
+    }
+
+    @Test
+    fun givenNonExistingPlaylist_whenLoadingItsTracks_thenReturnNull(): Unit = runBlocking {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val playlistDao = TestPlaylistDao(
+            SAMPLE_PLAYLISTS,
+            SAMPLE_PLAYLIST_TRACKS
+        )
+
+        usingScope {
+            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao)
+            val playlistTracks = repository.getPlaylistTracks(42L)
+
+            assertThat(playlistTracks).named("Tracks of unknown playlist 42").isNull()
+        }
+    }
+
+    @Test
+    fun givenAnExistingPlaylist_whenLoadingItsTracks_thenReturnTracksFromThatPlaylist(): Unit = runBlocking {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val playlistDao = TestPlaylistDao(
+            SAMPLE_PLAYLISTS,
+            SAMPLE_PLAYLIST_TRACKS
+        )
+
+        usingScope {
+            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao)
+            val playlistTracks = repository.getPlaylistTracks(1L)
+
+            assertThat(playlistTracks).containsExactly(SAMPLE_TRACKS[1])
+        }
+    }
+
+    @Test
+    fun whenLoadingMostRatedTracks_thenReturnTracksByDescendingScore(): Unit = runBlocking {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val usageDao = TestUsageDao(SAMPLE_TRACK_SCORE)
+
+        usingScope {
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, usageDao)
+            val mostRatedTracks = repository.getMostRatedTracks()
+
+            assertThat(mostRatedTracks).containsExactly(
+                SAMPLE_TRACKS[7],
+                SAMPLE_TRACKS[8],
+                SAMPLE_TRACKS[5],
+                SAMPLE_TRACKS[9],
+                SAMPLE_TRACKS[3],
+                SAMPLE_TRACKS[2]
+            )
+        }
+    }
+
+    @Test
+    fun whenTrackListChangedForTheFirstTime_thenDontDispatchChangeNotifications(): Unit = runBlocking {
+        val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
         usingScope {
             val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
@@ -197,7 +281,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenReceivingUpdatedPlaylists_thenNotifyForAllPlaylists() = runBlocking {
+    fun whenReceivingUpdatedPlaylists_thenNotifyForAllPlaylists() : Unit = runBlocking {
         val initial = listOf(SAMPLE_PLAYLISTS[0], SAMPLE_PLAYLISTS[1])
         val updated = listOf(SAMPLE_PLAYLISTS[1], SAMPLE_PLAYLISTS[2])
         val playlistDao = TestPlaylistDao(initialPlaylists = initial)
@@ -207,7 +291,7 @@ class MediaRepositoryTest {
             repository.getAllPlaylists()
             val subscriber = repository.changeNotifications.test()
 
-            playlistDao.updatePlaylists(updated)
+            playlistDao.update(updated)
             yield()
 
             assertThat(subscriber.values()).contains(ChangeNotification.AllPlaylists)
@@ -215,17 +299,17 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenReceivingArtistListUpdate_thenNotifyForAllArtists() = runBlocking {
+    fun whenReceivingArtistListUpdate_thenNotifyForAllArtists(): Unit = runBlocking {
         val initial = listOf(SAMPLE_ARTISTS[0], SAMPLE_ARTISTS[1])
         val updated = listOf(SAMPLE_ARTISTS[1], SAMPLE_ARTISTS[2])
-        val mediaDao = TestMediaDao(initialArtists = initial)
+        val mediaDao = TestArtistDao(initialArtistList = initial)
 
         usingScope {
             val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
             repository.getAllArtists()
             val subscriber = repository.changeNotifications.test()
 
-            mediaDao.updateArtists(updated)
+            mediaDao.update(updated)
             yield()
 
             assertThat(subscriber.values()).contains(ChangeNotification.AllArtists)
@@ -233,7 +317,7 @@ class MediaRepositoryTest {
     }
 
     private fun <M> assertInitialLoadFromDao(
-        dao: TestDao<M>,
+        dao: TestMediaDao<M>,
         expectedMediaList: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
     ): Unit = runBlocking {
@@ -246,7 +330,7 @@ class MediaRepositoryTest {
     }
 
     private fun <M> assertAlwaysLoadLatestMediaList(
-        dao: TestDao<M>,
+        dao: TestMediaDao<M>,
         expectedInitial: List<M>,
         expectedUpdated: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
@@ -267,7 +351,7 @@ class MediaRepositoryTest {
     }
 
     private fun <M> assertStillLoadsLatestMediaListAfterStreamCompleted(
-        dao: TestDao<M>,
+        dao: TestMediaDao<M>,
         expectedInitial: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
     ): Unit = runBlocking {
@@ -289,9 +373,9 @@ class MediaRepositoryTest {
         original: List<Track>,
         revised: List<Track>,
         expectedNotifications: Array<out ChangeNotification>
-    ) = runBlocking {
+    ) : Unit = runBlocking {
         // Given a dao with the specified initial tracks...
-        val mediaDao = TestMediaDao(initialTracks = original)
+        val mediaDao = TestTrackDao(initialTrackList = original)
 
         usingScope {
             // and a repository that started caching tracks...
@@ -302,7 +386,7 @@ class MediaRepositoryTest {
             val subscriber = repository.changeNotifications.test()
 
             // when receiving a new track list
-            mediaDao.updateTracks(revised)
+            mediaDao.update(revised)
             yield()
 
             // Then receive the expected notifications.
@@ -314,9 +398,9 @@ class MediaRepositoryTest {
         original: List<Album>,
         revised: List<Album>,
         expectedNotifications: Array<out ChangeNotification>
-    ) = runBlocking {
+    ) : Unit = runBlocking {
         // Given a dao with the specified initial albums...
-        val mediaDao = TestMediaDao(initialAlbums = original)
+        val mediaDao = TestAlbumDao(initialAlbumList = original)
 
         usingScope {
             // and a repository that started caching albums...
@@ -327,7 +411,7 @@ class MediaRepositoryTest {
             val subscriber = repository.changeNotifications.test()
 
             // when receiving a new album list
-            mediaDao.updateAlbums(revised)
+            mediaDao.update(revised)
             yield()
 
             // Then receive the expected notifications.

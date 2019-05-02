@@ -31,7 +31,7 @@ import fr.nihilus.music.media.mediaIdOf
  * to be included.
  */
 @Entity(tableName = "playlist")
-internal class Playlist(
+internal data class Playlist(
 
     /**
      * The unique identifier of this playlist.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.database
+package fr.nihilus.music.media.actions
 
-import android.net.Uri
-import androidx.room.TypeConverter
-import fr.nihilus.music.media.toUri
+import android.os.Bundle
 
-internal class Converters {
-
-    @TypeConverter
-    fun fromString(str: String?): Uri? = str?.toUri()
-
-    @TypeConverter
-    fun toUriString(uri: Uri?): String? = uri?.toString()
-
+interface CustomAction {
+    suspend fun execute(parameters: Bundle?): Bundle?
 }

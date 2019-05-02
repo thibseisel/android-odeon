@@ -35,6 +35,7 @@ const val EXTERNAL_STORAGE_REQUEST = 99
  * @receiver Context of this application
  * @return `true` if permission is granted
  */
+@Deprecated("Use properties of PermissionChecker instead")
 fun Context.hasExternalStoragePermission() = ContextCompat.checkSelfPermission(
     this,
     Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -56,6 +57,7 @@ fun Activity.requestExternalStoragePermission() {
  * @param permission A constant from [Manifest.permission] representing the required permission.
  * @throws PermissionDeniedException if the required permission is not granted.
  */
+@Deprecated("Use properties of PermissionChecker instead.")
 fun Context.requirePermission(permission: String) {
     if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
         throw PermissionDeniedException(permission)
@@ -69,6 +71,13 @@ fun Context.requirePermission(permission: String) {
  * @property permission The name of the permission that is denied.
  * This is a constant from [Manifest.permission].
  */
+@Deprecated(
+    "An equivalent class exists in another package",
+    ReplaceWith(
+        "PermissionDeniedException(permission)",
+        "fr.nihilus.music.media.permissions.PermissionDeniedException"
+    )
+)
 class PermissionDeniedException(val permission: String) : RuntimeException(
     "An operation has failed because it requires the following permission: $permission"
 )

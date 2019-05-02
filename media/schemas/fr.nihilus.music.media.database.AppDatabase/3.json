@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "755ee38e1103794ecc51fcf94ad2c845",
+    "identityHash": "544fa74bd9031174146effc8615e5cd4",
     "entities": [
       {
         "tableName": "playlist",
@@ -77,7 +77,7 @@
       },
       {
         "tableName": "usage_event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `event_time` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -88,7 +88,7 @@
           {
             "fieldPath": "trackId",
             "columnName": "track_id",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -104,22 +104,13 @@
           ],
           "autoGenerate": true
         },
-        "indices": [
-          {
-            "name": "index_usage_event_track_id",
-            "unique": false,
-            "columnNames": [
-              "track_id"
-            ],
-            "createSql": "CREATE  INDEX `index_usage_event_track_id` ON `${TABLE_NAME}` (`track_id`)"
-          }
-        ],
+        "indices": [],
         "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"755ee38e1103794ecc51fcf94ad2c845\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"544fa74bd9031174146effc8615e5cd4\")"
     ]
   }
 }
