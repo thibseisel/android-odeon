@@ -21,12 +21,13 @@ import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
 import android.provider.BaseColumns
+import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
 import fr.nihilus.music.media.os.ContentResolverDelegate
+import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.PermissionDeniedException
-import java.io.File
 
 private val TRACK_COLUMNS = arrayOf(
     BaseColumns._ID,
@@ -57,8 +58,16 @@ private val ARTIST_COLUMNS = arrayOf(
     Artists.NUMBER_OF_TRACKS
 )
 
+/**
+ * Retrieve media information from the Android [MediaStore].
+ *
+ * @param resolver The content resolver used to access the MediaStore.
+ * @param fileSystem Manager for reading and writing to the file system.
+ * @param permissions Manager for reading system permissions.
+ */
 internal class MediaStoreProvider(
     private val resolver: ContentResolverDelegate,
+    private val fileSystem: FileSystem,
     private val permissions: PermissionChecker
 ) : MediaProvider {
     private val observers = mutableSetOf<PlatformObserverDelegate>()
@@ -235,10 +244,10 @@ internal class MediaStoreProvider(
             val deletedTrackIds = mutableListOf<Long>()
             while (cursor.moveToNext()) {
                 val trackId = cursor.getLong(colId)
-                val file = File(cursor.getString(colFilepath))
+                val path = cursor.getString(colFilepath)
 
                 // Attempt to delete each file.
-                if (file.delete()) {
+                if (fileSystem.deleteFile(path)) {
                     deletedTrackIds += trackId
                 }
             }

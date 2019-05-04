@@ -87,7 +87,7 @@ internal class MediaStoreSurrogate(
      * Check that a row exists for the given [media type][type] and having the specified [id].
      * @return `true` if one row exists, `false` otherwise.
      */
-    fun exist(type: MediaProvider.MediaType, id: Long): Boolean {
+    fun exists(type: MediaProvider.MediaType, id: Long): Boolean {
         val tableName = when (type) {
             MediaProvider.MediaType.TRACKS -> TABLE_MEDIA
             MediaProvider.MediaType.ALBUMS -> TABLE_ALBUM
