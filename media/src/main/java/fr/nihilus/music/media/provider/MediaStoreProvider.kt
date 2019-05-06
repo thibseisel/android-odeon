@@ -225,13 +225,13 @@ internal class MediaStoreProvider(
         }
     }
 
-    override fun deleteTracks(trackIds: LongArray) {
+    override fun deleteTracks(trackIds: LongArray): Int {
         requireWritePermission()
 
         var whereClause = buildInClause(Media._ID, trackIds.size)
         var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
 
-        resolver.query(
+        return resolver.query(
             Media.EXTERNAL_CONTENT_URI,
             arrayOf(Media._ID, Media.DATA),
             whereClause,
@@ -261,7 +261,7 @@ internal class MediaStoreProvider(
             // Delete track information from the MediaStore.
             // Only tracks whose file have been successfully deleted are removed.
             resolver.delete(Media.EXTERNAL_CONTENT_URI, whereClause, whereArgs)
-        }
+        } ?: 0
     }
 
     override fun registerObserver(observer: MediaProvider.Observer) {

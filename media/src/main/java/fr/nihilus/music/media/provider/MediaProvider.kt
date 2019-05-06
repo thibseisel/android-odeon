@@ -71,9 +71,10 @@ internal interface MediaProvider {
      * for a given album or artist then that album or that artist is also removed.
      *
      * @param trackIds The unique identifiers of tracks to be deleted.
+     * @return The number of tracks that have been deleted.
      * @throws PermissionDeniedException If permission to write to external storage is not granted.
      */
-    fun deleteTracks(trackIds: LongArray)
+    fun deleteTracks(trackIds: LongArray): Int
 
     /**
      * Starts observing changes to the list of media.

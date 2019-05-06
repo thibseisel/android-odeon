@@ -58,7 +58,7 @@ internal class TestMediaProvider(
     override fun queryArtists(): List<Artist> =
         if (hasStoragePermission) artists else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
 
-    override fun deleteTracks(trackIds: LongArray) {
+    override fun deleteTracks(trackIds: LongArray): Int {
         if (!hasStoragePermission) {
             throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -66,7 +66,8 @@ internal class TestMediaProvider(
         // Filter out tracks whose id matches
         val remainingTracks = tracks.filterNot { it.id in trackIds }
 
-        if (tracks.size - remainingTracks.size > 0) {
+        val deletedTrackCount = tracks.size - remainingTracks.size
+        if (deletedTrackCount > 0) {
             // Notify that the track list changed.
             tracks = remainingTracks
             notifyChange(MediaProvider.MediaType.TRACKS)
@@ -87,6 +88,8 @@ internal class TestMediaProvider(
                 notifyChange(MediaProvider.MediaType.ARTISTS)
             }
         }
+
+        return deletedTrackCount
     }
 
     override fun registerObserver(observer: MediaProvider.Observer) {

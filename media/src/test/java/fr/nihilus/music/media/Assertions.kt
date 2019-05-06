@@ -54,3 +54,7 @@ fun fail(message: String): Nothing {
 fun failAssumption(message: String): Nothing {
     throw AssumptionViolatedException(message)
 }
+
+fun stub(): Nothing {
+    throw UnsupportedOperationException("Unexpected call to a stubbed method.")
+}
