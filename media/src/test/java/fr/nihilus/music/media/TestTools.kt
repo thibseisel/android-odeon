@@ -34,10 +34,3 @@ internal inline fun CoroutineScope.usingScope(block: (CoroutineScope) -> Unit) {
     block(childScope)
     childScope.cancel()
 }
-
-/**
- * Convenience function to create a media id in a less verbose way.
- */
-@Suppress("nothing_to_inline")
-internal inline fun mediaId(type: String, category: String? = null, track: String? = null): MediaId =
-    MediaId.fromParts(type, category, track)

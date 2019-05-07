@@ -17,10 +17,10 @@
 package fr.nihilus.music.media.actions
 
 import android.os.Bundle
-import androidx.test.ext.truth.os.BundleSubject.*
 import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.media.*
+import fr.nihilus.music.media.AppDispatchers
+import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -30,11 +30,13 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
+import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaProvider
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.stub
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
@@ -47,6 +49,7 @@ import org.mockito.BDDMockito.then
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
+import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 @RunWith(AndroidJUnit4::class)
@@ -57,8 +60,10 @@ class DeleteActionTest {
 
     private val dispatcher = TestCoroutineDispatcher()
 
-    @Mock private lateinit var provider: MediaProvider
-    @Mock private lateinit var playlistDao: PlaylistDao
+    @Mock
+    private lateinit var provider: MediaProvider
+    @Mock
+    private lateinit var playlistDao: PlaylistDao
 
     @Test
     fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {

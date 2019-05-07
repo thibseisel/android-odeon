@@ -40,6 +40,7 @@ import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
+import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 /**
