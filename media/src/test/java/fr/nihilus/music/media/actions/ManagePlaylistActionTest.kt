@@ -72,7 +72,7 @@ class ManagePlaylistActionTest {
     @Test
     fun givenTrackMediaIds_whenExecutingWithoutTitleParam_thenFailWithMissingTitleParameter() = dispatcher.runBlockingTest {
         val trackMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
@@ -104,8 +104,8 @@ class ManagePlaylistActionTest {
     @Test
     fun givenTitleAndTrackMediaIds_whenExecuting_thenCreateNewPlaylistWithGivenTracks() = dispatcher.runBlockingTest {
         val trackMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "16"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         val playlistDao = TestPlaylistDao()
@@ -149,8 +149,8 @@ class ManagePlaylistActionTest {
     fun givenNonPlaylistMediaId_whenExecuting_thenFailWithInvalidMediaId() = dispatcher.runBlockingTest {
         val nonPlaylistMediaId = encode(TYPE_TRACKS, "2")
         val trackMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "16"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
@@ -169,8 +169,8 @@ class ManagePlaylistActionTest {
     fun givenPlaylistIdAndTrackMediaIds_whenExecuting_thenAddTracksToThatPlaylist() = dispatcher.runBlockingTest {
         val playlistDao = TestPlaylistDao(initialPlaylists = listOf(INITIAL_PLAYLIST))
         val trackMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "16"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         val action = ManagePlaylistAction(playlistDao, AppDispatchers(dispatcher))

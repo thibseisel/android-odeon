@@ -96,7 +96,7 @@ private constructor(
      * When specified, this indicates that the media is playable.
      * This part uniquely identifies the playable content on a given storage.
      */
-    val track: String?
+    val track: Long?
 
 ) {
 
@@ -113,9 +113,9 @@ private constructor(
      */
     override fun toString(): String = encoded
 
-    operator fun component1() = type
-    operator fun component2() = category
-    operator fun component3() = track
+    operator fun component1(): String = type
+    operator fun component2(): String? = category
+    operator fun component3(): Long? = track
 
     companion object Builder {
         private const val CATEGORY_SEPARATOR = '/'
@@ -237,7 +237,7 @@ private constructor(
 
             val track = encoded.substring(trackSeparatorIndex + 1)
             checkTrackIdentifier(track)
-            return MediaId(encoded, type, category, track)
+            return MediaId(encoded, type, category, track.toLong())
         }
 
         fun parseOrNull(encoded: String?): MediaId? = try {
@@ -246,7 +246,7 @@ private constructor(
             null
         }
 
-        fun fromParts(type: String, category: String? = null, track: String? = null): MediaId {
+        fun fromParts(type: String, category: String? = null, track: Long? = null): MediaId {
             // Validate parts while creating the encoded form.
             val encoded = encode(type, category, track)
             return MediaId(encoded, type, category, track)
@@ -258,7 +258,7 @@ private constructor(
          *
          * @throws InvalidMediaException If one of the parts does not match the required format.
          */
-        fun encode(type: String, category: String? = null, track: String? = null): String {
+        fun encode(type: String, category: String? = null, track: Long? = null): String {
             checkMediaType(type)
 
             return if (category == null && track == null)
@@ -280,14 +280,11 @@ private constructor(
             }
         }
 
-        private fun isValidType(type: String): Boolean =
-            type.isNotEmpty() && type.all(Char::isLetter)
+        private fun isValidType(type: String): Boolean = type.isNotEmpty() && type.all(Char::isLetter)
 
-        private fun isValidCategory(category: String) =
-            category.isNotEmpty() && category.all(Char::isLetterOrDigit)
+        private fun isValidCategory(category: String) = category.isNotEmpty() && category.all(Char::isLetterOrDigit)
 
-        private fun isValidTrack(track: String) =
-            track.isNotEmpty() && track.all(Char::isDigit)
+        private fun isValidTrack(track: String) = track.isNotEmpty() && track.all(Char::isDigit)
 
         private fun checkMediaType(type: String) {
             if (!isValidType(type)) {
@@ -303,6 +300,12 @@ private constructor(
 
         private fun checkTrackIdentifier(track: String) {
             if (!isValidTrack(track)) {
+                throw InvalidMediaException("Invalid track identifier: $track")
+            }
+        }
+
+        private fun checkTrackIdentifier(track: Long) {
+            if (track < 0L) {
                 throw InvalidMediaException("Invalid track identifier: $track")
             }
         }

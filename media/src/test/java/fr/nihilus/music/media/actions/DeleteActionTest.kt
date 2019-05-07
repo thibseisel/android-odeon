@@ -104,8 +104,8 @@ class DeleteActionTest {
     @Test
     fun givenExistingTrackMediaIds_whenExecuting_thenDeleteThoseTracks() = dispatcher.runBlockingTest {
         val deletedMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "16"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         given(provider.deleteTracks(any())).willReturn(2)
@@ -137,8 +137,8 @@ class DeleteActionTest {
     @Test
     fun givenExistingTrackIds_whenExecuting_thenReturnTheNumberOfDeletedTracks() = dispatcher.runBlockingTest {
         val deletedMediaIds = arrayOf(
-            encode(TYPE_TRACKS, CATEGORY_ALL, "16"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, "42")
+            encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
         val provider = DeletingMediaProvider(16L, 42L)
