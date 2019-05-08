@@ -42,7 +42,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.consumeEach
+import kotlinx.coroutines.rx2.collect
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -195,7 +195,7 @@ class MusicService : BaseBrowserService() {
                 return
             }
 
-            Timber.d("Updating service state. Playback state = ${state.stateName}")
+            Timber.v("Updating service state. Playback state = %s", state.stateName)
 
             when (updatedState) {
 
@@ -278,7 +278,7 @@ class MusicService : BaseBrowserService() {
     }
 
     private fun CoroutineScope.observeMediaChanges() = launch {
-        repository.getMediaChanges().subscribeOn(Schedulers.io()).consumeEach { changedMediaId ->
+        repository.getMediaChanges().subscribeOn(Schedulers.io()).collect { changedMediaId ->
             val parentId = browseCategoryOf(changedMediaId)
             notifyChildrenChanged(parentId)
         }

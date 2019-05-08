@@ -58,7 +58,7 @@ import javax.inject.Inject
 internal class MediaStoreMusicDao
 @TestOnly constructor(
     private val context: Context,
-    private val metadataCache: LongSparseArray<MediaMetadataCompat>
+    private val metadataCache: MutableMap<Long, MediaMetadataCompat>
 ) : MusicDao {
 
     /**
@@ -66,7 +66,7 @@ internal class MediaStoreMusicDao
      *
      * @param context The application context
      */
-    @Inject constructor(context: Context) : this(context, LongSparseArray())
+    @Inject constructor(context: Context) : this(context, mutableMapOf())
 
     private val resolver: ContentResolver = context.contentResolver
 
@@ -131,7 +131,7 @@ internal class MediaStoreMusicDao
         // Load all metadata from MediaStore and put them all in memory cache for faster reuse
         return loadFromMediaStore(whereClause, whereArgs, orderByClause).doOnNext { metadata ->
             val musicId = metadata.id.toLong()
-            metadataCache.put(musicId, metadata)
+            metadataCache[musicId] = metadata
         }
     }
 
@@ -405,7 +405,7 @@ internal class MediaStoreMusicDao
             // Only tracks whose file have been deleted are removed.
             resolver.delete(Media.EXTERNAL_CONTENT_URI, whereTrackIdsClause, whereTrackIdsArgs).also {
                 // Remove deleted tracks from the metadata cache.
-                deletedTrackIds.forEach(metadataCache::delete)
+                deletedTrackIds.forEach { metadataCache.remove(it) }
             }
         } ?: error("Media tracks failed with a null cursor.")
     }

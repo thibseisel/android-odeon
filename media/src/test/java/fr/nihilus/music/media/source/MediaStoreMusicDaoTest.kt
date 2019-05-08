@@ -23,7 +23,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore.Audio.*
 import android.support.v4.media.MediaMetadataCompat
-import android.util.LongSparseArray
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.utils.PermissionDeniedException
 import org.junit.*
@@ -46,7 +45,7 @@ class MediaStoreMusicDaoTest {
     @Mock private lateinit var mockContext: Context
     @Mock private lateinit var mockResolver: ContentResolver
 
-    private val metadataCache = LongSparseArray<MediaMetadataCompat>()
+    private val metadataCache = mutableMapOf<Long, MediaMetadataCompat>()
     private lateinit var subject: MediaStoreMusicDao
 
     @Before
@@ -153,7 +152,7 @@ class MediaStoreMusicDaoTest {
         val observer = subject.getTracks(null, null).test()
             .assertNoErrors()
             .assertComplete()
-        assertEquals(observer.valueCount(), metadataCache.size())
+        assertEquals(observer.valueCount(), metadataCache.size)
 
         (0..3).map {
             cursor.moveToPosition(it)

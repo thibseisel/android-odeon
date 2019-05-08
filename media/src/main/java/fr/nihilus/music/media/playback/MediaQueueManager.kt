@@ -116,7 +116,7 @@ internal class MediaQueueManager
             // Only update metadata if it has really changed.
             subscriptions += repository.getMetadata(musicId)
                 .subscribeOn(Schedulers.io())
-                .flatMap { iconLoader.loadIntoMetadata(it) }
+                .flatMap(iconLoader::loadIntoMetadata)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mediaSession::setMetadata)
         }
