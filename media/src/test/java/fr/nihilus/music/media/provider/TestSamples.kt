@@ -65,44 +65,46 @@ private const val ALPHABET_SIZE = 26
  *
  * `A, B, C, [...], Y, Z, AA, AB, AC, [...], ZY, ZZ, AAA, AAB, etc.`
  */
-internal val alphabetSequence = generateSequence(0) { it + 1 }
-    .map { seed ->
+internal val alphabetSequence: Sequence<String>
+    get() = generateSequence(0) { it + 1 }
+        .map { seed ->
+            buildString {
+                var n = seed
+                while (n >= ALPHABET_SIZE) {
+                    val code = n % ALPHABET_SIZE
+                    append('A' + code)
+                    n = (n - code) / ALPHABET_SIZE - 1
+                }
+
+                append('A' + n)
+                reverse()
+            }
+        }
+
+internal val randomCamelWordsSequence: Sequence<String>
+    get() = generateSequence {
+        // Generate titles consisting of a maximum of 3 words, each word having between 1 and 10 letters.
+        val numberOfWords = Random.nextInt(1, 4)
+
         buildString {
-            var n = seed
-            while (n >= ALPHABET_SIZE) {
-                val code = n % ALPHABET_SIZE
-                append('A' + code)
-                n = (n - code) / ALPHABET_SIZE - 1
-            }
+            repeat(numberOfWords) { wordIndex ->
+                // Separate words with spaces
+                if (wordIndex > 0) {
+                    append(' ')
+                }
 
-            append('A' + n)
-            reverse()
-        }
-    }
+                // The first letter of a word is an uppercase letter.
+                val firstLetter = Random.nextInt('A'.toInt(), 'Z'.toInt()).toChar()
+                append(firstLetter)
 
-internal val randomCamelWordsSequence = generateSequence {
-    // Generate titles consisting of a maximum of 3 words, each word having between 1 and 10 letters.
-    val numberOfWords = Random.nextInt(1, 4)
-
-    buildString {
-        repeat(numberOfWords) { wordIndex ->
-            // Separate words with spaces
-            if (wordIndex > 0) {
-                append(' ')
-            }
-
-            // The first letter of a word is an uppercase letter.
-            val firstLetter = Random.nextInt('A'.toInt(), 'Z'.toInt()).toChar()
-            append(firstLetter)
-
-            val numberOfLowercases = Random.nextInt(1, 10)
-            repeat(numberOfLowercases) {
-                val letter = Random.nextInt('a'.toInt(), 'z'.toInt()).toChar()
-                append(letter)
+                val numberOfLowercases = Random.nextInt(1, 10)
+                repeat(numberOfLowercases) {
+                    val letter = Random.nextInt('a'.toInt(), 'z'.toInt()).toChar()
+                    append(letter)
+                }
             }
         }
     }
-}
 
 private const val APRIL_30TH_2019 = 1556575200L
 private const val ONE_DAY = 24 * 3600L
