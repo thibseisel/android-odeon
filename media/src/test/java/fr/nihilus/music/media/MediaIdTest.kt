@@ -48,7 +48,7 @@ class MediaIdTest {
 
         assertThat(mediaId.type).isEqualTo(TYPE_TRACKS)
         assertThat(mediaId.category).isEqualTo(CATEGORY_ALL)
-        assertThat(mediaId.track).isEqualTo("42")
+        assertThat(mediaId.track).isEqualTo(42L)
     }
 
     @Test
@@ -97,14 +97,14 @@ class MediaIdTest {
 
     @Test
     fun whenEncodingTypeCategoryAndTrack_thenReturnsWellFormedMediaId() {
-        val encoded = MediaId.encode("type", "category", "42")
+        val encoded = MediaId.encode("type", "category", 42)
         assertThat(encoded).isEqualTo("type/category|42")
     }
 
     @Test
     fun givenSameParts_whenEncodingAndBuildingFromParts_thenProduceSameEncodedId() {
-        val encoded = MediaId.encode("type", "category", "42")
-        val mediaId = MediaId.fromParts("type", "category", "42")
+        val encoded = MediaId.encode("type", "category", 42)
+        val mediaId = MediaId.fromParts("type", "category", 42)
 
         assertThat(mediaId.encoded).isEqualTo(encoded)
     }
@@ -112,7 +112,7 @@ class MediaIdTest {
     @Test
     fun whenEncodingWithTrackIdButNoCategory_thenFailWithInvalidMediaException() {
         assertThrows<InvalidMediaException> {
-            MediaId.encode("type", null, "42")
+            MediaId.encode("type", null, 42)
         }
     }
 

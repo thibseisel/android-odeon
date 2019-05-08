@@ -40,6 +40,7 @@ import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
+import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 /**
@@ -229,7 +230,7 @@ class BrowserTreeStructureTest {
     @Test
     fun whenLoadingChildrenOfAllTracks_thenReturnItemsFromTrackMetadata(): Unit = runBlocking {
         val allTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_ALL))
-        val aTrack = allTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_ALL, "125"))
+        val aTrack = allTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_ALL, 125L))
 
         with(aTrack.description) {
             assertThat(title).isEqualTo("Jailbreak")
@@ -262,7 +263,7 @@ class BrowserTreeStructureTest {
     @Test
     fun whenLoadingChildrenOfMostRated_thenReturnItemsFromTrackMetadata(): Unit = runBlocking {
         val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
-        val aTrack = mostRecentTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED, "75"))
+        val aTrack = mostRecentTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED, 75L))
 
         with(aTrack.description) {
             assertThat(title).isEqualTo("Nightmare")
@@ -317,7 +318,7 @@ class BrowserTreeStructureTest {
     @Test
     fun whenLoadingChildrenOfRecentlyAdded_thenReturnItemsFromTrackMetadata(): Unit = runBlocking {
         val mostRecentTracks = loadChildrenOf(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
-        val aTrack = mostRecentTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, "481"))
+        val aTrack = mostRecentTracks.requireItemWith(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, 481L))
 
         with(aTrack.description) {
             assertThat(title).isEqualTo("Dirty Water")
@@ -414,7 +415,7 @@ class BrowserTreeStructureTest {
     @Test
     fun whenLoadingChildrenOfAnArtist_thenReturnArtistTracksFromMetadata(): Unit = runBlocking {
         val artistChildren = loadChildrenOf(mediaId(TYPE_ARTISTS, "26"))
-        val aTrack = artistChildren.requireItemWith(mediaId(TYPE_ARTISTS, "26", "161"))
+        val aTrack = artistChildren.requireItemWith(mediaId(TYPE_ARTISTS, "26", 161L))
 
         with(aTrack.description) {
             assertThat(title).isEqualTo("1741 (The Battle of Cartagena)")
@@ -438,7 +439,7 @@ class BrowserTreeStructureTest {
     @Test
     fun whenLoadingChildrenOfOnePlaylist_thenReturnItemsFromTrackMetadata(): Unit = runBlocking {
         val playlistChildren = loadChildrenOf(mediaId(TYPE_PLAYLISTS, "1"))
-        val aPlaylistTrack = playlistChildren.requireItemWith(mediaId(TYPE_PLAYLISTS, "1", "309"))
+        val aPlaylistTrack = playlistChildren.requireItemWith(mediaId(TYPE_PLAYLISTS, "1", 309L))
 
         with(aPlaylistTrack.description) {
             assertThat(title).isEqualTo("The 2nd Law: Isolated System")
@@ -461,14 +462,14 @@ class BrowserTreeStructureTest {
     fun whenRequestingAnyItem_thenReturnAnItemWithSameMediaIdAsRequested(): Unit = runBlocking {
         assertLoadedItemHasSameMediaId(ROOT)
         assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS, CATEGORY_ALL))
-        assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS, CATEGORY_ALL, "477"))
+        assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS, CATEGORY_ALL, 477L))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_ALBUMS, "102"))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS))
-        assertLoadedItemHasSameMediaId(mediaId(TYPE_ALBUMS, "102", "477"))
+        assertLoadedItemHasSameMediaId(mediaId(TYPE_ALBUMS, "102", 477L))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_ARTISTS, "13"))
-        assertLoadedItemHasSameMediaId(mediaId(TYPE_ARTISTS, "13", "477"))
+        assertLoadedItemHasSameMediaId(mediaId(TYPE_ARTISTS, "13", 477L))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_PLAYLISTS, "2"))
-        assertLoadedItemHasSameMediaId(mediaId(TYPE_PLAYLISTS, "2", "477"))
+        assertLoadedItemHasSameMediaId(mediaId(TYPE_PLAYLISTS, "2", 477L))
     }
 
     private suspend fun assertLoadedItemHasSameMediaId(itemId: MediaId) {
@@ -484,13 +485,13 @@ class BrowserTreeStructureTest {
     fun whenRequestingAnyItem_thenReturnAnItemThatIsInTheResultOfGetChildren(): Unit = runBlocking {
         assertItemIsPartOfItsParentsChildren(ROOT, mediaId(TYPE_TRACKS))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_TRACKS), mediaId(TYPE_TRACKS, CATEGORY_ALL))
-        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_TRACKS, CATEGORY_ALL), mediaId(TYPE_TRACKS, CATEGORY_ALL, "477"))
+        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_TRACKS, CATEGORY_ALL), mediaId(TYPE_TRACKS, CATEGORY_ALL, 477L))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ALBUMS), mediaId(TYPE_ALBUMS, "102"))
-        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ALBUMS, "102"), mediaId(TYPE_ALBUMS, "102", "477"))
+        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ALBUMS, "102"), mediaId(TYPE_ALBUMS, "102", 477L))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ARTISTS), mediaId(TYPE_ARTISTS, "13"))
-        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ARTISTS, "13"), mediaId(TYPE_ARTISTS, "13", "477"))
+        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ARTISTS, "13"), mediaId(TYPE_ARTISTS, "13", 477L))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_PLAYLISTS), mediaId(TYPE_PLAYLISTS, "2"))
-        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_PLAYLISTS, "2"), mediaId(TYPE_PLAYLISTS, "2", "477"))
+        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_PLAYLISTS, "2"), mediaId(TYPE_PLAYLISTS, "2", 477L))
     }
 
     @Test

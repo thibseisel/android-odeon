@@ -46,7 +46,7 @@ internal interface PlaylistDao {
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun addTracks(tracks: Iterable<PlaylistTrack>)
+    fun addTracks(tracks: List<PlaylistTrack>)
 
     @WorkerThread
     @Query("DELETE FROM playlist WHERE id = :playlistId")

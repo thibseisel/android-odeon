@@ -32,6 +32,8 @@ internal class TestPlaylistDao(
         else BehaviorProcessor.create()
 
     private val _playlistTracks = initialPlaylistTracks.toMutableList()
+
+    val playlists: List<Playlist> get() = _playlists.value.orEmpty()
     val playlistTracks: List<PlaylistTrack>
         get() = _playlistTracks.toList()
 
@@ -50,7 +52,7 @@ internal class TestPlaylistDao(
         return identifier
     }
 
-    override fun addTracks(tracks: Iterable<PlaylistTrack>) {
+    override fun addTracks(tracks: List<PlaylistTrack>) {
         val currentPlaylists = _playlists.value.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 

@@ -38,7 +38,7 @@ class MediaRepositoryTest {
         override fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>> = Single.just(emptyList())
         override fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray> = Single.just(LongArray(0))
         override fun savePlaylist(playlist: Playlist): Long = 0L
-        override fun addTracks(tracks: Iterable<PlaylistTrack>) = Unit
+        override fun addTracks(tracks: List<PlaylistTrack>) = Unit
         override fun deletePlaylist(playlistId: Long) = Unit
         override fun deletePlaylistTracks(trackIds: LongArray) = Unit
     }
