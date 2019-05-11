@@ -118,12 +118,12 @@ class MusicService : BaseBrowserService() {
         clientPackageName: String,
         clientUid: Int,
         rootHints: Bundle?
-    ): MediaBrowserServiceCompat.BrowserRoot? {
+    ): BrowserRoot? {
         /*
          * Allow connections to the MediaBrowserService in debug builds, otherwise
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
-        return if (BuildConfig.DEBUG || packageValidator.isCallerAllowed(clientPackageName, clientUid)) {
+        return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
             BrowserRoot(BROWSER_ROOT, null)
         } else null
     }
