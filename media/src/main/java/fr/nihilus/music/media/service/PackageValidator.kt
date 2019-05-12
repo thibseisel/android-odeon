@@ -104,7 +104,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             ?: error("Caller wasn't found in the system?")
 
         // Verify that things aren't ... broken. (This test should always pass.)
-        check(callerPackageInfo.uid != callingUid) {
+        check(callerPackageInfo.uid == callingUid) {
             "Caller's package UID doesn't match caller's actual UID?"
         }
 
