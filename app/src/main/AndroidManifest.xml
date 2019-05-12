@@ -36,33 +36,13 @@
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
-            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Make this Activity visible in launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <!-- Make this activity available as the default music app. -->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.APP_MUSIC" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Intent filter that enables voice searches, such as "Play the Beatles" -->
-            <intent-filter>
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity>
 
         <!-- Activity showing detail and tracks of an album. -->
@@ -76,25 +56,6 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".HomeActivity" />
-
-        <!--
-            Activity to be opened as a dialog window when a track is selected
-            from the file explorer.
-         -->
-        <activity android:name=".fileviewer.FileViewerActivity"
-            android:theme="@style/AppTheme.FileViewer"
-            android:excludeFromRecents="true">
-            <!-- TODO Comment out when able to decode URIs. -->
-            <!--<intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data
-                    android:mimeType="audio/*"
-                    android:scheme="content" />
-            </intent-filter>-->
-        </activity>
     </application>
 
 </manifest>

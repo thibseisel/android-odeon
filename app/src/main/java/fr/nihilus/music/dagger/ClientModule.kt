@@ -31,7 +31,6 @@ import fr.nihilus.music.settings.SettingsModule
 @Module(includes = [
     MusicLibraryModule::class,
     SettingsModule::class,
-    FileViewerModule::class,
     AlbumColorModule::class
 ])
 internal abstract class ClientModule {

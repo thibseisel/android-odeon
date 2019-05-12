@@ -33,8 +33,7 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         CommonModule::class,
         MediaServiceModule::class,
-        ClientModule::class,
-        FileViewerModule::class
+        ClientModule::class
     ]
 )
 interface AppComponent : AndroidInjector<OdeonApplication> {
