@@ -56,7 +56,7 @@ internal class TestPlaylistDao(
         val currentPlaylists = _playlists.value.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 
-        val invalidPlaylistTracks = tracks.filterNot { it.playlistId in playlistIds }
+        val invalidPlaylistTracks = tracks.filter { it.playlistId in playlistIds }
         require(invalidPlaylistTracks.isNotEmpty()) {
             buildString {
                 append("Attempt to add playlist tracks ")

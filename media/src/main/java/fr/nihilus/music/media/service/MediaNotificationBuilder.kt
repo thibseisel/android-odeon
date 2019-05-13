@@ -28,6 +28,7 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
+import androidx.media.session.MediaButtonReceiver
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.assert
 import fr.nihilus.music.media.di.ServiceScoped
@@ -64,29 +65,29 @@ internal class MediaNotificationBuilder
     private val previousAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_previous_36dp,
         context.getString(R.string.abc_action_previous),
-        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
     )
 
     private val playAction = NotificationCompat.Action(
         R.drawable.abc_ic_play_arrow_48dp,
         context.getString(R.string.abc_action_play),
-        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
     )
 
     private val pauseAction = NotificationCompat.Action(
         R.drawable.abc_ic_pause_48dp,
         context.getString(R.string.abc_action_pause),
-        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
 
     private val nextAction = NotificationCompat.Action(
         R.drawable.abc_ic_skip_next_36dp,
         context.getString(R.string.abc_action_next),
-        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
     )
 
     private val stopPendingIntent: PendingIntent =
-        androidx.media.session.MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
     fun buildNotification(): Notification {
         if (shouldCreateNowPlayingChannel()) {

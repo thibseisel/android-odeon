@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.media.os
 
-import fr.nihilus.music.media.fail
+import android.graphics.Bitmap
+import android.net.Uri
+import fr.nihilus.music.media.stub
 
 /**
  * A simulated file system used for testing purposes.
@@ -27,7 +29,12 @@ class SimulatedFileSystem(
 ) : FileSystem {
     private val storedFiles = filenames.toMutableSet()
 
+    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun deleteFile(filepath: String): Boolean = storedFiles.remove(filepath)
+
     fun fileExists(filepath: String): Boolean = storedFiles.contains(filepath)
 }
 
@@ -37,7 +44,6 @@ class SimulatedFileSystem(
  * otherwise the test will fail.
  */
 object StubFileSystem : FileSystem {
-    override fun deleteFile(filepath: String): Boolean {
-        fail("Expected not to interact with file system.")
-    }
+    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
+    override fun deleteFile(filepath: String): Boolean = stub()
 }

@@ -55,6 +55,9 @@ fun failAssumption(message: String): Nothing {
     throw AssumptionViolatedException(message)
 }
 
+/**
+ * Replaces the body of a function that should not be called from test code.
+ */
 fun stub(): Nothing {
-    throw UnsupportedOperationException("Unexpected call to a stubbed method.")
+    fail("Unexpected call to a stubbed method.")
 }

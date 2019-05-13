@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.actions
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -26,6 +28,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.fail
+import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
@@ -49,7 +52,7 @@ class ManagePlaylistActionTest {
 
     @Test
     fun givenNoParams_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
-        val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
             action.execute(Bundle.EMPTY)
         }
@@ -60,7 +63,7 @@ class ManagePlaylistActionTest {
     @Test
     fun givenNoPlaylistId_whenExecutingWithTitleParam_thenCreateNewEmptyPlaylist() = dispatcher.runBlockingTest {
         val playlistDao = TestPlaylistDao()
-        val action = ManagePlaylistAction(playlistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(1).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
         })
@@ -75,7 +78,7 @@ class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -90,7 +93,7 @@ class ManagePlaylistActionTest {
     fun givenTitleAndNonTrackMediaIds_whenExecuting_thenFailWithInvalidMediaId() = dispatcher.runBlockingTest {
         val mediaIds = arrayOf(encode(TYPE_TRACKS, CATEGORY_ALL))
 
-        val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
@@ -109,7 +112,7 @@ class ManagePlaylistActionTest {
         )
 
         val playlistDao = TestPlaylistDao()
-        val action = ManagePlaylistAction(playlistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -134,7 +137,7 @@ class ManagePlaylistActionTest {
 
     @Test
     fun givenPlaylistId_whenExecutingWithoutTrackMediaIds_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
-        val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
@@ -142,7 +145,6 @@ class ManagePlaylistActionTest {
         }
 
         assertThat(failure.errorCode).isEqualTo(CustomActions.ERROR_CODE_PARAMETER)
-        assertThat(failure.errorMessage).contains(CustomActions.EXTRA_MEDIA_IDS)
     }
 
     @Test
@@ -153,7 +155,7 @@ class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(StubPlaylistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, nonPlaylistMediaId)
@@ -162,7 +164,6 @@ class ManagePlaylistActionTest {
         }
 
         assertThat(failure.errorCode).isEqualTo(CustomActions.ERROR_CODE_UNSUPPORTED_MEDIA_ID)
-        assertThat(failure.errorMessage).contains(CustomActions.EXTRA_PLAYLIST_ID)
     }
 
     @Test
@@ -173,7 +174,7 @@ class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(playlistDao, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -201,4 +202,9 @@ private object StubPlaylistDao : PlaylistDao {
     override fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
     override fun deletePlaylist(playlistId: Long): Unit = stub()
     override fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
+}
+
+private object NoopFileSystem : FileSystem {
+    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = null
+    override fun deleteFile(filepath: String): Boolean = true
 }

@@ -72,7 +72,7 @@ fun Context.requirePermission(permission: String) {
  * This is a constant from [Manifest.permission].
  */
 @Deprecated(
-    "An equivalent class exists in another package",
+    "An equivalent class exists in package fr.nihilus.music.media.permissions",
     ReplaceWith(
         "PermissionDeniedException(permission)",
         "fr.nihilus.music.media.permissions.PermissionDeniedException"

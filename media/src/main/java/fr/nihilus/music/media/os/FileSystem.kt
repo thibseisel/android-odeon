@@ -16,13 +16,19 @@
 
 package fr.nihilus.music.media.os
 
+import android.graphics.Bitmap
+import android.net.Uri
 import java.io.File
+import java.io.IOException
 
 /**
  * Main interface for reading and writing to the device's file system.
  * This should be preferred over manipulating [File] instances.
  */
 interface FileSystem {
+
+    @Throws(IOException::class)
+    fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri?
 
     /**
      * Deletes a file located at [filepath] from the device's storage,
@@ -38,7 +44,27 @@ interface FileSystem {
  * Implementation of a real file system.
  * Operations are performed on real files stored on the device.
  */
-class FileSystemProxy : FileSystem {
+class FileSystemProxy(
+    private val internalRootDir: File
+) : FileSystem {
+
+    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? {
+        val lastSeparatorPosition = filepath.lastIndexOf('/')
+
+        val dirPath = filepath.substring(0, lastSeparatorPosition)
+        val fileDir = File(internalRootDir, dirPath)
+        if (!fileDir.exists()) {
+            fileDir.mkdirs()
+        }
+
+        val filename = filepath.substring(lastSeparatorPosition + 1)
+        val bitmapFile = File(fileDir, filename)
+        val successfullyWritten = bitmapFile.outputStream().use { outputFile ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputFile)
+        }
+
+        return Uri.fromFile(bitmapFile).takeIf { successfullyWritten }
+    }
 
     override fun deleteFile(filepath: String): Boolean {
         val file = File(filepath)
