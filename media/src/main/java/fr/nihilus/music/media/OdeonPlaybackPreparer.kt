@@ -24,12 +24,11 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -63,11 +62,10 @@ internal class OdeonPlaybackPreparer
     )
 
     override fun getSupportedPrepareActions(): Long {
+        // TODO Update supported action codes to include *_FROM_SEARCH
         return PlaybackStateCompat.ACTION_PREPARE or
                 PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-                PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
-                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
     }
 
     /**
@@ -109,21 +107,15 @@ internal class OdeonPlaybackPreparer
     }
 
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-        // Prepare to play all media, to pretend that playing from search is working.
-        // This is required for integration with Google Assistant.
-        onPrepareFromMediaId(CATEGORY_MUSIC, null)
+        // TODO: Implement searching for Google Assistant
+        throw UnsupportedOperationException()
     }
 
-    override fun onCommand(
-        player: Player?,
-        dispatcher: ControlDispatcher,
-        command: String?,
-        extras: Bundle?,
-        cb: ResultReceiver?
-    ): Boolean {
-        val handler = commandHandlers[command] ?: return false
-        handler.handle(extras, cb)
-        return true
+    override fun getCommands(): Array<String> = commandHandlers.keys.toTypedArray()
+
+    override fun onCommand(player: Player?, command: String?, extras: Bundle?, cb: ResultReceiver?) {
+        commandHandlers[command]?.handle(extras, cb)
+                ?: cb?.send(R.id.abc_error_unknown_command, null)
     }
 
     private fun prepareFromMediaId(mediaId: String) {
@@ -147,7 +139,8 @@ internal class OdeonPlaybackPreparer
                 "Every item should have an Uri."
             }
 
-            ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
+            ExtractorMediaSource.Factory(appDataSourceFactory)
+                .setExtractorsFactory(audioOnlyExtractors)
                 .setTag(playableItem)
                 .createMediaSource(sourceUri)
         }

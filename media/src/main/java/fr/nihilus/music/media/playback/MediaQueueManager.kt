@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -67,16 +66,16 @@ internal class MediaQueueManager
     override fun getSupportedQueueNavigatorActions(player: Player?): Long =
         navigator.getSupportedQueueNavigatorActions(player)
 
-    override fun onSkipToPrevious(player: Player, dispatcher: ControlDispatcher) {
-        navigator.onSkipToPrevious(player, dispatcher)
+    override fun onSkipToPrevious(player: Player?) {
+        navigator.onSkipToPrevious(player)
     }
 
-    override fun onSkipToNext(player: Player, dispatcher: ControlDispatcher) {
-        navigator.onSkipToNext(player, dispatcher)
+    override fun onSkipToNext(player: Player?) {
+        navigator.onSkipToNext(player)
     }
 
-    override fun onSkipToQueueItem(player: Player, dispatcher: ControlDispatcher, id: Long) {
-        navigator.onSkipToQueueItem(player, dispatcher, id)
+    override fun onSkipToQueueItem(player: Player?, id: Long) {
+        navigator.onSkipToQueueItem(player, id)
     }
 
     override fun onCurrentWindowIndexChanged(player: Player) {
@@ -97,13 +96,14 @@ internal class MediaQueueManager
         }
     }
 
+    override fun getCommands(): Array<String>? = null
+
     override fun onCommand(
-        player: Player,
-        dispatcher: ControlDispatcher,
+        player: Player?,
         command: String?,
         extras: Bundle?,
         cb: ResultReceiver?
-    ): Boolean = false
+    ) = Unit
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
         val activeMediaId = (player.currentTag as? MediaDescriptionCompat)?.mediaId ?: return

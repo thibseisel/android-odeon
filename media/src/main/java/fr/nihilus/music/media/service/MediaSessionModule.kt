@@ -19,8 +19,6 @@ package fr.nihilus.music.media.service
 import android.app.PendingIntent
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
-import android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -35,6 +33,7 @@ import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playback.ErrorHandler
 import fr.nihilus.music.media.playback.MediaQueueManager
+import fr.nihilus.music.media.playback.OdeonPlaybackController
 
 /**
  * Configures and provides MediaSession-related dependencies.
@@ -54,10 +53,9 @@ internal class MediaSessionModule {
             0
         )
 
-        return MediaSessionCompat(service, "OdeonMusicService").apply {
-            setSessionActivity(showUiIntent)
-            setRatingType(RatingCompat.RATING_NONE)
-            setFlags(FLAG_HANDLES_MEDIA_BUTTONS or FLAG_HANDLES_TRANSPORT_CONTROLS)
+        return MediaSessionCompat(service, "MediaSession").also {
+            it.setSessionActivity(showUiIntent)
+            it.setRatingType(RatingCompat.RATING_NONE)
         }
     }
 
@@ -65,16 +63,15 @@ internal class MediaSessionModule {
     fun providesSessionConnector(
         player: ExoPlayer,
         mediaSession: MediaSessionCompat,
+        controller: PlaybackController,
         preparer: PlaybackPreparer,
         navigator: QueueNavigator,
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
         customActions: Set<@JvmSuppressWildcards CustomActionProvider>
 
-    ) = MediaSessionConnector(mediaSession).also {
-        it.setPlayer(player)
-        it.setPlaybackPreparer(preparer)
+    ) = MediaSessionConnector(mediaSession, controller, null).also {
+        it.setPlayer(player, preparer, *customActions.toTypedArray())
         it.setQueueNavigator(navigator)
-        it.setCustomActionProviders(*customActions.toTypedArray())
         it.setErrorMessageProvider(errorHandler)
     }
 }
@@ -82,6 +79,9 @@ internal class MediaSessionModule {
 @Module
 @Suppress("unused")
 internal abstract class SessionConnectorModule {
+
+    @Binds
+    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): PlaybackPreparer
