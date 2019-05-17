@@ -23,11 +23,26 @@ import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
 import kotlinx.coroutines.withContext
 
+/**
+ * An action for deleting media that are available to media browser clients.
+ * It is executed with the name [CustomActions.ACTION_DELETE_MEDIA].
+ * Media to be deleted with this action are identified by their id.
+ *
+ * See [CustomActions.ACTION_DELETE_MEDIA] for detailed usage.
+ *
+ * @constructor
+ * @param provider The dao used for deleting tracks.
+ * @param playlistDao The dao used for deleting playlists.
+ * @param dispatchers Group of dispatchers to use for coroutine execution.
+ */
 internal class DeleteAction(
     private val provider: MediaProvider,
     private val playlistDao: PlaylistDao,
     private val dispatchers: AppDispatchers
 ) : BrowserAction {
+
+    override val name: String
+        get() = CustomActions.ACTION_DELETE_MEDIA
 
     override suspend fun execute(parameters: Bundle?): Bundle? {
         val deletedMediaIds = parameters?.getStringArray(CustomActions.EXTRA_MEDIA_IDS)?.map {

@@ -51,6 +51,12 @@ class ManagePlaylistActionTest {
     private val dispatcher = TestCoroutineDispatcher()
 
     @Test
+    fun whenReadingName_thenReturnActionManagePlaylistConstant() {
+        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        assertThat(action.name).isEqualTo(CustomActions.ACTION_MANAGE_PLAYLIST)
+    }
+
+    @Test
     fun givenNoParams_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
         val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {

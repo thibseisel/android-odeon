@@ -32,13 +32,36 @@ import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
 import kotlinx.coroutines.withContext
 
-private const val IDENTICONS_FOLDER = "identicons"
+private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
 
+/**
+ * A custom action for creating and modifying user-defined playlists.
+ * It is executed with the name [CustomActions.ACTION_MANAGE_PLAYLIST].
+ * This action can perform in different modes depending on the provided parameters:
+ *
+ * ### Create mode ###
+ * Create a new user-defined playlist with the provided [title][CustomActions.EXTRA_TITLE]
+ * and optional [tracks media ids][CustomActions.EXTRA_MEDIA_IDS].
+ * This mode is used by default when the parameter [CustomActions.EXTRA_PLAYLIST_ID] is unspecified.
+ *
+ * ### Edit (append) mode ###
+ * Add tracks to an existing playlist identified by its [media id][CustomActions.EXTRA_PLAYLIST_ID].
+ * This mode is triggered when the [CustomActions.EXTRA_PLAYLIST_ID] is specified.
+ *
+ * @constructor
+ * @param playlistDao Main interface for reading/writing user-defined playlists.
+ * @param files Main interface for reading/writing from/to the device's filesystem.
+ * @param dispatchers Group of dispatchers to use for coroutine execution.
+ */
 internal class ManagePlaylistAction(
     private val playlistDao: PlaylistDao,
     private val files: FileSystem,
     private val dispatchers: AppDispatchers
 ) : BrowserAction {
+
+    override val name: String
+        get() = CustomActions.ACTION_MANAGE_PLAYLIST
+
     override suspend fun execute(parameters: Bundle?): Bundle? {
         when {
             parameters == null -> failDueToMissingParameters()
@@ -80,7 +103,7 @@ internal class ManagePlaylistAction(
         val playlistIconUri: Uri? = withContext(dispatchers.IO) {
             // Remove spaces from the seed to make a filename without spaces
             val fileName = title.replace("\\s".toRegex(), "_")
-            files.writeBitmapToInternalStorage("$IDENTICONS_FOLDER/$fileName.png", iconBitmap)
+            files.writeBitmapToInternalStorage("$PLAYLIST_ICON_FOLDER/$fileName.png", iconBitmap)
         }
 
         val trackIds = if (encodedTrackIds != null) LongArray(encodedTrackIds.size) { index ->

@@ -66,6 +66,12 @@ class DeleteActionTest {
     private lateinit var playlistDao: PlaylistDao
 
     @Test
+    fun whenReadingName_thenReturnActionDeleteMediaConstant() {
+        val action = DeleteAction(provider, playlistDao, AppDispatchers(dispatcher))
+        assertThat(action.name).isEqualTo(CustomActions.ACTION_DELETE_MEDIA)
+    }
+
+    @Test
     fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
         val action = DeleteAction(provider, playlistDao, AppDispatchers(dispatcher))
         val failure = assertThrows<ActionFailure> {
