@@ -108,14 +108,14 @@ dependencies {
 
     // Test dependencies
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
-    testImplementation "junit:junit:${versions.junit}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${versions.koroutines}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
-    testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test:core:${versions.androidx.test_core}"
     testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
 
     // Android-specific test dependencies
     androidTestImplementation "com.google.truth:truth:${versions.truth}"

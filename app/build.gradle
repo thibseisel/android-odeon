@@ -145,7 +145,7 @@ dependencies {
     testImplementation "androidx.test:rules:${versions.androidx.test_rules}"
     testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
-    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"

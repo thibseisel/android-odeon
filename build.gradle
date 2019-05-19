@@ -45,6 +45,7 @@ buildscript {
                         'test_core': '1.1.0',
                         'test_rules': '1.1.1',
                         'test_runner': '1.1.1',
+                        'ext_junit': '1.1.0',
                         'ext_truth': '1.1.0',
                         'espresso': '3.1.1'
                 ],

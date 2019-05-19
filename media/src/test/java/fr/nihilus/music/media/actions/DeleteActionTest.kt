@@ -17,7 +17,7 @@
 package fr.nihilus.music.media.actions
 
 import android.os.Bundle
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.MediaId
@@ -49,8 +49,8 @@ import org.mockito.BDDMockito.then
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
-import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
+import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 
 @RunWith(AndroidJUnit4::class)
 class DeleteActionTest {

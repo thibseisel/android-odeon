@@ -18,12 +18,12 @@ package fr.nihilus.music.media.tree
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject
-import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
-import fr.nihilus.music.media.*
+import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -33,6 +33,9 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.parse
+import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.fail
+import fr.nihilus.music.media.failAssumption
 import fr.nihilus.music.media.provider.generateRandomTrackSequence
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.TestMediaRepository
@@ -40,8 +43,8 @@ import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
-import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
+import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 
 /**
  * Allows Truth assertions to compare media items by their media id.

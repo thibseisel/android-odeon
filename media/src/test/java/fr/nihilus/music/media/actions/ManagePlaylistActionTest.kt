@@ -19,7 +19,7 @@ package fr.nihilus.music.media.actions
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL

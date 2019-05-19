@@ -22,7 +22,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore.Audio.*
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.assertThrows
