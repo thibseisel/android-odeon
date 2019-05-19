@@ -4,8 +4,8 @@ import android.net.Uri
 import android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth
 import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.repo.CachedMusicRepository

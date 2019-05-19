@@ -123,4 +123,5 @@ dependencies {
     androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
     androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
 }
