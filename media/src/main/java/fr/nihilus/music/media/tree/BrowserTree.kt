@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.tree
 
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.media.MediaId
 import io.reactivex.Flowable
@@ -54,5 +55,5 @@ internal interface BrowserTree {
      */
     suspend fun getItem(itemId: MediaId): MediaItem?
 
-    suspend fun search(query: String, extras: Map<String, Any?>?): List<MediaItem>
+    suspend fun search(query: String, extras: Bundle?): List<MediaItem>
 }

@@ -77,7 +77,7 @@ internal class BrowserTreeImpl(
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
-    override suspend fun search(query: String, extras: Map<String, Any?>?): List<MediaItem> {
+    override suspend fun search(query: String, extras: Bundle?): List<MediaItem> {
         // TODO Implement search.
         return emptyList()
     }
