@@ -37,17 +37,13 @@ import kotlin.coroutines.resume
  * @param height The desired height in pixels or [Target.SIZE_ORIGINAL] to use the original height.
  * This will be overridden by  [RequestBuilder.override] if previously called.
  */
-internal suspend fun RequestBuilder<Bitmap>.intoBitmap(width: Int, height: Int): Bitmap? {
-    require(width >= 0 || width == CustomTarget.SIZE_ORIGINAL) { "Invalid target width: $width" }
-    require(height >= 0 || height == CustomTarget.SIZE_ORIGINAL) { "Invalid target height: $height" }
-
-    return suspendCancellableCoroutine { continuation ->
+internal suspend fun RequestBuilder<Bitmap>.intoBitmap(width: Int, height: Int): Bitmap? =
+    suspendCancellableCoroutine { continuation ->
         val target = into(BitmapSuspendTarget(width, height, continuation))
         continuation.invokeOnCancellation {
             target.request?.clear()
         }
     }
-}
 
 /**
  * A target that loads a bitmap and resumes execution of a coroutine as soon as it is available.

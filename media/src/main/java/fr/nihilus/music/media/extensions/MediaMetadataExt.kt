@@ -95,8 +95,8 @@ inline val MediaMetadataCompat.displayDescription: String?
 inline val MediaMetadataCompat.displayIcon: Bitmap?
     get() = getBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON)
 
-inline val MediaMetadataCompat.displayIconUri: Uri?
-    get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI)?.toUri()
+inline val MediaMetadataCompat.displayIconUri: String?
+    get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI)
 
 inline val MediaMetadataCompat.mediaUri: Uri?
     get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)?.toUri()
@@ -232,6 +232,13 @@ inline var MediaMetadataCompat.Builder.displayDescription: String?
     get() = throw IllegalAccessException()
     set(value) {
         putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION, value)
+    }
+
+inline var MediaMetadataCompat.Builder.displayIcon: Bitmap?
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException()
+    set(value) {
+        putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, value)
     }
 
 inline var MediaMetadataCompat.Builder.displayIconUri: String?

@@ -17,14 +17,33 @@
 package fr.nihilus.music.media
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import org.jetbrains.annotations.TestOnly
 
+/**
+ * A group of coroutine dispatchers to be used across the whole app.
+ * Unlike [Dispatchers] this allows redefining dispatchers,
+ * so that we can avoid concurrency and context switching in tests by using a single dispatcher.
+ *
+ * @property Main Dispatch execution of coroutine to the Android Main Thread.
+ * @property Default Dispatch execution of coroutine to a pool of threads dedicated to computational-heavy tasks.
+ * @property IO Dispatch execution of coroutine to a pool of threads dedicated to blocking IO tasks.
+ * @property Database Dispatch execution of coroutine to a single thread for database read/write.
+ */
 class AppDispatchers(
     val Main: CoroutineDispatcher,
     val Default: CoroutineDispatcher,
     val IO: CoroutineDispatcher,
     val Database: CoroutineDispatcher
 ) {
-    @TestOnly
-    constructor(dispatcher: CoroutineDispatcher) : this(dispatcher, dispatcher, dispatcher, dispatcher)
+    /**
+     * Create a group consisting of a single [CoroutineDispatcher].
+     * This comes handy with a `TestCoroutineDispatcher` that confines execution of coroutine
+     * to the test thread.
+     *
+     * @param dispatcher The [CoroutineDispatcher] to be used in all contexts.
+     */
+    @TestOnly constructor(
+        dispatcher: CoroutineDispatcher
+    ) : this(dispatcher, dispatcher, dispatcher, dispatcher)
 }
