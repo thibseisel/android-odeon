@@ -43,6 +43,7 @@ private const val ICON_MAX_SIZE = 320
  * @param downloader The downloader used to load icons associated with each metadata.
  * @param metadata Channel to which metadata should be sent when ready.
  */
+@ExperimentalMediaApi
 @ObsoleteCoroutinesApi
 internal fun CoroutineScope.metadataProducer(
     downloader: IconDownloader,

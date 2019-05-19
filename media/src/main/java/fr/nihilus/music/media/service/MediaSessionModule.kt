@@ -22,7 +22,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.*
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
@@ -63,11 +62,11 @@ internal class MediaSessionModule {
     fun providesSessionConnector(
         player: ExoPlayer,
         mediaSession: MediaSessionCompat,
-        controller: PlaybackController,
-        preparer: PlaybackPreparer,
-        navigator: QueueNavigator,
+        controller: MediaSessionConnector.PlaybackController,
+        preparer: MediaSessionConnector.PlaybackPreparer,
+        navigator: MediaSessionConnector.QueueNavigator,
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
-        customActions: Set<@JvmSuppressWildcards CustomActionProvider>
+        customActions: Set<@JvmSuppressWildcards MediaSessionConnector.CustomActionProvider>
 
     ) = MediaSessionConnector(mediaSession, controller, null).also {
         it.setPlayer(player, preparer, *customActions.toTypedArray())
@@ -81,17 +80,17 @@ internal class MediaSessionModule {
 internal abstract class SessionConnectorModule {
 
     @Binds
-    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): PlaybackController
+    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): MediaSessionConnector.PlaybackController
 
     @Binds
-    abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): PlaybackPreparer
+    abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): MediaSessionConnector.PlaybackPreparer
 
     @Binds
-    abstract fun bindsQueueNavigator(navigator: MediaQueueManager): QueueNavigator
+    abstract fun bindsQueueNavigator(navigator: MediaQueueManager): MediaSessionConnector.QueueNavigator
 
     @Binds
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
 
     @Binds @IntoSet
-    abstract fun bindsTrimSilenceAction(action: TrimSilenceActionProvider): CustomActionProvider
+    abstract fun bindsTrimSilenceAction(action: TrimSilenceActionProvider): MediaSessionConnector.CustomActionProvider
 }
