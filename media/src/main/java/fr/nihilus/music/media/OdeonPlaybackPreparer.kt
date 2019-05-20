@@ -37,6 +37,7 @@ import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.utils.plusAssign
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import javax.inject.Inject
@@ -119,10 +120,12 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun prepareFromMediaId(mediaId: String) {
-        subscriptions += repository.getMediaItems(mediaId).subscribe(
-            { onMediaItemsLoaded(mediaId, it) },
-            { Timber.i(it, "Error while preparing queue.") }
-        )
+        subscriptions += repository.getMediaItems(mediaId)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { onMediaItemsLoaded(mediaId, it) },
+                { Timber.i(it, "Error while preparing queue.") }
+            )
     }
 
     private fun onMediaItemsLoaded(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
