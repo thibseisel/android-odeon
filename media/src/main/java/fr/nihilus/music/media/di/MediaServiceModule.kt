@@ -16,14 +16,25 @@
 
 package fr.nihilus.music.media.di
 
+import android.content.ContentResolver
 import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.media.AppDispatchers
+import fr.nihilus.music.media.RxSchedulers
+import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.command.CommandModule
 import fr.nihilus.music.media.database.DatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.io.File
+import java.util.concurrent.Executors
+import javax.inject.Named
 import javax.inject.Scope
 
 /**
@@ -51,7 +62,8 @@ abstract class MediaServiceModule {
         MediaSessionModule::class,
         MediaSourceModule::class,
         PlaybackModule::class,
-        CommandModule::class
+        CommandModule::class,
+        CustomActionModule::class
     ])
     abstract fun contributesMusicService(): MusicService
 }
@@ -60,5 +72,28 @@ abstract class MediaServiceModule {
 internal class MusicServiceProvisions {
 
     @Provides @ServiceScoped
+    @Named("internal")
+    fun provideInternalStorageRoot(service: MusicService): File = service.filesDir
+
+    @Provides @ServiceScoped
+    fun provideContentResolver(service: MusicService): ContentResolver = service.contentResolver
+
+    @Provides @ServiceScoped
     fun provideSubscriptionDisposer() = CompositeDisposable()
+
+    @Provides @ServiceScoped
+    fun provideRxSchedulers() = RxSchedulers(
+        AndroidSchedulers.mainThread(),
+        Schedulers.computation(),
+        Schedulers.io(),
+        Schedulers.single()
+    )
+
+    @Provides @ServiceScoped
+    fun provideAppDispatchers() = AppDispatchers(
+        Dispatchers.Main,
+        Dispatchers.Default,
+        Dispatchers.IO,
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    )
 }

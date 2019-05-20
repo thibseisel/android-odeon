@@ -28,8 +28,8 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.service.IconDownloader
-import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.service.metadataProducer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.consumeEach
@@ -42,7 +42,7 @@ import javax.inject.Inject
 @ServiceScoped
 internal class MediaQueueManager
 @Inject constructor(
-    service: MusicService,
+    scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
     private val prefs: MediaSettings,
     downloader: IconDownloader
@@ -51,9 +51,9 @@ internal class MediaQueueManager
     private val producer: SendChannel<MediaDescriptionCompat>
     init {
         val metadata = Channel<MediaMetadataCompat>()
-        producer = service.metadataProducer(downloader, metadata)
+        producer = scope.metadataProducer(downloader, metadata)
 
-        service.launch {
+        scope.launch {
             metadata.consumeEach { upToDateMetadata ->
                 mediaSession.setMetadata(upToDateMetadata)
             }

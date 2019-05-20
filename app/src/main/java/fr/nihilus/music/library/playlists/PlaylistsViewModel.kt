@@ -18,7 +18,7 @@ package fr.nihilus.music.library.playlists
 
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
+import fr.nihilus.music.media.MediaId
 import javax.inject.Inject
 
 class PlaylistsViewModel
@@ -27,6 +27,6 @@ class PlaylistsViewModel
 ) : BrowsableContentViewModel(connection) {
 
     init {
-        observeChildren(CATEGORY_PLAYLISTS)
+        observeChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
     }
 }

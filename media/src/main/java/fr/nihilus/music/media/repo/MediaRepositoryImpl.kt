@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.repo
 
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.Album
@@ -32,6 +33,7 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.reactive.openSubscription
 import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.selects.select
+import javax.inject.Inject
 
 private fun <M : Any> CoroutineScope.syncCache(
     mediaUpdateStream: Flowable<List<M>>,
@@ -78,9 +80,11 @@ private fun <M : Any> CoroutineScope.syncCache(
     }
 }
 
-internal class MediaRepositoryImpl(
+@ServiceScoped
+internal class MediaRepositoryImpl
+@Inject constructor(
     scope: CoroutineScope,
-    private val mediaDao: RxMediaDao,
+    mediaDao: RxMediaDao,
     private val playlistsDao: PlaylistDao,
     private val usageDao: MediaUsageDao
 ) : MediaRepository {
@@ -156,7 +160,9 @@ internal class MediaRepositoryImpl(
 
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
         val allTracks = request(tracksCache)
-        val playlistMembers = playlistsDao.getPlaylistTracks(playlistId).await()
+        val playlistMembers = withContext(Dispatchers.IO) {
+            playlistsDao.getPlaylistTracks(playlistId).await()
+        }
 
         val tracksById = allTracks.associateBy(Track::id)
         return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }

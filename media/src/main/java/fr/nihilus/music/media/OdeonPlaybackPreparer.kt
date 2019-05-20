@@ -32,13 +32,13 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import fr.nihilus.music.media.command.MediaSessionCommand
+import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
-import fr.nihilus.music.media.repo.MusicRepository
 import fr.nihilus.music.media.service.MusicService
-import fr.nihilus.music.media.utils.plusAssign
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import fr.nihilus.music.media.tree.BrowserTree
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -48,12 +48,10 @@ import javax.inject.Inject
  */
 internal class OdeonPlaybackPreparer
 @Inject constructor(
-    service: MusicService,
+    private val service: MusicService,
     private val player: ExoPlayer,
-    private val repository: MusicRepository,
-    private val settings: MediaSettings,
-    private val commandHandlers: Map<String, @JvmSuppressWildcards MediaSessionCommand>,
-    private val subscriptions: CompositeDisposable
+    private val browserTree: BrowserTree,
+    private val settings: MediaSettings
 ) : MediaSessionConnector.PlaybackPreparer {
 
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
@@ -80,7 +78,7 @@ internal class OdeonPlaybackPreparer
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastPlayedMediaId ?: CATEGORY_MUSIC
+        val lastPlayedMediaId = settings.lastPlayedMediaId ?: encode(TYPE_TRACKS, CATEGORY_ALL)
         prepareFromMediaId(lastPlayedMediaId)
     }
 
@@ -99,7 +97,7 @@ internal class OdeonPlaybackPreparer
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         // A new queue has been requested. Increment the queue identifier.
         settings.queueCounter++
-        prepareFromMediaId(mediaId ?: CATEGORY_MUSIC)
+        prepareFromMediaId(mediaId ?: encode(TYPE_TRACKS, CATEGORY_ALL))
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -112,20 +110,26 @@ internal class OdeonPlaybackPreparer
         throw UnsupportedOperationException()
     }
 
-    override fun getCommands(): Array<String> = commandHandlers.keys.toTypedArray()
+    override fun getCommands(): Array<String>? = null
 
-    override fun onCommand(player: Player?, command: String?, extras: Bundle?, cb: ResultReceiver?) {
-        commandHandlers[command]?.handle(extras, cb)
-                ?: cb?.send(R.id.abc_error_unknown_command, null)
-    }
+    override fun onCommand(
+        player: Player?,
+        command: String?,
+        extras: Bundle?,
+        cb: ResultReceiver?
+    ) = Unit
 
-    private fun prepareFromMediaId(mediaId: String) {
-        subscriptions += repository.getMediaItems(mediaId)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { onMediaItemsLoaded(mediaId, it) },
-                { Timber.i(it, "Error while preparing queue.") }
-            )
+    private fun prepareFromMediaId(mediaId: String) = service.launch {
+        val children = MediaId.parseOrNull(mediaId)?.let { (type, category) ->
+            val parentId = MediaId.fromParts(type, category, track = null)
+            browserTree.getChildren(parentId)
+        }
+
+        if (children != null) {
+            onMediaItemsLoaded(mediaId, children)
+        } else {
+            Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
+        }
     }
 
     private fun onMediaItemsLoaded(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {

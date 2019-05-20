@@ -18,7 +18,7 @@ package fr.nihilus.music.library.artists
 
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.CATEGORY_ARTISTS
+import fr.nihilus.music.media.MediaId
 import javax.inject.Inject
 
 class ArtistListViewModel
@@ -27,6 +27,6 @@ class ArtistListViewModel
 ): BrowsableContentViewModel(connection) {
 
     init {
-        observeChildren(CATEGORY_ARTISTS)
+        observeChildren(MediaId.encode(MediaId.TYPE_ARTISTS))
     }
 }

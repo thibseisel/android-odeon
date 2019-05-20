@@ -17,11 +17,13 @@
 package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.media.RxSchedulers
+import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposables
+import javax.inject.Inject
 
 /**
  * Implementation of [RxMediaDao] that wraps a [MediaProvider], delegating read/write operations to it
@@ -30,7 +32,9 @@ import io.reactivex.disposables.Disposables
  * @param provider The media provider to which operations should be delegated.
  * @param schedulers The pool of RxJava schedulers on which background operations should be performed.
  */
-internal class RxMediaDaoImpl(
+@ServiceScoped
+internal class RxMediaDaoImpl
+@Inject constructor(
     private val provider: MediaProvider,
     private val schedulers: RxSchedulers
 ) : RxMediaDao {

@@ -22,6 +22,12 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.SharedPreferencesMediaSettings
+import fr.nihilus.music.media.os.AndroidFileSystem
+import fr.nihilus.music.media.os.ContentResolverDelegate
+import fr.nihilus.music.media.os.FileSystem
+import fr.nihilus.music.media.os.PlatformResolverDelegate
+import fr.nihilus.music.media.permissions.PermissionChecker
+import fr.nihilus.music.media.permissions.PermissionCheckerImpl
 import fr.nihilus.music.media.service.GlideDownloader
 import fr.nihilus.music.media.service.IconDownloader
 import fr.nihilus.music.media.service.MusicService
@@ -47,4 +53,13 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
+
+    @Binds
+    abstract fun bindsFileSystem(fileSystem: AndroidFileSystem): FileSystem
+
+    @Binds
+    abstract fun bindContentResolver(resolver: PlatformResolverDelegate): ContentResolverDelegate
+
+    @Binds
+    abstract fun bindPermissionChecker(checker: PermissionCheckerImpl): PermissionChecker
 }

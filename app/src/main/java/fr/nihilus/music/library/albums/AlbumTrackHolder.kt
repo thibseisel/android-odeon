@@ -44,7 +44,7 @@ internal class AlbumTrackHolder(
         title.text = description.title
 
         description.extras?.let {
-            trackNo.text = it.getLong(MediaItems.EXTRA_TRACK_NUMBER).toString()
+            trackNo.text = it.getInt(MediaItems.EXTRA_TRACK_NUMBER).toString()
             val durationMillis = it.getLong(MediaItems.EXTRA_DURATION)
             duration.text = DateUtils.formatElapsedTime(timeBuilder, durationMillis / 1000L)
         }

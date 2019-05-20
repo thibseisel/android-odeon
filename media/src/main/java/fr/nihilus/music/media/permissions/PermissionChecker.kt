@@ -20,6 +20,8 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * An utility that checks the current application's dangerous permissions at runtime.
@@ -35,7 +37,9 @@ interface PermissionChecker {
  * Real implementation of the [PermissionChecker].
  * This checks permission using the provided [application context][context].
  */
-class PermissionCheckerImpl(
+@Singleton
+class PermissionCheckerImpl
+@Inject constructor(
     private val context: Context
 ) : PermissionChecker {
 

@@ -24,10 +24,12 @@ import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.PermissionDeniedException
+import javax.inject.Inject
 
 private val TRACK_COLUMNS = arrayOf(
     BaseColumns._ID,
@@ -65,7 +67,9 @@ private val ARTIST_COLUMNS = arrayOf(
  * @param fileSystem Manager for reading and writing to the file system.
  * @param permissions Manager for reading system permissions.
  */
-internal class MediaStoreProvider(
+@ServiceScoped
+internal class MediaStoreProvider
+@Inject constructor(
     private val resolver: ContentResolverDelegate,
     private val fileSystem: FileSystem,
     private val permissions: PermissionChecker

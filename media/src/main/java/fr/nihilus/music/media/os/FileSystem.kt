@@ -18,8 +18,11 @@ package fr.nihilus.music.media.os
 
 import android.graphics.Bitmap
 import android.net.Uri
+import fr.nihilus.music.media.di.ServiceScoped
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Main interface for reading and writing to the device's file system.
@@ -44,8 +47,10 @@ interface FileSystem {
  * Implementation of a real file system.
  * Operations are performed on real files stored on the device.
  */
-class FileSystemProxy(
-    private val internalRootDir: File
+@ServiceScoped
+class AndroidFileSystem
+@Inject constructor(
+    @Named("internal") private val internalRootDir: File
 ) : FileSystem {
 
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? {

@@ -24,7 +24,7 @@ import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class TrackAdapter(
-    private val listener: BaseAdapter.OnItemSelectedListener
+    private val listener: OnItemSelectedListener
 ) : BaseAdapter<AlbumTrackHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumTrackHolder {
@@ -36,10 +36,10 @@ internal class TrackAdapter(
     override fun getItemId(position: Int): Long {
         if (hasStableIds()) {
             val mediaId = getItem(position).mediaId
-            return musicIdFrom(mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
+            return musicIdFrom(mediaId)?.toLong() ?: RecyclerView.NO_ID
         }
 
-        return androidx.recyclerview.widget.RecyclerView.NO_ID
+        return RecyclerView.NO_ID
     }
 
     /**

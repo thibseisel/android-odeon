@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.albums
+package fr.nihilus.music.media.actions
 
-import fr.nihilus.music.base.BrowsableContentViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.MediaId
-import javax.inject.Inject
+import dagger.Binds
+import dagger.Module
+import dagger.multibindings.IntoMap
+import dagger.multibindings.StringKey
 
-class AlbumGridViewModel
-@Inject constructor(
-    connection: MediaBrowserConnection
-) : BrowsableContentViewModel(connection) {
+@Module
+internal abstract class CustomActionModule {
 
-    init {
-        observeChildren(MediaId.encode(MediaId.TYPE_ALBUMS))
-    }
+    @Binds @IntoMap
+    @StringKey(CustomActions.ACTION_DELETE_MEDIA)
+    abstract fun bindsDeleteAction(action: DeleteAction): BrowserAction
+
+    @Binds @IntoMap
+    @StringKey(CustomActions.ACTION_MANAGE_PLAYLIST)
+    abstract fun bindsManagePlaylistAction(action: ManagePlaylistAction): BrowserAction
 }

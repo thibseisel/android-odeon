@@ -20,13 +20,10 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
-import fr.nihilus.music.media.command.EditPlaylistCommand
-import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.media.utils.MediaID
+import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.ui.Event
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.channels.consumeEach
@@ -55,12 +52,8 @@ class AddToPlaylistViewModel
     init {
         launch {
             _targetPlaylists.postValue(LoadRequest.Pending)
-            connection.subscribe(CATEGORY_PLAYLISTS).consumeEach { playlistUpdates ->
-                val userCreatedPlaylists = playlistUpdates.filter {
-                    MediaID.getIdRoot(it.mediaId!!) == CATEGORY_PLAYLISTS
-                }
-
-                _targetPlaylists.postValue(LoadRequest.Success(userCreatedPlaylists))
+            connection.subscribe(MediaId.encode(MediaId.TYPE_PLAYLISTS)).consumeEach { playlistUpdates ->
+                _targetPlaylists.postValue(LoadRequest.Success(playlistUpdates))
             }
         }
     }
@@ -70,36 +63,21 @@ class AddToPlaylistViewModel
         addedTracks: Array<MediaBrowserCompat.MediaItem>
     ) {
         launch {
-            val playlistId = MediaID.categoryValueOf(targetPlaylist.mediaId!!).toLong()
-            val newTrackIds = LongArray(addedTracks.size) {
-                musicIdFrom(addedTracks[it].mediaId)?.toLong() ?: -1L
-            }
+            val playlistId = targetPlaylist.mediaId
+            val newTrackMediaIds = Array(addedTracks.size) { addedTracks[it].mediaId }
 
             val params = Bundle(2).apply {
-                putLong(EditPlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
-                putLongArray(EditPlaylistCommand.PARAM_NEW_TRACKS, newTrackIds)
+                putString(CustomActions.EXTRA_PLAYLIST_ID, playlistId)
+                putStringArray(CustomActions.EXTRA_MEDIA_IDS, newTrackMediaIds)
             }
 
-            val (resultCode, _) = connection.sendCommand(EditPlaylistCommand.CMD_NAME, params)
-            when (resultCode) {
-                R.id.abc_result_success -> {
-                    // TODO The command should send the number of added tracks
-                    _playlistUpdateResult.value = Event(
-                        PlaylistEditionResult.Success(
-                            addedTracks.size,
-                            targetPlaylist.description.title
-                        )
-                    )
-                }
-
-                EditPlaylistCommand.CODE_ERROR_PLAYLIST_NOT_EXISTS -> {
-                    _playlistUpdateResult.value = Event(
-                        PlaylistEditionResult.NonExistingPlaylist(
-                            targetPlaylist.mediaId!!
-                        )
-                    )
-                }
-            }
+            connection.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+            _playlistUpdateResult.value = Event(
+                PlaylistEditionResult.Success(
+                    addedTracks.size,
+                    targetPlaylist.description.title
+                )
+            )
         }
     }
 }

@@ -26,11 +26,13 @@ import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
 
@@ -53,7 +55,9 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  * @param files Main interface for reading/writing from/to the device's filesystem.
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
-internal class ManagePlaylistAction(
+@ServiceScoped
+internal class ManagePlaylistAction
+@Inject constructor(
     private val playlistDao: PlaylistDao,
     private val files: FileSystem,
     private val dispatchers: AppDispatchers

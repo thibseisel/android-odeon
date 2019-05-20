@@ -20,12 +20,10 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.R
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.CATEGORY_MUSIC
-import fr.nihilus.music.media.command.DeleteTracksCommand
-import fr.nihilus.music.media.musicIdFrom
+import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.ui.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,7 +38,7 @@ class SongListViewModel
         get() = _deleteTracksConfirmation
 
     init {
-        observeChildren(CATEGORY_MUSIC)
+        observeChildren(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL))
     }
 
     fun onSongSelected(song: MediaBrowserCompat.MediaItem) {
@@ -51,19 +49,16 @@ class SongListViewModel
 
     fun deleteSongs(songsToDelete: List<MediaBrowserCompat.MediaItem>) {
         launch {
-            val songIds = LongArray(songsToDelete.size) { position ->
-                val mediaItem = songsToDelete[position]
-                musicIdFrom(mediaItem.mediaId)!!.toLong()
+            val trackMediaIds = Array(songsToDelete.size) { position ->
+                songsToDelete[position].mediaId
             }
 
             val parameters = Bundle(1)
-            parameters.putLongArray(DeleteTracksCommand.PARAM_TRACK_IDS, songIds)
-            val result = connection.sendCommand(DeleteTracksCommand.CMD_NAME, parameters)
+            parameters.putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
+            val result = connection.executeAction(CustomActions.ACTION_DELETE_MEDIA, parameters)
 
-            if (result.resultCode == R.id.abc_result_success) {
-                val deletedTracksCount = result.resultData?.getInt(DeleteTracksCommand.RESULT_DELETE_COUNT) ?: 0
-                _deleteTracksConfirmation.value = Event(deletedTracksCount)
-            }
+            val deletedTracksCount = result?.getInt(CustomActions.RESULT_TRACK_COUNT) ?: 0
+            _deleteTracksConfirmation.value = Event(deletedTracksCount)
         }
     }
 }

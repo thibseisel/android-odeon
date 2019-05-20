@@ -28,6 +28,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.media.extensions.isPrepared
 import fr.nihilus.music.media.service.MusicService
 import kotlinx.coroutines.CompletableDeferred
@@ -38,6 +39,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -235,6 +237,32 @@ class MediaBrowserConnection
         }
     }
 
+    suspend fun executeAction(name: String, params: Bundle?): Bundle? {
+        // Wait until connected or the action will fail.
+        deferredController.await()
+
+        return suspendCoroutine {
+            mediaBrowser.sendCustomAction(name, params, object : MediaBrowserCompat.CustomActionCallback() {
+                override fun onResult(action: String?, extras: Bundle?, resultData: Bundle?) {
+                    it.resume(resultData)
+                }
+
+                override fun onError(action: String?, extras: Bundle?, data: Bundle?) {
+                    checkNotNull(action) { "Failing custom action should have a name" }
+                    checkNotNull(data) { "Service should have sent a Bundle explaining the error" }
+
+                    it.resumeWithException(
+                        CustomActionException(
+                            action,
+                            data.getInt(CustomActions.EXTRA_ERROR_CODE, -1),
+                            data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
+                        )
+                    )
+                }
+            })
+        }
+    }
+
     private inner class ConnectionCallback(
         private val context: Context
     ) : MediaBrowserCompat.ConnectionCallback() {
@@ -316,5 +344,11 @@ class MediaBrowserConnection
         val resultCode: Int,
         val resultData: Bundle?
     )
+
+    class CustomActionException(
+        val actionName: String,
+        val errorCode: Int,
+        val errorMessage: String?
+    ) : Exception("Custom action $actionName failed: $errorMessage")
 
 }

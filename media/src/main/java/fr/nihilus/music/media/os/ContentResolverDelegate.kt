@@ -20,6 +20,8 @@ import android.content.ContentResolver
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
+import fr.nihilus.music.media.di.ServiceScoped
+import javax.inject.Inject
 
 /**
  * A replacement for the Android platform's [ContentResolver].
@@ -104,7 +106,9 @@ internal interface ContentResolverDelegate {
  *
  * @param platformResolver The wrapped [ContentResolver] to which requests are delegated.
  */
-internal class PlatformResolverDelegate(
+@ServiceScoped
+internal class PlatformResolverDelegate
+@Inject constructor(
     private val platformResolver: ContentResolver
 ) : ContentResolverDelegate {
 

@@ -32,7 +32,7 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
 
     private lateinit var scopeJob: Job
     override val coroutineContext: CoroutineContext
-        get() = scopeJob + Dispatchers.Main
+        get() = scopeJob + Dispatchers.Main.immediate
 
     override fun onCreate() {
         super.onCreate()

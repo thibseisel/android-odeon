@@ -19,9 +19,11 @@ package fr.nihilus.music.media.actions
 import android.os.Bundle
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * An action for deleting media that are available to media browser clients.
@@ -35,7 +37,9 @@ import kotlinx.coroutines.withContext
  * @param playlistDao The dao used for deleting playlists.
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
-internal class DeleteAction(
+@ServiceScoped
+internal class DeleteAction
+@Inject constructor(
     private val provider: MediaProvider,
     private val playlistDao: PlaylistDao,
     private val dispatchers: AppDispatchers

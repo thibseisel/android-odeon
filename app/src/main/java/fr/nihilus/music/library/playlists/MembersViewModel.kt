@@ -20,8 +20,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.command.DeletePlaylistCommand
-import fr.nihilus.music.media.utils.MediaID
+import fr.nihilus.music.media.actions.CustomActions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,12 +38,11 @@ class MembersViewModel
 
     fun deletePlaylist(playlist: MediaBrowserCompat.MediaItem) {
         launch {
-            val playlistId = MediaID.categoryValueOf(playlist.mediaId!!).toLong()
             val params = Bundle(1).apply {
-                putLong(DeletePlaylistCommand.PARAM_PLAYLIST_ID, playlistId)
+                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlist.mediaId))
             }
 
-            connection.sendCommand(DeletePlaylistCommand.CMD_NAME, params)
+            connection.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
         }
     }
 }

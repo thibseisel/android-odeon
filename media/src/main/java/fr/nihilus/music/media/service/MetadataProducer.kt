@@ -91,9 +91,8 @@ private fun CoroutineScope.scheduleMetadataUpdate(
 
         description.extras?.let {
             duration = it.getLong(MediaItems.EXTRA_DURATION, -1L)
-            // TODO Retrieve disc and track number as Ints after migrating to BrowserTree
-            discNumber = it.getLong(MediaItems.EXTRA_DISC_NUMBER, 1)
-            trackNumber = it.getLong(MediaItems.EXTRA_TRACK_NUMBER, 0)
+            discNumber = it.getInt(MediaItems.EXTRA_DISC_NUMBER, 1).toLong()
+            trackNumber = it.getInt(MediaItems.EXTRA_TRACK_NUMBER, 0).toLong()
         }
     }.build()
 

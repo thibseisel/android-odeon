@@ -28,6 +28,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
@@ -39,13 +40,16 @@ import fr.nihilus.music.media.toUri
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import javax.inject.Inject
 
 private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
     val discNumberDiff = a.discNumber - b.discNumber
     if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
 }
 
-internal class BrowserTreeImpl(
+@ServiceScoped
+internal class BrowserTreeImpl
+@Inject constructor(
     private val repository: MediaRepository
 ) : BrowserTree {
 

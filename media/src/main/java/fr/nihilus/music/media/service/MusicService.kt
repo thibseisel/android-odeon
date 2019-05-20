@@ -30,25 +30,28 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import fr.nihilus.music.media.*
+import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.MediaSettings
+import fr.nihilus.music.media.R
+import fr.nihilus.music.media.actions.ActionFailure
+import fr.nihilus.music.media.actions.BrowserAction
+import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.media.extensions.stateName
-import fr.nihilus.music.media.repo.MusicRepository
+import fr.nihilus.music.media.musicIdFrom
+import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.usage.MediaUsageManager
-import fr.nihilus.music.media.utils.PermissionDeniedException
-import fr.nihilus.music.media.utils.plusAssign
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx2.collect
+import kotlinx.coroutines.reactive.collect
 import timber.log.Timber
 import javax.inject.Inject
 
 class MusicService : BaseBrowserService() {
 
-    @Inject internal lateinit var repository: MusicRepository
+    @Inject internal lateinit var browserTree: BrowserTree
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: MediaUsageManager
 
@@ -57,6 +60,7 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: MediaSettings
     @Inject internal lateinit var subscriptions: CompositeDisposable
+    @Inject internal lateinit var customActions: Map<String, @JvmSuppressWildcards BrowserAction>
 
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
@@ -124,7 +128,7 @@ class MusicService : BaseBrowserService() {
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
         return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
-            BrowserRoot(BROWSER_ROOT, null)
+            BrowserRoot(MediaId.ROOT.encoded, null)
         } else null
     }
 
@@ -136,29 +140,43 @@ class MusicService : BaseBrowserService() {
         Timber.v("Start loading children for ID: %s", parentId)
         result.detach()
 
-        subscriptions += repository.getMediaItems(parentId)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
-                { items: List<MediaBrowserCompat.MediaItem> ->
-                    Timber.v("Loaded items for %s: size=%d", parentId, items.size)
-                    result.sendResult(items)
-                },
-                { error: Throwable ->
-                    when (error) {
-                        is UnsupportedOperationException -> Timber.w("Unsupported parent id: %s", parentId)
-                        is PermissionDeniedException -> Timber.i(error)
-                        else -> throw error
-                    }
+        launch {
+            val parentMediaId = MediaId.parseOrNull(parentId)
+            if (parentMediaId != null) {
+                try {
+                    val children = browserTree.getChildren(parentMediaId)
+                    result.sendResult(children)
 
+                } catch (permissionFailure: PermissionDeniedException) {
+                    Timber.i("Loading children of %s failed due to missing permission: %s", parentId, permissionFailure.permission)
                     result.sendResult(null)
                 }
-            )
+
+            } else {
+                Timber.i("Attempt to load children of an invalid media id: %s", parentId)
+                result.sendResult(null)
+            }
+        }
     }
 
-    override fun notifyChildrenChanged(parentId: String) {
-        repository.clear()
-        super.notifyChildrenChanged(parentId)
+    override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
+        val customAction = customActions[action] ?: run {
+            result.sendError(null)
+            return
+        }
+
+        result.detach()
+        launch {
+            try {
+                val resultBundle = customAction.execute(extras)
+                result.sendResult(resultBundle)
+            } catch (failure: ActionFailure) {
+                result.sendError(Bundle(2).apply {
+                    putInt(CustomActions.EXTRA_ERROR_CODE, failure.errorCode)
+                    putString(CustomActions.EXTRA_ERROR_MESSAGE, failure.errorMessage)
+                })
+            }
+        }
     }
 
     /**
@@ -278,9 +296,8 @@ class MusicService : BaseBrowserService() {
     }
 
     private fun CoroutineScope.observeMediaChanges() = launch {
-        repository.getMediaChanges().subscribeOn(Schedulers.io()).collect { changedMediaId ->
-            val parentId = browseCategoryOf(changedMediaId)
-            notifyChildrenChanged(parentId)
+        browserTree.updatedParentIds.collect { parentId ->
+            notifyChildrenChanged(parentId.encoded)
         }
     }
 
