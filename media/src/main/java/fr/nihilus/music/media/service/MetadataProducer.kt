@@ -18,7 +18,6 @@ package fr.nihilus.music.media.service
 
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.extensions.*
 import kotlinx.coroutines.*
@@ -48,19 +47,19 @@ private const val ICON_MAX_SIZE = 320
 internal fun CoroutineScope.metadataProducer(
     downloader: IconDownloader,
     metadata: SendChannel<MediaMetadataCompat>
-): SendChannel<MediaSessionCompat.QueueItem> = actor(
+): SendChannel<MediaDescriptionCompat> = actor(
     capacity = Channel.CONFLATED,
     start = CoroutineStart.LAZY
 ) {
-    var currentlyPlayingItem = receive().description
+    var currentlyPlayingItem = receive()
     var updateJob = scheduleMetadataUpdate(downloader, currentlyPlayingItem, metadata)
 
-    consumeEach { item ->
-        if (currentlyPlayingItem.mediaId != item.description.mediaId) {
-            currentlyPlayingItem = item.description
+    consumeEach { description ->
+        if (currentlyPlayingItem.mediaId != description.mediaId) {
+            currentlyPlayingItem = description
 
             updateJob.cancel()
-            updateJob = scheduleMetadataUpdate(downloader, item.description, metadata)
+            updateJob = scheduleMetadataUpdate(downloader, description, metadata)
         }
     }
 }
@@ -88,12 +87,13 @@ private fun CoroutineScope.scheduleMetadataUpdate(
         displaySubtitle = description.subtitle?.toString()
         displayDescription = description.description?.toString()
         displayIconUri = description.iconUri?.toString()
-        displayIcon = trackIcon
+        albumArt = trackIcon
 
         description.extras?.let {
             duration = it.getLong(MediaItems.EXTRA_DURATION, -1L)
-            discNumber = it.getInt(MediaItems.EXTRA_DISC_NUMBER, 1).toLong()
-            trackNumber = it.getInt(MediaItems.EXTRA_TRACK_NUMBER, 0).toLong()
+            // TODO Retrieve disc and track number as Ints after migrating to BrowserTree
+            discNumber = it.getLong(MediaItems.EXTRA_DISC_NUMBER, 1)
+            trackNumber = it.getLong(MediaItems.EXTRA_TRACK_NUMBER, 0)
         }
     }.build()
 

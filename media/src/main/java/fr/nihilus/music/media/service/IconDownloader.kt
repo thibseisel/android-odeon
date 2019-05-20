@@ -23,7 +23,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.Target
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.extensions.intoBitmap
+import javax.inject.Inject
 
 /**
  * Provide a facility for loading icons from local and remote locations.
@@ -66,7 +68,9 @@ internal interface IconDownloader {
  *
  * @param context The context used to initialize Glide.
  */
-internal class GlideDownloader(context: Context) : IconDownloader {
+@ServiceScoped
+internal class GlideDownloader
+@Inject constructor(context: Context) : IconDownloader {
     private val glide: RequestBuilder<Bitmap> = Glide.with(context)
         .asBitmap()
         .downsample(DownsampleStrategy.CENTER_INSIDE)

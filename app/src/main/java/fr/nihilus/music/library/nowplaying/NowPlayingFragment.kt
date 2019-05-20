@@ -35,7 +35,7 @@ import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
-import fr.nihilus.music.media.extensions.albumArtUri
+import fr.nihilus.music.media.extensions.displayIconUri
 import fr.nihilus.music.media.extensions.isPlaying
 import fr.nihilus.music.ui.ProgressAutoUpdater
 import kotlinx.android.synthetic.main.fragment_now_playing.*
@@ -171,7 +171,7 @@ class NowPlayingFragment: BaseFragment() {
             subtitle_view.text = media.subtitle
 
             autoUpdater.setMetadata(metadata)
-            glideRequest.load(metadata.albumArtUri).into(albumArtTarget)
+            glideRequest.load(metadata.displayIconUri).into(albumArtTarget)
 
         } else {
             // Reset views

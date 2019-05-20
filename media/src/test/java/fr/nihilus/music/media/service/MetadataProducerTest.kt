@@ -22,7 +22,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaSessionCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
@@ -51,8 +50,7 @@ class MetadataProducerTest {
     @Test
     fun whenSendingQueueItem_thenExtractItsMetadata() = runBlockingTest {
         val itemMediaId = encode(TYPE_TRACKS, CATEGORY_ALL, 75L)
-        val item = QueueItem(
-            queueId = 0,
+        val item = MediaDescription(
             mediaId = itemMediaId,
             title = "Nightmare",
             subtitle = "Avenged Sevenfold",
@@ -92,8 +90,8 @@ class MetadataProducerTest {
         val firstItemId = encode(TYPE_TRACKS, CATEGORY_ALL, 16L)
         val secondItemId = encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
 
-        val items = listOf(firstItemId, secondItemId).mapIndexed { index, mediaId ->
-            QueueItem(index.toLong(), mediaId, null, null, null, -1L, Uri.EMPTY)
+        val items = listOf(firstItemId, secondItemId).map { mediaId ->
+            MediaDescription(mediaId, null, null, null, -1L, Uri.EMPTY)
         }
 
         val output = Channel<MediaMetadataCompat>()
@@ -116,8 +114,8 @@ class MetadataProducerTest {
     @Test
     fun whenSendingSameItemTwoTimes_thenIgnoreTheSecond() = runBlockingTest {
         val itemId = encode(TYPE_TRACKS, CATEGORY_ALL, 16L)
-        val firstItem = QueueItem(1L, itemId, "First item", null, null, 0L, Uri.EMPTY)
-        val secondItem = QueueItem(1L, itemId, "Second item", null, null, 0L, Uri.EMPTY)
+        val firstItem = MediaDescription(itemId, "First item", null, null, 0L, Uri.EMPTY)
+        val secondItem = MediaDescription(itemId, "Second item", null, null, 0L, Uri.EMPTY)
         val output = Channel<MediaMetadataCompat>()
 
         val producer = metadataProducer(FixedDelayDownloader, output)
@@ -170,25 +168,21 @@ class MetadataProducerTest {
     /**
      * Helper function for creating sample queue items.
      */
-    private fun QueueItem(
-        queueId: Long,
+    private fun MediaDescription(
         mediaId: String,
         title: CharSequence?,
         subtitle: CharSequence?,
         description: CharSequence?,
         duration: Long,
         iconUri: Uri?
-    ): MediaSessionCompat.QueueItem = MediaSessionCompat.QueueItem(
-        MediaDescriptionCompat.Builder()
-            .setMediaId(mediaId)
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setDescription(description)
-            .setIconUri(iconUri)
-            .setExtras(Bundle(1).apply {
-                putLong(MediaItems.EXTRA_DURATION, duration)
-            })
-            .build(),
-        queueId
-    )
+    ): MediaDescriptionCompat = MediaDescriptionCompat.Builder()
+        .setMediaId(mediaId)
+        .setTitle(title)
+        .setSubtitle(subtitle)
+        .setDescription(description)
+        .setIconUri(iconUri)
+        .setExtras(Bundle(1).apply {
+            putLong(MediaItems.EXTRA_DURATION, duration)
+        })
+        .build()
 }

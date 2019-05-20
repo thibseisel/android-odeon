@@ -19,6 +19,7 @@ package fr.nihilus.music.media.playback
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
@@ -26,13 +27,13 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.musicIdFrom
-import fr.nihilus.music.media.repo.MusicRepository
-import fr.nihilus.music.media.service.AlbumArtLoader
-import fr.nihilus.music.media.utils.plusAssign
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
+import fr.nihilus.music.media.service.IconDownloader
+import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.media.service.metadataProducer
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -41,14 +42,23 @@ import javax.inject.Inject
 @ServiceScoped
 internal class MediaQueueManager
 @Inject constructor(
+    service: MusicService,
     private val mediaSession: MediaSessionCompat,
-    private val repository: MusicRepository,
     private val prefs: MediaSettings,
-    private val iconLoader: AlbumArtLoader,
-    private val subscriptions: CompositeDisposable
+    downloader: IconDownloader
 ) : MediaSessionConnector.QueueNavigator {
 
-    private var lastMusicId: String? = null
+    private val producer: SendChannel<MediaDescriptionCompat>
+    init {
+        val metadata = Channel<MediaMetadataCompat>()
+        producer = service.metadataProducer(downloader, metadata)
+
+        service.launch {
+            metadata.consumeEach { upToDateMetadata ->
+                mediaSession.setMetadata(upToDateMetadata)
+            }
+        }
+    }
 
     /**
      * Implementation of [MediaSessionConnector.QueueNavigator] to delegate to.
@@ -106,22 +116,8 @@ internal class MediaQueueManager
     ) = Unit
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
-        val activeMediaId = (player.currentTag as? MediaDescriptionCompat)?.mediaId ?: return
-        prefs.lastPlayedMediaId = activeMediaId
-        val musicId = checkNotNull(musicIdFrom(activeMediaId)) {
-            "Each playable track should have a music ID"
-        }
-
-        if (lastMusicId != musicId) {
-            // Only update metadata if it has really changed.
-            subscriptions += repository.getMetadata(musicId)
-                .subscribeOn(Schedulers.io())
-                .flatMap(iconLoader::loadIntoMetadata)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mediaSession::setMetadata)
-        }
-
-        // Remember the last change in metadata
-        lastMusicId = musicId
+        val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
+        prefs.lastPlayedMediaId = activeMedia.mediaId
+        producer.offer(activeMedia)
     }
 }

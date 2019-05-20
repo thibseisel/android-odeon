@@ -22,6 +22,8 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.SharedPreferencesMediaSettings
+import fr.nihilus.music.media.service.GlideDownloader
+import fr.nihilus.music.media.service.IconDownloader
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.usage.MediaUsageManager
 import fr.nihilus.music.media.usage.RxBridgeUsageManager
@@ -42,4 +44,7 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsMediaUsageManager(manager: RxBridgeUsageManager): MediaUsageManager
+
+    @Binds
+    abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
 }

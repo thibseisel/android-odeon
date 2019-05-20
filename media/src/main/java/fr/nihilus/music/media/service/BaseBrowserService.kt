@@ -36,8 +36,8 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
 
     override fun onCreate() {
         super.onCreate()
-        AndroidInjection.inject(this)
         scopeJob = SupervisorJob()
+        AndroidInjection.inject(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
