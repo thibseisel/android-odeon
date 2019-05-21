@@ -30,10 +30,6 @@ internal interface PlaylistDao {
     @get:Query("SELECT * FROM playlist ORDER BY date_created ASC")
     val playlistsFlow: Flowable<List<Playlist>>
 
-    @Deprecated("New APIs should observe playlist updates as a Flowable")
-    @Query("SELECT * FROM playlist ORDER BY date_created ASC")
-    fun getPlaylists(): Single<List<Playlist>>
-
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
     fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>>
 

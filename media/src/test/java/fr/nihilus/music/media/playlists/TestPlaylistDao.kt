@@ -40,8 +40,6 @@ internal class TestPlaylistDao(
     override val playlistsFlow: Flowable<List<Playlist>>
         get() = _playlists.onBackpressureBuffer()
 
-    override fun getPlaylists(): Single<List<Playlist>> = _playlists.firstOrError()
-
     override fun savePlaylist(playlist: Playlist): Long {
         val currentPlaylists = _playlists.value.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }

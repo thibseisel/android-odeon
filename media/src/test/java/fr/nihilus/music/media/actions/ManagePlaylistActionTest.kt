@@ -201,7 +201,6 @@ class ManagePlaylistActionTest {
 
 private object StubPlaylistDao : PlaylistDao {
     override val playlistsFlow: Flowable<List<Playlist>> get() = stub()
-    override fun getPlaylists(): Single<List<Playlist>> = stub()
     override fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>> = stub()
     override fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray> = stub()
     override fun savePlaylist(playlist: Playlist): Long = stub()
