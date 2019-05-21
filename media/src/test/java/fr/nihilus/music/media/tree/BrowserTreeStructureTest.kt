@@ -16,8 +16,10 @@
 
 package fr.nihilus.music.media.tree
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject
 import com.google.common.truth.Correspondence
@@ -69,6 +71,9 @@ private suspend fun BrowserTree.walk(parentId: MediaId, action: suspend (child: 
 
 @RunWith(AndroidJUnit4::class)
 class BrowserTreeStructureTest {
+
+    private val context: Context
+        get() = ApplicationProvider.getApplicationContext()
 
     @Test
     fun whenLoadingChildrenOfRoot_thenReturnAllAvailableTypes(): Unit = runBlocking {
@@ -178,7 +183,7 @@ class BrowserTreeStructureTest {
     @Test
     fun givenAnyBrowsableParent_whenLoadingItsChildren_thenNeverReturnNull() = runBlocking<Unit> {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         browserTree.walk(mediaId(TYPE_ROOT)) { child, parentId ->
             if(child.isBrowsable) {
@@ -195,7 +200,7 @@ class BrowserTreeStructureTest {
     @Test
     fun givenAnyNonBrowsableItem_whenLoadingItsChildren_thenReturnNull(): Unit = runBlocking {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         browserTree.walk(mediaId(TYPE_ROOT)) { child, parentId ->
             if (!child.isBrowsable) {
@@ -310,7 +315,7 @@ class BrowserTreeStructureTest {
     fun whenLoadingChildrenOfRecentlyAdded_thenReturnNoMoreThan25Tracks(): Unit = runBlocking {
         val testTracks = generateRandomTrackSequence().take(50).toList()
         val repository = TestMediaRepository(tracks = testTracks)
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         val mostRecentTracks = browserTree.getChildren(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
             ?: failAssumption("Expected $TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED to have children")
@@ -477,7 +482,7 @@ class BrowserTreeStructureTest {
 
     private suspend fun assertLoadedItemHasSameMediaId(itemId: MediaId) {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         val requestedItem = browserTree.getItem(itemId)
         assume().that(requestedItem).isNotNull()
@@ -513,7 +518,7 @@ class BrowserTreeStructureTest {
     private fun assertNotifyParentChanged(notification: ChangeNotification, changedParentId: MediaId) {
         val changeNotifier = PublishProcessor.create<ChangeNotification>()
         val repository = TestMediaRepository(changeNotifications = changeNotifier)
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         val subscriber = browserTree.updatedParentIds.test()
         changeNotifier.onNext(notification)
@@ -523,7 +528,7 @@ class BrowserTreeStructureTest {
 
     private suspend fun assertItemIsPartOfItsParentsChildren(parentId: MediaId, itemId: MediaId) {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         val item = browserTree.getItem(itemId)
             ?: failAssumption("Expected $itemId to be an existing item")
@@ -536,7 +541,7 @@ class BrowserTreeStructureTest {
     }
 
     private suspend fun assertHasNoChildren(parentId: MediaId) {
-        val browserTree = BrowserTreeImpl(TestMediaRepository())
+        val browserTree = BrowserTreeImpl(context, TestMediaRepository())
         val children = browserTree.getChildren(parentId)
         assertThat(children).isNull()
     }
@@ -577,7 +582,7 @@ class BrowserTreeStructureTest {
 
     private suspend fun loadChildrenOf(parentId: MediaId): List<MediaItem> {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(repository)
+        val browserTree = BrowserTreeImpl(context, repository)
 
         val children = browserTree.getChildren(parentId)
         return children ?: fail("Expected $parentId to have children.")

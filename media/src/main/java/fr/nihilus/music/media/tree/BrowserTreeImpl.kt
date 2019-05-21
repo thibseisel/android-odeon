@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.tree
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
@@ -29,6 +30,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
@@ -50,15 +52,30 @@ private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
 @ServiceScoped
 internal class BrowserTreeImpl
 @Inject constructor(
+    private val context: Context,
     private val repository: MediaRepository
 ) : BrowserTree {
 
     private val tree = mediaTree(MediaId.TYPE_ROOT) {
 
         type(TYPE_TRACKS) {
-            category(CATEGORY_ALL, "All Tracks", children = ::provideAllTracks)
-            category(CATEGORY_MOST_RATED, "Most Rated", children = ::provideMostRatedTracks)
-            category(CATEGORY_RECENTLY_ADDED, "Recently Added", children = ::provideRecentlyAddedTracks)
+            category(
+                CATEGORY_ALL,
+                context.getString(R.string.abc_all_music),
+                children = ::provideAllTracks
+            )
+
+            category(
+                CATEGORY_MOST_RATED,
+                context.getString(R.string.abc_most_rated),
+                children = ::provideMostRatedTracks
+            )
+
+            category(
+                CATEGORY_RECENTLY_ADDED,
+                context.getString(R.string.abc_last_added),
+                children = ::provideRecentlyAddedTracks
+            )
         }
 
         type(TYPE_ALBUMS) {

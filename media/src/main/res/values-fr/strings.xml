@@ -17,10 +17,10 @@
 
 <resources>
     <string name="app_name">Odeon</string>
-    <string name="abc_all_music">Toute la musique</string>
+    <string name="abc_all_music">Tous les morceaux</string>
     <string name="abc_albums">Albums</string>
     <string name="abc_artists">Artistes</string>
-    <string name="abc_last_added">Derniers ajouts</string>
+    <string name="abc_last_added">Nouveautés</string>
     <string name="abc_playlists">Listes de lecture</string>
     <string name="abc_player_unknown_error">Oups, quelque chose a planté et la lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="abc_action_play">Lire</string>

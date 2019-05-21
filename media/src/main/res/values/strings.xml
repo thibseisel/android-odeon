@@ -16,10 +16,10 @@
 
 <resources>
     <string name="app_name">Odeon</string>
-    <string name="abc_all_music">All music</string>
+    <string name="abc_all_music">All tracks</string>
     <string name="abc_albums">Albums</string>
     <string name="abc_artists">Artists</string>
-    <string name="abc_last_added">Last added</string>
+    <string name="abc_last_added">Recently added</string>
     <string name="abc_playlists">Playlists</string>
     <string name="abc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
 
