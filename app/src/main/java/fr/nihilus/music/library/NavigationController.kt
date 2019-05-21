@@ -28,7 +28,7 @@ import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
 import fr.nihilus.music.library.playlists.MembersFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
-import fr.nihilus.music.media.*
+import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.settings.SettingsActivity
 import javax.inject.Inject
 
@@ -82,8 +82,8 @@ class NavigationController
      * Shows the list of all tracks available.
      */
     fun navigateToAllSongs() {
-        val fragment = findOrCreateFragment(CATEGORY_MUSIC, SongListFragment.Factory::newInstance)
-        showFragment(CATEGORY_MUSIC, fragment)
+        val fragment = findOrCreateFragment(MediaId.ALL_TRACKS.encoded, SongListFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_TRACKS.encoded, fragment)
     }
 
     /**
@@ -91,8 +91,8 @@ class NavigationController
      */
     fun navigateToAlbums() {
         val fragment =
-            findOrCreateFragment(CATEGORY_ALBUMS, AlbumGridFragment.Factory::newInstance)
-        showFragment(CATEGORY_ALBUMS, fragment)
+            findOrCreateFragment(MediaId.ALL_ALBUMS.encoded, AlbumGridFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_ALBUMS.encoded, fragment)
     }
 
     /**
@@ -100,8 +100,8 @@ class NavigationController
      */
     fun navigateToArtists() {
         val fragment =
-            findOrCreateFragment(CATEGORY_ARTISTS, ArtistListFragment.Factory::newInstance)
-        showFragment(CATEGORY_ARTISTS, fragment)
+            findOrCreateFragment(MediaId.ALL_ARTISTS.encoded, ArtistListFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_ARTISTS.encoded, fragment)
     }
 
     /**
@@ -124,8 +124,8 @@ class NavigationController
      */
     fun navigateToPlaylists() {
         val fragment =
-            findOrCreateFragment(CATEGORY_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
-        showFragment(CATEGORY_PLAYLISTS, fragment)
+            findOrCreateFragment(MediaId.ALL_PLAYLISTS.encoded, PlaylistsFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_PLAYLISTS.encoded, fragment)
     }
 
     /**
@@ -134,12 +134,11 @@ class NavigationController
      * @param playlist the playlist from whose tracks are to be displayed
      */
     fun navigateToPlaylistDetails(playlist: MediaBrowserCompat.MediaItem) {
-        val tag =
-            playlist.mediaId ?: throw IllegalArgumentException("Playlist should have a mediaId")
+        val tag = requireNotNull(playlist.mediaId) { "Playlist should have a mediaId" }
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
-            val rootId = browseHierarchyOf(tag)[0]
-            MembersFragment.newInstance(playlist, deletable = (CATEGORY_PLAYLISTS == rootId))
+            val type = MediaId.parse(tag).type
+            MembersFragment.newInstance(playlist, deletable = (type == MediaId.TYPE_PLAYLISTS))
         }
 
         showFragment(tag, fragment)
@@ -166,12 +165,11 @@ class NavigationController
      * @param mediaId The media id that represents the screen to display
      */
     fun navigateToMediaId(mediaId: String) {
-        val root = browseHierarchyOf(mediaId)[0]
-        when (root) {
-            CATEGORY_MUSIC -> navigateToAllSongs()
-            CATEGORY_ALBUMS -> navigateToAlbums()
-            CATEGORY_ARTISTS -> navigateToArtists()
-            CATEGORY_PLAYLISTS -> navigateToPlaylists()
+        when (MediaId.parseOrNull(mediaId)?.type) {
+            MediaId.TYPE_TRACKS -> navigateToAllSongs()
+            MediaId.TYPE_ALBUMS -> navigateToAlbums()
+            MediaId.TYPE_ARTISTS -> navigateToArtists()
+            MediaId.TYPE_PLAYLISTS -> navigateToPlaylists()
             else -> error("Unsupported media ID: $mediaId")
         }
     }

@@ -24,7 +24,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class MembersAdapter(
@@ -47,11 +46,6 @@ internal class MembersAdapter(
             holder.onAttachListeners(listener)
         }
 
-    override fun getItemId(position: Int): Long {
-        return if (hasStableIds()) {
-            val mediaId = getItem(position).mediaId!!
-            musicIdFrom(mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
-        } else androidx.recyclerview.widget.RecyclerView.NO_ID
-    }
+    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
 
 }

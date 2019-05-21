@@ -17,13 +17,10 @@
 package fr.nihilus.music.media.playlists
 
 import android.net.Uri
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import fr.nihilus.music.media.CATEGORY_PLAYLISTS
-import fr.nihilus.music.media.mediaIdOf
 
 /**
  * A class that groups information associated with a playlist.
@@ -71,13 +68,4 @@ internal data class Playlist(
         title: CharSequence,
         iconUri: Uri? = null
     ) : this(null, title.toString(), System.currentTimeMillis(), iconUri)
-
-    fun asMediaDescription(builder: MediaDescriptionCompat.Builder): MediaDescriptionCompat {
-        val playlistId = checkNotNull(id) { "Cant create MediaDescription of an unsaved playlist" }
-        val mediaId = mediaIdOf(CATEGORY_PLAYLISTS, playlistId.toString())
-        return builder.setMediaId(mediaId)
-            .setTitle(title)
-            .setIconUri(iconUri)
-            .build()
-    }
 }

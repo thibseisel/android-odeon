@@ -23,7 +23,6 @@ import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.RxSchedulers
 import fr.nihilus.music.media.actions.CustomActionModule
-import fr.nihilus.music.media.command.CommandModule
 import fr.nihilus.music.media.database.DatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
@@ -62,7 +61,6 @@ abstract class MediaServiceModule {
         MediaSessionModule::class,
         MediaSourceModule::class,
         PlaybackModule::class,
-        CommandModule::class,
         CustomActionModule::class
     ])
     abstract fun contributesMusicService(): MusicService

@@ -18,11 +18,11 @@ package fr.nihilus.music.library.albums
 
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class AlbumsAdapter(
@@ -53,11 +53,6 @@ internal class AlbumsAdapter(
         }
     }
 
-    override fun getItemId(position: Int): Long {
-        return if (hasStableIds()) {
-            val item = getItem(position)
-            musicIdFrom(item.mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
-        } else androidx.recyclerview.widget.RecyclerView.NO_ID
-    }
+    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
 
 }

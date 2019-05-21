@@ -30,7 +30,6 @@ import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
 import fr.nihilus.music.media.R
-import fr.nihilus.music.media.assert
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.extensions.isPlayEnabled
 import fr.nihilus.music.media.extensions.isPlaying
@@ -94,8 +93,6 @@ internal class MediaNotificationBuilder
             createNowPlayingChannel()
         }
 
-        assert(controller.metadata != null)
-        assert(controller.playbackState != null)
         val description =  controller.metadata.description
         val playbackState = controller.playbackState
 

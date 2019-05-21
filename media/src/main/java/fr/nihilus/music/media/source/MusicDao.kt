@@ -38,6 +38,9 @@ import io.reactivex.Single
  * If that's the case, they are also responsible for refreshing cached data whenever metadata
  * has changed and notify clients.
  */
+@Deprecated(
+    "MusicDao is no longer used. MediaProvider is the new way to go.",
+    ReplaceWith("MediaProvider", "fr.nihilus.music.media.provider.MediaProvider"))
 interface MusicDao {
 
     /**

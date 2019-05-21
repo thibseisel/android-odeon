@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.repo
 
+import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
@@ -86,7 +87,8 @@ internal class MediaRepositoryImpl
     scope: CoroutineScope,
     mediaDao: RxMediaDao,
     private val playlistsDao: PlaylistDao,
-    private val usageDao: MediaUsageDao
+    private val usageDao: MediaUsageDao,
+    private val dispatchers: AppDispatchers
 ) : MediaRepository {
 
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
@@ -117,7 +119,7 @@ internal class MediaRepositoryImpl
         val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
         val affectedPlaylistIds = playlistsDao.getPlaylistsHavingTracks(deletedTrackIds).await()
 
-        withContext(Dispatchers.IO) {
+        withContext(dispatchers.Database) {
             playlistsDao.deletePlaylistTracks(deletedTrackIds)
         }
 
@@ -160,7 +162,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
         val allTracks = request(tracksCache)
-        val playlistMembers = withContext(Dispatchers.IO) {
+        val playlistMembers = withContext(dispatchers.Database) {
             playlistsDao.getPlaylistTracks(playlistId).await()
         }
 
@@ -170,7 +172,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getMostRatedTracks(): List<Track> {
         val tracksById = request(tracksCache).associateBy { it.id }
-        val trackScores = withContext(Dispatchers.IO) {
+        val trackScores = withContext(dispatchers.Database) {
             usageDao.getMostRatedTracks(25)
         }
 

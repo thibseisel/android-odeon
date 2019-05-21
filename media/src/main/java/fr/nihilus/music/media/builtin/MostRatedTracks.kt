@@ -31,6 +31,7 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import javax.inject.Inject
 
+@Deprecated("Built-in items are no longer used. This is only kept for reference.")
 internal class MostRatedTracks
 @Inject constructor(
     private val context: Context,

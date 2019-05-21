@@ -25,7 +25,7 @@ import androidx.lifecycle.Observer
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.CATEGORY_MUSIC
+import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.ui.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -93,7 +93,7 @@ class MusicLibraryViewModel
     fun playAllShuffled() {
         launch {
             connection.setShuffleModeEnabled(true)
-            connection.playFromMediaId(CATEGORY_MUSIC)
+            connection.playFromMediaId(MediaId.ALL_TRACKS.encoded)
         }
     }
 

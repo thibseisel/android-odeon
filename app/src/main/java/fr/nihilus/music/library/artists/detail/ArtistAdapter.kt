@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.library.artists.ArtistHolder
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistAdapter(
@@ -39,12 +38,6 @@ internal class ArtistAdapter(
         }
     }
 
-    override fun getItemId(position: Int): Long {
-        if (hasStableIds()) {
-            val mediaId = getItem(position).mediaId
-            return musicIdFrom(mediaId)?.toLong() ?: androidx.recyclerview.widget.RecyclerView.NO_ID
-        }
-        return androidx.recyclerview.widget.RecyclerView.NO_ID
-    }
+    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
 
 }

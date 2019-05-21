@@ -20,7 +20,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.media.extensions.id
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class TrackAdapter(
@@ -33,14 +32,7 @@ internal class TrackAdapter(
         }
     }
 
-    override fun getItemId(position: Int): Long {
-        if (hasStableIds()) {
-            val mediaId = getItem(position).mediaId
-            return musicIdFrom(mediaId)?.toLong() ?: RecyclerView.NO_ID
-        }
-
-        return RecyclerView.NO_ID
-    }
+    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
 
     /**
      * Retrieve the position of a given metadata in the adapter.
@@ -50,11 +42,11 @@ internal class TrackAdapter(
      */
     fun indexOf(metadata: MediaMetadataCompat): Int {
         // Assume the passed musicId is from ALBUMS category
-        val musicId = metadata.id
+        val mediaId = metadata.id
 
         for (position in 0 until itemCount) {
             val item = getItem(position)
-            if (item.mediaId!!.endsWith(musicId)) {
+            if (item.mediaId == mediaId) {
                 return position
             }
         }

@@ -27,6 +27,7 @@ import io.reactivex.Single
  * Most of the time, built-in items are attached to the root of the media browser
  * and their children have a specific id.
  */
+@Deprecated("Built-in items are no longer used. This is only kept for reference.")
 internal interface BuiltinItem {
     /**
      * Returns a representation of this item as a media item used for browsing.

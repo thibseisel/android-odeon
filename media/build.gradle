@@ -76,6 +76,7 @@ dependencies {
     // Android support libraries
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
     implementation "androidx.media:media:${versions.androidx.media}"
+    implementation "androidx.core:core-ktx:${versions.androidx.core}"
 
     // Android Room
     api "androidx.room:room-runtime:${versions.androidx.room}"

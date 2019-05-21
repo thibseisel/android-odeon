@@ -21,10 +21,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.SectionIndexer
-import android.widget.TextView
+import android.widget.*
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
@@ -32,7 +29,6 @@ import fr.nihilus.music.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.media.MediaItems
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
 class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), SectionIndexer {
@@ -56,13 +52,7 @@ class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), Sec
 
     override fun hasStableIds() = true
 
-    override fun getItemId(pos: Int): Long {
-        if (hasStableIds()) {
-            val mediaId = songs[pos].mediaId
-            return musicIdFrom(mediaId)?.toLong() ?: -1L
-        }
-        return -1L
-    }
+    override fun getItemId(pos: Int): Long = ListView.NO_ID.toLong()
 
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup): View {
         val itemView = convertView ?: createItemView(parent)

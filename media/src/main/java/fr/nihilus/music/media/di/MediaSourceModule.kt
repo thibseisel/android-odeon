@@ -18,41 +18,24 @@ package fr.nihilus.music.media.di
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.builtin.BuiltinModule
-import fr.nihilus.music.media.cache.LruMemoryCache
-import fr.nihilus.music.media.cache.MediaCache
 import fr.nihilus.music.media.provider.MediaProvider
 import fr.nihilus.music.media.provider.MediaStoreProvider
 import fr.nihilus.music.media.provider.RxMediaDao
 import fr.nihilus.music.media.provider.RxMediaDaoImpl
-import fr.nihilus.music.media.repo.CachedMusicRepository
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
-import fr.nihilus.music.media.repo.MusicRepository
-import fr.nihilus.music.media.source.MediaStoreMusicDao
-import fr.nihilus.music.media.source.MusicDao
 import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.tree.BrowserTreeImpl
 
 /**
  * Define relations in the object graph for the "media" group of features.
- * Those classes are bound to the application context and are instantiated only once.
+ * Those classes are bound to the service context and are instantiated once with the service.
  *
  * Binds annotated methods are used by Dagger to know which implementation
  * should be injected when asking for an abstract type.
  */
-@Suppress("unused")
-@Module(includes = [BuiltinModule::class])
+@Module
 internal abstract class MediaSourceModule {
-
-    @Binds
-    abstract fun bindsMusicCache(cacheImpl: LruMemoryCache): MediaCache
-
-    @Binds
-    abstract fun bindsMusicDao(daoImpl: MediaStoreMusicDao): MusicDao
-
-    @Binds
-    abstract fun bindsMusicRepository(repoImpl: CachedMusicRepository): MusicRepository
 
     @Binds
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree

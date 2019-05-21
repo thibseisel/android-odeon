@@ -50,34 +50,3 @@ fun Activity.requestExternalStoragePermission() {
     val permissions = arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     ActivityCompat.requestPermissions(this, permissions, EXTERNAL_STORAGE_REQUEST)
 }
-
-/**
- * Check that the specified [permission] is granted, or else throw a [PermissionDeniedException].
- *
- * @param permission A constant from [Manifest.permission] representing the required permission.
- * @throws PermissionDeniedException if the required permission is not granted.
- */
-@Deprecated("Use properties of PermissionChecker instead.")
-fun Context.requirePermission(permission: String) {
-    if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-        throw PermissionDeniedException(permission)
-    }
-}
-
-/**
- * Thrown when an operation has failed due to a Android permission not being granted.
- * This may be catch by UI components to request the missing permission.
- *
- * @property permission The name of the permission that is denied.
- * This is a constant from [Manifest.permission].
- */
-@Deprecated(
-    "An equivalent class exists in package fr.nihilus.music.media.permissions",
-    ReplaceWith(
-        "PermissionDeniedException(permission)",
-        "fr.nihilus.music.media.permissions.PermissionDeniedException"
-    )
-)
-class PermissionDeniedException(val permission: String) : RuntimeException(
-    "An operation has failed because it requires the following permission: $permission"
-)

@@ -37,11 +37,9 @@ import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.media.extensions.stateName
-import fr.nihilus.music.media.musicIdFrom
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.usage.MediaUsageManager
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -59,7 +57,6 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: MediaSettings
-    @Inject internal lateinit var subscriptions: CompositeDisposable
     @Inject internal lateinit var customActions: Map<String, @JvmSuppressWildcards BrowserAction>
 
     private lateinit var mediaController: MediaControllerCompat
@@ -112,9 +109,6 @@ class MusicService : BaseBrowserService() {
     override fun onDestroy() {
         Timber.i("Destroying service.")
         session.release()
-
-        // Clear all subscriptions to prevent resource leaks
-        subscriptions.clear()
         super.onDestroy()
     }
 
@@ -147,8 +141,8 @@ class MusicService : BaseBrowserService() {
                     val children = browserTree.getChildren(parentMediaId)
                     result.sendResult(children)
 
-                } catch (permissionFailure: PermissionDeniedException) {
-                    Timber.i("Loading children of %s failed due to missing permission: %s", parentId, permissionFailure.permission)
+                } catch (pde: PermissionDeniedException) {
+                    Timber.i("Loading children of %s failed due to missing permission: %s", parentId, pde.permission)
                     result.sendResult(null)
                 }
 
@@ -161,6 +155,7 @@ class MusicService : BaseBrowserService() {
 
     override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
         val customAction = customActions[action] ?: run {
+            Timber.w("Attempt to execute an unsupported custom action: %s", action)
             result.sendError(null)
             return
         }
@@ -318,8 +313,8 @@ class MusicService : BaseBrowserService() {
             }
 
             player.currentTimeline.getWindow(completedTrackIndex, windowBuffer, true)
-            val completedMedia = windowBuffer.tag as? MediaDescriptionCompat
-            val completedTrackId = musicIdFrom(completedMedia?.mediaId)
+            val completedMedia = windowBuffer.tag as? MediaDescriptionCompat ?: return
+            val (_, _, completedTrackId) = MediaId.parse(completedMedia.mediaId)
 
             if (completedTrackId != null) {
                 usageManager.reportCompletion(completedTrackId)

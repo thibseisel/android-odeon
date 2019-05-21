@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.usage
 
+import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +41,7 @@ internal interface MediaUsageManager {
      *
      * @param trackId The unique identifier of the track that has been played.
      */
-    fun reportCompletion(trackId: String)
+    fun reportCompletion(trackId: Long)
 }
 
 /**
@@ -59,16 +60,17 @@ private const val TOP_MOST_RATED = 25
 internal class RxBridgeUsageManager
 @Inject constructor(
     private val scope: CoroutineScope,
-    private val usageDao: MediaUsageDao
+    private val usageDao: MediaUsageDao,
+    private val dispatchers: AppDispatchers
 ) : MediaUsageManager {
 
-    override fun getMostRatedTracks(): Single<List<TrackScore>> = scope.rxSingle(Dispatchers.IO) {
+    override fun getMostRatedTracks(): Single<List<TrackScore>> = scope.rxSingle(dispatchers.Database) {
         usageDao.getMostRatedTracks(TOP_MOST_RATED)
     }
 
-    override fun reportCompletion(trackId: String) {
-        scope.launch(Dispatchers.IO) {
-            val singleEventList = listOf(MediaUsageEvent(trackId.toLong()))
+    override fun reportCompletion(trackId: Long) {
+        scope.launch(dispatchers.Database) {
+            val singleEventList = listOf(MediaUsageEvent(trackId))
             usageDao.recordUsageEvents(singleEventList)
         }
     }

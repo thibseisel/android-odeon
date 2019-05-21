@@ -18,11 +18,9 @@ package fr.nihilus.music.media.extensions
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.net.Uri
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.source.MusicDao
-import fr.nihilus.music.media.toUri
 
 /**
  * Provides utilities for creating and reading MediaMetadataCompat objects
@@ -31,7 +29,7 @@ import fr.nihilus.music.media.toUri
 
 inline val MediaMetadataCompat.id: String
     get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-            ?: throw IllegalStateException("Each track is required to have a media id.")
+            ?: error("Each track is required to have a media id.")
 
 inline val MediaMetadataCompat.title: String
     get() = getString(MediaMetadataCompat.METADATA_KEY_TITLE)
@@ -48,6 +46,7 @@ inline val MediaMetadataCompat.album: String?
 inline val MediaMetadataCompat.year: Long
     get() = getLong(MediaMetadataCompat.METADATA_KEY_YEAR)
 
+@Suppress("unused")
 inline val MediaMetadataCompat.genre: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_GENRE)
 
@@ -66,22 +65,18 @@ inline val MediaMetadataCompat.albumArtist: String?
 inline val MediaMetadataCompat.art: Bitmap?
     get() = getBitmap(MediaMetadataCompat.METADATA_KEY_ART)
 
-inline val MediaMetadataCompat.artUri: Uri?
-    get() = getString(MediaMetadataCompat.METADATA_KEY_ART_URI)?.toUri()
+inline val MediaMetadataCompat.artUri: String?
+    get() = getString(MediaMetadataCompat.METADATA_KEY_ART_URI)
 
 inline val MediaMetadataCompat.albumArt: Bitmap?
     get() = getBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART)
 
-inline val MediaMetadataCompat.albumArtUri: Uri?
-    get() = this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)?.toUri()
+inline val MediaMetadataCompat.albumArtUri: String?
+    get() = this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
 
 inline val MediaMetadataCompat.userRating: Long
     @SuppressLint("WrongConstant")
     get() = getLong(MediaMetadataCompat.METADATA_KEY_USER_RATING)
-
-inline val MediaMetadataCompat.rating: Long
-    @SuppressLint("WrongConstant")
-    get() = getLong(MediaMetadataCompat.METADATA_KEY_RATING)
 
 inline val MediaMetadataCompat.displayTitle: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE)
@@ -98,24 +93,13 @@ inline val MediaMetadataCompat.displayIcon: Bitmap?
 inline val MediaMetadataCompat.displayIconUri: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI)
 
-inline val MediaMetadataCompat.mediaUri: Uri?
-    get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)?.toUri()
+inline val MediaMetadataCompat.mediaUri: String?
+    get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
 
-inline val MediaMetadataCompat.availabilityDate: Long
-    @SuppressLint("WrongConstant")
-    get() = getLong(MusicDao.METADATA_KEY_DATE)
-
+@Deprecated("Metadata should no longer store the title key.")
 inline val MediaMetadataCompat.titleKey: String
     @SuppressLint("WrongConstant")
     get() = getString(MusicDao.METADATA_KEY_TITLE_KEY)
-
-inline val MediaMetadataCompat.albumId: Long
-    @SuppressLint("WrongConstant")
-    get() = getLong(MusicDao.METADATA_KEY_ALBUM_ID)
-
-inline val MediaMetadataCompat.artistId: Long
-    @SuppressLint("WrongConstant")
-    get() = getLong(MusicDao.METADATA_KEY_ARTIST_ID)
 
 
 // These do not have getters, so create a message for the error.
@@ -198,21 +182,6 @@ inline var MediaMetadataCompat.Builder.discNumber: Long
         putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, value)
     }
 
-inline var MediaMetadataCompat.Builder.trackCount: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException()
-    set(value) {
-        putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, value)
-    }
-
-inline var MediaMetadataCompat.Builder.availabilityDate: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException()
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(MusicDao.METADATA_KEY_DATE, value)
-    }
-
 inline var MediaMetadataCompat.Builder.displayTitle: String?
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
@@ -247,52 +216,3 @@ inline var MediaMetadataCompat.Builder.displayIconUri: String?
     set(value) {
         putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value)
     }
-
-inline var MediaMetadataCompat.Builder.titleKey: String
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException()
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putString(MusicDao.METADATA_KEY_TITLE_KEY, value)
-    }
-
-inline var MediaMetadataCompat.Builder.albumId: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException()
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(MusicDao.METADATA_KEY_ALBUM_ID, value)
-    }
-
-inline var MediaMetadataCompat.Builder.artistId: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException()
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(MusicDao.METADATA_KEY_ARTIST_ID, value)
-    }
-
-/**
- * Custom property for retrieving a [MediaDescriptionCompat] which also includes
- * all of the keys from the [MediaMetadataCompat] object in its extras.
- *
- * These keys are used by the ExoPlayer MediaSession extension when announcing metadata changes.
- */
-inline val MediaMetadataCompat.fullDescription: MediaDescriptionCompat
-    get() = description.also { it.extras?.putAll(bundle) }
-
-/**
- * Makes a copy of this MediaMetadataCompat, adding or overriding some of its fields.
- *
- * @receiver The MediaMetadataCompat instance to copy
- * @param reWriter A function block allowing to override some values from the source metadata.
- * This block will be called with a [MediaMetadataCompat.Builder] instance as its receiver.
- * @return a copy of the original metadata with some of its fields added or overridden.
- */
-internal inline fun MediaMetadataCompat.copy(
-    reWriter: MediaMetadataCompat.Builder.() -> Unit
-): MediaMetadataCompat {
-    val builder = MediaMetadataCompat.Builder(this)
-    reWriter(builder)
-    return builder.build()
-}

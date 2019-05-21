@@ -32,6 +32,7 @@ import javax.inject.Inject
 /**
  * A built-in item that groups tracks that have been added to the music library recently.
  */
+@Deprecated("Built-in items are no longer used. This is only kept for reference.")
 internal class MostRecentTracks
 @Inject constructor(
     private val context: Context,
