@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.repo
 
 import com.google.common.truth.Truth.assertThat
+import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.usage.*
@@ -24,6 +25,7 @@ import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
@@ -34,7 +36,6 @@ class MediaRepositoryTest {
 
     private object DummyPlaylistDao : PlaylistDao {
         override val playlistsFlow: Flowable<List<Playlist>> get() = Flowable.empty()
-        override fun getPlaylists(): Single<List<Playlist>> = Single.just(emptyList())
         override fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>> = Single.just(emptyList())
         override fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray> = Single.just(LongArray(0))
         override fun savePlaylist(playlist: Playlist): Long = 0L
@@ -59,6 +60,9 @@ class MediaRepositoryTest {
 
     @[JvmField Rule]
     val timeoutRule = CoroutinesTimeout.seconds(5)
+
+    private val dispatchers: AppDispatchers
+        get() = AppDispatchers(Dispatchers.Unconfined)
 
     @Test
     fun whenLoadingAllTracks_thenReturnTracksFromDao() {
@@ -137,7 +141,7 @@ class MediaRepositoryTest {
         )
         
         usingScope {
-            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao, dispatchers)
             val playlists = repository.getAllPlaylists()
             assertThat(playlists).containsExactlyElementsIn(SAMPLE_PLAYLISTS).inOrder()
         }
@@ -150,7 +154,7 @@ class MediaRepositoryTest {
         val dao = TestPlaylistDao(original, emptyList())
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, DummyMediaDao, dao, DummyUsageDao, dispatchers)
             repeat(2) {
                 val currentPlaylists = repository.getAllPlaylists()
                 assertThat(currentPlaylists).containsExactlyElementsIn(original).inOrder()
@@ -175,7 +179,7 @@ class MediaRepositoryTest {
         )
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao, dispatchers)
             val playlistTracks = repository.getPlaylistTracks(42L)
 
             assertThat(playlistTracks).named("Tracks of unknown playlist 42").isNull()
@@ -191,7 +195,7 @@ class MediaRepositoryTest {
         )
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, playlistDao, DummyUsageDao, dispatchers)
             val playlistTracks = repository.getPlaylistTracks(1L)
 
             assertThat(playlistTracks).containsExactly(SAMPLE_TRACKS[1])
@@ -204,7 +208,7 @@ class MediaRepositoryTest {
         val usageDao = TestUsageDao(SAMPLE_TRACK_SCORE)
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, usageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, usageDao, dispatchers)
             val mostRatedTracks = repository.getMostRatedTracks()
 
             assertThat(mostRatedTracks).containsExactly(
@@ -223,7 +227,7 @@ class MediaRepositoryTest {
         val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             val subscriber = repository.changeNotifications.test()
 
             repository.getAllTracks()
@@ -287,7 +291,7 @@ class MediaRepositoryTest {
         val playlistDao = TestPlaylistDao(initialPlaylists = initial)
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, DummyMediaDao, playlistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, DummyMediaDao, playlistDao, DummyUsageDao, dispatchers)
             repository.getAllPlaylists()
             val subscriber = repository.changeNotifications.test()
 
@@ -305,7 +309,7 @@ class MediaRepositoryTest {
         val mediaDao = TestArtistDao(initialArtistList = initial)
 
         usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repository.getAllArtists()
             val subscriber = repository.changeNotifications.test()
 
@@ -322,7 +326,7 @@ class MediaRepositoryTest {
         getAllMedia: suspend MediaRepository.() -> List<M>
     ): Unit = runBlocking {
         usingScope {
-            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             val mediaList = repository.getAllMedia()
 
             assertThat(mediaList).containsExactlyElementsIn(expectedMediaList).inOrder()
@@ -336,7 +340,7 @@ class MediaRepositoryTest {
         getAllMedia: suspend MediaRepository.() -> List<M>
     ): Unit = runBlocking {
         usingScope {
-            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repeat(2) {
                 val currentMediaList = repository.getAllMedia()
                 assertThat(currentMediaList).containsExactlyElementsIn(expectedInitial)
@@ -357,7 +361,7 @@ class MediaRepositoryTest {
     ): Unit = runBlocking {
         usingScope {
             // Fill cache by requesting media for the first time.
-            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repository.getAllMedia()
 
             // When media stream completes
@@ -379,7 +383,7 @@ class MediaRepositoryTest {
 
         usingScope {
             // and a repository that started caching tracks...
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repository.getAllTracks()
 
             // and we are listening to media change notifications...
@@ -404,7 +408,7 @@ class MediaRepositoryTest {
 
         usingScope {
             // and a repository that started caching albums...
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao)
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repository.getAllAlbums()
 
             // and we are listening to media change notifications...
