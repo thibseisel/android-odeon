@@ -206,6 +206,7 @@ private constructor(
 
         /**
          * The unique identifier of the parent of all available tracks.
+         * @see CATEGORY_ALL
          */
         @JvmField val ALL_TRACKS = encode(TYPE_TRACKS, CATEGORY_ALL)
 
@@ -223,6 +224,18 @@ private constructor(
          * The unique identifier of the parent of all playlists.
          */
         @JvmField val ALL_PLAYLISTS = encode(TYPE_PLAYLISTS)
+
+        /**
+         * The unique identifier of the parent of most rated tracks.
+         * @see CATEGORY_RECENTLY_ADDED
+         */
+        @JvmField val RECENTLY_ADDED = encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
+
+        /**
+         * The unique identifier of the parent of tracks that have the best user rating.
+         * @see CATEGORY_MOST_RATED
+         */
+        @JvmField val MOST_RATED = encode(TYPE_TRACKS, CATEGORY_MOST_RATED)
 
         /**
          * Assert that that passed [encoded] String matches the format for a media id

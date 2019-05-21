@@ -25,7 +25,7 @@ import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.extensions.isVisible
-import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.ui.BaseAdapter
 
 /**
@@ -54,13 +54,12 @@ internal class PlaylistHolder(
 
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
-        val iconResId = description.extras?.getInt(MediaItems.EXTRA_ICON_ID, 0) ?: 0
         title.text = description.title
 
-        if (iconResId != 0) {
-            image.setImageResource(iconResId)
-        } else {
-            glide.load(description.iconUri).into(image)
+        when (description.mediaId) {
+            MediaId.MOST_RATED -> image.setImageResource(R.drawable.abc_ic_most_rated_128dp)
+            MediaId.RECENTLY_ADDED -> image.setImageResource(R.drawable.abc_ic_most_recent_128dp)
+            else -> glide.load(description.iconUri).into(image)
         }
 
         // The play button is only shown if the item is playable
