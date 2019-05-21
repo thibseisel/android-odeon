@@ -82,26 +82,24 @@ class NavigationController
      * Shows the list of all tracks available.
      */
     fun navigateToAllSongs() {
-        val fragment = findOrCreateFragment(MediaId.ALL_TRACKS.encoded, SongListFragment.Factory::newInstance)
-        showFragment(MediaId.ALL_TRACKS.encoded, fragment)
+        val fragment = findOrCreateFragment(MediaId.ALL_TRACKS, SongListFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_TRACKS, fragment)
     }
 
     /**
      * Shows the list of all albums.
      */
     fun navigateToAlbums() {
-        val fragment =
-            findOrCreateFragment(MediaId.ALL_ALBUMS.encoded, AlbumGridFragment.Factory::newInstance)
-        showFragment(MediaId.ALL_ALBUMS.encoded, fragment)
+        val fragment = findOrCreateFragment(MediaId.ALL_ALBUMS, AlbumGridFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_ALBUMS, fragment)
     }
 
     /**
      * Shows the list of all artists.
      */
     fun navigateToArtists() {
-        val fragment =
-            findOrCreateFragment(MediaId.ALL_ARTISTS.encoded, ArtistListFragment.Factory::newInstance)
-        showFragment(MediaId.ALL_ARTISTS.encoded, fragment)
+        val fragment = findOrCreateFragment(MediaId.ALL_ARTISTS, ArtistListFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_ARTISTS, fragment)
     }
 
     /**
@@ -124,8 +122,8 @@ class NavigationController
      */
     fun navigateToPlaylists() {
         val fragment =
-            findOrCreateFragment(MediaId.ALL_PLAYLISTS.encoded, PlaylistsFragment.Factory::newInstance)
-        showFragment(MediaId.ALL_PLAYLISTS.encoded, fragment)
+            findOrCreateFragment(MediaId.ALL_PLAYLISTS, PlaylistsFragment.Factory::newInstance)
+        showFragment(MediaId.ALL_PLAYLISTS, fragment)
     }
 
     /**

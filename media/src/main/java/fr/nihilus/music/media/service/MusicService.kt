@@ -36,7 +36,6 @@ import fr.nihilus.music.media.R
 import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.actions.CustomActions
-import fr.nihilus.music.media.extensions.stateName
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.usage.MediaUsageManager
@@ -122,7 +121,7 @@ class MusicService : BaseBrowserService() {
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
         return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
-            BrowserRoot(MediaId.ROOT.encoded, null)
+            BrowserRoot(MediaId.ROOT, null)
         } else null
     }
 
@@ -131,7 +130,6 @@ class MusicService : BaseBrowserService() {
     }
 
     override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>, options: Bundle) {
-        Timber.v("Start loading children for ID: %s", parentId)
         result.detach()
 
         launch {
@@ -149,6 +147,29 @@ class MusicService : BaseBrowserService() {
             } else {
                 Timber.i("Attempt to load children of an invalid media id: %s", parentId)
                 result.sendResult(null)
+            }
+        }
+    }
+
+    override fun onLoadItem(itemId: String?, result: Result<MediaBrowserCompat.MediaItem>) {
+        if (itemId == null) {
+            result.sendResult(null)
+        } else {
+            val itemMediaId = MediaId.parseOrNull(itemId) ?: run {
+                Timber.i("Attempt to load item with an invalid media id: %s", itemId)
+                result.sendResult(null)
+                return
+            }
+
+            result.detach()
+            launch {
+                try {
+                    val item = browserTree.getItem(itemMediaId)
+                    result.sendResult(item)
+                } catch (pde: PermissionDeniedException) {
+                    Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
+                    result.sendResult(null)
+                }
             }
         }
     }
@@ -208,10 +229,7 @@ class MusicService : BaseBrowserService() {
                 return
             }
 
-            Timber.v("Updating service state. Playback state = %s", state.stateName)
-
             when (updatedState) {
-
                 // Playback started or has been resumed.
                 PlaybackStateCompat.STATE_PLAYING -> onPlaybackStarted()
 

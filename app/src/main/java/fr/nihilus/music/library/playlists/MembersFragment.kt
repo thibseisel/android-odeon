@@ -95,6 +95,7 @@ class MembersFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_playlist_details, menu)
+        menu.findItem(R.id.action_delete).isVisible = arguments!!.getBoolean(ARG_DELETABLE)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

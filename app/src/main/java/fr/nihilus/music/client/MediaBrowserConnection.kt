@@ -170,6 +170,29 @@ class MediaBrowserConnection
         }
     }
 
+    /**
+     * Retrieve information of a single item from the media browser.
+     *
+     * @param itemId The media id of the item to retrieve.
+     * @return A media item with the same media id as the one requested,
+     * or `null` if no such item exists or an error occurred.
+     */
+    suspend fun getItem(itemId: String): MediaBrowserCompat.MediaItem? {
+        deferredController.await()
+
+        return suspendCoroutine { continuation ->
+            mediaBrowser.getItem(itemId, object : MediaBrowserCompat.ItemCallback() {
+                override fun onItemLoaded(item: MediaBrowserCompat.MediaItem?) {
+                    continuation.resume(item)
+                }
+
+                override fun onError(itemId: String) {
+                    continuation.resume(null)
+                }
+            })
+        }
+    }
+
     suspend fun play() {
         val controller = deferredController.await()
         controller.transportControls.play()

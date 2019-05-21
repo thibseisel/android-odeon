@@ -27,10 +27,10 @@ import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
-import fr.nihilus.music.media.MediaId.Builder.ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.parse
 import fr.nihilus.music.media.MediaItems
@@ -72,7 +72,7 @@ class BrowserTreeStructureTest {
 
     @Test
     fun whenLoadingChildrenOfRoot_thenReturnAllAvailableTypes(): Unit = runBlocking {
-        val rootChildren = loadChildrenOf(ROOT)
+        val rootChildren = loadChildrenOf(mediaId(TYPE_ROOT))
 
         assertThat(rootChildren).comparingElementsUsing(THEIR_MEDIA_ID)
             .containsExactly(TYPE_TRACKS, TYPE_ARTISTS, TYPE_ALBUMS, TYPE_PLAYLISTS)
@@ -180,7 +180,7 @@ class BrowserTreeStructureTest {
         val repository = TestMediaRepository()
         val browserTree = BrowserTreeImpl(repository)
 
-        browserTree.walk(ROOT) { child, parentId ->
+        browserTree.walk(mediaId(TYPE_ROOT)) { child, parentId ->
             if(child.isBrowsable) {
                 val childId = parse(child.mediaId)
                 val children = browserTree.getChildren(childId)
@@ -197,7 +197,7 @@ class BrowserTreeStructureTest {
         val repository = TestMediaRepository()
         val browserTree = BrowserTreeImpl(repository)
 
-        browserTree.walk(ROOT) { child, parentId ->
+        browserTree.walk(mediaId(TYPE_ROOT)) { child, parentId ->
             if (!child.isBrowsable) {
                 val childId = parse(child.mediaId)
                 val children = browserTree.getChildren(childId)
@@ -463,7 +463,7 @@ class BrowserTreeStructureTest {
 
     @Test
     fun whenRequestingAnyItem_thenReturnAnItemWithSameMediaIdAsRequested(): Unit = runBlocking {
-        assertLoadedItemHasSameMediaId(ROOT)
+        assertLoadedItemHasSameMediaId(mediaId(TYPE_ROOT))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS, CATEGORY_ALL))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_TRACKS, CATEGORY_ALL, 477L))
         assertLoadedItemHasSameMediaId(mediaId(TYPE_ALBUMS, "102"))
@@ -486,7 +486,7 @@ class BrowserTreeStructureTest {
 
     @Test
     fun whenRequestingAnyItem_thenReturnAnItemThatIsInTheResultOfGetChildren(): Unit = runBlocking {
-        assertItemIsPartOfItsParentsChildren(ROOT, mediaId(TYPE_TRACKS))
+        assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ROOT), mediaId(TYPE_TRACKS))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_TRACKS), mediaId(TYPE_TRACKS, CATEGORY_ALL))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_TRACKS, CATEGORY_ALL), mediaId(TYPE_TRACKS, CATEGORY_ALL, 477L))
         assertItemIsPartOfItsParentsChildren(mediaId(TYPE_ALBUMS), mediaId(TYPE_ALBUMS, "102"))

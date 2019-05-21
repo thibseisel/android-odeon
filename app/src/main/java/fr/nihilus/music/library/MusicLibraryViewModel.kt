@@ -93,7 +93,7 @@ class MusicLibraryViewModel
     fun playAllShuffled() {
         launch {
             connection.setShuffleModeEnabled(true)
-            connection.playFromMediaId(MediaId.ALL_TRACKS.encoded)
+            connection.playFromMediaId(MediaId.ALL_TRACKS)
         }
     }
 

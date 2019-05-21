@@ -202,27 +202,27 @@ private constructor(
         /**
          * The unique identifier of the root of the media browser.
          */
-        @JvmField val ROOT = fromParts(TYPE_ROOT)
+        @JvmField val ROOT = encode(TYPE_ROOT)
 
         /**
          * The unique identifier of the parent of all available tracks.
          */
-        @JvmField val ALL_TRACKS = fromParts(TYPE_TRACKS, CATEGORY_ALL)
+        @JvmField val ALL_TRACKS = encode(TYPE_TRACKS, CATEGORY_ALL)
 
         /**
          * The unique identifier of the parent of all albums.
          */
-        @JvmField val ALL_ALBUMS = fromParts(TYPE_ALBUMS)
+        @JvmField val ALL_ALBUMS = encode(TYPE_ALBUMS)
 
         /**
          * The unique identifier of the parent of all artists.
          */
-        @JvmField val ALL_ARTISTS = fromParts(TYPE_ARTISTS)
+        @JvmField val ALL_ARTISTS = encode(TYPE_ARTISTS)
 
         /**
          * The unique identifier of the parent of all playlists.
          */
-        @JvmField val ALL_PLAYLISTS = fromParts(TYPE_PLAYLISTS)
+        @JvmField val ALL_PLAYLISTS = encode(TYPE_PLAYLISTS)
 
         /**
          * Assert that that passed [encoded] String matches the format for a media id

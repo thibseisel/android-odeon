@@ -16,17 +16,57 @@
 
 package fr.nihilus.music.library.playlists
 
-import fr.nihilus.music.base.BrowsableContentViewModel
+import android.support.v4.media.MediaBrowserCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
+import fr.nihilus.music.client.MediaSubscriptionException
 import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.ui.LoadRequest
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
 import javax.inject.Inject
 
 class PlaylistsViewModel
 @Inject constructor(
-    connection: MediaBrowserConnection
-) : BrowsableContentViewModel(connection) {
+    private val connection: MediaBrowserConnection
+) : BaseViewModel() {
+    private val token = MediaBrowserConnection.ClientToken()
+
+    private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
+    val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
+        get() = _children
 
     init {
-        observeChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
+        connection.connect(token)
+        loadBuiltinAndUserPlaylists()
+    }
+
+    private fun loadBuiltinAndUserPlaylists(): Job = launch {
+        _children.postValue(LoadRequest.Pending)
+        coroutineScope {
+            val mostRecent = loadBuiltInPlaylistItemAsync(MediaId.CATEGORY_RECENTLY_ADDED)
+            val mostRated = loadBuiltInPlaylistItemAsync(MediaId.CATEGORY_MOST_RATED)
+
+            try {
+                connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { childrenUpdate ->
+                    val displayedItems = ArrayList<MediaBrowserCompat.MediaItem>(childrenUpdate.size + 2)
+                    displayedItems += mostRecent.await()
+                    displayedItems += mostRated.await()
+                    displayedItems += childrenUpdate
+
+                    _children.postValue(LoadRequest.Success(displayedItems))
+                }
+
+            } catch (e: MediaSubscriptionException) {
+                _children.postValue(LoadRequest.Error(e))
+            }
+        }
+    }
+
+    private fun CoroutineScope.loadBuiltInPlaylistItemAsync(category: String) = async {
+        val itemId = MediaId.encode(MediaId.TYPE_TRACKS, category)
+        connection.getItem(itemId) ?: error("Item with id $itemId should always exist.")
     }
 }
