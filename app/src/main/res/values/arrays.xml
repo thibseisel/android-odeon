@@ -29,18 +29,4 @@
         <item>auto</item>
         <item>battery</item>
     </string-array>
-
-    <string-array name="pref_entries_home_screen">
-        <item>@string/all_music</item>
-        <item>@string/action_albums</item>
-        <item>@string/action_artists</item>
-        <item>@string/action_playlists</item>
-    </string-array>
-
-    <string-array name="pref_values_home_screen" translatable="false">
-        <item>MUSIC</item>
-        <item>ALBUMS</item>
-        <item>ARTISTS</item>
-        <item>PLAYLISTS</item>
-    </string-array>
 </resources>

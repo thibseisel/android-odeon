@@ -158,21 +158,6 @@ class NavigationController
     fun navigateBack() = fm.popBackStack()
 
     /**
-     * Shows the view that correspond to a specific media id.
-     *
-     * @param mediaId The media id that represents the screen to display
-     */
-    fun navigateToMediaId(mediaId: String) {
-        when (MediaId.parseOrNull(mediaId)?.type) {
-            MediaId.TYPE_TRACKS -> navigateToAllSongs()
-            MediaId.TYPE_ALBUMS -> navigateToAlbums()
-            MediaId.TYPE_ARTISTS -> navigateToArtists()
-            MediaId.TYPE_PLAYLISTS -> navigateToPlaylists()
-            else -> error("Unsupported media ID: $mediaId")
-        }
-    }
-
-    /**
      * Saves this navigation controller's state into the activity state.
      * This is necessary to ensure that the first displayed screen is properly restored after
      * a configuration change.

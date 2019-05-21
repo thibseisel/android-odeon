@@ -36,10 +36,9 @@ import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
+import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
-import fr.nihilus.music.media.utils.hasExternalStoragePermission
 import fr.nihilus.music.media.utils.requestExternalStoragePermission
-import fr.nihilus.music.settings.UiSettings
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
@@ -49,7 +48,7 @@ private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
 class HomeActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
-    @Inject lateinit var prefs: UiSettings
+    @Inject lateinit var permissions: PermissionChecker
     @Inject lateinit var router: NavigationController
 
     private lateinit var drawerToggle: ActionBarDrawerToggle
@@ -73,11 +72,11 @@ class HomeActivity : BaseActivity(),
         setupPlayerView()
 
         if (savedInstanceState == null) {
-            if (this.hasExternalStoragePermission()) {
+            if (!permissions.canWriteToExternalStorage) {
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(intent)) {
-                    // If intent is not handled, load default fragment
-                    showHomeScreen()
+                    // If intent is not handled, display all tracks
+                    router.navigateToAllSongs()
                 }
             } else this.requestExternalStoragePermission()
         }
@@ -220,7 +219,7 @@ class HomeActivity : BaseActivity(),
 
             // Whether it has permission or not, load fragment into interface
             if (!handleIntent(intent)) {
-                showHomeScreen()
+                router.navigateToAllSongs()
             }
 
             // Show an informative dialog message if permission is not granted
@@ -237,12 +236,6 @@ class HomeActivity : BaseActivity(),
                 ).show(supportFragmentManager, null)
             }
         }
-    }
-
-    private fun showHomeScreen() {
-        // Load the startup fragment defined in shared preferences
-        val mediaId = prefs.startupScreenMediaId
-        router.navigateToMediaId(mediaId)
     }
 
     /**

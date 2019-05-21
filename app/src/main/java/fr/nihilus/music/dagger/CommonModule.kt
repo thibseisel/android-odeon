@@ -19,9 +19,12 @@ package fr.nihilus.music.dagger
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.OdeonApplication
+import fr.nihilus.music.media.permissions.PermissionChecker
+import fr.nihilus.music.media.permissions.PermissionCheckerImpl
 import javax.inject.Singleton
 
 /**
@@ -31,7 +34,7 @@ import javax.inject.Singleton
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module
+@Module(includes = [CommonBindingsModule::class])
 class CommonModule {
 
     @Provides
@@ -40,4 +43,9 @@ class CommonModule {
     @Provides @Singleton
     fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(application)
+}
+
+@Module
+abstract class CommonBindingsModule {
+    @Binds abstract fun bindsPermissionChecker(impl: PermissionCheckerImpl): PermissionChecker
 }
