@@ -31,12 +31,14 @@ internal fun mediaTree(
 internal class MediaTree
 private constructor(
     private val rootId: String,
+    private val rootName: String?,
     private val types: Map<String, Type>
 ) {
 
     private val item: MediaItem by lazy {
         val description = MediaDescriptionCompat.Builder()
             .setMediaId(rootId)
+            .setTitle(rootName)
             .build()
         MediaItem(description, MediaItem.FLAG_BROWSABLE)
     }
@@ -57,16 +59,15 @@ private constructor(
 
     @MediaTreeDsl
     class Builder(private val rootId: String) {
+        private val typeRegistry = mutableMapOf<String, Type>()
 
-        private val _typeRegistry = mutableMapOf<String, Type>()
-        val types: Map<String, Type>
-            get() = _typeRegistry
+        var rootName: String? = null
 
         fun type(typeName: String, builder: Type.Builder.() -> Unit) {
-            _typeRegistry[typeName] = Type.Builder(typeName).apply(builder).build()
+            typeRegistry[typeName] = Type.Builder(typeName).apply(builder).build()
         }
 
-        fun build(): MediaTree = MediaTree(rootId, types)
+        fun build(): MediaTree = MediaTree(rootId, rootName, typeRegistry)
     }
 }
 

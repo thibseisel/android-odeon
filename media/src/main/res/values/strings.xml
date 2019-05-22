@@ -36,4 +36,9 @@
     <string name="player_error_unsupported_file_format">Odeon does not support playing %s files.</string>
     <string name="player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
     <string name="abc_most_rated">Favorites</string>
+    <string name="tracks_type_title">Tracks</string>
+    <string name="albums_type_title">Albums</string>
+    <string name="artists_type_title">Artists</string>
+    <string name="playlists_type_title">Playlists</string>
+    <string name="browser_root_title">Local music library</string>
 </resources>

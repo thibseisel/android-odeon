@@ -73,4 +73,8 @@ Adding New Keys:
         <key release="false">19:75:b2:f1:71:77:bc:89:a5:df:f3:1f:9e:64:a6:ca:e2:81:a5:3d:c1:d1:d5:9b:1d:14:7f:e1:c8:2a:fa:00</key>
         <key release="true">f0:fd:6c:5b:41:0f:25:cb:25:c3:b5:33:46:c8:97:2f:ae:30:f8:ee:74:11:df:91:04:80:ad:6b:2d:60:db:83</key>
     </signature>
+
+    <signature name="Media Controller Tester" package="com.example.android.mediacontroller">
+        <key release="false">18:fa:66:7b:f6:b6:2d:e9:bb:77:74:9c:06:e8:bf:a1:ce:cf:50:91:01:3c:b4:5d:8b:94:dd:dd:67:1d:94:c9</key>
+    </signature>
 </allowed_callers>

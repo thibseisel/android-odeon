@@ -36,4 +36,9 @@
     <string name="player_error_unsupported_file_format">Odéon ne peut pas lire les fichiers de format %s.</string>
     <string name="player_source_error_generic">Une erreur s\'est produite lors de la lecture de ce morceau. Si cela se produit régulièrement, le fichier est peut-être endommagé.</string>
     <string name="abc_most_rated">Favoris</string>
+    <string name="tracks_type_title">Morceaux</string>
+    <string name="playlists_type_title">Playlists</string>
+    <string name="albums_type_title">Abums</string>
+    <string name="artists_type_title">Artistes</string>
+    <string name="browser_root_title">Bibliothèque musicale de l\'appareil</string>
 </resources>
