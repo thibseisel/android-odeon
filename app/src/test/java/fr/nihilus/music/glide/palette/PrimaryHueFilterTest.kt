@@ -17,6 +17,8 @@
 package fr.nihilus.music.glide.palette
 
 import androidx.annotation.ColorInt
+import androidx.palette.graphics.Palette
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import fr.nihilus.music.extensions.toHsl
@@ -29,7 +31,7 @@ import org.robolectric.RobolectricTestRunner
  * from the picked primary color.
  * Each test is written using colors manually picked from a real world's album art.
  */
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class PrimaryHueFilterTest {
 
     @Test
@@ -109,13 +111,13 @@ class PrimaryHueFilterTest {
         }
     }
 
-    private fun androidx.palette.graphics.Palette.Filter.assertNotAllowed(@ColorInt accentColor: Int) {
+    private fun Palette.Filter.assertNotAllowed(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
         assertWithMessage("Color should have been rejected. Hue = %s", hsl[0])
             .that(isAllowed(accentColor, hsl)).isFalse()
     }
 
-    private fun androidx.palette.graphics.Palette.Filter.assertAccepted(@ColorInt accentColor: Int) {
+    private fun Palette.Filter.assertAccepted(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
         assertWithMessage("Color should have been accepted. Hue = %s", hsl[0])
             .that(isAllowed(accentColor, hsl)).isTrue()

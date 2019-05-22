@@ -49,10 +49,10 @@ var View.isVisible: Boolean
  * Lock user interactions with the given [DrawerLayout].
  * @param isLocked Whether interactions with this drawer should be ignored.
  */
-fun androidx.drawerlayout.widget.DrawerLayout.lockDrawer(isLocked: Boolean) {
+fun DrawerLayout.lockDrawer(isLocked: Boolean) {
     requestDisallowInterceptTouchEvent(isLocked)
     setDrawerLockMode(
-        if (isLocked) androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-        else androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED
+        if (isLocked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        else DrawerLayout.LOCK_MODE_UNLOCKED
     )
 }

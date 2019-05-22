@@ -33,26 +33,3 @@ import androidx.lifecycle.Observer
 inline fun <T> LiveData<T>.observeK(owner: LifecycleOwner, crossinline observer: (T?) -> Unit) {
     observe(owner, Observer { observer(it) })
 }
-
-/**
- * Filters values of this LiveData,
- * notifying observers only if the new value satisfies a given [predicate].
- *
- * @param predicate A function that evaluates each new value, returning `true` if it passes the filter.
- * @return A LiveData that notifies for changes to the source LiveData.
- */
-inline fun <T> LiveData<T>.filter(crossinline predicate: (T?) -> Boolean): LiveData<T> =
-    MediatorLiveData<T>().also { mediator ->
-        mediator.addSource(this) {
-            if (predicate(it)) {
-                mediator.value = it
-            }
-        }
-    }
-
-inline fun <T, R> LiveData<T>.map(crossinline transform: (T?) -> R?): LiveData<R> =
-    MediatorLiveData<R>().also { mediator ->
-        mediator.addSource(this) {
-            mediator.value = transform(it)
-        }
-    }
