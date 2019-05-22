@@ -18,9 +18,7 @@ package fr.nihilus.music.media.extensions
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.media.source.MusicDao
 
 /**
  * Provides utilities for creating and reading MediaMetadataCompat objects
@@ -95,11 +93,6 @@ inline val MediaMetadataCompat.displayIconUri: String?
 
 inline val MediaMetadataCompat.mediaUri: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
-
-@Deprecated("Metadata should no longer store the title key.")
-inline val MediaMetadataCompat.titleKey: String
-    @SuppressLint("WrongConstant")
-    get() = getString(MusicDao.METADATA_KEY_TITLE_KEY)
 
 
 // These do not have getters, so create a message for the error.
