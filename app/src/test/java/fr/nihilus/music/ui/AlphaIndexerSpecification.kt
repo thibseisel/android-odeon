@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.ui
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.collect.BoundType
 import com.google.common.collect.Range
 import com.google.common.truth.Truth.assertThat
@@ -26,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
@@ -36,11 +38,12 @@ import org.robolectric.RobolectricTestRunner
     WithDiacriticsItems::class,
     WithLeadingCommonEnglishPrefixes::class,
     WithUnexpectedItems::class,
-    WithLotsOfItemsPerSection::class
+    WithLotsOfItemsPerSection::class,
+    WithLotsOfItemsPerSectionAndSpecialChars::class
 )
 class AlphaIndexerSpecification
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithNoItem {
 
     private lateinit var indexer: AlphaSectionIndexer
@@ -209,7 +212,7 @@ class WithNonLetterItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithDiacriticsItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "À la Claire Fontaine",
@@ -241,7 +244,7 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     override val items = listOf(
         "The 2nd Law: Isolated System",
@@ -276,7 +279,7 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithUnexpectedItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "  \nHello World!",
@@ -332,7 +335,7 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Saint Cecilia",
@@ -388,6 +391,57 @@ class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
         assertSectionStartsAtPosition(2, 4)
         assertSectionStartsAtPosition(3, 7)
         assertSectionStartsAtPosition(4, 10)
+    }
+}
+
+@RunWith(AndroidJUnit4::class)
+class WithLotsOfItemsPerSectionAndSpecialChars : ItemBasedIndexerScenario() {
+
+    override val items = listOf(
+        "I Only Lie When I Love You",
+        "Ich Tu Dir Weh",
+        "Ich Will",
+        "If You Have Ghosts",
+        "If you Want Blood",
+        "I'm a Lady",
+        "I'm Going to Hello For This",
+        "Immortalized",
+        "In Loving Memory",
+        "Indestructible",
+        "Inside the Fire"
+    )
+
+    @Test
+    fun itShouldIgnoreSpecialCharsWhenCreatingSubsections() {
+        assertThat(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
+    }
+
+    @Test
+    fun itMapsToCorrectSubsection() {
+        assume().that(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
+
+        assertItemInSection(0, 0)
+        assertItemInSection(1, 1)
+        assertItemInSection(2, 1)
+        assertItemInSection(3, 2)
+        assertItemInSection(4, 2)
+        assertItemInSection(5, 3)
+        assertItemInSection(6, 3)
+        assertItemInSection(7, 3)
+        assertItemInSection(8, 4)
+        assertItemInSection(9, 4)
+        assertItemInSection(10, 4)
+    }
+
+    @Test
+    fun itShouldReturnPositionOfFirstItemOfSubsection() {
+        assume().that(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
+
+        assertSectionStartsAtPosition(0, 0)
+        assertSectionStartsAtPosition(1, 1)
+        assertSectionStartsAtPosition(2, 3)
+        assertSectionStartsAtPosition(3, 5)
+        assertSectionStartsAtPosition(4, 8)
     }
 }
 
