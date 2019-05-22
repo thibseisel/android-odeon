@@ -26,6 +26,7 @@ import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.extensions.darkSystemIcons
@@ -94,8 +95,7 @@ class AlbumDetailActivity : BaseActivity(),
 
     private fun setupAlbumArt() {
         val albumArtView: ImageView = findViewById(R.id.album_art_view)
-        albumArtView.transitionName =
-                ALBUM_ART_TRANSITION_NAME
+        albumArtView.transitionName = ALBUM_ART_TRANSITION_NAME
 
         GlideApp.with(this).asBitmap()
             .load(pickedAlbum.description.iconUri)
@@ -106,7 +106,7 @@ class AlbumDetailActivity : BaseActivity(),
 
     private fun setupTrackList() {
         recycler.let {
-            it.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+            it.layoutManager = LinearLayoutManager(this)
             adapter = TrackAdapter(this)
             it.adapter = adapter
         }
