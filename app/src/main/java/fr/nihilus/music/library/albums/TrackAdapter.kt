@@ -32,8 +32,6 @@ internal class TrackAdapter(
         }
     }
 
-    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
-
     /**
      * Retrieve the position of a given metadata in the adapter.
      *

@@ -17,15 +17,15 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.library.artists.ArtistHolder
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistAdapter(
-    fragment: androidx.fragment.app.Fragment,
-    private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: OnItemSelectedListener
 ) : BaseAdapter<ArtistHolder>() {
 
     private val glide = GlideApp.with(fragment).asBitmap()
@@ -37,7 +37,4 @@ internal class ArtistAdapter(
             holder.onAttachListeners(listener)
         }
     }
-
-    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
-
 }

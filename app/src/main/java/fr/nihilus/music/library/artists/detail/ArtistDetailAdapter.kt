@@ -18,6 +18,7 @@ package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -27,9 +28,9 @@ import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
-    fragment: androidx.fragment.app.Fragment,
+    fragment: Fragment,
     private val defaultPalette: AlbumPalette,
-    private val listener: BaseAdapter.OnItemSelectedListener
+    private val listener: OnItemSelectedListener
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {
 
     private val paletteLoader: GlideRequest<AlbumArt>
@@ -53,7 +54,7 @@ internal class ArtistDetailAdapter(
         return if (item.isBrowsable) R.id.view_type_album else R.id.view_type_track
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return when (viewType) {
             R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, true)
             R.id.view_type_track -> TrackHolder(parent, bitmapLoader)

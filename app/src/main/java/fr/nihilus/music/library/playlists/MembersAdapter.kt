@@ -18,7 +18,7 @@ package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
@@ -27,8 +27,8 @@ import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class MembersAdapter(
-    fragment: androidx.fragment.app.Fragment,
-    private val listener: BaseAdapter.OnItemSelectedListener
+    fragment: Fragment,
+    private val listener: OnItemSelectedListener
 ) : BaseAdapter<MembersHolder>() {
 
     private val glideRequest: GlideRequest<Bitmap>
@@ -45,7 +45,4 @@ internal class MembersAdapter(
         MembersHolder(parent, glideRequest).also { holder ->
             holder.onAttachListeners(listener)
         }
-
-    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
-
 }

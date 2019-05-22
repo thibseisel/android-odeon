@@ -78,7 +78,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
          */
         const val RESULT_PLAYLIST_TITLE = "playlist_title"
 
-        fun newInstance(caller: androidx.fragment.app.Fragment, requestCode: Int, selectedTracksIds: List<MediaItem>) =
+        fun newInstance(caller: Fragment, requestCode: Int, selectedTracksIds: List<MediaItem>) =
             AddToPlaylistDialog().apply {
                 setTargetFragment(caller, requestCode)
                 arguments = Bundle(1).apply {
@@ -161,7 +161,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     /**
      * The adapter used to display available playlists in the dialog's body.
      */
-    private class TargetPlaylistsAdapter(fragment: androidx.fragment.app.Fragment) : ListAdapter<MediaItem, PlaylistHolder>() {
+    private class TargetPlaylistsAdapter(fragment: Fragment) : ListAdapter<MediaItem, PlaylistHolder>() {
         private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
 
         override fun onCreateViewHolder(container: ViewGroup): PlaylistHolder =

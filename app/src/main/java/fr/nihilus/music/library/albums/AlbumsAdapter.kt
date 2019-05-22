@@ -28,7 +28,7 @@ import fr.nihilus.music.ui.BaseAdapter
 internal class AlbumsAdapter(
     fragment: Fragment,
     private val defaultPalette: AlbumPalette,
-    private val listener: BaseAdapter.OnItemSelectedListener
+    private val listener: OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
     private val glideRequest: GlideRequest<AlbumArt>
@@ -52,7 +52,4 @@ internal class AlbumsAdapter(
             it.onAttachListeners(listener)
         }
     }
-
-    override fun getItemId(position: Int): Long = RecyclerView.NO_ID
-
 }
