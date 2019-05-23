@@ -117,8 +117,17 @@ private fun String.toNormalizedSubSection(): String {
         return "#"
     }
 
-    val sectionLength = withoutCommonPrefixes.length.coerceAtMost(2)
-    val sectionWithDiacritics = withoutCommonPrefixes.substring(0, sectionLength)
+    val sectionWithDiacritics = buildString(2) {
+        val firstLetterIndex = withoutCommonPrefixes.indexOfFirst(Char::isLetter)
+        if (firstLetterIndex != -1) {
+            append(withoutCommonPrefixes[firstLetterIndex])
+            val secondLetter = withoutCommonPrefixes.substring(firstLetterIndex + 1)
+                .firstOrNull { it.isLetter() || it.isWhitespace() }
+            if (secondLetter != null && secondLetter.isLetter()) {
+                append(secondLetter)
+            }
+        }
+    }
 
     return Normalizer.normalize(sectionWithDiacritics, Normalizer.Form.NFKD)
         .replace(REGEX_COMBINE_DIACRITIC, "")
