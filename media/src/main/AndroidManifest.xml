@@ -15,7 +15,6 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
           package="fr.nihilus.music.media">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -23,22 +22,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application>
-        <!--
-            Main music service, provides media browsing and media playback services to
-            consumers through MediaBrowserService and MediaSession. Consumers connect to it through
-            MediaBrowser (for browsing) and MediaController (for play session control)
-        -->
-        <service
-            android:name=".service.MusicService"
-            android:exported="true"
-            android:enabled="true"
-            tools:ignore="ExportedService">
-
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
-
         <!--
             A receiver that will receive media buttons and send as intents to MusicService.
             Required on pre-Lollipop.

@@ -15,12 +15,8 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="fr.nihilus.music">
-
-    <uses-feature
-        android:name="android.hardware.audio.output"
-        android:required="true" />
+          xmlns:tools="http://schemas.android.com/tools"
+          package="fr.nihilus.music">
 
     <application
         android:name=".OdeonApplication"
@@ -30,8 +26,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:theme="@style/AppTheme">
+
+        <!-- Declare support for Android Auto. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
 
         <!-- Main activity for music browsing. -->
         <activity
@@ -42,6 +42,36 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <!-- Make this application detectable by Google Search by defining app links. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="github.com"
+                    android:path="/thibseisel/android-odeon"
+                    android:scheme="http"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="github.com"
+                    android:path="/thibseisel/android-odeon"
+                    android:scheme="https"/>
             </intent-filter>
         </activity>
 
@@ -56,6 +86,23 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".HomeActivity" />
+
+        <!--
+            Main music service.
+            Provides media browsing and media playback services to consumers through MediaSession.
+            Consumers connect to it through MediaBrowser (for browsing)
+            and MediaController (for play session control)
+        -->
+        <service
+            android:name=".media.service.MusicService"
+            android:exported="true"
+            android:enabled="true"
+            tools:ignore="ExportedService">
+
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

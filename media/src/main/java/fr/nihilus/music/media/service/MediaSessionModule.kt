@@ -46,7 +46,7 @@ internal class MediaSessionModule {
     @Provides @ServiceScoped
     fun providesMediaSession(service: MusicService): MediaSessionCompat {
         val showUiIntent = PendingIntent.getActivity(
-            service.applicationContext,
+            service,
             R.id.abc_request_start_media_activity,
             service.packageManager.getLaunchIntentForPackage(service.packageName),
             0
