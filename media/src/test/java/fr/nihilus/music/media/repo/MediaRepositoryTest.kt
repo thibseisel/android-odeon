@@ -18,8 +18,11 @@ package fr.nihilus.music.media.repo
 
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.AppDispatchers
+import fr.nihilus.music.media.assertThrows
+import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.stub
 import fr.nihilus.music.media.usage.*
 import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
@@ -56,6 +59,32 @@ class MediaRepositoryTest {
         override fun recordUsageEvents(events: Iterable<MediaUsageEvent>) = Unit
         override fun deleteAllEventsBefore(timeThreshold: Long) = Unit
         override fun deleteEventsForTracks(trackIds: LongArray) = Unit
+    }
+
+    /**
+     * A [RxMediaDao] that returns different results when permission is granted or denied.
+     * When permission is granted, all flows emit an empty list an never completes.
+     * When permission is denied, all flows emit a [PermissionDeniedException].
+     */
+    private class PermissionMediaDao : RxMediaDao {
+        /**
+         * Whether permission should be granted.
+         */
+        var hasPermissions = false
+
+        override val tracks: Flowable<List<Track>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override val albums: Flowable<List<Album>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override val artists: Flowable<List<Artist>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override fun deleteTracks(trackIds: LongArray): Completable = stub()
+
+        private fun <T> mediaUpdates(): Flowable<List<T>> = Flowable.concat(Flowable.just(emptyList()), Flowable.never())
+        private fun <T> permissionFailure() = Flowable.error<T>(PermissionDeniedException("android.permission"))
     }
 
     @[JvmField Rule]
@@ -219,6 +248,23 @@ class MediaRepositoryTest {
                 SAMPLE_TRACKS[3],
                 SAMPLE_TRACKS[2]
             )
+        }
+    }
+
+    @Test
+    fun whenLoadingAllTracksAndErrorOccurs_thenThrowThatError(): Unit = runBlocking {
+        val mediaDao = PermissionMediaDao()
+        mediaDao.hasPermissions = false
+
+        usingScope {
+            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, DummyUsageDao, dispatchers)
+            assertThrows<PermissionDeniedException> {
+                repository.getAllTracks()
+            }
+
+            mediaDao.hasPermissions = true
+            val allTracks = repository.getAllTracks()
+            assertThat(allTracks).isEmpty()
         }
     }
 
