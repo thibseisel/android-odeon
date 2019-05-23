@@ -18,6 +18,7 @@ package fr.nihilus.music.media.repo
 
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.Album
@@ -36,20 +37,33 @@ import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 
+private typealias Cache<M> = SendChannel<CompletableDeferred<List<M>>>
+
 private fun <M : Any> CoroutineScope.syncCache(
     mediaUpdateStream: Flowable<List<M>>,
     onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
-): SendChannel<CompletableDeferred<List<M>>> = actor(start = CoroutineStart.LAZY) {
+): Cache<M> = actor(start = CoroutineStart.LAZY) {
     // Wait until media are requested for the first time before observing.
     val firstRequest = receive()
 
     // Start observing media to a Channel.
     val mediaUpdates = mediaUpdateStream.openSubscription()
-    // Cache the last received media list. Load it for the first time.
-    var lastReceivedMediaList = mediaUpdates.receive()
 
-    // Satisfy the first request.
-    firstRequest.complete(lastReceivedMediaList)
+    // Cache the last received media list.
+    var lastReceivedMediaList: List<M>
+
+    try {
+        // Receive the current media list.
+        // This fails if permission is denied.
+        lastReceivedMediaList = mediaUpdates.receive()
+
+        // Satisfy the first request.
+        firstRequest.complete(lastReceivedMediaList)
+
+    } catch (e: PermissionDeniedException) {
+        firstRequest.completeExceptionally(e)
+        throw CancellationException()
+    }
 
     try {
         // Process incoming messages until scope is cancelled...
@@ -84,8 +98,8 @@ private fun <M : Any> CoroutineScope.syncCache(
 @ServiceScoped
 internal class MediaRepositoryImpl
 @Inject constructor(
-    scope: CoroutineScope,
-    mediaDao: RxMediaDao,
+    private val scope: CoroutineScope,
+    private val mediaDao: RxMediaDao,
     private val playlistsDao: PlaylistDao,
     private val usageDao: MediaUsageDao,
     private val dispatchers: AppDispatchers
@@ -93,7 +107,75 @@ internal class MediaRepositoryImpl
 
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
 
-    private val tracksCache = scope.syncCache(mediaDao.tracks) { original, modified ->
+    private var tracksCache: Cache<Track> = scope.trackSyncCache()
+
+    private var albumsCache = scope.albumSyncCache()
+
+    private var artistsCache = scope.artistSyncCache()
+
+    private var playlistsCache = scope.playlistSyncCache()
+
+    override suspend fun getAllTracks(): List<Track> {
+        if (tracksCache.isClosedForSend) {
+            tracksCache = scope.trackSyncCache()
+        }
+
+        return request(tracksCache)
+    }
+
+    override suspend fun getAllAlbums(): List<Album> {
+        if (albumsCache.isClosedForSend) {
+            albumsCache = scope.albumSyncCache()
+        }
+
+        return request(albumsCache)
+    }
+
+    override suspend fun getAllArtists(): List<Artist> {
+        if (artistsCache.isClosedForSend) {
+            artistsCache = scope.artistSyncCache()
+        }
+
+        return request(artistsCache)
+    }
+
+    override suspend fun getAllPlaylists(): List<Playlist> {
+        if (playlistsCache.isClosedForSend) {
+            playlistsCache = scope.playlistSyncCache()
+        }
+
+        return request(playlistsCache)
+    }
+
+    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
+        val allTracks = getAllTracks()
+        val playlistMembers = withContext(dispatchers.Database) {
+            playlistsDao.getPlaylistTracks(playlistId).await()
+        }
+
+        val tracksById = allTracks.associateBy(Track::id)
+        return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
+    }
+
+    override suspend fun getMostRatedTracks(): List<Track> {
+        val tracksById = getAllTracks().associateBy { it.id }
+        val trackScores = withContext(dispatchers.Database) {
+            usageDao.getMostRatedTracks(25)
+        }
+
+        return trackScores.mapNotNull { tracksById[it.trackId] }
+    }
+
+    override val changeNotifications: Flowable<ChangeNotification>
+        get() = _mediaChanges.onBackpressureBuffer()
+
+    private suspend fun <T> request(cache: Cache<T>): List<T> {
+        val mediaRequest = CompletableDeferred<List<T>>()
+        cache.send(mediaRequest)
+        return mediaRequest.await()
+    }
+
+    private fun CoroutineScope.trackSyncCache() = syncCache(mediaDao.tracks) { original, modified ->
         // Dispatch update notifications to downstream
         _mediaChanges.onNext(ChangeNotification.AllTracks)
 
@@ -128,7 +210,7 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private val albumsCache = scope.syncCache(mediaDao.albums) { original, modified ->
+    private fun CoroutineScope.albumSyncCache() = syncCache(mediaDao.albums) { original, modified ->
         // Notify that the list of all albums has changed.
         _mediaChanges.onNext(ChangeNotification.AllAlbums)
 
@@ -144,47 +226,11 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private val artistsCache = scope.syncCache(mediaDao.artists) { _, _ ->
+    private fun CoroutineScope.artistSyncCache() = syncCache(mediaDao.artists) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllArtists)
     }
 
-    private val playlistsCache = scope.syncCache(playlistsDao.playlistsFlow) { _, _ ->
+    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlistsFlow) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
-    }
-
-    override suspend fun getAllTracks(): List<Track> = request(tracksCache)
-
-    override suspend fun getAllAlbums(): List<Album> = request(albumsCache)
-
-    override suspend fun getAllArtists(): List<Artist> = request(artistsCache)
-
-    override suspend fun getAllPlaylists(): List<Playlist> = request(playlistsCache)
-
-    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
-        val allTracks = request(tracksCache)
-        val playlistMembers = withContext(dispatchers.Database) {
-            playlistsDao.getPlaylistTracks(playlistId).await()
-        }
-
-        val tracksById = allTracks.associateBy(Track::id)
-        return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
-    }
-
-    override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = request(tracksCache).associateBy { it.id }
-        val trackScores = withContext(dispatchers.Database) {
-            usageDao.getMostRatedTracks(25)
-        }
-
-        return trackScores.mapNotNull { tracksById[it.trackId] }
-    }
-
-    override val changeNotifications: Flowable<ChangeNotification>
-        get() = _mediaChanges.onBackpressureBuffer()
-
-    private suspend fun <T> request(cache: SendChannel<CompletableDeferred<List<T>>>): List<T> {
-        val mediaRequest = CompletableDeferred<List<T>>()
-        cache.send(mediaRequest)
-        return mediaRequest.await()
     }
 }
