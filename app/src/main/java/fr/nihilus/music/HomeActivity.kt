@@ -72,7 +72,7 @@ class HomeActivity : BaseActivity(),
         setupPlayerView()
 
         if (savedInstanceState == null) {
-            if (!permissions.canWriteToExternalStorage) {
+            if (permissions.canWriteToExternalStorage) {
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 if (!handleIntent(intent)) {
                     // If intent is not handled, display all tracks

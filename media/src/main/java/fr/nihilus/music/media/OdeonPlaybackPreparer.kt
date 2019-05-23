@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
+import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.tree.BrowserTree
@@ -120,15 +121,20 @@ internal class OdeonPlaybackPreparer
     ) = Unit
 
     private fun prepareFromMediaId(mediaId: String) = service.launch {
-        val children = MediaId.parseOrNull(mediaId)?.let { (type, category) ->
-            val parentId = MediaId.fromParts(type, category, track = null)
-            browserTree.getChildren(parentId)
-        }
+        try {
+            val children = MediaId.parseOrNull(mediaId)?.let { (type, category) ->
+                val parentId = MediaId.fromParts(type, category, track = null)
+                browserTree.getChildren(parentId)
+            }
 
-        if (children != null) {
-            onMediaItemsLoaded(mediaId, children)
-        } else {
-            Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
+            if (children != null) {
+                onMediaItemsLoaded(mediaId, children)
+            } else {
+                Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
+            }
+
+        } catch (pde: PermissionDeniedException) {
+            Timber.i("Unable to prepare from media id due to missing permission: %s", pde.permission)
         }
     }
 
