@@ -52,7 +52,7 @@ buildscript {
                 'material': '1.0.0',
                 'dagger': '2.22.1',
                 'glide': '4.9.0',
-                'exoplayer': '2.9.6',
+                'exoplayer': '2.10.1',
                 'rxjava': '2.2.8',
                 'rxandroid': '2.1.1',
                 'timber': '4.7.1',

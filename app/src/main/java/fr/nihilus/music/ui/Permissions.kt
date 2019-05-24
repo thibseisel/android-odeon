@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.utils
+package fr.nihilus.music.ui
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 
 /**
  * Identifies the request to grant permission to read/write the device's external storage.
  */
 const val EXTERNAL_STORAGE_REQUEST = 99
-
-/**
- * Checks whether user has granted permission to this application to read/write
- * the device's external storage.
- *
- * @receiver Context of this application
- * @return `true` if permission is granted
- */
-@Deprecated("Use properties of PermissionChecker instead")
-fun Context.hasExternalStoragePermission() = ContextCompat.checkSelfPermission(
-    this,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
-) == PackageManager.PERMISSION_GRANTED
 
 /**
  * Issue a request to grant permission to read/write the device's external storage.

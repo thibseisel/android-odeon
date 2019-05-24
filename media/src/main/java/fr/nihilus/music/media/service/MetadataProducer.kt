@@ -32,6 +32,12 @@ import kotlinx.coroutines.channels.consumeEach
 private const val ICON_MAX_SIZE = 320
 
 /**
+ * Special value for [MediaMetadataCompat.METADATA_KEY_DURATION] indicating that the duration of the related track
+ * is unknown of infinite.
+ */
+private const val DURATION_UNKNOWN = -1L
+
+/**
  * Starts a coroutine that transforms received queue items into [MediaMetadataCompat] instances
  * suitable for being set as the MediaSession's current metadata.
  *
@@ -51,15 +57,16 @@ internal fun CoroutineScope.metadataProducer(
     capacity = Channel.CONFLATED,
     start = CoroutineStart.LAZY
 ) {
+    val builder = MediaMetadataCompat.Builder()
     var currentlyPlayingItem = receive()
-    var updateJob = scheduleMetadataUpdate(downloader, currentlyPlayingItem, metadata)
+    var updateJob = scheduleMetadataUpdate(downloader, currentlyPlayingItem, builder, metadata)
 
     consumeEach { description ->
         if (currentlyPlayingItem.mediaId != description.mediaId) {
             currentlyPlayingItem = description
 
             updateJob.cancel()
-            updateJob = scheduleMetadataUpdate(downloader, description, metadata)
+            updateJob = scheduleMetadataUpdate(downloader, description, builder, metadata)
         }
     }
 }
@@ -70,18 +77,20 @@ internal fun CoroutineScope.metadataProducer(
  *
  * @param downloader The downloader used to load the icon associated with the metadata.
  * @param description The description of the media from which metadata should be extracted.
+ * @param builder A metadata builder that can be reused to create different [MediaMetadataCompat] instances.
  * @param output Send metadata to this channel when ready.
  */
 private fun CoroutineScope.scheduleMetadataUpdate(
     downloader: IconDownloader,
     description: MediaDescriptionCompat,
+    builder: MediaMetadataCompat.Builder,
     output: SendChannel<MediaMetadataCompat>
 ): Job = launch {
     val trackIcon = description.iconUri?.let {
         downloader.loadBitmap(it, ICON_MAX_SIZE, ICON_MAX_SIZE)
     }
 
-    val metadata = MediaMetadataCompat.Builder().apply {
+    val metadata = builder.apply {
         id = checkNotNull(description.mediaId)
         displayTitle = description.title?.toString()
         displaySubtitle = description.subtitle?.toString()
@@ -89,10 +98,15 @@ private fun CoroutineScope.scheduleMetadataUpdate(
         displayIconUri = description.iconUri?.toString()
         albumArt = trackIcon
 
-        description.extras?.let {
-            duration = it.getLong(MediaItems.EXTRA_DURATION, -1L)
-            discNumber = it.getInt(MediaItems.EXTRA_DISC_NUMBER, 1).toLong()
-            trackNumber = it.getInt(MediaItems.EXTRA_TRACK_NUMBER, 0).toLong()
+        val extras = description.extras
+        if (extras != null) {
+            duration = extras.getLong(MediaItems.EXTRA_DURATION, DURATION_UNKNOWN)
+            discNumber = extras.getInt(MediaItems.EXTRA_DISC_NUMBER, 0).toLong()
+            trackNumber = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER, 0).toLong()
+        } else {
+            duration = DURATION_UNKNOWN
+            discNumber = 0L
+            trackNumber = 0L
         }
     }.build()
 

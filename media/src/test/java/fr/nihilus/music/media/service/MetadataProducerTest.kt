@@ -47,26 +47,27 @@ class MetadataProducerTest {
     @JvmField @Rule
     val coroutineTimeout = CoroutinesTimeout.seconds(5)
 
-    @Test
-    fun whenSendingQueueItem_thenExtractItsMetadata() = runBlockingTest {
-        val itemMediaId = encode(TYPE_TRACKS, CATEGORY_ALL, 75L)
-        val item = MediaDescription(
-            mediaId = itemMediaId,
+    private val sampleMediaDescription by lazy {
+        MediaDescription(
+            mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, 75L),
             title = "Nightmare",
             subtitle = "Avenged Sevenfold",
             description = "Well, that intro is creepy",
             duration = 374648L,
             iconUri = Uri.parse("file:///Music/Nightmare.mp3")
         )
+    }
 
+    @Test
+    fun whenSendingQueueItem_thenExtractItsMetadata() = runBlockingTest {
         val output = Channel<MediaMetadataCompat>()
         val producer = metadataProducer(DummyBitmapFactory, output)
 
         try {
-            producer.send(item)
+            producer.send(sampleMediaDescription)
 
             val metadata = output.receive()
-            assertThat(metadata.id).isEqualTo(itemMediaId)
+            assertThat(metadata.id).isEqualTo(sampleMediaDescription.mediaId)
             assertThat(metadata.displayTitle).isEqualTo("Nightmare")
             assertThat(metadata.displaySubtitle).isEqualTo("Avenged Sevenfold")
             assertThat(metadata.displayDescription).isEqualTo("Well, that intro is creepy")
@@ -79,6 +80,38 @@ class MetadataProducerTest {
                 assertThat(iconBitmap.height).isEqualTo(320)
                 assertThat(iconBitmap.getPixel(0, 0)).isEqualTo(Color.RED)
             } ?: fail("Metadata should have a bitmap at ${MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON}, but was null.")
+
+        } finally {
+            producer.close()
+        }
+    }
+
+    /**
+     * Checks that the metadata builder is correctly reused between creation of different metadata.
+     * If some properties of the description are missing,
+     * then the resulting metadata should not carry over the properties of the previously produced metadata.
+     */
+    @Test
+    fun givenPreviousDescription_whenSendingAnother_thenResultingMetadataShouldNotRetainPropertiesOfThePrevious() = runBlockingTest {
+        val emptyDescription = MediaDescriptionCompat.Builder().build()
+        val output = Channel<MediaMetadataCompat>()
+        val producer = metadataProducer(DummyBitmapFactory, output)
+
+        try {
+            producer.send(sampleMediaDescription)
+            producer.send(emptyDescription)
+
+            // Skip the first item, check the second
+            output.receive()
+            val metadata = output.receive()
+
+            assertThat(metadata.id).isNull()
+            assertThat(metadata.displayTitle).isNull()
+            assertThat(metadata.displaySubtitle).isNull()
+            assertThat(metadata.displayDescription).isNull()
+            assertThat(metadata.duration).isEqualTo(0L)
+            assertThat(metadata.displayIconUri).isNull()
+            assertThat(metadata.displayIcon).isNull()
 
         } finally {
             producer.close()

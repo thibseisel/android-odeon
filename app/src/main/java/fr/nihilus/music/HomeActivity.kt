@@ -37,8 +37,8 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.media.permissions.PermissionChecker
-import fr.nihilus.music.media.utils.EXTERNAL_STORAGE_REQUEST
-import fr.nihilus.music.media.utils.requestExternalStoragePermission
+import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
+import fr.nihilus.music.ui.requestExternalStoragePermission
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
