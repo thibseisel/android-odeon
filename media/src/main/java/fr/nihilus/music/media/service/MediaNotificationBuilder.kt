@@ -31,10 +31,7 @@ import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.extensions.isPlayEnabled
-import fr.nihilus.music.media.extensions.isPlaying
-import fr.nihilus.music.media.extensions.isSkipToNextEnabled
-import fr.nihilus.music.media.extensions.isSkipToPreviousEnabled
+import fr.nihilus.music.media.extensions.*
 import javax.inject.Inject
 
 internal const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
@@ -93,7 +90,7 @@ internal class MediaNotificationBuilder
             createNowPlayingChannel()
         }
 
-        val description =  controller.metadata.description
+        val metadata = controller.metadata
         val playbackState = controller.playbackState
 
         val isPlaying = playbackState.isPlaying
@@ -127,10 +124,10 @@ internal class MediaNotificationBuilder
             .setShowCancelButton(true)
 
         return builder.setContentIntent(controller.sessionActivity)
-            .setContentTitle(description.title)
-            .setContentText(description.subtitle)
+            .setContentTitle(metadata.displayTitle)
+            .setContentText(metadata.displaySubtitle)
             .setDeleteIntent(stopPendingIntent)
-            .setLargeIcon(description.iconBitmap)
+            .setLargeIcon(metadata.albumArt)
             .setOnlyAlertOnce(true)
             .setSmallIcon(if (isPlaying) R.drawable.abc_notif_play_arrow else R.drawable.abc_notif_pause)
             .setStyle(mediaStyle)
