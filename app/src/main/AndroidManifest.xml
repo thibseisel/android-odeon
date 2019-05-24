@@ -36,6 +36,7 @@
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Make this Activity visible in launcher -->
