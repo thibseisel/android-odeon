@@ -24,11 +24,12 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -110,14 +111,13 @@ internal class OdeonPlaybackPreparer
         throw UnsupportedOperationException()
     }
 
-    override fun getCommands(): Array<String>? = null
-
     override fun onCommand(
         player: Player?,
+        controlDispatcher: ControlDispatcher?,
         command: String?,
         extras: Bundle?,
         cb: ResultReceiver?
-    ) = Unit
+    ): Boolean = false
 
     private fun prepareFromMediaId(mediaId: String) = service.launch {
         val children = MediaId.parseOrNull(mediaId)?.let { (type, category) ->
@@ -146,8 +146,7 @@ internal class OdeonPlaybackPreparer
                 "Every item should have an Uri."
             }
 
-            ExtractorMediaSource.Factory(appDataSourceFactory)
-                .setExtractorsFactory(audioOnlyExtractors)
+            ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
                 .setTag(playableItem)
                 .createMediaSource(sourceUri)
         }

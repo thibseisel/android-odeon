@@ -32,7 +32,6 @@ import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playback.ErrorHandler
 import fr.nihilus.music.media.playback.MediaQueueManager
-import fr.nihilus.music.media.playback.OdeonPlaybackController
 
 /**
  * Configures and provides MediaSession-related dependencies.
@@ -62,25 +61,23 @@ internal class MediaSessionModule {
     fun providesSessionConnector(
         player: ExoPlayer,
         mediaSession: MediaSessionCompat,
-        controller: MediaSessionConnector.PlaybackController,
         preparer: MediaSessionConnector.PlaybackPreparer,
         navigator: MediaSessionConnector.QueueNavigator,
         errorHandler: ErrorMessageProvider<ExoPlaybackException>,
         customActions: Set<@JvmSuppressWildcards MediaSessionConnector.CustomActionProvider>
 
-    ) = MediaSessionConnector(mediaSession, controller, null).also {
-        it.setPlayer(player, preparer, *customActions.toTypedArray())
+    ) = MediaSessionConnector(mediaSession).also {
+        it.setPlayer(player)
+        it.setPlaybackPreparer(preparer)
         it.setQueueNavigator(navigator)
         it.setErrorMessageProvider(errorHandler)
+        it.setCustomActionProviders(*customActions.toTypedArray())
     }
 }
 
 @Module
 @Suppress("unused")
 internal abstract class SessionConnectorModule {
-
-    @Binds
-    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): MediaSessionConnector.PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): MediaSessionConnector.PlaybackPreparer
