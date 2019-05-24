@@ -91,7 +91,7 @@ private fun CoroutineScope.scheduleMetadataUpdate(
     }
 
     val metadata = builder.apply {
-        id = checkNotNull(description.mediaId)
+        id = checkNotNull(description.mediaId) { "Every description should have a media id" }
         displayTitle = description.title?.toString()
         displaySubtitle = description.subtitle?.toString()
         displayDescription = description.description?.toString()
@@ -99,15 +99,7 @@ private fun CoroutineScope.scheduleMetadataUpdate(
         albumArt = trackIcon
 
         val extras = description.extras
-        if (extras != null) {
-            duration = extras.getLong(MediaItems.EXTRA_DURATION, DURATION_UNKNOWN)
-            discNumber = extras.getInt(MediaItems.EXTRA_DISC_NUMBER, 0).toLong()
-            trackNumber = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER, 0).toLong()
-        } else {
-            duration = DURATION_UNKNOWN
-            discNumber = 0L
-            trackNumber = 0L
-        }
+        duration = extras?.getLong(MediaItems.EXTRA_DURATION, DURATION_UNKNOWN) ?: DURATION_UNKNOWN
     }.build()
 
     output.send(metadata)

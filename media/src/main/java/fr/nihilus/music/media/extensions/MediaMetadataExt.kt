@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.extensions
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.support.v4.media.MediaMetadataCompat
 
@@ -25,9 +24,8 @@ import android.support.v4.media.MediaMetadataCompat
  * using idiomatic Kotlin code.
  */
 
-inline val MediaMetadataCompat.id: String
+inline val MediaMetadataCompat.id: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-            ?: error("Each track is required to have a media id.")
 
 inline val MediaMetadataCompat.title: String
     get() = getString(MediaMetadataCompat.METADATA_KEY_TITLE)
@@ -48,15 +46,6 @@ inline val MediaMetadataCompat.year: Long
 inline val MediaMetadataCompat.genre: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_GENRE)
 
-inline val MediaMetadataCompat.trackNumber: Long
-    get() = getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER)
-
-inline val MediaMetadataCompat.trackCount: Long
-    get() = getLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS)
-
-inline val MediaMetadataCompat.discNumber: Long
-    get() = getLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER)
-
 inline val MediaMetadataCompat.albumArtist: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST)
 
@@ -73,7 +62,6 @@ inline val MediaMetadataCompat.albumArtUri: String?
     get() = this.getString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI)
 
 inline val MediaMetadataCompat.userRating: Long
-    @SuppressLint("WrongConstant")
     get() = getLong(MediaMetadataCompat.METADATA_KEY_USER_RATING)
 
 inline val MediaMetadataCompat.displayTitle: String?

@@ -33,10 +33,8 @@ import fr.nihilus.music.media.fail
 import fr.nihilus.music.media.service.MetadataProducerTest.FixedDelayDownloader.DOWNLOAD_TIME
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -44,8 +42,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MetadataProducerTest {
 
-    @JvmField @Rule
-    val coroutineTimeout = CoroutinesTimeout.seconds(5)
+    //@JvmField @Rule val coroutineTimeout = CoroutinesTimeout.seconds(5)
 
     private val sampleMediaDescription by lazy {
         MediaDescription(
@@ -75,11 +72,11 @@ class MetadataProducerTest {
             assertThat(metadata.displayIconUri).isEqualTo("file:///Music/Nightmare.mp3")
 
             // Check that the loaded icon is 320x320 and has a red pixel on top, as defined by DummyBitmapFactory.
-            metadata.displayIcon?.let { iconBitmap ->
+            metadata.albumArt?.let { iconBitmap ->
                 assertThat(iconBitmap.width).isEqualTo(320)
                 assertThat(iconBitmap.height).isEqualTo(320)
                 assertThat(iconBitmap.getPixel(0, 0)).isEqualTo(Color.RED)
-            } ?: fail("Metadata should have a bitmap at ${MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON}, but was null.")
+            } ?: fail("Metadata should have a bitmap at ${MediaMetadataCompat.METADATA_KEY_ALBUM_ART}, but was null.")
 
         } finally {
             producer.close()
@@ -93,25 +90,25 @@ class MetadataProducerTest {
      */
     @Test
     fun givenPreviousDescription_whenSendingAnother_thenResultingMetadataShouldNotRetainPropertiesOfThePrevious() = runBlockingTest {
-        val emptyDescription = MediaDescriptionCompat.Builder().build()
-        val output = Channel<MediaMetadataCompat>()
+        val emptyDescription = MediaDescriptionCompat.Builder()
+            .setMediaId(encode(TYPE_TRACKS, CATEGORY_ALL, 42L))
+            .build()
+
+        val output = Channel<MediaMetadataCompat>(Channel.CONFLATED)
         val producer = metadataProducer(DummyBitmapFactory, output)
 
         try {
             producer.send(sampleMediaDescription)
             producer.send(emptyDescription)
-
-            // Skip the first item, check the second
-            output.receive()
             val metadata = output.receive()
 
-            assertThat(metadata.id).isNull()
+            assertThat(metadata.id).isEqualTo(emptyDescription.mediaId)
             assertThat(metadata.displayTitle).isNull()
             assertThat(metadata.displaySubtitle).isNull()
             assertThat(metadata.displayDescription).isNull()
-            assertThat(metadata.duration).isEqualTo(0L)
+            assertThat(metadata.duration).isEqualTo(-1L)
             assertThat(metadata.displayIconUri).isNull()
-            assertThat(metadata.displayIcon).isNull()
+            assertThat(metadata.albumArt).isNull()
 
         } finally {
             producer.close()
