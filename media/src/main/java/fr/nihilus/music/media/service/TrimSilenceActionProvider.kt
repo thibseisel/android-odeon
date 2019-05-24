@@ -19,10 +19,8 @@ package fr.nihilus.music.media.service
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.session.PlaybackStateCompat
-import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.media.R
 import javax.inject.Inject
@@ -38,19 +36,21 @@ class TrimSilenceActionProvider
 
     private val actionDescription = context.getString(R.string.abc_pref_title_skip_silence)
 
-    override fun getCustomAction(player: Player?): PlaybackStateCompat.CustomAction =
+    override fun getCustomAction(): PlaybackStateCompat.CustomAction =
         PlaybackStateCompat.CustomAction.Builder(
             ACTION_SKIP_SILENCE,
             actionDescription,
             R.drawable.abc_ic_hearing_24dp
         ).build()
 
-    override fun onCustomAction(player: Player?, controlDispatcher: ControlDispatcher?, action: String?, extras: Bundle?) {
+    override fun onCustomAction(action: String?, extras: Bundle?) {
         setEnabled(extras?.getBoolean(EXTRA_ENABLED) == true)
     }
 
-    private fun setEnabled(shouldEnable: Boolean) {
-        player.playbackParameters = if (shouldEnable) SKIP_SILENCE_PARAMETERS else PlaybackParameters.DEFAULT
+    fun setEnabled(shouldEnable: Boolean) {
+        player.playbackParameters =
+                if (shouldEnable) SKIP_SILENCE_PARAMETERS
+                else PlaybackParameters.DEFAULT
     }
 
     companion object {

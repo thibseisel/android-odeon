@@ -21,7 +21,6 @@ import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -48,8 +47,8 @@ internal class MediaQueueManager
     private val prefs: MediaSettings,
     downloader: IconDownloader
 ) : MediaSessionConnector.QueueNavigator {
-    private val producer: SendChannel<MediaDescriptionCompat>
 
+    private val producer: SendChannel<MediaDescriptionCompat>
     init {
         val metadata = Channel<MediaMetadataCompat>()
         producer = scope.metadataProducer(downloader, metadata)
@@ -77,16 +76,16 @@ internal class MediaQueueManager
     override fun getSupportedQueueNavigatorActions(player: Player?): Long =
         navigator.getSupportedQueueNavigatorActions(player)
 
-    override fun onSkipToPrevious(player: Player?, controlDispatcher: ControlDispatcher?) {
-        navigator.onSkipToPrevious(player, controlDispatcher)
+    override fun onSkipToPrevious(player: Player?) {
+        navigator.onSkipToPrevious(player)
     }
 
-    override fun onSkipToNext(player: Player?, controlDispatcher: ControlDispatcher?) {
-        navigator.onSkipToNext(player, controlDispatcher)
+    override fun onSkipToNext(player: Player?) {
+        navigator.onSkipToNext(player)
     }
 
-    override fun onSkipToQueueItem(player: Player?, controlDispatcher: ControlDispatcher?, id: Long) {
-        navigator.onSkipToQueueItem(player, controlDispatcher, id)
+    override fun onSkipToQueueItem(player: Player?, id: Long) {
+        navigator.onSkipToQueueItem(player, id)
     }
 
     override fun onCurrentWindowIndexChanged(player: Player) {
@@ -107,13 +106,14 @@ internal class MediaQueueManager
         }
     }
 
+    override fun getCommands(): Array<String>? = null
+
     override fun onCommand(
         player: Player?,
-        controlDispatcher: ControlDispatcher?,
         command: String?,
         extras: Bundle?,
         cb: ResultReceiver?
-    ): Boolean = false
+    ) = Unit
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
         val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
