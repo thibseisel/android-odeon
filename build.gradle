@@ -24,8 +24,8 @@ buildscript {
         targetSdkVersion = 28
 
         // App Version shared across modules
-        appVersionCode = 1002
-        appVersionName = '1.0.2'
+        appVersionCode = 1010
+        appVersionName = '1.1.0'
 
         versions = [
                 'kotlin': '1.3.31',
@@ -79,7 +79,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0'
+        classpath 'com.android.tools.build:gradle:3.4.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
     }
 }
