@@ -88,8 +88,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        playlistAdapter =
-                TargetPlaylistsAdapter(this)
+        playlistAdapter = TargetPlaylistsAdapter(this)
         return AlertDialog.Builder(requireContext())
             .setTitle(R.string.add_to_playlist)
             .setAdapter(playlistAdapter, dialogEventHandler)
@@ -112,17 +111,11 @@ class AddToPlaylistDialog : BaseDialogFragment() {
                 when (result) {
                     is PlaylistEditionResult.Success -> targetFragment?.onActivityResult(
                         targetRequestCode,
-                        Activity.RESULT_OK,
+                        R.id.abc_result_success,
                         Intent().apply {
                             putExtra(RESULT_TRACK_COUNT, result.trackCount)
                             putExtra(RESULT_PLAYLIST_TITLE, result.playlistTitle)
                         }
-                    )
-
-                    is PlaylistEditionResult.NonExistingPlaylist -> targetFragment?.onActivityResult(
-                        targetRequestCode,
-                        Activity.RESULT_CANCELED,
-                        null
                     )
                 }
             }
@@ -144,14 +137,13 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     }
 
     private fun callNewPlaylistDialog() {
-        val memberTracks = arguments?.getParcelableArray(ARG_SELECTED_TRACKS)
-                as? Array<MediaItem> ?: emptyArray()
+        val memberTracks =
+            arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
         NewPlaylistDialog.newInstance(
             targetFragment!!,
             targetRequestCode,
             memberTracks
-        )
-            .show(fragmentManager, NewPlaylistDialog.TAG)
+        ).show(fragmentManager, NewPlaylistDialog.TAG)
     }
 
     override fun onCancel(dialog: DialogInterface?) {
@@ -165,11 +157,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
 
         override fun onCreateViewHolder(container: ViewGroup): PlaylistHolder =
-            PlaylistHolder(
-                container.inflate(
-                    R.layout.playlist_list_item
-                )
-            )
+            PlaylistHolder(container.inflate(R.layout.playlist_list_item))
 
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
             holder.bind(getItem(position), glideRequest)

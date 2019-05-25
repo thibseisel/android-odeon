@@ -38,7 +38,7 @@ class SongListViewModel
         get() = _deleteTracksConfirmation
 
     init {
-        observeChildren(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL))
+        observeChildren(MediaId.ALL_TRACKS)
     }
 
     fun onSongSelected(song: MediaBrowserCompat.MediaItem) {

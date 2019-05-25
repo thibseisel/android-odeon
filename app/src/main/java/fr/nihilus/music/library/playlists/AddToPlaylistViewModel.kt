@@ -33,7 +33,6 @@ import javax.inject.Inject
 sealed class PlaylistEditionResult {
     data class Success(val trackCount: Int, val playlistTitle: CharSequence?) : PlaylistEditionResult()
     data class AlreadyTaken(val requestedPlaylistName: String) : PlaylistEditionResult()
-    data class NonExistingPlaylist(val requestedPlaylistId: String) : PlaylistEditionResult()
 }
 
 class AddToPlaylistViewModel
@@ -52,7 +51,7 @@ class AddToPlaylistViewModel
     init {
         launch {
             _targetPlaylists.postValue(LoadRequest.Pending)
-            connection.subscribe(MediaId.encode(MediaId.TYPE_PLAYLISTS)).consumeEach { playlistUpdates ->
+            connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { playlistUpdates ->
                 _targetPlaylists.postValue(LoadRequest.Success(playlistUpdates))
             }
         }

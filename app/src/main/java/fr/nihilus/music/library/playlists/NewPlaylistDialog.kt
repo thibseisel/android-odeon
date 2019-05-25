@@ -64,7 +64,7 @@ class NewPlaylistDialog : BaseDialogFragment() {
         const val RESULT_TAKEN_PLAYLIST_TITLE = "taken_playlist_name"
 
         fun newInstance(
-            caller: androidx.fragment.app.Fragment,
+            caller: Fragment,
             requestCode: Int,
             memberTracks: Array<MediaBrowserCompat.MediaItem>
         ) = NewPlaylistDialog().apply {
@@ -118,8 +118,7 @@ class NewPlaylistDialog : BaseDialogFragment() {
                     putExtra(RESULT_TAKEN_PLAYLIST_TITLE, result.requestedPlaylistName)
                 }
 
-                targetFragment?.onActivityResult(targetRequestCode,
-                    ERROR_ALREADY_EXISTS, data)
+                targetFragment?.onActivityResult(targetRequestCode, ERROR_ALREADY_EXISTS, data)
             }
         }
     }
