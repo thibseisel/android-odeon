@@ -125,11 +125,18 @@ class MusicService : BaseBrowserService() {
         } else null
     }
 
-    override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>) {
+    override fun onLoadChildren(
+        parentId: String,
+        result: Result<List<MediaBrowserCompat.MediaItem>>
+    ) {
         onLoadChildren(parentId, result, Bundle.EMPTY)
     }
 
-    override fun onLoadChildren(parentId: String, result: Result<List<MediaBrowserCompat.MediaItem>>, options: Bundle) {
+    override fun onLoadChildren(
+        parentId: String,
+        result: Result<List<MediaBrowserCompat.MediaItem>>,
+        options: Bundle
+    ) {
         result.detach()
 
         launch {
@@ -171,6 +178,18 @@ class MusicService : BaseBrowserService() {
                     result.sendResult(null)
                 }
             }
+        }
+    }
+
+    override fun onSearch(
+        query: String,
+        extras: Bundle?,
+        result: Result<List<MediaBrowserCompat.MediaItem>>
+    ) {
+        result.detach()
+        launch {
+            val searchResults = browserTree.search(query, extras)
+            result.sendResult(searchResults)
         }
     }
 

@@ -62,10 +62,11 @@ internal class OdeonPlaybackPreparer
     )
 
     override fun getSupportedPrepareActions(): Long {
-        // TODO Update supported action codes to include *_FROM_SEARCH
         return PlaybackStateCompat.ACTION_PREPARE or
                 PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
     }
 
     /**
@@ -107,8 +108,17 @@ internal class OdeonPlaybackPreparer
     }
 
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-        // TODO: Implement searching for Google Assistant
-        throw UnsupportedOperationException()
+        if (query.isNullOrEmpty()) {
+            // Generic query, such as "play music"
+            onPrepareFromMediaId(MediaId.ALL_TRACKS, null)
+
+        } else service.launch {
+            val results = browserTree.search(query, extras)
+            preparePlayer(
+                playQueue = results.filter { it.isPlayable && !it.isBrowsable },
+                startIndex = 0
+            )
+        }
     }
 
     override fun getCommands(): Array<String>? = null
@@ -122,34 +132,38 @@ internal class OdeonPlaybackPreparer
 
     private fun prepareFromMediaId(mediaId: String) = service.launch {
         try {
-            val children = MediaId.parseOrNull(mediaId)?.let { (type, category) ->
-                val parentId = MediaId.fromParts(type, category, track = null)
-                browserTree.getChildren(parentId)
-            }
+            val (type, category, track) = MediaId.parse(mediaId)
+            val parentId = MediaId.fromParts(type, category, track = null)
+
+            val children = browserTree.getChildren(parentId)
 
             if (children != null) {
-                onMediaItemsLoaded(mediaId, children)
+                val playQueue = children.filter { it.isPlayable && !it.isBrowsable }
+                val startIndex = if (track == null) -1 else playQueue.indexOfFirst { it.mediaId == mediaId }
+                preparePlayer(playQueue, startIndex)
+
             } else {
-                Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
+                Timber.i("Unable to prepare playback: %s is not part of the hierarchy", mediaId)
             }
 
         } catch (pde: PermissionDeniedException) {
             Timber.i("Unable to prepare from media id due to missing permission: %s", pde.permission)
+
+        } catch (ime: InvalidMediaException) {
+            Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
         }
     }
 
-    private fun onMediaItemsLoaded(mediaId: String, items: List<MediaBrowserCompat.MediaItem>) {
-        val playableItems = items.filterNot { it.isBrowsable }.map { it.description }
-
+    private fun preparePlayer(playQueue: List<MediaBrowserCompat.MediaItem>, startIndex: Int) {
         // Short-circuit: if there are no playable items.
-        if (playableItems.isEmpty()) {
+        if (playQueue.isEmpty()) {
             return
         }
 
-        val mediaSources = Array(playableItems.size) {
-            val playableItem: MediaDescriptionCompat = playableItems[it]
+        val mediaSources = Array(playQueue.size) {
+            val playableItem: MediaDescriptionCompat = playQueue[it].description
             val sourceUri = checkNotNull(playableItem.mediaUri) {
-                "Every item should have an Uri."
+                "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
             }
 
             ExtractorMediaSource.Factory(appDataSourceFactory)
@@ -174,10 +188,9 @@ internal class OdeonPlaybackPreparer
 
         player.prepare(concatenatedSource)
 
-        // Start at a given track if it is mentioned in the passed media id.
-        val startIndex = playableItems.indexOfFirst { it.mediaId == mediaId }
-        if (startIndex != -1) {
-            player.seekTo(startIndex, C.TIME_UNSET)
+        // Start playback at a given track if specified.
+        if (startIndex >= 0) {
+            player.seekTo(startIndex.coerceAtMost(mediaSources.lastIndex), C.TIME_UNSET)
         }
     }
 }

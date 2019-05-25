@@ -75,12 +75,6 @@ class MediaId
 private constructor(
 
     /**
-     * This media id encoded as a String.
-     * Two media ids with the same encoded form are considered equal.
-     */
-    val encoded: String,
-
-    /**
      * The type of media, indicating the kind of media to be browsed.
      */
     val type: String,
@@ -96,7 +90,13 @@ private constructor(
      * When specified, this indicates that the media is playable.
      * This part uniquely identifies the playable content on a given storage.
      */
-    val track: Long?
+    val track: Long?,
+
+    /**
+     * This media id encoded as a String.
+     * Two media ids with the same encoded form are considered equal.
+     */
+    val encoded: String
 
 ) {
 
@@ -251,7 +251,7 @@ private constructor(
             if (categorySeparatorIndex == -1) {
                 // First format: type only
                 checkMediaType(encoded)
-                return MediaId(encoded, encoded, null, null)
+                return MediaId(encoded, null, null, encoded)
             }
 
             val type = encoded.substring(0, categorySeparatorIndex)
@@ -262,7 +262,7 @@ private constructor(
                 // Second format: type/category
                 val category = encoded.substring(categorySeparatorIndex + 1)
                 checkCategory(category)
-                return MediaId(encoded, type, category, null)
+                return MediaId(type, category, null, encoded)
             }
 
             // General format: type/category|track
@@ -271,7 +271,7 @@ private constructor(
 
             val track = encoded.substring(trackSeparatorIndex + 1)
             checkTrackIdentifier(track)
-            return MediaId(encoded, type, category, track.toLong())
+            return MediaId(type, category, track.toLong(), encoded)
         }
 
         fun parseOrNull(encoded: String?): MediaId? = try {
@@ -283,7 +283,7 @@ private constructor(
         fun fromParts(type: String, category: String? = null, track: Long? = null): MediaId {
             // Validate parts while creating the encoded form.
             val encoded = encode(type, category, track)
-            return MediaId(encoded, type, category, track)
+            return MediaId(type, category, track, encoded)
         }
 
         /**

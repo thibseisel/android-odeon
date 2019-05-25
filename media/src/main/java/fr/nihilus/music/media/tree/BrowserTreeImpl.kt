@@ -18,6 +18,7 @@ package fr.nihilus.music.media.tree
 
 import android.content.Context
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
@@ -29,6 +30,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
@@ -108,8 +110,54 @@ internal class BrowserTreeImpl
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
     override suspend fun search(query: String, extras: Bundle?): List<MediaItem> {
-        // TODO Implement search.
-        return emptyList()
+        val results = when (extras?.getString(MediaStore.EXTRA_MEDIA_FOCUS)) {
+            MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> {
+                extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)?.let {
+                    searchTracksByArtistName(it.toLowerCase())
+                }
+            }
+
+            MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> {
+                extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)?.let {
+                    searchTracksByAlbumTitle(it.toLowerCase())
+                }
+            }
+
+            else -> searchTrackByTitle(query.toLowerCase())?.let(::listOf)
+        }
+
+        return results.orEmpty()
+    }
+
+    private suspend fun searchTracksByArtistName(artistName: String): List<MediaItem> {
+        val builder = MediaDescriptionCompat.Builder()
+
+        return repository.getAllTracks().asSequence()
+            .filter { artistName == it.artist.toLowerCase() }
+            .map {
+                val mediaId = encode(TYPE_ARTISTS, it.artistId.toString(), it.id)
+                it.toMediaItem(mediaId, builder)
+            }.toList()
+    }
+
+    private suspend fun searchTracksByAlbumTitle(albumTitle: String): List<MediaItem> {
+        val builder = MediaDescriptionCompat.Builder()
+
+        return repository.getAllTracks().asSequence()
+            .filter { albumTitle == it.album.toLowerCase() }
+            .map {
+                val mediaId = encode(TYPE_ALBUMS, it.albumId.toString(), it.id)
+                it.toMediaItem(mediaId, builder)
+            }.toList()
+    }
+
+    private suspend fun searchTrackByTitle(title: String?): MediaItem? {
+        if (title == null) return null
+        val builder = MediaDescriptionCompat.Builder()
+        return repository.getAllTracks().find { title == it.title.toLowerCase() }?.let {
+            val mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, it.id)
+            it.toMediaItem(mediaId, builder)
+        }
     }
 
     override val updatedParentIds: Flowable<MediaId>
@@ -125,7 +173,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getAllTracks().map { track ->
-            val mediaId = MediaId.encode(
+            val mediaId = encode(
                 TYPE_TRACKS,
                 CATEGORY_ALL,
                 track.id
@@ -138,7 +186,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getMostRatedTracks().map { track ->
-            val mediaId = MediaId.encode(TYPE_TRACKS, CATEGORY_MOST_RATED, track.id)
+            val mediaId = encode(TYPE_TRACKS, CATEGORY_MOST_RATED, track.id)
             track.toMediaItem(mediaId, builder)
         }
     }
@@ -150,7 +198,7 @@ internal class BrowserTreeImpl
             .sortedByDescending { it.availabilityDate }
             .take(25)
             .map { track ->
-                val mediaId = MediaId.encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, track.id)
+                val mediaId = encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, track.id)
                 track.toMediaItem(mediaId, builder)
             }
     }
@@ -159,7 +207,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getAllAlbums().map { album ->
-            val mediaId = MediaId.encode(TYPE_ALBUMS, album.id.toString())
+            val mediaId = encode(TYPE_ALBUMS, album.id.toString())
             album.toMediaItem(mediaId, builder)
         }
     }
@@ -172,7 +220,7 @@ internal class BrowserTreeImpl
                 .filter { it.albumId == albumId }
                 .sortedWith(ALBUM_TRACK_ORDERING)
                 .mapTo(mutableListOf()) { albumTrack ->
-                    val mediaId = MediaId.encode(TYPE_ALBUMS, albumCategory, albumTrack.id)
+                    val mediaId = encode(TYPE_ALBUMS, albumCategory, albumTrack.id)
                     albumTrack.toMediaItem(mediaId, builder)
                 }.takeUnless { it.isEmpty() }
         }
@@ -182,7 +230,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getAllArtists().map { artist ->
-            val mediaId = MediaId.encode(TYPE_ARTISTS, artist.id.toString())
+            val mediaId = encode(TYPE_ARTISTS, artist.id.toString())
             artist.toMediaItem(mediaId, builder)
         }
     }
@@ -203,12 +251,12 @@ internal class BrowserTreeImpl
                 val builder = MediaDescriptionCompat.Builder()
                 mutableListOf<MediaItem>().also { artistChildren ->
                     artistAlbums.mapTo(artistChildren) {
-                        val mediaId = MediaId.encode(TYPE_ALBUMS, it.id.toString())
+                        val mediaId = encode(TYPE_ALBUMS, it.id.toString())
                         it.toMediaItem(mediaId, builder)
                     }
 
                     artistTracks.mapTo(artistChildren) {
-                        val mediaId = MediaId.encode(TYPE_ARTISTS, artistId.toString(), it.id)
+                        val mediaId = encode(TYPE_ARTISTS, artistId.toString(), it.id)
                         it.toMediaItem(mediaId, builder)
                     }
 
@@ -222,7 +270,7 @@ internal class BrowserTreeImpl
         val allPlaylists = repository.getAllPlaylists()
 
         return allPlaylists.map { playlist ->
-            val mediaId = MediaId.encode(TYPE_PLAYLISTS, playlist.id.toString())
+            val mediaId = encode(TYPE_PLAYLISTS, playlist.id.toString())
             playlist.toMediaItem(mediaId, builder)
         }
     }
@@ -232,7 +280,7 @@ internal class BrowserTreeImpl
             val builder = MediaDescriptionCompat.Builder()
 
             repository.getPlaylistTracks(playlistId)?.map { playlistTrack ->
-                val mediaId = MediaId.encode(TYPE_PLAYLISTS, playlistId.toString(), playlistTrack.id)
+                val mediaId = encode(TYPE_PLAYLISTS, playlistId.toString(), playlistTrack.id)
                 playlistTrack.toMediaItem(mediaId, builder)
             }
         }
