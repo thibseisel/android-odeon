@@ -57,8 +57,7 @@ class NowPlayingViewModel
 
     fun toggleShuffleMode() {
         launch {
-            val currentMode = shuffleMode.value ?: SHUFFLE_MODE_INVALID
-            when (currentMode) {
+            when (shuffleMode.value ?: SHUFFLE_MODE_INVALID) {
                 SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> connection.setShuffleModeEnabled(true)
                 SHUFFLE_MODE_ALL -> connection.setShuffleModeEnabled(false)
             }

@@ -19,12 +19,10 @@
       xmlns:tools="http://schemas.android.com/tools">
 
     <item
-        android:id="@+id/category_library"
         android:title="@string/music_library">
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/action_home"
                     android:icon="@drawable/ic_home_24dp"
                     android:title="@string/home"
                     android:visible="false"/>

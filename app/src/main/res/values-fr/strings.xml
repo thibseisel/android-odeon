@@ -36,7 +36,6 @@
     <string name="play_or_pause">Play ou pause</string>
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
-    <string name="random_mix">Mix aléatoire</string>
     <string name="empty_artist">Aucun artiste</string>
     <string name="action_delete">Supprimer</string>
     <string name="add_to_playlist">Ajouter à une playlist</string>
@@ -67,8 +66,6 @@
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
     <string name="home">Accueil</string>
-    <string name="pref_category_behavior">Comportement</string>
-    <string name="pref_title_startup_screen">Ecran affiché au démarrage</string>
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
     <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
     <string name="action_repeat_mode">Répéter la lecture</string>

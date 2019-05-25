@@ -58,18 +58,6 @@ class ProgressAutoUpdater(
     private val updateListener: (Long) -> Unit
 ) : SeekBar.OnSeekBarChangeListener {
 
-    /**
-     * Wrap a SeekBar into an auto-update controller.
-     *
-     * @param seekBar The seekBar whose position should be updated while playing.
-     * @param updateListener Callback executed when user changes progress of the seekBar.
-     * Parameter is the desired playback position in milliseconds.
-     */
-    constructor(
-        seekBar: SeekBar,
-        updateListener: (Long) -> Unit
-    ) : this(seekBar, null, null, updateListener)
-
     private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
     private val handler = Handler()

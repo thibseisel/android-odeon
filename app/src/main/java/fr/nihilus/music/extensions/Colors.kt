@@ -35,6 +35,7 @@ fun darker(@ColorInt color: Int, @FloatRange(from = 0.0, to = 1.0) factor: Float
 /**
  * Return the alpha component of a color int.
  */
+@Suppress("unused")
 inline val @receiver:ColorInt Int.alpha get() = (this shr 24) and 0xff
 
 /**

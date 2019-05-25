@@ -66,7 +66,6 @@ internal interface MediaSettings {
 private const val KEY_SHUFFLE_MODE = "shuffle_mode"
 private const val KEY_REPEAT_MODE = "repeat_mode"
 private const val KEY_LAST_PLAYED = "last_played"
-private const val KEY_DATABASE_INIT = "should_init_dabatase"
 private const val KEY_QUEUE_COUNTER = "load_counter"
 private const val KEY_SKIP_SILENCE = "skip_silence"
 

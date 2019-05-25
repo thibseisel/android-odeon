@@ -49,7 +49,7 @@ internal annotation class ServiceScoped
  * Configures [MusicService]-related bindings, providing dependency injection for the whole `media` library module.
  * This Dagger module should be installed in the root component.
  */
-@Module()
+@Module
 @Suppress("unused")
 abstract class MediaServiceModule {
 

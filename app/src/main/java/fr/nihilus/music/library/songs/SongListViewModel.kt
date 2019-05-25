@@ -41,12 +41,6 @@ class SongListViewModel
         observeChildren(MediaId.ALL_TRACKS)
     }
 
-    fun onSongSelected(song: MediaBrowserCompat.MediaItem) {
-        launch {
-            connection.playFromMediaId(song.mediaId!!)
-        }
-    }
-
     fun deleteSongs(songsToDelete: List<MediaBrowserCompat.MediaItem>) {
         launch {
             val trackMediaIds = Array(songsToDelete.size) { position ->

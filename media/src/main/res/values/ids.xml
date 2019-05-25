@@ -21,9 +21,7 @@
     <!-- Request to start the activity associated with the MediaSession. -->
     <item name="abc_request_start_media_activity" type="id" />
     <!-- Request to delete tracks from the music library. -->
-    <item name="abc_request_delete_tracks" type="id"/>
     <!-- Request to add a set of tracks to a playlist. -->
-    <item name="abc_request_add_to_playlist" type="id"/>
 
     <!-- Result codes -->
 
@@ -41,5 +39,4 @@
     -->
     <item name="abc_error_playlist_already_exists" type="id"/>
     <!-- Indicates that a command can't be handled because it is not supported. -->
-    <item name="abc_error_unknown_command" type="id" />
 </resources>

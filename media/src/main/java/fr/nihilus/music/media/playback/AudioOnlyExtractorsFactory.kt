@@ -33,12 +33,12 @@ import com.google.android.exoplayer2.extractor.wav.WavExtractor
  * thus allowing Proguard from removing unused extractors and reducing final APK size.
  *
  * The full explanation is detailed
- * on the [Exoplayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
+ * on the [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
  */
 internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
 
     @Synchronized
-    override fun createExtractors() = arrayOf<Extractor>(
+    override fun createExtractors() = arrayOf(
         // Most used audio file extensions .mp3 and .wav
         Mp3Extractor(),
         WavExtractor(),

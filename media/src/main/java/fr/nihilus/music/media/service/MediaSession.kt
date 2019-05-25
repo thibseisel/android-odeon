@@ -65,6 +65,7 @@ private const val ALL_SESSION_FLAGS = MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTT
         MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS or
         MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
 
+@Suppress("unused")
 @ExperimentalMediaApi
 internal class MediaSessionWrapper(
     context: Context,

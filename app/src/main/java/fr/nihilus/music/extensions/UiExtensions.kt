@@ -50,6 +50,7 @@ var Window.darkSystemIcons: Boolean
  * @return The corresponding dimension in raw pixels.
  */
 @Px
+@Suppress("unused")
 fun dipToPixels(context: Context, @Dimension(unit = Dimension.DP) dp: Float): Int {
     val metrics = context.resources.displayMetrics
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics).roundToInt()

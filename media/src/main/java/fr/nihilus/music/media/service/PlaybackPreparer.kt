@@ -35,6 +35,7 @@ internal interface PlaybackPreparer {
     suspend fun onPrepareFromSearch(query: String?, extras: Bundle?)
 }
 
+@Suppress("unused")
 @ExperimentalMediaApi
 internal class PlaybackPreparerImpl(
     private val player: MusicPlayer,

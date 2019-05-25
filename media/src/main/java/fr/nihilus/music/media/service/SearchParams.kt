@@ -101,8 +101,7 @@ class SearchParams
 
             } else {
                 // Add more precision to the search by specifying the type of the searched item
-                val mediaFocus = extras.getString(MediaStore.EXTRA_MEDIA_FOCUS)
-                when (mediaFocus) {
+                when (extras.getString(MediaStore.EXTRA_MEDIA_FOCUS)) {
                     MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> isArtistFocus = true
                     MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> isAlbumFocus = true
                     MediaStore.Audio.Media.ENTRY_CONTENT_TYPE -> isSongFocus = true

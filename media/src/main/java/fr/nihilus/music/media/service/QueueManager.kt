@@ -36,6 +36,7 @@ internal interface QueueManager {
 
 private const val MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000L
 
+@Suppress("unused")
 @ExperimentalMediaApi
 internal class QueueManagerImpl : QueueManager {
     private var currentQueue = emptyList<MediaSessionCompat.QueueItem>()
@@ -58,9 +59,7 @@ internal class QueueManagerImpl : QueueManager {
         return actions
     }
 
-    override fun getActiveQueueItemId(player: MusicPlayer): Long {
-        return currentQueueItemId
-    }
+    override fun getActiveQueueItemId(player: MusicPlayer): Long = currentQueueItemId
 
     override fun onCurrentTrackChanged(trackIndex: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

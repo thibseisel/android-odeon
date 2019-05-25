@@ -45,7 +45,7 @@ internal abstract class SongsModule {
     abstract fun bindsAddToPlaylistViewModel(viewModel: AddToPlaylistViewModel): ViewModel
 
     @ContributesAndroidInjector
-    abstract fun newPLaylistDialog(): NewPlaylistDialog
+    abstract fun newPlaylistDialog(): NewPlaylistDialog
 
     @Binds @IntoMap
     @ViewModelKey(NewPlaylistViewModel::class)

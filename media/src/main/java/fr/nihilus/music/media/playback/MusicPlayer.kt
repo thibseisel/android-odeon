@@ -33,6 +33,7 @@ import fr.nihilus.music.media.service.ExperimentalMediaApi
 
 internal const val UNKNOWN_TRACK_INDEX: Int = C.INDEX_UNSET
 
+@Suppress("unused")
 @ExperimentalMediaApi
 internal interface MusicPlayer {
     val state: State
@@ -91,6 +92,7 @@ internal fun MusicPlayer.seekTo(positionMs: Long) {
     seekTo(currentTrackIndex, positionMs)
 }
 
+@Suppress("unused")
 @ExperimentalMediaApi
 internal class ExoMusicPlayer(
     context: Context,

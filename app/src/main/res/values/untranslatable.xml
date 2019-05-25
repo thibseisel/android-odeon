@@ -17,6 +17,5 @@
 
 <resources>
     <string name="pref_default_startup_screen" translatable="false">tracks/all</string>
-    <string name="pref_startup_screen" translatable="false">startup_screen</string>
     <string name="pref_night_mode" translatable="false">night_mode</string>
 </resources>

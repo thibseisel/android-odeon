@@ -18,7 +18,6 @@ package fr.nihilus.music.client
 
 import android.content.ComponentName
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
@@ -206,11 +205,6 @@ class MediaBrowserConnection
     suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
-    }
-
-    suspend fun playFromUri(uri: Uri?) {
-        val controller = deferredController.await()
-        controller.transportControls.playFromUri(uri, null)
     }
 
     suspend fun seekTo(positionMs: Long) {

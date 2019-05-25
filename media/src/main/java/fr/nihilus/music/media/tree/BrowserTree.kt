@@ -24,7 +24,7 @@ import io.reactivex.Flowable
 /**
  * Define the hierarchy of media that can be browsed by remote clients connected to the service.
  * Media are organized in a tree-like structure, with 2 type of nodes:
- * - [Browsable items][MediaItem.isBrowsable] that have children themself that can be retrieved using [getChildren],
+ * - [Browsable items][MediaItem.isBrowsable] that have children themselves that can be retrieved using [getChildren],
  * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
  */
 internal interface BrowserTree {

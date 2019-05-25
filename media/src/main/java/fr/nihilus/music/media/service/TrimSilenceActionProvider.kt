@@ -47,7 +47,7 @@ class TrimSilenceActionProvider
         setEnabled(extras?.getBoolean(EXTRA_ENABLED) == true)
     }
 
-    fun setEnabled(shouldEnable: Boolean) {
+    private fun setEnabled(shouldEnable: Boolean) {
         player.playbackParameters =
                 if (shouldEnable) SKIP_SILENCE_PARAMETERS
                 else PlaybackParameters.DEFAULT

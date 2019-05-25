@@ -17,7 +17,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.MaterialComponents.DayNight" parent="Theme.MaterialComponents.Light"/>
-    <style name="Theme.MaterialComponents.DayNight.Dialog.MinWidth" parent="Theme.MaterialComponents.Light.Dialog.MinWidth"/>
 
     <!--
       - Pointer to the base theme used for both Light and Night.
@@ -86,21 +85,7 @@
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
-    <style name="AppTheme.FileViewer" parent="Theme.MaterialComponents.DayNight.Dialog.MinWidth">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="colorPrimary">@color/mtrl_deeppurple_500</item>
-        <item name="colorAccent">@color/mtrl_blue_a400</item>
-    </style>
-
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
-    <style name="FastScrollRecyclerView">
-        <item name="fastScrollEnabled">true</item>
-        <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
-        <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
-    </style>
 
     <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
         <item name="android:minWidth">124dp</item>

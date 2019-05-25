@@ -17,10 +17,7 @@
 <resources>
     <string name="app_name">Odeon</string>
     <string name="abc_all_music">All tracks</string>
-    <string name="abc_albums">Albums</string>
-    <string name="abc_artists">Artists</string>
     <string name="abc_last_added">Recently added</string>
-    <string name="abc_playlists">Playlists</string>
     <string name="abc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
 
     <string name="abc_action_play">Play</string>
@@ -30,8 +27,6 @@
     <string name="abc_channel_mediasession">Now playing</string>
     <string name="abc_channel_mediasession_description">Controls media playback from the lock screen and the notification panel.</string>
     <string name="abc_pref_title_skip_silence">Skip silence in tracks</string>
-    <string name="abc_action_rewind">Rewind</string>
-    <string name="abc_action_fast_forward">Fast forward</string>
     <string name="player_error_unsupported_file">Odeon does not support playing this file.</string>
     <string name="player_error_unsupported_file_format">Odeon does not support playing %s files.</string>
     <string name="player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
