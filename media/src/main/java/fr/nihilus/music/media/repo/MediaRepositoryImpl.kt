@@ -33,7 +33,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.reactive.openSubscription
-import kotlinx.coroutines.rx2.await
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 
@@ -150,7 +149,7 @@ internal class MediaRepositoryImpl
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
         val allTracks = getAllTracks()
         val playlistMembers = withContext(dispatchers.Database) {
-            playlistsDao.getPlaylistTracks(playlistId).await()
+            playlistsDao.getPlaylistTracks(playlistId)
         }
 
         val tracksById = allTracks.associateBy(Track::id)
@@ -198,11 +197,11 @@ internal class MediaRepositoryImpl
             _mediaChanges.onNext(ChangeNotification.Artist(it))
         }
 
-        val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
-        val affectedPlaylistIds = playlistsDao.getPlaylistsHavingTracks(deletedTrackIds).await()
-
-        withContext(dispatchers.Database) {
-            playlistsDao.deletePlaylistTracks(deletedTrackIds)
+        val affectedPlaylistIds = withContext(dispatchers.Database) {
+            val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
+            playlistsDao.getPlaylistsHavingTracks(deletedTrackIds).also {
+                playlistsDao.deletePlaylistTracks(deletedTrackIds)
+            }
         }
 
         affectedPlaylistIds.forEach {

@@ -19,7 +19,6 @@ package fr.nihilus.music.media.playlists
 import fr.nihilus.music.media.provider.TestDao
 import fr.nihilus.music.media.utils.diffList
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.processors.BehaviorProcessor
 
 internal class TestPlaylistDao(
@@ -75,17 +74,16 @@ internal class TestPlaylistDao(
         }
     }
 
-    override fun getPlaylistTracks(playlistId: Long) = Single.fromCallable {
+    override fun getPlaylistTracks(playlistId: Long) =
         _playlistTracks.filter { it.playlistId == playlistId }
-    }
 
-    override fun getPlaylistsHavingTracks(trackIds: LongArray) = Single.fromCallable<LongArray> {
+    override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray {
         val playlistIds = _playlistTracks.asSequence()
             .filter { it.trackId in trackIds }
             .map { it.playlistId }
             .distinct()
             .toList()
-        LongArray(playlistIds.size) { playlistIds[it] }
+        return LongArray(playlistIds.size) { playlistIds[it] }
     }
 
     override fun deletePlaylistTracks(trackIds: LongArray) {

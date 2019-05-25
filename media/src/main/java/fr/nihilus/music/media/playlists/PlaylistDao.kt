@@ -22,7 +22,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import io.reactivex.Flowable
-import io.reactivex.Single
 
 @Dao
 internal interface PlaylistDao {
@@ -31,10 +30,10 @@ internal interface PlaylistDao {
     val playlistsFlow: Flowable<List<Playlist>>
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
-    fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>>
+    fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
 
     @Query("SELECT playlist_id FROM playlist_track WHERE music_id IN (:trackIds)")
-    fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray>
+    fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.FAIL)

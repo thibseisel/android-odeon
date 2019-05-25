@@ -27,7 +27,6 @@ import fr.nihilus.music.media.usage.*
 import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import io.reactivex.Single
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.runBlocking
@@ -39,8 +38,8 @@ class MediaRepositoryTest {
 
     private object DummyPlaylistDao : PlaylistDao {
         override val playlistsFlow: Flowable<List<Playlist>> get() = Flowable.empty()
-        override fun getPlaylistTracks(playlistId: Long): Single<List<PlaylistTrack>> = Single.just(emptyList())
-        override fun getPlaylistsHavingTracks(trackIds: LongArray): Single<LongArray> = Single.just(LongArray(0))
+        override fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
+        override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
         override fun savePlaylist(playlist: Playlist): Long = 0L
         override fun addTracks(tracks: List<PlaylistTrack>) = Unit
         override fun deletePlaylist(playlistId: Long) = Unit
