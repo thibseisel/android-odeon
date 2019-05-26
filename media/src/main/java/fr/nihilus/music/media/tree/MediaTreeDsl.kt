@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.tree
 
+import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
@@ -287,6 +288,7 @@ private constructor(
          * @param title The display title of the media item representing this category.
          * @param subtitle The display subtitle of the media item representing this category.
          * @param description The display description of the media item representing this category.
+         * @param iconUri An uri pointing to an icon representing this category.
          * @param children An async function called to load children of that category.
          * It should return the items between the specified indices,
          * or `null` if the category has no children.
@@ -296,6 +298,7 @@ private constructor(
             title: CharSequence? = null,
             subtitle: CharSequence? = null,
             description: CharSequence? = null,
+            iconUri: Uri? = null,
             children: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
         ) {
             check(categoryId !in staticCategories) { "Duplicate category: $categoryId" }
@@ -304,6 +307,7 @@ private constructor(
                 title = title,
                 subtitle = subtitle,
                 description = description,
+                iconUri = iconUri,
                 provider = children
             )
         }
@@ -355,6 +359,7 @@ private constructor(
      * @param title The display title of the media item representing this category.
      * @param subtitle The display subtitle of the media item representing this category.
      * @param description The display description of the media item representing this category.
+     * @param iconUri An uri pointing to an icon representing this category.
      * @param provider An async function for querying the children of this category.
      */
     class Category(
@@ -362,6 +367,7 @@ private constructor(
         val title: CharSequence?,
         val subtitle: CharSequence?,
         val description: CharSequence?,
+        val iconUri: Uri?,
         val provider: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
     ) {
         /**
@@ -374,6 +380,7 @@ private constructor(
                     .setTitle(title)
                     .setSubtitle(subtitle)
                     .setDescription(description)
+                    .setIconUri(iconUri)
                     .build()
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
             }

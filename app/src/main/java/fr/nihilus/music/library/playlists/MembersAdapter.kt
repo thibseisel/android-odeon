@@ -34,7 +34,7 @@ internal class MembersAdapter(
     private val glideRequest: GlideRequest<Bitmap>
 
     init {
-        val context = checkNotNull(fragment.context) { "Fragment is not attached." }
+        val context = fragment.requireContext()
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
             .transforms(FitCenter(), RoundedCorners(cornerRadius))

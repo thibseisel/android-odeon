@@ -54,7 +54,7 @@ internal class MembersHolder(
         title.text = description.title
 
         val millis = description.extras?.getLong(MediaItems.EXTRA_DURATION)
-                ?: throw IllegalStateException("Track should have extras")
+                ?: error("Track should have extras")
         subtitle.text = String.format(
             subtitleTemplate, description.subtitle,
             DateUtils.formatElapsedTime(durationBuilder, millis / 1000L)

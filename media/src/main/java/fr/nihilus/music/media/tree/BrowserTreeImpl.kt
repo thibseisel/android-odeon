@@ -35,6 +35,7 @@ import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.extensions.getResourceUri
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
@@ -79,12 +80,14 @@ internal class BrowserTreeImpl
             category(
                 CATEGORY_MOST_RATED,
                 context.getString(R.string.abc_most_rated),
+                iconUri = context.resources.getResourceUri(R.drawable.abc_ic_most_rated_128dp),
                 children = ::provideMostRatedTracks
             )
 
             category(
                 CATEGORY_RECENTLY_ADDED,
                 context.getString(R.string.abc_last_added),
+                iconUri = context.resources.getResourceUri(R.drawable.abc_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
             )
         }
