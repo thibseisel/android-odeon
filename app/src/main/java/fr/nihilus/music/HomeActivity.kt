@@ -37,10 +37,12 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.NavigationController
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.media.permissions.PermissionChecker
+import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
-import fr.nihilus.music.ui.ConfirmDialogFragment
 import kotlinx.android.synthetic.main.activity_home.*
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
@@ -274,12 +276,19 @@ class HomeActivity : BaseActivity(),
      * @return true if intent was handled, false otherwise
      */
     private fun handleIntent(intent: Intent?): Boolean {
+        Timber.d("Received intent: %s", intent)
         when (intent?.action) {
             ACTION_RANDOM -> {
                 startRandomMix()
                 // Intent is purposely marked as not handled to trigger home screen display
                 return false
             }
+        }
+
+        if (intent?.getBooleanExtra(MusicService.EXTRA_EXPAND_PLAYER, false) == true) {
+            player_container.postDelayed({
+                bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+            }, 300L)
         }
 
         return false

@@ -48,6 +48,14 @@ import javax.inject.Inject
 
 class MusicService : BaseBrowserService() {
 
+    companion object {
+        /**
+         * Used as a boolean field in intents to indicate that the target activity
+         * should display the UI for controlling media playback.
+         */
+        const val EXTRA_EXPAND_PLAYER = "fr.nihilus.music.media.extras.EXTRA_EXPAND_PLAYER"
+    }
+
     @Inject internal lateinit var browserTree: BrowserTree
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: MediaUsageManager

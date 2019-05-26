@@ -28,7 +28,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
 import fr.nihilus.music.media.OdeonPlaybackPreparer
-import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.playback.ErrorHandler
 import fr.nihilus.music.media.playback.MediaQueueManager
@@ -45,15 +44,14 @@ internal class MediaSessionModule {
      */
     @Provides @ServiceScoped
     fun providesMediaSession(service: MusicService): MediaSessionCompat {
-        val showUiIntent = PendingIntent.getActivity(
-            service,
-            R.id.abc_request_start_media_activity,
-            service.packageManager.getLaunchIntentForPackage(service.packageName),
-            0
-        )
+        val sessionActivityPendingIntent =
+            service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
+                sessionIntent.putExtra(MusicService.EXTRA_EXPAND_PLAYER, true)
+                PendingIntent.getActivity(service, 0, sessionIntent, 0)
+            }
 
-        return MediaSessionCompat(service, "MediaSession").also {
-            it.setSessionActivity(showUiIntent)
+        return MediaSessionCompat(service, "MusicService").also {
+            it.setSessionActivity(sessionActivityPendingIntent)
             it.setRatingType(RatingCompat.RATING_NONE)
         }
     }
