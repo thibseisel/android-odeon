@@ -143,7 +143,7 @@ class MusicService : BaseBrowserService() {
             val parentMediaId = MediaId.parseOrNull(parentId)
             if (parentMediaId != null) {
                 try {
-                    val children = browserTree.getChildren(parentMediaId)
+                    val children = browserTree.getChildren(parentMediaId, options)
                     result.sendResult(children)
 
                 } catch (pde: PermissionDeniedException) {

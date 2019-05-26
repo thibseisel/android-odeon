@@ -66,7 +66,7 @@ internal class PlaybackPreparerImpl(
     private suspend fun prepareFromMediaId(mediaId: MediaId, queueIdentifier: Long) {
         val parentMediaId = MediaId.fromParts(mediaId.type, mediaId.category, track = null)
 
-        val childrenOfRequestedMediaId = mediaTree.getChildren(parentMediaId).orEmpty()
+        val childrenOfRequestedMediaId = mediaTree.getChildren(parentMediaId, null).orEmpty()
         val playQueue = childrenOfRequestedMediaId.asSequence()
             .filter { it.isPlayable && !it.isBrowsable }
             .mapIndexed { queueIndex, item -> QueueItem(item.description, queueIndex.toLong()) }

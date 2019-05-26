@@ -19,6 +19,7 @@ package fr.nihilus.music.media.tree
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
@@ -46,6 +47,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
+private const val DEFAULT_PAGE_NUMBER = 0
+private const val DEFAULT_PAGE_SIZE = Int.MAX_VALUE
+private const val MINIMUM_PAGE_NUMBER = 0
+private const val MINIMUM_PAGE_SIZE = 1
+
 private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
     val discNumberDiff = a.discNumber - b.discNumber
     if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
@@ -58,7 +64,7 @@ internal class BrowserTreeImpl
     private val repository: MediaRepository
 ) : BrowserTree {
 
-    private val tree = mediaTree(MediaId.TYPE_ROOT) {
+    private val tree = mediaTree(MediaId.ROOT) {
         rootName = context.getString(R.string.browser_root_title)
 
         type(TYPE_TRACKS) {
@@ -105,7 +111,18 @@ internal class BrowserTreeImpl
         }
     }
 
-    override suspend fun getChildren(parentId: MediaId): List<MediaItem>? = tree.getChildren(parentId)
+    override suspend fun getChildren(parentId: MediaId, options: Bundle?): List<MediaItem>? {
+        // Take pagination into account when specified.
+        val pageNumber = options?.getInt(MediaBrowserCompat.EXTRA_PAGE, DEFAULT_PAGE_NUMBER)
+            ?.coerceAtLeast(MINIMUM_PAGE_NUMBER)
+            ?: DEFAULT_PAGE_NUMBER
+
+        val pageSize = options?.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, DEFAULT_PAGE_SIZE)
+            ?.coerceAtLeast(MINIMUM_PAGE_SIZE)
+            ?: DEFAULT_PAGE_SIZE
+
+        return tree.getChildren(parentId, pageNumber, pageSize)
+    }
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
@@ -169,35 +186,39 @@ internal class BrowserTreeImpl
             ) else Flowable.just(it.mediaId)
         }
 
-    private suspend fun provideAllTracks(): List<MediaItem> {
+    private suspend fun provideAllTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllTracks().map { track ->
-            val mediaId = encode(
-                TYPE_TRACKS,
-                CATEGORY_ALL,
-                track.id
-            )
-            track.toMediaItem(mediaId, builder)
-        }
+        return repository.getAllTracks().asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { track ->
+                val mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, track.id)
+                track.toMediaItem(mediaId, builder)
+            }
     }
 
-    private suspend fun provideMostRatedTracks(): List<MediaItem> {
+    private suspend fun provideMostRatedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getMostRatedTracks().map { track ->
-            val mediaId = encode(TYPE_TRACKS, CATEGORY_MOST_RATED, track.id)
-            track.toMediaItem(mediaId, builder)
-        }
+        return repository.getMostRatedTracks().asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { track ->
+                val mediaId = encode(TYPE_TRACKS, CATEGORY_MOST_RATED, track.id)
+                track.toMediaItem(mediaId, builder)
+            }
     }
 
-    private suspend fun provideRecentlyAddedTracks(): List<MediaItem> {
+    private suspend fun provideRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllTracks()
+        return repository.getAllTracks().asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
-            .map { track ->
+            .drop(fromIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { track ->
                 val mediaId = encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, track.id)
                 track.toMediaItem(mediaId, builder)
             }
@@ -212,17 +233,24 @@ internal class BrowserTreeImpl
         }
     }
 
-    private suspend fun provideAlbumTracks(albumCategory: String): List<MediaItem>? {
+    private suspend fun provideAlbumTracks(
+        albumCategory: String,
+        fromIndex: Int,
+        count: Int
+    ): List<MediaItem>? {
         return albumCategory.toLongOrNull()?.let { albumId ->
             val builder = MediaDescriptionCompat.Builder()
 
             repository.getAllTracks().asSequence()
                 .filter { it.albumId == albumId }
                 .sortedWith(ALBUM_TRACK_ORDERING)
+                .drop(fromIndex)
+                .take(count)
                 .mapTo(mutableListOf()) { albumTrack ->
                     val mediaId = encode(TYPE_ALBUMS, albumCategory, albumTrack.id)
                     albumTrack.toMediaItem(mediaId, builder)
-                }.takeUnless { it.isEmpty() }
+                }
+                .takeUnless { it.isEmpty() }
         }
     }
 
@@ -235,32 +263,38 @@ internal class BrowserTreeImpl
         }
     }
 
-    private suspend fun provideArtistChildren(artistCategory: String): List<MediaItem>? {
+    private suspend fun provideArtistChildren(
+        artistCategory: String,
+        fromIndex: Int,
+        count: Int
+    ): List<MediaItem>? {
         return artistCategory.toLongOrNull()?.let { artistId ->
             coroutineScope {
+                val builder = MediaDescriptionCompat.Builder()
+
                 val asyncAllAlbums = async { repository.getAllAlbums() }
                 val asyncAllTracks = async { repository.getAllTracks() }
 
                 val artistAlbums = asyncAllAlbums.await().asSequence()
                     .filter { it.artistId == artistId }
                     .sortedByDescending { it.releaseYear }
+                    .map { album ->
+                        val mediaId = encode(TYPE_ALBUMS, album.id.toString())
+                        album.toMediaItem(mediaId, builder)
+                    }
 
                 val artistTracks = asyncAllTracks.await().asSequence()
                     .filter { it.artistId == artistId }
-
-                val builder = MediaDescriptionCompat.Builder()
-                mutableListOf<MediaItem>().also { artistChildren ->
-                    artistAlbums.mapTo(artistChildren) {
-                        val mediaId = encode(TYPE_ALBUMS, it.id.toString())
-                        it.toMediaItem(mediaId, builder)
+                    .map { track ->
+                        val mediaId = encode(TYPE_ARTISTS, artistId.toString(), track.id)
+                        track.toMediaItem(mediaId, builder)
                     }
 
-                    artistTracks.mapTo(artistChildren) {
-                        val mediaId = encode(TYPE_ARTISTS, artistId.toString(), it.id)
-                        it.toMediaItem(mediaId, builder)
-                    }
-
-                }.takeUnless { it.isEmpty() }
+                (artistAlbums + artistTracks)
+                    .drop(fromIndex)
+                    .take(count)
+                    .toList()
+                    .takeUnless { it.isEmpty() }
             }
         }
     }
@@ -275,14 +309,21 @@ internal class BrowserTreeImpl
         }
     }
 
-    private suspend fun providePlaylistTracks(playlistCategory: String): List<MediaItem>? {
+    private suspend fun providePlaylistTracks(
+        playlistCategory: String,
+        fromIndex: Int,
+        count: Int
+    ): List<MediaItem>? {
         return playlistCategory.toLongOrNull()?.let { playlistId ->
             val builder = MediaDescriptionCompat.Builder()
 
-            repository.getPlaylistTracks(playlistId)?.map { playlistTrack ->
-                val mediaId = encode(TYPE_PLAYLISTS, playlistId.toString(), playlistTrack.id)
-                playlistTrack.toMediaItem(mediaId, builder)
-            }
+            repository.getPlaylistTracks(playlistId)?.asSequence()
+                ?.drop(fromIndex)
+                ?.take(count)
+                ?.mapTo(mutableListOf()) { playlistTrack ->
+                    val mediaId = encode(TYPE_PLAYLISTS, playlistId.toString(), playlistTrack.id)
+                    playlistTrack.toMediaItem(mediaId, builder)
+                }
         }
     }
 

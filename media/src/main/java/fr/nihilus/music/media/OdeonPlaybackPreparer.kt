@@ -135,7 +135,7 @@ internal class OdeonPlaybackPreparer
             val (type, category, track) = MediaId.parse(mediaId)
             val parentId = MediaId.fromParts(type, category, track = null)
 
-            val children = browserTree.getChildren(parentId)
+            val children = browserTree.getChildren(parentId, null)
 
             if (children != null) {
                 val playQueue = children.filter { it.isPlayable && !it.isBrowsable }

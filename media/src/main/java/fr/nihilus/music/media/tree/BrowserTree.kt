@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.tree
 
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.media.MediaId
 import io.reactivex.Flowable
@@ -40,11 +41,15 @@ internal interface BrowserTree {
      * otherwise, if the parent is not browsable, `null` is returned to indicate the absence of children.
      * Likewise, if the specified media id does not match an existing media in the tree, this also returns `null`.
      *
+     * Results can be paginated by specifying the optional [MediaBrowserCompat.EXTRA_PAGE_SIZE]
+     * and [MediaBrowserCompat.EXTRA_PAGE] as [options].
+     *
      * @param parentId The media id of an item whose children should be loaded.
-     * @return The list of children of the media with the id [parentId], or `null` if that media is not browsable
-     * or doesn't exist.
+     * @param options An optional bundle of client-specified options.
+     * @return The list of children of the media with the id [parentId],
+     * or `null` if that media is not browsable or doesn't exist.
      */
-    suspend fun getChildren(parentId: MediaId): List<MediaItem>?
+    suspend fun getChildren(parentId: MediaId, options: Bundle?): List<MediaItem>?
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
