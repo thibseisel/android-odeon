@@ -153,6 +153,15 @@ object CustomActions {
      * @see EXTRA_ERROR_CODE
      */
     const val ERROR_CODE_UNSUPPORTED_MEDIA_ID = -2
+
+    /**
+     * Denotes that a custom action failed because it requires a runtime permission to be granted.
+     * The error message provided with this error code should be the name of the required permission.
+     *
+     * @see EXTRA_ERROR_CODE
+     * @see EXTRA_ERROR_MESSAGE
+     */
+    const val ERROR_CODE_PERMISSION_DENIED = -3
 }
 
 /**

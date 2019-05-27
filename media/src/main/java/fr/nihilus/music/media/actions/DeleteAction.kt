@@ -20,6 +20,7 @@ import android.os.Bundle
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
 import kotlinx.coroutines.withContext
@@ -89,13 +90,7 @@ internal class DeleteAction
             )
         }
 
-        val deletedTrackCount = if (deletedTrackIds.isNotEmpty()) {
-            withContext(dispatchers.IO) {
-                val trackIds = LongArray(deletedTrackIds.size) { deletedTrackIds[it] }
-                provider.deleteTracks(trackIds)
-            }
-        } else 0
-
+        // Proceed with deleting playlists, if any.
         if (deletedPlaylistIds.isNotEmpty()) {
             withContext(dispatchers.Database) {
                 deletedPlaylistIds.forEach { playlistId ->
@@ -104,8 +99,20 @@ internal class DeleteAction
             }
         }
 
-        return Bundle(1).apply {
-            putInt(CustomActions.RESULT_TRACK_COUNT, deletedTrackCount)
+        try {
+            // Proceed with deleting tracks, if any.
+            val deletedTrackCount = if (deletedTrackIds.isEmpty()) 0 else withContext(dispatchers.IO) {
+                val trackIds = LongArray(deletedTrackIds.size) { deletedTrackIds[it] }
+                provider.deleteTracks(trackIds)
+            }
+
+            return Bundle(1).apply {
+                putInt(CustomActions.RESULT_TRACK_COUNT, deletedTrackCount)
+            }
+
+        } catch (pde: PermissionDeniedException) {
+            // Permission to write to storage is not granted.
+            throw ActionFailure(CustomActions.ERROR_CODE_PERMISSION_DENIED, pde.permission)
         }
     }
 }

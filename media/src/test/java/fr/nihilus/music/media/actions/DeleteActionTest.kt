@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.actions
 
+import android.Manifest
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -32,10 +33,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
-import fr.nihilus.music.media.provider.MediaProvider
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -91,6 +89,24 @@ class DeleteActionTest {
         }
 
         assertThat(failure.errorCode).isEqualTo(CustomActions.ERROR_CODE_UNSUPPORTED_MEDIA_ID)
+    }
+
+    @Test
+    fun givenDeniedPermissionAndTracks_whenExecuting_thenFailWithDeniedPermission() = dispatcher.runBlockingTest {
+        val permissionDeniedProvider = TestMediaProvider()
+        permissionDeniedProvider.hasStoragePermission = false
+
+        val action = DeleteAction(permissionDeniedProvider, playlistDao, AppDispatchers(dispatcher))
+        val failure = assertThrows<ActionFailure> {
+            action.execute(Bundle(1).apply {
+                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(
+                    encode(TYPE_TRACKS, CATEGORY_ALL, 42)
+                ))
+            })
+        }
+
+        assertThat(failure.errorCode).isEqualTo(CustomActions.ERROR_CODE_PERMISSION_DENIED)
+        assertThat(failure.errorMessage).isEqualTo(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
     @Test
