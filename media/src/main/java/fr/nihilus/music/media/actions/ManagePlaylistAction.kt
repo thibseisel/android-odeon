@@ -24,13 +24,13 @@ import com.github.thibseisel.kdenticon.Identicon
 import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
+import fr.nihilus.music.media.toMediaIdOrNull
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -136,7 +136,7 @@ internal class ManagePlaylistAction
         encodedPlaylistId: String?,
         encodedTrackIds: Array<String>?
     ): Bundle? {
-        val playlistId = MediaId.parseOrNull(encodedPlaylistId)
+        val playlistId = encodedPlaylistId?.toMediaIdOrNull()
             ?.takeIf { it.type == TYPE_PLAYLISTS && it.category != null && it.track == null }
             ?.category?.toLongOrNull()
             ?: throw ActionFailure(
@@ -162,7 +162,7 @@ internal class ManagePlaylistAction
     }
 
     private fun extractTrackIdFrom(encodedId: String): Long {
-        return MediaId.parseOrNull(encodedId)?.track
+        return encodedId.toMediaIdOrNull()?.track
             ?: throw ActionFailure(
                 CustomActions.ERROR_CODE_UNSUPPORTED_MEDIA_ID,
                 "$encodedId is not a valid track media id."

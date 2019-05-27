@@ -48,7 +48,6 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
-import fr.nihilus.music.media.MediaId.Builder.fromParts as mediaId
 
 @RunWith(AndroidJUnit4::class)
 class DeleteActionTest {
@@ -111,16 +110,16 @@ class DeleteActionTest {
 
     @Test
     fun givenInvalidMediaIds_whenExecuting_thenFailWithUnsupportedParameter() = dispatcher.runBlockingTest {
-        assertUnsupported(mediaId(TYPE_ROOT))
-        assertUnsupported(mediaId(TYPE_TRACKS))
-        assertUnsupported(mediaId(TYPE_ALBUMS))
-        assertUnsupported(mediaId(TYPE_ARTISTS))
-        assertUnsupported(mediaId(TYPE_PLAYLISTS))
-        assertUnsupported(mediaId(TYPE_TRACKS, CATEGORY_ALL))
-        assertUnsupported(mediaId(TYPE_ALBUMS, "54"))
-        assertUnsupported(mediaId(TYPE_ARTISTS, "13"))
-        assertUnsupported(mediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
-        assertUnsupported(mediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
+        assertUnsupported(MediaId(TYPE_ROOT))
+        assertUnsupported(MediaId(TYPE_TRACKS))
+        assertUnsupported(MediaId(TYPE_ALBUMS))
+        assertUnsupported(MediaId(TYPE_ARTISTS))
+        assertUnsupported(MediaId(TYPE_PLAYLISTS))
+        assertUnsupported(MediaId(TYPE_TRACKS, CATEGORY_ALL))
+        assertUnsupported(MediaId(TYPE_ALBUMS, "54"))
+        assertUnsupported(MediaId(TYPE_ARTISTS, "13"))
+        assertUnsupported(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
+        assertUnsupported(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
     }
 
     @Test

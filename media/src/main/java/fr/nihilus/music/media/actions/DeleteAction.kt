@@ -18,11 +18,13 @@ package fr.nihilus.music.media.actions
 
 import android.os.Bundle
 import fr.nihilus.music.media.AppDispatchers
+import fr.nihilus.music.media.InvalidMediaException
 import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
+import fr.nihilus.music.media.toMediaId
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -50,16 +52,17 @@ internal class DeleteAction
         get() = CustomActions.ACTION_DELETE_MEDIA
 
     override suspend fun execute(parameters: Bundle?): Bundle? {
-        val deletedMediaIds = parameters?.getStringArray(CustomActions.EXTRA_MEDIA_IDS)?.map {
-            MediaId.parseOrNull(it) ?: throw ActionFailure(
-                CustomActions.ERROR_CODE_PARAMETER,
-                "Invalid media id: $it"
-            )
+        val deletedMediaIds = try {
+            parameters?.getStringArray(CustomActions.EXTRA_MEDIA_IDS)
+                ?.map(String::toMediaId)
+                ?: throw ActionFailure(
+                    CustomActions.ERROR_CODE_PARAMETER,
+                    "Missing parameter ${CustomActions.EXTRA_MEDIA_IDS}"
+                )
 
-        } ?: throw ActionFailure(
-            CustomActions.ERROR_CODE_PARAMETER,
-            "Missing parameter ${CustomActions.EXTRA_MEDIA_IDS}"
-        )
+        } catch (ime: InvalidMediaException) {
+            throw ActionFailure(CustomActions.ERROR_CODE_PARAMETER, ime.message)
+        }
 
         val deletedTrackIds = mutableListOf<Long>()
         val deletedPlaylistIds = mutableListOf<Long>()

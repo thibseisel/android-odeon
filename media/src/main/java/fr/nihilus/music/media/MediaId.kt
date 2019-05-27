@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.media
 
-import org.jetbrains.annotations.Contract
-
 /**
  * Thrown when [parsing][MediaId.parse] or [encoding][MediaId.encode] a media ID
  * that does not match the required format.
@@ -226,16 +224,12 @@ private constructor(
         @JvmField val ALL_PLAYLISTS = encode(TYPE_PLAYLISTS)
 
         /**
-         * The unique identifier of the parent of most rated tracks.
-         * @see CATEGORY_RECENTLY_ADDED
+         * Convenience function for creating media ids from their component parts.
+         *
+         * @see MediaId.fromParts
          */
-        @JvmField val RECENTLY_ADDED = encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
-
-        /**
-         * The unique identifier of the parent of tracks that have the best user rating.
-         * @see CATEGORY_MOST_RATED
-         */
-        @JvmField val MOST_RATED = encode(TYPE_TRACKS, CATEGORY_MOST_RATED)
+        operator fun invoke(type: String, category: String? = null, track: Long? = null): MediaId =
+            fromParts(type, category, track)
 
         /**
          * Assert that that passed [encoded] String matches the format for a media id
@@ -243,9 +237,8 @@ private constructor(
          *
          * @throws InvalidMediaException If the passed String does not match the required format.
          */
-        @Contract("null -> fail")
         fun parse(encoded: String?): MediaId {
-            requireNotNull(encoded) { "Every media should have a media id" }
+            if (encoded == null) throw InvalidMediaException("Null is not allowed as a media id.")
 
             val categorySeparatorIndex = encoded.indexOf(CATEGORY_SEPARATOR)
             if (categorySeparatorIndex == -1) {
@@ -274,12 +267,15 @@ private constructor(
             return MediaId(type, category, track.toLong(), encoded)
         }
 
-        fun parseOrNull(encoded: String?): MediaId? = try {
-            parse(encoded)
-        } catch (e: InvalidMediaException) {
-            null
-        }
-
+        /**
+         * Assembles a media id from its 3 components parts.
+         * This checks that all parts are correctly formatted.
+         *
+         * @param type The type of the media, as per [MediaId.type].
+         * @param category The optional category of the media, as per [MediaId.category].
+         * @param track The optional track identifier, as per [MediaId.track].
+         * @throws InvalidMediaException If one if the provided parts is incorrectly formatted.
+         */
         fun fromParts(type: String, category: String? = null, track: Long? = null): MediaId {
             // Validate parts while creating the encoded form.
             val encoded = encode(type, category, track)
@@ -345,3 +341,28 @@ private constructor(
         }
     }
 }
+
+/**
+ * Parse the receiver string to a media id,
+ * checking its format and splitting it into its component parts.
+ *
+ * This is a convenient extension over [MediaId.parse].
+ *
+ * @receiver A media id in its string-encoded format.
+ * While `null` is accepted as a value, its parsing will always fail.
+ * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver.
+ * @throws InvalidMediaException If the parsed string is not a valid media id.
+ */
+fun String?.toMediaId(): MediaId = MediaId.parse(this)
+
+/**
+ * Attempt to parse the receiver string to a media id,
+ * returning `null` if its format is incorrect.
+ *
+ * @receiver A media id in its string-encoded format.
+ * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver,
+ * or `null` if parsing failed.
+ */
+fun String.toMediaIdOrNull(): MediaId? = try {
+    MediaId.parse(this)
+} catch (ime: InvalidMediaException) { null }

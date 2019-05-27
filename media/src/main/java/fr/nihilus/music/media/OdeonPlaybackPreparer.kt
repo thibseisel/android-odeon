@@ -132,7 +132,7 @@ internal class OdeonPlaybackPreparer
 
     private fun prepareFromMediaId(mediaId: String) = service.launch {
         try {
-            val (type, category, track) = MediaId.parse(mediaId)
+            val (type, category, track) = mediaId.toMediaId()
             val parentId = MediaId.fromParts(type, category, track = null)
 
             val children = browserTree.getChildren(parentId, null)

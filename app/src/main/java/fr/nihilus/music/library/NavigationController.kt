@@ -29,6 +29,7 @@ import fr.nihilus.music.library.playlists.MembersFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
 import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.toMediaId
 import fr.nihilus.music.settings.SettingsActivity
 import javax.inject.Inject
 
@@ -135,7 +136,7 @@ class NavigationController
         val tag = requireNotNull(playlist.mediaId) { "Playlist should have a mediaId" }
         val fragment = findOrCreateFragment(tag) {
             // Only user-defined playlists should be deletable
-            val type = MediaId.parse(tag).type
+            val type = tag.toMediaId().type
             MembersFragment.newInstance(playlist, deletable = (type == MediaId.TYPE_PLAYLISTS))
         }
 

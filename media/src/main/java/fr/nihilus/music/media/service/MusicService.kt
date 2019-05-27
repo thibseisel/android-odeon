@@ -30,9 +30,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.MediaSettings
-import fr.nihilus.music.media.R
+import fr.nihilus.music.media.*
 import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.actions.CustomActions
@@ -148,7 +146,7 @@ class MusicService : BaseBrowserService() {
         result.detach()
 
         launch {
-            val parentMediaId = MediaId.parseOrNull(parentId)
+            val parentMediaId = parentId.toMediaIdOrNull()
             if (parentMediaId != null) {
                 try {
                     val children = browserTree.getChildren(parentMediaId, options)
@@ -170,7 +168,7 @@ class MusicService : BaseBrowserService() {
         if (itemId == null) {
             result.sendResult(null)
         } else {
-            val itemMediaId = MediaId.parseOrNull(itemId) ?: run {
+            val itemMediaId = itemId.toMediaIdOrNull() ?: run {
                 Timber.i("Attempt to load item with an invalid media id: %s", itemId)
                 result.sendResult(null)
                 return
@@ -359,7 +357,7 @@ class MusicService : BaseBrowserService() {
 
             player.currentTimeline.getWindow(completedTrackIndex, windowBuffer, true)
             val completedMedia = windowBuffer.tag as? MediaDescriptionCompat ?: return
-            val (_, _, completedTrackId) = MediaId.parse(completedMedia.mediaId)
+            val (_, _, completedTrackId) = completedMedia.mediaId.toMediaId()
 
             if (completedTrackId != null) {
                 usageManager.reportCompletion(completedTrackId)

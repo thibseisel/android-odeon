@@ -63,13 +63,9 @@ class MediaIdTest {
         assertThat(mediaId.encoded).isEqualTo(encoded)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun whenParsingNull_thenFailWithIllegalArgumentException() {
-        MediaId.parse(null)
-    }
-
     @Test
     fun whenParsingInvalidStrings_thenFailWithInvalidMediaException() {
+        assertParsingFails(null)
         assertParsingFails("")
         assertParsingFails("12e86f5")
         assertParsingFails("type/")
@@ -116,7 +112,7 @@ class MediaIdTest {
         }
     }
 
-    private fun assertParsingFails(encoded: String) {
+    private fun assertParsingFails(encoded: String?) {
         assertThrows<InvalidMediaException> {
             MediaId.parse(encoded)
         }

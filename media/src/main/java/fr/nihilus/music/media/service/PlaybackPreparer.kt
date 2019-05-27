@@ -19,13 +19,16 @@ package fr.nihilus.music.media.service
 import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat.QueueItem
 import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.media.InvalidMediaException
 import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaSettings
 import fr.nihilus.music.media.playback.MusicPlayer
 import fr.nihilus.music.media.playback.skipTo
+import fr.nihilus.music.media.toMediaId
 import fr.nihilus.music.media.tree.BrowserTree
+import timber.log.Timber
 
 @ExperimentalMediaApi
 internal interface PlaybackPreparer {
@@ -51,15 +54,18 @@ internal class PlaybackPreparerImpl(
 
     override suspend fun onPrepare() {
         val lastQueueId = settings.queueCounter
-        val mediaToPrepare = settings.lastPlayedMediaId?.let(MediaId.Builder::parse)
+        val mediaToPrepare = settings.lastPlayedMediaId?.toMediaId()
             ?: MediaId.fromParts(TYPE_TRACKS, CATEGORY_ALL)
 
         prepareFromMediaId(mediaToPrepare, lastQueueId)
     }
 
     override suspend fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-        MediaId.parseOrNull(mediaId)?.let { validMediaId ->
-            prepareFromMediaId(validMediaId, ++settings.queueCounter)
+        try {
+            val mediaToPrepare = mediaId.toMediaId()
+            prepareFromMediaId(mediaToPrepare, ++settings.queueCounter)
+        } catch (ime: InvalidMediaException) {
+            Timber.i("onPrepareFromMediaId: client supplied invalid media id: %s", mediaId)
         }
     }
 
