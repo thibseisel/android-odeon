@@ -23,7 +23,6 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject
-import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.*
@@ -44,14 +43,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
-
-/**
- * Allows Truth assertions to compare media items by their media id.
- */
-private val THEIR_MEDIA_ID = Correspondence.transforming<MediaItem?, String?>(
-    { it?.mediaId },
-    "has a media id of"
-)
 
 /**
  * Browse the media tree recursively from the specified root node.

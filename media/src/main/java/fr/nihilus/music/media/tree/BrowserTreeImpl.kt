@@ -53,6 +53,8 @@ private const val DEFAULT_PAGE_SIZE = Int.MAX_VALUE
 private const val MINIMUM_PAGE_NUMBER = 0
 private const val MINIMUM_PAGE_SIZE = 1
 
+private const val BASE_SCORE = 100
+
 private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
     val discNumberDiff = a.discNumber - b.discNumber
     if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
@@ -129,54 +131,137 @@ internal class BrowserTreeImpl
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
-    override suspend fun search(query: String, extras: Bundle?): List<MediaItem> {
-        val results = when (extras?.getString(MediaStore.EXTRA_MEDIA_FOCUS)) {
+    override suspend fun search(query: String, options: Bundle?): List<MediaItem> {
+
+        val results = when (options?.getString(MediaStore.EXTRA_MEDIA_FOCUS)) {
+
             MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> {
-                extras.getString(MediaStore.EXTRA_MEDIA_ARTIST)?.let {
-                    searchTracksByArtistName(it.toLowerCase())
+                options.getString(MediaStore.EXTRA_MEDIA_ARTIST)?.toLowerCase()?.let { artistName ->
+
+                    val searchResults = mutableListOf<ItemScore>().also {
+                        fuzzySearchArtistsTo(it, artistName, repository.getAllArtists())
+                        it.sortByDescending(ItemScore::score)
+                    }
+
+                    searchResults.map(ItemScore::media)
                 }
             }
 
             MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> {
-                extras.getString(MediaStore.EXTRA_MEDIA_ALBUM)?.let {
-                    searchTracksByAlbumTitle(it.toLowerCase())
+                options.getString(MediaStore.EXTRA_MEDIA_ALBUM)?.toLowerCase()?.let { albumTitle ->
+
+                    val searchResults = mutableListOf<ItemScore>().also {
+                        fuzzySearchAlbumsTo(it, albumTitle, repository.getAllAlbums())
+                        it.sortByDescending(ItemScore::score)
+                    }
+
+                    searchResults.map(ItemScore::media)
                 }
             }
 
-            else -> searchTrackByTitle(query.toLowerCase())?.let(::listOf)
+            MediaStore.Audio.Media.ENTRY_CONTENT_TYPE -> {
+                options.getString(MediaStore.EXTRA_MEDIA_TITLE)?.toLowerCase()?.let { trackTitle ->
+
+                    val searchResults = mutableListOf<ItemScore>().also {
+                        fuzzySearchTracksTo(it, trackTitle, repository.getAllTracks())
+                        it.sortByDescending(ItemScore::score)
+                    }
+
+                    searchResults.map(ItemScore::media)
+                }
+            }
+
+            else -> if (query.isEmpty()) null else coroutineScope {
+                val artists = async { repository.getAllArtists() }
+                val albums = async { repository.getAllAlbums() }
+                val tracks = async { repository.getAllTracks() }
+
+                val searchResults = mutableListOf<ItemScore>()
+                fuzzySearchArtistsTo(searchResults, query, artists.await())
+                fuzzySearchAlbumsTo(searchResults, query, albums.await())
+                fuzzySearchTracksTo(searchResults, query, tracks.await())
+
+                searchResults.sortByDescending(ItemScore::score)
+                searchResults.map(ItemScore::media)
+            }
         }
 
         return results.orEmpty()
     }
 
-    private suspend fun searchTracksByArtistName(artistName: String): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getAllTracks().asSequence()
-            .filter { artistName == it.artist.toLowerCase() }
-            .map {
-                val mediaId = encode(TYPE_ARTISTS, it.artistId.toString(), it.id)
-                it.toMediaItem(mediaId, builder)
-            }.toList()
+    private class MatchResult {
+        var matched = false
+        var score = Int.MIN_VALUE
     }
 
-    private suspend fun searchTracksByAlbumTitle(albumTitle: String): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
+    private class ItemScore(val media: MediaItem, val score: Int)
 
-        return repository.getAllTracks().asSequence()
-            .filter { albumTitle == it.album.toLowerCase() }
-            .map {
-                val mediaId = encode(TYPE_ALBUMS, it.albumId.toString(), it.id)
-                it.toMediaItem(mediaId, builder)
-            }.toList()
+    private fun fuzzyMatch(pattern: String, text: String, outResult: MatchResult) {
+        val matchPosition = text.indexOf(pattern)
+
+        if (matchPosition < 0) {
+            outResult.matched = false
+            outResult.score = Int.MIN_VALUE
+        } else {
+            outResult.matched = true
+            outResult.score = (BASE_SCORE - matchPosition - text.length)
+        }
     }
 
-    private suspend fun searchTrackByTitle(title: String?): MediaItem? {
-        if (title == null) return null
+    private fun fuzzySearchArtistsTo(
+        outResults: MutableList<ItemScore>,
+        pattern: String,
+        artists: List<Artist>
+    ) {
         val builder = MediaDescriptionCompat.Builder()
-        return repository.getAllTracks().find { title == it.title.toLowerCase() }?.let {
-            val mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, it.id)
-            it.toMediaItem(mediaId, builder)
+        val matchResult = MatchResult()
+
+        artists.fold(outResults) { results, artist ->
+            fuzzyMatch(pattern, artist.name.toLowerCase(), matchResult)
+
+            if (!matchResult.matched) results else {
+                val item = artist.toMediaItem(builder)
+                results += ItemScore(item, matchResult.score)
+                results
+            }
+        }
+    }
+
+    private fun fuzzySearchAlbumsTo(
+        outResults: MutableList<ItemScore>,
+        pattern: String,
+        albums: List<Album>
+    ) {
+        val builder = MediaDescriptionCompat.Builder()
+        val matchResult = MatchResult()
+
+        albums.fold(outResults) { results, album ->
+            fuzzyMatch(pattern, album.title.toLowerCase(), matchResult)
+
+            if (!matchResult.matched) results else {
+                val item = album.toMediaItem(builder)
+                results += ItemScore(item, matchResult.score)
+                results
+            }
+        }
+    }
+
+    private fun fuzzySearchTracksTo(
+        outResults: MutableList<ItemScore>,
+        pattern: String,
+        tracks: List<Track>
+    ) {
+        val builder = MediaDescriptionCompat.Builder()
+        val matchResult = MatchResult()
+
+        tracks.fold(outResults) { results, track ->
+            fuzzyMatch(pattern, track.title.toLowerCase(), matchResult)
+
+            if (!matchResult.matched) results else {
+                val item = track.toMediaItem(TYPE_TRACKS, CATEGORY_ALL, builder)
+                results += ItemScore(item, matchResult.score)
+                results
+            }
         }
     }
 
@@ -196,8 +281,7 @@ internal class BrowserTreeImpl
             .drop(fromIndex)
             .take(count)
             .mapTo(mutableListOf()) { track ->
-                val mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, track.id)
-                track.toMediaItem(mediaId, builder)
+                track.toMediaItem(TYPE_TRACKS, CATEGORY_ALL, builder)
             }
     }
 
@@ -208,8 +292,7 @@ internal class BrowserTreeImpl
             .drop(fromIndex)
             .take(count)
             .mapTo(mutableListOf()) { track ->
-                val mediaId = encode(TYPE_TRACKS, CATEGORY_MOST_RATED, track.id)
-                track.toMediaItem(mediaId, builder)
+                track.toMediaItem(TYPE_TRACKS, CATEGORY_MOST_RATED, builder)
             }
     }
 
@@ -222,8 +305,7 @@ internal class BrowserTreeImpl
             .drop(fromIndex)
             .take(count)
             .mapTo(mutableListOf()) { track ->
-                val mediaId = encode(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, track.id)
-                track.toMediaItem(mediaId, builder)
+                track.toMediaItem(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, builder)
             }
     }
 
@@ -231,8 +313,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getAllAlbums().map { album ->
-            val mediaId = encode(TYPE_ALBUMS, album.id.toString())
-            album.toMediaItem(mediaId, builder)
+            album.toMediaItem(builder)
         }
     }
 
@@ -250,8 +331,7 @@ internal class BrowserTreeImpl
                 .drop(fromIndex)
                 .take(count)
                 .mapTo(mutableListOf()) { albumTrack ->
-                    val mediaId = encode(TYPE_ALBUMS, albumCategory, albumTrack.id)
-                    albumTrack.toMediaItem(mediaId, builder)
+                    albumTrack.toMediaItem(TYPE_ALBUMS, albumCategory, builder)
                 }
                 .takeUnless { it.isEmpty() }
         }
@@ -261,8 +341,7 @@ internal class BrowserTreeImpl
         val builder = MediaDescriptionCompat.Builder()
 
         return repository.getAllArtists().map { artist ->
-            val mediaId = encode(TYPE_ARTISTS, artist.id.toString())
-            artist.toMediaItem(mediaId, builder)
+            artist.toMediaItem(builder)
         }
     }
 
@@ -282,15 +361,13 @@ internal class BrowserTreeImpl
                     .filter { it.artistId == artistId }
                     .sortedByDescending { it.releaseYear }
                     .map { album ->
-                        val mediaId = encode(TYPE_ALBUMS, album.id.toString())
-                        album.toMediaItem(mediaId, builder)
+                        album.toMediaItem(builder)
                     }
 
                 val artistTracks = asyncAllTracks.await().asSequence()
                     .filter { it.artistId == artistId }
                     .map { track ->
-                        val mediaId = encode(TYPE_ARTISTS, artistId.toString(), track.id)
-                        track.toMediaItem(mediaId, builder)
+                        track.toMediaItem(TYPE_ARTISTS, artistCategory, builder)
                     }
 
                 (artistAlbums + artistTracks)
@@ -324,13 +401,17 @@ internal class BrowserTreeImpl
                 ?.drop(fromIndex)
                 ?.take(count)
                 ?.mapTo(mutableListOf()) { playlistTrack ->
-                    val mediaId = encode(TYPE_PLAYLISTS, playlistId.toString(), playlistTrack.id)
-                    playlistTrack.toMediaItem(mediaId, builder)
+                    playlistTrack.toMediaItem(TYPE_PLAYLISTS, playlistCategory, builder)
                 }
         }
     }
 
-    private fun Track.toMediaItem(mediaId: String, builder: MediaDescriptionCompat.Builder): MediaItem {
+    private fun Track.toMediaItem(
+        type: String,
+        category: String,
+        builder: MediaDescriptionCompat.Builder
+    ): MediaItem {
+        val mediaId = encode(type, category, id)
         val description = builder.setMediaId(mediaId)
             .setTitle(title)
             .setSubtitle(artist)
@@ -345,8 +426,9 @@ internal class BrowserTreeImpl
         return MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    private fun Album.toMediaItem(mediaId: String, builder: MediaDescriptionCompat.Builder): MediaItem {
-        val albumDescription = builder.setMediaId(mediaId)
+    private fun Album.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {
+        val albumMediaId = encode(TYPE_ALBUMS, id.toString())
+        val albumDescription = builder.setMediaId(albumMediaId)
             .setTitle(title)
             .setSubtitle(artist)
             .setIconUri(albumArtUri?.toUri())
@@ -357,7 +439,8 @@ internal class BrowserTreeImpl
         return MediaItem(albumDescription, MediaItem.FLAG_BROWSABLE)
     }
 
-    private fun Artist.toMediaItem(mediaId: String, builder: MediaDescriptionCompat.Builder): MediaItem {
+    private fun Artist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {
+        val mediaId = encode(TYPE_ARTISTS, id.toString())
         val artistDescription = builder.setMediaId(mediaId)
             .setTitle(name)
             .setIconUri(iconUri?.toUri())

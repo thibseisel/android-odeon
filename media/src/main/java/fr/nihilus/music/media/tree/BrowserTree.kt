@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.tree
 
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.media.MediaId
@@ -29,6 +30,15 @@ import io.reactivex.Flowable
  * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
  */
 internal interface BrowserTree {
+
+    companion object {
+
+        /**
+         * Used as a boolean extra field to denote that search results from [BrowserTree.search]
+         * should only contain playable media.
+         */
+        const val EXTRA_PLAYABLE_ONLY = "fr.nihilus.music.extra.EXTRA_PLAYABLE_ONLY"
+    }
 
     val updatedParentIds: Flowable<MediaId>
 
@@ -60,5 +70,20 @@ internal interface BrowserTree {
      */
     suspend fun getItem(itemId: MediaId): MediaItem?
 
-    suspend fun search(query: String, extras: Bundle?): List<MediaItem>
+    /**
+     * Search the browser tree for media items whose title matches the supplied [query].
+     * You can refine the search results by specifying search [options].
+     *
+     * @param query The client-provided search query.
+     * @param options Options supplied by the client to given some focus on what to search.
+     * The following options are supported:
+     * - [MediaStore.EXTRA_MEDIA_FOCUS]: indicate if the search query is about an artist,
+     * an album or a song.
+     * - [MediaStore.EXTRA_MEDIA_ARTIST]: the name of the artist associated with the search.
+     * - [MediaStore.EXTRA_MEDIA_ALBUM]: the title of the album associated with the search.
+     * - [MediaStore.EXTRA_MEDIA_TITLE]: when specified, the title of the searched song.
+     *
+     * @return A list of media items matching the search criteria.
+     */
+    suspend fun search(query: String, options: Bundle?): List<MediaItem>
 }

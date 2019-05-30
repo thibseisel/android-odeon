@@ -110,14 +110,17 @@ internal class OdeonPlaybackPreparer
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
         if (query.isNullOrEmpty()) {
             // Generic query, such as "play music"
-            onPrepareFromMediaId(MediaId.ALL_TRACKS, null)
+            onPrepare()
 
         } else service.launch {
             val results = browserTree.search(query, extras)
-            preparePlayer(
-                playQueue = results.filter { it.isPlayable && !it.isBrowsable },
-                startIndex = 0
-            )
+
+            val firstResult = results.firstOrNull()
+            val playQueue = if (firstResult?.isBrowsable == true) {
+                    browserTree.getChildren(firstResult.mediaId.toMediaId(), null).orEmpty()
+            } else results
+
+            preparePlayer(playQueue.filter { it.isPlayable && !it.isBrowsable }, 0)
         }
     }
 

@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media
 
+import android.support.v4.media.MediaBrowserCompat
+import com.google.common.truth.Correspondence
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -34,3 +36,11 @@ internal inline fun CoroutineScope.usingScope(block: (CoroutineScope) -> Unit) {
     block(childScope)
     childScope.cancel()
 }
+
+/**
+ * Allows Truth assertions to compare media items by their media id.
+ */
+internal val THEIR_MEDIA_ID = Correspondence.transforming<MediaBrowserCompat.MediaItem?, String?>(
+    { it?.mediaId },
+    "has a media id of"
+)
