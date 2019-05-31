@@ -32,11 +32,11 @@ internal class TestPlaylistDao(
 
     private val _playlistTracks = initialPlaylistTracks.toMutableList()
 
-    val playlists: List<Playlist> get() = _playlists.value.orEmpty()
+    val currentPlaylists: List<Playlist> get() = _playlists.value.orEmpty()
     val playlistTracks: List<PlaylistTrack>
         get() = _playlistTracks.toList()
 
-    override val playlistsFlow: Flowable<List<Playlist>>
+    override val playlists: Flowable<List<Playlist>>
         get() = _playlists.onBackpressureBuffer()
 
     override fun savePlaylist(playlist: Playlist): Long {

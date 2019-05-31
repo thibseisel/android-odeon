@@ -54,6 +54,7 @@ class MusicService : BaseBrowserService() {
         const val EXTRA_EXPAND_PLAYER = "fr.nihilus.music.media.extras.EXTRA_EXPAND_PLAYER"
     }
 
+    @Inject internal lateinit var dispatchers: AppDispatchers
     @Inject internal lateinit var browserTree: BrowserTree
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: MediaUsageManager
@@ -145,7 +146,7 @@ class MusicService : BaseBrowserService() {
     ) {
         result.detach()
 
-        launch {
+        launch(dispatchers.Default) {
             val parentMediaId = parentId.toMediaIdOrNull()
             if (parentMediaId != null) {
                 try {
@@ -175,7 +176,7 @@ class MusicService : BaseBrowserService() {
             }
 
             result.detach()
-            launch {
+            launch(dispatchers.Default) {
                 try {
                     val item = browserTree.getItem(itemMediaId)
                     result.sendResult(item)
@@ -193,7 +194,7 @@ class MusicService : BaseBrowserService() {
         result: Result<List<MediaBrowserCompat.MediaItem>>
     ) {
         result.detach()
-        launch {
+        launch(dispatchers.Default) {
             val searchResults = browserTree.search(query, extras)
             result.sendResult(searchResults)
         }
@@ -207,7 +208,7 @@ class MusicService : BaseBrowserService() {
         }
 
         result.detach()
-        launch {
+        launch(dispatchers.Default) {
             try {
                 val resultBundle = customAction.execute(extras)
                 result.sendResult(resultBundle)

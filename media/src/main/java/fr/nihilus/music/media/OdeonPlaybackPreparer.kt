@@ -32,14 +32,12 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.tree.BrowserTree
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,6 +47,7 @@ import javax.inject.Inject
  */
 internal class OdeonPlaybackPreparer
 @Inject constructor(
+    private val dispatchers: AppDispatchers,
     private val service: MusicService,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
@@ -80,7 +79,7 @@ internal class OdeonPlaybackPreparer
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastPlayedMediaId ?: encode(TYPE_TRACKS, CATEGORY_ALL)
+        val lastPlayedMediaId = settings.lastPlayedMediaId ?: MediaId.ALL_TRACKS
         prepareFromMediaId(lastPlayedMediaId)
     }
 
@@ -99,7 +98,7 @@ internal class OdeonPlaybackPreparer
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
         // A new queue has been requested. Increment the queue identifier.
         settings.queueCounter++
-        prepareFromMediaId(mediaId ?: encode(TYPE_TRACKS, CATEGORY_ALL))
+        prepareFromMediaId(mediaId ?: MediaId.ALL_TRACKS)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -112,7 +111,7 @@ internal class OdeonPlaybackPreparer
             // Generic query, such as "play music"
             onPrepare()
 
-        } else service.launch {
+        } else service.launch(dispatchers.Default) {
             val results = browserTree.search(query, extras)
 
             val firstResult = results.firstOrNull()
@@ -133,7 +132,7 @@ internal class OdeonPlaybackPreparer
         cb: ResultReceiver?
     ) = Unit
 
-    private fun prepareFromMediaId(mediaId: String) = service.launch {
+    private fun prepareFromMediaId(mediaId: String) = service.launch(dispatchers.Default) {
         try {
             val (type, category, track) = mediaId.toMediaId()
             val parentId = MediaId.fromParts(type, category, track = null)
@@ -157,10 +156,13 @@ internal class OdeonPlaybackPreparer
         }
     }
 
-    private fun preparePlayer(playQueue: List<MediaBrowserCompat.MediaItem>, startIndex: Int) {
+    private suspend fun preparePlayer(
+        playQueue: List<MediaBrowserCompat.MediaItem>,
+        startIndex: Int
+    ): Unit = withContext(dispatchers.Main) {
         // Short-circuit: if there are no playable items.
         if (playQueue.isEmpty()) {
-            return
+            return@withContext
         }
 
         val mediaSources = Array(playQueue.size) {

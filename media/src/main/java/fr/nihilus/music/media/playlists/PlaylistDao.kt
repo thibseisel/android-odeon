@@ -27,7 +27,7 @@ import io.reactivex.Flowable
 internal interface PlaylistDao {
 
     @get:Query("SELECT * FROM playlist ORDER BY date_created ASC")
-    val playlistsFlow: Flowable<List<Playlist>>
+    val playlists: Flowable<List<Playlist>>
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
     fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>

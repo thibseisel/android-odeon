@@ -73,7 +73,8 @@ class ManagePlaylistActionTest {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
         })
 
-        val addedPlaylist = playlistDao.playlists.firstOrNull() ?: fail("Expected a playlist to be created.")
+        val addedPlaylist =
+            playlistDao.currentPlaylists.firstOrNull() ?: fail("Expected a playlist to be created.")
         assertThat(addedPlaylist.title).isEqualTo(NEW_PLAYLIST_TITLE)
     }
 
@@ -124,7 +125,8 @@ class ManagePlaylistActionTest {
         })
 
         // Then a new playlist has been created.
-        val addedPlaylist = playlistDao.playlists.firstOrNull() ?: fail("Expected a playlist to be created.")
+        val addedPlaylist =
+            playlistDao.currentPlaylists.firstOrNull() ?: fail("Expected a playlist to be created.")
         assertThat(addedPlaylist.id).isNotEqualTo(0L)
         assertThat(addedPlaylist.title).isEqualTo(NEW_PLAYLIST_TITLE)
 
@@ -199,7 +201,7 @@ class ManagePlaylistActionTest {
 }
 
 private object StubPlaylistDao : PlaylistDao {
-    override val playlistsFlow: Flowable<List<Playlist>> get() = stub()
+    override val playlists: Flowable<List<Playlist>> get() = stub()
     override fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
     override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
     override fun savePlaylist(playlist: Playlist): Long = stub()

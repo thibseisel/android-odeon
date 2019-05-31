@@ -47,11 +47,11 @@ internal sealed class ChangeNotification(private val name: String) {
 
 internal val ChangeNotification.mediaId: MediaId
     get() = when(this) {
-        is ChangeNotification.AllTracks -> MediaId.fromParts(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL)
-        is ChangeNotification.AllAlbums -> MediaId.fromParts(MediaId.TYPE_ALBUMS)
-        is ChangeNotification.AllArtists -> MediaId.fromParts(MediaId.TYPE_ARTISTS)
-        is ChangeNotification.AllPlaylists -> MediaId.fromParts(MediaId.TYPE_PLAYLISTS)
-        is ChangeNotification.Album -> MediaId.fromParts(MediaId.TYPE_ALBUMS, albumId.toString())
-        is ChangeNotification.Artist -> MediaId.fromParts(MediaId.TYPE_ARTISTS, artistId.toString())
-        is ChangeNotification.Playlist -> MediaId.fromParts(MediaId.TYPE_PLAYLISTS, playlistId.toString())
+        is ChangeNotification.AllTracks -> MediaId(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL)
+        is ChangeNotification.AllAlbums -> MediaId(MediaId.TYPE_ALBUMS)
+        is ChangeNotification.AllArtists -> MediaId(MediaId.TYPE_ARTISTS)
+        is ChangeNotification.AllPlaylists -> MediaId(MediaId.TYPE_PLAYLISTS)
+        is ChangeNotification.Album -> MediaId(MediaId.TYPE_ALBUMS, albumId.toString())
+        is ChangeNotification.Artist -> MediaId(MediaId.TYPE_ARTISTS, artistId.toString())
+        is ChangeNotification.Playlist -> MediaId(MediaId.TYPE_PLAYLISTS, playlistId.toString())
     }

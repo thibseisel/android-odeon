@@ -37,7 +37,7 @@ import org.junit.Test
 class MediaRepositoryTest {
 
     private object DummyPlaylistDao : PlaylistDao {
-        override val playlistsFlow: Flowable<List<Playlist>> get() = Flowable.empty()
+        override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()
         override fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
         override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
         override fun savePlaylist(playlist: Playlist): Long = 0L

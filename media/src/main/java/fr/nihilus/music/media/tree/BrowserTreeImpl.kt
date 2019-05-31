@@ -316,7 +316,7 @@ internal class BrowserTreeImpl
      * @param textProvider Function that retrieves the text string the pattern should be matched against.
      * @param itemFactory Factory function for creating media items from the available medias.
      */
-    private fun <T> singleTypeSearch(
+    private fun <T : Any> singleTypeSearch(
         pattern: String,
         availableMedias: List<T>,
         textProvider: (T) -> String,
@@ -364,7 +364,7 @@ internal class BrowserTreeImpl
      * @param textProvider Function that retrieves the text string the pattern should be matched against.
      * @param itemFactory Factory function for creating media items from the available medias.
      */
-    private fun <T> fuzzySearchTo(
+    private fun <T : Any> fuzzySearchTo(
         outResults: MutableList<ItemScore>,
         pattern: String,
         availableMedias: List<T>,

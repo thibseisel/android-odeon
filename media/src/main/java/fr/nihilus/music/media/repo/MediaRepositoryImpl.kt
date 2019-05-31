@@ -38,62 +38,6 @@ import javax.inject.Inject
 
 private typealias Cache<M> = SendChannel<CompletableDeferred<List<M>>>
 
-private fun <M : Any> CoroutineScope.syncCache(
-    mediaUpdateStream: Flowable<List<M>>,
-    onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
-): Cache<M> = actor(start = CoroutineStart.LAZY) {
-    // Wait until media are requested for the first time before observing.
-    val firstRequest = receive()
-
-    // Start observing media to a Channel.
-    val mediaUpdates = mediaUpdateStream.openSubscription()
-
-    // Cache the last received media list.
-    var lastReceivedMediaList: List<M>
-
-    try {
-        // Receive the current media list.
-        // This fails if permission is denied.
-        lastReceivedMediaList = mediaUpdates.receive()
-
-        // Satisfy the first request.
-        firstRequest.complete(lastReceivedMediaList)
-
-    } catch (e: PermissionDeniedException) {
-        firstRequest.completeExceptionally(e)
-        throw CancellationException()
-    }
-
-    try {
-        // Process incoming messages until scope is cancelled...
-        while (isActive) {
-            select<Unit> {
-                // When receiving a request to load media from cache...
-                onReceive { request ->
-                    // Satisfy it immediately.
-                    request.complete(lastReceivedMediaList)
-                }
-
-                // When receiving an up to date media list...
-                if (!mediaUpdates.isClosedForReceive) {
-                    mediaUpdates.onReceiveOrNull { upToDateMediaList ->
-                        if (upToDateMediaList != null) {
-                            // Replace the cached list and notify for the change.
-                            val oldMediaList = lastReceivedMediaList
-                            lastReceivedMediaList = upToDateMediaList
-
-                            onChanged(oldMediaList, upToDateMediaList)
-                        }
-                    }
-                }
-            }
-        }
-
-    } finally {
-        mediaUpdates.cancel()
-    }
-}
-
 @ServiceScoped
 internal class MediaRepositoryImpl
 @Inject constructor(
@@ -106,12 +50,9 @@ internal class MediaRepositoryImpl
 
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
 
-    private var tracksCache: Cache<Track> = scope.trackSyncCache()
-
+    private var tracksCache = scope.trackSyncCache()
     private var albumsCache = scope.albumSyncCache()
-
     private var artistsCache = scope.artistSyncCache()
-
     private var playlistsCache = scope.playlistSyncCache()
 
     override suspend fun getAllTracks(): List<Track> {
@@ -229,7 +170,66 @@ internal class MediaRepositoryImpl
         _mediaChanges.onNext(ChangeNotification.AllArtists)
     }
 
-    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlistsFlow) { _, _ ->
+    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlists) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
+    }
+
+    /**
+     *
+     */
+    private fun <M : Any> CoroutineScope.syncCache(
+        mediaUpdateStream: Flowable<List<M>>,
+        onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
+    ): Cache<M> = actor(dispatchers.Default, start = CoroutineStart.LAZY) {
+        // Wait until media are requested for the first time before observing.
+        val firstRequest = receive()
+
+        // Start observing media to a Channel.
+        val mediaUpdates = mediaUpdateStream.openSubscription()
+
+        // Cache the last received media list.
+        var lastReceivedMediaList: List<M>
+
+        try {
+            // Receive the current media list.
+            // This fails if permission is denied.
+            lastReceivedMediaList = mediaUpdates.receive()
+
+            // Satisfy the first request.
+            firstRequest.complete(lastReceivedMediaList)
+
+        } catch (e: PermissionDeniedException) {
+            firstRequest.completeExceptionally(e)
+            throw CancellationException()
+        }
+
+        try {
+            // Process incoming messages until scope is cancelled...
+            while (isActive) {
+                select<Unit> {
+                    // When receiving a request to load media from cache...
+                    onReceive { request ->
+                        // Satisfy it immediately.
+                        request.complete(lastReceivedMediaList)
+                    }
+
+                    // When receiving an up to date media list...
+                    if (!mediaUpdates.isClosedForReceive) {
+                        mediaUpdates.onReceiveOrNull { upToDateMediaList ->
+                            if (upToDateMediaList != null) {
+                                // Replace the cached list and notify for the change.
+                                val oldMediaList = lastReceivedMediaList
+                                lastReceivedMediaList = upToDateMediaList
+
+                                onChanged(oldMediaList, upToDateMediaList)
+                            }
+                        }
+                    }
+                }
+            }
+
+        } finally {
+            mediaUpdates.cancel()
+        }
     }
 }
