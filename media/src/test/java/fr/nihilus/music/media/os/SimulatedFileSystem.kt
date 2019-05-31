@@ -18,6 +18,7 @@ package fr.nihilus.music.media.os
 
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.core.net.toUri
 import fr.nihilus.music.media.stub
 
 /**
@@ -29,9 +30,9 @@ class SimulatedFileSystem(
 ) : FileSystem {
     private val storedFiles = filenames.toMutableSet()
 
-    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
+
+    override fun makeSharedContentUri(filePath: String): Uri? = filePath.toUri()
 
     override fun deleteFile(filepath: String): Boolean = storedFiles.remove(filepath)
 
@@ -45,5 +46,6 @@ class SimulatedFileSystem(
  */
 object StubFileSystem : FileSystem {
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
+    override fun makeSharedContentUri(filePath: String): Uri? = stub()
     override fun deleteFile(filepath: String): Boolean = stub()
 }

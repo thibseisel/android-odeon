@@ -157,7 +157,11 @@ internal class MediaStoreProvider
                         title = cursor.getString(colTitle),
                         trackCount = cursor.getInt(colSongCount),
                         releaseYear = cursor.getInt(colYear),
-                        albumArtUri = cursor.getString(colAlbumArt)?.let { "file://$it" },
+                        albumArtUri = cursor.getString(colAlbumArt)?.let {
+                            fileSystem.makeSharedContentUri(
+                                it
+                            )?.toString()
+                        },
                         artistId = cursor.getLong(colArtistId),
                         artist = cursor.getString(colArtist)
                     )
@@ -214,7 +218,11 @@ internal class MediaStoreProvider
             while (cursor.moveToNext()) {
                 albumInfo += AlbumArtInfo(
                     artistId = cursor.getLong(colArtistId),
-                    albumArtPath = cursor.getString(colArtPath)?.let { "file://$it" },
+                    albumArtPath = cursor.getString(colArtPath)?.let {
+                        fileSystem.makeSharedContentUri(
+                            it
+                        )?.toString()
+                    },
                     releaseYear = cursor.getInt(colYear)
                 )
             }
@@ -326,7 +334,10 @@ internal class MediaStoreProvider
             while (cursor.moveToNext()) {
                 cursor.getString(colFilepath)?.let { filepath ->
                     val albumId = cursor.getLong(colAlbumId)
-                    artPathPerAlbumId.put(albumId, "file://$filepath")
+                    artPathPerAlbumId.put(
+                        albumId,
+                        fileSystem.makeSharedContentUri(filepath)?.toString()
+                    )
                 }
             }
         }

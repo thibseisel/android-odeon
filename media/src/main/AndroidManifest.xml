@@ -34,5 +34,20 @@
             </intent-filter>
         </receiver>
 
+        <!--
+            Allows sharing album arts with media browser clients.
+            By sharing content uris instead of file uris,
+            clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
+        -->
+        <provider
+            android:authorities="fr.nihilus.music.media.provider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/abc_shared_filepaths"/>
+        </provider>
+
     </application>
 </manifest>

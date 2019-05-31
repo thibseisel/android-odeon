@@ -16,8 +16,10 @@
 
 package fr.nihilus.music.media.os
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.core.content.FileProvider
 import fr.nihilus.music.media.di.ServiceScoped
 import java.io.File
 import java.io.IOException
@@ -34,6 +36,15 @@ interface FileSystem {
     fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri?
 
     /**
+     * Share the file at [filePath], returning an uri that can be resolved from other applications.
+     * The folder containing tha file should be configured as sharable.
+     *
+     * @param filePath Path to the file that should be shared.
+     * @return An uri pointing to the specified file, or `null` if such file does not exists.
+     */
+    fun makeSharedContentUri(filePath: String): Uri?
+
+    /**
      * Deletes a file located at [filepath] from the device's storage,
      * only if it exists and it is not a directory.
      *
@@ -44,12 +55,18 @@ interface FileSystem {
 }
 
 /**
+ * The name of the [FileProvider] of this application.
+ */
+private const val APP_PROVIDER = "fr.nihilus.music.media.provider"
+
+/**
  * Implementation of a real file system.
  * Operations are performed on real files stored on the device.
  */
 @ServiceScoped
 class AndroidFileSystem
 @Inject constructor(
+    private val context: Context,
     @Named("internal") private val internalRootDir: File
 ) : FileSystem {
 
@@ -68,7 +85,18 @@ class AndroidFileSystem
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputFile)
         }
 
-        return Uri.fromFile(bitmapFile).takeIf { successfullyWritten }
+        return if (successfullyWritten) FileProvider.getUriForFile(
+            context,
+            APP_PROVIDER,
+            bitmapFile
+        ) else null
+    }
+
+    override fun makeSharedContentUri(filePath: String): Uri? {
+        val file = File(filePath)
+        return if (file.exists()) {
+            FileProvider.getUriForFile(context, APP_PROVIDER, file)
+        } else null
     }
 
     override fun deleteFile(filepath: String): Boolean {

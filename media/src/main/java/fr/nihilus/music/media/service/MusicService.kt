@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.media.service
 
+import android.content.Intent
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
@@ -128,6 +130,11 @@ class MusicService : BaseBrowserService() {
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
         return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
+            grantUriPermission(
+                clientPackageName,
+                Uri.parse("content://fr.nihilus.music.media.provider/"),
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            )
             BrowserRoot(MediaId.ROOT, null)
         } else null
     }
