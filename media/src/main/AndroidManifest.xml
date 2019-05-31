@@ -40,8 +40,8 @@
             clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
         -->
         <provider
-            android:authorities="fr.nihilus.music.media.provider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="${providerAuthority}"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

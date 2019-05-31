@@ -30,6 +30,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.debug.provider"'
+            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.debug.provider'
+        }
+
         release {
             minifyEnabled true
             proguardFiles 'proguard-rules.pro', rootProjectFile('coroutines.pro')
@@ -42,6 +47,9 @@ android {
                         '-Xno-receiver-assertions'
                 ]
             }
+
+            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.provider"'
+            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.provider'
         }
     }
 

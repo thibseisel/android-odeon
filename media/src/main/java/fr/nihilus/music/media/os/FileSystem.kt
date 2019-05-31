@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
+import fr.nihilus.music.media.BuildConfig
 import fr.nihilus.music.media.di.ServiceScoped
 import java.io.File
 import java.io.IOException
@@ -55,11 +56,6 @@ interface FileSystem {
 }
 
 /**
- * The name of the [FileProvider] of this application.
- */
-private const val APP_PROVIDER = "fr.nihilus.music.media.provider"
-
-/**
  * Implementation of a real file system.
  * Operations are performed on real files stored on the device.
  */
@@ -87,7 +83,7 @@ class AndroidFileSystem
 
         return if (successfullyWritten) FileProvider.getUriForFile(
             context,
-            APP_PROVIDER,
+            BuildConfig.APP_PROVIDER_AUTHORITY,
             bitmapFile
         ) else null
     }
@@ -95,7 +91,7 @@ class AndroidFileSystem
     override fun makeSharedContentUri(filePath: String): Uri? {
         val file = File(filePath)
         return if (file.exists()) {
-            FileProvider.getUriForFile(context, APP_PROVIDER, file)
+            FileProvider.getUriForFile(context, BuildConfig.APP_PROVIDER_AUTHORITY, file)
         } else null
     }
 
