@@ -130,9 +130,10 @@ class MusicService : BaseBrowserService() {
          * check the caller's signature and disconnect it if not allowed by returning `null`.
          */
         return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
+            // Grant permission to known callers to read album arts without storage permissions.
             grantUriPermission(
                 clientPackageName,
-                Uri.parse("content://fr.nihilus.music.media.provider/"),
+                Uri.parse("content://${BuildConfig.APP_PROVIDER_AUTHORITY}/"),
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
             )
             BrowserRoot(MediaId.ROOT, null)
