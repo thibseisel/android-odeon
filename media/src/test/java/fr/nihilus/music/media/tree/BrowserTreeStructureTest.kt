@@ -141,6 +141,8 @@ class BrowserTreeStructureTest {
 
         with(anArtist.description) {
             assertThat(title).isEqualTo("AC/DC")
+            // TODO Use a plural string resource instead.
+            assertThat(subtitle).isEqualTo("1 albums, 2 tracks")
             assertOn(extras) {
                 integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(2)
             }

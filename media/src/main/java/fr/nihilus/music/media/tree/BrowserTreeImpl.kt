@@ -151,6 +151,7 @@ internal class BrowserTreeImpl
         val mediaId = encode(TYPE_ARTISTS, id.toString())
         val artistDescription = builder.setMediaId(mediaId)
             .setTitle(name)
+            .setSubtitle(context.getString(R.string.artist_subtitle, albumCount, trackCount))
             .setIconUri(iconUri?.toUri())
             .setExtras(Bundle().apply {
                 putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
