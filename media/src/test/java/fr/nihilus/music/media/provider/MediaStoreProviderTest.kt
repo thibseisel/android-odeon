@@ -28,9 +28,9 @@ import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.fail
 import fr.nihilus.music.media.failAssumption
+import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.os.SimulatedFileSystem
-import fr.nihilus.music.media.os.StubFileSystem
 import fr.nihilus.music.media.permissions.DeniedPermission
 import fr.nihilus.music.media.permissions.GrantedPermission
 import fr.nihilus.music.media.permissions.PermissionDeniedException
@@ -74,14 +74,14 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingTracks_thenThereShouldBeTheSameNumberOfTracks() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allTracks = provider.queryTracks()
         assertThat(allTracks).hasSize(10)
     }
 
     @Test
     fun whenQueryingTracks_thenTrackInfoShouldMatch() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allTracks = provider.queryTracks()
         val aTrack = allTracks.find { it.id == 161L } ?: failAssumption("Missing a track with id = 161")
 
@@ -97,7 +97,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingTracks_thenMediaUriShouldBeContentUriForTrack() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
 
         val allTracks = provider.queryTracks()
         val aTrack = allTracks.find { it.id == 161L } ?: failAssumption("Missing a track with id = 161")
@@ -107,7 +107,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingTracks_thenDiscNoAndTrackNoAreCalculated() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allTracks = provider.queryTracks()
 
         // Test with a track present on disc 1 : "Give It Up"
@@ -122,19 +122,19 @@ class MediaStoreProviderTest {
     }
 
     @Test
-    fun whenQueryingTracks_thenCopyAlbumArtPathFromCorrespondingAlbum() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+    fun whenQueryingTracks_thenResolveContentUriFromAlbumArtPathOfCorrespondingAlbum() {
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allTracks = provider.queryTracks()
 
         assume().that(allTracks).isNotEmpty()
 
         val firstTrack = allTracks.first()
-        assertThat(firstTrack.albumArtUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548")
+        assertThat(firstTrack.albumArtUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548")
     }
 
     @Test
     fun whenQueryingTracks_tracksShouldBeSortedByAlphabeticOrderWithoutCommonPrefixes() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allTracks = provider.queryTracks()
 
         assume().that(allTracks.size).isAtLeast(3)
@@ -144,7 +144,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingAlbums_thenThereShouldBeTheSameNumberOfAlbums() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allAlbums = provider.queryAlbums()
 
         assertThat(allAlbums).hasSize(8)
@@ -152,7 +152,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingAlbums_thenAlbumInfoShouldMatch() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
 
         val allAlbums = provider.queryAlbums()
         val anAlbum = allAlbums.find { it.id == 40L } ?: fail("Missing an album with id = 40")
@@ -163,12 +163,12 @@ class MediaStoreProviderTest {
         assertThat(anAlbum.artist).isEqualTo("Muse")
         assertThat(anAlbum.releaseYear).isEqualTo(2012)
         assertThat(anAlbum.trackCount).isEqualTo(1)
-        assertThat(anAlbum.albumArtUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627051019")
+        assertThat(anAlbum.albumArtUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509627051019")
     }
 
     @Test
     fun whenQueryingAlbums_thenAlbumsShouldBeSortedByAlphabeticOrderWithoutCommonPrefixes() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
 
         val allAlbums = provider.queryAlbums()
         assume().that(allAlbums.size).isAtLeast(3)
@@ -179,7 +179,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingArtists_thenThereShouldBeTheSameNumberOfArtists() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
 
         val allArtists = provider.queryArtists()
         assertThat(allArtists).hasSize(5)
@@ -187,7 +187,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingArtists_thenArtistInfoShouldMatch() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allArtists = provider.queryArtists()
         val anArtist = allArtists.find { it.id == 5L } ?: failAssumption("Missing an artist with id = 5")
 
@@ -199,21 +199,21 @@ class MediaStoreProviderTest {
 
     @Test
     fun whenQueryingArtists_thenItsIconShouldBeThatOfTheMostRecentAlbum() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allArtists = provider.queryArtists()
 
         // Alestorm only have one album here ; its icon should be that of that album
         val artistWithOneAlbum = allArtists.find { it.id == 26L } ?: failAssumption("Missing an artist with id = 26")
-        assertThat(artistWithOneAlbum.iconUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509626970548")
+        assertThat(artistWithOneAlbum.iconUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548")
 
         // Foo Fighters have 3 albums, use the icon of "Concrete and Gold"
         val artistWithMultipleAlbums = allArtists.find { it.id == 13L } ?: failAssumption("Missing an artist with id = 13")
-        assertThat(artistWithMultipleAlbums.iconUri).isEqualTo("file:///storage/emulated/0/Android/data/com.android.providers.media/albumthumbs/1509627413029")
+        assertThat(artistWithMultipleAlbums.iconUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509627413029")
     }
 
     @Test
     fun whenQueryingArtists_thenArtistsShouldBeSortedByAlphabeticOrderWithoutCommonPrefixes() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
         val allArtists = provider.queryArtists()
         assume().that(allArtists.size).isAtLeast(3)
 
@@ -268,7 +268,7 @@ class MediaStoreProviderTest {
 
     @Test
     fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, DeniedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, DeniedPermission)
         val exception = assertThrows<PermissionDeniedException> {
             provider.deleteTracks(longArrayOf(161, 309))
         }
@@ -310,14 +310,14 @@ class MediaStoreProviderTest {
     }
 
     private fun assertQueryFailsGracefully(queryFun: MediaProvider.() -> List<Any>) {
-        val provider = MediaStoreProvider(FailingMediaStore, StubFileSystem, GrantedPermission)
+        val provider = MediaStoreProvider(FailingMediaStore, BasicFileSystem, GrantedPermission)
 
         assertThat(provider.queryFun()).isEmpty()
     }
 
     private fun assertRegisterObserver(observerType: MediaProvider.MediaType, expectedRegisteredUri: Uri) {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
-        val observer = TestObserver(observerType)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
+        val observer = NoopObserver(observerType)
         provider.registerObserver(observer)
 
         val observedUris = mediaStoreSurrogate.observers.map { it.uri }
@@ -325,8 +325,8 @@ class MediaStoreProviderTest {
     }
 
     private fun assertUnregisterObserver(observerType: MediaProvider.MediaType, registeredUri: Uri) {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, GrantedPermission)
-        val observer = TestObserver(observerType)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, GrantedPermission)
+        val observer = NoopObserver(observerType)
         provider.registerObserver(observer)
         provider.unregisterObserver(observer)
 
@@ -335,7 +335,7 @@ class MediaStoreProviderTest {
     }
 
     private fun assertProviderThrowsWhenPermissionIsDenied(queryFun: MediaProvider.() -> List<Any>) {
-        val provider = MediaStoreProvider(mediaStoreSurrogate, StubFileSystem, DeniedPermission)
+        val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, DeniedPermission)
 
         val exception = assertThrows<PermissionDeniedException> {
             provider.queryFun()
@@ -345,12 +345,13 @@ class MediaStoreProviderTest {
     }
 }
 
-private class TestObserver(mediaType: MediaProvider.MediaType) : MediaProvider.Observer(mediaType) {
-    var changeCount: Int = 0
-
-    override fun onChanged() {
-        changeCount++
-    }
+/**
+ * A [MediaProvider.Observer] test fixture that does nothing when media structure changes.
+ */
+private class NoopObserver(
+    mediaType: MediaProvider.MediaType
+) : MediaProvider.Observer(mediaType) {
+    override fun onChanged() = Unit
 }
 
 /**

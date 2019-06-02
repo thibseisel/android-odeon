@@ -16,9 +16,10 @@
 
 package fr.nihilus.music.media.os
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.core.net.toUri
+import fr.nihilus.music.media.os.BasicFileSystem.makeSharedContentUri
 import fr.nihilus.music.media.stub
 
 /**
@@ -32,7 +33,15 @@ class SimulatedFileSystem(
 
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
 
-    override fun makeSharedContentUri(filePath: String): Uri? = filePath.toUri()
+    override fun makeSharedContentUri(filePath: String): Uri? {
+        val albumArtSpecificPart = filePath.substringAfter("albumthumbs/")
+        return Uri.Builder()
+            .scheme(ContentResolver.SCHEME_CONTENT)
+            .authority("fr.nihilus.music.media.test.provider")
+            .appendPath("albumthumbs")
+            .appendPath(albumArtSpecificPart)
+            .build()
+    }
 
     override fun deleteFile(filepath: String): Boolean = storedFiles.remove(filepath)
 
@@ -40,12 +49,24 @@ class SimulatedFileSystem(
 }
 
 /**
- * A stub file system that always fails.
- * Using this as a dependency ensures that the file system is not accessed,
- * otherwise the test will fail.
+ * A fake file system whose only valid operation is [makeSharedContentUri].
+ * other functions are stubbed and will fail.
  */
-object StubFileSystem : FileSystem {
+object BasicFileSystem : FileSystem {
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
-    override fun makeSharedContentUri(filePath: String): Uri? = stub()
     override fun deleteFile(filepath: String): Boolean = stub()
+
+    /**
+     * For simplicity, this only convert the passed string to an Uri,
+     * without making it sharable.
+     */
+    override fun makeSharedContentUri(filePath: String): Uri? {
+        val albumArtSpecificPart = filePath.substringAfter("albumthumbs/")
+        return Uri.Builder()
+            .scheme(ContentResolver.SCHEME_CONTENT)
+            .authority("fr.nihilus.music.media.test.provider")
+            .appendPath("albumthumbs")
+            .appendPath(albumArtSpecificPart)
+            .build()
+    }
 }

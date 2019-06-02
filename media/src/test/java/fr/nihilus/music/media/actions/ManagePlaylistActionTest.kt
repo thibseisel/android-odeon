@@ -211,6 +211,7 @@ private object StubPlaylistDao : PlaylistDao {
 }
 
 private object NoopFileSystem : FileSystem {
+    override fun makeSharedContentUri(filePath: String): Uri? = null
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = null
     override fun deleteFile(filepath: String): Boolean = true
 }
