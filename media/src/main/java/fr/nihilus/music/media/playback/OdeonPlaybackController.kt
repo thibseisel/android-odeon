@@ -17,6 +17,7 @@
 package fr.nihilus.music.media.playback
 
 import android.support.v4.media.session.PlaybackStateCompat
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -32,7 +33,9 @@ private const val FAST_FORWARD_MILLIS = 30_000L
  */
 @ServiceScoped
 class OdeonPlaybackController
-@Inject constructor() : DefaultPlaybackController(
+@Inject constructor(
+    private val preparer: MediaSessionConnector.PlaybackPreparer
+) : DefaultPlaybackController(
     REWIND_MILLIS,
     FAST_FORWARD_MILLIS,
     MediaSessionConnector.DEFAULT_REPEAT_TOGGLE_MODES
@@ -44,5 +47,20 @@ class OdeonPlaybackController
                     PlaybackStateCompat.ACTION_SET_REPEAT_MODE or
                     super.getSupportedPlaybackActions(player)
         else 0L
+    }
+
+    /**
+     * Handle requests to start playback.
+     * When playback has not been started yet, prepare media to play then start playing when ready.
+     * When playback of a media is complete, replay the same media from the beginning.
+     * In any other cases, resume playback of the current media.
+     */
+    override fun onPlay(player: Player) {
+        when (player.playbackState) {
+            Player.STATE_IDLE -> preparer.onPrepare()
+            Player.STATE_ENDED -> player.seekTo(player.currentWindowIndex, C.TIME_UNSET)
+        }
+
+        player.playWhenReady = true
     }
 }
