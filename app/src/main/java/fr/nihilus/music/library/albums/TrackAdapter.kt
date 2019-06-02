@@ -18,7 +18,6 @@ package fr.nihilus.music.library.albums
 
 import android.support.v4.media.MediaMetadataCompat
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.media.extensions.id
 import fr.nihilus.music.ui.BaseAdapter
 

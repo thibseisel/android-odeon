@@ -19,8 +19,6 @@ package fr.nihilus.music.client
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -242,18 +240,6 @@ class MediaBrowserConnection
         }
     }
 
-    suspend fun sendCommand(name: String, params: Bundle?): CommandResult {
-        val controller = deferredController.await()
-
-        return suspendCoroutine {
-            controller.sendCommand(name, params, object : ResultReceiver(Handler()) {
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    it.resume(CommandResult(resultCode, resultData))
-                }
-            })
-        }
-    }
-
     suspend fun executeAction(name: String, params: Bundle?): Bundle? {
         // Wait until connected or the action will fail.
         deferredController.await()
@@ -356,11 +342,6 @@ class MediaBrowserConnection
      * Defines data required to maintain a connection to a client-side MediaBrowser connection.
      */
     class ClientToken
-
-    data class CommandResult(
-        val resultCode: Int,
-        val resultData: Bundle?
-    )
 
     class CustomActionException(
         val actionName: String,

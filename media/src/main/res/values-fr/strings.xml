@@ -19,7 +19,7 @@
     <string name="app_name">Odeon</string>
     <string name="abc_all_music">Tous les morceaux</string>
     <string name="abc_last_added">Nouveautés</string>
-    <string name="abc_player_unknown_error">Oups, quelque chose a planté et la lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
+    <string name="abc_player_unknown_error">Oups, quelque chose a planté et le lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="abc_action_play">Lire</string>
     <string name="abc_action_pause">Pause</string>
     <string name="abc_action_next">Suivant</string>
@@ -36,5 +36,5 @@
     <string name="albums_type_title">Abums</string>
     <string name="artists_type_title">Artistes</string>
     <string name="browser_root_title">Bibliothèque musicale de l\'appareil</string>
-    <string name="artist_subtitle">%d albums, %d tracks</string>
+    <string name="artist_subtitle">%1$d albums, %2$d tracks</string>
 </resources>

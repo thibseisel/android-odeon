@@ -16,12 +16,13 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:width="256dp"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:width="256dp"
         android:height="256dp"
         android:viewportHeight="375"
         android:viewportWidth="375"
-        android:tint="?colorControlNormal">
+        android:tint="?colorControlNormal"
+        tools:ignore="VectorRaster">
     <path
         android:fillColor="#ff000000"
         android:pathData="M 85.740475,356.22329 C 37.819876,354.3859 7.7035191,351.45451

@@ -20,7 +20,6 @@ import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.Single
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.rx2.rxSingle
 import javax.inject.Inject

@@ -36,5 +36,5 @@
     <string name="artists_type_title">Artists</string>
     <string name="playlists_type_title">Playlists</string>
     <string name="browser_root_title">Local music library</string>
-    <string name="artist_subtitle">%d albums, %d tracks</string>
+    <string name="artist_subtitle">%1$d albums, %2$d tracks</string>
 </resources>
