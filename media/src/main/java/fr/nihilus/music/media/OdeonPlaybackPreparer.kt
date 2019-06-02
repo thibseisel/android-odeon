@@ -115,11 +115,11 @@ internal class OdeonPlaybackPreparer
             val results = browserTree.search(query, extras)
 
             val firstResult = results.firstOrNull()
-            val playQueue = if (firstResult?.isBrowsable == true) {
-                    browserTree.getChildren(firstResult.mediaId.toMediaId(), null).orEmpty()
-            } else results
-
-            preparePlayer(playQueue.filter { it.isPlayable && !it.isBrowsable }, 0)
+            if (firstResult?.isBrowsable == true) {
+                prepareFromMediaId(firstResult.mediaId)
+            } else {
+                preparePlayer(results.filter { it.isPlayable && !it.isBrowsable }, 0)
+            }
         }
     }
 
@@ -132,7 +132,7 @@ internal class OdeonPlaybackPreparer
         cb: ResultReceiver?
     ) = Unit
 
-    private fun prepareFromMediaId(mediaId: String) = service.launch(dispatchers.Default) {
+    private fun prepareFromMediaId(mediaId: String?) = service.launch(dispatchers.Default) {
         try {
             val (type, category, track) = mediaId.toMediaId()
             val parentId = MediaId.fromParts(type, category, track = null)
