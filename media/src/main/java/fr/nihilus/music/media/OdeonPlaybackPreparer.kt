@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -34,8 +35,8 @@ import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.media.extensions.doOnPrepared
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
-import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.media.tree.BrowserTree
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -48,8 +49,9 @@ import kotlin.random.Random
  */
 internal class OdeonPlaybackPreparer
 @Inject constructor(
+    context: Context,
+    private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,
-    private val service: MusicService,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
     private val settings: MediaSettings
@@ -57,8 +59,8 @@ internal class OdeonPlaybackPreparer
 
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
     private val appDataSourceFactory = DefaultDataSourceFactory(
-        service,
-        Util.getUserAgent(service, service.getString(R.string.app_name))
+        context,
+        Util.getUserAgent(context, context.getString(R.string.app_name))
     )
 
     override fun getSupportedPrepareActions(): Long =
@@ -116,7 +118,7 @@ internal class OdeonPlaybackPreparer
             // Generic query, such as "play music"
             onPrepare()
 
-        } else service.launch(dispatchers.Default) {
+        } else scope.launch(dispatchers.Default) {
             val results = browserTree.search(query, extras)
 
             val firstResult = results.firstOrNull()
@@ -137,7 +139,7 @@ internal class OdeonPlaybackPreparer
         cb: ResultReceiver?
     ) = Unit
 
-    private fun prepareFromMediaId(mediaId: String?) = service.launch(dispatchers.Default) {
+    private fun prepareFromMediaId(mediaId: String?) = scope.launch(dispatchers.Default) {
         try {
             val (type, category, track) = mediaId.toMediaId()
             val parentId = MediaId.fromParts(type, category, track = null)
