@@ -22,8 +22,6 @@ import fr.nihilus.music.media.di.ServiceScoped
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowViaChannel
 import javax.inject.Inject
 
 internal interface MediaSettings {
@@ -32,19 +30,13 @@ internal interface MediaSettings {
      * The number of time a new playing queue has been built.
      * This may be used to uniquely identify a playing queue.
      */
-    val queueIdentifier: Long
+    var queueCounter: Long
 
     /**
-     * The media ID of the last loaded playing queue.
-     * Defaults to `null` when no playing queue has been built yet.
+     * The media ID of the last played item.
+     * This will be null if no item has been played.
      */
-    var lastQueueMediaId: String?
-
-    /**
-     * The index of the last played item in the last played queue.
-     * Defaults to `0` when no item has been played yet.
-     */
-    var lastQueueIndex: Int
+    var lastPlayedMediaId: String?
 
     /**
      * The last configured shuffle mode.
@@ -75,7 +67,6 @@ private const val KEY_SHUFFLE_MODE = "shuffle_mode"
 private const val KEY_REPEAT_MODE = "repeat_mode"
 private const val KEY_LAST_PLAYED = "last_played"
 private const val KEY_QUEUE_COUNTER = "load_counter"
-private const val KEY_QUEUE_INDEX = "last_played_index"
 private const val KEY_SKIP_SILENCE = "skip_silence"
 
 /**
@@ -90,19 +81,13 @@ internal class SharedPreferencesMediaSettings
     private val prefs: SharedPreferences
 ) : MediaSettings {
 
-    override val queueIdentifier: Long
+    override var queueCounter: Long
         get() = prefs.getLong(KEY_QUEUE_COUNTER, 0L)
+        set(value) = prefs.edit().putLong(KEY_QUEUE_COUNTER, value).apply()
 
-    override var lastQueueMediaId: String?
+    override var lastPlayedMediaId: String?
         get() = prefs.getString(KEY_LAST_PLAYED, null)
-        set(value) = prefs.edit()
-            .putString(KEY_LAST_PLAYED, value)
-            .putLong(KEY_QUEUE_COUNTER, queueIdentifier + 1)
-            .apply()
-
-    override var lastQueueIndex: Int
-        get() = prefs.getInt(KEY_QUEUE_INDEX, 0)
-        set(value) = prefs.edit().putInt(KEY_QUEUE_INDEX, value).apply()
+        set(value) = prefs.edit().putString(KEY_LAST_PLAYED, value).apply()
 
     override var shuffleMode: Int
         get() = prefs.getInt(KEY_SHUFFLE_MODE, PlaybackStateCompat.SHUFFLE_MODE_NONE)
@@ -113,20 +98,20 @@ internal class SharedPreferencesMediaSettings
         set(repeatMode) = prefs.edit().putInt(KEY_REPEAT_MODE, repeatMode).apply()
 
     override val skipSilenceUpdates: ReceiveChannel<Boolean>
-        get() = Channel<Boolean>(capacity = Channel.CONFLATED).also { outChannel ->
+        get() = Channel<Boolean>(capacity = Channel.CONFLATED).also { out ->
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
                 if (key == KEY_SKIP_SILENCE) {
                     val shouldSkipSilence = prefs.getBoolean(key, false)
-                    outChannel.offer(shouldSkipSilence)
+                    out.sendBlocking(shouldSkipSilence)
                 }
             }
 
             prefs.registerOnSharedPreferenceChangeListener(listener)
-            outChannel.invokeOnClose {
+            out.invokeOnClose {
                 prefs.unregisterOnSharedPreferenceChangeListener(listener)
             }
 
             val currentValue = prefs.getBoolean(KEY_SKIP_SILENCE, false)
-            outChannel.offer(currentValue)
+            out.sendBlocking(currentValue)
         }
 }

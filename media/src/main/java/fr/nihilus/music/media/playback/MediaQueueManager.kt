@@ -90,7 +90,6 @@ internal class MediaQueueManager
 
     override fun onCurrentWindowIndexChanged(player: Player) {
         navigator.onCurrentWindowIndexChanged(player)
-        prefs.lastQueueIndex = player.currentWindowIndex
 
         if (!player.currentTimeline.isEmpty) {
             onUpdateMediaSessionMetadata(player)
@@ -118,6 +117,7 @@ internal class MediaQueueManager
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
         val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
+        prefs.lastPlayedMediaId = activeMedia.mediaId
         producer.offer(activeMedia)
     }
 }
