@@ -50,7 +50,7 @@ buildscript {
                         'espresso': '3.1.1'
                 ],
                 'material': '1.0.0',
-                'dagger': '2.22.1',
+                'dagger': '2.23.1',
                 'glide': '4.9.0',
                 'exoplayer': '2.9.6',
                 'rxjava': '2.2.8',
