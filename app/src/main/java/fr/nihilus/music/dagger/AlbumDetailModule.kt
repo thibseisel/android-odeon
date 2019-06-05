@@ -23,6 +23,7 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.ViewModelKey
 import fr.nihilus.music.library.albums.AlbumDetailActivity
+import fr.nihilus.music.library.albums.AlbumDetailFragment
 import fr.nihilus.music.library.albums.AlbumDetailViewModel
 
 @Module
@@ -30,6 +31,9 @@ internal abstract class AlbumDetailModule {
 
     @ContributesAndroidInjector
     abstract fun albumDetailActivity(): AlbumDetailActivity
+
+    @ContributesAndroidInjector
+    abstract fun albumDetailFragment(): AlbumDetailFragment
 
     @Binds @IntoMap
     @ViewModelKey(AlbumDetailViewModel::class)

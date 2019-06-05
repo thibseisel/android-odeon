@@ -31,6 +31,7 @@ import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumDetailActivity
+import fr.nihilus.music.library.albums.AlbumDetailFragment
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
@@ -122,7 +123,7 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            activity!!, holder.transitionView, AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
+            activity!!, holder.transitionView, AlbumDetailFragment.ALBUM_ART_TRANSITION_NAME
         )
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {

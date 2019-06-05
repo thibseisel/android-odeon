@@ -96,7 +96,7 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
             activity!!, holder.transitionView,
-            AlbumDetailActivity.ALBUM_ART_TRANSITION_NAME
+            AlbumDetailFragment.ALBUM_ART_TRANSITION_NAME
         )
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
