@@ -22,9 +22,7 @@
         android:viewportHeight="24.0"
         android:viewportWidth="24.0">
 
-    <!-- pathData has been redefined to be compatible for a path morph wic_pause_24dpause -->
     <path
-        android:name="play"
-        android:fillColor="#ff000000"
-        android:pathData="M8,5 L8,19 L13.5,15.5 L13.5,8.5z M13.5,8.5 L13.5,15.5 L19,12 L19,12z"/>
+        android:fillColor="@android:color/white"
+        android:pathData="M8,6.82v10.36c0,0.79 0.87,1.27 1.54,0.84l8.14,-5.18c0.62,-0.39 0.62,-1.29 0,-1.69L9.54,5.98C8.87,5.55 8,6.03 8,6.82z"/>
 </vector>

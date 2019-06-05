@@ -25,7 +25,7 @@
         android:pathData="M0,0V48H48V0z"/>
 
     <path
-        android:fillColor="#FF000000"
+        android:fillColor="@android:color/black"
         android:fillAlpha="0.70"
         android:pathData="M23.99,14 C18.47,14 14,18.48 14,24 14,29.52 18.47,34 23.99,34 29.52,34 34,29.52 34,24 34,18.48 29.52,14 23.99,14z
         M28.23,30L24,27.45 19.77,30l1.12,-4.81 -3.73,-3.23 4.92,-0.42L24,17l1.92,4.53 4.92,0.42 -3.73,3.23L28.23,30z"/>

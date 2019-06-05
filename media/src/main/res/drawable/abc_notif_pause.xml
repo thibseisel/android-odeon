@@ -22,10 +22,8 @@
         android:viewportHeight="24.0"
         android:viewportWidth="24.0">
 
-    <!-- pathData has been redefined to be compatible for a path morph with ic_play_arrow -->
     <path
-        android:name="pause"
-        android:fillColor="#ff000000"
-        android:pathData="M6,5 L6,19 L10,19 L10,5z M14,5 L14,19 L18,19 L18,5z"/>
+        android:fillColor="@android:color/white"
+        android:pathData="M8,19c1.1,0 2,-0.9 2,-2L10,7c0,-1.1 -0.9,-2 -2,-2s-2,0.9 -2,2v10c0,1.1 0.9,2 2,2zM14,7v10c0,1.1 0.9,2 2,2s2,-0.9 2,-2L18,7c0,-1.1 -0.9,-2 -2,-2s-2,0.9 -2,2z"/>
 
 </vector>
