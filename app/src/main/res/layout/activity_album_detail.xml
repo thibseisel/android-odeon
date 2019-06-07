@@ -16,9 +16,9 @@
   -->
 
 <FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/fragment_host"
-    tools:context="fr.nihilus.music.library.albums.AlbumDetailActivity"/>
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_host"
+        tools:layout="@layout/fragment_album_detail"/>

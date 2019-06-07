@@ -24,14 +24,7 @@ import fr.nihilus.music.base.BaseActivity
 class SettingsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.container, MainPreferenceFragment())
-                .commit()
-        }
     }
 }

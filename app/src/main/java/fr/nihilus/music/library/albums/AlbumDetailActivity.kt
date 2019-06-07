@@ -30,13 +30,10 @@ class AlbumDetailActivity : BaseActivity() {
         postponeEnterTransition()
 
         if (savedInstanceState == null) {
-            val pickedAlbum = intent?.getParcelableExtra<MediaItem>(ARG_PICKED_ALBUM)
-                ?: error("Missing required intent extra: $ARG_PICKED_ALBUM")
+            val albumFragment = AlbumDetailFragment().apply {
+                arguments = intent?.extras
+            }
 
-            val albumPalette = intent?.getParcelableExtra<AlbumPalette>(ARG_PALETTE)
-                ?: error("Missing required intent extra: $ARG_PALETTE")
-
-            val albumFragment = AlbumDetailFragment.newInstance(pickedAlbum, albumPalette)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_host, albumFragment)
                 .commit()

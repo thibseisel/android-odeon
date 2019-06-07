@@ -24,11 +24,6 @@ import fr.nihilus.music.R
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
-    override fun onAttach(context: Context?) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.prefs_main)
     }

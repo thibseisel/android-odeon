@@ -18,6 +18,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -115,6 +116,8 @@ dependencies {
     implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
     implementation "androidx.preference:preference-ktx:${versions.androidx.preference}"
     implementation "androidx.constraintlayout:constraintlayout:${versions.androidx.constraint_layout}"
+
+    implementation "androidx.navigation:navigation-fragment-ktx:${versions.androidx.navigation}"
 
     // Material Components
     implementation "com.google.android.material:material:${versions.material}"
