@@ -178,8 +178,8 @@ class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     }
 
     companion object Factory {
-        private const val ARG_ALBUM = "fr.nihilus.music.album.ALBUM"
-        private const val ARG_PALETTE = "fr.nihilus.music.album.PALETTE"
+        const val ARG_ALBUM = "fr.nihilus.music.album.ALBUM"
+        const val ARG_PALETTE = "fr.nihilus.music.album.PALETTE"
 
         const val ALBUM_ART_TRANSITION_NAME = "fr.nihilus.music.album.TRANSITION_NAME"
 

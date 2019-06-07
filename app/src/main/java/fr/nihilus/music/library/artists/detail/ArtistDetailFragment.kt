@@ -127,8 +127,8 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
         )
 
         val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
-            putExtra(AlbumDetailActivity.ARG_PICKED_ALBUM, album)
-            putExtra(AlbumDetailActivity.ARG_PALETTE, holder.colorPalette)
+            putExtra(AlbumDetailFragment.ARG_ALBUM, album)
+            putExtra(AlbumDetailFragment.ARG_PALETTE, holder.colorPalette)
         }
 
         startActivity(albumDetailIntent, options.toBundle())

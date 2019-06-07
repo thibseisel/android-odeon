@@ -17,7 +17,6 @@
 package fr.nihilus.music.library.albums
 
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseActivity
 
@@ -38,10 +37,5 @@ class AlbumDetailActivity : BaseActivity() {
                 .replace(R.id.fragment_host, albumFragment)
                 .commit()
         }
-    }
-
-    companion object {
-        const val ARG_PALETTE = "palette"
-        const val ARG_PICKED_ALBUM = "pickedAlbum"
     }
 }
