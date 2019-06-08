@@ -20,8 +20,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
@@ -33,6 +32,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import fr.nihilus.music.media.extensions.doOnPrepared
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
 import fr.nihilus.music.media.tree.BrowserTree
@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.random.Random
 
 /**
  * Handle requests to prepare media that can be played from the Odeon Media Player.
@@ -80,8 +81,8 @@ internal class OdeonPlaybackPreparer
     override fun onPrepare() {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastPlayedMediaId ?: MediaId.ALL_TRACKS
-        prepareFromMediaId(lastPlayedMediaId)
+        val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
+        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
     }
 
     /**
@@ -97,9 +98,11 @@ internal class OdeonPlaybackPreparer
      * @see MediaSessionCompat.Callback.onPrepareFromMediaId
      */
     override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-        // A new queue has been requested. Increment the queue identifier.
-        settings.queueCounter++
-        prepareFromMediaId(mediaId ?: MediaId.ALL_TRACKS)
+        // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
+        val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
+        settings.lastQueueMediaId = queueMediaId
+
+        prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -107,6 +110,9 @@ internal class OdeonPlaybackPreparer
         throw UnsupportedOperationException()
     }
 
+    /**
+     * Handle requests to prepare for playing tracks picked from the results of a search.
+     */
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
         if (query.isNullOrEmpty()) {
             // Generic query, such as "play music"
@@ -117,9 +123,13 @@ internal class OdeonPlaybackPreparer
 
             val firstResult = results.firstOrNull()
             if (firstResult?.isBrowsable == true) {
-                prepareFromMediaId(firstResult.mediaId)
+                prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
             } else {
-                preparePlayer(results.filter { it.isPlayable && !it.isBrowsable }, 0)
+                preparePlayer(
+                    results.filter { it.isPlayable && !it.isBrowsable },
+                    firstShuffledIndex = 0,
+                    startPosition = 0
+                )
             }
         }
     }
@@ -133,35 +143,51 @@ internal class OdeonPlaybackPreparer
         cb: ResultReceiver?
     ) = Unit
 
-    private fun prepareFromMediaId(mediaId: String?) = scope.launch(dispatchers.Default) {
-        try {
-            val (type, category, track) = mediaId.toMediaId()
-            val parentId = MediaId.fromParts(type, category, track = null)
+    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
+        val children = browserTree.getChildren(parentId, null)
 
-            val children = browserTree.getChildren(parentId, null)
-
-            if (children != null) {
-                val playQueue = children.filter { it.isPlayable && !it.isBrowsable }
-                val startIndex = if (track == null) -1 else playQueue.indexOfFirst { it.mediaId == mediaId }
-                preparePlayer(playQueue, startIndex)
-
-            } else {
-                Timber.i("Unable to prepare playback: %s is not part of the hierarchy", mediaId)
-            }
-
-        } catch (pde: PermissionDeniedException) {
-            Timber.i("Unable to prepare from media id due to missing permission: %s", pde.permission)
-
-        } catch (ime: InvalidMediaException) {
-            Timber.i("Attempt to prepare playback from an invalid media id: %s", mediaId)
+        if (children != null) {
+            children.filter { it.isPlayable && !it.isBrowsable }
+        } else {
+            Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
+            emptyList()
         }
+
+    } catch (pde: PermissionDeniedException) {
+        Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+        emptyList()
     }
 
-    private suspend fun preparePlayer(playQueue: List<MediaBrowserCompat.MediaItem>, startIndex: Int) {
-        if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
+    private fun prepareFromMediaId(
+        mediaId: String?,
+        startPlaybackPosition: Int
+    ) = scope.launch(dispatchers.Default) {
+        val (type, category, track) = mediaId.toMediaId()
+        val parentId = MediaId.fromParts(type, category, track = null)
 
+        val playQueue = loadPlayableChildrenOf(parentId)
+        val firstIndex =
+            if (track == null) C.POSITION_UNSET else playQueue.indexOfFirst { it.mediaId == mediaId }
+        preparePlayer(playQueue, firstIndex, startPlaybackPosition)
+    }
+
+    /**
+     * Prepare playback of a given [playQueue]
+     * and start playing the index at [startPosition] when ready.
+     *
+     * @param playQueue The items to be played. All media should be playable and have a media uri.
+     * @param firstShuffledIndex The index of the item that should be the first when playing shuffled.
+     * @param startPosition The index of the item that should be played when the player is ready.
+     * This should be a valid index in [playQueue], otherwise [firstShuffledIndex] will be used.
+     */
+    private suspend fun preparePlayer(
+        playQueue: List<MediaItem>,
+        firstShuffledIndex: Int,
+        startPosition: Int
+    ) {
+        if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
             val mediaSources = Array(playQueue.size) {
-                val playableItem: MediaDescriptionCompat = playQueue[it].description
+                val playableItem = playQueue[it].description
                 val sourceUri = checkNotNull(playableItem.mediaUri) {
                     "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
                 }
@@ -174,24 +200,71 @@ internal class OdeonPlaybackPreparer
 
             // Defines a shuffle order for the loaded media sources that is predictable.
             // It depends on the number of time a new queue has been built.
-            val predictableShuffleOrder = ShuffleOrder.DefaultShuffleOrder(
-                mediaSources.size,
-                settings.queueCounter
-            )
+            val randomSeed = settings.queueIdentifier
+
+            // Create a shuffle order that starts with the track at the specified position.
+            val firstRandomIndex = firstShuffledIndex.coerceIn(0, playQueue.lastIndex)
+            val shuffledIndices =
+                createShuffledIndices(firstRandomIndex, playQueue.size, randomSeed)
+            val predictableShuffleOrder =
+                ShuffleOrder.DefaultShuffleOrder(shuffledIndices, randomSeed)
 
             // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(
-                false,
-                predictableShuffleOrder,
-                *mediaSources
-            )
+            val concatenatedSource =
+                ConcatenatingMediaSource(false, predictableShuffleOrder, *mediaSources)
 
-            player.prepare(concatenatedSource)
 
-            // Start playback at a given track if specified.
-            if (startIndex >= 0) {
-                player.seekTo(startIndex.coerceAtMost(mediaSources.lastIndex), C.TIME_UNSET)
+            // Prepare the new playing queue.
+            player.prepare(concatenatedSource, false, true)
+
+            // Start playback at a given position if specified, otherwise start at index 0.
+            val targetPlaybackPosition = when {
+                startPosition in playQueue.indices -> startPosition
+                firstShuffledIndex in playQueue.indices -> firstShuffledIndex
+                else -> 0
+            }
+
+            player.seekToDefaultPosition(targetPlaybackPosition)
+
+            // Because of an issue with ExoPlayer, shuffle order is reset when player is prepared.
+            // As a workaround, wait for the player to be prepared before setting the shuffle order.
+            player.doOnPrepared {
+                concatenatedSource.setShuffleOrder(predictableShuffleOrder)
             }
         }
+    }
+
+    /**
+     * Create a sequence of consecutive natural numbers between `0` and `length - 1` in shuffled order,
+     * starting by the given [firstIndex].
+     *
+     * @param firstIndex The first value in the produces array. Must be between `0` and [length] (exclusive).
+     * @param length The length of the produced array. Must be greater or equal to `0`.
+     * @param randomSeed The seed for shuffling numbers.
+     *
+     * @return An array containing all the natural numbers between `0` and `length - 1` in shuffled order.
+     * Its first element is [firstIndex].
+     */
+    private fun createShuffledIndices(firstIndex: Int, length: Int, randomSeed: Long): IntArray {
+        val shuffled = IntArray(length)
+
+        if (length > 0) {
+            val random = Random(randomSeed)
+            shuffled[0] = firstIndex
+
+            for (i in 1..firstIndex) {
+                val swapIndex = random.nextInt(1, i + 1)
+                shuffled[i] = shuffled[swapIndex]
+                shuffled[swapIndex] = i - 1
+            }
+
+            for (i in (firstIndex + 1) until length) {
+                val swapIndex = random.nextInt(1, i + 1)
+                shuffled[i] = shuffled[swapIndex]
+                shuffled[swapIndex] = i
+            }
+        }
+
+        return shuffled
     }
 }
