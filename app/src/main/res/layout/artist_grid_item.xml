@@ -40,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/dummy_album_art"/>
+            tools:src="@tools:sample/backgrounds/scenic"/>
 
         <TextView
             android:id="@+id/artist_name"
@@ -51,8 +51,8 @@
             android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.List.TwoLine.Title"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/album_art_view"
@@ -67,8 +67,8 @@
             android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textSize="13sp"
+            android:textAppearance="@style/TextAppearance.List.TwoLine.Secondary"
+            android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

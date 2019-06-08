@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:textAppearance="@style/TextAppearance.Odeon.Widget.AlbumDetail.Title"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="Title de l'album"/>
 
@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.Odeon.Widget.AlbumDetail.SubTitle"
                 tools:text="Nom de l'artiste de l'album"/>
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>

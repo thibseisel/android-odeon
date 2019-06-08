@@ -81,7 +81,7 @@
         <activity
             android:name=".library.albums.AlbumDetailActivity"
             android:parentActivityName=".HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.AlbumDetailActivity"/>
 
         <!-- Activity for toggling user preferences. -->
         <activity
