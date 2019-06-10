@@ -42,7 +42,6 @@
                 android:background="?attr/colorPrimary"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
                 app:popupTheme="?actionBarPopupTheme"
-                style="@style/Widget.Odeon.Toolbar"
                 tools:title="@string/app_name"/>
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -82,7 +81,6 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:menu="@menu/menu_drawer"
-        app:itemTextAppearance="@style/TextAppearance.Odeon.Widget.Drawer.Item"
         app:itemIconPadding="32dp"/>
 
 </androidx.drawerlayout.widget.DrawerLayout>

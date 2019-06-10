@@ -45,7 +45,7 @@
         android:ellipsize="end"
         android:gravity="center_vertical|start"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.List.TwoLine.Title"
+        android:textAppearance="@style/TextAppearance.AppCompat"
         android:textSize="16sp"
         tools:text="@sample/songs.json/data/title"/>
 
@@ -58,7 +58,7 @@
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.Odeon.Widget.Duration"
+        android:textAppearance="@style/TextAppearance.AppCompat"
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="14sp"
         tools:text="@sample/songs.json/data/duration"/>
