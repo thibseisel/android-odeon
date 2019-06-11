@@ -29,7 +29,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -58,13 +58,12 @@
         android:id="@+id/duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="32dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.Odeon.Caption"
         app:layout_constraintBaseline_toBaselineOf="@id/title"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/songs.json/data/duration"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
