@@ -177,8 +177,10 @@ internal class OdeonPlaybackPreparer
      *
      * @param playQueue The items to be played. All media should be playable and have a media uri.
      * @param firstShuffledIndex The index of the item that should be the first when playing shuffled.
+     * This should be a valid index in [playQueue], otherwise an index is chosen randomly.
      * @param startPosition The index of the item that should be played when the player is ready.
-     * This should be a valid index in [playQueue], otherwise [firstShuffledIndex] will be used.
+     * This should be a valid index in [playQueue],
+     * otherwise playback will be set to start at the first index in the queue (shuffled or not).
      */
     private suspend fun preparePlayer(
         playQueue: List<MediaItem>,
@@ -199,38 +201,42 @@ internal class OdeonPlaybackPreparer
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.
-            // It depends on the number of time a new queue has been built.
+            // The random seed is built from an unique queue identifier,
+            // so that queue can be rebuilt with the same order.
             val randomSeed = settings.queueIdentifier
 
-            // Create a shuffle order that starts with the track at the specified position.
-            val firstRandomIndex = firstShuffledIndex.coerceIn(0, playQueue.lastIndex)
-            val shuffledIndices =
-                createShuffledIndices(firstRandomIndex, playQueue.size, randomSeed)
-            val predictableShuffleOrder =
+            // Create a shuffle order that starts with the track at the specified "first index".
+            // If that index is invalid, just randomly shuffle the play queue.
+            val predictableShuffleOrder = if (firstShuffledIndex in playQueue.indices) {
+                val shuffledIndices =
+                    createShuffledIndices(firstShuffledIndex, playQueue.size, randomSeed)
                 ShuffleOrder.DefaultShuffleOrder(shuffledIndices, randomSeed)
-
-            // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource =
-                ConcatenatingMediaSource(false, predictableShuffleOrder, *mediaSources)
-
-
-            // Prepare the new playing queue.
-            player.prepare(concatenatedSource, false, true)
-
-            // Start playback at a given position if specified, otherwise start at index 0.
-            val targetPlaybackPosition = when {
-                startPosition in playQueue.indices -> startPosition
-                firstShuffledIndex in playQueue.indices -> firstShuffledIndex
-                else -> 0
+            } else {
+                ShuffleOrder.DefaultShuffleOrder(playQueue.size, randomSeed)
             }
 
-            player.seekToDefaultPosition(targetPlaybackPosition)
+            // Concatenate all media source to play them all in the same Timeline.
+            val concatenatedSource = ConcatenatingMediaSource(
+                false,
+                predictableShuffleOrder,
+                *mediaSources
+            )
 
+            // Prepare the new playing queue.
             // Because of an issue with ExoPlayer, shuffle order is reset when player is prepared.
             // As a workaround, wait for the player to be prepared before setting the shuffle order.
+            player.prepare(concatenatedSource)
             player.doOnPrepared {
                 concatenatedSource.setShuffleOrder(predictableShuffleOrder)
             }
+
+            // Start playback at a given position if specified, otherwise at first shuffled index.
+            val targetPlaybackPosition = when (startPosition) {
+                in playQueue.indices -> startPosition
+                else -> predictableShuffleOrder.firstIndex
+            }
+
+            player.seekToDefaultPosition(targetPlaybackPosition)
         }
     }
 
