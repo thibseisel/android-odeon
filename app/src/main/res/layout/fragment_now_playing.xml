@@ -31,12 +31,14 @@
         app:layout_constraintGuide_begin="@dimen/playerview_height"/>
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/start_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="16dp"/>
 
     <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -94,10 +96,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAppearance="@style/TextAppearance.Odeon.Overline"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
+        app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
         tools:text="@sample/songs.json/data/duration"/>
 
     <TextView
@@ -105,10 +107,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAppearance="@style/TextAppearance.Odeon.Overline"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bottom_guideline"
+        app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
         tools:text="@sample/songs.json/data/duration"/>
 
     <!-- Action buttons -->
@@ -124,7 +126,7 @@
         android:src="@drawable/ic_level_repeat"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skip_prev_button"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/start_guideline"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <ImageView
@@ -179,7 +181,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/ic_shuffle_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/end_guideline"
         app:layout_constraintStart_toEndOf="@+id/skip_next_button"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 

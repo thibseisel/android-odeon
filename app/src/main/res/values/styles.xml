@@ -146,4 +146,31 @@
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:layout_marginEnd">16dp</item>
     </style>
+
+    <!-- Text styles. -->
+    <style name="TextAppearance.Odeon.Headline1" parent="TextAppearance.MaterialComponents.Headline1"/>
+
+    <style name="TextAppearance.Odeon.Headline2" parent="TextAppearance.MaterialComponents.Headline2"/>
+
+    <style name="TextAppearance.Odeon.Headline3" parent="TextAppearance.MaterialComponents.Headline3"/>
+
+    <style name="TextAppearance.Odeon.Headline4" parent="TextAppearance.MaterialComponents.Headline4"/>
+
+    <style name="TextAppearance.Odeon.Headline5" parent="TextAppearance.MaterialComponents.Headline5"/>
+
+    <style name="TextAppearance.Odeon.Headline6" parent="TextAppearance.MaterialComponents.Headline6"/>
+
+    <style name="TextAppearance.Odeon.Body1" parent="TextAppearance.MaterialComponents.Body1"/>
+
+    <style name="TextAppearance.Odeon.Body2" parent="TextAppearance.MaterialComponents.Body2"/>
+
+    <style name="TextAppearance.Odeon.Button" parent="TextAppearance.MaterialComponents.Button"/>
+
+    <style name="TextAppearance.Odeon.Caption" parent="TextAppearance.MaterialComponents.Caption"/>
+
+    <style name="TextAppearance.Odeon.Overline" parent="TextAppearance.MaterialComponents.Overline"/>
+
+    <style name="TextAppearance.Odeon.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1"/>
+
+    <style name="TextAppearance.Odeon.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2"/>
 </resources>

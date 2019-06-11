@@ -49,23 +49,25 @@
 
     <TextView
         android:id="@+id/title"
+        style="@style/TwoLineList_Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="@sample/songs.json/data/title"
-        style="@style/TwoLineList_Title"/>
+        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@sample/songs.json/data/title"/>
 
     <TextView
         android:id="@+id/subtitle_view"
+        style="@style/TwoLineList_Secondary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Odeon.Caption"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toEndOf="@id/art_wrapper"
-        tools:text="@sample/songs.json/data/subtitle"
-        style="@style/TwoLineList_Secondary"/>
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="@sample/songs.json/data/subtitle"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
