@@ -19,7 +19,6 @@ package fr.nihilus.music.library.playlists
 import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.View
@@ -47,44 +46,8 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     private lateinit var playlistAdapter: TargetPlaylistsAdapter
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory).get(AddToPlaylistViewModel::class.java)
-    }
-
-    companion object Factory {
-        private const val ARG_SELECTED_TRACKS = "selected_tracks_ids"
-
-        /**
-         * The tag associated with this dialog.
-         * This may be used to identify the dialog in the fragment manager.
-         */
-        const val TAG = "AddToPlaylistDialog"
-
-        /**
-         * The number of tracks that have been added to the playlist
-         * as a result of calling this dialog.
-         * This is passed as an extra in the caller's [Fragment.onActivityResult].
-         *
-         * Type: `Int`
-         */
-        const val RESULT_TRACK_COUNT = "track_count"
-
-        /**
-         * The title of the playlist the tracks have been added to
-         * as a result of calling this dialog.
-         * This is passed as an extra in the caller's [Fragment.onActivityResult].
-         *
-         * Type: `String`
-         */
-        const val RESULT_PLAYLIST_TITLE = "playlist_title"
-
-        fun newInstance(caller: Fragment, requestCode: Int, selectedTracksIds: List<MediaItem>) =
-            AddToPlaylistDialog().apply {
-                setTargetFragment(caller, requestCode)
-                arguments = Bundle(1).apply {
-                    putParcelableArray(ARG_SELECTED_TRACKS, selectedTracksIds.toTypedArray())
-                }
-            }
+    private val playlistViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(targetFragment ?: this, viewModelFactory).get(PlaylistManagementViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -100,24 +63,9 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.targetPlaylists.observeK(this) {
+        playlistViewModel.userPlaylists.observeK(this) {
             if (it is LoadRequest.Success) {
                 playlistAdapter.submitList(it.data)
-            }
-        }
-
-        viewModel.playlistUpdateResult.observeK(this) { resultEvent ->
-            resultEvent?.handle { result ->
-                when (result) {
-                    is PlaylistEditionResult.Success -> targetFragment?.onActivityResult(
-                        targetRequestCode,
-                        R.id.abc_result_success,
-                        Intent().apply {
-                            putExtra(RESULT_TRACK_COUNT, result.trackCount)
-                            putExtra(RESULT_PLAYLIST_TITLE, result.playlistTitle)
-                        }
-                    )
-                }
             }
         }
     }
@@ -126,9 +74,8 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         if (position >= 0) {
             // The clicked element is a playlist
             val playlist = playlistAdapter.getItem(position)
-            val trackIds = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem>
-                    ?: emptyArray()
-            viewModel.addTracksToPlaylist(playlist, trackIds)
+            val trackIds = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
+            playlistViewModel.addTracksToPlaylist(playlist, trackIds)
 
         } else if (position == DialogInterface.BUTTON_POSITIVE) {
             // The "New playlist" action has been selected
@@ -137,11 +84,9 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     }
 
     private fun callNewPlaylistDialog() {
-        val memberTracks =
-            arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
+        val memberTracks = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
         NewPlaylistDialog.newInstance(
-            targetFragment!!,
-            targetRequestCode,
+            targetFragment ?: this,
             memberTracks
         ).show(fragmentManager, NewPlaylistDialog.TAG)
     }
@@ -175,5 +120,23 @@ class AddToPlaylistDialog : BaseDialogFragment() {
             title.text = playlist.description.title
             glide.load(playlist.description.iconUri).into(icon)
         }
+    }
+
+    companion object Factory {
+        private const val ARG_SELECTED_TRACKS = "selected_tracks_ids"
+
+        /**
+         * The tag associated with this dialog.
+         * This may be used to identify the dialog in the fragment manager.
+         */
+        const val TAG = "AddToPlaylistDialog"
+
+        fun newInstance(caller: Fragment, selectedTracksIds: List<MediaItem>) =
+            AddToPlaylistDialog().apply {
+                setTargetFragment(caller, 0)
+                arguments = Bundle(1).apply {
+                    putParcelableArray(ARG_SELECTED_TRACKS, selectedTracksIds.toTypedArray())
+                }
+            }
     }
 }

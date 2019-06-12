@@ -17,9 +17,8 @@
 package fr.nihilus.music.library.playlists
 
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.InputType
 import android.view.View
 import android.view.WindowManager
@@ -29,51 +28,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseDialogFragment
-import fr.nihilus.music.extensions.observeK
 
 class NewPlaylistDialog : BaseDialogFragment() {
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[NewPlaylistViewModel::class.java]
+    private val playlistViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(targetFragment ?: this, viewModelFactory)[PlaylistManagementViewModel::class.java]
     }
 
     private lateinit var titleInputView: EditText
-
-    companion object Factory {
-
-        private const val ARG_MEMBER_TRACKS = "member_tracks"
-
-        /**
-         * The tag associated with this dialog.
-         * This may be used to identify the dialog in the fragment manager.
-         */
-        const val TAG = "NewPlaylistDialog"
-
-        /**
-         * A result code sent to the caller's [Fragment.onActivityResult]
-         * indicating that the a playlist with the specified name already exists.
-         */
-        const val ERROR_ALREADY_EXISTS = -4
-
-        /**
-         * The title of the playlist whose failed to be created de to be already existing.
-         * This is passed as an extra in the caller's [Fragment.onActivityResult].
-         *
-         * Type: `String`
-         */
-        const val RESULT_TAKEN_PLAYLIST_TITLE = "taken_playlist_name"
-
-        fun newInstance(
-            caller: Fragment,
-            requestCode: Int,
-            memberTracks: Array<MediaBrowserCompat.MediaItem>
-        ) = NewPlaylistDialog().apply {
-                setTargetFragment(caller, requestCode)
-                arguments = Bundle(1).apply {
-                    putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
-                }
-            }
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inputPadding = resources.getDimensionPixelSize(R.dimen.playlist_name_input_padding)
@@ -96,38 +58,32 @@ class NewPlaylistDialog : BaseDialogFragment() {
 
         // Make the keyboard immediately visible when displaying the dialog.
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-
-        viewModel.createPlaylistResult.observeK(this) { createPlaylistEvent ->
-            createPlaylistEvent?.handle(this::onReceivePlaylistCreationResult)
-        }
-    }
-
-    private fun onReceivePlaylistCreationResult(result: PlaylistEditionResult) {
-        when (result) {
-            is PlaylistEditionResult.Success -> {
-                val data = Intent().apply {
-                    putExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE, result.playlistTitle)
-                    putExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, result.trackCount)
-                }
-
-                targetFragment?.onActivityResult(targetRequestCode, R.id.abc_result_success, data)
-            }
-
-            is PlaylistEditionResult.AlreadyTaken -> {
-                val data = Intent().apply {
-                    putExtra(RESULT_TAKEN_PLAYLIST_TITLE, result.requestedPlaylistName)
-                }
-
-                targetFragment?.onActivityResult(targetRequestCode, ERROR_ALREADY_EXISTS, data)
-            }
-        }
     }
 
     private fun onRequestCreatePlaylist() {
         val playlistTitle = titleInputView.text.toString()
-        val members = arguments?.getParcelableArray(ARG_MEMBER_TRACKS)
-                as? Array<MediaBrowserCompat.MediaItem> ?: emptyArray()
+        val members = arguments?.getParcelableArray(ARG_MEMBER_TRACKS) as? Array<MediaItem> ?: emptyArray()
+        playlistViewModel.createPlaylist(playlistTitle, members)
+    }
 
-        viewModel.createPlaylist(playlistTitle, members)
+    companion object Factory {
+
+        private const val ARG_MEMBER_TRACKS = "member_tracks"
+
+        /**
+         * The tag associated with this dialog.
+         * This may be used to identify the dialog in the fragment manager.
+         */
+        const val TAG = "NewPlaylistDialog"
+
+        fun newInstance(
+            caller: Fragment,
+            memberTracks: Array<MediaItem>
+        ) = NewPlaylistDialog().apply {
+            setTargetFragment(caller, 0)
+            arguments = Bundle(1).apply {
+                putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
+            }
+        }
     }
 }
