@@ -33,7 +33,8 @@ import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.library.FRAGMENT_ID
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
-import fr.nihilus.music.library.playlists.NewPlaylistDialog
+import fr.nihilus.music.library.playlists.PlaylistActionResult
+import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
@@ -50,6 +51,10 @@ class SongListFragment : BaseFragment() {
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[SongListViewModel::class.java]
+    }
+
+    private val playlistViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this, viewModelFactory)[PlaylistManagementViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,6 +130,29 @@ class SongListFragment : BaseFragment() {
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
+
+        playlistViewModel.playlistActionResult.observeK(this) { playlistEvent ->
+            playlistEvent?.handle { result ->
+                when (result) {
+                    is PlaylistActionResult.Created -> {
+                        multiSelectMode.finish()
+                        val userMessage = getString(R.string.playlist_created, result.playlistName)
+                        Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
+                    }
+
+                    is PlaylistActionResult.Edited -> {
+                        multiSelectMode.finish()
+                        val userMessage = resources.getQuantityString(
+                            R.plurals.tracks_added_to_playlist,
+                            result.addedTracksCount,
+                            result.playlistName,
+                            result.addedTracksCount
+                        )
+                        Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onStart() {
@@ -154,7 +182,7 @@ class SongListFragment : BaseFragment() {
 
     private fun openPlaylistChooserDialog() {
         val songsToAddToPlaylist = getSelectedTrack()
-        val dialog = AddToPlaylistDialog.newInstance(this, R.id.request_add_to_playlist, songsToAddToPlaylist)
+        val dialog = AddToPlaylistDialog.newInstance(this, songsToAddToPlaylist)
         dialog.show(fragmentManager, AddToPlaylistDialog.TAG)
     }
 
@@ -165,35 +193,6 @@ class SongListFragment : BaseFragment() {
             deleteSelectedTracks()
             multiSelectMode.finish()
         }
-
-        else if (requestCode == R.id.request_add_to_playlist) {
-
-            when (resultCode) {
-                R.id.abc_result_success -> {
-                    // Track(s) have been added to a playlist
-                    if (data != null) {
-                        // Display a confirmation message as a Toast
-                        val count = data.getIntExtra(AddToPlaylistDialog.RESULT_TRACK_COUNT, 0)
-                        val title = data.getStringExtra(AddToPlaylistDialog.RESULT_PLAYLIST_TITLE)
-
-                        val userMessage = resources.getQuantityString(
-                            R.plurals.tracks_added_to_playlist, count, count, title)
-                        Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
-                    }
-
-                    // Finish action mode to deselect all items
-                    multiSelectMode.finish()
-                }
-
-                R.id.abc_error_playlist_already_exists -> {
-                    // Failed to insert to a playlist due to its name being already taken
-                    val title = data!!.getStringExtra(NewPlaylistDialog.RESULT_TAKEN_PLAYLIST_TITLE)
-
-                    val userMessage = getString(R.string.error_playlist_title_taken, title)
-                    Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
     }
 
     /**
@@ -202,8 +201,7 @@ class SongListFragment : BaseFragment() {
     private inner class SongListActionMode : MultiChoiceModeListener {
         private var actionMode: ActionMode? = null
 
-        override fun onItemCheckedStateChanged(mode: ActionMode, position: Int,
-                                               id: Long, checked: Boolean) {
+        override fun onItemCheckedStateChanged(mode: ActionMode, position: Int, id: Long, checked: Boolean) {
             mode.title = songs_listview.checkedItemCount.toString()
         }
 

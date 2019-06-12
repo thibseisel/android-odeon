@@ -22,10 +22,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.client.ViewModelKey
-import fr.nihilus.music.library.playlists.AddToPlaylistDialog
-import fr.nihilus.music.library.playlists.AddToPlaylistViewModel
-import fr.nihilus.music.library.playlists.NewPlaylistDialog
-import fr.nihilus.music.library.playlists.NewPlaylistViewModel
+import fr.nihilus.music.library.playlists.*
 
 @Module
 internal abstract class SongsModule {
@@ -40,14 +37,10 @@ internal abstract class SongsModule {
     @ContributesAndroidInjector
     abstract fun addToPlaylistDialog(): AddToPlaylistDialog
 
-    @Binds @IntoMap
-    @ViewModelKey(AddToPlaylistViewModel::class)
-    abstract fun bindsAddToPlaylistViewModel(viewModel: AddToPlaylistViewModel): ViewModel
-
     @ContributesAndroidInjector
     abstract fun newPlaylistDialog(): NewPlaylistDialog
 
     @Binds @IntoMap
-    @ViewModelKey(NewPlaylistViewModel::class)
-    abstract fun bindsNewPlaylistViewModel(viewModel: NewPlaylistViewModel): ViewModel
+    @ViewModelKey(PlaylistManagementViewModel::class)
+    abstract fun bindsPlaylistManagementViewModel(viewModel: PlaylistManagementViewModel): ViewModel
 }

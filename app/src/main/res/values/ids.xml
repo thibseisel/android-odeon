@@ -30,7 +30,5 @@
     <!-- Request to start the activity associated with the MediaSession. -->
     <!-- Request to delete tracks from the music library. -->
     <item name="request_delete_tracks" type="id"/>
-    <!-- Request to add a set of tracks to a playlist. -->
-    <item name="request_add_to_playlist" type="id"/>
 
 </resources>
