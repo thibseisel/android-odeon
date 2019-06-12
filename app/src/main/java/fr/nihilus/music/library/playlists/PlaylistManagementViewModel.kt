@@ -27,6 +27,7 @@ import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.ui.Event
 import fr.nihilus.music.ui.LoadRequest
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,6 +64,7 @@ class PlaylistManagementViewModel
 
     private val _userPlaylists by lazy(LazyThreadSafetyMode.NONE) {
         MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>().also {
+            it.postValue(LoadRequest.Pending)
             loadUserPlaylists()
         }
     }
@@ -115,17 +117,18 @@ class PlaylistManagementViewModel
         }
     }
 
-    private fun loadUserPlaylists() {
-        _userPlaylists.postValue(LoadRequest.Pending)
+    override fun onCleared() {
+        super.onCleared()
+        connection.disconnect(token)
+    }
 
-        launch {
-            try {
-                connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { playlists ->
-                    _userPlaylists.postValue(LoadRequest.Success(playlists))
-                }
-            } catch (ime: InvalidMediaException) {
-                _userPlaylists.postValue(LoadRequest.Error(ime))
+    private fun loadUserPlaylists(): Job = launch {
+        try {
+            connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { playlists ->
+                _userPlaylists.postValue(LoadRequest.Success(playlists))
             }
+        } catch (ime: InvalidMediaException) {
+            _userPlaylists.postValue(LoadRequest.Error(ime))
         }
     }
 }

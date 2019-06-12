@@ -55,8 +55,8 @@
         <item quantity="other">%d morceaux</item>
     </plurals>
     <plurals name="tracks_added_to_playlist">
-        <item quantity="one">%d titre ajouté à la playlist \"%s\"</item>
-        <item quantity="other">%d titres ajoutés à la playlist \"%s\"</item>
+        <item quantity="one">%1$d titre ajouté à la playlist \"%2$s\"</item>
+        <item quantity="other">%1$d titres ajoutés à la playlist \"%2$s\"</item>
     </plurals>
 
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>

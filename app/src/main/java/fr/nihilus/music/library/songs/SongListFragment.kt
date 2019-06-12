@@ -145,8 +145,8 @@ class SongListFragment : BaseFragment() {
                         val userMessage = resources.getQuantityString(
                             R.plurals.tracks_added_to_playlist,
                             result.addedTracksCount,
-                            result.playlistName,
-                            result.addedTracksCount
+                            result.addedTracksCount,
+                            result.playlistName
                         )
                         Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
                     }
