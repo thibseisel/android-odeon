@@ -166,8 +166,9 @@ internal class OdeonPlaybackPreparer
         val parentId = MediaId.fromParts(type, category, track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
-        val firstIndex =
-            if (track == null) C.POSITION_UNSET else playQueue.indexOfFirst { it.mediaId == mediaId }
+        val firstIndex = if (track != null) {
+            playQueue.indexOfFirst { it.mediaId == mediaId }
+        } else C.POSITION_UNSET
         preparePlayer(playQueue, firstIndex, startPlaybackPosition)
     }
 
