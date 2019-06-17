@@ -62,7 +62,7 @@ buildscript {
 
                 'junit': '4.12',
                 'truth': '0.44',
-                'mockito': '2.22.0',
+                'mockito': '2.28.2',
                 'robolectric': '4.2.1',
         ]
     }
