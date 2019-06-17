@@ -35,7 +35,7 @@ internal class TestUsageDao(
         }
     }
 
-    override fun recordUsageEvents(events: Iterable<MediaUsageEvent>) {
+    override suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>) {
         val scoreAdditionPerTrack = events.groupingBy { it.trackId }.eachCount()
 
         scoreAdditionPerTrack.forEach { (trackId, additionalScore) ->
@@ -44,17 +44,17 @@ internal class TestUsageDao(
         }
     }
 
-    override fun deleteAllEventsBefore(timeThreshold: Long) {
+    override suspend fun deleteAllEventsBefore(timeThreshold: Long) {
         // Unused for tests.
     }
 
-    override fun getMostRatedTracks(limit: Int): List<TrackScore> {
+    override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> {
         return scorePerTrack.map { (trackId, score) -> TrackScore(trackId, score) }
             .sortedByDescending { it.score }
             .take(limit)
     }
 
-    override fun deleteEventsForTracks(trackIds: LongArray) {
+    override suspend fun deleteEventsForTracks(trackIds: LongArray) {
         trackIds.forEach { scorePerTrack.remove(it) }
     }
 }

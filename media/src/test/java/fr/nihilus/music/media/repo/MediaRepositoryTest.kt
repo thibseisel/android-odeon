@@ -38,12 +38,12 @@ class MediaRepositoryTest {
 
     private object DummyPlaylistDao : PlaylistDao {
         override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()
-        override fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
-        override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
-        override fun savePlaylist(playlist: Playlist): Long = 0L
-        override fun addTracks(tracks: List<PlaylistTrack>) = Unit
-        override fun deletePlaylist(playlistId: Long) = Unit
-        override fun deletePlaylistTracks(trackIds: LongArray) = Unit
+        override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
+        override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
+        override suspend fun savePlaylist(playlist: Playlist): Long = 0L
+        override suspend fun addTracks(tracks: List<PlaylistTrack>) = Unit
+        override suspend fun deletePlaylist(playlistId: Long) = Unit
+        override suspend fun deletePlaylistTracks(trackIds: LongArray) = Unit
     }
 
     private object DummyMediaDao : RxMediaDao {
@@ -54,10 +54,10 @@ class MediaRepositoryTest {
     }
 
     private object DummyUsageDao : MediaUsageDao {
-        override fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
-        override fun recordUsageEvents(events: Iterable<MediaUsageEvent>) = Unit
-        override fun deleteAllEventsBefore(timeThreshold: Long) = Unit
-        override fun deleteEventsForTracks(trackIds: LongArray) = Unit
+        override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
+        override suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>) = Unit
+        override suspend fun deleteAllEventsBefore(timeThreshold: Long) = Unit
+        override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
     }
 
     /**
