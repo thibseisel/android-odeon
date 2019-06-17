@@ -124,8 +124,8 @@ dependencies {
 
     // Android Arch Components
     implementation "androidx.lifecycle:lifecycle-extensions:${versions.androidx.lifecycle}"
+    implementation "androidx.lifecycle:lifecycle-common-java8:${versions.androidx.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.androidx.lifecycle}"
-    kapt "androidx.lifecycle:lifecycle-compiler:${versions.androidx.lifecycle}"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:${versions.glide}"
