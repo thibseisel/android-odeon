@@ -24,15 +24,15 @@ import androidx.room.Query
 @Dao
 internal interface MediaUsageDao {
 
-    @Insert(onConflict = OnConflictStrategy.FAIL)
-    fun recordUsageEvents(events: Iterable<MediaUsageEvent>)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>)
 
     @Query("DELETE FROM usage_event WHERE event_time < :timeThreshold")
-    fun deleteAllEventsBefore(timeThreshold: Long)
+    suspend fun deleteAllEventsBefore(timeThreshold: Long)
 
     @Query("SELECT track_id, COUNT(*) AS event_count FROM usage_event GROUP BY track_id ORDER BY COUNT(*) DESC LIMIT :limit")
-    fun getMostRatedTracks(limit: Int): List<TrackScore>
+    suspend fun getMostRatedTracks(limit: Int): List<TrackScore>
 
     @Query("DELETE FROM usage_event WHERE track_id IN (:trackIds)")
-    fun deleteEventsForTracks(trackIds: LongArray)
+    suspend fun deleteEventsForTracks(trackIds: LongArray)
 }

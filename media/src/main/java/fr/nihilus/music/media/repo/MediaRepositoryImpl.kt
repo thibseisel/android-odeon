@@ -89,9 +89,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
         val allTracks = getAllTracks()
-        val playlistMembers = withContext(dispatchers.Database) {
-            playlistsDao.getPlaylistTracks(playlistId)
-        }
+        val playlistMembers = playlistsDao.getPlaylistTracks(playlistId)
 
         val tracksById = allTracks.associateBy(Track::id)
         return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
@@ -99,9 +97,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getMostRatedTracks(): List<Track> {
         val tracksById = getAllTracks().associateBy { it.id }
-        val trackScores = withContext(dispatchers.Database) {
-            usageDao.getMostRatedTracks(25)
-        }
+        val trackScores = usageDao.getMostRatedTracks(25)
 
         return trackScores.mapNotNull { tracksById[it.trackId] }
     }
@@ -138,12 +134,10 @@ internal class MediaRepositoryImpl
             _mediaChanges.onNext(ChangeNotification.Artist(it))
         }
 
-        val affectedPlaylistIds = withContext(dispatchers.Database) {
-            val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
-            playlistsDao.getPlaylistsHavingTracks(deletedTrackIds).also {
-                playlistsDao.deletePlaylistTracks(deletedTrackIds)
-            }
-        }
+        val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
+        val affectedPlaylistIds = playlistsDao.getPlaylistsHavingTracks(deletedTrackIds)
+        playlistsDao.deletePlaylistTracks(deletedTrackIds)
+        usageDao.deleteEventsForTracks(deletedTrackIds)
 
         affectedPlaylistIds.forEach {
             _mediaChanges.onNext(ChangeNotification.Playlist(it))
