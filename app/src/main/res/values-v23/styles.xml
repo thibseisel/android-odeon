@@ -20,6 +20,12 @@
     <style name="Base.V23.AppTheme" parent="Base.V21.AppTheme">
         <!-- Use dark icons on light status bar -->
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:hyphenationFrequency">@style/Widget.Odeon.TextView</item>
+    </style>
+
+    <!-- Custom TextView style to disable automatic text hyphenation (this improves measurement time). -->
+    <style name="Widget.Odeon.TextView" parent="android:Widget.TextView">
+        <item name="android:hyphenationFrequency">none</item>
     </style>
     
 </resources>
