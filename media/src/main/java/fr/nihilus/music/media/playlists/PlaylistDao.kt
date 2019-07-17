@@ -30,24 +30,23 @@ internal interface PlaylistDao {
     val playlists: Flowable<List<Playlist>>
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
-    fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
+    suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
 
     @Query("SELECT playlist_id FROM playlist_track WHERE music_id IN (:trackIds)")
-    fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
+    suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
 
-    @WorkerThread
     @Insert(onConflict = OnConflictStrategy.FAIL)
-    fun savePlaylist(playlist: Playlist): Long
+    suspend fun savePlaylist(playlist: Playlist): Long
 
     @WorkerThread
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun addTracks(tracks: List<PlaylistTrack>)
+    suspend fun addTracks(tracks: List<PlaylistTrack>)
 
     @WorkerThread
     @Query("DELETE FROM playlist WHERE id = :playlistId")
-    fun deletePlaylist(playlistId: Long)
+    suspend fun deletePlaylist(playlistId: Long)
 
     @WorkerThread
     @Query("DELETE FROM playlist_track WHERE music_id IN (:trackIds)")
-    fun deletePlaylistTracks(trackIds: LongArray)
+    suspend fun deletePlaylistTracks(trackIds: LongArray)
 }

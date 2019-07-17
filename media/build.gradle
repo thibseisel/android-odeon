@@ -89,6 +89,7 @@ dependencies {
     // Android Room
     api "androidx.room:room-runtime:${versions.androidx.room}"
     kapt "androidx.room:room-compiler:${versions.androidx.room}"
+    implementation "androidx.room:room-ktx:${versions.androidx.room}"
     implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
 
     // ExoPlayer

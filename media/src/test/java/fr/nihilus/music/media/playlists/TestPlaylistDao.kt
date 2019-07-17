@@ -39,7 +39,7 @@ internal class TestPlaylistDao(
     override val playlists: Flowable<List<Playlist>>
         get() = _playlists.onBackpressureBuffer()
 
-    override fun savePlaylist(playlist: Playlist): Long {
+    override suspend fun savePlaylist(playlist: Playlist): Long {
         val currentPlaylists = _playlists.value.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 
@@ -49,7 +49,7 @@ internal class TestPlaylistDao(
         return identifier
     }
 
-    override fun addTracks(tracks: List<PlaylistTrack>) {
+    override suspend fun addTracks(tracks: List<PlaylistTrack>) {
         val currentPlaylists = _playlists.value.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 
@@ -65,7 +65,7 @@ internal class TestPlaylistDao(
         _playlistTracks += tracks
     }
 
-    override fun deletePlaylist(playlistId: Long) {
+    override suspend fun deletePlaylist(playlistId: Long) {
         _playlists.value?.let { currentPlaylists ->
             _playlists.onNext(currentPlaylists.filter { it.id == playlistId })
 
@@ -74,10 +74,10 @@ internal class TestPlaylistDao(
         }
     }
 
-    override fun getPlaylistTracks(playlistId: Long) =
+    override suspend fun getPlaylistTracks(playlistId: Long) =
         _playlistTracks.filter { it.playlistId == playlistId }
 
-    override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray {
+    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray {
         val playlistIds = _playlistTracks.asSequence()
             .filter { it.trackId in trackIds }
             .map { it.playlistId }
@@ -86,7 +86,7 @@ internal class TestPlaylistDao(
         return LongArray(playlistIds.size) { playlistIds[it] }
     }
 
-    override fun deletePlaylistTracks(trackIds: LongArray) {
+    override suspend fun deletePlaylistTracks(trackIds: LongArray) {
         _playlistTracks.removeAll { it.trackId in trackIds }
     }
 

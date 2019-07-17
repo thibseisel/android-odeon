@@ -202,12 +202,12 @@ class ManagePlaylistActionTest {
 
 private object StubPlaylistDao : PlaylistDao {
     override val playlists: Flowable<List<Playlist>> get() = stub()
-    override fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
-    override fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
-    override fun savePlaylist(playlist: Playlist): Long = stub()
-    override fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
-    override fun deletePlaylist(playlistId: Long): Unit = stub()
-    override fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
+    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
+    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
+    override suspend fun savePlaylist(playlist: Playlist): Long = stub()
+    override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
+    override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
+    override suspend fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
 }
 
 private object NoopFileSystem : FileSystem {
