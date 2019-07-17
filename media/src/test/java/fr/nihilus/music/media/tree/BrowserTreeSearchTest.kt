@@ -139,11 +139,81 @@ class BrowserTreeSearchTest {
     @Test
     fun givenPattern_whenSearching_thenReturnItemsContainingThatPattern() = runBlockingTest {
         val tracks = listOf(
-            Track(23, "Another Brick In The Wall", "Pink Floyd", "The Wall", 0, 1, 5, "", null, 0, 2, 2),
-            Track(34, "Another One Bites the Dust", "Queen", "The Game", 0, 1, 3, "", null, 0, 3, 3),
-            Track(56, "Nothing Else Matters", "Metallica", "Metallica", 0L, 1, 8, "", null, 0, 4, 4),
-            Track(12, "Otherside", "Red Hot Chili Peppers", "Californication", 0, 1, 6, "", null, 0, 1, 1),
-            Track(98, "You've Got Another Thing Comin", "Judas Priest", "Screaming for Vengeance", 0, 1, 8, "", null, 0, 7, 7)
+            Track(
+                23,
+                "Another Brick In The Wall",
+                "Pink Floyd",
+                "The Wall",
+                0,
+                1,
+                5,
+                "",
+                null,
+                0,
+                2,
+                2,
+                0
+            ),
+            Track(
+                34,
+                "Another One Bites the Dust",
+                "Queen",
+                "The Game",
+                0,
+                1,
+                3,
+                "",
+                null,
+                0,
+                3,
+                3,
+                0
+            ),
+            Track(
+                56,
+                "Nothing Else Matters",
+                "Metallica",
+                "Metallica",
+                0L,
+                1,
+                8,
+                "",
+                null,
+                0,
+                4,
+                4,
+                0
+            ),
+            Track(
+                12,
+                "Otherside",
+                "Red Hot Chili Peppers",
+                "Californication",
+                0,
+                1,
+                6,
+                "",
+                null,
+                0,
+                1,
+                1,
+                0
+            ),
+            Track(
+                98,
+                "You've Got Another Thing Comin",
+                "Judas Priest",
+                "Screaming for Vengeance",
+                0,
+                1,
+                8,
+                "",
+                null,
+                0,
+                7,
+                7,
+                0
+            )
         )
 
         val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()))
@@ -165,9 +235,51 @@ class BrowserTreeSearchTest {
     @Test
     fun givenPatternThatMatchesMultipleItemsEqually_whenSearching_thenReturnShorterFirst() = runBlockingTest {
         val tracks = listOf(
-            Track(10, "Are You Ready", "AC/DC", "The Razor's Edge", 0, 1, 7, "", null, 0, 32, 18),
-            Track(42, "Are You Gonna Be My Girl", "Jet", "Get Born", 0, 1, 2, "", null, 0, 78, 90),
-            Track(63, "Are You Gonna Go My Way", "Lenny Kravitz", "Are You Gonna Go My Way", 0, 1, 1, "", null, 0, 57, 23)
+            Track(
+                10,
+                "Are You Ready",
+                "AC/DC",
+                "The Razor's Edge",
+                0,
+                1,
+                7,
+                "",
+                null,
+                0,
+                32,
+                18,
+                0
+            ),
+            Track(
+                42,
+                "Are You Gonna Be My Girl",
+                "Jet",
+                "Get Born",
+                0,
+                1,
+                2,
+                "",
+                null,
+                0,
+                78,
+                90,
+                0
+            ),
+            Track(
+                63,
+                "Are You Gonna Go My Way",
+                "Lenny Kravitz",
+                "Are You Gonna Go My Way",
+                0,
+                1,
+                1,
+                "",
+                null,
+                0,
+                57,
+                23,
+                0
+            )
         )
 
         val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()))

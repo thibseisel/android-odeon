@@ -93,6 +93,7 @@ class MediaStoreProviderTest {
         assertThat(aTrack.artist).isEqualTo("Alestorm")
         assertThat(aTrack.duration).isEqualTo(437603L)
         assertThat(aTrack.availabilityDate).isEqualTo(1466283480L)
+        assertThat(aTrack.fileSize).isEqualTo(17_506_481L)
     }
 
     @Test

@@ -40,7 +40,8 @@ private val TRACK_COLUMNS = arrayOf(
     Media.TRACK,
     Media.ALBUM_ID,
     Media.ARTIST_ID,
-    Media.DATE_ADDED
+    Media.DATE_ADDED,
+    Media.SIZE
 )
 
 private val ALBUM_COLUMNS = arrayOf(
@@ -105,6 +106,7 @@ internal class MediaStoreProvider
             val colAlbumId = cursor.getColumnIndexOrThrow(Media.ALBUM_ID)
             val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
             val colDateAdded = cursor.getColumnIndexOrThrow(Media.DATE_ADDED)
+            val colFileSize = cursor.getColumnIndexOrThrow(Media.SIZE)
 
             ArrayList<Track>(cursor.count).also { trackList ->
                 while (cursor.moveToNext()) {
@@ -116,16 +118,17 @@ internal class MediaStoreProvider
                     trackList += Track(
                         id = trackId,
                         title = cursor.getString(colTitle),
-                        album = cursor.getString(colAlbum),
                         artist = cursor.getString(colArtist),
+                        album = cursor.getString(colAlbum),
                         duration = cursor.getLong(colDuration),
                         discNumber = trackNo / 1000,
                         trackNumber = trackNo % 1000,
                         mediaUri = trackUri,
                         albumArtUri = artUriPerAlbum[albumId],
                         availabilityDate = cursor.getLong(colDateAdded),
+                        artistId = cursor.getLong(colArtistId),
                         albumId = albumId,
-                        artistId = cursor.getLong(colArtistId)
+                        fileSize = cursor.getLong(colFileSize)
                     )
                 }
             }

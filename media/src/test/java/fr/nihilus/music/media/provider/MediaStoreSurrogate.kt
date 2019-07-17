@@ -188,16 +188,136 @@ private class InMemoryMediaStoreDatabase(context: Context) : SQLiteOpenHelper(co
     }
 
     private fun insertSampleMedia(db: SQLiteDatabase) {
-        db.track(161, "1741 (The Battle of Cartagena)", 65, "Sunset on the Golden Age", 26, "Alestorm", 437603, 1004, "Music/1741_(The_Battle_of_Cartagena).mp3", 1466283480)
-        db.track(309, "The 2nd Law: Isolated System", 40, "The 2nd Law", 18, "Muse", 300042, 1013, "Music/The_2nd_Law_(Isolated_System).mp3", 1439653800)
-        db.track(481, "Dirty Water", 102, "Concrete and Gold", 13, "Foo Fighters", 320914, 1006, "Music/Concrete And Gold/Dirty_Water.mp3", 1506374520)
-        db.track(48, "Give It Up", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 233592, 1019, "Music/Give_It_Up.mp3", 1455310080)
-        db.track(125, "Jailbreak", 7, "Greatest Hits 30 Anniversary Edition", 5, "AC/DC", 276668, 2014, "Music/Jailbreak.mp3", 1455310140)
-        db.track(294, "Knights of Cydonia", 38, "Black Holes and Revelations", 18, "Muse", 366946, 1011, "Music/Knights_of_Cydonia.mp3", 1414880700)
-        db.track(219, "A Matter of Time", 26, "Wasting Light", 18, "Foo Fighters", 276140, 1008, "Music/Wasting Light/A_Matter_of_Time.mp3", 1360677660)
-        db.track(75, "Nightmare", 6, "Nightmare", 4, "Avenged Sevenfold", 374648, 1001, "Music/Nightmare.mp3", 1439590380)
-        db.track(464, "The Pretenders", 95, "Echoes, Silence, Patience & Grace", 13, "Foo Fighters", 266509, 1001, "Music/The_Pretenders.mp3", 1439653740)
-        db.track(477, "Run", 102, "Concrete and Gold", 13, "Foo Fighters", 323424, 1002, "Music/Concrete And Gold/Run.mp3", 1506374520)
+        db.track(
+            161,
+            "1741 (The Battle of Cartagena)",
+            65,
+            "Sunset on the Golden Age",
+            26,
+            "Alestorm",
+            437603,
+            1004,
+            "Music/1741_(The_Battle_of_Cartagena).mp3",
+            1466283480,
+            17_506_481
+        )
+        db.track(
+            309,
+            "The 2nd Law: Isolated System",
+            40,
+            "The 2nd Law",
+            18,
+            "Muse",
+            300042,
+            1013,
+            "Music/The_2nd_Law_(Isolated_System).mp3",
+            1439653800,
+            12_075_967
+        )
+        db.track(
+            481,
+            "Dirty Water",
+            102,
+            "Concrete and Gold",
+            13,
+            "Foo Fighters",
+            320914,
+            1006,
+            "Music/Concrete And Gold/Dirty_Water.mp3",
+            1506374520,
+            12_912_282
+        )
+        db.track(
+            48,
+            "Give It Up",
+            7,
+            "Greatest Hits 30 Anniversary Edition",
+            5,
+            "AC/DC",
+            233592,
+            1019,
+            "Music/Give_It_Up.mp3",
+            1455310080,
+            5_716_578
+        )
+        db.track(
+            125,
+            "Jailbreak",
+            7,
+            "Greatest Hits 30 Anniversary Edition",
+            5,
+            "AC/DC",
+            276668,
+            2014,
+            "Music/Jailbreak.mp3",
+            1455310140,
+            6_750_404
+        )
+        db.track(
+            294,
+            "Knights of Cydonia",
+            38,
+            "Black Holes and Revelations",
+            18,
+            "Muse",
+            366946,
+            1011,
+            "Music/Knights_of_Cydonia.mp3",
+            1414880700,
+            11_746_572
+        )
+        db.track(
+            219,
+            "A Matter of Time",
+            26,
+            "Wasting Light",
+            18,
+            "Foo Fighters",
+            276140,
+            1008,
+            "Music/Wasting Light/A_Matter_of_Time.mp3",
+            1360677660,
+            11_149_678
+        )
+        db.track(
+            75,
+            "Nightmare",
+            6,
+            "Nightmare",
+            4,
+            "Avenged Sevenfold",
+            374648,
+            1001,
+            "Music/Nightmare.mp3",
+            1439590380,
+            10_828_662
+        )
+        db.track(
+            464,
+            "The Pretenders",
+            95,
+            "Echoes, Silence, Patience & Grace",
+            13,
+            "Foo Fighters",
+            266509,
+            1001,
+            "Music/The_Pretenders.mp3",
+            1439653740,
+            4_296_041
+        )
+        db.track(
+            477,
+            "Run",
+            102,
+            "Concrete and Gold",
+            13,
+            "Foo Fighters",
+            323424,
+            1002,
+            "Music/Concrete And Gold/Run.mp3",
+            1506374520,
+            13_012_576
+        )
     }
 
     private fun insertSampleAlbums(db: SQLiteDatabase) {
@@ -229,7 +349,8 @@ private class InMemoryMediaStoreDatabase(context: Context) : SQLiteOpenHelper(co
         duration: Long,
         trackNo: Int,
         filepath: String,
-        dateAdded: Long
+        dateAdded: Long,
+        fileSize: Long
     ) = insert(TABLE_MEDIA, null, ContentValues(25).apply {
         put(Media._ID, id)
         put(Media.TITLE, title)
@@ -249,7 +370,7 @@ private class InMemoryMediaStoreDatabase(context: Context) : SQLiteOpenHelper(co
         put(Media.IS_PODCAST, 0)
         put(Media.IS_RINGTONE, 0)
         put(Media.DATA, filepath)
-        put(Media.SIZE, 0)
+        put(Media.SIZE, fileSize)
         put(Media.DISPLAY_NAME, filepath.substringAfterLast(File.pathSeparatorChar))
         put(Media.DATE_ADDED, dateAdded)
         put(Media.DATE_MODIFIED, dateAdded)
