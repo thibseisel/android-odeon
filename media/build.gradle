@@ -126,6 +126,8 @@ dependencies {
     testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
+    testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+    testImplementation "io.mockk:mockk:${versions.mockk}"
 
     // Android-specific test dependencies
     androidTestImplementation "com.google.truth:truth:${versions.truth}"

@@ -18,7 +18,6 @@ package fr.nihilus.music.media.usage
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -57,16 +56,7 @@ internal class MediaUsageEvent(
      */
     @ColumnInfo(name = "event_time")
     val eventTime: Long
-) {
-    /**
-     * Convenience constructor to instantiate a new usage event that occurred just now.
-     * The event [uid] will be initialized to `0` (unsaved) and the [eventTime] to the current time.
-     *
-     * @param trackId The unique identifier of the track that generated this event.
-     */
-    @Ignore
-    constructor(trackId: Long) : this(0L, trackId, System.currentTimeMillis() / 1000L)
-}
+)
 
 /**
  * A track associated with a given numeric score.
@@ -78,4 +68,23 @@ internal data class TrackScore(
 
     @ColumnInfo(name = "event_count")
     val score: Int
+)
+
+/**
+ * Summary of the usage events for a given track.
+ *
+ * @param trackId The unique identifier of the track associated with the recorded events.
+ * @param score The total number of events recorded for that track.
+ * @param lastEventTime The time at which the last event has been recorded for that track.
+ */
+internal data class TrackUsage(
+
+    @ColumnInfo(name = "track_id")
+    val trackId: Long,
+
+    @ColumnInfo(name = "event_count")
+    val score: Int,
+
+    @ColumnInfo(name = "last_event_time")
+    val lastEventTime: Long
 )

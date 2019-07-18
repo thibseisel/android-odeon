@@ -35,6 +35,11 @@ internal class TestUsageDao(
         }
     }
 
+    override suspend fun recordEvent(usageEvent: MediaUsageEvent) {
+        val currentScore = scorePerTrack.getOrElse(usageEvent.trackId, { 0 })
+        scorePerTrack[usageEvent.trackId] = currentScore + 1
+    }
+
     override suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>) {
         val scoreAdditionPerTrack = events.groupingBy { it.trackId }.eachCount()
 
@@ -43,6 +48,8 @@ internal class TestUsageDao(
             scorePerTrack[trackId] = currentScore + additionalScore
         }
     }
+
+    override suspend fun getTracksUsage(): List<TrackUsage> = TODO()
 
     override suspend fun deleteAllEventsBefore(timeThreshold: Long) {
         // Unused for tests.

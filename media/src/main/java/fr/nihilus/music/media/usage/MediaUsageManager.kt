@@ -17,7 +17,12 @@
 package fr.nihilus.music.media.usage
 
 import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.repo.MediaRepository
+import fr.nihilus.music.media.utils.Clock
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +30,26 @@ import javax.inject.Inject
  * Manages reading and writing media usage statistics.
  */
 internal interface MediaUsageManager {
+
+    /**
+     * Retrieve the most rated tracks from the music library.
+     * Tracks are sorted by descending score.
+     */
+    suspend fun getMostRatedTracks(): List<Track>
+
+    /**
+     * Load tracks that could be deleted by the user to free-up the device's storage.
+     * The returned tracks are sorted, so that tracks that would most benefit from being deleted are listed first.
+     *
+     * A track is likely to be selected if at least one of the following are true:
+     * - its associated file has a large size,
+     * - it has never been played,
+     * - it has not been played for a long time,
+     * - it scores low.
+     *
+     * @return A list of tracks that could be deleted.
+     */
+    suspend fun getDisposableTracks(): List<DisposableTrack>
 
     /**
      * Report that the track with the given [trackId] has been played until the end.
@@ -35,23 +60,59 @@ internal interface MediaUsageManager {
 }
 
 /**
- * Implementation of [MediaUsageManager] that performs operations using Kotlin Coroutines,
- * bridging to the RxJava World.
+ * Default implementation of the usage manager.
  *
  * @param scope The scope coroutines should be executed into.
+ * @param repository The repository for media files.
  * @param usageDao The DAO that controls storage of usage statistics.
  */
 @ServiceScoped
-internal class RxBridgeUsageManager
+internal class UsageManagerImpl
 @Inject constructor(
     private val scope: CoroutineScope,
-    private val usageDao: MediaUsageDao
+    private val repository: MediaRepository,
+    private val usageDao: MediaUsageDao,
+    private val clock: Clock
 ) : MediaUsageManager {
+
+    override suspend fun getMostRatedTracks(): List<Track> {
+        val tracksById = repository.getAllTracks().associateBy { it.id }
+        val trackScores = usageDao.getMostRatedTracks(25)
+
+        return trackScores.mapNotNull { tracksById[it.trackId] }
+    }
+
+    override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
+        val allTracks = async { repository.getAllTracks() }
+        val usageByTrack = usageDao.getTracksUsage().groupBy { it.trackId }
+
+        allTracks.await()
+            .filterNot { usageByTrack.containsKey(it.id) }
+            .map { DisposableTrack(it.id, it.title, it.fileSize, null) }
+            .sortedByDescending { it.fileSizeBytes }
+            .toList()
+    }
 
     override fun reportCompletion(trackId: Long) {
         scope.launch {
-            val singleEventList = listOf(MediaUsageEvent(trackId))
-            usageDao.recordUsageEvents(singleEventList)
+            val newEvent = MediaUsageEvent(0, trackId, clock.currentEpochTime)
+            usageDao.recordEvent(newEvent)
         }
     }
 }
+
+/**
+ * Information on a track that could be deleted from the device's storage to free-up space.
+ *
+ * @param trackId Unique identifier of the related track.
+ * @param title The display title of the related track.
+ * @param fileSizeBytes The size of the file stored on the device's storage in bytes.
+ * @param lastPlayedTime The epoch time at which that track has been played for the last time,
+ * or `null` if it has never been played.
+ */
+class DisposableTrack(
+    val trackId: Long,
+    val title: String,
+    val fileSizeBytes: Long,
+    val lastPlayedTime: Long?
+)

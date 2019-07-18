@@ -29,7 +29,9 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.THEIR_MEDIA_ID
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.repo.StubUsageManager
 import fr.nihilus.music.media.repo.TestMediaRepository
+import fr.nihilus.music.media.repo.TestUsageManager
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -139,84 +141,14 @@ class BrowserTreeSearchTest {
     @Test
     fun givenPattern_whenSearching_thenReturnItemsContainingThatPattern() = runBlockingTest {
         val tracks = listOf(
-            Track(
-                23,
-                "Another Brick In The Wall",
-                "Pink Floyd",
-                "The Wall",
-                0,
-                1,
-                5,
-                "",
-                null,
-                0,
-                2,
-                2,
-                0
-            ),
-            Track(
-                34,
-                "Another One Bites the Dust",
-                "Queen",
-                "The Game",
-                0,
-                1,
-                3,
-                "",
-                null,
-                0,
-                3,
-                3,
-                0
-            ),
-            Track(
-                56,
-                "Nothing Else Matters",
-                "Metallica",
-                "Metallica",
-                0L,
-                1,
-                8,
-                "",
-                null,
-                0,
-                4,
-                4,
-                0
-            ),
-            Track(
-                12,
-                "Otherside",
-                "Red Hot Chili Peppers",
-                "Californication",
-                0,
-                1,
-                6,
-                "",
-                null,
-                0,
-                1,
-                1,
-                0
-            ),
-            Track(
-                98,
-                "You've Got Another Thing Comin",
-                "Judas Priest",
-                "Screaming for Vengeance",
-                0,
-                1,
-                8,
-                "",
-                null,
-                0,
-                7,
-                7,
-                0
-            )
+            Track(23, "Another Brick In The Wall", "Pink Floyd", "The Wall", 0, 1, 5, "", null, 0, 2, 2, 0),
+            Track(34, "Another One Bites the Dust", "Queen", "The Game", 0, 1, 3, "", null, 0, 3, 3, 0),
+            Track(56, "Nothing Else Matters", "Metallica", "Metallica", 0L, 1, 8, "", null, 0, 4, 4, 0),
+            Track(12, "Otherside", "Red Hot Chili Peppers", "Californication", 0, 1, 6, "", null, 0, 1, 1, 0),
+            Track(98, "You've Got Another Thing Comin", "Judas Priest", "Screaming for Vengeance", 0, 1, 8, "", null, 0, 7, 7, 0)
         )
 
-        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()))
+        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()), StubUsageManager)
 
         // "OTHERside" is listed first (it starts with the pattern),
         // then "AnOTHER Brick In the Wall" (same pattern at same position),
@@ -235,54 +167,12 @@ class BrowserTreeSearchTest {
     @Test
     fun givenPatternThatMatchesMultipleItemsEqually_whenSearching_thenReturnShorterFirst() = runBlockingTest {
         val tracks = listOf(
-            Track(
-                10,
-                "Are You Ready",
-                "AC/DC",
-                "The Razor's Edge",
-                0,
-                1,
-                7,
-                "",
-                null,
-                0,
-                32,
-                18,
-                0
-            ),
-            Track(
-                42,
-                "Are You Gonna Be My Girl",
-                "Jet",
-                "Get Born",
-                0,
-                1,
-                2,
-                "",
-                null,
-                0,
-                78,
-                90,
-                0
-            ),
-            Track(
-                63,
-                "Are You Gonna Go My Way",
-                "Lenny Kravitz",
-                "Are You Gonna Go My Way",
-                0,
-                1,
-                1,
-                "",
-                null,
-                0,
-                57,
-                23,
-                0
-            )
+            Track(10, "Are You Ready", "AC/DC", "The Razor's Edge", 0, 1, 7, "", null, 0, 32, 18, 0),
+            Track(42, "Are You Gonna Be My Girl", "Jet", "Get Born", 0, 1, 2, "", null, 0, 78, 90, 0),
+            Track(63, "Are You Gonna Go My Way", "Lenny Kravitz", "Are You Gonna Go My Way", 0, 1, 1, "", null, 0, 57, 23, 0)
         )
 
-        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()))
+        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()), StubUsageManager)
 
         // When the pattern matches multiple items equally,
         // shorter items should be displayed first.
@@ -308,7 +198,7 @@ class BrowserTreeSearchTest {
             Track(35, "So Far Away", "Avenged Sevenfold", "Nightmare", 0, 1, 1, "", null, 0, 1, 2)
         )
 
-        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, albums, emptyList()))
+        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, albums, emptyList()), StubUsageManager)
 
         // When performing in normal mode, the first result would have been the "Nightmare" album.
         // Since it performs in playable-only, assume that the user wanted to play the whole album,
@@ -330,7 +220,7 @@ class BrowserTreeSearchTest {
             Track(98, "You've Got Another Thing Comin", "Judas Priest", "Screaming for Vengeance", 0, 1, 8, "", null, 0, 7, 7)
         )
 
-        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()))
+        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, emptyList(), emptyList()), StubUsageManager)
 
         // When a normal search would have returned no browsable item,
         // then return the same results in playable-only mode.
@@ -357,7 +247,7 @@ class BrowserTreeSearchTest {
             Track(77, "Highway to Hell", "AC/DC", "Highway to Hell", 0, 1, 1, "", null, 0, 21, 3)
         )
 
-        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, albums, emptyList()))
+        val tree = BrowserTreeImpl(context, TestMediaRepository(tracks, albums, emptyList()), StubUsageManager)
 
         // "hell" matches "Highway to Hell" (both an album and a song),
         // but since "Hell's Bells" is a better match, assume that users wanted that song
@@ -372,10 +262,8 @@ class BrowserTreeSearchTest {
         ).inOrder()
     }*/
 
-    private fun givenRealisticBrowserTree(): BrowserTreeImpl {
-        val repository = TestMediaRepository()
-        return BrowserTreeImpl(context, repository)
-    }
+    private fun givenRealisticBrowserTree(): BrowserTreeImpl =
+        BrowserTreeImpl(context, TestMediaRepository(), TestUsageManager())
 
     private fun givenArtistSearchOptions(artistName: String) = Bundle(2).apply {
         putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE)
