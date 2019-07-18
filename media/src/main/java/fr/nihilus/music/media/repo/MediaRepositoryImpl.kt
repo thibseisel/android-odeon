@@ -168,9 +168,6 @@ internal class MediaRepositoryImpl
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
     }
 
-    /**
-     *
-     */
     private fun <M : Any> CoroutineScope.syncCache(
         mediaUpdateStream: Flowable<List<M>>,
         onChanged: suspend (original: List<M>, modified: List<M>) -> Unit

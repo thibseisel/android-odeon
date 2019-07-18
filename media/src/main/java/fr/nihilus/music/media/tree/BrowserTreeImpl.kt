@@ -43,6 +43,7 @@ import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.mediaId
+import fr.nihilus.music.media.usage.MediaUsageManager
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -87,7 +88,8 @@ private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
 internal class BrowserTreeImpl
 @Inject constructor(
     private val context: Context,
-    private val repository: MediaRepository
+    private val repository: MediaRepository,
+    private val usageManager: MediaUsageManager
 ) : BrowserTree {
 
     /**
@@ -409,7 +411,7 @@ internal class BrowserTreeImpl
     private suspend fun provideMostRatedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getMostRatedTracks().asSequence()
+        return usageManager.getMostRatedTracks().asSequence()
             .drop(fromIndex)
             .take(count)
             .mapTo(mutableListOf()) { track ->

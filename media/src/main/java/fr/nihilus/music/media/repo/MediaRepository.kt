@@ -30,6 +30,8 @@ internal interface MediaRepository {
     suspend fun getAllArtists(): List<Artist>
     suspend fun getAllPlaylists(): List<Playlist>
     suspend fun getPlaylistTracks(playlistId: Long): List<Track>?
+
+    @Deprecated("This function has been moved to MediaUsageManager")
     suspend fun getMostRatedTracks(): List<Track>
 }
 
