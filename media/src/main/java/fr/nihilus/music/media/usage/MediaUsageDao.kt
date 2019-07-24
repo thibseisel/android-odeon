@@ -27,14 +27,6 @@ internal interface MediaUsageDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun recordEvent(usageEvent: MediaUsageEvent)
 
-    @Deprecated("Events are only recorded on a a time.")
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>)
-
-    @Deprecated("This function has no use.")
-    @Query("DELETE FROM usage_event WHERE event_time < :timeThreshold")
-    suspend fun deleteAllEventsBefore(timeThreshold: Long)
-
     @Query("SELECT track_id, COUNT(*) AS event_count, MAX(event_time) AS last_event_time FROM usage_event GROUP BY track_id")
     suspend fun getTracksUsage(): List<TrackUsage>
 

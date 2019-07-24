@@ -40,20 +40,7 @@ internal class TestUsageDao(
         scorePerTrack[usageEvent.trackId] = currentScore + 1
     }
 
-    override suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>) {
-        val scoreAdditionPerTrack = events.groupingBy { it.trackId }.eachCount()
-
-        scoreAdditionPerTrack.forEach { (trackId, additionalScore) ->
-            val currentScore = scorePerTrack.getOrElse(trackId, { 0 })
-            scorePerTrack[trackId] = currentScore + additionalScore
-        }
-    }
-
     override suspend fun getTracksUsage(): List<TrackUsage> = TODO()
-
-    override suspend fun deleteAllEventsBefore(timeThreshold: Long) {
-        // Unused for tests.
-    }
 
     override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> {
         return scorePerTrack.map { (trackId, score) -> TrackScore(trackId, score) }
