@@ -76,4 +76,6 @@
     <string name="pref_summary_skip_silence">Ne pas jouer le début ou la fin d\'un morceau s\'il n\'est pas audible</string>
     <string name="pref_category_experimental">Fonctionnalités expérimentales</string>
     <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
+    <string name="last_played_description">Dernière lecture %1$s</string>
+    <string name="never_played">Jamais lu</string>
 </resources>
