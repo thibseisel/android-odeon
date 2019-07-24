@@ -86,7 +86,7 @@ internal class UsageManagerImpl
         val allTracks = async { repository.getAllTracks() }
         val usageByTrack = usageDao.getTracksUsage().groupBy { it.trackId }
 
-        allTracks.await()
+        allTracks.await().asSequence()
             .filterNot { usageByTrack.containsKey(it.id) }
             .map { DisposableTrack(it.id, it.title, it.fileSize, null) }
             .sortedByDescending { it.fileSizeBytes }

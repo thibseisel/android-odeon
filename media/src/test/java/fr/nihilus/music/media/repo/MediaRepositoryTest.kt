@@ -57,8 +57,6 @@ class MediaRepositoryTest {
         override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
         override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
         override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()
-        override suspend fun recordUsageEvents(events: Iterable<MediaUsageEvent>) = Unit
-        override suspend fun deleteAllEventsBefore(timeThreshold: Long) = Unit
         override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
     }
 
