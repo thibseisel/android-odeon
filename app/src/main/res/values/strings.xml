@@ -79,4 +79,6 @@
     <string name="pref_title_skip_silence">Skip silence in tracks</string>
     <string name="pref_summary_skip_silence">Skip start or end of a track if it produces no noise</string>
     <string name="pref_category_experimental">Experimental</string>
+    <string name="last_played_description">Last played %1$s</string>
+    <string name="never_played">Never played</string>
 </resources>
