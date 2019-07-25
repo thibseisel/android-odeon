@@ -20,8 +20,6 @@
 
     <!-- Request to start the activity associated with the MediaSession. -->
     <item name="abc_request_start_media_activity" type="id" />
-    <!-- Request to delete tracks from the music library. -->
-    <!-- Request to add a set of tracks to a playlist. -->
 
     <!-- Result codes -->
 
@@ -30,13 +28,4 @@
         Every implementation of MediaSessionCommand should send this code upon success.
     -->
     <item name="abc_result_success" type="id" />
-
-    <!-- Error codes -->
-
-    <!--
-        Indicates that an attempt to create a new playlist has failed because a playlist
-        with the desired name already exists.
-    -->
-    <item name="abc_error_playlist_already_exists" type="id"/>
-    <!-- Indicates that a command can't be handled because it is not supported. -->
 </resources>
