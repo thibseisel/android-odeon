@@ -21,7 +21,7 @@ import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.glide.palette.AlbumColorModule
-import fr.nihilus.music.library.MusicLibraryModule
+import fr.nihilus.music.library.HomeModule
 import fr.nihilus.music.settings.SettingsModule
 
 /**
@@ -29,7 +29,7 @@ import fr.nihilus.music.settings.SettingsModule
  * This groups all dependencies required to display and interaction with the media browser service.
  */
 @Module(includes = [
-    MusicLibraryModule::class,
+    HomeModule::class,
     SettingsModule::class,
     AlbumColorModule::class
 ])

@@ -113,11 +113,13 @@ dependencies {
     implementation "androidx.fragment:fragment-ktx:${versions.androidx.fragment}"
     implementation "androidx.cardview:cardview:${versions.androidx.cardview}"
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
+    implementation "androidx.recyclerview:recyclerview-selection:${versions.androidx.recyclerview}"
     implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
     implementation "androidx.preference:preference-ktx:${versions.androidx.preference}"
     implementation "androidx.constraintlayout:constraintlayout:${versions.androidx.constraint_layout}"
 
     implementation "androidx.navigation:navigation-fragment-ktx:${versions.androidx.navigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${versions.androidx.navigation}"
 
     // Material Components
     implementation "com.google.android.material:material:${versions.material}"

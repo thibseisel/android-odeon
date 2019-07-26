@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
@@ -50,14 +51,13 @@ class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
     }
 
-    private val pickedAlbum: MediaBrowserCompat.MediaItem by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable<MediaBrowserCompat.MediaItem>(ARG_ALBUM)
-            ?: error("Fragment should be created with its newInstance function.")
-    }
+    private val args: AlbumDetailFragmentArgs by navArgs()
 
-    private val albumPalette: AlbumPalette by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable<AlbumPalette>(ARG_PALETTE)
-            ?: error("Fragment should be created with its newInstance function.")
+    private lateinit var pickedAlbum: MediaBrowserCompat.MediaItem
+    private lateinit var albumPalette: AlbumPalette
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(

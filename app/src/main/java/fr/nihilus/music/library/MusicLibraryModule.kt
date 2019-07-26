@@ -16,48 +16,12 @@
 
 package fr.nihilus.music.library
 
-import androidx.lifecycle.ViewModel
-import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
-import dagger.multibindings.IntoMap
-import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.client.ViewModelKey
-import fr.nihilus.music.dagger.AlbumDetailModule
-import fr.nihilus.music.library.albums.AlbumsModule
-import fr.nihilus.music.library.artists.ArtistsModule
-import fr.nihilus.music.library.nowplaying.NowPlayingModule
-import fr.nihilus.music.library.playlists.PlaylistsModule
-import fr.nihilus.music.library.songs.SongsModule
-import javax.inject.Scope
 
-/**
- * Define the scope of the client-side music library browser.
- * Dependencies annotated with this scope are alive
- * as long as the user is browsing the music library.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class MusicLibraryScope
-
-/**
- * Configure dependencies for the music library browsing feature.
- */
-@Module(includes = [AlbumDetailModule::class])
+@Module
 abstract class MusicLibraryModule {
 
-    @MusicLibraryScope
-    @ContributesAndroidInjector(modules = [
-        NowPlayingModule::class,
-        SongsModule::class,
-        AlbumsModule::class,
-        ArtistsModule::class,
-        PlaylistsModule::class
-    ])
-    abstract fun homeActivity(): HomeActivity
-
-    @Binds @IntoMap
-    @ViewModelKey(MusicLibraryViewModel::class)
-    abstract fun bindsMusicLibraryViewModel(viewModel: MusicLibraryViewModel): ViewModel
+    @ContributesAndroidInjector
+    abstract fun homeFragment(): HomeFragment
 }

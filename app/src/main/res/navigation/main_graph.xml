@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,79 +15,66 @@
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/main_graph"
-            app:startDestination="@id/fragment_track_list">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/fragment_home">
 
-    <action android:id="@+id/action_show_settings" app:destination="@id/activity_settings"/>
-    <action android:id="@+id/action_browse_tracks" app:destination="@id/fragment_track_list"/>
-    <action android:id="@+id/action_browse_albums" app:destination="@id/fragment_album_list"/>
-    <action android:id="@+id/action_browse_artists" app:destination="@id/fragment_artist_list"/>
-    <action android:id="@+id/action_browse_playlists" app:destination="@id/fragment_playlists"/>
+    <action
+        android:id="@+id/action_show_settings"
+        app:destination="@id/activity_settings" />
 
-    <fragment android:id="@+id/fragment_track_list"
-              android:label="@string/all_music"
-              android:name="fr.nihilus.music.library.songs.SongListFragment"
-              tools:layout="@layout/fragment_songs"/>
+    <fragment
+        android:id="@+id/fragment_artist_detail"
+        android:name="fr.nihilus.music.library.artists.detail.ArtistDetailFragment"
+        tools:layout="@layout/fragment_artist_detail">
 
-    <fragment android:id="@+id/fragment_album_list"
-              android:name="fr.nihilus.music.library.albums.AlbumGridFragment"
-              android:label="@string/action_albums"
-              tools:layout="@layout/fragment_albums">
-
-        <action android:id="@+id/action_browse_album_detail"
-                app:destination="@id/activity_album_detail"/>
+        <argument
+            android:name="pickedArtist"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+        <action
+            android:id="@+id/action_fragment_artist_detail_to_albumDetailFragment"
+            app:destination="@id/albumDetailFragment" />
     </fragment>
 
-    <activity android:id="@+id/activity_album_detail"
-              android:name="fr.nihilus.music.library.albums.AlbumDetailActivity"
-              tools:layout="@layout/activity_album_detail">
+    <fragment
+        android:id="@+id/fragment_playlist_detail"
+        android:name="fr.nihilus.music.library.playlists.MembersFragment"
+        tools:layout="@layout/fragment_playlist_members">
 
-        <argument android:name="fr.nihilus.music.albums.ALBUM"
-                  app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
-
-        <argument android:name="fr.nihilus.music.albums.PALETTE"
-                  app:argType="fr.nihilus.music.library.albums.AlbumPalette"/>
-    </activity>
-
-    <fragment android:id="@+id/fragment_artist_list"
-              android:name="fr.nihilus.music.library.artists.ArtistListFragment"
-              android:label="@string/action_artists"
-              tools:layout="@layout/fragment_artists">
-
-        <action android:id="@+id/action_browse_artist_detail"
-                app:destination="@id/fragment_artist_detail"/>
+        <argument
+            android:name="playlist"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
     </fragment>
 
-    <fragment android:id="@+id/fragment_artist_detail"
-              android:name="fr.nihilus.music.library.artists.detail.ArtistDetailFragment"
-              tools:layout="@layout/fragment_artist_detail">
-
-        <argument android:name="fr.nihilus.music.artists.ARTIST"
-                  app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
+    <activity
+        android:id="@+id/activity_settings"
+        android:name="fr.nihilus.music.settings.SettingsActivity"
+        android:label="@string/action_settings"
+        tools:layout="@layout/activity_settings" />
+    <fragment
+        android:id="@+id/fragment_home"
+        android:name="fr.nihilus.music.library.HomeFragment">
+        <action
+            android:id="@+id/action_homeFragment_to_fragment_artist_detail"
+            app:destination="@id/fragment_artist_detail" />
+        <action
+            android:id="@+id/action_homeFragment_to_fragment_playlist_detail"
+            app:destination="@id/fragment_playlist_detail" />
+        <action
+            android:id="@+id/action_homeFragment_to_albumDetailFragment2"
+            app:destination="@id/albumDetailFragment" />
     </fragment>
-
-    <fragment android:id="@+id/fragment_playlists"
-              android:name="fr.nihilus.music.library.playlists.PlaylistsFragment"
-              android:label="@string/action_playlists"
-              tools:layout="@layout/fragment_playlist">
-
-        <action android:id="@+id/action_browse_playlist_detail"
-                app:destination="@id/fragment_playlist_detail"/>
+    <fragment
+        android:id="@+id/albumDetailFragment"
+        android:name="fr.nihilus.music.library.albums.AlbumDetailFragment"
+        android:label="fragment_album_detail">
+        <argument
+            android:name="pickedAlbum"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+        <argument
+            android:name="albumPalette"
+            app:argType="fr.nihilus.music.library.albums.AlbumPalette" />
     </fragment>
-
-    <fragment android:id="@+id/fragment_playlist_detail"
-              android:name="fr.nihilus.music.library.playlists.MembersFragment"
-              tools:layout="@layout/fragment_playlist_members">
-
-        <argument android:name="fr.nihilus.music.playlists.PLAYLIST"
-                  app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
-    </fragment>
-
-    <activity android:id="@+id/activity_settings"
-              android:name="fr.nihilus.music.settings.SettingsActivity"
-              android:label="@string/action_settings"
-              tools:layout="@layout/activity_settings"/>
 
 </navigation>

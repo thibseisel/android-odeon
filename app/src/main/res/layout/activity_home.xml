@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2018 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,72 +14,39 @@
   ~ limitations under the License.
   -->
 
-<androidx.drawerlayout.widget.DrawerLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="fr.nihilus.music.HomeActivity">
+    android:layout_height="match_parent">
 
-    <!-- Main content -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <fragment
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="?actionBarTheme">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|enterAlways|snap"
-                app:popupTheme="?actionBarPopupTheme"
-                tools:title="@string/app_name"/>
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <FrameLayout
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:filterTouchesWhenObscured="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-
-        <fr.nihilus.music.view.BottomSheetHost
-            android:id="@+id/player_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bg_floating"
-            android:backgroundTint="?colorBackgroundFloating"
-            android:elevation="8dp"
-            app:behavior_peekHeight="@dimen/playerview_height"
-            app:layout_behavior="@string/bottom_sheet_behavior">
-
-            <fragment
-                android:id="@+id/fragment_now_playing"
-                android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout="@layout/fragment_now_playing"/>
-
-        </fr.nihilus.music.view.BottomSheetHost>
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <!-- NavigationDrawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_drawer"
-        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:menu="@menu/menu_drawer"
-        app:itemIconPadding="32dp"/>
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/main_graph"
+        tools:layout="@layout/fragment_home" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+    <fr.nihilus.music.view.BottomSheetHost
+        android:id="@+id/player_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_floating"
+        android:backgroundTint="?colorBackgroundFloating"
+        android:elevation="8dp"
+        app:behavior_peekHeight="@dimen/playerview_height"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <fragment
+            android:id="@+id/fragment_now_playing"
+            android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_now_playing" />
+
+    </fr.nihilus.music.view.BottomSheetHost>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
