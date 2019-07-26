@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2018 Thibault Seisel
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,10 +15,12 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_host"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".library.albums.AlbumDetailActivity"
-    tools:layout="@layout/fragment_album_detail" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/activity_settings"
+        android:icon="@drawable/ic_settings_24dp"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>

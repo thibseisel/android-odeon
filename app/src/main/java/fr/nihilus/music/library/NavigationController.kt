@@ -52,6 +52,7 @@ private const val KEY_FIRST_TAG = "first_tag"
  * Clients are required to save and restore this navigation controller's state
  * on configuration changes with the [saveState] and [restoreState].
  */
+@Deprecated("Usages are replaced by the Navigation Component.")
 @MusicLibraryScope
 class NavigationController
 @Inject constructor(
