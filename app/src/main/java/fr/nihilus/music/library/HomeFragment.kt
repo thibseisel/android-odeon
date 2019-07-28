@@ -16,10 +16,13 @@
 
 package fr.nihilus.music.library
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -32,24 +35,13 @@ import fr.nihilus.music.library.artists.ArtistListFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
 import kotlinx.android.synthetic.main.fragment_home.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Host fragment for displaying collections of media: all tracks, albums, artists and user-defined playlists.
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_home, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,31 +52,41 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Postpone transition when returning from album detail.
+        postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
+        allowReturnTransitionOverlap = true
+
+        // Configure toolbar with title and menu.
+        toolbar.run {
+            setTitle(R.string.app_name)
+            inflateMenu(R.menu.menu_home)
+            setOnMenuItemClickListener(::onOptionsItemSelected)
+        }
+
+        // Configure tabs and ViewPager.
         tab_host.setupWithViewPager(fragment_pager)
         fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        (activity as AppCompatActivity).setSupportActionBar(toolbar)
-    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
 
     /**
      * An adapter that maps fragments displaying collection of media to items in a ViewPager.
      */
+    @SuppressLint("WrongConstant")
     private class MusicLibraryTabAdapter(
         private val context: Context,
         fm: FragmentManager
-    ) : FragmentPagerAdapter(fm) {
+    ) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
         override fun getCount(): Int = 4
 
         override fun getItem(position: Int): Fragment = when (position) {
-            0 -> SongListFragment.newInstance()
-            1 -> AlbumGridFragment.newInstance()
-            2 -> ArtistListFragment.newInstance()
-            3 -> PlaylistsFragment.newInstance()
+            0 -> SongListFragment()
+            1 -> AlbumGridFragment()
+            2 -> ArtistListFragment()
+            3 -> PlaylistsFragment()
             else -> error("Requested a Fragment for a tab at unexpected position: $position")
         }
 

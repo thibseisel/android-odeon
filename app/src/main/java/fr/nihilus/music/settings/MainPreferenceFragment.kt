@@ -16,15 +16,13 @@
 
 package fr.nihilus.music.settings
 
-import android.content.Context
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
-import dagger.android.support.AndroidSupportInjection
 import fr.nihilus.music.R
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.prefs_main)
+        setPreferencesFromResource(R.xml.prefs_main, rootKey)
     }
 }

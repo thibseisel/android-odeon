@@ -82,6 +82,6 @@ internal class AlbumHolder(
         applyPalette(defaultPalette)
 
         glide.load(description.iconUri).into(albumViewTarget)
-        albumArt.transitionName = "image_" + description.mediaId
+        albumArt.transitionName = description.mediaId
     }
 }

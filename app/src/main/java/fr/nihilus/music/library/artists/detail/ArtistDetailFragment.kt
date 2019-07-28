@@ -16,22 +16,23 @@
 
 package fr.nihilus.music.library.artists.detail
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityOptionsCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.extensions.afterMeasure
 import fr.nihilus.music.extensions.isVisible
-import fr.nihilus.music.extensions.observeK
-import fr.nihilus.music.library.FRAGMENT_ID
 import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.library.albums.AlbumDetailActivity
-import fr.nihilus.music.library.albums.AlbumDetailFragment
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
@@ -43,48 +44,44 @@ import javax.inject.Inject
 class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
+    private lateinit var childrenAdapter: ArtistDetailAdapter
 
-    private lateinit var adapter: ArtistDetailAdapter
+    private val args: ArtistDetailFragmentArgs by navArgs()
 
-    private val pickedArtist: MediaItem by lazy(LazyThreadSafetyMode.NONE) {
-        arguments?.getParcelable<MediaItem>(KEY_ARTIST) ?: error("Callers must specify the artist to display.")
-    }
-
-    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
-    }
-
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[ArtistDetailViewModel::class.java]
-    }
+    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
+    private val viewModel: ArtistDetailViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ArtistDetailAdapter(this, defaultAlbumPalette, this)
+        childrenAdapter = ArtistDetailAdapter(this, defaultAlbumPalette, this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_artist_detail, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_artist_detail, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.loadChildrenOfArtist(pickedArtist)
+        postponeEnterTransition()
+        viewModel.loadChildrenOfArtist(args.pickedArtist)
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
-        val manager = androidx.recyclerview.widget.GridLayoutManager(context, spanCount)
-        artist_detail_recycler.adapter = adapter
-        artist_detail_recycler.layoutManager = manager
-        artist_detail_recycler.setHasFixedSize(true)
-
-        manager.spanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
+        val manager = GridLayoutManager(context, spanCount)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
             override fun getSpanSize(position: Int): Int {
-                val viewType = adapter.getItemViewType(position)
+                val viewType = childrenAdapter.getItemViewType(position)
                 return if (viewType == R.id.view_type_album) 1 else spanCount
             }
+        }
+
+        with(artist_detail_recycler) {
+            adapter = childrenAdapter
+            layoutManager = manager
+            setHasFixedSize(true)
+            afterMeasure { startPostponedEnterTransition() }
         }
 
         val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
@@ -92,28 +89,23 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
             progressIndicator.isVisible = shouldShow
         }
 
-        viewModel.children.observeK(this) { childrenRequest ->
+        viewModel.children.observe(this) { childrenRequest ->
             when  (childrenRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    adapter.submitList(childrenRequest.data)
+                    childrenAdapter.submitList(childrenRequest.data)
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
-                    adapter.submitList(emptyList())
+                    childrenAdapter.submitList(emptyList())
                 }
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        hostViewModel.setToolbarTitle(pickedArtist.description.title)
-    }
-
     override fun onItemSelected(position: Int, actionId: Int) {
-        val selectedItem = adapter.getItem(position)
+        val selectedItem = childrenAdapter.getItem(position)
         val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) ?: return
         when (holder.itemViewType) {
             R.id.view_type_track -> onTrackSelected(selectedItem)
@@ -122,31 +114,16 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
     }
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            activity!!, holder.transitionView, AlbumDetailFragment.ALBUM_ART_TRANSITION_NAME
+        val toAlbumDetail =
+            ArtistDetailFragmentDirections.browseArtistAlbum(album, holder.colorPalette)
+        val transitionExtras = FragmentNavigatorExtras(
+            holder.transitionView to album.mediaId!!
         )
 
-        val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
-            putExtra(AlbumDetailFragment.ARG_ALBUM, album)
-            putExtra(AlbumDetailFragment.ARG_PALETTE, holder.colorPalette)
-        }
-
-        startActivity(albumDetailIntent, options.toBundle())
+        findNavController().navigate(toAlbumDetail, transitionExtras)
     }
 
     private fun onTrackSelected(track: MediaItem) {
         hostViewModel.playMedia(track)
-    }
-
-    companion object Factory {
-
-        private const val KEY_ARTIST = "artist"
-
-        fun newInstance(artist: MediaItem) = ArtistDetailFragment().apply {
-            arguments = Bundle(2).apply {
-                putInt(FRAGMENT_ID, R.id.action_artists)
-                putParcelable(KEY_ARTIST, artist)
-            }
-        }
     }
 }

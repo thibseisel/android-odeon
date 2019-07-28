@@ -26,4 +26,7 @@
     public *;
 }
 
+# Keep MediaItem class name - for Navigation Components
+-keepnames class android.support.v4.media.MediaBrowserCompat$MediaItem
+
 -dontwarn com.google.errorprone.annotations.*

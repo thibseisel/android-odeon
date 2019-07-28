@@ -20,9 +20,45 @@
     android:id="@+id/main_graph"
     app:startDestination="@id/fragment_home">
 
-    <action
-        android:id="@+id/action_show_settings"
-        app:destination="@id/activity_settings" />
+    <fragment
+        android:id="@+id/fragment_home"
+        android:name="fr.nihilus.music.library.HomeFragment"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/browse_album_detail"
+            app:destination="@id/fragment_album_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/browse_artist_detail"
+            app:destination="@id/fragment_artist_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/browse_playlist_content"
+            app:destination="@id/fragment_playlist_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_album_detail"
+        android:name="fr.nihilus.music.library.albums.AlbumDetailFragment"
+        android:label="fragment_album_detail"
+        tools:layout="@layout/fragment_album_detail">
+        <argument
+            android:name="pickedAlbum"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
+        <argument
+            android:name="albumPalette"
+            app:argType="fr.nihilus.music.library.albums.AlbumPalette"
+            app:nullable="true"/>
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_artist_detail"
@@ -33,8 +69,12 @@
             android:name="pickedArtist"
             app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
         <action
-            android:id="@+id/action_fragment_artist_detail_to_albumDetailFragment"
-            app:destination="@id/albumDetailFragment" />
+            android:id="@+id/browse_artist_album"
+            app:destination="@id/fragment_album_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
 
     <fragment
@@ -45,6 +85,10 @@
         <argument
             android:name="playlist"
             app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+        <argument
+            android:name="isDeletable"
+            app:argType="boolean"
+            android:defaultValue="false"/>
     </fragment>
 
     <activity
@@ -52,29 +96,5 @@
         android:name="fr.nihilus.music.settings.SettingsActivity"
         android:label="@string/action_settings"
         tools:layout="@layout/activity_settings" />
-    <fragment
-        android:id="@+id/fragment_home"
-        android:name="fr.nihilus.music.library.HomeFragment">
-        <action
-            android:id="@+id/action_homeFragment_to_fragment_artist_detail"
-            app:destination="@id/fragment_artist_detail" />
-        <action
-            android:id="@+id/action_homeFragment_to_fragment_playlist_detail"
-            app:destination="@id/fragment_playlist_detail" />
-        <action
-            android:id="@+id/action_homeFragment_to_albumDetailFragment2"
-            app:destination="@id/albumDetailFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/albumDetailFragment"
-        android:name="fr.nihilus.music.library.albums.AlbumDetailFragment"
-        android:label="fragment_album_detail">
-        <argument
-            android:name="pickedAlbum"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
-        <argument
-            android:name="albumPalette"
-            app:argType="fr.nihilus.music.library.albums.AlbumPalette" />
-    </fragment>
 
 </navigation>

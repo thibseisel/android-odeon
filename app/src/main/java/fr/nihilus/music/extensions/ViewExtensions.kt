@@ -19,8 +19,8 @@ package fr.nihilus.music.extensions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.annotation.LayoutRes
-import androidx.drawerlayout.widget.DrawerLayout
 
 /**
  * Inflate the given layout as a child of this view group.
@@ -45,14 +45,11 @@ var View.isVisible: Boolean
         visibility = if (value) View.VISIBLE else View.GONE
     }
 
-/**
- * Lock user interactions with the given [DrawerLayout].
- * @param isLocked Whether interactions with this drawer should be ignored.
- */
-fun DrawerLayout.lockDrawer(isLocked: Boolean) {
-    requestDisallowInterceptTouchEvent(isLocked)
-    setDrawerLockMode(
-        if (isLocked) DrawerLayout.LOCK_MODE_LOCKED_CLOSED
-        else DrawerLayout.LOCK_MODE_UNLOCKED
-    )
+inline fun <T : View> T.afterMeasure(crossinline block: T.() -> Unit) {
+    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            viewTreeObserver.removeOnGlobalLayoutListener(this)
+            block()
+        }
+    })
 }

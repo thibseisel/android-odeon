@@ -43,11 +43,6 @@
 
         <!-- Make the action mode appear above the content instead of above the Toolbar. -->
         <item name="windowActionModeOverlay">true</item>
-
-        <!-- Enable window content transition -->
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
-        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
     </style>
 
     <!-- The default theme for the whole application. -->
@@ -61,7 +56,6 @@
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>

@@ -27,9 +27,6 @@ import fr.nihilus.music.R
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
-/**
- *
- */
 internal class TrackHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<Bitmap>
