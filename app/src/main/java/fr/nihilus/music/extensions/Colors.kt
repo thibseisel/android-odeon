@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.extensions
 
+import android.content.Context
 import android.graphics.Color
+import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.core.graphics.ColorUtils
@@ -79,4 +81,10 @@ val @receiver:ColorInt Int.luminance: Float
  */
 fun @receiver:ColorInt Int.toHsl(outHsl: FloatArray = FloatArray(3)) = outHsl.also {
     ColorUtils.colorToHSL(this, it)
+}
+
+fun resolveThemeColor(context: Context, themeAttrId: Int): Int {
+    val outValue = TypedValue()
+    context.theme.resolveAttribute(themeAttrId, outValue, true)
+    return outValue.data
 }

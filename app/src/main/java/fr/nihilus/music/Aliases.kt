@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package fr.nihilus.music
 
+import android.support.v4.media.MediaBrowserCompat
+import fr.nihilus.music.ui.LoadRequest
 
-/**
- * Represents an event that is fired when the currently shown screen changes.
- * This accepts an [Int] parameter giving hints on the new location.
- */
-typealias RouteChangeListener = (Int) -> Unit
+typealias MediaItemRequest = LoadRequest<List<MediaBrowserCompat.MediaItem>>

@@ -21,26 +21,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
-import fr.nihilus.music.extensions.observeK
-import fr.nihilus.music.library.FRAGMENT_ID
-import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.library.NavigationController
+import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_artists.*
-import javax.inject.Inject
 
 class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
-    @Inject lateinit var router: NavigationController
-
-    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
-    }
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[ArtistListViewModel::class.java]
@@ -56,7 +49,7 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_artists, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_artists, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -66,11 +59,10 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
             progressIndicator.isVisible = shouldShow
         }
 
-        adapter = ArtistAdapter(this, this)
         artist_recycler.adapter = adapter
         artist_recycler.setHasFixedSize(true)
 
-        viewModel.children.observeK(this) { artistRequest ->
+        viewModel.children.observe(this) { artistRequest ->
             when (artistRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -87,21 +79,9 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        hostViewModel.setToolbarTitle(getString(R.string.action_artists))
-    }
-
     override fun onItemSelected(position: Int, actionId: Int) {
         val artist = adapter.getItem(position)
-        router.navigateToArtistDetail(artist)
-    }
-
-    companion object Factory {
-        fun newInstance() = ArtistListFragment().apply {
-            arguments = Bundle(1).apply {
-                putInt(FRAGMENT_ID, R.id.action_artists)
-            }
-        }
+        val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist)
+        findNavController().navigate(toArtistDetail)
     }
 }

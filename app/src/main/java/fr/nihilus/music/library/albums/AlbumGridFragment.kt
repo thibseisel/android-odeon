@@ -16,19 +16,19 @@
 
 package fr.nihilus.music.library.albums
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityOptionsCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.extensions.afterMeasure
 import fr.nihilus.music.extensions.isVisible
-import fr.nihilus.music.extensions.observeK
-import fr.nihilus.music.library.FRAGMENT_ID
-import fr.nihilus.music.library.MusicLibraryViewModel
+import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
@@ -39,20 +39,13 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
-    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
-    }
-
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[AlbumGridViewModel::class.java]
-    }
-
+    private val viewModel: AlbumGridViewModel by viewModels { viewModelFactory }
     private lateinit var albumAdapter: AlbumsAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_albums, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_albums, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -63,12 +56,13 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         }
 
         albumAdapter = AlbumsAdapter(this, defaultAlbumPalette, this)
-        with(album_recycler) {
+        album_recycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
+            afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
-        viewModel.children.observeK(this) { albumRequest ->
+        viewModel.children.observe(this, { albumRequest ->
             when (albumRequest) {
                 is LoadRequest.Pending -> refreshToggle.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -82,39 +76,18 @@ class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
                     group_empty_view.isVisible = true
                 }
             }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        hostViewModel.setToolbarTitle(getString(R.string.action_albums))
+        })
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val album = albumAdapter.getItem(position)
         val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            activity!!, holder.transitionView,
-            AlbumDetailFragment.ALBUM_ART_TRANSITION_NAME
+        val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(album, holder.colorPalette)
+        val transitionExtras = FragmentNavigatorExtras(
+            holder.transitionView to album.mediaId!!
         )
 
-        val albumDetailIntent = Intent(context, AlbumDetailActivity::class.java).apply {
-            putExtra(AlbumDetailFragment.ARG_ALBUM, album)
-            putExtra(AlbumDetailFragment.ARG_PALETTE, holder.colorPalette)
-        }
-
-        startActivity(albumDetailIntent, options.toBundle())
-    }
-
-    companion object Factory {
-
-        fun newInstance(): AlbumGridFragment {
-            val args = Bundle(1)
-            args.putInt(FRAGMENT_ID, R.id.action_albums)
-            val fragment = AlbumGridFragment()
-            fragment.arguments = args
-            return fragment
-        }
+        findNavController().navigate(toAlbumDetail, transitionExtras)
     }
 }

@@ -28,10 +28,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseDialogFragment
 import fr.nihilus.music.extensions.inflate
-import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.ListAdapter
@@ -63,7 +63,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        playlistViewModel.userPlaylists.observeK(this) {
+        playlistViewModel.userPlaylists.observe(this) {
             if (it is LoadRequest.Success) {
                 playlistAdapter.submitList(it.data)
             }
@@ -88,10 +88,10 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         NewPlaylistDialog.newInstance(
             targetFragment ?: this,
             memberTracks
-        ).show(fragmentManager, NewPlaylistDialog.TAG)
+        ).show(childFragmentManager, NewPlaylistDialog.TAG)
     }
 
-    override fun onCancel(dialog: DialogInterface?) {
+    override fun onCancel(dialog: DialogInterface) {
         targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
     }
 

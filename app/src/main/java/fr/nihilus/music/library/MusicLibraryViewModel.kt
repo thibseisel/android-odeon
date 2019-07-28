@@ -22,7 +22,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.media.MediaId
@@ -35,12 +34,7 @@ class MusicLibraryViewModel
     context: Context,
     private val connection: MediaBrowserConnection
 ) : BaseViewModel() {
-    private val resources = context.resources
     private val client = MediaBrowserConnection.ClientToken()
-
-    private val _toolbarTitle = MutableLiveData<CharSequence?>()
-    val toolbarTitle: LiveData<CharSequence?>
-        get() = _toolbarTitle
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
     val playerSheetVisible: LiveData<Boolean>
@@ -70,14 +64,8 @@ class MusicLibraryViewModel
     }
 
     init {
-        _toolbarTitle.postValue(resources.getText(R.string.music_library))
-
         connection.connect(client)
         connection.playbackState.observeForever(playbackStateObserver)
-    }
-
-    fun setToolbarTitle(title: CharSequence?) {
-        _toolbarTitle.value = title
     }
 
     fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {

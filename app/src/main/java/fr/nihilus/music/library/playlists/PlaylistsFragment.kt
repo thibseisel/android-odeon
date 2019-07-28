@@ -20,43 +20,38 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.isVisible
-import fr.nihilus.music.extensions.observeK
-import fr.nihilus.music.library.FRAGMENT_ID
+import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.library.NavigationController
+import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.toMediaId
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_playlist.*
-import javax.inject.Inject
 
 class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var router: NavigationController
+    private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
+    private val viewModel: PlaylistsViewModel by viewModels { viewModelFactory }
+
     private lateinit var adapter: PlaylistsAdapter
-
-    private val hostViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(requireActivity())[MusicLibraryViewModel::class.java]
-    }
-
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[PlaylistsViewModel::class.java]
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         adapter = PlaylistsAdapter(this, this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_playlist, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_playlist, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -69,7 +64,7 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         playlist_recycler.adapter = adapter
         playlist_recycler.setHasFixedSize(true)
 
-        viewModel.children.observeK(this) { playlistsRequest ->
+        viewModel.children.observe(this) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -86,24 +81,19 @@ class PlaylistsFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        hostViewModel.setToolbarTitle(getString(R.string.action_playlists))
-    }
-
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedPlaylist = adapter.getItem(position)
         when (actionId) {
-            R.id.action_browse_item -> router.navigateToPlaylistDetails(selectedPlaylist)
             R.id.action_play_item -> hostViewModel.playMedia(selectedPlaylist)
-        }
-    }
+            R.id.action_browse_item -> {
+                val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
+                val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
+                val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
+                    selectedPlaylist,
+                    isDeletablePlaylist
+                )
 
-    companion object Factory {
-
-        fun newInstance() = PlaylistsFragment().apply {
-            arguments = Bundle(1).apply {
-                putInt(FRAGMENT_ID, R.id.action_playlist)
+                findNavController().navigate(toPlaylistTracks)
             }
         }
     }

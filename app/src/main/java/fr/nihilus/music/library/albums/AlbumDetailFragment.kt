@@ -19,23 +19,23 @@ package fr.nihilus.music.library.albums
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.TransitionInflater
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.extensions.luminance
-import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.CurrentlyPlayingDecoration
@@ -47,57 +47,53 @@ class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
     private lateinit var adapter: TrackAdapter
     private lateinit var decoration: CurrentlyPlayingDecoration
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[AlbumDetailViewModel::class.java]
-    }
-
+    private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
-
-    private lateinit var pickedAlbum: MediaBrowserCompat.MediaItem
-    private lateinit var albumPalette: AlbumPalette
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_album_detail, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_album_detail, container, false)
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupSharedElementTransitions()
 
-        requireActivity().startPostponedEnterTransition()
-        viewModel.loadTracksOfAlbum(pickedAlbum)
+        viewModel.loadTracksOfAlbum(args.pickedAlbum)
 
-        with(pickedAlbum.description) {
+        with(args.pickedAlbum.description) {
             title_view.text = title
             subtitle_view.text = subtitle
         }
 
         play_fab.setOnClickListener {
-            viewModel.playMedia(pickedAlbum)
+            viewModel.playMedia(args.pickedAlbum)
         }
 
         setupToolbar()
         setupAlbumArt()
         setupTrackList()
 
-        applyPaletteTheme(albumPalette)
+        applyPaletteTheme(args.albumPalette!!)
 
         // Change the decorated item when metadata changes
-        viewModel.nowPlaying.observeK(this, this::decoratePlayingTrack)
+        viewModel.nowPlaying.observe(this, this::decoratePlayingTrack)
 
         // Subscribe to children of this album
-        viewModel.children.observeK(this) { trackUpdateRequest ->
+        viewModel.children.observe(this) { trackUpdateRequest ->
             if (trackUpdateRequest is LoadRequest.Success) {
                 adapter.submitList(trackUpdateRequest.data)
                 val currentMetadata = viewModel.nowPlaying.value
                 decoratePlayingTrack(currentMetadata)
             }
         }
+    }
+
+    private fun setupSharedElementTransitions() {
+        val inflater = TransitionInflater.from(requireContext())
+        val albumArtTransition = inflater.inflateTransition(android.R.transition.move)
+        sharedElementEnterTransition = albumArtTransition
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
@@ -116,21 +112,19 @@ class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         }
     }
 
-    private fun setupToolbar() = with(requireActivity() as AppCompatActivity) {
-        setSupportActionBar(toolbar)
-
-        supportActionBar!!.run {
-            setDisplayHomeAsUpEnabled(false)
+    private fun setupToolbar() {
+        toolbar.apply {
             title = null
+            setNavigationOnClickListener { findNavController().navigateUp() }
         }
     }
 
     private fun setupAlbumArt() {
         val albumArtView: ImageView = album_art_view
-        albumArtView.transitionName = ALBUM_ART_TRANSITION_NAME
+        albumArtView.transitionName = args.pickedAlbum.mediaId
 
         GlideApp.with(this).asBitmap()
-            .load(pickedAlbum.description.iconUri)
+            .load(args.pickedAlbum.description.iconUri)
             .fallback(R.drawable.ic_album_24dp)
             .centerCrop()
             .into(albumArtView)
@@ -174,23 +168,6 @@ class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         )
 
         val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
-        (activity as? AppCompatActivity)?.supportActionBar?.setHomeAsUpIndicator(upArrow)
-    }
-
-    companion object Factory {
-        const val ARG_ALBUM = "fr.nihilus.music.album.ALBUM"
-        const val ARG_PALETTE = "fr.nihilus.music.album.PALETTE"
-
-        const val ALBUM_ART_TRANSITION_NAME = "fr.nihilus.music.album.TRANSITION_NAME"
-
-        fun newInstance(
-            pickedAlbum: MediaBrowserCompat.MediaItem,
-            palette: AlbumPalette
-        ) = AlbumDetailFragment().apply {
-            arguments = Bundle(2).apply {
-                putParcelable(ARG_ALBUM, pickedAlbum)
-                putParcelable(ARG_PALETTE, palette)
-            }
-        }
+        toolbar.navigationIcon = upArrow
     }
 }

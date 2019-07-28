@@ -27,11 +27,11 @@ import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
-import fr.nihilus.music.extensions.observeK
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
@@ -117,13 +117,13 @@ class NowPlayingFragment: BaseFragment() {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel.playbackState.observeK(this, this::onPlaybackStateChanged)
-        viewModel.nowPlaying.observeK(this, this::onMetadataChanged)
-        viewModel.repeatMode.observeK(this) {
-            onRepeatModeChanged(it ?: REPEAT_MODE_INVALID)
+        viewModel.playbackState.observe(this, this::onPlaybackStateChanged)
+        viewModel.nowPlaying.observe(this, this::onMetadataChanged)
+        viewModel.repeatMode.observe(this) {
+            onRepeatModeChanged(it)
         }
-        viewModel.shuffleMode.observeK(this) {
-            onShuffleModeChanged(it ?: SHUFFLE_MODE_INVALID)
+        viewModel.shuffleMode.observe(this) {
+            onShuffleModeChanged(it)
         }
 
         if (savedInstanceState != null) {

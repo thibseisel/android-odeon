@@ -68,7 +68,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
         return builder.create()
     }
 
-    override fun onCancel(dialog: DialogInterface?) {
+    override fun onCancel(dialog: DialogInterface) {
         targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
         super.onCancel(dialog)
     }

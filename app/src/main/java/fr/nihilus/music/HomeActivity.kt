@@ -23,12 +23,16 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.observe
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import fr.nihilus.music.base.BaseActivity
-import fr.nihilus.music.extensions.observeK
+import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.media.permissions.PermissionChecker
@@ -47,12 +51,20 @@ class HomeActivity : BaseActivity(),
 
     @Inject lateinit var permissions: PermissionChecker
 
-    private val viewModel: MusicLibraryViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[MusicLibraryViewModel::class.java]
-    }
+    private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
 
     private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var playerFragment: NowPlayingFragment
+
+    private val navController: NavController
+        get() = findNavController(R.id.nav_host_fragment)
+
+    private val statusBarNavListener =
+        NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.id != R.id.fragment_artist_detail) {
+                window.darkSystemIcons = false
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,8 +80,9 @@ class HomeActivity : BaseActivity(),
         }
     }
 
-    override fun onAttachFragment(fragment: androidx.fragment.app.Fragment?) {
+    override fun onAttachFragment(fragment: Fragment) {
         super.onAttachFragment(fragment)
+
         if (fragment is NowPlayingFragment) {
             playerFragment = fragment
             fragment.setOnRequestPlayerExpansionListener { shouldCollapse ->
@@ -80,15 +93,25 @@ class HomeActivity : BaseActivity(),
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        navController.addOnDestinationChangedListener(statusBarNavListener)
+    }
+
+    override fun onPause() {
+        navController.removeOnDestinationChangedListener(statusBarNavListener)
+        super.onPause()
+    }
+
     private fun setupPlayerView() {
         bottomSheet = BottomSheetBehavior.from(player_container)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value)
-        viewModel.playerSheetVisible.observeK(this, this::onSheetVisibilityChanged)
+        viewModel.playerSheetVisible.observe(this, this::onSheetVisibilityChanged)
 
-        viewModel.playerError.observeK(this) { playerErrorEvent ->
-            playerErrorEvent?.handle { errorMessage ->
+        viewModel.playerError.observe(this) { playerErrorEvent ->
+            playerErrorEvent.handle { errorMessage ->
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         }
