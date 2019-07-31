@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "usage_info": "Never played",
+      "file_size": "12.76 Mo"
+    },
+    {
+      "usage_info": "Last played 3 months ago",
+      "file_size": "9.87 Mo"
+    },
+    {
+      "usage_info": "Last played 2 weeks ago",
+      "file_size": "16.34 Mo"
+    }
+  ]
+}
