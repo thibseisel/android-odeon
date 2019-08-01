@@ -92,7 +92,7 @@ class AlphaSectionIndexer : SectionIndexer {
 
 private val REGEX_COMBINE_DIACRITIC = Regex("[\\p{InCombiningDiacriticalMarks}]")
 
-private val SECTION_COMPARATOR = Comparator<String> { a: String, b: String ->
+private val SECTION_COMPARATOR = Comparator { a: String, b: String ->
     when {
         a == b -> 0
         a == "#" -> -1

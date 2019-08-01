@@ -51,9 +51,8 @@ private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
  *
  * @param parentId The parent media of the subscribed children.
  */
-class MediaSubscriptionException(val parentId: String) : Exception() {
-    override val message: String?
-        get() = "Unable to load children of parent $parentId."
+class MediaSubscriptionException(parentId: String) : Exception() {
+    override val message: String? = "Unable to load children of parent $parentId."
 }
 
 /**
@@ -257,7 +256,6 @@ class MediaBrowserConnection
                     it.resumeWithException(
                         CustomActionException(
                             action,
-                            data.getInt(CustomActions.EXTRA_ERROR_CODE, -1),
                             data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
                         )
                     )
@@ -344,9 +342,8 @@ class MediaBrowserConnection
     class ClientToken
 
     class CustomActionException(
-        val actionName: String,
-        val errorCode: Int,
-        val errorMessage: String?
+        actionName: String,
+        errorMessage: String?
     ) : Exception("Custom action $actionName failed: $errorMessage")
 
 }
