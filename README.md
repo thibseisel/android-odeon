@@ -7,7 +7,7 @@ We value your privacy, your battery life and your device's storage space.
 
 ![Home screen](images/screenshot_home.png)
 ![Player controls](images/screenshot_player.png)
-![Album list](images/screenshot_player.png)
+![Album list](images/screenshot_albums.png)
 ![Album detail](images/screenshot_album_detail.png)
 
 ### Features
