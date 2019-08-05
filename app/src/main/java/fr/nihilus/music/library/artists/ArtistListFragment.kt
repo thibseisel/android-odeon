@@ -33,7 +33,7 @@ import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_artists.*
 
-class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
+class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.OnItemSelectedListener {
 
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory)[ArtistListViewModel::class.java]
@@ -45,11 +45,6 @@ class ArtistListFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
         super.onCreate(savedInstanceState)
         adapter = ArtistAdapter(this, this)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_artists, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

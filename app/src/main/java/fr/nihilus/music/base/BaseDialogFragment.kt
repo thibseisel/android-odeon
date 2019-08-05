@@ -16,10 +16,24 @@
 
 package fr.nihilus.music.base
 
+import android.content.Context
+import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.lifecycle.ViewModelProvider
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.HasAndroidInjector
+import dagger.android.support.AndroidSupportInjection
 import dagger.android.support.DaggerAppCompatDialogFragment
 import javax.inject.Inject
 
-abstract class BaseDialogFragment : DaggerAppCompatDialogFragment() {
+abstract class BaseDialogFragment : AppCompatDialogFragment(), HasAndroidInjector {
+    @Inject lateinit var androidInjector: DispatchingAndroidInjector<Any>
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
+
+    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 }

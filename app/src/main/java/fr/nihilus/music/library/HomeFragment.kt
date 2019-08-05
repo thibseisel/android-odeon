@@ -41,13 +41,7 @@ import java.util.concurrent.TimeUnit
  * Host fragment for displaying collections of media: all tracks, albums, artists and user-defined playlists.
  * Each collection is contained in a tab.
  */
-class HomeFragment : BaseFragment() {
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_home, container, false)
+class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -42,19 +42,13 @@ import fr.nihilus.music.ui.CurrentlyPlayingDecoration
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_album_detail.*
 
-class AlbumDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
+class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAdapter.OnItemSelectedListener {
 
     private lateinit var adapter: TrackAdapter
     private lateinit var decoration: CurrentlyPlayingDecoration
 
     private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_album_detail, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

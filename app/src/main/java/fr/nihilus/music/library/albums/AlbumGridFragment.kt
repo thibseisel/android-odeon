@@ -35,17 +35,12 @@ import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_albums.*
 import javax.inject.Inject
 
-class AlbumGridFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
+class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
 
     private val viewModel: AlbumGridViewModel by viewModels { viewModelFactory }
     private lateinit var albumAdapter: AlbumsAdapter
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_albums, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

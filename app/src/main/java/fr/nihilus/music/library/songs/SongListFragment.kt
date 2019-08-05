@@ -40,7 +40,7 @@ import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_songs.*
 
-class SongListFragment : BaseFragment() {
+class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
     private val multiSelectMode = SongListActionMode()
     private lateinit var songAdapter: SongAdapter
@@ -53,11 +53,6 @@ class SongListFragment : BaseFragment() {
         super.onCreate(savedInstanceState)
         songAdapter = SongAdapter(this)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_songs, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -41,7 +41,7 @@ import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 import javax.inject.Inject
 
-class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener {
+class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette
     private lateinit var childrenAdapter: ArtistDetailAdapter
@@ -55,12 +55,6 @@ class ArtistDetailFragment : BaseFragment(), BaseAdapter.OnItemSelectedListener 
         super.onCreate(savedInstanceState)
         childrenAdapter = ArtistDetailAdapter(this, defaultAlbumPalette, this)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_artist_detail, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

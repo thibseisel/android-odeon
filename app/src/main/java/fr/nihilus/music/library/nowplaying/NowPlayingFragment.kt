@@ -47,7 +47,7 @@ private const val LEVEL_CHEVRON_DOWN = 1
 
 private const val KEY_IS_COLLAPSED = "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
 
-class NowPlayingFragment: BaseFragment() {
+class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
 
@@ -58,12 +58,6 @@ class NowPlayingFragment: BaseFragment() {
     private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this, viewModelFactory).get(NowPlayingViewModel::class.java)
     }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_now_playing, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
