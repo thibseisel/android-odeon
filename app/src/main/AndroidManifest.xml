@@ -21,7 +21,7 @@
     <application
         android:name=".OdeonApplication"
         android:allowBackup="true"
-        android:fullBackupContent="@xml/backup"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
