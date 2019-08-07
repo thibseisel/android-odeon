@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.service
 
-import android.app.Service
 import android.content.Intent
 import androidx.media.MediaBrowserServiceCompat
 import dagger.android.AndroidInjection
@@ -41,9 +40,8 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
         isStarted = true
-        return Service.START_NOT_STICKY
+        return super.onStartCommand(intent, flags, startId)
     }
 
     protected fun startSelf() {
