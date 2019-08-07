@@ -33,10 +33,19 @@ import javax.inject.Inject
  */
 abstract class BaseFragment : Fragment, HasAndroidInjector {
     @Inject lateinit var androidInjector: DispatchingAndroidInjector<Any>
+
+    /**
+     * Generic factory for all ViewModel types.
+     */
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
 
+    /** No-arg Fragment constructor. */
     constructor() : super()
 
+    /**
+     * Alternate constructor that can be used to provide a default layout that will be inflated by [onCreateView].
+     * @param contentLayoutId identifier of a layout resource to be inflated as this fragment's view.
+     */
     @ContentView
     constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 

@@ -63,11 +63,10 @@ internal class MediaSessionModule {
         controller: MediaSessionConnector.PlaybackController,
         preparer: MediaSessionConnector.PlaybackPreparer,
         navigator: MediaSessionConnector.QueueNavigator,
-        errorHandler: ErrorMessageProvider<ExoPlaybackException>,
-        customActions: Set<@JvmSuppressWildcards MediaSessionConnector.CustomActionProvider>
+        errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
     ) = MediaSessionConnector(mediaSession, controller, null).also {
-        it.setPlayer(player, preparer, *customActions.toTypedArray())
+        it.setPlayer(player, preparer)
         it.setQueueNavigator(navigator)
         it.setErrorMessageProvider(errorHandler)
     }
@@ -88,7 +87,4 @@ internal abstract class SessionConnectorModule {
 
     @Binds
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
-
-    @Binds @IntoSet
-    abstract fun bindsTrimSilenceAction(action: TrimSilenceActionProvider): MediaSessionConnector.CustomActionProvider
 }

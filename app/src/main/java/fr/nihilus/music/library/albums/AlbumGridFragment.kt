@@ -35,6 +35,10 @@ import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_albums.*
 import javax.inject.Inject
 
+/**
+ * Display all albums in a grid of images.
+ * Selecting an album opens its [detail view][AlbumDetailFragment].
+ */
 class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
 
     @Inject lateinit var defaultAlbumPalette: AlbumPalette

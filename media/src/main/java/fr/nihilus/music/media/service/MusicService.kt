@@ -29,6 +29,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -333,12 +334,9 @@ class MusicService : BaseBrowserService() {
 
     private fun CoroutineScope.observeSkipSilenceSettings() = launch {
         settings.skipSilenceUpdates.consumeEach { shouldSkipSilence ->
-            mediaController.transportControls.sendCustomAction(
-                TrimSilenceActionProvider.ACTION_SKIP_SILENCE,
-                Bundle(1).apply {
-                    putBoolean(TrimSilenceActionProvider.EXTRA_ENABLED, shouldSkipSilence)
-                }
-            )
+            player.playbackParameters = if (shouldSkipSilence) {
+                PlaybackParameters(1f, 1f, true)
+            } else PlaybackParameters.DEFAULT
         }
     }
 

@@ -27,6 +27,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import fr.nihilus.music.R
@@ -46,9 +47,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     private lateinit var playlistAdapter: TargetPlaylistsAdapter
 
-    private val playlistViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(targetFragment ?: this, viewModelFactory).get(PlaylistManagementViewModel::class.java)
-    }
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireParentFragment, ::viewModelFactory)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)

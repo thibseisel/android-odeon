@@ -42,6 +42,9 @@ import fr.nihilus.music.ui.CurrentlyPlayingDecoration
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_album_detail.*
 
+/**
+ * Display the tracks that are part of an album.
+ */
 class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAdapter.OnItemSelectedListener {
 
     private lateinit var adapter: TrackAdapter
