@@ -16,10 +16,12 @@
 
 package fr.nihilus.music.media.usage
 
+import android.os.Parcelable
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.utils.Clock
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -110,7 +112,7 @@ internal class UsageManagerImpl
  * @param lastPlayedTime The epoch time at which that track has been played for the last time,
  * or `null` if it has never been played.
  */
-class DisposableTrack(
+internal class DisposableTrack(
     val trackId: Long,
     val title: String,
     val fileSizeBytes: Long,

@@ -36,6 +36,7 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
+import fr.nihilus.music.media.MediaId.Builder.fromParts
 import fr.nihilus.music.media.provider.generateRandomTrackSequence
 import fr.nihilus.music.media.repo.*
 import fr.nihilus.music.media.repo.StubUsageManager
@@ -593,10 +594,14 @@ class BrowserTreeStructureTest {
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_ALL))
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
+        assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE))
+
         assertNotifyParentChanged(ChangeNotification.AllAlbums, MediaId(TYPE_ALBUMS))
         assertNotifyParentChanged(ChangeNotification.Album(40L), MediaId(TYPE_ALBUMS, "40"))
+
         assertNotifyParentChanged(ChangeNotification.AllArtists, MediaId(TYPE_ARTISTS))
         assertNotifyParentChanged(ChangeNotification.Artist(5L), MediaId(TYPE_ARTISTS, "5"))
+
         assertNotifyParentChanged(ChangeNotification.AllPlaylists, MediaId(TYPE_PLAYLISTS))
         assertNotifyParentChanged(ChangeNotification.Playlist(1L), MediaId(TYPE_PLAYLISTS, "1"))
     }

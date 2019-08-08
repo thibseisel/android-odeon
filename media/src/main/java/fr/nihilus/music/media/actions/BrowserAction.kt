@@ -64,7 +64,7 @@ object CustomActions {
      * Custom action that deletes media available from the media browser.
      * Media to be deleted with this action are identified by their media id.
      *
-     * At the time, only tracks from `tracks/all` and playlists can be deleted with this action.
+     * At the time, only tracks from `tracks/all`, `tracks/disposable` and playlists can be deleted with this action.
      * Any attempt to delete another type of media will fail.
      *
      * Executing this action requires the following parameters:

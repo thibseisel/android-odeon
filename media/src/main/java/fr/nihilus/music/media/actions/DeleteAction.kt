@@ -70,9 +70,9 @@ internal class DeleteAction
 
         for (media in deletedMediaIds) {
             when {
-                // Track from CATEGORY ALL
+                // Track from CATEGORY ALL or CATEGORY_DISPOSABLE
                 media.type == MediaId.TYPE_TRACKS
-                        && media.category == MediaId.CATEGORY_ALL
+                        && (media.category == MediaId.CATEGORY_ALL || media.category == MediaId.CATEGORY_DISPOSABLE)
                         && media.track != null -> {
                     deletedTrackIds += media.track.toLong()
                 }

@@ -400,7 +400,8 @@ internal class BrowserTreeImpl
             if (it is ChangeNotification.AllTracks) Flowable.just(
                 MediaId(TYPE_TRACKS, CATEGORY_ALL),
                 MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED),
-                MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
+                MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED),
+                MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
             ) else Flowable.just(it.mediaId)
         }
 
