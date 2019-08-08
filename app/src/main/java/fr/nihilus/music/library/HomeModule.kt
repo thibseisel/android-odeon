@@ -23,7 +23,6 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.client.ViewModelKey
-import fr.nihilus.music.dagger.AlbumDetailModule
 import fr.nihilus.music.library.albums.AlbumsModule
 import fr.nihilus.music.library.artists.ArtistsModule
 import fr.nihilus.music.library.cleanup.CleanupModule
@@ -45,7 +44,7 @@ annotation class MusicLibraryScope
 /**
  * Configure dependencies for the music library browsing feature.
  */
-@Module(includes = [AlbumDetailModule::class])
+@Module
 abstract class HomeModule {
 
     @MusicLibraryScope

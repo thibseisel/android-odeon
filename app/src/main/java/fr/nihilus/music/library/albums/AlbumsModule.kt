@@ -32,4 +32,11 @@ internal abstract class AlbumsModule {
     @Binds @IntoMap
     @ViewModelKey(AlbumGridViewModel::class)
     abstract fun bindsAlbumGridViewModel(viewModel: AlbumGridViewModel): ViewModel
+
+    @ContributesAndroidInjector
+    abstract fun albumDetailFragment(): AlbumDetailFragment
+
+    @Binds @IntoMap
+    @ViewModelKey(AlbumDetailViewModel::class)
+    abstract fun bindAlbumDetailViewModel(viewModel: AlbumDetailViewModel): ViewModel
 }
