@@ -23,10 +23,11 @@
 
     <application>
         <!--
-            A receiver that will receive media buttons and send as intents to MusicService.
-            Required on pre-Lollipop.
-			Additionally, this is used to resume the service from an inactive state upon
-            receiving a media button event (such as "play").
+             MediaSession, prior to API 21, uses a broadcast receiver to communicate with a
+             media session. It does not have to be this broadcast receiver, but it must
+             handle the action "android.intent.action.MEDIA_BUTTON".
+             Additionally, this is used to resume the service from an inactive state upon
+             receiving a media button event (such as "play").
         -->
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
