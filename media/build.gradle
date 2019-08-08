@@ -41,7 +41,7 @@ android {
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
-                freeCompilerArgs = [
+                freeCompilerArgs += [
                         '-Xno-param-assertions',
                         '-Xno-call-assertions',
                         '-Xno-receiver-assertions'
@@ -60,6 +60,7 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
     }
 
     testOptions {
