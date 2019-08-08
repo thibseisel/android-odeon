@@ -56,10 +56,19 @@ object MediaItems {
     const val EXTRA_DISC_NUMBER = "discno"
 
     /**
-     * The resource id to be used as a icon for `MediaDescriptionCompat`.
-     * If this extra is present, it should be preferred to `getIconBitmap` or `getIconUri`.
+     * The size of the local file associated with this media, in bytes.
+     * This extra is only available on tracks from the [disposable category][MediaId.CATEGORY_DISPOSABLE].
      *
-     * Type: `Drawable resource`
+     * Type: long
      */
-    const val EXTRA_ICON_ID = "ic_resource_id"
+    const val EXTRA_FILE_SIZE = "filesize"
+
+    /**
+     * The epoch time at which that track has been played for the last time.
+     * This extra is only available on tracks from the [disposable category][MediaId.CATEGORY_DISPOSABLE],
+     * and only if that track has been played at least once.
+     *
+     * Type: long
+     */
+    const val EXTRA_LAST_PLAYED_TIME = "last_played_time"
 }

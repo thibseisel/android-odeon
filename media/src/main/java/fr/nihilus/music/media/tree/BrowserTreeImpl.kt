@@ -25,6 +25,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.media.MediaId
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
@@ -119,6 +120,12 @@ internal class BrowserTreeImpl
                 context.getString(R.string.abc_last_added),
                 iconUri = context.resources.getResourceUri(R.drawable.abc_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
+            )
+
+            category(
+                CATEGORY_DISPOSABLE,
+                context.getString(R.string.core_category_disposable),
+                children = ::provideDisposableTracks
             )
         }
 
@@ -430,6 +437,28 @@ internal class BrowserTreeImpl
             .mapTo(mutableListOf()) { track ->
                 trackItemFactory(track, TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, builder)
             }
+    }
+
+    private suspend fun provideDisposableTracks(fromIndex: Int, count: Int): List<MediaItem>? {
+        val builder = MediaDescriptionCompat.Builder()
+
+        return usageManager.getDisposableTracks().asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .map { track ->
+                val mediaId = MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE, track.trackId)
+                val description = builder.setMediaId(mediaId.encoded)
+                    .setTitle(track.title)
+                    .setExtras(Bundle().apply {
+                        putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
+                        if (track.lastPlayedTime != null) {
+                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, track.lastPlayedTime)
+                        }
+                    })
+                    .build()
+                MediaItem(description, MediaItem.FLAG_PLAYABLE)
+            }
+            .toList()
     }
 
     private suspend fun provideAllAlbums(): List<MediaItem> {

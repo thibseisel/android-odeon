@@ -27,6 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.media.*
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
@@ -36,10 +37,15 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.generateRandomTrackSequence
-import fr.nihilus.music.media.repo.ChangeNotification
+import fr.nihilus.music.media.repo.*
 import fr.nihilus.music.media.repo.StubUsageManager
 import fr.nihilus.music.media.repo.TestMediaRepository
 import fr.nihilus.music.media.repo.TestUsageManager
+import fr.nihilus.music.media.usage.DisposableTrack
+import io.kotlintest.matchers.collections.shouldHaveSize
+import io.kotlintest.matchers.types.shouldNotBeNull
+import io.kotlintest.should
+import io.kotlintest.shouldBe
 import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
@@ -336,6 +342,40 @@ class BrowserTreeStructureTest {
     }
 
     @Test
+    fun whenLoadingChildrenOfDisposableTracks_thenReturnItemsFromUsageManager() = runBlockingTest {
+        val usageManager = TestUsageManager(emptyList(), disposableTracks = listOf(
+            DisposableTrack(48L, "Give It Up", 5_716_578, null),
+            DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
+        ))
+
+        val browserTree = BrowserTreeImpl(context, StubMediaRepository(), usageManager)
+        val children = browserTree.getChildren(MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE), null)
+
+        children.shouldNotBeNull()
+        children.shouldHaveSize(2)
+
+        children[0] should {
+            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|48"
+            it.description.title shouldBe "Give It Up"
+
+            assertOn(it.description.extras) {
+                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(5_716_578)
+                doesNotContainKey(MediaItems.EXTRA_LAST_PLAYED_TIME)
+            }
+        }
+
+        children[1] should {
+            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|161"
+            it.description.title shouldBe "1741 (The Battle of Cartagena)"
+
+            assertOn(it.description.extras) {
+                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(17_506_481)
+                longInt(MediaItems.EXTRA_LAST_PLAYED_TIME).isEqualTo(1565272800)
+            }
+        }
+    }
+
+    @Test
     fun whenLoadingChildrenOfAnAlbum_thenReturnTracksFromThatAlbum(): Unit = runBlocking {
         assertAlbumHasTracksChildren(65L, listOf("$TYPE_ALBUMS/65|161"))
         assertAlbumHasTracksChildren(102L, listOf(
@@ -604,6 +644,10 @@ class BrowserTreeStructureTest {
             .inOrder()
     }
 
+    /**
+     * Assume that the given collection of media items contains a media with the specified [media id][itemId],
+     * and if it does, return it ; otherwise the test execution is stopped due to assumption failure.
+     */
     private fun List<MediaItem>.requireItemWith(itemId: MediaId): MediaItem {
         return find { it.mediaId == itemId.encoded } ?: failAssumption(buildString {
             append("Missing an item with id = $itemId in ")

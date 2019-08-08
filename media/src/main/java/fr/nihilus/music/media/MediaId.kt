@@ -197,7 +197,6 @@ private constructor(
          * @see MediaId.TYPE_TRACKS
          * @see MediaId.category
          */
-        @Suppress("unused")
         const val CATEGORY_DISPOSABLE = "disposable"
 
         /**

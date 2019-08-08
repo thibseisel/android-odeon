@@ -57,3 +57,16 @@ internal object StubUsageManager : MediaUsageManager {
     override suspend fun getDisposableTracks(): List<DisposableTrack> = stub()
     override fun reportCompletion(trackId: Long) = stub()
 }
+
+internal class StubMediaRepository : MediaRepository {
+    override val changeNotifications: Flowable<ChangeNotification> get() = stub()
+    override suspend fun getAllTracks(): List<Track> = stub()
+    override suspend fun getAllAlbums(): List<Album> = stub()
+    override suspend fun getAllArtists(): List<Artist> = stub()
+    override suspend fun getAllPlaylists(): List<Playlist> =
+        stub()
+    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? =
+        stub()
+    override suspend fun getMostRatedTracks(): List<Track> =
+        stub()
+}

@@ -37,4 +37,5 @@
     <string name="artists_type_title">Artistes</string>
     <string name="browser_root_title">Bibliothèque musicale de l\'appareil</string>
     <string name="artist_subtitle">%1$d albums, %2$d morceaux</string>
+    <string name="core_category_disposable">Nettoyage</string>
 </resources>
