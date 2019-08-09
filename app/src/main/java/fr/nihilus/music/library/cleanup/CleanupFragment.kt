@@ -17,21 +17,12 @@
 package fr.nihilus.music.library.cleanup
 
 import android.os.Bundle
-import android.os.Parcelable
-import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StableIdKeyProvider
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.ui.LoadRequest
-import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 
 class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {

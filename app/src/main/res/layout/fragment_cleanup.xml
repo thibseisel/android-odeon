@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
@@ -32,9 +31,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            tools:title="Cleanup"/>
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="@string/action_cleanup_title" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -42,8 +41,8 @@
         style="@style/MainScrollingView.List"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_disposable_track" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -53,10 +52,10 @@
         android:tint="@android:color/white"
         android:visibility="gone"
         app:fabSize="normal"
-        app:useCompatPadding="true"
         app:layout_anchor="@id/disposable_track_list"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_delete_24dp"
+        app:useCompatPadding="true"
         tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
