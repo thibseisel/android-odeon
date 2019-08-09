@@ -29,7 +29,7 @@
     <string name="all_music">Morceaux</string>
     <string name="empty_albums">Aucun album</string>
     <string name="music_library">Bibliothèque musicale</string>
-    <string name="night_mode">Mode nuit</string>
+    <string name="pref_theme_title">Thème</string>
     <string name="prefs_category_appearance">Apparence</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Activer la lecture aléatoire</string>
@@ -78,4 +78,8 @@
     <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
     <string name="last_played_description">Dernière lecture %1$s</string>
     <string name="never_played">Jamais lu</string>
+    <string name="pref_theme_battery">Selon l\'économiseur de batterie</string>
+    <string name="pref_theme_dark">Sombre</string>
+    <string name="pref_theme_light">Clair</string>
+    <string name="pref_theme_system">Valeur du système</string>
 </resources>

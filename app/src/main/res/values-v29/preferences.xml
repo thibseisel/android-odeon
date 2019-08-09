@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,6 +16,6 @@
   -->
 
 <resources>
-    <string name="pref_default_startup_screen" translatable="false">tracks/all</string>
-    <string name="pref_night_mode" translatable="false">night_mode</string>
+    <!-- Use the system default as of Android Q. -->
+    <string name="pref_theme_default_value" translatable="false">@string/pref_theme_system_value</string>
 </resources>

@@ -19,14 +19,17 @@ package fr.nihilus.music
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fr.nihilus.music.dagger.DaggerAppComponent
+import fr.nihilus.music.settings.UiSettings
 import io.reactivex.plugins.RxJavaPlugins
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
 class OdeonApplication : DaggerApplication() {
+    @Inject lateinit var settings: UiSettings
 
     override fun onCreate() {
         super.onCreate()
@@ -37,6 +40,8 @@ class OdeonApplication : DaggerApplication() {
             // Rethrow unexpected RxJava errors to fail fast
             RxJavaPlugins.setErrorHandler { throw it }
         }
+
+        settings.setupTheme()
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> =

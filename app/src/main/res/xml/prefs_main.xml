@@ -15,24 +15,26 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="@string/prefs_category_appearance">
 
         <ListPreference
-            android:defaultValue="system"
-            android:entries="@array/prefs_night_mode_titles"
-            android:entryValues="@array/prefs_night_mode_values"
-            android:summary="%s"
-            android:key="@string/pref_night_mode"
-            android:title="@string/night_mode"/>
+            android:defaultValue="@string/pref_theme_default_value"
+            android:entries="@array/prefs_theme_values"
+            android:entryValues="@array/prefs_theme_values"
+            android:key="pref_theme"
+            android:title="@string/pref_theme_title"
+            app:useSimpleSummaryProvider="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_experimental">
 
         <SwitchPreference
-            android:key="@string/pref_skip_silence"
-            android:title="@string/pref_title_skip_silence"
+            android:defaultValue="@bool/pref_default_skip_silence"
+            android:key="skip_silence"
             android:summary="@string/pref_summary_skip_silence"
-            android:defaultValue="@bool/pref_default_skip_silence"/>
+            android:title="@string/pref_title_skip_silence" />
     </PreferenceCategory>
 </PreferenceScreen>
