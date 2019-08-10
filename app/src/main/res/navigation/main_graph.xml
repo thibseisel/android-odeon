@@ -15,10 +15,10 @@
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_graph"
-    app:startDestination="@id/fragment_home">
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/main_graph"
+            app:startDestination="@id/fragment_home">
 
     <fragment
         android:id="@+id/fragment_home"
@@ -45,6 +45,13 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+        <action
+            android:id="@+id/start_cleanup"
+            app:destination="@id/fragment_cleanup"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
     </fragment>
     <fragment
         android:id="@+id/fragment_album_detail"
@@ -67,7 +74,7 @@
 
         <argument
             android:name="pickedArtist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
         <action
             android:id="@+id/browse_artist_album"
             app:destination="@id/fragment_album_detail"
@@ -84,17 +91,23 @@
 
         <argument
             android:name="playlist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
         <argument
             android:name="isDeletable"
-            app:argType="boolean"
-            android:defaultValue="false"/>
+            android:defaultValue="false"
+            app:argType="boolean"/>
     </fragment>
 
     <activity
         android:id="@+id/activity_settings"
         android:name="fr.nihilus.music.settings.SettingsActivity"
         android:label="@string/action_settings"
-        tools:layout="@layout/activity_settings" />
+        tools:layout="@layout/activity_settings"/>
+
+    <fragment
+        android:id="@+id/fragment_cleanup"
+        android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
+        android:label="@string/action_cleanup"
+        tools:layout="@layout/fragment_cleanup"/>
 
 </navigation>

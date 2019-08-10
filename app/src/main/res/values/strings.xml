@@ -81,4 +81,5 @@
     <string name="pref_category_experimental">Experimental</string>
     <string name="last_played_description">Last played %1$s</string>
     <string name="never_played">Never played</string>
+    <string name="action_cleanup">Free up storage</string>
 </resources>

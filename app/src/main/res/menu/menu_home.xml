@@ -16,11 +16,16 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/fragment_cleanup"
+        android:title="@string/action_cleanup"
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/activity_settings"
         android:icon="@drawable/ic_settings_24dp"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 </menu>
