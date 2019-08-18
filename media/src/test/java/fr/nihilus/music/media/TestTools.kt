@@ -21,6 +21,7 @@ import com.google.common.truth.Correspondence
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.TestCoroutineScope
 
 /**
  * Run the given [block] in a new coroutine scope based on the context of the receiver.
@@ -32,7 +33,7 @@ import kotlinx.coroutines.cancel
  * @param block The block to execute against the newly created [CoroutineScope].
  */
 internal inline fun CoroutineScope.usingScope(block: (CoroutineScope) -> Unit) {
-    val childScope = CoroutineScope(coroutineContext + Job())
+    val childScope = TestCoroutineScope(coroutineContext + Job())
     block(childScope)
     childScope.cancel()
 }
