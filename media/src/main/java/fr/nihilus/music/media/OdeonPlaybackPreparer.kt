@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.media.extensions.doOnPrepared
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
+import fr.nihilus.music.media.service.SearchQuery
 import fr.nihilus.music.media.tree.BrowserTree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -114,12 +115,13 @@ internal class OdeonPlaybackPreparer
      * Handle requests to prepare for playing tracks picked from the results of a search.
      */
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-        if (query.isNullOrEmpty()) {
+        val parsedQuery = SearchQuery.from(query, extras)
+        if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
             onPrepare()
 
         } else scope.launch(dispatchers.Default) {
-            val results = browserTree.search(query, extras)
+            val results = browserTree.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
             if (firstResult?.isBrowsable == true) {

@@ -201,7 +201,8 @@ class MusicService : BaseBrowserService() {
         Log.i("AssistantSearch", "Searching $query. Extras=$extras")
         result.detach()
         launch(dispatchers.Default) {
-            val searchResults = browserTree.search(query, extras)
+            val parsedQuery = SearchQuery.from(query, extras)
+            val searchResults = browserTree.search(parsedQuery)
             result.sendResult(searchResults)
         }
     }
