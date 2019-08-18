@@ -92,10 +92,13 @@ private fun CoroutineScope.scheduleMetadataUpdate(
 
     val metadata = builder.apply {
         id = checkNotNull(description.mediaId) { "Every description should have a media id" }
-        displayTitle = description.title?.toString()
+        val trackTitle = description.title?.toString()
+        title = trackTitle
+        displayTitle = trackTitle
         displaySubtitle = description.subtitle?.toString()
         displayDescription = description.description?.toString()
         displayIconUri = description.iconUri?.toString()
+        displayIcon = trackIcon
         albumArt = trackIcon
 
         val extras = description.extras
