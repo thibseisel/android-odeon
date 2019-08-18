@@ -23,7 +23,10 @@ import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
-import fr.nihilus.music.media.usage.*
+import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.usage.MediaUsageEvent
+import fr.nihilus.music.media.usage.TrackScore
+import fr.nihilus.music.media.usage.TrackUsage
 import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -227,26 +230,6 @@ class MediaRepositoryTest {
             val playlistTracks = repository.getPlaylistTracks(1L)
 
             assertThat(playlistTracks).containsExactly(SAMPLE_TRACKS[1])
-        }
-    }
-
-    @Test
-    fun whenLoadingMostRatedTracks_thenReturnTracksByDescendingScore(): Unit = runBlocking {
-        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-        val usageDao = TestUsageDao(SAMPLE_TRACK_SCORE)
-
-        usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, usageDao, dispatchers)
-            val mostRatedTracks = repository.getMostRatedTracks()
-
-            assertThat(mostRatedTracks).containsExactly(
-                SAMPLE_TRACKS[7],
-                SAMPLE_TRACKS[8],
-                SAMPLE_TRACKS[5],
-                SAMPLE_TRACKS[9],
-                SAMPLE_TRACKS[3],
-                SAMPLE_TRACKS[2]
-            )
         }
     }
 

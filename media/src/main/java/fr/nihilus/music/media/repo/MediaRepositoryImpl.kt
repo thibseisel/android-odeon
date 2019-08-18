@@ -95,13 +95,6 @@ internal class MediaRepositoryImpl
         return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
     }
 
-    override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = getAllTracks().associateBy { it.id }
-        val trackScores = usageDao.getMostRatedTracks(25)
-
-        return trackScores.mapNotNull { tracksById[it.trackId] }
-    }
-
     override val changeNotifications: Flowable<ChangeNotification>
         get() = _mediaChanges.onBackpressureBuffer()
 
