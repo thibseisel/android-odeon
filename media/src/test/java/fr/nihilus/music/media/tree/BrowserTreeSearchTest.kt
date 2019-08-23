@@ -17,8 +17,6 @@
 package fr.nihilus.music.media.tree
 
 import android.content.Context
-import android.os.Bundle
-import android.provider.MediaStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -32,6 +30,7 @@ import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.StubUsageManager
 import fr.nihilus.music.media.repo.TestMediaRepository
 import fr.nihilus.music.media.repo.TestUsageManager
+import fr.nihilus.music.media.service.SearchQuery
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,94 +42,97 @@ class BrowserTreeSearchTest {
         get() = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun whenSearchingWithEmptyQuery_thenReturnNoResults() = runBlockingTest {
+    fun `When searching with an empty query then return no results`() = runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("", null)
+        val results = tree.search(SearchQuery.Empty)
         assertThat(results).isEmpty()
     }
 
     @Test
-    fun givenExactArtistName_whenSearchingAnArtist_thenReturnThatArtist() = runBlockingTest {
-        val options = givenArtistSearchOptions("foo fighters")
+    fun `Given artist focus, when searching an artist then return that artist`() = runBlockingTest {
         val browserTree = givenRealisticBrowserTree()
 
-        val results = browserTree.search("foo fighters", options)
+        val results = browserTree.search(SearchQuery.Artist("Foo Fighters"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ARTISTS, "13")
         )
     }
 
     @Test
-    fun givenExactAlbumTitle_whenSearchingAnAlbum_thenReturnThatAlbum() = runBlockingTest {
-        val options = givenAlbumSearchOptions("wasting light")
+    fun `Given album focus, when searching an album then return that album`() = runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("wasting light", options)
+        val results = tree.search(SearchQuery.Album("Foo Fighters", "Wasting Light"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "26")
         )
     }
 
     @Test
-    fun givenExactSongTitle_whenSearchingSongs_thenReturnThatSong() = runBlockingTest {
-        val options = givenSongSearchOptions("dirty water")
+    fun `Given track focused query, when searching songs then return that song`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("dirty water", options)
+            val results =
+                tree.search(SearchQuery.Song("Foo Fighters", "Concrete and Gold", "Dirty Water"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
     }
 
     @Test
-    fun givenExactArtistName_whenSearchingUnfocused_thenReturnThatArtist() = runBlockingTest {
+    fun `Given exact artist name, when searching unfocused then return that artist`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("foo fighters", null)
+            val results = tree.search(SearchQuery.Unspecified("foo fighters"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ARTISTS, "13")
         )
     }
 
     @Test
-    fun givenExactAlbumName_whenSearchingUnfocused_thenReturnThatAlbum() = runBlockingTest {
+    fun `Given exact album title, when searching unfocused then return that album`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("concrete and gold", null)
+            val results = tree.search(SearchQuery.Unspecified("concrete and gold"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "102")
         )
     }
 
     @Test
-    fun givenExactSongTitle_whenSearchingUnfocused_thenReturnThatSong() = runBlockingTest {
+    fun `Given exact song title, when searching unfocused then return that song`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("dirty water", null)
+            val results = tree.search(SearchQuery.Unspecified("dirty water"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
     }
 
     @Test
-    fun givenQueryMatchingBothAlbumAndSong_whenSearchingAlbums_thenReturnOnlyTheAlbum() = runBlockingTest {
-        val options = givenAlbumSearchOptions("nightmare")
+    fun `Given query matching both album and song, when searching albums then return only that album`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
-        val results = tree.search("nightmare", options)
+            val results = tree.search(SearchQuery.Album("Avenged Sevenfold", "Nightmare"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "6")
         )
     }
 
     @Test
-    fun givenQueryMatchingBothAlbumAndSong_whenSearchingUnfocused_thenReturnBoth() = runBlockingTest {
+    fun `Given query matching both album and song, when searching unfocused then return both`() =
+        runBlockingTest {
         val tree = givenRealisticBrowserTree()
 
         // Both the album "Nightmare" and its eponymous track are listed in search results.
         // Note that the album should be listed first.
-        val results = tree.search("nightmare", null)
+            val results = tree.search(SearchQuery.Unspecified("nightmare"))
 
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "6"),
@@ -139,7 +141,8 @@ class BrowserTreeSearchTest {
     }
 
     @Test
-    fun givenPattern_whenSearching_thenReturnItemsContainingThatPattern() = runBlockingTest {
+    fun `Given pattern query, when searching then return items containing that pattern`() =
+        runBlockingTest {
         val tracks = listOf(
             Track(23, "Another Brick In The Wall", "Pink Floyd", "The Wall", 0, 1, 5, "", null, 0, 2, 2, 0),
             Track(34, "Another One Bites the Dust", "Queen", "The Game", 0, 1, 3, "", null, 0, 3, 3, 0),
@@ -154,7 +157,7 @@ class BrowserTreeSearchTest {
         // then "AnOTHER Brick In the Wall" (same pattern at same position),
         // then "AnOTHER One Bites the Dust" (one word contains the pattern but slightly longer),
         // then "You've Got AnOTHER Thing Comin" (pattern matches farther)
-        val results = tree.search("other", null)
+            val results = tree.search(SearchQuery.Unspecified("other"))
 
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 12),
@@ -165,7 +168,8 @@ class BrowserTreeSearchTest {
     }
 
     @Test
-    fun givenPatternThatMatchesMultipleItemsEqually_whenSearching_thenReturnShorterFirst() = runBlockingTest {
+    fun `Given pattern query that matches multiple items equally, when searching then return shortest first`() =
+        runBlockingTest {
         val tracks = listOf(
             Track(10, "Are You Ready", "AC/DC", "The Razor's Edge", 0, 1, 7, "", null, 0, 32, 18, 0),
             Track(42, "Are You Gonna Be My Girl", "Jet", "Get Born", 0, 1, 2, "", null, 0, 78, 90, 0),
@@ -176,7 +180,7 @@ class BrowserTreeSearchTest {
 
         // When the pattern matches multiple items equally,
         // shorter items should be displayed first.
-        val results = tree.search("are", null)
+            val results = tree.search(SearchQuery.Unspecified("are"))
 
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 10),
@@ -264,23 +268,4 @@ class BrowserTreeSearchTest {
 
     private fun givenRealisticBrowserTree(): BrowserTreeImpl =
         BrowserTreeImpl(context, TestMediaRepository(), TestUsageManager())
-
-    private fun givenArtistSearchOptions(artistName: String) = Bundle(2).apply {
-        putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE)
-        putString(MediaStore.EXTRA_MEDIA_ARTIST, artistName)
-    }
-
-    private fun givenAlbumSearchOptions(albumTitle: String) = Bundle(2).apply {
-        putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE)
-        putString(MediaStore.EXTRA_MEDIA_ALBUM, albumTitle)
-    }
-
-    private fun givenSongSearchOptions(title: String) = Bundle(2).apply {
-        putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Media.ENTRY_CONTENT_TYPE)
-        putString(MediaStore.EXTRA_MEDIA_TITLE, title)
-    }
-
-    private fun givenPlayableOnlyOption() = Bundle(1).apply {
-        putBoolean(BrowserTree.EXTRA_PLAYABLE_ONLY, true)
-    }
 }

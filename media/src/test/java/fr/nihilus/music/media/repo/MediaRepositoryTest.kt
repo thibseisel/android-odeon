@@ -23,74 +23,28 @@ import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
-import fr.nihilus.music.media.usage.*
+import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.usage.MediaUsageEvent
+import fr.nihilus.music.media.usage.TrackScore
+import fr.nihilus.music.media.usage.TrackUsage
 import fr.nihilus.music.media.usingScope
 import io.reactivex.Completable
 import io.reactivex.Flowable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
-import org.junit.Rule
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
+import org.junit.After
 import org.junit.Test
 
 class MediaRepositoryTest {
 
-    private object DummyPlaylistDao : PlaylistDao {
-        override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()
-        override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
-        override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
-        override suspend fun savePlaylist(playlist: Playlist): Long = 0L
-        override suspend fun addTracks(tracks: List<PlaylistTrack>) = Unit
-        override suspend fun deletePlaylist(playlistId: Long) = Unit
-        override suspend fun deletePlaylistTracks(trackIds: LongArray) = Unit
-    }
-
-    private object DummyMediaDao : RxMediaDao {
-        override val tracks: Flowable<List<Track>> get() = Flowable.empty()
-        override val albums: Flowable<List<Album>> get() = Flowable.empty()
-        override val artists: Flowable<List<Artist>> get() = Flowable.empty()
-        override fun deleteTracks(trackIds: LongArray): Completable = Completable.complete()
-    }
-
-    private object DummyUsageDao : MediaUsageDao {
-        override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
-        override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
-        override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()
-        override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
-    }
-
-    /**
-     * A [RxMediaDao] that returns different results when permission is granted or denied.
-     * When permission is granted, all flows emit an empty list an never completes.
-     * When permission is denied, all flows emit a [PermissionDeniedException].
-     */
-    private class PermissionMediaDao : RxMediaDao {
-        /**
-         * Whether permission should be granted.
-         */
-        var hasPermissions = false
-
-        override val tracks: Flowable<List<Track>>
-            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
-
-        override val albums: Flowable<List<Album>>
-            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
-
-        override val artists: Flowable<List<Artist>>
-            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
-
-        override fun deleteTracks(trackIds: LongArray): Completable = stub()
-
-        private fun <T> mediaUpdates(): Flowable<List<T>> = Flowable.concat(Flowable.just(emptyList()), Flowable.never())
-        private fun <T> permissionFailure() = Flowable.error<T>(PermissionDeniedException("android.permission"))
-    }
-
-    @[JvmField Rule]
-    val timeoutRule = CoroutinesTimeout.seconds(5)
-
+    private val dispatcher = TestCoroutineDispatcher()
     private val dispatchers: AppDispatchers
-        get() = AppDispatchers(Dispatchers.Unconfined)
+        get() = AppDispatchers(dispatcher)
+
+    @After
+    fun cleanup() {
+        dispatcher.cleanupTestCoroutines()
+    }
 
     @Test
     fun whenLoadingAllTracks_thenReturnTracksFromDao() {
@@ -116,7 +70,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenLoadingAllAlbums_thenReturnAlbumsFromDao() : Unit = runBlocking {
+    fun whenLoadingAllAlbums_thenReturnAlbumsFromDao() = dispatcher.runBlockingTest {
         val mediaDao = TestAlbumDao(SAMPLE_ALBUMS)
         assertInitialLoadFromDao(mediaDao, SAMPLE_ALBUMS, MediaRepository::getAllAlbums)
     }
@@ -162,7 +116,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenLoadingAllPlaylists_thenReturnPlaylistsFromDao() : Unit = runBlocking {
+    fun whenLoadingAllPlaylists_thenReturnPlaylistsFromDao() = dispatcher.runBlockingTest {
         val dao = TestPlaylistDao(
             SAMPLE_PLAYLISTS,
             SAMPLE_PLAYLIST_TRACKS
@@ -176,7 +130,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenLoadingAllPlaylists_thenReturnLatestPlaylists(): Unit = runBlocking {
+    fun whenLoadingAllPlaylists_thenReturnLatestPlaylists() = dispatcher.runBlockingTest {
         val original = listOf(SAMPLE_PLAYLISTS[0])
         val updated = listOf(SAMPLE_PLAYLISTS[1])
         val dao = TestPlaylistDao(original, emptyList())
@@ -189,7 +143,6 @@ class MediaRepositoryTest {
             }
 
             dao.update(updated)
-            yield()
 
             repeat(2) {
                 val currentPlaylists = repository.getAllPlaylists()
@@ -199,7 +152,8 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun givenNonExistingPlaylist_whenLoadingItsTracks_thenReturnNull(): Unit = runBlocking {
+    fun givenNonExistingPlaylist_whenLoadingItsTracks_thenReturnNull() =
+        dispatcher.runBlockingTest {
         val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         val playlistDao = TestPlaylistDao(
             SAMPLE_PLAYLISTS,
@@ -215,7 +169,8 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun givenAnExistingPlaylist_whenLoadingItsTracks_thenReturnTracksFromThatPlaylist(): Unit = runBlocking {
+    fun givenAnExistingPlaylist_whenLoadingItsTracks_thenReturnTracksFromThatPlaylist() =
+        dispatcher.runBlockingTest {
         val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         val playlistDao = TestPlaylistDao(
             SAMPLE_PLAYLISTS,
@@ -231,27 +186,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenLoadingMostRatedTracks_thenReturnTracksByDescendingScore(): Unit = runBlocking {
-        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-        val usageDao = TestUsageDao(SAMPLE_TRACK_SCORE)
-
-        usingScope {
-            val repository = MediaRepositoryImpl(it, mediaDao, DummyPlaylistDao, usageDao, dispatchers)
-            val mostRatedTracks = repository.getMostRatedTracks()
-
-            assertThat(mostRatedTracks).containsExactly(
-                SAMPLE_TRACKS[7],
-                SAMPLE_TRACKS[8],
-                SAMPLE_TRACKS[5],
-                SAMPLE_TRACKS[9],
-                SAMPLE_TRACKS[3],
-                SAMPLE_TRACKS[2]
-            )
-        }
-    }
-
-    @Test
-    fun whenLoadingAllTracksAndErrorOccurs_thenThrowThatError(): Unit = runBlocking {
+    fun whenLoadingAllTracksAndErrorOccurs_thenThrowThatError() = dispatcher.runBlockingTest {
         val mediaDao = PermissionMediaDao()
         mediaDao.hasPermissions = false
 
@@ -268,7 +203,8 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenTrackListChangedForTheFirstTime_thenDontDispatchChangeNotifications(): Unit = runBlocking {
+    fun whenTrackListChangedForTheFirstTime_thenDontDispatchChangeNotifications() =
+        dispatcher.runBlockingTest {
         val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
         usingScope {
@@ -330,7 +266,7 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenReceivingUpdatedPlaylists_thenNotifyForAllPlaylists() : Unit = runBlocking {
+    fun whenReceivingUpdatedPlaylists_thenNotifyForAllPlaylists() = dispatcher.runBlockingTest {
         val initial = listOf(SAMPLE_PLAYLISTS[0], SAMPLE_PLAYLISTS[1])
         val updated = listOf(SAMPLE_PLAYLISTS[1], SAMPLE_PLAYLISTS[2])
         val playlistDao = TestPlaylistDao(initialPlaylists = initial)
@@ -341,14 +277,13 @@ class MediaRepositoryTest {
             val subscriber = repository.changeNotifications.test()
 
             playlistDao.update(updated)
-            yield()
 
             assertThat(subscriber.values()).contains(ChangeNotification.AllPlaylists)
         }
     }
 
     @Test
-    fun whenReceivingArtistListUpdate_thenNotifyForAllArtists(): Unit = runBlocking {
+    fun whenReceivingArtistListUpdate_thenNotifyForAllArtists() = dispatcher.runBlockingTest {
         val initial = listOf(SAMPLE_ARTISTS[0], SAMPLE_ARTISTS[1])
         val updated = listOf(SAMPLE_ARTISTS[1], SAMPLE_ARTISTS[2])
         val mediaDao = TestArtistDao(initialArtistList = initial)
@@ -359,7 +294,6 @@ class MediaRepositoryTest {
             val subscriber = repository.changeNotifications.test()
 
             mediaDao.update(updated)
-            yield()
 
             assertThat(subscriber.values()).contains(ChangeNotification.AllArtists)
         }
@@ -369,7 +303,7 @@ class MediaRepositoryTest {
         dao: TestMediaDao<M>,
         expectedMediaList: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
-    ): Unit = runBlocking {
+    ): Unit = dispatcher.runBlockingTest {
         usingScope {
             val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             val mediaList = repository.getAllMedia()
@@ -383,7 +317,7 @@ class MediaRepositoryTest {
         expectedInitial: List<M>,
         expectedUpdated: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
-    ): Unit = runBlocking {
+    ): Unit = dispatcher.runBlockingTest {
         usingScope {
             val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
             repeat(2) {
@@ -403,7 +337,7 @@ class MediaRepositoryTest {
         dao: TestMediaDao<M>,
         expectedInitial: List<M>,
         getAllMedia: suspend MediaRepository.() -> List<M>
-    ): Unit = runBlocking {
+    ): Unit = dispatcher.runBlockingTest {
         usingScope {
             // Fill cache by requesting media for the first time.
             val repository = MediaRepositoryImpl(it, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
@@ -422,7 +356,7 @@ class MediaRepositoryTest {
         original: List<Track>,
         revised: List<Track>,
         expectedNotifications: Array<out ChangeNotification>
-    ) : Unit = runBlocking {
+    ): Unit = dispatcher.runBlockingTest {
         // Given a dao with the specified initial tracks...
         val mediaDao = TestTrackDao(initialTrackList = original)
 
@@ -436,7 +370,6 @@ class MediaRepositoryTest {
 
             // when receiving a new track list
             mediaDao.update(revised)
-            yield()
 
             // Then receive the expected notifications.
             assertThat(subscriber.values()).containsAtLeastElementsIn(expectedNotifications)
@@ -447,7 +380,7 @@ class MediaRepositoryTest {
         original: List<Album>,
         revised: List<Album>,
         expectedNotifications: Array<out ChangeNotification>
-    ) : Unit = runBlocking {
+    ): Unit = dispatcher.runBlockingTest {
         // Given a dao with the specified initial albums...
         val mediaDao = TestAlbumDao(initialAlbumList = original)
 
@@ -461,10 +394,62 @@ class MediaRepositoryTest {
 
             // when receiving a new album list
             mediaDao.update(revised)
-            yield()
 
             // Then receive the expected notifications.
             assertThat(subscriber.values()).containsAtLeastElementsIn(expectedNotifications)
         }
+    }
+
+    private object DummyPlaylistDao : PlaylistDao {
+        override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()
+        override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
+        override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
+        override suspend fun savePlaylist(playlist: Playlist): Long = 0L
+        override suspend fun addTracks(tracks: List<PlaylistTrack>) = Unit
+        override suspend fun deletePlaylist(playlistId: Long) = Unit
+        override suspend fun deletePlaylistTracks(trackIds: LongArray) = Unit
+    }
+
+    private object DummyMediaDao : RxMediaDao {
+        override val tracks: Flowable<List<Track>> get() = Flowable.empty()
+        override val albums: Flowable<List<Album>> get() = Flowable.empty()
+        override val artists: Flowable<List<Artist>> get() = Flowable.empty()
+        override fun deleteTracks(trackIds: LongArray): Completable = Completable.complete()
+    }
+
+    private object DummyUsageDao : MediaUsageDao {
+        override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
+        override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
+        override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()
+        override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
+    }
+
+    /**
+     * A [RxMediaDao] that returns different results when permission is granted or denied.
+     * When permission is granted, all flows emit an empty list an never completes.
+     * When permission is denied, all flows emit a [PermissionDeniedException].
+     */
+    private class PermissionMediaDao : RxMediaDao {
+        /**
+         * Whether permission should be granted.
+         */
+        var hasPermissions = false
+
+        override val tracks: Flowable<List<Track>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override val albums: Flowable<List<Album>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override val artists: Flowable<List<Artist>>
+            get() = if (hasPermissions) mediaUpdates() else permissionFailure()
+
+        override fun deleteTracks(trackIds: LongArray): Completable = stub()
+
+        private fun <T> mediaUpdates(): Flowable<List<T>> =
+            Flowable.concat(Flowable.just(emptyList()), Flowable.never())
+
+        private fun <T> permissionFailure() =
+            Flowable.error<T>(PermissionDeniedException("android.permission"))
     }
 }

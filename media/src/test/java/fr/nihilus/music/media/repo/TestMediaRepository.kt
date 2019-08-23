@@ -40,7 +40,6 @@ internal class TestMediaRepository(
     override suspend fun getAllArtists(): List<Artist> = artists
     override suspend fun getAllPlaylists(): List<Playlist> = playlists
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
-    override suspend fun getMostRatedTracks(): List<Track> = mostRatedTracks
 }
 
 internal class TestUsageManager(
@@ -66,7 +65,5 @@ internal class StubMediaRepository : MediaRepository {
     override suspend fun getAllPlaylists(): List<Playlist> =
         stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? =
-        stub()
-    override suspend fun getMostRatedTracks(): List<Track> =
         stub()
 }

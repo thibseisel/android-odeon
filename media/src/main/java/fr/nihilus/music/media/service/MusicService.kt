@@ -26,6 +26,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
@@ -126,10 +127,7 @@ class MusicService : BaseBrowserService() {
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot? {
-        /*
-         * Allow connections to the MediaBrowserService in debug builds, otherwise
-         * check the caller's signature and disconnect it if not allowed by returning `null`.
-         */
+        // Check the caller's signature and disconnect it if not allowed by returning `null`.
         return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
             // Grant permission to known callers to read album arts without storage permissions.
             grantUriPermission(
@@ -144,9 +142,7 @@ class MusicService : BaseBrowserService() {
     override fun onLoadChildren(
         parentId: String,
         result: Result<List<MediaBrowserCompat.MediaItem>>
-    ) {
-        onLoadChildren(parentId, result, Bundle.EMPTY)
-    }
+    ): Unit = onLoadChildren(parentId, result, Bundle.EMPTY)
 
     override fun onLoadChildren(
         parentId: String,
@@ -202,9 +198,11 @@ class MusicService : BaseBrowserService() {
         extras: Bundle?,
         result: Result<List<MediaBrowserCompat.MediaItem>>
     ) {
+        Log.i("AssistantSearch", "Searching $query. Extras=$extras")
         result.detach()
         launch(dispatchers.Default) {
-            val searchResults = browserTree.search(query, extras)
+            val parsedQuery = SearchQuery.from(query, extras)
+            val searchResults = browserTree.search(parsedQuery)
             result.sendResult(searchResults)
         }
     }

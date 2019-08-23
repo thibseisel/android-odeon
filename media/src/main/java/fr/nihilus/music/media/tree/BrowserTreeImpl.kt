@@ -18,7 +18,6 @@ package fr.nihilus.music.media.tree
 
 import android.content.Context
 import android.os.Bundle
-import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
@@ -44,6 +43,7 @@ import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.mediaId
+import fr.nihilus.music.media.service.SearchQuery
 import fr.nihilus.music.media.usage.MediaUsageManager
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
@@ -244,26 +244,26 @@ internal class BrowserTreeImpl
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
-    override suspend fun search(query: String, options: Bundle?): List<MediaItem> {
+    override suspend fun search(query: SearchQuery): List<MediaItem> {
 
-        val results = when (options?.getString(MediaStore.EXTRA_MEDIA_FOCUS)) {
+        val results = when (query) {
 
-            MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE -> {
-                options.getString(MediaStore.EXTRA_MEDIA_ARTIST)?.toLowerCase()?.let { artistName ->
+            is SearchQuery.Artist -> {
+                query.name?.toLowerCase()?.let { artistName ->
                     val artists = repository.getAllArtists()
                     singleTypeSearch(artistName, artists, Artist::name, artistItemFactory)
                 }
             }
 
-            MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE -> {
-                options.getString(MediaStore.EXTRA_MEDIA_ALBUM)?.toLowerCase()?.let { albumTitle ->
+            is SearchQuery.Album -> {
+                query.title?.toLowerCase()?.let { albumTitle ->
                     val albums = repository.getAllAlbums()
                     singleTypeSearch(albumTitle, albums, Album::title, albumItemFactory)
                 }
             }
 
-            MediaStore.Audio.Media.ENTRY_CONTENT_TYPE -> {
-                options.getString(MediaStore.EXTRA_MEDIA_TITLE)?.toLowerCase()?.let { trackTitle ->
+            is SearchQuery.Song -> {
+                query.title?.toLowerCase()?.let { trackTitle ->
                     val tracks = repository.getAllTracks()
                     singleTypeSearch(trackTitle, tracks, Track::title) { builder ->
                         trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL, builder)
@@ -271,21 +271,41 @@ internal class BrowserTreeImpl
                 }
             }
 
-            else -> if (query.isEmpty()) null else coroutineScope {
+            is SearchQuery.Unspecified -> coroutineScope {
+                val userQuery = query.userQuery
                 val artists = async { repository.getAllArtists() }
                 val albums = async { repository.getAllAlbums() }
                 val tracks = async { repository.getAllTracks() }
 
                 val searchResults = mutableListOf<ItemScore>()
-                fuzzySearchTo(searchResults, query, artists.await(), Artist::name, artistItemFactory)
-                fuzzySearchTo(searchResults, query, albums.await(), Album::title, albumItemFactory)
-                fuzzySearchTo(searchResults, query, tracks.await(), Track::title) { track, builder ->
+                fuzzySearchTo(
+                    searchResults,
+                    userQuery,
+                    artists.await(),
+                    Artist::name,
+                    artistItemFactory
+                )
+                fuzzySearchTo(
+                    searchResults,
+                    userQuery,
+                    albums.await(),
+                    Album::title,
+                    albumItemFactory
+                )
+                fuzzySearchTo(
+                    searchResults,
+                    userQuery,
+                    tracks.await(),
+                    Track::title
+                ) { track, builder ->
                     trackItemFactory(track, TYPE_TRACKS, CATEGORY_ALL, builder)
                 }
 
                 searchResults.sortByDescending(ItemScore::score)
                 searchResults.map(ItemScore::media)
             }
+
+            else -> null
         }
 
         return results.orEmpty()

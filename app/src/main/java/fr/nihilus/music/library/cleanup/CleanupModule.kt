@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.library.cleanup
 
+import androidx.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.ViewModelKey
 
 @Module
@@ -31,5 +31,5 @@ abstract class CleanupModule {
 
     @Binds @IntoMap
     @ViewModelKey(CleanupViewModel::class)
-    abstract fun bindsCleanupViewModel(viewModel: CleanupViewModel): BaseViewModel
+    abstract fun bindsCleanupViewModel(viewModel: CleanupViewModel): ViewModel
 }

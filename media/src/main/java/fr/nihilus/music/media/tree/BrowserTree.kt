@@ -17,10 +17,10 @@
 package fr.nihilus.music.media.tree
 
 import android.os.Bundle
-import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.media.service.SearchQuery
 import io.reactivex.Flowable
 
 /**
@@ -72,18 +72,10 @@ internal interface BrowserTree {
 
     /**
      * Search the browser tree for media items whose title matches the supplied [query].
-     * You can refine the search results by specifying search [options].
+     * What exactly should be searched is determined by the type of the [SearchQuery].
      *
      * @param query The client-provided search query.
-     * @param options Options supplied by the client to given some focus on what to search.
-     * The following options are supported:
-     * - [MediaStore.EXTRA_MEDIA_FOCUS]: indicate if the search query is about an artist,
-     * an album or a song.
-     * - [MediaStore.EXTRA_MEDIA_ARTIST]: the name of the artist associated with the search.
-     * - [MediaStore.EXTRA_MEDIA_ALBUM]: the title of the album associated with the search.
-     * - [MediaStore.EXTRA_MEDIA_TITLE]: when specified, the title of the searched song.
-     *
      * @return A list of media items matching the search criteria.
      */
-    suspend fun search(query: String, options: Bundle?): List<MediaItem>
+    suspend fun search(query: SearchQuery): List<MediaItem>
 }

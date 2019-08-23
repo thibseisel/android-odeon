@@ -78,10 +78,10 @@ class CleanupAdapter : ListAdapter<Checkable<MediaItem>, CleanupAdapter.ViewHold
     ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_disposable_track)) {
 
         private val context = parent.context
-        private val selectionMark = parent.findViewById<CheckBox>(R.id.selection_mark)
-        private val title = parent.findViewById<TextView>(R.id.title)
-        private val usageDescription = parent.findViewById<TextView>(R.id.usage_description)
-        private val fileSizeCaption = parent.findViewById<TextView>(R.id.file_size)
+        private val selectionMark = itemView.findViewById<CheckBox>(R.id.selection_mark)
+        private val title = itemView.findViewById<TextView>(R.id.title)
+        private val usageDescription = itemView.findViewById<TextView>(R.id.usage_description)
+        private val fileSizeCaption = itemView.findViewById<TextView>(R.id.file_size)
 
         fun bind(track: Checkable<MediaItem>, checkedListener: CompoundButton.OnCheckedChangeListener) {
             val item = track.item.description

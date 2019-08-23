@@ -25,6 +25,9 @@ import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 
+/**
+ * Lists tracks that could be deleted from the device's storage to free-up space.
+ */
 class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     private val viewModel by viewModels<CleanupViewModel> { viewModelFactory }
 
