@@ -60,7 +60,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
-        freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
     }
 
     testOptions {
@@ -75,6 +74,7 @@ android {
 kapt {
     arguments {
         arg('room.schemaLocation', "$projectDir/schemas".toString())
+        arg('room.incremental', 'true')
         arg('dagger.formatGeneratedSource', 'disabled')
         arg('dagger.fastInit', 'enabled')
     }
@@ -133,6 +133,7 @@ dependencies {
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
     testImplementation "io.mockk:mockk:${versions.mockk}"
+    kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
 
     // Android-specific test dependencies
     androidTestImplementation "com.google.truth:truth:${versions.truth}"
