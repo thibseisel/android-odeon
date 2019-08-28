@@ -50,10 +50,10 @@ internal class MediaRepositoryImpl
 
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
 
-    private var tracksCache = scope.trackSyncCache()
-    private var albumsCache = scope.albumSyncCache()
-    private var artistsCache = scope.artistSyncCache()
-    private var playlistsCache = scope.playlistSyncCache()
+    @Volatile private var tracksCache = scope.trackSyncCache()
+    @Volatile private var albumsCache = scope.albumSyncCache()
+    @Volatile private var artistsCache = scope.artistSyncCache()
+    @Volatile private var playlistsCache = scope.playlistSyncCache()
 
     override suspend fun getAllTracks(): List<Track> {
         if (tracksCache.isClosedForSend) {
