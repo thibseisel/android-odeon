@@ -95,10 +95,8 @@ internal class DeleteAction
 
         // Proceed with deleting playlists, if any.
         if (deletedPlaylistIds.isNotEmpty()) {
-            withContext(dispatchers.Database) {
-                deletedPlaylistIds.forEach { playlistId ->
-                    playlistDao.deletePlaylist(playlistId)
-                }
+            deletedPlaylistIds.forEach { playlistId ->
+                playlistDao.deletePlaylist(playlistId)
             }
         }
 

@@ -115,18 +115,16 @@ internal class ManagePlaylistAction
             extractTrackIdFrom(encodedId)
         } else LongArray(0)
 
-        withContext(dispatchers.Database) {
-            val newPlaylistId = playlistDao.savePlaylist(
-                Playlist(title, playlistIconUri)
-            )
+        val newPlaylistId = playlistDao.savePlaylist(
+            Playlist(title, playlistIconUri)
+        )
 
-            val newPlaylistTracks = trackIds.map { trackId ->
-                PlaylistTrack(newPlaylistId, trackId)
-            }
+        val newPlaylistTracks = trackIds.map { trackId ->
+            PlaylistTrack(newPlaylistId, trackId)
+        }
 
-            if (newPlaylistTracks.isNotEmpty()) {
-                playlistDao.addTracks(newPlaylistTracks)
-            }
+        if (newPlaylistTracks.isNotEmpty()) {
+            playlistDao.addTracks(newPlaylistTracks)
         }
 
         return null
@@ -153,9 +151,7 @@ internal class ManagePlaylistAction
         )
 
         if (!playlistTracks.isNullOrEmpty()) {
-            withContext(dispatchers.Database) {
-                playlistDao.addTracks(playlistTracks)
-            }
+            playlistDao.addTracks(playlistTracks)
         }
 
         return null

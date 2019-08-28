@@ -28,13 +28,11 @@ import org.jetbrains.annotations.TestOnly
  * @property Main Dispatch execution of coroutine to the Android Main Thread.
  * @property Default Dispatch execution of coroutine to a pool of threads dedicated to computational-heavy tasks.
  * @property IO Dispatch execution of coroutine to a pool of threads dedicated to blocking IO tasks.
- * @property Database Dispatch execution of coroutine to a single thread for database read/write.
  */
 class AppDispatchers(
     val Main: CoroutineDispatcher,
     val Default: CoroutineDispatcher,
-    val IO: CoroutineDispatcher,
-    val Database: CoroutineDispatcher
+    val IO: CoroutineDispatcher
 ) {
     /**
      * Create a group consisting of a single [CoroutineDispatcher].
@@ -45,5 +43,5 @@ class AppDispatchers(
      */
     @TestOnly constructor(
         dispatcher: CoroutineDispatcher
-    ) : this(dispatcher, dispatcher, dispatcher, dispatcher)
+    ) : this(dispatcher, dispatcher, dispatcher)
 }

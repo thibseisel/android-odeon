@@ -30,9 +30,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import java.io.File
-import java.util.concurrent.Executors
 import javax.inject.Named
 import javax.inject.Scope
 
@@ -91,7 +89,6 @@ internal class MusicServiceProvisions {
     fun provideAppDispatchers() = AppDispatchers(
         Dispatchers.Main,
         Dispatchers.Default,
-        Dispatchers.IO,
-        Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        Dispatchers.IO
     )
 }
