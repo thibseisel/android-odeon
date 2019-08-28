@@ -27,7 +27,6 @@ import fr.nihilus.music.media.database.DatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -73,9 +72,6 @@ internal class MusicServiceProvisions {
 
     @Provides @ServiceScoped
     fun provideContentResolver(service: MusicService): ContentResolver = service.contentResolver
-
-    @Provides @ServiceScoped
-    fun provideSubscriptionDisposer() = CompositeDisposable()
 
     @Provides @ServiceScoped
     fun provideRxSchedulers() = RxSchedulers(
