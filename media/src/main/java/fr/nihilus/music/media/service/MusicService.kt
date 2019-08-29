@@ -52,10 +52,10 @@ class MusicService : BaseBrowserService() {
 
     companion object {
         /**
-         * Used as a boolean field in intents to indicate that the target activity
-         * should display the UI for controlling media playback.
+         * The name of an [intent action][Intent.getAction] for launching the activity
+         * associated with the media session and display the UI for controlling media playback.
          */
-        const val EXTRA_EXPAND_PLAYER = "fr.nihilus.music.media.extras.EXTRA_EXPAND_PLAYER"
+        const val ACTION_PLAYER_UI = "fr.nihilus.music.media.action.PLAYER_UI"
     }
 
     @Inject internal lateinit var dispatchers: AppDispatchers

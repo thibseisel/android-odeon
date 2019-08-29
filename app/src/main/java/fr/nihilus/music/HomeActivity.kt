@@ -230,7 +230,7 @@ class HomeActivity : BaseActivity(),
             }
         }
 
-        if (intent?.getBooleanExtra(MusicService.EXTRA_EXPAND_PLAYER, false) == true) {
+        if (intent?.action == MusicService.ACTION_PLAYER_UI) {
             player_container.postDelayed({
                 bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
             }, 300L)
