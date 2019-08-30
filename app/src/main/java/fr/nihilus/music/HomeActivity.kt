@@ -220,23 +220,19 @@ class HomeActivity : BaseActivity(),
      * @param intent the intent that started this activity, or was received later
      * @return true if intent was handled, false otherwise
      */
-    private fun handleIntent(intent: Intent?): Boolean {
+    private fun handleIntent(intent: Intent?) {
         Timber.d("Received intent: %s", intent)
         when (intent?.action) {
             ACTION_RANDOM -> {
                 startRandomMix()
-                // Intent is purposely marked as not handled to trigger home screen display
-                return false
+            }
+
+            MusicService.ACTION_PLAYER_UI -> {
+                player_container.postDelayed({
+                    bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
+                }, 300L)
             }
         }
-
-        if (intent?.action == MusicService.ACTION_PLAYER_UI) {
-            player_container.postDelayed({
-                bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-            }, 300L)
-        }
-
-        return false
     }
 
     private fun startRandomMix() {
