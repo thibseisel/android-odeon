@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,22 @@
 
 package fr.nihilus.music.media.database
 
+import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.di.ServiceScoped
 
 /**
- * Provides implementations of [Dao][androidx.room.Dao]-annotated classes.
- * This module has a dependency on [AppDatabase] and should be included in a module that provides it.
+ * Provides a shared connection to the local SQLite database.
  */
-@Module
-internal object DatabaseModule {
+@Module(includes = [DatabaseModule::class])
+internal object SQLiteDatabaseModule {
 
     @JvmStatic
-    @Provides
-    fun providePlaylistDao(db: AppDatabase): PlaylistDao = db.playlistDao
-
-    @JvmStatic
-    @Provides
-    fun provideMediaUsageDao(db: AppDatabase): MediaUsageDao = db.usageDao
+    @Provides @ServiceScoped
+    fun providesRealDatabase(context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
+            .build()
 }

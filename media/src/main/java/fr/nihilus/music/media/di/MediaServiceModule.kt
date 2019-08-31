@@ -23,7 +23,7 @@ import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.RxSchedulers
 import fr.nihilus.music.media.actions.CustomActionModule
-import fr.nihilus.music.media.database.DatabaseModule
+import fr.nihilus.music.media.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -54,7 +54,7 @@ abstract class MediaServiceModule {
     @ContributesAndroidInjector(modules = [
         MusicServiceProvisions::class,
         ServiceBindingsModule::class,
-        DatabaseModule::class,
+        SQLiteDatabaseModule::class,
         MediaSessionModule::class,
         MediaSourceModule::class,
         PlaybackModule::class,
