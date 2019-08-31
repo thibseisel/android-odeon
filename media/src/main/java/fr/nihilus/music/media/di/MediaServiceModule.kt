@@ -20,15 +20,10 @@ import android.content.ContentResolver
 import dagger.Module
 import dagger.Provides
 import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.RxSchedulers
 import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 import javax.inject.Named
 import javax.inject.Scope
@@ -53,6 +48,7 @@ abstract class MediaServiceModule {
     @ServiceScoped
     @ContributesAndroidInjector(modules = [
         MusicServiceProvisions::class,
+        ExecutionContextModule::class,
         ServiceBindingsModule::class,
         SQLiteDatabaseModule::class,
         MediaSessionModule::class,
@@ -72,19 +68,4 @@ internal class MusicServiceProvisions {
 
     @Provides @ServiceScoped
     fun provideContentResolver(service: MusicService): ContentResolver = service.contentResolver
-
-    @Provides @ServiceScoped
-    fun provideRxSchedulers() = RxSchedulers(
-        AndroidSchedulers.mainThread(),
-        Schedulers.computation(),
-        Schedulers.io(),
-        Schedulers.single()
-    )
-
-    @Provides @ServiceScoped
-    fun provideAppDispatchers() = AppDispatchers(
-        Dispatchers.Main,
-        Dispatchers.Default,
-        Dispatchers.IO
-    )
 }
