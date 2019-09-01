@@ -31,36 +31,6 @@ import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import javax.inject.Inject
 
-private val TRACK_COLUMNS = arrayOf(
-    BaseColumns._ID,
-    Media.TITLE,
-    Media.ALBUM,
-    Media.ARTIST,
-    Media.DURATION,
-    Media.TRACK,
-    Media.ALBUM_ID,
-    Media.ARTIST_ID,
-    Media.DATE_ADDED,
-    Media.SIZE
-)
-
-private val ALBUM_COLUMNS = arrayOf(
-    Albums._ID,
-    Albums.ALBUM,
-    Albums.ARTIST,
-    Albums.LAST_YEAR,
-    Albums.NUMBER_OF_SONGS,
-    Albums.ALBUM_ART,
-    Media.ARTIST_ID
-)
-
-private val ARTIST_COLUMNS = arrayOf(
-    Artists._ID,
-    Artists.ARTIST,
-    Artists.NUMBER_OF_ALBUMS,
-    Artists.NUMBER_OF_TRACKS
-)
-
 /**
  * Retrieve media information from the Android [MediaStore].
  *
@@ -75,6 +45,37 @@ internal class MediaStoreProvider
     private val fileSystem: FileSystem,
     private val permissions: PermissionChecker
 ) : MediaProvider {
+
+    private val trackColumns = arrayOf(
+        BaseColumns._ID,
+        Media.TITLE,
+        Media.ALBUM,
+        Media.ARTIST,
+        Media.DURATION,
+        Media.TRACK,
+        Media.ALBUM_ID,
+        Media.ARTIST_ID,
+        Media.DATE_ADDED,
+        Media.SIZE
+    )
+
+    private val albumColumns = arrayOf(
+        Albums._ID,
+        Albums.ALBUM,
+        Albums.ARTIST,
+        Albums.LAST_YEAR,
+        Albums.NUMBER_OF_SONGS,
+        Albums.ALBUM_ART,
+        Media.ARTIST_ID
+    )
+
+    private val artistColumns = arrayOf(
+        Artists._ID,
+        Artists.ARTIST,
+        Artists.NUMBER_OF_ALBUMS,
+        Artists.NUMBER_OF_TRACKS
+    )
+
     private val observers = mutableSetOf<PlatformObserverDelegate>()
 
     private data class AlbumArtInfo(
@@ -91,7 +92,7 @@ internal class MediaStoreProvider
 
         return resolver.query(
             Media.EXTERNAL_CONTENT_URI,
-            TRACK_COLUMNS,
+            trackColumns,
             "${Media.IS_MUSIC} = 1",
             null,
             Media.DEFAULT_SORT_ORDER
@@ -140,7 +141,7 @@ internal class MediaStoreProvider
 
         return resolver.query(
             Albums.EXTERNAL_CONTENT_URI,
-            ALBUM_COLUMNS,
+            albumColumns,
             null,
             null,
             Albums.DEFAULT_SORT_ORDER
@@ -178,7 +179,7 @@ internal class MediaStoreProvider
 
         return resolver.query(
             Artists.EXTERNAL_CONTENT_URI,
-            ARTIST_COLUMNS,
+            artistColumns,
             null,
             null,
             Artists.DEFAULT_SORT_ORDER
@@ -239,7 +240,7 @@ internal class MediaStoreProvider
     override fun deleteTracks(trackIds: LongArray): Int {
         requireWritePermission()
 
-        var whereClause = buildInClause(Media._ID, trackIds.size)
+        var whereClause = buildInClause(trackIds.size)
         var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
 
         return resolver.query(
@@ -265,7 +266,7 @@ internal class MediaStoreProvider
 
             // if some tracks have not been deleted, rewrite delete clause.
             if (deletedTrackIds.size < trackIds.size) {
-                whereClause = buildInClause(Media._ID, deletedTrackIds.size)
+                whereClause = buildInClause(deletedTrackIds.size)
                 whereArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
             }
 
@@ -342,8 +343,8 @@ internal class MediaStoreProvider
         }
     }
 
-    private fun buildInClause(column: String, paramCount: Int) = buildString {
-        append(column).append(" IN ")
+    private fun buildInClause(paramCount: Int) = buildString {
+        append(Media._ID).append(" IN ")
         CharArray(paramCount) { '?' }.joinTo(this, ",", "(", ")")
     }
 
