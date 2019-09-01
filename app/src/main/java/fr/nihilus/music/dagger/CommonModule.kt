@@ -34,20 +34,21 @@ import javax.inject.Singleton
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module(includes = [CommonBindingsModule::class])
-object CommonModule {
-
-    @JvmStatic
-    @Provides
-    fun provideContext(application: OdeonApplication): Context = application.applicationContext
-
-    @JvmStatic
-    @Provides @Singleton
-    fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(application)
-}
-
 @Module
-abstract class CommonBindingsModule {
-    @Binds abstract fun bindsPermissionChecker(impl: SystemRuntimePermissions): RuntimePermissions
+abstract class CommonModule {
+
+    @Binds
+    abstract fun bindsRuntimePermissions(impl: SystemRuntimePermissions): RuntimePermissions
+
+    @Module
+    companion object {
+        @JvmStatic
+        @Provides
+        fun provideContext(application: OdeonApplication): Context = application.applicationContext
+
+        @JvmStatic
+        @Provides @Singleton
+        fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(application)
+    }
 }
