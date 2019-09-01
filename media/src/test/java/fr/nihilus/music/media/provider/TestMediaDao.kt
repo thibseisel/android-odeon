@@ -27,7 +27,7 @@ interface TestDao<M> {
     fun failWith(exception: Exception)
 }
 
-internal sealed class TestMediaDao<M>(initialList: List<M>?) : RxMediaDao, TestDao<M> {
+internal sealed class TestMediaDao<M>(initialList: List<M>?) : MediaDao, TestDao<M> {
     protected val mediaStream: FlowableProcessor<List<M>> =
         if (initialList == null) BehaviorProcessor.create()
         else BehaviorProcessor.createDefault(initialList)

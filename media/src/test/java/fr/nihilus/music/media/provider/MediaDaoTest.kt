@@ -27,145 +27,145 @@ import io.reactivex.schedulers.TestScheduler
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
-class RxMediaDaoTest {
+class MediaDaoTest {
 
     private val testScheduler = TestScheduler()
     private val schedulers = RxSchedulers(testScheduler)
 
     @Test
     fun givenDeniedPermission_whenSubscribingTracks_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateIfPermissionIsDenied(RxMediaDao::tracks)
+        shouldTerminateIfPermissionIsDenied(MediaDao::tracks)
     }
 
     @Test
     fun givenDeniedPermission_whenSubscribingAlbums_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateIfPermissionIsDenied(RxMediaDao::albums)
+        shouldTerminateIfPermissionIsDenied(MediaDao::albums)
     }
 
     @Test
     fun givenDeniedPermission_whenSubscribingArtists_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateIfPermissionIsDenied(RxMediaDao::artists)
+        shouldTerminateIfPermissionIsDenied(MediaDao::artists)
     }
 
     @Test
     fun givenTrackSubscription_whenReceivingUpdateAndPermissionIsRevoked_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateWhenPermissionIsRevoked(MediaType.TRACKS, RxMediaDao::tracks)
+        shouldTerminateWhenPermissionIsRevoked(MediaType.TRACKS, MediaDao::tracks)
     }
 
     @Test
     fun givenAlbumSubscription_whenReceivingUpdateAndPermissionIsRevoked_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateWhenPermissionIsRevoked(MediaType.ALBUMS, RxMediaDao::albums)
+        shouldTerminateWhenPermissionIsRevoked(MediaType.ALBUMS, MediaDao::albums)
     }
 
     @Test
     fun givenArtistSubscription_whenReceivingUpdateAndPermissionIsRevoked_thenTerminateWithPermissionDeniedException() {
-        shouldTerminateWhenPermissionIsRevoked(MediaType.ARTISTS, RxMediaDao::artists)
+        shouldTerminateWhenPermissionIsRevoked(MediaType.ARTISTS, MediaDao::artists)
     }
 
     @Test
     fun givenTrackSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.TRACKS, RxMediaDao::tracks)
+        shouldUnregisterObserverOnStreamFailure(MediaType.TRACKS, MediaDao::tracks)
     }
 
     @Test
     fun givenAlbumSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.ALBUMS, RxMediaDao::albums)
+        shouldUnregisterObserverOnStreamFailure(MediaType.ALBUMS, MediaDao::albums)
     }
 
     @Test
     fun givenArtistSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.ARTISTS, RxMediaDao::artists)
+        shouldUnregisterObserverOnStreamFailure(MediaType.ARTISTS, MediaDao::artists)
     }
 
     @Test
     fun whenSubscribingTracks_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(RxMediaDao::tracks)
+        shouldNeverComplete(MediaDao::tracks)
     }
 
     @Test
     fun whenSubscribingAlbums_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(RxMediaDao::albums)
+        shouldNeverComplete(MediaDao::albums)
     }
 
     @Test
     fun whenSubscribingArtists_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(RxMediaDao::artists)
+        shouldNeverComplete(MediaDao::artists)
     }
 
     @Test
     fun whenSubscribingTracks_thenLoadCurrentTrackList() {
-        val mediaDao = RxMediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS), schedulers)
         shouldLoadMediaOnSubscription(mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun whenSubscribingAlbums_thenLoadCurrentAlbumList() {
-        val mediaDao = RxMediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS), schedulers)
         shouldLoadMediaOnSubscription(mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun whenSubscribingArtists_thenLoadCurrentArtistList() {
-        val mediaDao = RxMediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS), schedulers)
         shouldLoadMediaOnSubscription(mediaDao.artists, SAMPLE_ARTISTS)
     }
 
     @Test
     fun givenTrackSubscription_whenNotifiedForChange_thenReloadTrackList() {
         val provider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
         shouldReloadMediaWhenNotified(provider, MediaType.TRACKS, mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun givenAlbumSubscription_whenNotifiedForChange_thenReloadAlbumList() {
         val provider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
         shouldReloadMediaWhenNotified(provider, MediaType.ALBUMS, mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun givenArtistSubscription_whenNotifiedForChange_thenReloadArtistList() {
         val provider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
         shouldReloadMediaWhenNotified(provider, MediaType.ARTISTS, mediaDao.artists, SAMPLE_ARTISTS)
     }
 
     @Test
     fun whenSubscribingTracks_thenRegisterAnObserver() {
-        shouldRegisterAnObserverWhenSubscribed(MediaType.TRACKS, RxMediaDao::tracks)
+        shouldRegisterAnObserverWhenSubscribed(MediaType.TRACKS, MediaDao::tracks)
     }
 
     @Test
     fun whenSubscribingAlbums_thenRegisterAnObserver() {
-        shouldRegisterAnObserverWhenSubscribed(MediaType.ALBUMS, RxMediaDao::albums)
+        shouldRegisterAnObserverWhenSubscribed(MediaType.ALBUMS, MediaDao::albums)
     }
 
     @Test
     fun whenSubscribingArtists_thenRegisterAnObserver() {
-        shouldRegisterAnObserverWhenSubscribed(MediaType.ARTISTS, RxMediaDao::artists)
+        shouldRegisterAnObserverWhenSubscribed(MediaType.ARTISTS, MediaDao::artists)
     }
 
     @Test
     fun givenAnActiveTrackSubscription_whenDisposingIt_thenUnregisterObserver() {
-        shouldUnregisterObserverOnDisposal(MediaType.TRACKS, RxMediaDao::tracks)
+        shouldUnregisterObserverOnDisposal(MediaType.TRACKS, MediaDao::tracks)
     }
 
     @Test
     fun givenAnActiveAlbumSubscription_whenDisposingIt_thenUnregisterObserver() {
-        shouldUnregisterObserverOnDisposal(MediaType.ALBUMS, RxMediaDao::albums)
+        shouldUnregisterObserverOnDisposal(MediaType.ALBUMS, MediaDao::albums)
     }
 
     @Test
     fun givenAnActiveArtistSubscription_whenDisposingIt_thenUnregisterObserver() {
-        shouldUnregisterObserverOnDisposal(MediaType.ARTISTS, RxMediaDao::artists)
+        shouldUnregisterObserverOnDisposal(MediaType.ARTISTS, MediaDao::artists)
     }
 
     @Test
     fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() {
         val provider = TestMediaProvider()
         provider.hasStoragePermission = false
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
 
         val observer = mediaDao.deleteTracks(longArrayOf(161L)).test()
         testScheduler.triggerActions()
@@ -175,10 +175,10 @@ class RxMediaDaoTest {
 
     private fun shouldUnregisterObserverOnDisposal(
         observerType: MediaType,
-        streamProvider: RxMediaDao.() -> Flowable<out Any>
+        streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -190,10 +190,10 @@ class RxMediaDaoTest {
 
     private fun shouldRegisterAnObserverWhenSubscribed(
         observerType: MediaType,
-        streamProvider: RxMediaDao.() -> Flowable<out Any>
+        streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers)
 
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -224,9 +224,9 @@ class RxMediaDaoTest {
         subscriber.assertValue(expected)
     }
 
-    private fun shouldNeverComplete(streamProvider: RxMediaDao.() -> Flowable<out Any>) {
+    private fun shouldNeverComplete(streamProvider: MediaDao.() -> Flowable<out Any>) {
         // Given a realistic provider...
-        val mediaDao = RxMediaDaoImpl(TestMediaProvider(), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(), schedulers)
 
         // When subscribing and waiting for a long time...
         val subscriber = mediaDao.streamProvider().test()
@@ -238,11 +238,11 @@ class RxMediaDaoTest {
 
     private fun shouldUnregisterObserverOnStreamFailure(
         type: MediaType,
-        streamProvider: RxMediaDao.() -> Flowable<out Any>
+        streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(revokingPermissionProvider, schedulers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers)
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 
@@ -257,11 +257,11 @@ class RxMediaDaoTest {
             .doesNotContain(type)
     }
 
-    private fun shouldTerminateIfPermissionIsDenied(streamProvider: RxMediaDao.() -> Flowable<out Any>) {
+    private fun shouldTerminateIfPermissionIsDenied(streamProvider: MediaDao.() -> Flowable<out Any>) {
         val deniedProvider = TestMediaProvider()
         deniedProvider.hasStoragePermission = false
 
-        val mediaDao = RxMediaDaoImpl(deniedProvider, schedulers)
+        val mediaDao = MediaDaoImpl(deniedProvider, schedulers)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -271,11 +271,11 @@ class RxMediaDaoTest {
 
     private fun shouldTerminateWhenPermissionIsRevoked(
         type: MediaType,
-        streamProvider: RxMediaDao.() -> Flowable<out Any>
+        streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = RxMediaDaoImpl(revokingPermissionProvider, schedulers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers)
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 

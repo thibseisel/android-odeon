@@ -23,7 +23,7 @@ import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
-import fr.nihilus.music.media.provider.RxMediaDao
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.utils.diffList
@@ -42,7 +42,7 @@ private typealias Cache<M> = SendChannel<CompletableDeferred<List<M>>>
 internal class MediaRepositoryImpl
 @Inject constructor(
     private val scope: CoroutineScope,
-    private val mediaDao: RxMediaDao,
+    private val mediaDao: MediaDao,
     private val playlistsDao: PlaylistDao,
     private val usageDao: MediaUsageDao,
     private val dispatchers: AppDispatchers

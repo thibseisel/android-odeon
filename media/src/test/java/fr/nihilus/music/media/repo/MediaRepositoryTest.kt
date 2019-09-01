@@ -28,9 +28,13 @@ import fr.nihilus.music.media.usage.MediaUsageEvent
 import fr.nihilus.music.media.usage.TrackScore
 import fr.nihilus.music.media.usage.TrackUsage
 import fr.nihilus.music.media.usingScope
+import io.kotlintest.matchers.collections.shouldContainExactly
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Test
@@ -38,12 +42,36 @@ import org.junit.Test
 class MediaRepositoryTest {
 
     private val dispatcher = TestCoroutineDispatcher()
+    private val scope = TestCoroutineScope(dispatcher)
     private val dispatchers: AppDispatchers
         get() = AppDispatchers(dispatcher)
 
     @After
     fun cleanup() {
         dispatcher.cleanupTestCoroutines()
+    }
+
+    private fun test(body: suspend TestCoroutineScope.() -> Unit) = dispatcher.runBlockingTest(body)
+
+    private fun TestCoroutineScope.runInScope(block: suspend CoroutineScope.() -> Unit) {
+        val job = launch(block = block)
+        advanceUntilIdle()
+        job.cancel()
+    }
+
+    @Test
+    fun `When querying all tracks, then return tracks from Dao`() = test {
+        println("Hello!")
+        val dao = TestTrackDao(SAMPLE_TRACKS)
+
+        runInScope {
+            val repository =
+                MediaRepositoryImpl(this, dao, DummyPlaylistDao, DummyUsageDao, dispatchers)
+            val tracks = repository.getAllTracks()
+
+            tracks shouldContainExactly SAMPLE_TRACKS
+            println("Test finished normally.")
+        }
     }
 
     @Test
@@ -410,7 +438,7 @@ class MediaRepositoryTest {
         override suspend fun deletePlaylistTracks(trackIds: LongArray) = Unit
     }
 
-    private object DummyMediaDao : RxMediaDao {
+    private object DummyMediaDao : MediaDao {
         override val tracks: Flowable<List<Track>> get() = Flowable.empty()
         override val albums: Flowable<List<Album>> get() = Flowable.empty()
         override val artists: Flowable<List<Artist>> get() = Flowable.empty()
@@ -425,11 +453,11 @@ class MediaRepositoryTest {
     }
 
     /**
-     * A [RxMediaDao] that returns different results when permission is granted or denied.
+     * A [MediaDao] that returns different results when permission is granted or denied.
      * When permission is granted, all flows emit an empty list an never completes.
      * When permission is denied, all flows emit a [PermissionDeniedException].
      */
-    private class PermissionMediaDao : RxMediaDao {
+    private class PermissionMediaDao : MediaDao {
         /**
          * Whether permission should be granted.
          */

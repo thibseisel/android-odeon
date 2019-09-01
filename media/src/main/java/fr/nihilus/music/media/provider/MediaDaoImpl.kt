@@ -26,18 +26,18 @@ import io.reactivex.disposables.Disposables
 import javax.inject.Inject
 
 /**
- * Implementation of [RxMediaDao] that wraps a [MediaProvider], delegating read/write operations to it
+ * Implementation of [MediaDao] that wraps a [MediaProvider], delegating read/write operations to it
  * while adding a provider layer and thread confinement.
  *
  * @param provider The media provider to which operations should be delegated.
  * @param schedulers The pool of RxJava schedulers on which background operations should be performed.
  */
 @ServiceScoped
-internal class RxMediaDaoImpl
+internal class MediaDaoImpl
 @Inject constructor(
     private val provider: MediaProvider,
     private val schedulers: RxSchedulers
-) : RxMediaDao {
+) : MediaDao {
 
     override val tracks: Flowable<List<Track>> = produceUpToDateMediaList(
         MediaProvider.MediaType.TRACKS,

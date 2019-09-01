@@ -19,10 +19,10 @@ package fr.nihilus.music.media.di
 import dagger.Binds
 import dagger.Module
 import fr.nihilus.music.media.database.DatabaseModule
+import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.provider.MediaDaoImpl
 import fr.nihilus.music.media.provider.MediaProvider
 import fr.nihilus.music.media.provider.MediaStoreProvider
-import fr.nihilus.music.media.provider.RxMediaDao
-import fr.nihilus.music.media.provider.RxMediaDaoImpl
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
 import fr.nihilus.music.media.tree.BrowserTree
@@ -46,7 +46,7 @@ internal abstract class MediaSourceModule {
     abstract fun bindsMediaRepository(impl: MediaRepositoryImpl): MediaRepository
 
     @Binds
-    abstract fun bindsRxMediaDao(impl: RxMediaDaoImpl): RxMediaDao
+    abstract fun bindsMediaDao(impl: MediaDaoImpl): MediaDao
 
     @Binds
     abstract fun bindsMediaProvider(mediaStoreProvider: MediaStoreProvider): MediaProvider
