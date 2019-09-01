@@ -24,7 +24,7 @@ import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.OdeonApplication
 import fr.nihilus.music.media.permissions.PermissionChecker
-import fr.nihilus.music.media.permissions.PermissionCheckerImpl
+import fr.nihilus.music.media.permissions.SystemPermissionChecker
 import javax.inject.Singleton
 
 /**
@@ -35,11 +35,13 @@ import javax.inject.Singleton
  * All dependencies defined here can be used in both app modules: client and service.
  */
 @Module(includes = [CommonBindingsModule::class])
-class CommonModule {
+object CommonModule {
 
+    @JvmStatic
     @Provides
     fun provideContext(application: OdeonApplication): Context = application.applicationContext
 
+    @JvmStatic
     @Provides @Singleton
     fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(application)
@@ -47,5 +49,5 @@ class CommonModule {
 
 @Module
 abstract class CommonBindingsModule {
-    @Binds abstract fun bindsPermissionChecker(impl: PermissionCheckerImpl): PermissionChecker
+    @Binds abstract fun bindsPermissionChecker(impl: SystemPermissionChecker): PermissionChecker
 }

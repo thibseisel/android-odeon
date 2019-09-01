@@ -27,6 +27,7 @@ import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import java.io.File
+import javax.inject.Inject
 
 private const val TABLE_MEDIA = "media"
 private const val TABLE_ALBUM = "album"
@@ -39,12 +40,13 @@ private const val TABLE_ARTIST = "artist"
  *
  * @param context The application context, needed for creating the database.
  */
-internal class MediaStoreSurrogate(
+internal class MediaStoreSurrogate
+@Inject constructor(
     context: Context
 ) : ContentResolverDelegate {
 
     private val inMemoryDatabaseHelper = InMemoryMediaStoreDatabase(context)
-    internal val observers = mutableSetOf<ObserverSpec>()
+    val observers = mutableSetOf<ObserverSpec>()
 
     override fun query(
         uri: Uri,

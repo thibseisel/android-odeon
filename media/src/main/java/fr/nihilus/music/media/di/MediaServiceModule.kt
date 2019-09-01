@@ -16,16 +16,14 @@
 
 package fr.nihilus.music.media.di
 
-import android.content.ContentResolver
 import dagger.Module
-import dagger.Provides
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.database.SQLiteDatabaseModule
+import fr.nihilus.music.media.os.LocalFileSystemModule
+import fr.nihilus.music.media.provider.MediaStoreModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
-import java.io.File
-import javax.inject.Named
 import javax.inject.Scope
 
 /**
@@ -42,30 +40,19 @@ internal annotation class ServiceScoped
  * This Dagger module should be installed in the root component.
  */
 @Module
-@Suppress("unused")
 abstract class MediaServiceModule {
 
     @ServiceScoped
     @ContributesAndroidInjector(modules = [
-        MusicServiceProvisions::class,
         ExecutionContextModule::class,
         ServiceBindingsModule::class,
         SQLiteDatabaseModule::class,
+        LocalFileSystemModule::class,
         MediaSessionModule::class,
         MediaSourceModule::class,
+        MediaStoreModule::class,
         PlaybackModule::class,
         CustomActionModule::class
     ])
     abstract fun contributesMusicService(): MusicService
-}
-
-@Module
-internal class MusicServiceProvisions {
-
-    @Provides @ServiceScoped
-    @Named("internal")
-    fun provideInternalStorageRoot(service: MusicService): File = service.filesDir
-
-    @Provides @ServiceScoped
-    fun provideContentResolver(service: MusicService): ContentResolver = service.contentResolver
 }
