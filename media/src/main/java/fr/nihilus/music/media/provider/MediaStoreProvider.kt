@@ -27,8 +27,8 @@ import android.util.LongSparseArray
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.os.FileSystem
-import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.media.permissions.RuntimePermissions
 import javax.inject.Inject
 
 /**
@@ -43,7 +43,7 @@ internal class MediaStoreProvider
 @Inject constructor(
     private val resolver: ContentResolverDelegate,
     private val fileSystem: FileSystem,
-    private val permissions: PermissionChecker
+    private val permissions: RuntimePermissions
 ) : MediaProvider {
 
     private val trackColumns = arrayOf(

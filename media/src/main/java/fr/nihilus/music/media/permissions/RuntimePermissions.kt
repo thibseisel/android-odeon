@@ -26,7 +26,7 @@ import javax.inject.Inject
 /**
  * An utility that checks the current application's dangerous permissions at runtime.
  */
-interface PermissionChecker {
+interface RuntimePermissions {
     /** Whether files stored on the device's external storage can be read by this application. */
     val canReadExternalStorage: Boolean
     /** Whether this application can write to files stored on the external storage. */
@@ -34,14 +34,14 @@ interface PermissionChecker {
 }
 
 /**
- * Real implementation of the [PermissionChecker].
+ * Real implementation of the [RuntimePermissions].
  * This checks permission using the provided [application context][context].
  */
 @Reusable
-class SystemPermissionChecker
+class SystemRuntimePermissions
 @Inject constructor(
     private val context: Context
-) : PermissionChecker {
+) : RuntimePermissions {
 
     override val canReadExternalStorage: Boolean
         get() = isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)

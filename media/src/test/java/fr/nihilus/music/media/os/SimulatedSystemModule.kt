@@ -20,13 +20,13 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import fr.nihilus.music.media.permissions.PermissionChecker
 import fr.nihilus.music.media.permissions.RevocablePermission
+import fr.nihilus.music.media.permissions.RuntimePermissions
 import fr.nihilus.music.media.provider.SQLiteMediaStoreModule
 import javax.inject.Named
 
 /**
- * Provides fake implementations of [ContentResolverDelegate], [PermissionChecker],
+ * Provides fake implementations of [ContentResolverDelegate], [RuntimePermissions],
  * [Clock] and [FileSystem] that simulate the behavior of the Android system in tests.
  *
  * Components that include this module can optionally set the start time of the test clock
@@ -36,7 +36,7 @@ import javax.inject.Named
 internal abstract class SimulatedSystemModule {
 
     @Binds
-    abstract fun bindsTestPermissionChecker(permissions: RevocablePermission): PermissionChecker
+    abstract fun bindsTestPermissionChecker(permissions: RevocablePermission): RuntimePermissions
 
     @Binds
     abstract fun bindsTestClock(clock: TestClock): Clock

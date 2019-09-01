@@ -21,7 +21,7 @@ import javax.inject.Inject
 /**
  * All permissions are denied.
  */
-internal object DeniedPermission : PermissionChecker {
+internal object DeniedPermission : RuntimePermissions {
     override val canReadExternalStorage: Boolean get() = false
     override val canWriteToExternalStorage: Boolean get() = false
 }
@@ -29,16 +29,16 @@ internal object DeniedPermission : PermissionChecker {
 /**
  * All permissions are granted.
  */
-internal object GrantedPermission : PermissionChecker {
+internal object GrantedPermission : RuntimePermissions {
     override val canReadExternalStorage: Boolean get() = true
     override val canWriteToExternalStorage: Boolean get() = true
 }
 
 /**
- * A test [PermissionChecker] whose permissions can be granted or revoked manually.
+ * A test [RuntimePermissions] whose permissions can be granted or revoked manually.
  * By default all permissions are granted.
  */
-internal class RevocablePermission @Inject constructor() : PermissionChecker {
+internal class RevocablePermission @Inject constructor() : RuntimePermissions {
     override var canReadExternalStorage: Boolean = true
     override var canWriteToExternalStorage: Boolean = true
 }

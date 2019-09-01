@@ -35,7 +35,7 @@ import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
-import fr.nihilus.music.media.permissions.PermissionChecker
+import fr.nihilus.music.media.permissions.RuntimePermissions
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
@@ -49,7 +49,7 @@ private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
 class HomeActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
-    @Inject lateinit var permissions: PermissionChecker
+    @Inject lateinit var permissions: RuntimePermissions
 
     private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
 

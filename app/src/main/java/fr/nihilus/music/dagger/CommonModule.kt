@@ -23,8 +23,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.media.permissions.PermissionChecker
-import fr.nihilus.music.media.permissions.SystemPermissionChecker
+import fr.nihilus.music.media.permissions.RuntimePermissions
+import fr.nihilus.music.media.permissions.SystemRuntimePermissions
 import javax.inject.Singleton
 
 /**
@@ -49,5 +49,5 @@ object CommonModule {
 
 @Module
 abstract class CommonBindingsModule {
-    @Binds abstract fun bindsPermissionChecker(impl: SystemPermissionChecker): PermissionChecker
+    @Binds abstract fun bindsPermissionChecker(impl: SystemRuntimePermissions): RuntimePermissions
 }
