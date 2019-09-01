@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
+import fr.nihilus.music.media.di.ServiceScoped
 
 /**
  * Provides a shared connection to an in-memory SQLite database.
@@ -30,7 +30,7 @@ import dagger.Reusable
 internal object InMemoryDatabaseModule {
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides @ServiceScoped
     fun providesInMemoryDatabase(context: Context): AppDatabase =
         Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()

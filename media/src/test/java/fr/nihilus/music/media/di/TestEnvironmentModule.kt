@@ -18,16 +18,25 @@ package fr.nihilus.music.media.di
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestCoroutineScope
 
 /**
  * Provides dependencies required by the test environment such as the test [Context].
  */
-@Module
-internal object TestEnvironmentModule {
+@Module(includes = [TestExecutionContextModule::class])
+internal abstract class TestEnvironmentModule {
 
-    @JvmStatic
-    @Provides
-    fun providesTestContext(): Context = ApplicationProvider.getApplicationContext()
+    @Binds
+    abstract fun bindsTestCoroutineScope(testScope: TestCoroutineScope): CoroutineScope
+
+    @Module
+    companion object {
+        @JvmStatic
+        @Provides
+        fun providesTestContext(): Context = ApplicationProvider.getApplicationContext()
+    }
 }

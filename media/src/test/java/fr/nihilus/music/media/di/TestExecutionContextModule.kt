@@ -23,6 +23,7 @@ import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.RxSchedulers
 import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 
 /**
  * Provides an execution context for testing code using RxJava and Kotlin Coroutines.
@@ -49,4 +50,9 @@ internal object TestExecutionContextModule {
     @JvmStatic
     @Provides @Reusable
     fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)
+
+    @JvmStatic
+    @Provides @Reusable
+    fun providesTestCoroutineScope(dispatcher: TestCoroutineDispatcher) =
+        TestCoroutineScope(dispatcher)
 }

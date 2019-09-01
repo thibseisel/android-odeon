@@ -16,8 +16,11 @@
 
 package fr.nihilus.music.media
 
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import androidx.test.ext.truth.os.BundleSubject
 import com.google.common.truth.Correspondence
+import com.google.common.truth.Truth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -45,3 +48,8 @@ internal val THEIR_MEDIA_ID = Correspondence.transforming<MediaBrowserCompat.Med
     { it?.mediaId },
     "has a media id of"
 )
+
+inline fun assertOn(extras: Bundle?, assertions: BundleSubject.() -> Unit) {
+    Truth.assertThat(extras).named("extras").isNotNull()
+    BundleSubject.assertThat(extras).run(assertions)
+}
