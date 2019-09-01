@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.database
+package fr.nihilus.music.media.di
 
 import android.content.Context
-import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 
 /**
- * Provides a shared connection to an in-memory SQLite database.
- * This database instance allows performing queries on the Main Thread.
+ * Provides dependencies required by the test environment such as the test [Context].
  */
-@Module(includes = [DatabaseModule::class])
-internal object InMemoryDatabaseModule {
+@Module
+internal object TestEnvironmentModule {
 
     @JvmStatic
-    @Provides @Reusable
-    fun providesInMemoryDatabase(context: Context): AppDatabase =
-        Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
+    @Provides
+    fun providesTestContext(): Context = ApplicationProvider.getApplicationContext()
 }

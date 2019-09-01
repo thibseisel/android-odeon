@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.permissions
 
+import javax.inject.Inject
+
 /**
  * All permissions are denied.
  */
@@ -30,4 +32,13 @@ internal object DeniedPermission : PermissionChecker {
 internal object GrantedPermission : PermissionChecker {
     override val canReadExternalStorage: Boolean get() = true
     override val canWriteToExternalStorage: Boolean get() = true
+}
+
+/**
+ * A test [PermissionChecker] whose permissions can be granted or revoked manually.
+ * By default all permissions are granted.
+ */
+internal class RevocablePermission @Inject constructor() : PermissionChecker {
+    override var canReadExternalStorage: Boolean = true
+    override var canWriteToExternalStorage: Boolean = true
 }
