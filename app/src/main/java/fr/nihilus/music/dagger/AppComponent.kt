@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.dagger
 
+import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
@@ -44,5 +45,7 @@ interface AppComponent : AndroidInjector<OdeonApplication> {
      * order to provide it as a dependency to any other object.
      */
     @Component.Factory
-    interface Factory : AndroidInjector.Factory<OdeonApplication>
+    interface Factory : AndroidInjector.Factory<OdeonApplication> {
+        override fun create(@BindsInstance application: OdeonApplication): AppComponent
+    }
 }
