@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.media.usage
 
+import fr.nihilus.music.media.os.TestClock
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
-import fr.nihilus.music.media.utils.TestClock
 import io.kotlintest.inspectors.forNone
 import io.kotlintest.inspectors.forOne
 import io.kotlintest.matchers.collections.containExactly

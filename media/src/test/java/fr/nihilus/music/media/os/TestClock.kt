@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.utils
+package fr.nihilus.music.media.os
 
 /**
  * A [Clock] implementation used for testing.

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.utils
+package fr.nihilus.music.media.os
 
+import dagger.Reusable
 import javax.inject.Inject
 
 /**
@@ -33,6 +34,7 @@ internal interface Clock {
 /**
  * Implementation of the [Clock] service that delegates to the device's system clock.
  */
+@Reusable
 internal class DeviceClock
 @Inject constructor() : Clock {
     override val currentEpochTime: Long

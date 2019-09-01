@@ -20,8 +20,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
+import dagger.Reusable
 import fr.nihilus.music.media.BuildConfig
-import fr.nihilus.music.media.di.ServiceScoped
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -59,7 +59,7 @@ interface FileSystem {
  * Implementation of a real file system.
  * Operations are performed on real files stored on the device.
  */
-@ServiceScoped
+@Reusable
 class AndroidFileSystem
 @Inject constructor(
     private val context: Context,

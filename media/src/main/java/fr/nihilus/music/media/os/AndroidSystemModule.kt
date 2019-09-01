@@ -20,17 +20,22 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.media.provider.MediaStoreModule
 import java.io.File
 import javax.inject.Named
 
 /**
- * Provides a single interface to read and write to the Android local file system.
+ * Provides implementations of [ContentResolverDelegate], [FileSystem] and [Clock]
+ * that delegates to the Android system.
  */
-@Module
-internal abstract class LocalFileSystemModule {
+@Module(includes = [MediaStoreModule::class])
+internal abstract class AndroidSystemModule {
 
     @Binds
     abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
+
+    @Binds
+    abstract fun bindsDeviceClock(clock: DeviceClock): Clock
 
     @Module
     companion object {

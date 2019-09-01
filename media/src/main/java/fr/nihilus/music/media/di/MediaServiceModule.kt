@@ -20,8 +20,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.database.SQLiteDatabaseModule
-import fr.nihilus.music.media.os.LocalFileSystemModule
-import fr.nihilus.music.media.provider.MediaStoreModule
+import fr.nihilus.music.media.os.AndroidSystemModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
 import javax.inject.Scope
@@ -47,10 +46,9 @@ abstract class MediaServiceModule {
         ExecutionContextModule::class,
         ServiceBindingsModule::class,
         SQLiteDatabaseModule::class,
-        LocalFileSystemModule::class,
+        AndroidSystemModule::class,
         MediaSessionModule::class,
         MediaSourceModule::class,
-        MediaStoreModule::class,
         PlaybackModule::class,
         CustomActionModule::class
     ])

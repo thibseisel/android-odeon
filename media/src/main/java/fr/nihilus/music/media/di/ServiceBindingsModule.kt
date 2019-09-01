@@ -25,10 +25,6 @@ import fr.nihilus.music.media.SharedPreferencesMediaSettings
 import fr.nihilus.music.media.service.GlideDownloader
 import fr.nihilus.music.media.service.IconDownloader
 import fr.nihilus.music.media.service.MusicService
-import fr.nihilus.music.media.usage.MediaUsageManager
-import fr.nihilus.music.media.usage.UsageManagerImpl
-import fr.nihilus.music.media.utils.Clock
-import fr.nihilus.music.media.utils.DeviceClock
 import kotlinx.coroutines.CoroutineScope
 
 @Module
@@ -44,11 +40,5 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsCoroutineScope(service: MusicService): CoroutineScope
 
     @Binds
-    abstract fun bindsMediaUsageManager(manager: UsageManagerImpl): MediaUsageManager
-
-    @Binds
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
-
-    @Binds
-    abstract fun bindsSystemClock(clock: DeviceClock): Clock
 }

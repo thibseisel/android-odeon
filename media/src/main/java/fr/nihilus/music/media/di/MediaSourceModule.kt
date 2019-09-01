@@ -18,6 +18,7 @@ package fr.nihilus.music.media.di
 
 import dagger.Binds
 import dagger.Module
+import fr.nihilus.music.media.database.DatabaseModule
 import fr.nihilus.music.media.provider.MediaProvider
 import fr.nihilus.music.media.provider.MediaStoreProvider
 import fr.nihilus.music.media.provider.RxMediaDao
@@ -26,19 +27,20 @@ import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
 import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.tree.BrowserTreeImpl
+import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.UsageManagerImpl
 
 /**
  * Define relations in the object graph for the "media" group of features.
- * Those classes are bound to the service context and are instantiated once with the service.
- *
- * Binds annotated methods are used by Dagger to know which implementation
- * should be injected when asking for an abstract type.
  */
-@Module
+@Module(includes = [DatabaseModule::class])
 internal abstract class MediaSourceModule {
 
     @Binds
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
+
+    @Binds
+    abstract fun bindsUsageManager(impl: UsageManagerImpl): MediaUsageManager
 
     @Binds
     abstract fun bindsMediaRepository(impl: MediaRepositoryImpl): MediaRepository
