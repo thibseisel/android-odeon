@@ -27,7 +27,7 @@ internal val SAMPLE_TRACK_SCORE = listOf(
 
 internal class TestUsageDao(
     initialScores: List<TrackScore> = emptyList()
-) : MediaUsageDao {
+) : UsageDao {
 
     private val scorePerTrack = mutableMapOf<Long, Int>().apply {
         initialScores.forEach { (trackId, score) ->

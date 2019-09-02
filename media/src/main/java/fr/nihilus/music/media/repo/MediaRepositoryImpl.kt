@@ -25,7 +25,7 @@ import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.usage.UsageDao
 import fr.nihilus.music.media.utils.diffList
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
@@ -44,7 +44,7 @@ internal class MediaRepositoryImpl
     private val scope: CoroutineScope,
     private val mediaDao: MediaDao,
     private val playlistsDao: PlaylistDao,
-    private val usageDao: MediaUsageDao,
+    private val usageDao: UsageDao,
     private val dispatchers: AppDispatchers
 ) : MediaRepository {
 

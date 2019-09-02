@@ -19,7 +19,7 @@ package fr.nihilus.music.media.database
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.usage.MediaUsageDao
+import fr.nihilus.music.media.usage.UsageDao
 
 /**
  * Provides implementations of [Dao][androidx.room.Dao]-annotated classes.
@@ -34,5 +34,5 @@ internal object DatabaseModule {
 
     @JvmStatic
     @Provides
-    fun provideMediaUsageDao(db: AppDatabase): MediaUsageDao = db.usageDao
+    fun provideMediaUsageDao(db: AppDatabase): UsageDao = db.usageDao
 }

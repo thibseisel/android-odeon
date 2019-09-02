@@ -22,7 +22,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-internal interface MediaUsageDao {
+internal interface UsageDao {
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun recordEvent(usageEvent: MediaUsageEvent)

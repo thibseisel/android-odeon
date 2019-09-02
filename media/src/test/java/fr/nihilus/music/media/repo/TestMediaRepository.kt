@@ -22,7 +22,7 @@ import fr.nihilus.music.media.playlists.SAMPLE_TRACKS_FOR_PLAYLIST
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
 import fr.nihilus.music.media.usage.DisposableTrack
-import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.UsageManager
 import io.reactivex.Flowable
 
 internal class TestMediaRepository(
@@ -31,7 +31,7 @@ internal class TestMediaRepository(
     private val artists: List<Artist> = SAMPLE_ARTISTS,
     private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
     private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_TRACKS_FOR_PLAYLIST,
-    @Deprecated("Most rated tracks are now available via MediaUsageManager")
+    @Deprecated("Most rated tracks are now available via UsageManager")
     private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
 ) : MediaRepository {
@@ -45,13 +45,13 @@ internal class TestMediaRepository(
 internal class TestUsageManager(
     private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     private val disposableTracks: List<DisposableTrack> = emptyList()
-) : MediaUsageManager {
+) : UsageManager {
     override suspend fun getMostRatedTracks(): List<Track> = mostRatedTracks
     override suspend fun getDisposableTracks(): List<DisposableTrack> = disposableTracks
     override fun reportCompletion(trackId: Long) = stub()
 }
 
-internal object StubUsageManager : MediaUsageManager {
+internal object StubUsageManager : UsageManager {
     override suspend fun getMostRatedTracks(): List<Track> = stub()
     override suspend fun getDisposableTracks(): List<DisposableTrack> = stub()
     override fun reportCompletion(trackId: Long) = stub()

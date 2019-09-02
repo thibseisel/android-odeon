@@ -25,8 +25,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
-import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.usage.MediaUsageEvent
+import fr.nihilus.music.media.usage.UsageDao
 
 /**
  * Definition of this application's local database.
@@ -44,7 +44,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val playlistDao: PlaylistDao
 
-    internal abstract val usageDao: MediaUsageDao
+    internal abstract val usageDao: UsageDao
 
     internal companion object {
         /** The name of the generated SQLite Database. */

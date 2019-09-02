@@ -45,7 +45,7 @@ class UsageManagerTest {
 
     @Test
     fun `When reporting playback completion of a track, then record a new event at current time`() = runBlockingTest {
-        val usageDao = mockk<MediaUsageDao>(relaxUnitFun = true)
+        val usageDao = mockk<UsageDao>(relaxUnitFun = true)
         val manager = UsageManager(mockk(), usageDao)
 
         manager.reportCompletion(42L)
@@ -115,7 +115,7 @@ class UsageManagerTest {
             coEvery { getAllTracks() } returns listOf(DIRTY_WATER, GIVE_IT_UP, CYDONIA, NIGHTMARE)
         }
 
-        val dao = mockk<MediaUsageDao> {
+        val dao = mockk<UsageDao> {
             coEvery { getTracksUsage() } returns listOf(
                 TrackUsage(75L, 82, 0),
                 TrackUsage(294L, 43, 0)
@@ -132,7 +132,7 @@ class UsageManagerTest {
     @Test
     fun `When loading disposable tracks, then list larger files first`() = runBlockingTest {
         val repository = givenRepositoryWithTracks(CARTAGENA, DIRTY_WATER, CYDONIA, GIVE_IT_UP, NIGHTMARE)
-        val dao = mockk<MediaUsageDao> {
+        val dao = mockk<UsageDao> {
             coEvery { getTracksUsage() } returns emptyList()
         }
 
@@ -142,14 +142,14 @@ class UsageManagerTest {
         disposableTracks.shouldBeSortedWith(compareByDescending { it.fileSizeBytes })
     }
 
-    private fun CoroutineScope.UsageManager(repository: MediaRepository, usageDao: MediaUsageDao): MediaUsageManager =
+    private fun CoroutineScope.UsageManager(repository: MediaRepository, usageDao: UsageDao): UsageManager =
         UsageManagerImpl(this, repository, usageDao, clock)
 
     private fun givenRepositoryWithTracks(vararg tracks: Track): MediaRepository = mockk("MediaRepository") {
         coEvery { getAllTracks() } returns tracks.toList()
     }
 
-    private fun givenDaoHavingScores(vararg scores: TrackScore): MediaUsageDao = mockk("UsageDao") {
+    private fun givenDaoHavingScores(vararg scores: TrackScore): UsageDao = mockk("UsageDao") {
         val slot = slot<Int>()
         coEvery {
             getMostRatedTracks(capture(slot))

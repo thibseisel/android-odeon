@@ -40,7 +40,7 @@ import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.tree.BrowserTree
-import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -61,7 +61,7 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var dispatchers: AppDispatchers
     @Inject internal lateinit var browserTree: BrowserTree
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
-    @Inject internal lateinit var usageManager: MediaUsageManager
+    @Inject internal lateinit var usageManager: UsageManager
 
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector

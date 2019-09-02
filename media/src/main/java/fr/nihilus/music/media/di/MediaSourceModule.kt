@@ -27,7 +27,7 @@ import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
 import fr.nihilus.music.media.tree.BrowserTree
 import fr.nihilus.music.media.tree.BrowserTreeImpl
-import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
 
 /**
@@ -40,7 +40,7 @@ internal abstract class MediaSourceModule {
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
-    abstract fun bindsUsageManager(impl: UsageManagerImpl): MediaUsageManager
+    abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
 
     @Binds
     abstract fun bindsMediaRepository(impl: MediaRepositoryImpl): MediaRepository

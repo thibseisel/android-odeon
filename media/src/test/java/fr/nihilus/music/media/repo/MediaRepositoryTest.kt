@@ -23,10 +23,10 @@ import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
-import fr.nihilus.music.media.usage.MediaUsageDao
 import fr.nihilus.music.media.usage.MediaUsageEvent
 import fr.nihilus.music.media.usage.TrackScore
 import fr.nihilus.music.media.usage.TrackUsage
+import fr.nihilus.music.media.usage.UsageDao
 import fr.nihilus.music.media.usingScope
 import io.kotlintest.matchers.collections.shouldContainExactly
 import io.reactivex.Completable
@@ -78,7 +78,7 @@ class MediaRepositoryTest {
         scope: CoroutineScope,
         mediaDao: MediaDao = DummyMediaDao,
         playlistDao: PlaylistDao = DummyPlaylistDao,
-        usageDao: MediaUsageDao = DummyUsageDao
+        usageDao: UsageDao = DummyUsageDao
     ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao, dispatchers)
 
     @Test
@@ -464,7 +464,7 @@ class MediaRepositoryTest {
         override fun deleteTracks(trackIds: LongArray): Completable = Completable.complete()
     }
 
-    private object DummyUsageDao : MediaUsageDao {
+    private object DummyUsageDao : UsageDao {
         override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
         override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
         override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()

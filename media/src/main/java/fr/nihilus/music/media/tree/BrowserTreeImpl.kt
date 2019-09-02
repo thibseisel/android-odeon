@@ -44,7 +44,7 @@ import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.mediaId
 import fr.nihilus.music.media.service.SearchQuery
-import fr.nihilus.music.media.usage.MediaUsageManager
+import fr.nihilus.music.media.usage.UsageManager
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -90,7 +90,7 @@ internal class BrowserTreeImpl
 @Inject constructor(
     private val context: Context,
     private val repository: MediaRepository,
-    private val usageManager: MediaUsageManager
+    private val usageManager: UsageManager
 ) : BrowserTree {
 
     /**

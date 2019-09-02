@@ -29,7 +29,7 @@ import javax.inject.Inject
 /**
  * Manages reading and writing media usage statistics.
  */
-internal interface MediaUsageManager {
+internal interface UsageManager {
 
     /**
      * Retrieve the most rated tracks from the music library.
@@ -71,9 +71,9 @@ internal class UsageManagerImpl
 @Inject constructor(
     private val scope: CoroutineScope,
     private val repository: MediaRepository,
-    private val usageDao: MediaUsageDao,
+    private val usageDao: UsageDao,
     private val clock: Clock
-) : MediaUsageManager {
+) : UsageManager {
 
     override suspend fun getMostRatedTracks(): List<Track> {
         val tracksById = repository.getAllTracks().associateBy { it.id }
