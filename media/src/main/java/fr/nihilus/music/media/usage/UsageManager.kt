@@ -76,14 +76,14 @@ internal class UsageManagerImpl
 ) : UsageManager {
 
     override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = repository.getAllTracks().associateBy { it.id }
+        val tracksById = repository.getTracks().associateBy { it.id }
         val trackScores = usageDao.getMostRatedTracks(25)
 
         return trackScores.mapNotNull { tracksById[it.trackId] }
     }
 
     override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
-        val allTracks = async { repository.getAllTracks() }
+        val allTracks = async { repository.getTracks() }
         val usageByTrack = usageDao.getTracksUsage().groupBy { it.trackId }
 
         allTracks.await().asSequence()

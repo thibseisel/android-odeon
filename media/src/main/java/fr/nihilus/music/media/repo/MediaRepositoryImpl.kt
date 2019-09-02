@@ -55,7 +55,7 @@ internal class MediaRepositoryImpl
     @Volatile private var artistsCache = scope.artistSyncCache()
     @Volatile private var playlistsCache = scope.playlistSyncCache()
 
-    override suspend fun getAllTracks(): List<Track> {
+    override suspend fun getTracks(): List<Track> {
         if (tracksCache.isClosedForSend) {
             tracksCache = scope.trackSyncCache()
         }
@@ -63,7 +63,7 @@ internal class MediaRepositoryImpl
         return request(tracksCache)
     }
 
-    override suspend fun getAllAlbums(): List<Album> {
+    override suspend fun getAlbums(): List<Album> {
         if (albumsCache.isClosedForSend) {
             albumsCache = scope.albumSyncCache()
         }
@@ -71,7 +71,7 @@ internal class MediaRepositoryImpl
         return request(albumsCache)
     }
 
-    override suspend fun getAllArtists(): List<Artist> {
+    override suspend fun getArtists(): List<Artist> {
         if (artistsCache.isClosedForSend) {
             artistsCache = scope.artistSyncCache()
         }
@@ -79,7 +79,7 @@ internal class MediaRepositoryImpl
         return request(artistsCache)
     }
 
-    override suspend fun getAllPlaylists(): List<Playlist> {
+    override suspend fun getPlaylists(): List<Playlist> {
         if (playlistsCache.isClosedForSend) {
             playlistsCache = scope.playlistSyncCache()
         }
@@ -88,7 +88,7 @@ internal class MediaRepositoryImpl
     }
 
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? {
-        val allTracks = getAllTracks()
+        val allTracks = getTracks()
         val playlistMembers = playlistsDao.getPlaylistTracks(playlistId)
 
         val tracksById = allTracks.associateBy(Track::id)

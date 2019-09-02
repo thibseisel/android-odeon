@@ -81,7 +81,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, mediaDao = sampleTracks)
-            val tracks = repository.getAllTracks()
+            val tracks = repository.getTracks()
 
             tracks shouldContainExactly SAMPLE_TRACKS
         }
@@ -96,16 +96,16 @@ class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, mediaDao = trackDao)
 
-            val initialLoad = repository.getAllTracks()
+            val initialLoad = repository.getTracks()
             initialLoad shouldBe initialTracks
-            val secondLoad = repository.getAllTracks()
+            val secondLoad = repository.getTracks()
             secondLoad shouldBe initialTracks
 
             trackDao.update(updatedTracks)
 
-            val loadAfterAfter = repository.getAllTracks()
+            val loadAfterAfter = repository.getTracks()
             loadAfterAfter shouldBe updatedTracks
-            val secondLoadAfterUpdate = repository.getAllTracks()
+            val secondLoadAfterUpdate = repository.getTracks()
             secondLoadAfterUpdate shouldBe updatedTracks
         }
     }
@@ -119,7 +119,7 @@ class MediaRepositoryTest {
             runInScope {
                 val repository = MediaRepository(this, mediaDao = failingTrackDao)
                 val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getAllTracks()
+                    repository.getTracks()
                 }
 
                 permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
@@ -134,11 +134,11 @@ class MediaRepositoryTest {
 
             runInScope {
                 val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getAllTracks() }
+                runCatching { repository.getTracks() }
 
                 grantingPermissionDao.hasPermissions = true
                 shouldNotThrowAny {
-                    repository.getAllTracks()
+                    repository.getTracks()
                 }
             }
         }
@@ -149,7 +149,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, mediaDao = albumDao)
-            val albums = repository.getAllAlbums()
+            val albums = repository.getAlbums()
 
             albums shouldContainExactly SAMPLE_ALBUMS
         }
@@ -164,16 +164,16 @@ class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, mediaDao = albumDao)
 
-            val initialLoad = repository.getAllAlbums()
+            val initialLoad = repository.getAlbums()
             initialLoad shouldBe initialAlbums
-            val secondLoad = repository.getAllAlbums()
+            val secondLoad = repository.getAlbums()
             secondLoad shouldBe initialAlbums
 
             albumDao.update(updatedAlbums)
 
-            val loadAfterAfter = repository.getAllAlbums()
+            val loadAfterAfter = repository.getAlbums()
             loadAfterAfter shouldBe updatedAlbums
-            val secondLoadAfterUpdate = repository.getAllAlbums()
+            val secondLoadAfterUpdate = repository.getAlbums()
             secondLoadAfterUpdate shouldBe updatedAlbums
         }
     }
@@ -187,7 +187,7 @@ class MediaRepositoryTest {
             runInScope {
                 val repository = MediaRepository(this, mediaDao = failingAlbumDao)
                 val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getAllAlbums()
+                    repository.getAlbums()
                 }
 
                 permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
@@ -202,11 +202,11 @@ class MediaRepositoryTest {
 
             runInScope {
                 val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getAllAlbums() }
+                runCatching { repository.getAlbums() }
 
                 grantingPermissionDao.hasPermissions = true
                 shouldNotThrowAny {
-                    repository.getAllAlbums()
+                    repository.getAlbums()
                 }
             }
         }
@@ -217,7 +217,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, mediaDao = artistDao)
-            val artists = repository.getAllAlbums()
+            val artists = repository.getAlbums()
 
             artists shouldContainExactly SAMPLE_ARTISTS
         }
@@ -232,16 +232,16 @@ class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, mediaDao = artistDao)
 
-            val initialLoad = repository.getAllArtists()
+            val initialLoad = repository.getArtists()
             initialLoad shouldBe initialArtists
-            val secondLoad = repository.getAllArtists()
+            val secondLoad = repository.getArtists()
             secondLoad shouldBe initialArtists
 
             artistDao.update(updatedArtists)
 
-            val loadAfterAfter = repository.getAllArtists()
+            val loadAfterAfter = repository.getArtists()
             loadAfterAfter shouldBe updatedArtists
-            val secondLoadAfterUpdate = repository.getAllArtists()
+            val secondLoadAfterUpdate = repository.getArtists()
             secondLoadAfterUpdate shouldBe updatedArtists
         }
     }
@@ -255,7 +255,7 @@ class MediaRepositoryTest {
             runInScope {
                 val repository = MediaRepository(this, mediaDao = failingArtistDao)
                 val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getAllArtists()
+                    repository.getArtists()
                 }
 
                 permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
@@ -270,11 +270,11 @@ class MediaRepositoryTest {
 
             runInScope {
                 val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getAllArtists() }
+                runCatching { repository.getArtists() }
 
                 grantingPermissionDao.hasPermissions = true
                 shouldNotThrowAny {
-                    repository.getAllArtists()
+                    repository.getArtists()
                 }
             }
         }
@@ -285,7 +285,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, playlistDao = dao)
-            val playlists = repository.getAllPlaylists()
+            val playlists = repository.getPlaylists()
 
             playlists shouldContainExactly SAMPLE_PLAYLISTS
         }
@@ -300,16 +300,16 @@ class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, playlistDao = dao)
 
-            val initialLoad = repository.getAllPlaylists()
+            val initialLoad = repository.getPlaylists()
             initialLoad shouldBe original
-            val secondLoad = repository.getAllPlaylists()
+            val secondLoad = repository.getPlaylists()
             secondLoad shouldBe original
 
             dao.update(updated)
 
-            val loadAfterUpdated = repository.getAllPlaylists()
+            val loadAfterUpdated = repository.getPlaylists()
             loadAfterUpdated shouldBe updated
-            val secondLoadAfterUpdated = repository.getAllPlaylists()
+            val secondLoadAfterUpdated = repository.getPlaylists()
             secondLoadAfterUpdated shouldBe updated
         }
     }
@@ -367,7 +367,7 @@ class MediaRepositoryTest {
                 val repository = MediaRepository(this, mediaDao)
                 val subscriber = repository.changeNotifications.test()
 
-                repository.getAllTracks()
+                repository.getTracks()
                 subscriber.assertNoValues()
             }
         }
@@ -383,7 +383,7 @@ class MediaRepositoryTest {
         runInScope {
             // and a repository that started caching tracks...
             val repository = MediaRepository(this, mediaDao)
-            repository.getAllTracks()
+            repository.getTracks()
 
             // and we are listening to media change notifications...
             val subscriber = repository.changeNotifications.test()
@@ -408,7 +408,7 @@ class MediaRepositoryTest {
             runInScope {
                 // and a repository that started caching tracks...
                 val repository = MediaRepository(this, mediaDao)
-                repository.getAllTracks()
+                repository.getTracks()
 
                 // and we are listening to media change notifications...
                 val subscriber = repository.changeNotifications.test()
@@ -436,7 +436,7 @@ class MediaRepositoryTest {
             runInScope {
                 // and a repository that started caching tracks...
                 val repository = MediaRepository(this, mediaDao)
-                repository.getAllTracks()
+                repository.getTracks()
 
                 // and we are listening to media change notifications...
                 val subscriber = repository.changeNotifications.test()
@@ -463,7 +463,7 @@ class MediaRepositoryTest {
         runInScope {
             // and a repository that started caching albums...
             val repository = MediaRepository(this, mediaDao)
-            repository.getAllAlbums()
+            repository.getAlbums()
 
             // and we are listening to media change notifications...
             val subscriber = repository.changeNotifications.test()
@@ -488,7 +488,7 @@ class MediaRepositoryTest {
             runInScope {
                 // and a repository that started caching albums...
                 val repository = MediaRepository(this, mediaDao)
-                repository.getAllAlbums()
+                repository.getAlbums()
 
                 // and we are listening to media change notifications...
                 val subscriber = repository.changeNotifications.test()
@@ -512,7 +512,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, playlistDao = playlistDao)
-            repository.getAllPlaylists()
+            repository.getPlaylists()
             val subscriber = repository.changeNotifications.test()
 
             playlistDao.update(updated)
@@ -529,7 +529,7 @@ class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, mediaDao)
-            repository.getAllArtists()
+            repository.getArtists()
             val subscriber = repository.changeNotifications.test()
 
             mediaDao.update(updated)

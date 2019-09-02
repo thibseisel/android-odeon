@@ -35,10 +35,10 @@ internal class TestMediaRepository(
     private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
 ) : MediaRepository {
-    override suspend fun getAllTracks(): List<Track> = tracks
-    override suspend fun getAllAlbums(): List<Album> = albums
-    override suspend fun getAllArtists(): List<Artist> = artists
-    override suspend fun getAllPlaylists(): List<Playlist> = playlists
+    override suspend fun getTracks(): List<Track> = tracks
+    override suspend fun getAlbums(): List<Album> = albums
+    override suspend fun getArtists(): List<Artist> = artists
+    override suspend fun getPlaylists(): List<Playlist> = playlists
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
 }
 
@@ -59,10 +59,10 @@ internal object StubUsageManager : UsageManager {
 
 internal class StubMediaRepository : MediaRepository {
     override val changeNotifications: Flowable<ChangeNotification> get() = stub()
-    override suspend fun getAllTracks(): List<Track> = stub()
-    override suspend fun getAllAlbums(): List<Album> = stub()
-    override suspend fun getAllArtists(): List<Artist> = stub()
-    override suspend fun getAllPlaylists(): List<Playlist> =
+    override suspend fun getTracks(): List<Track> = stub()
+    override suspend fun getAlbums(): List<Album> = stub()
+    override suspend fun getArtists(): List<Artist> = stub()
+    override suspend fun getPlaylists(): List<Playlist> =
         stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? =
         stub()

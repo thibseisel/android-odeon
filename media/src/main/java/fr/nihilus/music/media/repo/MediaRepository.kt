@@ -25,10 +25,10 @@ import io.reactivex.Flowable
 
 internal interface MediaRepository {
     val changeNotifications: Flowable<ChangeNotification>
-    suspend fun getAllTracks(): List<Track>
-    suspend fun getAllAlbums(): List<Album>
-    suspend fun getAllArtists(): List<Artist>
-    suspend fun getAllPlaylists(): List<Playlist>
+    suspend fun getTracks(): List<Track>
+    suspend fun getAlbums(): List<Album>
+    suspend fun getArtists(): List<Artist>
+    suspend fun getPlaylists(): List<Playlist>
     suspend fun getPlaylistTracks(playlistId: Long): List<Track>?
 }
 

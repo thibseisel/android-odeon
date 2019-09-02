@@ -112,7 +112,7 @@ class UsageManagerTest {
     @Test
     fun `When loading disposable tracks, then list tracks with no events`() = runBlockingTest {
         val repository = mockk<MediaRepository> {
-            coEvery { getAllTracks() } returns listOf(DIRTY_WATER, GIVE_IT_UP, CYDONIA, NIGHTMARE)
+            coEvery { getTracks() } returns listOf(DIRTY_WATER, GIVE_IT_UP, CYDONIA, NIGHTMARE)
         }
 
         val dao = mockk<UsageDao> {
@@ -146,7 +146,7 @@ class UsageManagerTest {
         UsageManagerImpl(this, repository, usageDao, clock)
 
     private fun givenRepositoryWithTracks(vararg tracks: Track): MediaRepository = mockk("MediaRepository") {
-        coEvery { getAllTracks() } returns tracks.toList()
+        coEvery { getTracks() } returns tracks.toList()
     }
 
     private fun givenDaoHavingScores(vararg scores: TrackScore): UsageDao = mockk("UsageDao") {

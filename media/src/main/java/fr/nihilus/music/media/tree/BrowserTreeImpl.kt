@@ -250,21 +250,21 @@ internal class BrowserTreeImpl
 
             is SearchQuery.Artist -> {
                 query.name?.toLowerCase()?.let { artistName ->
-                    val artists = repository.getAllArtists()
+                    val artists = repository.getArtists()
                     singleTypeSearch(artistName, artists, Artist::name, artistItemFactory)
                 }
             }
 
             is SearchQuery.Album -> {
                 query.title?.toLowerCase()?.let { albumTitle ->
-                    val albums = repository.getAllAlbums()
+                    val albums = repository.getAlbums()
                     singleTypeSearch(albumTitle, albums, Album::title, albumItemFactory)
                 }
             }
 
             is SearchQuery.Song -> {
                 query.title?.toLowerCase()?.let { trackTitle ->
-                    val tracks = repository.getAllTracks()
+                    val tracks = repository.getTracks()
                     singleTypeSearch(trackTitle, tracks, Track::title) { builder ->
                         trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL, builder)
                     }
@@ -273,9 +273,9 @@ internal class BrowserTreeImpl
 
             is SearchQuery.Unspecified -> coroutineScope {
                 val userQuery = query.userQuery
-                val artists = async { repository.getAllArtists() }
-                val albums = async { repository.getAllAlbums() }
-                val tracks = async { repository.getAllTracks() }
+                val artists = async { repository.getArtists() }
+                val albums = async { repository.getAlbums() }
+                val tracks = async { repository.getTracks() }
 
                 val searchResults = mutableListOf<ItemScore>()
                 fuzzySearchTo(
@@ -428,7 +428,7 @@ internal class BrowserTreeImpl
     private suspend fun provideAllTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllTracks().asSequence()
+        return repository.getTracks().asSequence()
             .drop(fromIndex)
             .take(count)
             .mapTo(mutableListOf()) { track ->
@@ -450,7 +450,7 @@ internal class BrowserTreeImpl
     private suspend fun provideRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllTracks().asSequence()
+        return repository.getTracks().asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
             .drop(fromIndex)
@@ -485,7 +485,7 @@ internal class BrowserTreeImpl
     private suspend fun provideAllAlbums(): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllAlbums().map { album ->
+        return repository.getAlbums().map { album ->
             albumItemFactory(album, builder)
         }
     }
@@ -498,7 +498,7 @@ internal class BrowserTreeImpl
         return albumCategory.toLongOrNull()?.let { albumId ->
             val builder = MediaDescriptionCompat.Builder()
 
-            repository.getAllTracks().asSequence()
+            repository.getTracks().asSequence()
                 .filter { it.albumId == albumId }
                 .sortedWith(ALBUM_TRACK_ORDERING)
                 .drop(fromIndex)
@@ -513,7 +513,7 @@ internal class BrowserTreeImpl
     private suspend fun provideAllArtists(): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAllArtists().map { artist ->
+        return repository.getArtists().map { artist ->
             artistItemFactory(artist, builder)
         }
     }
@@ -527,8 +527,8 @@ internal class BrowserTreeImpl
             coroutineScope {
                 val builder = MediaDescriptionCompat.Builder()
 
-                val asyncAllAlbums = async { repository.getAllAlbums() }
-                val asyncAllTracks = async { repository.getAllTracks() }
+                val asyncAllAlbums = async { repository.getAlbums() }
+                val asyncAllTracks = async { repository.getTracks() }
 
                 val artistAlbums = asyncAllAlbums.await().asSequence()
                     .filter { it.artistId == artistId }
@@ -554,7 +554,7 @@ internal class BrowserTreeImpl
 
     private suspend fun provideAllPlaylists(): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
-        val allPlaylists = repository.getAllPlaylists()
+        val allPlaylists = repository.getPlaylists()
 
         return allPlaylists.map { playlist ->
             playlistItemFactory(playlist, builder)
