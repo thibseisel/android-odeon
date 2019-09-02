@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.repo
 
+import android.Manifest
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.AppDispatchers
 import fr.nihilus.music.media.assertThrows
@@ -29,6 +30,9 @@ import fr.nihilus.music.media.usage.TrackUsage
 import fr.nihilus.music.media.usage.UsageDao
 import fr.nihilus.music.media.usingScope
 import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotThrow
+import io.kotlintest.shouldThrow
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
@@ -94,21 +98,61 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun whenLoadingAllTracks_thenReturnTracksFromDao() {
-        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-        assertInitialLoadFromDao(mediaDao, SAMPLE_TRACKS, MediaRepository::getAllTracks)
-    }
-
-    @Test
-    fun whenLoadingAllTracks_thenReturnLatestTrackList() {
+    fun `When querying all tracks, then always return the latest track list`() = test {
         val initialTracks = listOf(SAMPLE_TRACKS[0])
         val updatedTracks = listOf(SAMPLE_TRACKS[1])
-        val mediaDao = TestTrackDao(initialTracks)
+        val trackDao = TestTrackDao(initialTracks)
 
-        assertAlwaysLoadLatestMediaList(mediaDao, initialTracks, updatedTracks, MediaRepository::getAllTracks)
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = trackDao)
+
+            val initialLoad = repository.getAllTracks()
+            initialLoad shouldBe initialTracks
+            val secondLoad = repository.getAllTracks()
+            secondLoad shouldBe initialTracks
+
+            trackDao.update(updatedTracks)
+
+            val loadAfterAfter = repository.getAllTracks()
+            loadAfterAfter shouldBe updatedTracks
+            val secondLoadAfterUpdate = repository.getAllTracks()
+            secondLoadAfterUpdate shouldBe updatedTracks
+        }
     }
 
     @Test
+    fun `Given denied permission, when requesting all tracks then throw PermissionDeniedException`() = test {
+        val failingTrackDao = TestTrackDao()
+        failingTrackDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
+
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = failingTrackDao)
+            val permissionException = shouldThrow<PermissionDeniedException> {
+                repository.getAllTracks()
+            }
+
+            permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+    }
+
+    @Test
+    fun `Given denied permission, when requesting all tracks after being granted then return the latest track list`() = test {
+        val grantingPermissionDao = PermissionMediaDao()
+        grantingPermissionDao.hasPermissions = false
+
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
+            runCatching { repository.getAllTracks() }
+
+            grantingPermissionDao.hasPermissions = true
+            shouldNotThrow<PermissionDeniedException> {
+                repository.getAllTracks()
+            }
+        }
+    }
+
+    @Test
+    @Deprecated("This is no longer a requirement. All streams are expected to be infinite.")
     fun givenFiniteTrackStream_whenLoadingAllTracks_thenStillReturnTheLatestTrackList() {
         val initialTracks = listOf(SAMPLE_TRACKS[0])
         val mediaDao = TestTrackDao(initialTracks)
