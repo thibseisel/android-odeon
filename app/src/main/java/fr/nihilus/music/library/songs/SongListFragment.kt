@@ -131,17 +131,19 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
         }
     }
 
-    private fun showDeleteDialog() {
+    private fun showDeleteConfirmationDialog() {
         val checkedItemCount = songs_listview.checkedItemCount
-        val dialogMessage = resources.getQuantityString(
-            R.plurals.delete_dialog_message,
-            checkedItemCount, checkedItemCount
-        )
 
         val confirm = ConfirmDialogFragment.newInstance(
-            this, R.id.request_delete_tracks,
-            getString(R.string.delete_dialog_title), dialogMessage,
-            R.string.action_delete, R.string.cancel, 0
+            this,
+            R.id.request_delete_tracks,
+            title = getString(R.string.delete_dialog_title),
+            message = resources.getQuantityString(
+                R.plurals.delete_dialog_message,
+                checkedItemCount, checkedItemCount
+            ),
+            positiveButton = R.string.action_delete,
+            negativeButton = R.string.cancel
         )
         confirm.show(requireFragmentManager(), null)
     }
@@ -186,7 +188,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem) = when (item.itemId) {
             R.id.action_delete -> {
-                showDeleteDialog()
+                showDeleteConfirmationDialog()
                 true
             }
             R.id.action_playlist -> {

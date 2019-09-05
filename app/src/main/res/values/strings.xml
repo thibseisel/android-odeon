@@ -42,8 +42,8 @@
     <string name="cancel">Cancel</string>
     <string name="empty_playlist">No playlist</string>
     <plurals name="delete_dialog_message">
-        <item quantity="one">This song will disappear from your device.</item>
-        <item quantity="other">These %d songs will disappear from your device.</item>
+        <item quantity="one">This song will be deleted from your device.</item>
+        <item quantity="other">These %d songs will be deleted from your device.</item>
     </plurals>
     <plurals name="deleted_songs_confirmation">
         <item quantity="one">The track has been deleted.</item>
