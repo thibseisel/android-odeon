@@ -45,7 +45,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
             "Instances of ConfirmDialogFragment should be created using the newInstance method."
         }
 
-        val builder = AlertDialog.Builder(context!!).setTitle(args.getString(ARG_TITLE))
+        val builder = AlertDialog.Builder(requireContext()).setTitle(args.getString(ARG_TITLE))
 
         val message = args.getString(ARG_MESSAGE)
         builder.setMessage(message)
@@ -78,11 +78,11 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
     }
 
     companion object Factory {
-        private const val ARG_TITLE = "dialog_title"
-        private const val ARG_MESSAGE = "dialog_message"
-        private const val ARG_POSITIVE = "dialog_positive_button"
-        private const val ARG_NEGATIVE = "dialog_negative_button"
-        private const val ARG_NEUTRAL = "dialog_neutral_button"
+        private const val ARG_TITLE = "fr.nihilus.music.ui.DIALOG_TITLE"
+        private const val ARG_MESSAGE = "fr.nihilus.music.ui.DIALOG_MESSAGE"
+        private const val ARG_POSITIVE = "fr.nihilus.music.ui.DIALOG_POSITIVE_BUTTON"
+        private const val ARG_NEGATIVE = "fr.nihilus.music.ui.DIALOG_NEGATIVE_BUTTON"
+        private const val ARG_NEUTRAL = "fr.nihilus.music.ui.DIALOG_NEUTRAL_BUTTON"
 
         /**
          * Create a new instance of this DialogFragment.
@@ -100,7 +100,7 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
          * @param neutralButton an optional resource id of the text
          * to display in the neutral button. If 0, no neutral button will be shown.
          */
-        @JvmStatic fun newInstance(
+        fun newInstance(
             caller: Fragment?,
             requestCode: Int,
             title: String? = null,
