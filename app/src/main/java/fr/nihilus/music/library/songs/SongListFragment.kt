@@ -20,7 +20,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.view.*
+import android.view.ActionMode
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
 import android.widget.ListView
@@ -140,7 +143,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
             getString(R.string.delete_dialog_title), dialogMessage,
             R.string.action_delete, R.string.cancel, 0
         )
-        confirm.show(childFragmentManager, null)
+        confirm.show(requireFragmentManager(), null)
     }
 
     private fun deleteSelectedTracks() {
@@ -151,7 +154,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
     private fun openPlaylistChooserDialog() {
         val songsToAddToPlaylist = getSelectedTrack()
         val dialog = AddToPlaylistDialog.newInstance(this, songsToAddToPlaylist)
-        dialog.show(childFragmentManager, AddToPlaylistDialog.TAG)
+        dialog.show(requireFragmentManager(), AddToPlaylistDialog.TAG)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
