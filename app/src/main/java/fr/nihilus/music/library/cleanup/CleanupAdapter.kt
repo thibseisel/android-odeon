@@ -19,10 +19,9 @@ package fr.nihilus.music.library.cleanup
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.CompoundButton
 import android.widget.TextView
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.extensions.inflate
@@ -30,62 +29,62 @@ import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.MediaItemDiffer
 
 /**
- * Payload indicating that the selected state of an item has changed.
- * The item should be partially updated to refresh its selection state.
+ * Displays tracks that could be safely deleted from the device's storage in a list.
  */
-private const val SELECTED_STATE_CHANGED = 1
+class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
+    private val asyncDiffer = AsyncListDiffer(this, MediaItemDiffer)
 
-class CleanupAdapter : ListAdapter<Checkable<MediaItem>, CleanupAdapter.ViewHolder>(
-    CheckableDiffer(MediaItemDiffer)
-) {
-    private var items = emptyList<Checkable<MediaItem>>()
-
-    override fun submitList(list: List<Checkable<MediaItem>>?) {
-        items = list.orEmpty()
-        super.submitList(list)
-    }
+    val currentList: List<MediaItem>
+        get() = asyncDiffer.currentList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        onBindViewHolder(holder, position, emptyList())
+        val track = currentList[position]
+        holder.bind(track)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
-        val track = getItem(position)
+    override fun getItemCount(): Int = currentList.size
 
-        if (payloads.any { it == SELECTED_STATE_CHANGED }) {
-            // Only update the selection state.
-            holder.setSelected(track.isChecked)
-        } else {
-            // Rebind the whole item.
-            holder.bind(track, CompoundButton.OnCheckedChangeListener { _, isChecked ->
-                val selectedPosition = holder.adapterPosition
-                val selectedItem = getItem(selectedPosition)
-                selectedItem.isChecked = isChecked
-                notifyItemChanged(selectedPosition, isChecked)
-            })
-        }
+    /**
+     * Submits a new list to be diffed, and displayed.
+     *
+     * If a list is already being displayed, a diff will be computed on a background thread,
+     * which will dispatch Adapter.notifyItem events on the main thread.
+     *
+     * @param list The new list to be displayed.
+     */
+    fun submitList(list: List<MediaItem>) {
+        asyncDiffer.submitList(list)
     }
 
-    fun getSelectedItems(): List<MediaItem> = items.asSequence()
-        .filter { it.isChecked }
-        .map { it.item }
-        .toList()
-
-    class ViewHolder(
+    /**
+     * Holds references to views used to display a track row in the list.
+     * @param parent Parent View to which the root view of this holder should be attached.
+     */
+    inner class ViewHolder(
         parent: ViewGroup
     ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_disposable_track)) {
 
         private val context = parent.context
-        private val selectionMark = itemView.findViewById<CheckBox>(R.id.selection_mark)
         private val title = itemView.findViewById<TextView>(R.id.title)
         private val usageDescription = itemView.findViewById<TextView>(R.id.usage_description)
         private val fileSizeCaption = itemView.findViewById<TextView>(R.id.file_size)
 
-        fun bind(track: Checkable<MediaItem>, checkedListener: CompoundButton.OnCheckedChangeListener) {
-            val item = track.item.description
+        /**
+         * The detail of this track item.
+         * This is used by the selection library to determine the behavior of individual items.
+         */
+        val itemDetails = TrackDetails(this, currentList::getOrNull)
+
+        /**
+         * Updates this holder's view to reflect the data in the provided [track].
+         * @param track The metadata of the track to be displayed.
+         */
+        fun bind(track: MediaItem) {
+            val item = track.description
             val extras = item.extras!!
+
             val fileSizeBytes = extras.getLong(MediaItems.EXTRA_FILE_SIZE, 0)
             val lastPlayedTime = extras.takeIf { it.containsKey(MediaItems.EXTRA_LAST_PLAYED_TIME) }
                 ?.getLong(MediaItems.EXTRA_LAST_PLAYED_TIME)
@@ -93,14 +92,6 @@ class CleanupAdapter : ListAdapter<Checkable<MediaItem>, CleanupAdapter.ViewHold
             title.text = item.title
             usageDescription.text = formatElapsedTimeSince(lastPlayedTime)
             fileSizeCaption.text = formatToHumanReadableByteCount(fileSizeBytes)
-
-            setSelected(track.isChecked)
-            selectionMark.setOnCheckedChangeListener(checkedListener)
-        }
-
-        fun setSelected(isSelected: Boolean) {
-            itemView.isActivated = isSelected
-            selectionMark.isChecked = isSelected
         }
 
         private fun formatElapsedTimeSince(epochTime: Long?): String =
@@ -109,5 +100,24 @@ class CleanupAdapter : ListAdapter<Checkable<MediaItem>, CleanupAdapter.ViewHold
                 R.string.last_played_description,
                 DateUtils.getRelativeTimeSpanString(epochTime)
             )
+    }
+
+    /**
+     * Provides information about a specific row in the track list.
+     *
+     * @param holder The ViewHolder associated with the item at this position.
+     * @param itemProvider A function that returns a track given its adapter position.
+     */
+    class TrackDetails(
+        private val holder: ViewHolder,
+        private val itemProvider: (position: Int) -> MediaItem?
+    ) : ItemDetailsLookup.ItemDetails<MediaItem>() {
+
+        override fun getPosition(): Int = holder.adapterPosition
+
+        override fun getSelectionKey(): MediaItem? {
+            val itemPosition = holder.adapterPosition
+            return itemProvider(itemPosition)
+        }
     }
 }
