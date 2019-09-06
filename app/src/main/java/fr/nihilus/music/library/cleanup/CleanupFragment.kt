@@ -44,6 +44,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = CleanupAdapter()
+        val deleteSelectedButton = action_delete_selected
 
         val recyclerView = disposable_track_list
         recyclerView.adapter = adapter
@@ -58,6 +59,25 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         ).build()
 
         adapter.selection = selectionTracker
+
+        selectionTracker.addObserver(object :
+            SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>() {
+            override fun onSelectionChanged() {
+                updateFabVisibility()
+            }
+
+            override fun onSelectionRestored() {
+                updateFabVisibility()
+            }
+
+            private fun updateFabVisibility() {
+                if (selectionTracker.hasSelection()) {
+                    deleteSelectedButton.show()
+                } else {
+                    deleteSelectedButton.hide()
+                }
+            }
+        })
 
         action_delete_selected.setOnClickListener {
             val selectedTracks = selectionTracker.selection.toList()
