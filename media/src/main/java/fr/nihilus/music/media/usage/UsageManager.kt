@@ -83,13 +83,34 @@ internal class UsageManagerImpl
     }
 
     override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
-        val allTracks = async { repository.getTracks() }
-        val usageByTrack = usageDao.getTracksUsage().groupBy { it.trackId }
+        val allTracksAsync = async { repository.getTracks() }
 
-        allTracks.await().asSequence()
-            .filterNot { usageByTrack.containsKey(it.id) }
+        // Retrieve usage records for each track.
+        val usageByTrack = usageDao.getTracksUsage().associateBy { it.trackId }
+
+        // Find all tracks that have never been played.
+        val allTracks = allTracksAsync.await()
+        val neverPlayedTracks = allTracks.asSequence()
+            .filterNot { it.id in usageByTrack }
             .map { DisposableTrack(it.id, it.title, it.fileSize, null) }
+
+        // Of all tracks that have been played at least once,
+        // select those that have not been played for more than a month.
+        val lastMonth = clock.currentEpochTime - ONE_MONTH_MILLIS
+        val tracksById = allTracks.associateBy { it.id }
+
+        val notPlayedForMonthsTracks = usageByTrack.entries.asSequence()
+            .filter { (_, usage) -> usage.lastEventTime < lastMonth }
+            .mapNotNull { (trackId, usage) ->
+                tracksById[trackId]?.let {
+                    DisposableTrack(trackId, it.title, it.fileSize, usage.lastEventTime)
+                }
+            }
+
+        // Merge selected tracks and sort them by descending file size.
+        (neverPlayedTracks + notPlayedForMonthsTracks)
             .sortedByDescending { it.fileSizeBytes }
+            .take(25)
             .toList()
     }
 
@@ -100,6 +121,11 @@ internal class UsageManagerImpl
         }
     }
 }
+
+/**
+ * The duration of one month in milliseconds.
+ */
+private const val ONE_MONTH_MILLIS = 3600 * 24 * 30
 
 /**
  * Information on a track that could be deleted from the device's storage to free-up space.
