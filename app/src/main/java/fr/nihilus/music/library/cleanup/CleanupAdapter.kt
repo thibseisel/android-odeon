@@ -18,9 +18,12 @@ package fr.nihilus.music.library.cleanup
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
+import android.view.MotionEvent
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
@@ -37,11 +40,26 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
     val currentList: List<MediaItem>
         get() = asyncDiffer.currentList
 
+    var selection: SelectionTracker<MediaItem>? = null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
         val track = currentList[position]
-        holder.bind(track)
+        val isSelectedPosition = selection?.isSelected(track) ?: false
+
+        // Reflect the selection state on the item.
+        holder.markAsSelected(isSelectedPosition)
+
+        // If the item has not been notified for a change to its selection state,
+        // then (re)bind its item data.
+        if (SelectionTracker.SELECTION_CHANGED_MARKER !in payloads) {
+            holder.bind(track)
+        }
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        onBindViewHolder(holder, position, emptyList())
     }
 
     override fun getItemCount(): Int = currentList.size
@@ -67,6 +85,7 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
     ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_disposable_track)) {
 
         private val context = parent.context
+        private val tickMark = itemView.findViewById<CheckBox>(R.id.selection_mark)
         private val title = itemView.findViewById<TextView>(R.id.title)
         private val usageDescription = itemView.findViewById<TextView>(R.id.usage_description)
         private val fileSizeCaption = itemView.findViewById<TextView>(R.id.file_size)
@@ -94,11 +113,16 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
             fileSizeCaption.text = formatToHumanReadableByteCount(fileSizeBytes)
         }
 
+        fun markAsSelected(selected: Boolean) {
+            tickMark.isChecked = selected
+            itemView.isActivated = selected
+        }
+
         private fun formatElapsedTimeSince(epochTime: Long?): String =
             if (epochTime == null) context.getString(R.string.never_played)
             else context.getString(
                 R.string.last_played_description,
-                DateUtils.getRelativeTimeSpanString(epochTime)
+                DateUtils.getRelativeTimeSpanString(context, epochTime * 1000L, true)
             )
     }
 
@@ -119,5 +143,7 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
             val itemPosition = holder.adapterPosition
             return itemProvider(itemPosition)
         }
+
+        override fun inSelectionHotspot(e: MotionEvent): Boolean = true
     }
 }

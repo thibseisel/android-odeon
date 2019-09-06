@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2018 Thibault Seisel
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,8 +14,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <integer name="album_grid_span_count">2</integer>
-    <integer name="artist_grid_span_count">2</integer>
-    <integer name="default_animation_duration">220</integer>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="@integer/default_animation_duration" android:exitFadeDuration="@integer/default_animation_duration">
+    <item android:state_activated="true">
+        <color android:color="?colorControlHighlight" />
+    </item>
+    <item android:state_checked="true">
+        <color android:color="?colorControlHighlight" />
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

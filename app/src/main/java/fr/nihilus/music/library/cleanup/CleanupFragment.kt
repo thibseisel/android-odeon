@@ -57,6 +57,8 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             StorageStrategy.createParcelableStorage(MediaBrowserCompat.MediaItem::class.java)
         ).build()
 
+        adapter.selection = selectionTracker
+
         action_delete_selected.setOnClickListener {
             val selectedTracks = selectionTracker.selection.toList()
             viewModel.deleteTracks(selectedTracks)
