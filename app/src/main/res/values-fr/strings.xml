@@ -83,4 +83,5 @@
     <string name="pref_theme_light">Clair</string>
     <string name="pref_theme_system">Valeur du système</string>
     <string name="action_cleanup_title">Libérer de l\'espace</string>
+    <string name="select_all_elements">Tous les éléments</string>
 </resources>

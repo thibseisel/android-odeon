@@ -54,12 +54,17 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             StorageStrategy.createParcelableStorage(MediaBrowserCompat.MediaItem::class.java)
         ).build().also {
             adapter.selection = it
-            it.addObserver(HasSelectionObserver(selectionTracker.selection))
+            it.addObserver(HasSelectionObserver(it.selection))
         }
 
         action_delete_selected.setOnClickListener {
             val selectedTracks = selectionTracker.selection.toList()
             viewModel.deleteTracks(selectedTracks)
+        }
+
+        check_all_box.setOnCheckedChangeListener { _, isChecked ->
+            val allTracks = adapter.currentList
+            selectionTracker.setItemsSelected(allTracks, isChecked)
         }
 
         viewModel.tracks.observe(this) { disposableTracksRequest ->
