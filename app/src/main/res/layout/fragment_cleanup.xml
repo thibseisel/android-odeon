@@ -24,8 +24,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/content_root"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <CheckBox
             android:id="@+id/check_all_box"
@@ -57,30 +56,16 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/disposable_track_list"
-            style="@style/MainScrollingView.List"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/header_guideline"
             tools:listitem="@layout/item_disposable_track" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/action_cleanup_title" />
-    </com.google.android.material.appbar.AppBarLayout>
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action_delete_selected"

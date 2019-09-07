@@ -47,11 +47,7 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         <action
             android:id="@+id/start_cleanup"
-            app:destination="@id/fragment_cleanup"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:destination="@id/activity_cleanup" />
     </fragment>
     <fragment
         android:id="@+id/fragment_album_detail"
@@ -98,14 +94,15 @@
             app:argType="boolean"/>
     </fragment>
 
-    <fragment
-        android:id="@+id/fragment_cleanup"
-        android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
-        tools:layout="@layout/fragment_cleanup" />
-
     <activity
         android:id="@+id/activity_settings"
         android:name="fr.nihilus.music.settings.SettingsActivity"
         android:label="@string/action_settings"
         tools:layout="@layout/activity_settings"/>
+
+    <activity
+        android:id="@+id/activity_cleanup"
+        android:name="fr.nihilus.music.library.cleanup.CleanupActivity"
+        android:label="@string/action_cleanup_title"
+        tools:layout="@layout/activity_cleanup" />
 </navigation>

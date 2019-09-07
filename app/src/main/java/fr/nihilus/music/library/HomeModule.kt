@@ -25,7 +25,6 @@ import fr.nihilus.music.HomeActivity
 import fr.nihilus.music.client.ViewModelKey
 import fr.nihilus.music.library.albums.AlbumsModule
 import fr.nihilus.music.library.artists.ArtistsModule
-import fr.nihilus.music.library.cleanup.CleanupModule
 import fr.nihilus.music.library.nowplaying.NowPlayingModule
 import fr.nihilus.music.library.playlists.PlaylistsModule
 import fr.nihilus.music.library.songs.SongsModule
@@ -54,8 +53,7 @@ abstract class HomeModule {
         SongsModule::class,
         AlbumsModule::class,
         ArtistsModule::class,
-        PlaylistsModule::class,
-        CleanupModule::class
+        PlaylistsModule::class
     ])
     abstract fun homeActivity(): HomeActivity
 

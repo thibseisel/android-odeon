@@ -27,7 +27,7 @@
         android:enabled="false"/>
 
     <item
-        android:id="@+id/fragment_cleanup"
+        android:id="@+id/start_cleanup"
         android:title="@string/action_cleanup_title"
         app:showAsAction="never" />
 

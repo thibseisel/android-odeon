@@ -16,23 +16,18 @@
 
 package fr.nihilus.music.library.cleanup
 
-import androidx.lifecycle.ViewModel
-import dagger.Binds
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import dagger.multibindings.IntoMap
-import fr.nihilus.music.client.ViewModelKey
+import android.os.Bundle
+import fr.nihilus.music.R
+import fr.nihilus.music.base.BaseActivity
 
-@Module
-abstract class CleanupModule {
+class CleanupActivity : BaseActivity() {
 
-    @ContributesAndroidInjector
-    abstract fun cleanupActivity(): CleanupActivity
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_cleanup)
 
-    @ContributesAndroidInjector
-    abstract fun cleanupFragment(): CleanupFragment
-
-    @Binds @IntoMap
-    @ViewModelKey(CleanupViewModel::class)
-    abstract fun bindsCleanupViewModel(viewModel: CleanupViewModel): ViewModel
+        supportFragmentManager.beginTransaction()
+            .add(R.id.fragment_host, CleanupFragment())
+            .commit()
+    }
 }

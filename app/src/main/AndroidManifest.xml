@@ -77,6 +77,12 @@
             </intent-filter>
         </activity>
 
+        <!-- Activity for selecting tracks to be deleted to free-up space. -->
+        <activity
+            android:name=".library.cleanup.CleanupActivity"
+            android:label="@string/action_cleanup_title"
+            android:parentActivityName=".HomeActivity" />
+
         <!-- Activity for toggling user preferences. -->
         <activity
             android:name=".settings.SettingsActivity"

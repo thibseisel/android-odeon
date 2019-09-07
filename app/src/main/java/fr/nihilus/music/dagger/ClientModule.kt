@@ -22,6 +22,7 @@ import dagger.Module
 import fr.nihilus.music.client.DaggerViewModelFactory
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.library.HomeModule
+import fr.nihilus.music.library.cleanup.CleanupModule
 import fr.nihilus.music.settings.SettingsModule
 
 /**
@@ -30,6 +31,7 @@ import fr.nihilus.music.settings.SettingsModule
  */
 @Module(includes = [
     HomeModule::class,
+    CleanupModule::class,
     SettingsModule::class,
     AlbumColorModule::class
 ])
