@@ -22,10 +22,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StorageStrategy
+import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
@@ -43,12 +40,11 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = CleanupAdapter()
-        val deleteSelectedButton = action_delete_selected
-
         val recyclerView = disposable_track_list
-        recyclerView.adapter = adapter
         recyclerView.setHasFixedSize(true)
+
+        val adapter = CleanupAdapter()
+        recyclerView.adapter = adapter
 
         selectionTracker = SelectionTracker.Builder(
             "disposable_tracks_selection",
@@ -56,28 +52,10 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             TrackKeyProvider(adapter),
             TrackDetailLookup(recyclerView),
             StorageStrategy.createParcelableStorage(MediaBrowserCompat.MediaItem::class.java)
-        ).build()
-
-        adapter.selection = selectionTracker
-
-        selectionTracker.addObserver(object :
-            SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>() {
-            override fun onSelectionChanged() {
-                updateFabVisibility()
-            }
-
-            override fun onSelectionRestored() {
-                updateFabVisibility()
-            }
-
-            private fun updateFabVisibility() {
-                if (selectionTracker.hasSelection()) {
-                    deleteSelectedButton.show()
-                } else {
-                    deleteSelectedButton.hide()
-                }
-            }
-        })
+        ).build().also {
+            adapter.selection = it
+            it.addObserver(HasSelectionObserver(selectionTracker.selection))
+        }
 
         action_delete_selected.setOnClickListener {
             val selectedTracks = selectionTracker.selection.toList()
@@ -101,6 +79,15 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         selectionTracker.onSaveInstanceState(outState)
+    }
+
+
+    private fun setFabVisibility(visible: Boolean) {
+        if (visible) {
+            action_delete_selected.show()
+        } else {
+            action_delete_selected.hide()
+        }
     }
 
     /**
@@ -134,6 +121,26 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             return view.findChildViewUnder(e.x, e.y)
                 ?.let { view.getChildViewHolder(it) as? CleanupAdapter.ViewHolder }
                 ?.itemDetails
+        }
+    }
+
+    private inner class HasSelectionObserver(
+        private val liveSelection: Selection<MediaBrowserCompat.MediaItem>
+    ) : SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>() {
+        private var hadSelection = false
+
+        override fun onSelectionChanged() {
+            val hasSelection = !liveSelection.isEmpty
+            if (hadSelection != hasSelection) {
+                setFabVisibility(hasSelection)
+                hadSelection = hasSelection
+            }
+        }
+
+        override fun onSelectionRestored() {
+            val hasSelection = !liveSelection.isEmpty
+            setFabVisibility(hasSelection)
+            hadSelection = hasSelection
         }
     }
 }
