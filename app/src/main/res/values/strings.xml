@@ -55,6 +55,11 @@
         <item quantity="other">%d tracks</item>
     </plurals>
 
+    <plurals name="number_of_selected_tracks">
+        <item quantity="one">%d track selected</item>
+        <item quantity="other">%d tracks selected</item>
+    </plurals>
+
     <string name="playlist_created">Created new playlist \"%1$s\".</string>
 
     <plurals name="tracks_added_to_playlist">

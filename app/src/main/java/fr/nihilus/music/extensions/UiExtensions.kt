@@ -24,6 +24,9 @@ import android.view.Window
 import androidx.annotation.Dimension
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
+import androidx.fragment.app.Fragment
 import kotlin.math.roundToInt
 
 /**
@@ -54,4 +57,20 @@ var Window.darkSystemIcons: Boolean
 fun dipToPixels(context: Context, @Dimension(unit = Dimension.DP) dp: Float): Int {
     val metrics = context.resources.displayMetrics
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics).roundToInt()
+}
+
+/**
+ * Helper function for starting the action mode from a Fragment.
+ * This function uses the compatibility action mode.
+ *
+ * @param callback Callback that will manage lifecycle events for this context mode.
+ * @return The action mode that was started, or `null` if it was canceled.
+ */
+fun Fragment.startActionMode(callback: ActionMode.Callback): ActionMode? {
+    val hostActivity = activity as? AppCompatActivity
+        ?: error(
+            "Starting the action mode requires the calling fragment " +
+                    "to be attached to a subclass of AppCompatActivity"
+        )
+    return hostActivity.startSupportActionMode(callback)
 }

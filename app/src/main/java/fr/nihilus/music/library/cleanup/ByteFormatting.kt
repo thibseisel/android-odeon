@@ -22,10 +22,10 @@ import kotlin.math.ln
 import kotlin.math.pow
 
 /**
- * Format a given number of bytes to a human-readable amount.
+ * Format a given number of bytes to a human-readable amount, for example `23.45 Mo`.
+ *
  * The number is expressed in decimal octets, its unit being the closest power of 1000.
  * If the converted number is decimal, the result is rounded evenly to the 2nd decimal.
- * An example of output is the following: `123.45 Mo`.
  *
  * @param byteCount The byte count to be formatted.
  * The maximum supported value is `10^15 - 1`.

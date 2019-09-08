@@ -18,14 +18,19 @@ package fr.nihilus.music.library.cleanup
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.view.Menu
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.extensions.startActionMode
+import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 
@@ -131,21 +136,74 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private inner class HasSelectionObserver(
         private val liveSelection: Selection<MediaBrowserCompat.MediaItem>
-    ) : SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>() {
+    ) : SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>(),
+        ActionMode.Callback {
+
         private var hadSelection = false
+        private var actionMode: ActionMode? = null
 
         override fun onSelectionChanged() {
             val hasSelection = !liveSelection.isEmpty
             if (hadSelection != hasSelection) {
                 setFabVisibility(hasSelection)
+                toggleActionMode(hasSelection)
                 hadSelection = hasSelection
             }
+        }
+
+        override fun onItemStateChanged(key: MediaBrowserCompat.MediaItem, selected: Boolean) {
+            updateActionModeText()
         }
 
         override fun onSelectionRestored() {
             val hasSelection = !liveSelection.isEmpty
             setFabVisibility(hasSelection)
+            toggleActionMode(hasSelection)
             hadSelection = hasSelection
+        }
+
+        private fun toggleActionMode(hasSelection: Boolean) {
+            if (hasSelection && actionMode == null) {
+                actionMode = startActionMode(this)
+                updateActionModeText()
+            } else if (!hasSelection) {
+                actionMode?.finish()
+            }
+        }
+
+        private fun updateActionModeText() {
+            actionMode?.let { mode ->
+                val selectedCount = liveSelection.size()
+                mode.title = resources.getQuantityString(
+                    R.plurals.number_of_selected_tracks,
+                    selectedCount,
+                    selectedCount
+                )
+
+                val freedBytes = computeFreedBytes()
+                mode.subtitle = formatToHumanReadableByteCount(freedBytes)
+            }
+        }
+
+        private fun computeFreedBytes(): Long {
+            var bytes = 0L
+            for (selectedTrack in liveSelection) {
+                bytes += selectedTrack.description.extras?.getLong(MediaItems.EXTRA_FILE_SIZE) ?: 0L
+            }
+
+            return bytes
+        }
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false
+
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean = true
+
+        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            actionMode = null
+            selectionTracker.clearSelection()
+            this@CleanupFragment.check_all_box.isChecked = false
         }
     }
 }

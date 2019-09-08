@@ -20,6 +20,13 @@ import android.os.Bundle
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseActivity
 
+/**
+ * A simple activity that only displays the content of [CleanupFragment].
+ * This is required to avoid displaying the player controls on the cleanup screen
+ * where controlling playback becomes secondary.
+ *
+ * This activity owns its own toolbar.
+ */
 class CleanupActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
