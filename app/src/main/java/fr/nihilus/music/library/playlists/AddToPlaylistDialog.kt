@@ -28,7 +28,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseDialogFragment
@@ -47,7 +46,10 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     private lateinit var playlistAdapter: TargetPlaylistsAdapter
 
-    private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireParentFragment, ::viewModelFactory)
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels(
+        ::requireCallerFragment,
+        ::viewModelFactory
+    )
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)
@@ -73,8 +75,8 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         if (position >= 0) {
             // The clicked element is a playlist
             val playlist = playlistAdapter.getItem(position)
-            val trackIds = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
-            playlistViewModel.addTracksToPlaylist(playlist, trackIds)
+            val memberTracks = getPlaylistMembersArgument()
+            playlistViewModel.addTracksToPlaylist(playlist, memberTracks)
 
         } else if (position == DialogInterface.BUTTON_POSITIVE) {
             // The "New playlist" action has been selected
@@ -82,12 +84,19 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         }
     }
 
+    private fun requireCallerFragment(): Fragment =
+        targetFragment ?: error("AddToPlaylistDialog should be instantiated with newInstance.")
+
     private fun callNewPlaylistDialog() {
-        val memberTracks = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) as? Array<MediaItem> ?: emptyArray()
         NewPlaylistDialog.newInstance(
-            targetFragment ?: this,
-            memberTracks
-        ).show(childFragmentManager, NewPlaylistDialog.TAG)
+            requireCallerFragment(),
+            getPlaylistMembersArgument()
+        ).show(requireFragmentManager(), NewPlaylistDialog.TAG)
+    }
+
+    private fun getPlaylistMembersArgument(): Array<MediaItem> {
+        val argument = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) ?: emptyArray()
+        return Array(argument.size) { argument[it] as MediaItem }
     }
 
     override fun onCancel(dialog: DialogInterface) {

@@ -24,5 +24,5 @@
     <dimen name="song_title_size">14sp</dimen>
     <dimen name="tick_mark_inset">12dp</dimen>
     <dimen name="track_icon_corner_radius">4dp</dimen>
-    <dimen name="playlist_name_input_padding">16dp</dimen>
+    <dimen name="playlist_title_input_spacing">16dp</dimen>
 </resources>

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.library.playlists
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -25,27 +26,26 @@ import android.view.WindowManager
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseDialogFragment
 
 class NewPlaylistDialog : BaseDialogFragment() {
 
-    private val playlistViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(targetFragment ?: this, viewModelFactory)[PlaylistManagementViewModel::class.java]
-    }
-
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireCallerFragment)
     private lateinit var titleInputView: EditText
 
+    @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
 
         val inputLayout = LayoutInflater.from(context).inflate(R.layout.new_playlist_input, null)
-        titleInputView = inputLayout.findViewById(R.id.title_input)
         inputLayout.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+        titleInputView = inputLayout.findViewById(R.id.title_input)
 
         return AlertDialog.Builder(context)
             .setTitle(R.string.action_create_playlist)
@@ -62,10 +62,18 @@ class NewPlaylistDialog : BaseDialogFragment() {
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
     }
 
+    private fun requireCallerFragment(): Fragment =
+        targetFragment ?: error("NewPlaylistDialog should be instantiated with newInstance.")
+
     private fun onRequestCreatePlaylist() {
         val playlistTitle = titleInputView.text.toString()
-        val members = arguments?.getParcelableArray(ARG_MEMBER_TRACKS) as? Array<MediaItem> ?: emptyArray()
-        playlistViewModel.createPlaylist(playlistTitle, members)
+        val memberTracks = getNewPlaylistMembersArgument()
+        playlistViewModel.createPlaylist(playlistTitle, memberTracks)
+    }
+
+    private fun getNewPlaylistMembersArgument(): Array<MediaItem> {
+        val argument = arguments?.getParcelableArray(ARG_MEMBER_TRACKS) ?: emptyArray()
+        return Array(argument.size) { argument[it] as MediaItem }
     }
 
     companion object Factory {
