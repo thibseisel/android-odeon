@@ -16,10 +16,21 @@
 
 package fr.nihilus.music.media
 
+import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import androidx.test.ext.truth.os.BundleSubject
+import com.google.common.truth.Correspondence
+import com.google.common.truth.Truth
+
 /**
- * Make the current test fail.
- * @param message Description of the assertion that failed.
+ * Allows Truth assertions to compare media items by their media id.
  */
-fun fail(message: String): Nothing {
-    throw AssertionError(message)
+internal val THEIR_MEDIA_ID = Correspondence.transforming<MediaBrowserCompat.MediaItem?, String?>(
+    { it?.mediaId },
+    "has a media id of"
+)
+
+internal inline fun assertOn(extras: Bundle?, assertions: BundleSubject.() -> Unit) {
+    Truth.assertThat(extras).named("extras").isNotNull()
+    BundleSubject.assertThat(extras).run(assertions)
 }

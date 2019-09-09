@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.di
+
+import javax.inject.Scope
 
 /**
- * Make the current test fail.
- * @param message Description of the assertion that failed.
+ * Denote that the annotated class or component is alive as long as the enclosing service
+ * instance is alive.
  */
-fun fail(message: String): Nothing {
-    throw AssertionError(message)
-}
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ServiceScoped

@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.actions
 
-/**
- * Make the current test fail.
- * @param message Description of the assertion that failed.
- */
-fun fail(message: String): Nothing {
-    throw AssertionError(message)
+import dagger.Binds
+import dagger.Module
+import dagger.multibindings.IntoMap
+import dagger.multibindings.StringKey
+
+@Module
+abstract class CustomActionModule {
+
+    @Binds @IntoMap
+    @StringKey(CustomActions.ACTION_DELETE_MEDIA)
+    internal abstract fun bindsDeleteAction(action: DeleteAction): BrowserAction
+
+    @Binds @IntoMap
+    @StringKey(CustomActions.ACTION_MANAGE_PLAYLIST)
+    internal abstract fun bindsManagePlaylistAction(action: ManagePlaylistAction): BrowserAction
 }

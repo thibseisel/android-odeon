@@ -35,8 +35,8 @@ import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.media.extensions.doOnPrepared
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playback.AudioOnlyExtractorsFactory
-import fr.nihilus.music.media.service.SearchQuery
 import fr.nihilus.music.media.tree.BrowserTree
+import fr.nihilus.music.media.tree.SearchQuery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 rootProject.name = 'android-odeon'
-include ':app', ':media', ':player-testing'
+include ':app', ':media', ':player-testing', ':mediasource'

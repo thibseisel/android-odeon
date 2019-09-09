@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,18 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.targetSdkVersion
-        versionCode rootProject.appVersionCode
-        versionName rootProject.appVersionName
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.appVersionCode
+        versionName rootProject.ext.appVersionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildTypes {
@@ -36,9 +38,6 @@ android {
         }
 
         release {
-            minifyEnabled true
-            proguardFiles 'proguard-rules.pro', rootProjectFile('coroutines.pro')
-
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
                 freeCompilerArgs += [
@@ -67,18 +66,23 @@ android {
         // Include Android resources in unit tests to be resolved by Robolectric.
         unitTests.includeAndroidResources = true
     }
+
+    sourceSets {
+        // Add Room schemas to test sources in order to test database migrations.
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
+    }
 }
 
 kapt {
     arguments {
+        arg('room.schemaLocation', "$projectDir/schemas".toString())
+        arg('room.incremental', 'true')
         arg('dagger.formatGeneratedSource', 'disabled')
         arg('dagger.fastInit', 'enabled')
     }
 }
 
 dependencies {
-    api project(':mediasource')
-
     // Kotlin language support
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
@@ -89,9 +93,11 @@ dependencies {
     implementation "androidx.media:media:${versions.androidx.media}"
     implementation "androidx.core:core-ktx:${versions.androidx.core}"
 
-    // ExoPlayer
-    api "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer}"
-    api "com.google.android.exoplayer:extension-mediasession:${versions.exoplayer}"
+    // Android Room
+    api "androidx.room:room-runtime:${versions.androidx.room}"
+    kapt "androidx.room:room-compiler:${versions.androidx.room}"
+    implementation "androidx.room:room-ktx:${versions.androidx.room}"
+    implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
 
     // Dagger
     implementation "com.google.dagger:dagger:${versions.dagger}"
@@ -103,15 +109,16 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
     implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
-    // Glide
-    implementation "com.github.bumptech.glide:glide:${versions.glide}"
-    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
-
     // Timber Logging
     implementation "com.jakewharton.timber:timber:${versions.timber}"
 
+    // Other libraries
+    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
+
     // Test dependencies
+    testImplementation "org.mockito:mockito-core:${versions.mockito}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${versions.koroutines}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test:core:${versions.androidx.test_core}"
@@ -119,9 +126,13 @@ dependencies {
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+    testImplementation "io.mockk:mockk:${versions.mockk}"
     kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
 
     // Android-specific test dependencies
+    androidTestImplementation "com.google.truth:truth:${versions.truth}"
+    androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
+    androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
     androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"

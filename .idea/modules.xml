@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/android-odeon.iml" filepath="$PROJECT_DIR$/android-odeon.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/media/media.iml" filepath="$PROJECT_DIR$/media/media.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mediasource/mediasource.iml" filepath="$PROJECT_DIR$/mediasource/mediasource.iml" />
       <module fileurl="file://$PROJECT_DIR$/player-testing/player-testing.iml" filepath="$PROJECT_DIR$/player-testing/player-testing.iml" />
     </modules>
   </component>

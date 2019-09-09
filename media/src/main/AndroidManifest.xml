@@ -17,8 +17,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="fr.nihilus.music.media">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application>
@@ -34,21 +32,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-
-        <!--
-            Allows sharing album arts with media browser clients.
-            By sharing content uris instead of file uris,
-            clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
-        -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${providerAuthority}"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/abc_shared_filepaths"/>
-        </provider>
 
     </application>
 </manifest>

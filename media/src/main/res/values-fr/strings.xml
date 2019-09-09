@@ -17,8 +17,6 @@
 
 <resources>
     <string name="app_name">Odeon</string>
-    <string name="abc_all_music">Tous les morceaux</string>
-    <string name="abc_last_added">Nouveautés</string>
     <string name="abc_player_unknown_error">Oups, quelque chose a planté et le lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="abc_action_play">Lire</string>
     <string name="abc_action_pause">Pause</string>
@@ -26,16 +24,7 @@
     <string name="abc_action_previous">Précédent</string>
     <string name="abc_channel_mediasession">Lecture en cours</string>
     <string name="abc_channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>
-    <string name="abc_pref_title_skip_silence">Couper les silences</string>
     <string name="player_error_unsupported_file">Odéon ne peut pas lire ce fichier.</string>
     <string name="player_error_unsupported_file_format">Odéon ne peut pas lire les fichiers de format %s.</string>
     <string name="player_source_error_generic">Une erreur s\'est produite lors de la lecture de ce morceau. Si cela se produit régulièrement, le fichier est peut-être endommagé.</string>
-    <string name="abc_most_rated">Favoris</string>
-    <string name="tracks_type_title">Morceaux</string>
-    <string name="playlists_type_title">Playlists</string>
-    <string name="albums_type_title">Abums</string>
-    <string name="artists_type_title">Artistes</string>
-    <string name="browser_root_title">Bibliothèque musicale de l\'appareil</string>
-    <string name="artist_subtitle">%1$d albums, %2$d morceaux</string>
-    <string name="core_category_disposable">Nettoyage</string>
 </resources>

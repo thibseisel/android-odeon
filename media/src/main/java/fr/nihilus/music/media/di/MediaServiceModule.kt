@@ -23,16 +23,6 @@ import fr.nihilus.music.media.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.os.AndroidSystemModule
 import fr.nihilus.music.media.service.MediaSessionModule
 import fr.nihilus.music.media.service.MusicService
-import javax.inject.Scope
-
-/**
- * Denote that the annotated class or component is alive as long as the enclosing service
- * instance is alive.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-internal annotation class ServiceScoped
 
 /**
  * Configures [MusicService]-related bindings, providing dependency injection for the whole `media` library module.

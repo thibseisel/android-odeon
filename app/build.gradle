@@ -78,8 +78,7 @@ android {
             minifyEnabled true
             proguardFiles(
                     getDefaultProguardFile('proguard-android-optimize.txt'),
-                    'proguard-rules.pro',
-                    rootProjectFile('coroutines.pro')
+                    'proguard-rules.pro'
             )
 
             // Configure Kotlin compiler optimisations for releases

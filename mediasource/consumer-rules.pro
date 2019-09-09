@@ -1,0 +1,1 @@
+# Proguard rules to be included in the final application.

@@ -40,6 +40,7 @@ import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.actions.CustomActions
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.tree.BrowserTree
+import fr.nihilus.music.media.tree.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.consumeEach

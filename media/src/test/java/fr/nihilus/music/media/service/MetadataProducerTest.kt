@@ -30,7 +30,6 @@ import fr.nihilus.music.media.MediaId.Builder.encode
 import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.media.extensions.*
 import fr.nihilus.music.media.fail
-import fr.nihilus.music.media.service.MetadataProducerTest.FixedDelayDownloader.DOWNLOAD_TIME
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -131,7 +130,7 @@ class MetadataProducerTest {
             producer.send(items[0])
             producer.send(items[1])
 
-            advanceTimeBy(DOWNLOAD_TIME)
+            advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME)
 
             val lastTrackMetadata = output.receive()
             assertThat(lastTrackMetadata.id).isEqualTo(secondItemId)
@@ -152,15 +151,15 @@ class MetadataProducerTest {
 
         try {
             producer.send(firstItem)
-            advanceTimeBy(DOWNLOAD_TIME / 2)
+            advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
             producer.send(secondItem)
-            advanceTimeBy(DOWNLOAD_TIME / 2)
+            advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
 
             val firstMetadata = output.receive()
             assertThat(firstMetadata.id).isEqualTo(itemId)
             assertThat(firstMetadata.displayTitle).isEqualTo("First item")
 
-            advanceTimeBy(DOWNLOAD_TIME / 2)
+            advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
             assertThat(output.isEmpty).isTrue()
 
         } finally {
@@ -183,7 +182,7 @@ class MetadataProducerTest {
     }
 
     /**
-     * A fake downloaded that pretend to take [DOWNLOAD_TIME] to load a `null` bitmap.
+     * A fake downloaded that pretend to take [FixedDelayDownloader.DOWNLOAD_TIME] to load a `null` bitmap.
      * This fixture is used to simulate long background loads.
      */
     private object FixedDelayDownloader : IconDownloader {
