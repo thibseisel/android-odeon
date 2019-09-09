@@ -16,9 +16,7 @@
 #   public *;
 #}
 
--keep class android.support.v7.widget.SearchView { *; }
-
-# Glide #
+# Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public class * extends com.bumptech.glide.module.AppGlideModule
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
@@ -26,7 +24,8 @@
     public *;
 }
 
-# Keep MediaItem class name - for Navigation Components
+# Navigation Component requires that arguments passed between destinations are not mangled.
 -keepnames class android.support.v4.media.MediaBrowserCompat$MediaItem
+-keepnames class fr.nihilus.music.library.albums.AlbumPalette
 
 -dontwarn com.google.errorprone.annotations.*
