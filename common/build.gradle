@@ -1,0 +1,56 @@
+/*
+ * Copyright 2019 Thibault Seisel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.appVersionCode
+        versionName rootProject.ext.appVersionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+}
+
+dependencies {
+    // Shared Kotlin language features
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.koroutines}"
+
+    // Shared AndroidX libraries
+    api "androidx.core:core-ktx:${versions.androidx.core}"
+
+    // Timber Logging
+    api "com.jakewharton.timber:timber:${versions.timber}"
+
+    // ReactiveX
+    api "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
+    api "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
+
+    // Dagger - compiler is included to generate implementation factories.
+    api "com.google.dagger:dagger:${versions.dagger}"
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+
+    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+}

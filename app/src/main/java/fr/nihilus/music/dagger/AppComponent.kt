@@ -32,7 +32,7 @@ import javax.inject.Singleton
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
-        CommonModule::class,
+        AppModule::class,
         MediaServiceModule::class,
         ClientModule::class
     ]

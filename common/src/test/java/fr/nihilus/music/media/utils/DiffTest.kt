@@ -16,7 +16,10 @@
 
 package fr.nihilus.music.media.utils
 
-import com.google.common.truth.Truth.assertThat
+import io.kotlintest.matchers.beEmpty
+import io.kotlintest.matchers.collections.shouldContainAll
+import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.should
 import org.junit.Test
 
 class DiffTest {
@@ -35,8 +38,8 @@ class DiffTest {
 
     private fun <T : Any> assertThatDiffIsEmptyFor(original: List<T>, modified: List<T>) {
         val (added, removed) = diffList(original, modified)
-        assertThat(added).isEmpty()
-        assertThat(removed).isEmpty()
+        added should beEmpty()
+        removed should beEmpty()
     }
 
     @Test
@@ -52,7 +55,7 @@ class DiffTest {
         expectedAdditions: List<T>
     ) {
         val (added, _) = diffList(original, modified)
-        assertThat(added).containsExactlyElementsIn(expectedAdditions)
+        added shouldContainExactly expectedAdditions
     }
 
     @Test
@@ -68,7 +71,7 @@ class DiffTest {
         expectedRemovals: List<T>
     ) {
         val (_, deleted) = diffList(original, modified)
-        assertThat(deleted).containsExactlyElementsIn(expectedRemovals)
+        deleted shouldContainExactly expectedRemovals
     }
 
     @Test
@@ -76,7 +79,7 @@ class DiffTest {
         val original = listOf("Bar")
         val modified = listOf("Foo", "Foo", "Bar", "Baz")
         val (added, _) = diffList(original, modified)
-        assertThat(added).containsAtLeast("Foo", "Foo")
+        added.shouldContainAll("Foo", "Foo")
     }
 
     @Test
@@ -84,7 +87,7 @@ class DiffTest {
         val original = listOf("Foo", "Foo", "Bar", "Baz")
         val modified = listOf("Bar")
         val (_, removed) = diffList(original, modified)
-        assertThat(removed).containsAtLeast("Foo", "Foo")
+        removed.shouldContainAll("Foo", "Foo")
     }
 
     private data class Person(val name: String, val age: Int)
@@ -101,7 +104,7 @@ class DiffTest {
         val modified = listOf(jack, jane, scarlett)
 
         val (added, _) = diffList(original, modified, ageEqualizer)
-        assertThat(added).containsExactly(jane, scarlett)
+        added.shouldContainExactly(jane, scarlett)
     }
 
     @Test
@@ -115,6 +118,6 @@ class DiffTest {
         val modified = listOf(jack)
 
         val (_, removed) = diffList(original, modified, ageEqualizer)
-        assertThat(removed).containsExactly(jane, scarlett)
+        removed.shouldContainExactly(jane, scarlett)
     }
 }

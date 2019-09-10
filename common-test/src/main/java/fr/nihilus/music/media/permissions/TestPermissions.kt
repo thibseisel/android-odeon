@@ -16,12 +16,10 @@
 
 package fr.nihilus.music.media.permissions
 
-import javax.inject.Inject
-
 /**
  * All permissions are denied.
  */
-internal object DeniedPermission : RuntimePermissions {
+object DeniedPermission : RuntimePermissions {
     override val canReadExternalStorage: Boolean get() = false
     override val canWriteToExternalStorage: Boolean get() = false
 }
@@ -29,7 +27,7 @@ internal object DeniedPermission : RuntimePermissions {
 /**
  * All permissions are granted.
  */
-internal object GrantedPermission : RuntimePermissions {
+object GrantedPermission : RuntimePermissions {
     override val canReadExternalStorage: Boolean get() = true
     override val canWriteToExternalStorage: Boolean get() = true
 }
@@ -38,7 +36,7 @@ internal object GrantedPermission : RuntimePermissions {
  * A test [RuntimePermissions] whose permissions can be granted or revoked manually.
  * By default all permissions are granted.
  */
-internal class RevocablePermission @Inject constructor() : RuntimePermissions {
+class RevocablePermission : RuntimePermissions {
     override var canReadExternalStorage: Boolean = true
     override var canWriteToExternalStorage: Boolean = true
 }

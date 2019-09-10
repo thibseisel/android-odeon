@@ -31,8 +31,6 @@ internal class TestMediaRepository(
     private val artists: List<Artist> = SAMPLE_ARTISTS,
     private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
     private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_TRACKS_FOR_PLAYLIST,
-    @Deprecated("Most rated tracks are now available via UsageManager")
-    private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
 ) : MediaRepository {
     override suspend fun getTracks(): List<Track> = tracks
@@ -62,8 +60,6 @@ internal class StubMediaRepository : MediaRepository {
     override suspend fun getTracks(): List<Track> = stub()
     override suspend fun getAlbums(): List<Album> = stub()
     override suspend fun getArtists(): List<Artist> = stub()
-    override suspend fun getPlaylists(): List<Playlist> =
-        stub()
-    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? =
-        stub()
+    override suspend fun getPlaylists(): List<Playlist> = stub()
+    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = stub()
 }

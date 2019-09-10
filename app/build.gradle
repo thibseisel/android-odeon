@@ -106,10 +106,10 @@ kapt {
 
 dependencies {
     // Sub-project containing the Media Service.
+    implementation project(':common')
     api project(':media')
 
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
 
     // Support library dependencies
@@ -142,22 +142,14 @@ dependencies {
     implementation "com.github.thibseisel:ratioimageview:${versions.ratioimageview}"
 
     // Dagger
-    implementation "com.google.dagger:dagger:${versions.dagger}"
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
     implementation "com.google.dagger:dagger-android-support:${versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
-    // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
-
-    // Timber Logging
-    implementation "com.jakewharton.timber:timber:${versions.timber}"
-
     // Test dependencies
+    testImplementation project(':common-test')
     testImplementation "androidx.test:rules:${versions.androidx.test_rules}"
-    testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"

@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.common
 
-/**
- * Make the current test fail.
- * @param message Description of the assertion that failed.
- */
-fun fail(message: String): Nothing {
-    throw AssertionError(message)
+import dagger.Binds
+import dagger.Module
+import fr.nihilus.music.media.os.Clock
+import fr.nihilus.music.media.os.DeviceClock
+import fr.nihilus.music.media.permissions.RuntimePermissions
+import fr.nihilus.music.media.permissions.SystemRuntimePermissions
+
+@Module
+abstract class CommonModule {
+
+    @Binds
+    internal abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
+
+    @Binds
+    internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
 }

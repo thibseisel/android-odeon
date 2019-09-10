@@ -22,7 +22,7 @@ import javax.inject.Inject
 /**
  * A service that provides functions for reading and measuring time.
  */
-internal interface Clock {
+interface Clock {
 
     /**
      * The current Epoch Time.

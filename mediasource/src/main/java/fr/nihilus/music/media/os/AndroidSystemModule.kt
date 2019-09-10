@@ -20,6 +20,7 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.common.CommonModule
 import fr.nihilus.music.media.provider.MediaStoreModule
 import java.io.File
 import javax.inject.Named
@@ -28,14 +29,14 @@ import javax.inject.Named
  * Provides implementations of [ContentResolverDelegate], [FileSystem] and [Clock]
  * that delegates to the Android system.
  */
-@Module(includes = [MediaStoreModule::class])
+@Module(includes = [
+    CommonModule::class,
+    MediaStoreModule::class
+])
 abstract class AndroidSystemModule {
 
     @Binds
     internal abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
-
-    @Binds
-    internal abstract fun bindsDeviceClock(clock: DeviceClock): Clock
 
     @Module
     companion object {

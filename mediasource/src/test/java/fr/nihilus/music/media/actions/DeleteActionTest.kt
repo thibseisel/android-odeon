@@ -31,10 +31,10 @@ import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.MediaId.Builder.encode
-import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.stub
+import io.kotlintest.shouldThrow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
@@ -71,7 +71,7 @@ class DeleteActionTest {
     @Test
     fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
         val action = DeleteAction(provider, playlistDao, AppDispatchers(dispatcher))
-        val failure = assertThrows<ActionFailure> {
+        val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle.EMPTY)
         }
 
@@ -81,7 +81,7 @@ class DeleteActionTest {
 
     private suspend fun assertUnsupported(mediaId: MediaId) {
         val action = DeleteAction(provider, playlistDao, AppDispatchers(dispatcher))
-        val failure = assertThrows<ActionFailure> {
+        val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(mediaId.encoded))
             })
@@ -96,7 +96,7 @@ class DeleteActionTest {
         permissionDeniedProvider.hasStoragePermission = false
 
         val action = DeleteAction(permissionDeniedProvider, playlistDao, AppDispatchers(dispatcher))
-        val failure = assertThrows<ActionFailure> {
+        val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(
                     encode(TYPE_TRACKS, CATEGORY_ALL, 42)

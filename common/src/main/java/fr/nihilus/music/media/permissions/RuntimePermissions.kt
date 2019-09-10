@@ -38,7 +38,7 @@ interface RuntimePermissions {
  * This checks permission using the provided [application context][context].
  */
 @Reusable
-class SystemRuntimePermissions
+internal class SystemRuntimePermissions
 @Inject constructor(
     private val context: Context
 ) : RuntimePermissions {

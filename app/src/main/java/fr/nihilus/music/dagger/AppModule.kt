@@ -19,12 +19,10 @@ package fr.nihilus.music.dagger
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.media.permissions.RuntimePermissions
-import fr.nihilus.music.media.permissions.SystemRuntimePermissions
+import fr.nihilus.music.common.CommonModule
 import javax.inject.Singleton
 
 /**
@@ -34,21 +32,15 @@ import javax.inject.Singleton
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module
-abstract class CommonModule {
+@Module(includes = [CommonModule::class])
+object AppModule {
 
-    @Binds
-    abstract fun bindsRuntimePermissions(impl: SystemRuntimePermissions): RuntimePermissions
+    @JvmStatic
+    @Provides
+    fun provideContext(application: OdeonApplication): Context = application.applicationContext
 
-    @Module
-    companion object {
-        @JvmStatic
-        @Provides
-        fun provideContext(application: OdeonApplication): Context = application.applicationContext
-
-        @JvmStatic
-        @Provides @Singleton
-        fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(application)
-    }
+    @JvmStatic
+    @Provides @Singleton
+    fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(application)
 }

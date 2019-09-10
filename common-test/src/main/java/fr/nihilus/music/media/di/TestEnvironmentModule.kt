@@ -28,7 +28,7 @@ import kotlinx.coroutines.test.TestCoroutineScope
  * Provides dependencies required by the test environment such as the test [Context].
  */
 @Module(includes = [TestExecutionContextModule::class])
-internal abstract class TestEnvironmentModule {
+abstract class TestEnvironmentModule {
 
     @Binds
     abstract fun bindsTestCoroutineScope(testScope: TestCoroutineScope): CoroutineScope

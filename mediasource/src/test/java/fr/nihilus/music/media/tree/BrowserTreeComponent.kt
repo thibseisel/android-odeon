@@ -23,7 +23,6 @@ import fr.nihilus.music.media.database.InMemoryDatabaseModule
 import fr.nihilus.music.media.di.MediaSourceModule
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.di.TestEnvironmentModule
-import fr.nihilus.music.media.di.TestExecutionContextModule
 import fr.nihilus.music.media.os.SimulatedSystemModule
 import fr.nihilus.music.media.provider.MediaStoreSurrogate
 import io.reactivex.schedulers.TestScheduler
@@ -38,7 +37,6 @@ import javax.inject.Named
 @Component(
     modules = [
         TestEnvironmentModule::class,
-        TestExecutionContextModule::class,
         SimulatedSystemModule::class,
         InMemoryDatabaseModule::class,
         MediaSourceModule::class

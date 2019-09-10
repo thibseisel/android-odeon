@@ -25,7 +25,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
-import fr.nihilus.music.media.assertThrows
 import fr.nihilus.music.media.fail
 import fr.nihilus.music.media.failAssumption
 import fr.nihilus.music.media.os.BasicFileSystem
@@ -35,6 +34,7 @@ import fr.nihilus.music.media.permissions.DeniedPermission
 import fr.nihilus.music.media.permissions.GrantedPermission
 import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.provider.FailingMediaStore.query
+import io.kotlintest.shouldThrow
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -270,7 +270,7 @@ class MediaStoreProviderTest {
     @Test
     fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() {
         val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, DeniedPermission)
-        val exception = assertThrows<PermissionDeniedException> {
+        val exception = shouldThrow<PermissionDeniedException> {
             provider.deleteTracks(longArrayOf(161, 309))
         }
 
@@ -338,7 +338,7 @@ class MediaStoreProviderTest {
     private fun assertProviderThrowsWhenPermissionIsDenied(queryFun: MediaProvider.() -> List<Any>) {
         val provider = MediaStoreProvider(mediaStoreSurrogate, BasicFileSystem, DeniedPermission)
 
-        val exception = assertThrows<PermissionDeniedException> {
+        val exception = shouldThrow<PermissionDeniedException> {
             provider.queryFun()
         }
 

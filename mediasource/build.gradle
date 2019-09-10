@@ -83,15 +83,15 @@ kapt {
 }
 
 dependencies {
+    implementation project(':common')
+
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
 
     // Android support libraries
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
     implementation "androidx.media:media:${versions.androidx.media}"
-    implementation "androidx.core:core-ktx:${versions.androidx.core}"
 
     // Android Room
     api "androidx.room:room-runtime:${versions.androidx.room}"
@@ -100,32 +100,20 @@ dependencies {
     implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
 
     // Dagger
-    implementation "com.google.dagger:dagger:${versions.dagger}"
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
-
-    // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
-
-    // Timber Logging
-    implementation "com.jakewharton.timber:timber:${versions.timber}"
 
     // Other libraries
     implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
 
     // Test dependencies
+    testImplementation project(':common-test')
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${versions.koroutines}"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     testImplementation "com.google.truth:truth:${versions.truth}"
-    testImplementation "androidx.test:core:${versions.androidx.test_core}"
-    testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
-    testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
     testImplementation "io.mockk:mockk:${versions.mockk}"
     kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
 

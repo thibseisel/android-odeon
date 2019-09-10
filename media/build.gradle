@@ -77,31 +77,25 @@ kapt {
 }
 
 dependencies {
+    implementation project(':common')
     api project(':mediasource')
 
     // Kotlin language support
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
 
     // Android support libraries
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
     implementation "androidx.media:media:${versions.androidx.media}"
-    implementation "androidx.core:core-ktx:${versions.androidx.core}"
 
     // ExoPlayer
     api "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer}"
     api "com.google.android.exoplayer:extension-mediasession:${versions.exoplayer}"
 
     // Dagger
-    implementation "com.google.dagger:dagger:${versions.dagger}"
     implementation "com.google.dagger:dagger-android:${versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
-
-    // ReactiveX
-    implementation "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxandroid}"
 
     // Glide
     implementation "com.github.bumptech.glide:glide:${versions.glide}"
@@ -111,15 +105,12 @@ dependencies {
     implementation "com.jakewharton.timber:timber:${versions.timber}"
 
     // Test dependencies
+    testImplementation project(':common-test')
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     testImplementation "com.google.truth:truth:${versions.truth}"
-    testImplementation "androidx.test:core:${versions.androidx.test_core}"
-    testImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
-    testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
-    kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
 
     // Android-specific test dependencies
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"

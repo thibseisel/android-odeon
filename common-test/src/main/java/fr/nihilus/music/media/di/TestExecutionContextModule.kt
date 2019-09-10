@@ -41,8 +41,7 @@ internal object TestExecutionContextModule {
 
     @JvmStatic
     @Provides @Reusable
-    fun providesTestingSchedulers(scheduler: TestScheduler) =
-        RxSchedulers(scheduler)
+    fun providesTestingSchedulers(scheduler: TestScheduler) = RxSchedulers(scheduler)
 
     @JvmStatic
     @Provides @Reusable
@@ -50,11 +49,9 @@ internal object TestExecutionContextModule {
 
     @JvmStatic
     @Provides @Reusable
-    fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) =
-        AppDispatchers(dispatcher)
+    fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)
 
     @JvmStatic
     @Provides @Reusable
-    fun providesTestCoroutineScope(dispatcher: TestCoroutineDispatcher) =
-        TestCoroutineScope(dispatcher)
+    fun providesTestCoroutineScope(dispatcher: TestCoroutineDispatcher) = TestCoroutineScope(dispatcher)
 }

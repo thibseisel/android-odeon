@@ -74,13 +74,13 @@ internal class DeleteAction
                 media.type == MediaId.TYPE_TRACKS
                         && (media.category == MediaId.CATEGORY_ALL || media.category == MediaId.CATEGORY_DISPOSABLE)
                         && media.track != null -> {
-                    deletedTrackIds += media.track.toLong()
+                    deletedTrackIds += media.track!!.toLong()
                 }
                 // Playlist
                 media.type == MediaId.TYPE_PLAYLISTS
                         && media.category != null
                         && media.track == null -> {
-                    deletedPlaylistIds += media.category.toLong()
+                    deletedPlaylistIds += media.category!!.toLong()
                 }
                 else -> unsupportedMediaIds += media
             }

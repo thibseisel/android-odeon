@@ -23,7 +23,7 @@ package fr.nihilus.music.media.os
  *
  * @param startTime The initial epoch time. Should be positive or zero.
  */
-internal class TestClock(startTime: Long) : Clock {
+class TestClock(startTime: Long) : Clock {
     init { require(startTime >= 0L) { "Invalid epoch time: $startTime" } }
 
     override var currentEpochTime: Long = startTime

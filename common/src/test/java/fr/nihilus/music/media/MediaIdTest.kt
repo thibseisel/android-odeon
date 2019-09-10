@@ -16,10 +16,13 @@
 
 package fr.nihilus.music.media
 
-import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
+import io.kotlintest.matchers.types.beNull
+import io.kotlintest.should
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.junit.Test
 
 class MediaIdTest {
@@ -28,27 +31,27 @@ class MediaIdTest {
     fun whenParsingTypeOnly_thenMediaIdOnlyHasType() {
         val mediaId = MediaId.parse(TYPE_ROOT)
 
-        assertThat(mediaId.type).isEqualTo(TYPE_ROOT)
-        assertThat(mediaId.category).isNull()
-        assertThat(mediaId.track).isNull()
+        mediaId.type shouldBe TYPE_ROOT
+        mediaId.category should beNull()
+        mediaId.track should beNull()
     }
 
     @Test
     fun whenParsingTypeAndCategory_thenMediaIdHasTypeAndCategory() {
         val mediaId = MediaId.parse("$TYPE_TRACKS/$CATEGORY_ALL")
 
-        assertThat(mediaId.type).isEqualTo(TYPE_TRACKS)
-        assertThat(mediaId.category).isEqualTo(CATEGORY_ALL)
-        assertThat(mediaId.track).isNull()
+        mediaId.type shouldBe TYPE_TRACKS
+        mediaId.category shouldBe CATEGORY_ALL
+        mediaId.track should beNull()
     }
 
     @Test
     fun whenParsingFullMediaId_thenMediaIdHasTypeAndCategoryAndTrack() {
         val mediaId = MediaId.parse("$TYPE_TRACKS/$CATEGORY_ALL|42")
 
-        assertThat(mediaId.type).isEqualTo(TYPE_TRACKS)
-        assertThat(mediaId.category).isEqualTo(CATEGORY_ALL)
-        assertThat(mediaId.track).isEqualTo(42L)
+        mediaId.type shouldBe TYPE_TRACKS
+        mediaId.category shouldBe CATEGORY_ALL
+        mediaId.track shouldBe 42L
     }
 
     @Test
@@ -60,7 +63,7 @@ class MediaIdTest {
 
     private fun assertParsedIsSameAsEncoded(encoded: String) {
         val mediaId = MediaId.parse(encoded)
-        assertThat(mediaId.encoded).isEqualTo(encoded)
+        mediaId.encoded shouldBe encoded
     }
 
     @Test
@@ -82,19 +85,19 @@ class MediaIdTest {
     @Test
     fun whenEncodingTypeOnly_thenReturnsTypeOnly() {
         val encoded = MediaId.encode(TYPE_ROOT)
-        assertThat(encoded).isEqualTo(TYPE_ROOT)
+        encoded shouldBe TYPE_ROOT
     }
 
     @Test
     fun whenEncodingTypeAndCategory_thenReturnsTypeAndCategorySeparatedBySlash() {
         val encoded = MediaId.encode("type", "category")
-        assertThat(encoded).isEqualTo("type/category")
+        encoded shouldBe "type/category"
     }
 
     @Test
     fun whenEncodingTypeCategoryAndTrack_thenReturnsWellFormedMediaId() {
         val encoded = MediaId.encode("type", "category", 42)
-        assertThat(encoded).isEqualTo("type/category|42")
+        encoded shouldBe "type/category|42"
     }
 
     @Test
@@ -102,18 +105,18 @@ class MediaIdTest {
         val encoded = MediaId.encode("type", "category", 42)
         val mediaId = MediaId.fromParts("type", "category", 42)
 
-        assertThat(mediaId.encoded).isEqualTo(encoded)
+        mediaId.encoded shouldBe encoded
     }
 
     @Test
     fun whenEncodingWithTrackIdButNoCategory_thenFailWithInvalidMediaException() {
-        assertThrows<InvalidMediaException> {
+        shouldThrow<InvalidMediaException> {
             MediaId.encode("type", null, 42)
         }
     }
 
     private fun assertParsingFails(encoded: String?) {
-        assertThrows<InvalidMediaException> {
+        shouldThrow<InvalidMediaException> {
             MediaId.parse(encoded)
         }
     }

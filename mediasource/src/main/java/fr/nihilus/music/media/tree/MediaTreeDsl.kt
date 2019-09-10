@@ -99,7 +99,7 @@ private constructor(
             parentId.encoded == rootId -> types.map { (_, type) -> type.item }
             parentId.category == null -> types[parentId.type]?.categories()
             parentId.track != null -> null
-            else -> types[parentId.type]?.categoryChildren(parentId.category, fromIndex, pageSize)
+            else -> types[parentId.type]?.categoryChildren(parentId.category!!, fromIndex, pageSize)
         }
     }
 
@@ -113,7 +113,7 @@ private constructor(
         itemId.encoded == rootId -> rootItem
         itemId.category == null -> types[itemId.type]?.item
         itemId.track == null -> types[itemId.type]?.categories()?.find { it.mediaId == itemId.encoded }
-        else -> types[itemId.type]?.categoryChildren(itemId.category)?.find { it.mediaId == itemId.encoded }
+        else -> types[itemId.type]?.categoryChildren(itemId.category!!)?.find { it.mediaId == itemId.encoded }
     }
 
     /**

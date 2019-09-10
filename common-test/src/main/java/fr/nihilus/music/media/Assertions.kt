@@ -19,27 +19,6 @@ package fr.nihilus.music.media
 import org.junit.AssumptionViolatedException
 
 /**
- * Assert that the following block function throws a given [Exception].
- *
- * @param E The type of the expected exception.
- * @param block The code block that should throw an exception of type [E].
- *
- * @return The expected exception.
- */
-inline fun <reified E : Exception> assertThrows(block: () -> Unit): E {
-    try {
-        block()
-        throw AssertionError("Expected an ${E::class.java.name} but no exception have been thrown.")
-    } catch (e: Exception) {
-        if (e !is E) {
-            throw AssertionError("Expected an ${E::class.java.name} but was: $e")
-        }
-
-        return e
-    }
-}
-
-/**
  * Make the current test fail.
  * @param message Description of the assertion that failed.
  */

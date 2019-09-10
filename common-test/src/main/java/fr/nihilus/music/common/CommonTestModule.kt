@@ -14,34 +14,41 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.os
+package fr.nihilus.music.common
 
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
-import fr.nihilus.music.common.CommonTestModule
+import fr.nihilus.music.media.os.Clock
+import fr.nihilus.music.media.os.TestClock
+import fr.nihilus.music.media.permissions.RevocablePermission
 import fr.nihilus.music.media.permissions.RuntimePermissions
-import fr.nihilus.music.media.provider.SQLiteMediaStoreModule
 import javax.inject.Named
 
 /**
- * Provides fake implementations of [ContentResolverDelegate], [RuntimePermissions],
- * [Clock] and [FileSystem] that simulate the behavior of the Android system in tests.
- *
  * Components that include this module can optionally set the start time of the test clock
  * by binding a [Long] value [qualified by the name][Named] `TestClock.startTime`.
  */
-@Module(includes = [
-    CommonTestModule::class,
-    SQLiteMediaStoreModule::class
-])
-internal abstract class SimulatedSystemModule {
+@Module
+abstract class CommonTestModule {
+
+    @Binds
+    abstract fun bindsRevocablePermissions(permissions: RevocablePermission): RuntimePermissions
+
+    @Binds
+    abstract fun bindsTestClock(clock: TestClock): Clock
 
     @Module
-    companion object {
+    internal companion object {
 
         @JvmStatic
-        @Provides @Reusable
-        fun providesSimulatedFileSystem(): FileSystem = SimulatedFileSystem()
+        @Provides
+        fun providesTestClock(
+            @Named("TestClock.startTime") startTime: Long?
+        ) = TestClock(startTime ?: 0L)
+
+        @JvmStatic
+        @Provides
+        internal fun providesTestPermissions() = RevocablePermission()
     }
 }
