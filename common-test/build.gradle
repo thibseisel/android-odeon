@@ -27,6 +27,16 @@ android {
         versionCode rootProject.ext.appVersionCode
         versionName rootProject.ext.appVersionName
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
+    }
 }
 
 dependencies {
