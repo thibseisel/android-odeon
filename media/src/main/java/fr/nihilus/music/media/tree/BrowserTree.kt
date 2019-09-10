@@ -19,7 +19,7 @@ package fr.nihilus.music.media.tree
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.common.media.MediaId
 import io.reactivex.Flowable
 
 /**

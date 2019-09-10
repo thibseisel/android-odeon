@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.common
+package fr.nihilus.music.common.test
 
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.os.Clock
-import fr.nihilus.music.media.os.TestClock
-import fr.nihilus.music.media.permissions.RevocablePermission
-import fr.nihilus.music.media.permissions.RuntimePermissions
+import fr.nihilus.music.common.os.Clock
+import fr.nihilus.music.common.os.RuntimePermissions
+import fr.nihilus.music.common.test.os.RevocablePermission
+import fr.nihilus.music.common.test.os.TestClock
 import javax.inject.Named
 
 /**

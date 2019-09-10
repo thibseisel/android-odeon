@@ -14,4 +14,4 @@
   ~ limitations under the License.
   -->
 
-<manifest package="fr.nihilus.music.test" />
+<manifest package="fr.nihilus.music.common.test" />

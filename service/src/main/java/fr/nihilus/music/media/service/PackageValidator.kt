@@ -29,8 +29,8 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.util.Base64
 import androidx.annotation.XmlRes
 import androidx.media.MediaBrowserServiceCompat
-import fr.nihilus.music.media.BuildConfig
-import fr.nihilus.music.media.R
+import fr.nihilus.music.service.BuildConfig
+import fr.nihilus.music.service.R
 import org.xmlpull.v1.XmlPullParserException
 import timber.log.Timber
 import java.io.IOException

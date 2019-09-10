@@ -18,7 +18,7 @@ package fr.nihilus.music.library.albums
 
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.common.media.MediaId
 import javax.inject.Inject
 
 class AlbumGridViewModel

@@ -17,7 +17,7 @@
 package fr.nihilus.music.media.provider
 
 import android.Manifest
-import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.common.os.PermissionDeniedException
 
 /**
  * A test double for [MediaProvider] that simulates the behavior of the Android MediaStore
@@ -50,13 +50,19 @@ internal class TestMediaProvider(
         get() = _observers
 
     override fun queryTracks(): List<Track> =
-        if (hasStoragePermission) tracks else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (hasStoragePermission) tracks else throw PermissionDeniedException(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
 
     override fun queryAlbums(): List<Album> =
-        if (hasStoragePermission) albums else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (hasStoragePermission) albums else throw PermissionDeniedException(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
 
     override fun queryArtists(): List<Artist> =
-        if (hasStoragePermission) artists else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (hasStoragePermission) artists else throw PermissionDeniedException(
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
 
     override fun deleteTracks(trackIds: LongArray): Int {
         if (!hasStoragePermission) {

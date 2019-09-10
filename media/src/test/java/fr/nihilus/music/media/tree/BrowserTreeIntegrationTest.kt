@@ -17,10 +17,10 @@
 package fr.nihilus.music.media.tree
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.media.assertOn
 import fr.nihilus.music.media.database.AppDatabase
 import fr.nihilus.music.media.provider.MediaStoreSurrogate

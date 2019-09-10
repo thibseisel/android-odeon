@@ -23,8 +23,8 @@ import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.client.MediaSubscriptionException
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.actions.CustomActions
+import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch

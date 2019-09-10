@@ -23,8 +23,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import fr.nihilus.music.R
+import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.utils
+package fr.nihilus.music.common.collections
 
 class ListDiff<out E>(
     val additions: List<E>,

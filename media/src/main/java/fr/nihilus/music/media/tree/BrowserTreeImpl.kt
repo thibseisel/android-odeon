@@ -22,17 +22,17 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_DISPOSABLE
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_MOST_RATED
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
-import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
-import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
-import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
-import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.MediaId.Builder.encode
-import fr.nihilus.music.media.MediaItems
+import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_DISPOSABLE
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_MOST_RATED
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ALBUMS
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ARTISTS
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.common.media.MediaId.Builder.encode
+import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.extensions.getResourceUri
@@ -466,7 +466,11 @@ internal class BrowserTreeImpl
             .drop(fromIndex)
             .take(count)
             .map { track ->
-                val mediaId = MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE, track.trackId)
+                val mediaId = MediaId(
+                    TYPE_TRACKS,
+                    CATEGORY_DISPOSABLE,
+                    track.trackId
+                )
                 val description = builder.setMediaId(mediaId.encoded)
                     .setTitle(track.title)
                     .setExtras(Bundle().apply {

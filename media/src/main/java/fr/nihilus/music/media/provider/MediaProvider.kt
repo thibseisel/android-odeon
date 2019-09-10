@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.common.os.PermissionDeniedException
 
 /**
  * Interface to perform read and write operations on music media stored locally on the device.

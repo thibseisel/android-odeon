@@ -18,6 +18,7 @@ package fr.nihilus.music.media.di
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.common.ExecutionContextModule
 import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.os.AndroidSystemModule

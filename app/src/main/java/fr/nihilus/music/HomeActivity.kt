@@ -32,10 +32,10 @@ import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
 import fr.nihilus.music.base.BaseActivity
+import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
-import fr.nihilus.music.media.permissions.RuntimePermissions
 import fr.nihilus.music.media.service.MusicService
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST

@@ -17,11 +17,11 @@
 package fr.nihilus.music.media.repo
 
 import android.Manifest
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.media.playlists.*
 import fr.nihilus.music.media.provider.*
-import fr.nihilus.music.media.stub
 import fr.nihilus.music.media.usage.MediaUsageEvent
 import fr.nihilus.music.media.usage.TrackScore
 import fr.nihilus.music.media.usage.TrackUsage
@@ -598,7 +598,8 @@ class MediaRepositoryTest {
         override val artists: Flowable<List<Artist>>
             get() = if (hasPermissions) mediaUpdates() else permissionFailure()
 
-        override fun deleteTracks(trackIds: LongArray): Completable = stub()
+        override fun deleteTracks(trackIds: LongArray): Completable =
+            stub()
 
         private fun <T> mediaUpdates(): Flowable<List<T>> =
             Flowable.concat(Flowable.just(emptyList()), Flowable.never())

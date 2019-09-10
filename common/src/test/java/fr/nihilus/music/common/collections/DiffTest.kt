@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.utils
+package fr.nihilus.music.common.collections
 
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.matchers.collections.shouldContainAll
@@ -91,7 +91,8 @@ class DiffTest {
     }
 
     private data class Person(val name: String, val age: Int)
-    private val ageEqualizer = {a: Person, b: Person -> a.age == b.age }
+
+    private val ageEqualizer = { a: Person, b: Person -> a.age == b.age }
 
     @Test
     fun givenAgeEqualizer_whenDiffingLists_thenListAddedPersonsComparingTheirAge() {

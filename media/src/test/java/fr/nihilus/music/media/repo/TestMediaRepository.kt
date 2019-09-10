@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.media.repo
 
+import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_TRACKS_FOR_PLAYLIST
 import fr.nihilus.music.media.provider.*
-import fr.nihilus.music.media.stub
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import io.reactivex.Flowable

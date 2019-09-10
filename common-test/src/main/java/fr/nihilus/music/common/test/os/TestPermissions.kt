@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.permissions
+package fr.nihilus.music.common.test.os
+
+import fr.nihilus.music.common.os.RuntimePermissions
 
 /**
  * All permissions are denied.

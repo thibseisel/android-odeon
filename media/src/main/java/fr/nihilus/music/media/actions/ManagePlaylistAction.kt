@@ -23,14 +23,15 @@ import android.os.Bundle
 import com.github.thibseisel.kdenticon.Identicon
 import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.common.media.toMediaIdOrNull
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.media.playlists.Playlist
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.playlists.PlaylistTrack
-import fr.nihilus.music.media.toMediaIdOrNull
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

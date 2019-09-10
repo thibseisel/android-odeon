@@ -18,10 +18,10 @@ package fr.nihilus.music.common
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.os.Clock
-import fr.nihilus.music.media.os.DeviceClock
-import fr.nihilus.music.media.permissions.RuntimePermissions
-import fr.nihilus.music.media.permissions.SystemRuntimePermissions
+import fr.nihilus.music.common.os.Clock
+import fr.nihilus.music.common.os.DeviceClock
+import fr.nihilus.music.common.os.RuntimePermissions
+import fr.nihilus.music.common.os.SystemRuntimePermissions
 
 @Module
 abstract class CommonModule {

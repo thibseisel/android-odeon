@@ -18,8 +18,8 @@ package fr.nihilus.music.media.provider
 
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.media.RxSchedulers
-import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.common.context.RxSchedulers
+import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
 import fr.nihilus.music.media.provider.MediaProvider.Observer
 import io.reactivex.Flowable

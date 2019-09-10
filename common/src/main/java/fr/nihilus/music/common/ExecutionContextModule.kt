@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.di
+package fr.nihilus.music.common
 
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.RxSchedulers
+import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.context.RxSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers

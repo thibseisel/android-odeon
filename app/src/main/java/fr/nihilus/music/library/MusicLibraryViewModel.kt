@@ -24,7 +24,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.ui.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -69,9 +69,7 @@ class MusicLibraryViewModel
     }
 
     fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
-        if (!playableMedia.isPlayable) {
-            throw IllegalArgumentException("The specified media is not playable.")
-        }
+        require(playableMedia.isPlayable) { "The specified media is not playable." }
 
         launch {
             connection.playFromMediaId(playableMedia.mediaId!!)

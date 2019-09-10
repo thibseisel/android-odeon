@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.di
+package fr.nihilus.music.common.test
 
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.RxSchedulers
+import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.context.RxSchedulers
 import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -28,6 +28,8 @@ import kotlinx.coroutines.test.TestCoroutineScope
 /**
  * Provides an execution context for testing code using RxJava and Kotlin Coroutines.
  * This module only uses a single execution context for all cases.
+ *
+ * Use this module as a test alternative to [ExecutionContextModule][fr.nihilus.music.common.ExecutionContextModule].
  *
  * Execution of RxJava operators and coroutines can be controlled from test code
  * with the [TestScheduler] and [TestCoroutineDispatcher] provided with this module.

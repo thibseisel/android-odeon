@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.common.context
 
 import io.reactivex.Scheduler
 import org.jetbrains.annotations.TestOnly

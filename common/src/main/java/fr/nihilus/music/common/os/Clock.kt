@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.os
+package fr.nihilus.music.common.os
 
 import dagger.Reusable
 import javax.inject.Inject

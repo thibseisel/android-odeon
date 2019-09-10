@@ -22,8 +22,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.actions.CustomActions
+import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.ui.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject

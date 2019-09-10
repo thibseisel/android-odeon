@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.common.media
 
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.media.MediaId.Builder.TYPE_ROOT
-import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ROOT
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import io.kotlintest.matchers.types.beNull
 import io.kotlintest.should
 import io.kotlintest.shouldBe

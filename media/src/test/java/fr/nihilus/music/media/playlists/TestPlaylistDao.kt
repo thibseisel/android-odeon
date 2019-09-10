@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.media.playlists
 
+import fr.nihilus.music.common.collections.diffList
 import fr.nihilus.music.media.provider.TestDao
-import fr.nihilus.music.media.utils.diffList
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 

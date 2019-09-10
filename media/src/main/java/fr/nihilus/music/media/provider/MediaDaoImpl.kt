@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.RxSchedulers
+import fr.nihilus.music.common.context.RxSchedulers
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable

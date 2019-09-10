@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.di
+package fr.nihilus.music.common.test
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider

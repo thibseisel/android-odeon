@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import fr.nihilus.music.base.BrowsableContentViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.actions.CustomActions
+import fr.nihilus.music.common.media.CustomActions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject

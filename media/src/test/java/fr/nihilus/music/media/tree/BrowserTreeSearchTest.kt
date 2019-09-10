@@ -20,11 +20,11 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.media.MediaId.Builder.TYPE_ALBUMS
-import fr.nihilus.music.media.MediaId.Builder.TYPE_ARTISTS
-import fr.nihilus.music.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.MediaId.Builder.encode
+import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ALBUMS
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ARTISTS
+import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.media.THEIR_MEDIA_ID
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.StubUsageManager

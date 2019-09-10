@@ -29,9 +29,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.extensions.*
+import fr.nihilus.music.service.R
 import javax.inject.Inject
 
 internal const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"

@@ -17,14 +17,15 @@
 package fr.nihilus.music.media.actions
 
 import android.os.Bundle
-import fr.nihilus.music.media.AppDispatchers
-import fr.nihilus.music.media.InvalidMediaException
-import fr.nihilus.music.media.MediaId
+import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.common.media.InvalidMediaException
+import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.common.media.toMediaId
+import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.permissions.PermissionDeniedException
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
-import fr.nihilus.music.media.toMediaId
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

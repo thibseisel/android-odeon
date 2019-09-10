@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.permissions.PermissionDeniedException
+import fr.nihilus.music.common.os.PermissionDeniedException
 import io.reactivex.Completable
 import io.reactivex.Flowable
 

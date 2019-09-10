@@ -29,8 +29,8 @@ import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.extensions.startActionMode
-import fr.nihilus.music.media.MediaItems
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 

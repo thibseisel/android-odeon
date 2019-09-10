@@ -22,9 +22,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.InvalidMediaException
-import fr.nihilus.music.media.MediaId
-import fr.nihilus.music.media.actions.CustomActions
+import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.common.media.InvalidMediaException
+import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.ui.Event
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.coroutines.Job
