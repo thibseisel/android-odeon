@@ -34,7 +34,7 @@ import fr.nihilus.music.media.extensions.*
 import fr.nihilus.music.service.R
 import javax.inject.Inject
 
-internal const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
+private const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
 internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
 
 /**
