@@ -107,7 +107,7 @@ kapt {
 dependencies {
     // Sub-project containing the Media Service.
     implementation project(':common')
-    api project(':media')
+    api project(':service')
 
     // Kotlin language support
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
