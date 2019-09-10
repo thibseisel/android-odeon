@@ -16,14 +16,14 @@
   -->
 
 <resources>
-    <string name="src_browser_root_title">Bibliothèque musicale de l\'appareil</string>
-    <string name="src_tracks_type_title">Morceaux</string>
-    <string name="src_albums_type_title">Abums</string>
-    <string name="src_artists_type_title">Artistes</string>
-    <string name="src_playlists_type_title">Playlists</string>
-    <string name="src_all_music">Tous les morceaux</string>
-    <string name="src_last_added">Nouveautés</string>
-    <string name="src_most_rated">Favoris</string>
-    <string name="src_category_disposable">Nettoyage</string>
-    <string name="src_artist_subtitle">%1$d albums, %2$d morceaux</string>
+    <string name="media_browser_root_title">Bibliothèque musicale de l\'appareil</string>
+    <string name="media_tracks_type_title">Morceaux</string>
+    <string name="media_albums_type_title">Abums</string>
+    <string name="media_artists_type_title">Artistes</string>
+    <string name="media_playlists_type_title">Playlists</string>
+    <string name="media_all_music">Tous les morceaux</string>
+    <string name="media_last_added">Nouveautés</string>
+    <string name="media_most_rated">Favoris</string>
+    <string name="media_category_disposable">Nettoyage</string>
+    <string name="media_artist_subtitle">%1$d albums, %2$d morceaux</string>
 </resources>

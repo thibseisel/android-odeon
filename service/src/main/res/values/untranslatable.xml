@@ -17,7 +17,7 @@
 
 <resources>
     <!-- Allowed caller template -->
-    <string name="allowed_caller_log" translatable="false">
+    <string name="svc_allowed_caller_log" translatable="false">
         Caller has a valid certificate, but its package doesn\'t match any expected package for the
         given certificate. To allow this caller, add the following to the allowed callers list:\n
         <![CDATA[

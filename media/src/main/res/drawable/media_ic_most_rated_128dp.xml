@@ -21,7 +21,7 @@
         android:viewportWidth="48.0">
 
     <path
-        android:fillColor="@color/src_mtrl_amber_300"
+        android:fillColor="@color/media_mtrl_amber_300"
         android:pathData="M0,0V48H48V0z"/>
 
     <path

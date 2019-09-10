@@ -16,6 +16,6 @@
   -->
 
 <resources>
-    <color name="src_mtrl_deeppurple_300">#9575cd</color>
-    <color name="src_mtrl_amber_300">#FFD54F</color>
+    <color name="media_mtrl_deeppurple_300">#9575cd</color>
+    <color name="media_mtrl_amber_300">#FFD54F</color>
 </resources>

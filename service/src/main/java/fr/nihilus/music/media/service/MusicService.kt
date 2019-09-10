@@ -96,7 +96,7 @@ class MusicService : BaseBrowserService() {
 
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
-        packageValidator = PackageValidator(this, R.xml.abc_allowed_media_browser_callers)
+        packageValidator = PackageValidator(this, R.xml.svc_allowed_media_browser_callers)
 
         // Observe changes to the "skip silence" settings, applying it to the player when changed.
         observeSkipSilenceSettings()

@@ -157,7 +157,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
     private fun logUnknownCaller(callerPackageInfo: CallerPackageInfo) {
         if (BuildConfig.DEBUG && callerPackageInfo.signature != null) {
             Timber.i(
-                context.getString(R.string.allowed_caller_log),
+                context.getString(R.string.svc_allowed_caller_log),
                 callerPackageInfo.name,
                 callerPackageInfo.packageName,
                 callerPackageInfo.signature

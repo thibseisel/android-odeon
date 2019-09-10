@@ -15,14 +15,14 @@
   -->
 
 <resources>
-    <string name="src_browser_root_title">Local music library</string>
-    <string name="src_tracks_type_title">Tracks</string>
-    <string name="src_albums_type_title">Albums</string>
-    <string name="src_artists_type_title">Artists</string>
-    <string name="src_playlists_type_title">Playlists</string>
-    <string name="src_all_music">All tracks</string>
-    <string name="src_most_rated">Favorites</string>
-    <string name="src_last_added">Recently added</string>
-    <string name="src_category_disposable">Disposable</string>
-    <string name="src_artist_subtitle">%1$d albums, %2$d tracks</string>
+    <string name="media_browser_root_title">Local music library</string>
+    <string name="media_tracks_type_title">Tracks</string>
+    <string name="media_albums_type_title">Albums</string>
+    <string name="media_artists_type_title">Artists</string>
+    <string name="media_playlists_type_title">Playlists</string>
+    <string name="media_all_music">All tracks</string>
+    <string name="media_most_rated">Favorites</string>
+    <string name="media_last_added">Recently added</string>
+    <string name="media_category_disposable">Disposable</string>
+    <string name="media_artist_subtitle">%1$d albums, %2$d tracks</string>
 </resources>

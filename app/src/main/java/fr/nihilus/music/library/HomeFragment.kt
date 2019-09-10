@@ -50,7 +50,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         // Configure toolbar with title and menu.
         toolbar.run {
-            setTitle(R.string.app_name)
+            setTitle(R.string.core_app_name)
             inflateMenu(R.menu.menu_home)
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }

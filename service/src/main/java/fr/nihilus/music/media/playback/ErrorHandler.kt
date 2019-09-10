@@ -47,7 +47,7 @@ internal class ErrorHandler
         is UnrecognizedInputFormatException -> handleUnrecognizedFormat(cause.uri)
         else -> Pair(
             PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
-            context.getString(R.string.player_source_error_generic)
+            context.getString(R.string.svc_player_source_error_generic)
         )
     }
 
@@ -56,14 +56,14 @@ internal class ErrorHandler
             failingUri.path?.substringAfterLast('.')?.let { fileExtension ->
                 return Pair(
                     PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
-                    context.getString(R.string.player_error_unsupported_file_format, fileExtension)
+                    context.getString(R.string.svc_player_error_unsupported_file_format, fileExtension)
                 )
             }
         }
 
         return Pair(
             PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
-            context.getString(R.string.player_error_unsupported_file)
+            context.getString(R.string.svc_player_error_unsupported_file)
         )
     }
 
@@ -71,7 +71,7 @@ internal class ErrorHandler
         Timber.e(cause, "Unexpected player error.")
         return Pair(
             PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR,
-            context.getString(R.string.abc_player_unknown_error)
+            context.getString(R.string.svc_player_unknown_error)
         )
     }
 }

@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <string name="app_name">Odeon</string>
+    <string name="core_app_name">Odeon</string>
 </resources>

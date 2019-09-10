@@ -15,14 +15,14 @@
   -->
 
 <resources>
-    <string name="abc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
-    <string name="abc_action_play">Play</string>
-    <string name="abc_action_pause">Pause</string>
-    <string name="abc_action_next">Next</string>
-    <string name="abc_action_previous">Previous</string>
-    <string name="abc_channel_mediasession">Now playing</string>
-    <string name="abc_channel_mediasession_description">Controls media playback from the lock screen and the notification panel.</string>
-    <string name="player_error_unsupported_file">Odeon does not support playing this file.</string>
-    <string name="player_error_unsupported_file_format">Odeon does not support playing %s files.</string>
-    <string name="player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
+    <string name="svc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
+    <string name="svc_action_play">Play</string>
+    <string name="svc_action_pause">Pause</string>
+    <string name="svc_action_next">Next</string>
+    <string name="svc_action_previous">Previous</string>
+    <string name="svc_channel_mediasession">Now playing</string>
+    <string name="svc_channel_mediasession_description">Controls media playback from the lock screen and the notification panel.</string>
+    <string name="svc_player_error_unsupported_file">Odeon does not support playing this file.</string>
+    <string name="svc_player_error_unsupported_file_format">Odeon does not support playing %s files.</string>
+    <string name="svc_player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
 </resources>

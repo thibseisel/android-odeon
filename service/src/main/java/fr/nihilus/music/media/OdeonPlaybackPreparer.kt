@@ -61,7 +61,7 @@ internal class OdeonPlaybackPreparer
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
     private val appDataSourceFactory = DefaultDataSourceFactory(
         context,
-        Util.getUserAgent(context, context.getString(R.string.app_name))
+        Util.getUserAgent(context, context.getString(R.string.core_app_name))
     )
 
     override fun getSupportedPrepareActions(): Long =

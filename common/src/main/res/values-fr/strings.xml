@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <string name="app_name">Odéon</string>
+    <string name="core_app_name">Odéon</string>
 </resources>

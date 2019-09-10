@@ -33,7 +33,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/src_shared_filepaths"/>
+                android:resource="@xml/media_shared_filepaths"/>
         </provider>
     </application>
 

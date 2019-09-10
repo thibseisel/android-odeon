@@ -59,26 +59,26 @@ internal class MediaNotificationBuilder
     private val noOpAction = NotificationCompat.Action(0, null, null)
 
     private val previousAction = NotificationCompat.Action(
-        R.drawable.abc_ic_skip_previous_36dp,
-        context.getString(R.string.abc_action_previous),
+        R.drawable.svc_ic_skip_previous_36dp,
+        context.getString(R.string.svc_action_previous),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
     )
 
     private val playAction = NotificationCompat.Action(
-        R.drawable.abc_ic_play_arrow_48dp,
-        context.getString(R.string.abc_action_play),
+        R.drawable.svc_ic_play_arrow_48dp,
+        context.getString(R.string.svc_action_play),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
     )
 
     private val pauseAction = NotificationCompat.Action(
-        R.drawable.abc_ic_pause_48dp,
-        context.getString(R.string.abc_action_pause),
+        R.drawable.svc_ic_pause_48dp,
+        context.getString(R.string.svc_action_pause),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
     )
 
     private val nextAction = NotificationCompat.Action(
-        R.drawable.abc_ic_skip_next_36dp,
-        context.getString(R.string.abc_action_next),
+        R.drawable.svc_ic_skip_next_36dp,
+        context.getString(R.string.svc_action_next),
         MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
     )
 
@@ -129,7 +129,7 @@ internal class MediaNotificationBuilder
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(metadata.albumArt)
             .setOnlyAlertOnce(true)
-            .setSmallIcon(if (isPlaying) R.drawable.abc_notif_play_arrow else R.drawable.abc_notif_pause)
+            .setSmallIcon(if (isPlaying) R.drawable.svc_notif_play_arrow else R.drawable.svc_notif_pause)
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .build()
@@ -145,10 +145,10 @@ internal class MediaNotificationBuilder
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createNowPlayingChannel() {
         val notificationChannel = NotificationChannel(NOW_PLAYING_CHANNEL,
-            context.getString(R.string.abc_channel_mediasession),
+            context.getString(R.string.svc_channel_mediasession),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = context.getString(R.string.abc_channel_mediasession_description)
+            description = context.getString(R.string.svc_channel_mediasession_description)
             lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
             setShowBadge(false)
         }

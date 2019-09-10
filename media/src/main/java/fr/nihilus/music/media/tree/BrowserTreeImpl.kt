@@ -96,54 +96,54 @@ internal class BrowserTreeImpl
      * The tree structure of the media browser.
      */
     private val tree = mediaTree(MediaId.ROOT) {
-        rootName = context.getString(R.string.src_browser_root_title)
+        rootName = context.getString(R.string.media_browser_root_title)
 
         type(TYPE_TRACKS) {
-            title = context.getString(R.string.src_tracks_type_title)
+            title = context.getString(R.string.media_tracks_type_title)
 
             category(
                 CATEGORY_ALL,
-                context.getString(R.string.src_all_music),
+                context.getString(R.string.media_all_music),
                 children = ::provideAllTracks
             )
 
             category(
                 CATEGORY_MOST_RATED,
-                context.getString(R.string.src_most_rated),
-                iconUri = context.resources.getResourceUri(R.drawable.src_ic_most_rated_128dp),
+                context.getString(R.string.media_most_rated),
+                iconUri = context.resources.getResourceUri(R.drawable.media_ic_most_rated_128dp),
                 children = ::provideMostRatedTracks
             )
 
             category(
                 CATEGORY_RECENTLY_ADDED,
-                context.getString(R.string.src_last_added),
-                iconUri = context.resources.getResourceUri(R.drawable.src_ic_most_recent_128dp),
+                context.getString(R.string.media_last_added),
+                iconUri = context.resources.getResourceUri(R.drawable.media_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
             )
 
             category(
                 CATEGORY_DISPOSABLE,
-                context.getString(R.string.src_category_disposable),
+                context.getString(R.string.media_category_disposable),
                 children = ::provideDisposableTracks
             )
         }
 
         type(TYPE_ALBUMS) {
-            title = context.getString(R.string.src_albums_type_title)
+            title = context.getString(R.string.media_albums_type_title)
 
             categories(provider = ::provideAllAlbums)
             categoryChildren(provider = ::provideAlbumTracks)
         }
 
         type(TYPE_ARTISTS) {
-            title = context.getString(R.string.src_artists_type_title)
+            title = context.getString(R.string.media_artists_type_title)
 
             categories(provider = ::provideAllArtists)
             categoryChildren(provider = ::provideArtistChildren)
         }
 
         type(TYPE_PLAYLISTS) {
-            title = context.getString(R.string.src_playlists_type_title)
+            title = context.getString(R.string.media_playlists_type_title)
 
             categories(provider = ::provideAllPlaylists)
             categoryChildren(provider = ::providePlaylistTracks)
@@ -159,7 +159,7 @@ internal class BrowserTreeImpl
         val mediaId = encode(TYPE_ARTISTS, id.toString())
         val artistDescription = builder.setMediaId(mediaId)
             .setTitle(name)
-            .setSubtitle(context.getString(R.string.src_artist_subtitle, albumCount, trackCount))
+            .setSubtitle(context.getString(R.string.media_artist_subtitle, albumCount, trackCount))
             .setIconUri(iconUri?.toUri())
             .setExtras(Bundle().apply {
                 putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
