@@ -15,7 +15,6 @@
   -->
 
 <resources>
-    <string name="app_name">Odeon</string>
     <string name="src_browser_root_title">Local music library</string>
     <string name="src_tracks_type_title">Tracks</string>
     <string name="src_albums_type_title">Albums</string>

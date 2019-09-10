@@ -16,7 +16,6 @@
   -->
 
 <resources>
-    <string name="app_name">Odéon</string>
     <string name="src_browser_root_title">Bibliothèque musicale de l\'appareil</string>
     <string name="src_tracks_type_title">Morceaux</string>
     <string name="src_albums_type_title">Abums</string>

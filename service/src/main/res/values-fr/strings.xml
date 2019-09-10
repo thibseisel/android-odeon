@@ -16,7 +16,6 @@
   -->
 
 <resources>
-    <string name="app_name">Odeon</string>
     <string name="abc_player_unknown_error">Oups, quelque chose a planté et le lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="abc_action_play">Lire</string>
     <string name="abc_action_pause">Pause</string>

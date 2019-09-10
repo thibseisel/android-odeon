@@ -15,7 +15,6 @@
   -->
 
 <resources>
-    <string name="app_name">Odeon</string>
     <string name="album_art">Album art</string>
     <string name="drawer_opened">Drawer opened</string>
     <string name="drawer_closed">Drawer closed</string>

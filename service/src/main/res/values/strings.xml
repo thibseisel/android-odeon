@@ -15,7 +15,6 @@
   -->
 
 <resources>
-    <string name="app_name">Odeon</string>
     <string name="abc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
     <string name="abc_action_play">Play</string>
     <string name="abc_action_pause">Pause</string>
