@@ -22,7 +22,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.HomeActivity
-import fr.nihilus.music.client.ViewModelKey
+import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 import fr.nihilus.music.library.albums.AlbumsModule
 import fr.nihilus.music.library.artists.ArtistsModule
 import fr.nihilus.music.library.nowplaying.NowPlayingModule

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.extensions
+package fr.nihilus.music.core.ui.extensions
 
 import android.view.LayoutInflater
 import android.view.View

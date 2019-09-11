@@ -20,13 +20,13 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.base.BaseViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.InvalidMediaException
 import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.ui.Event
-import fr.nihilus.music.ui.LoadRequest
+import fr.nihilus.music.core.ui.Event
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseViewModel
+import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch

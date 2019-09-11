@@ -20,9 +20,7 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
@@ -33,13 +31,13 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.TransitionInflater
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseFragment
-import fr.nihilus.music.extensions.darkSystemIcons
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.extensions.luminance
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.CurrentlyPlayingDecoration
-import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_album_detail.*
 
 /**

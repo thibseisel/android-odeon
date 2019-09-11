@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.base
+package fr.nihilus.music.core.ui.base
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDialogFragment
@@ -23,7 +23,6 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import dagger.android.support.AndroidSupportInjection
-import dagger.android.support.DaggerAppCompatDialogFragment
 import javax.inject.Inject
 
 abstract class BaseDialogFragment : AppCompatDialogFragment(), HasAndroidInjector {

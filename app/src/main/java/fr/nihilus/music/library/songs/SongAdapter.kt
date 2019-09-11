@@ -26,7 +26,7 @@ import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaItems
-import fr.nihilus.music.extensions.inflate
+import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.AlphaSectionIndexer

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.client
+package fr.nihilus.music.core.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -39,7 +39,7 @@ annotation class ViewModelKey(val value: KClass<out ViewModel>)
  * This enables dependency injection into the created ViewModels.
  */
 internal class DaggerViewModelFactory
-@Inject internal constructor(
+@Inject constructor(
     private val creators: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 

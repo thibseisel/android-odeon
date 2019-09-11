@@ -31,13 +31,13 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
-import fr.nihilus.music.base.BaseActivity
 import fr.nihilus.music.common.os.RuntimePermissions
-import fr.nihilus.music.extensions.darkSystemIcons
+import fr.nihilus.music.core.ui.ConfirmDialogFragment
+import fr.nihilus.music.core.ui.base.BaseActivity
+import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
 import kotlinx.android.synthetic.main.activity_home.*

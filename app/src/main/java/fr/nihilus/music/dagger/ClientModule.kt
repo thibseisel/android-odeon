@@ -16,10 +16,8 @@
 
 package fr.nihilus.music.dagger
 
-import androidx.lifecycle.ViewModelProvider
-import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.client.DaggerViewModelFactory
+import fr.nihilus.music.core.ui.viewmodel.ViewModelModule
 import fr.nihilus.music.glide.palette.AlbumColorModule
 import fr.nihilus.music.library.HomeModule
 import fr.nihilus.music.library.cleanup.CleanupModule
@@ -33,9 +31,7 @@ import fr.nihilus.music.settings.SettingsModule
     HomeModule::class,
     CleanupModule::class,
     SettingsModule::class,
+    ViewModelModule::class,
     AlbumColorModule::class
 ])
-internal abstract class ClientModule {
-    @Binds
-    internal abstract fun bindsVmFactory(factory: DaggerViewModelFactory): ViewModelProvider.Factory
-}
+internal abstract class ClientModule

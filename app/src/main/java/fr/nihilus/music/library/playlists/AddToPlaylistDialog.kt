@@ -30,12 +30,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseDialogFragment
-import fr.nihilus.music.extensions.inflate
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseDialogFragment
+import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.ListAdapter
-import fr.nihilus.music.ui.LoadRequest
 
 /**
  * A fragment displaying an Alert Dialog prompting the user to choose to which playlists

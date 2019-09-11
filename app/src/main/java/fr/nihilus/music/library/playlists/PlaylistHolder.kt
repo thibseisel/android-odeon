@@ -24,7 +24,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.extensions.isVisible
+import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.ui.BaseAdapter
 
 /**

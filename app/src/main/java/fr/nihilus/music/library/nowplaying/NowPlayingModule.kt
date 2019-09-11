@@ -21,7 +21,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import fr.nihilus.music.client.ViewModelKey
+import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 
 @Module
 abstract class NowPlayingModule {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.core.ui
 
 /**
  * Encapsulate state of a data load operation.

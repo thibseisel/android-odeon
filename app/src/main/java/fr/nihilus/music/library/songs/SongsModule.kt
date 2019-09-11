@@ -21,8 +21,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
-import fr.nihilus.music.client.ViewModelKey
-import fr.nihilus.music.library.playlists.*
+import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
+import fr.nihilus.music.library.playlists.AddToPlaylistDialog
+import fr.nihilus.music.library.playlists.NewPlaylistDialog
+import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 
 @Module
 internal abstract class SongsModule {

@@ -17,8 +17,8 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.base.BrowsableContentViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
+import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 

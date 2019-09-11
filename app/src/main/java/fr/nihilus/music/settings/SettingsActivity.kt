@@ -18,7 +18,7 @@ package fr.nihilus.music.settings
 
 import android.os.Bundle
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseActivity
+import fr.nihilus.music.core.ui.base.BaseActivity
 
 class SettingsActivity : BaseActivity() {
 

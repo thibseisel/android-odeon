@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.base
+package fr.nihilus.music.core.ui.base
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope

@@ -29,7 +29,7 @@ import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget

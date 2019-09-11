@@ -18,7 +18,7 @@ package fr.nihilus.music.library.cleanup
 
 import android.os.Bundle
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseActivity
+import fr.nihilus.music.core.ui.base.BaseActivity
 
 /**
  * A simple activity that only displays the content of [CleanupFragment].

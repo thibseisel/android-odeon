@@ -32,14 +32,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseFragment
-import fr.nihilus.music.extensions.isVisible
+import fr.nihilus.music.core.ui.ConfirmDialogFragment
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import fr.nihilus.music.ui.ConfirmDialogFragment
-import fr.nihilus.music.ui.LoadRequest
 import fr.nihilus.music.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_songs.*
 

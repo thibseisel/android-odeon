@@ -19,11 +19,11 @@ package fr.nihilus.music.library.playlists
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.base.BaseViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.client.MediaSubscriptionException
 import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.ui.LoadRequest
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseViewModel
+import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import javax.inject.Inject

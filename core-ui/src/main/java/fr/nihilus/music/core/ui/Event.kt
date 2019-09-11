@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.core.ui
 
 import androidx.lifecycle.LiveData
 import com.google.android.material.snackbar.Snackbar

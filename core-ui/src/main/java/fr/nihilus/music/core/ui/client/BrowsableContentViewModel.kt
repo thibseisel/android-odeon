@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.base
+package fr.nihilus.music.core.ui.client
 
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.client.MediaSubscriptionException
-import fr.nihilus.music.ui.LoadRequest
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch

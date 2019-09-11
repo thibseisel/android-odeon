@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.core.ui
 
 import android.app.Activity
 import android.app.Dialog

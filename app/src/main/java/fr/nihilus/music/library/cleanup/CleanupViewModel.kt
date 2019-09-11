@@ -20,12 +20,12 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.base.BaseViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.client.MediaSubscriptionException
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.ui.LoadRequest
+import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.base.BaseViewModel
+import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import timber.log.Timber

@@ -27,7 +27,7 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
-import fr.nihilus.music.base.BaseFragment
+import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment

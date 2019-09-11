@@ -22,10 +22,10 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import fr.nihilus.music.base.BaseViewModel
-import fr.nihilus.music.client.MediaBrowserConnection
 import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.ui.Event
+import fr.nihilus.music.core.ui.Event
+import fr.nihilus.music.core.ui.base.BaseViewModel
+import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
