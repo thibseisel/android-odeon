@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.library.cleanup
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.Menu
@@ -31,8 +33,15 @@ import fr.nihilus.music.R
 import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.extensions.startActionMode
+import fr.nihilus.music.extensions.sumByLong
+import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.LoadRequest
 import kotlinx.android.synthetic.main.fragment_cleanup.*
+
+/**
+ * Code associated with the request to confirm deleting tracks.
+ */
+private const val REQUEST_CONFIRM_CLEANUP = 1337
 
 /**
  * Lists tracks that could be deleted from the device's storage to free-up space.
@@ -63,8 +72,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
 
         action_delete_selected.setOnClickListener {
-            val selectedTracks = selectionTracker.selection.toList()
-            viewModel.deleteTracks(selectedTracks)
+            askCleanupConfirmation(selectionTracker.selection)
         }
 
         check_all_box.setOnCheckedChangeListener { _, isChecked ->
@@ -91,6 +99,26 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         selectionTracker.onSaveInstanceState(outState)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CONFIRM_CLEANUP && resultCode == DialogInterface.BUTTON_POSITIVE) {
+            val selectedTracks = selectionTracker.selection.toList()
+            viewModel.deleteTracks(selectedTracks)
+        }
+    }
+
+    private fun askCleanupConfirmation(deletedTracks: Selection<MediaBrowserCompat.MediaItem>) {
+        val selected = deletedTracks.size()
+        val dialog = ConfirmDialogFragment.newInstance(
+            this,
+            REQUEST_CONFIRM_CLEANUP,
+            resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
+            getString(R.string.cleanup_confirmation_message),
+            R.string.action_delete,
+            R.string.cancel
+        )
+
+        dialog.show(requireFragmentManager(), null)
+    }
 
     private fun setFabVisibility(visible: Boolean) {
         if (visible) {
@@ -180,18 +208,11 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                     selectedCount
                 )
 
-                val freedBytes = computeFreedBytes()
+                val freedBytes = liveSelection.sumByLong {
+                    it.description.extras?.getLong(MediaItems.EXTRA_FILE_SIZE) ?: 0L
+                }
                 mode.subtitle = formatToHumanReadableByteCount(freedBytes)
             }
-        }
-
-        private fun computeFreedBytes(): Long {
-            var bytes = 0L
-            for (selectedTrack in liveSelection) {
-                bytes += selectedTrack.description.extras?.getLong(MediaItems.EXTRA_FILE_SIZE) ?: 0L
-            }
-
-            return bytes
         }
 
         override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false

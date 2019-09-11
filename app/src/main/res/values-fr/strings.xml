@@ -59,6 +59,11 @@
         <item quantity="other">%d morceaux sélectionnés</item>
     </plurals>
 
+    <plurals name="cleanup_confirmation_title">
+        <item quantity="one">Supprimer %d morceau ?</item>
+        <item quantity="other">Supprimer %d morceaux ?</item>
+    </plurals>
+
     <plurals name="tracks_added_to_playlist">
         <item quantity="one">%1$d titre ajouté à la playlist \"%2$s\"</item>
         <item quantity="other">%1$d titres ajoutés à la playlist \"%2$s\"</item>
@@ -89,4 +94,5 @@
     <string name="pref_theme_system">Valeur du système</string>
     <string name="action_cleanup_title">Libérer de l\'espace</string>
     <string name="select_all_elements">Tous les éléments</string>
+    <string name="cleanup_confirmation_message">Cette opération est irréversible.</string>
 </resources>
