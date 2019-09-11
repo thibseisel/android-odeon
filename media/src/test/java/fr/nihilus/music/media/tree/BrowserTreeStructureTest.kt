@@ -354,8 +354,8 @@ class BrowserTreeStructureTest {
     fun `When loading children of Disposable, then return disposable items from usage manager`() =
         runBlockingTest {
         val usageManager = TestUsageManager(emptyList(), disposableTracks = listOf(
-            DisposableTrack(48L, "Give It Up", 5_716_578, null),
-            DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
+            DisposableTrack(48L, "Give It Up", "AC/DC", 5_716_578, null),
+            DisposableTrack(161L, "1741 (The Battle of Cartagena)", "Alestorm", 17_506_481, 1565272800)
         ))
 
         val browserTree = BrowserTreeImpl(context, StubMediaRepository(), usageManager)
@@ -367,6 +367,7 @@ class BrowserTreeStructureTest {
         children[0] should {
             it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|48"
             it.description.title shouldBe "Give It Up"
+            it.description.subtitle shouldBe "AC/DC"
 
             assertOn(it.description.extras) {
                 longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(5_716_578)
@@ -377,6 +378,7 @@ class BrowserTreeStructureTest {
         children[1] should {
             it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|161"
             it.description.title shouldBe "1741 (The Battle of Cartagena)"
+            it.description.subtitle shouldBe "Alestorm"
 
             assertOn(it.description.extras) {
                 longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(17_506_481)

@@ -466,13 +466,10 @@ internal class BrowserTreeImpl
             .drop(fromIndex)
             .take(count)
             .map { track ->
-                val mediaId = MediaId(
-                    TYPE_TRACKS,
-                    CATEGORY_DISPOSABLE,
-                    track.trackId
-                )
+                val mediaId = MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE, track.trackId)
                 val description = builder.setMediaId(mediaId.encoded)
                     .setTitle(track.title)
+                    .setSubtitle(track.subtitle)
                     .setExtras(Bundle().apply {
                         putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
                         if (track.lastPlayedTime != null) {

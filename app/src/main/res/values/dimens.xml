@@ -27,4 +27,5 @@
     <dimen name="playlist_title_input_spacing">16dp</dimen>
     <dimen name="collapsing_toolbar_height">192dp</dimen>
     <dimen name="artist_detail_overlay">64dp</dimen>
+    <dimen name="three_lines_item_height">88dp</dimen>
 </resources>

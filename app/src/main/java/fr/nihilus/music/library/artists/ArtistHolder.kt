@@ -34,7 +34,7 @@ internal class ArtistHolder(
     private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
 
-    private val artistName: TextView = itemView.findViewById(R.id.artist_name)
+    private val artistName: TextView = itemView.findViewById(R.id.subtitle)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
     private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
 
