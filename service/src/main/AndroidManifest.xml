@@ -15,11 +15,30 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="fr.nihilus.music.service">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application>
+
+        <!--
+            Main music service.
+            Provides media browsing and media playback services to consumers through MediaSession.
+            Consumers connect to it through MediaBrowser (for browsing)
+            and MediaController (for play session control)
+        -->
+        <service
+            android:name=".MusicService"
+            android:exported="true"
+            android:enabled="true"
+            tools:ignore="ExportedService">
+
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+        </service>
+
         <!--
              MediaSession, prior to API 21, uses a broadcast receiver to communicate with a
              media session. It does not have to be this broadcast receiver, but it must

@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="fr.nihilus.music">
+    package="fr.nihilus.music">
 
     <application
         android:name=".OdeonApplication"
@@ -88,23 +87,6 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".HomeActivity" />
-
-        <!--
-            Main music service.
-            Provides media browsing and media playback services to consumers through MediaSession.
-            Consumers connect to it through MediaBrowser (for browsing)
-            and MediaController (for play session control)
-        -->
-        <service
-            android:name=".service.MusicService"
-            android:exported="true"
-            android:enabled="true"
-            tools:ignore="ExportedService">
-
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
     </application>
 
 </manifest>
