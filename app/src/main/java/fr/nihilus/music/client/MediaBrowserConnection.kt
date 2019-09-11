@@ -26,8 +26,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.media.extensions.isPrepared
-import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.service.extensions.isPrepared
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel

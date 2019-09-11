@@ -96,7 +96,7 @@
             and MediaController (for play session control)
         -->
         <service
-            android:name=".media.service.MusicService"
+            android:name=".service.MusicService"
             android:exported="true"
             android:enabled="true"
             tools:ignore="ExportedService">

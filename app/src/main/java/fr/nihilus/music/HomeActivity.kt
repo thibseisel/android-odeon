@@ -36,7 +36,7 @@ import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.extensions.darkSystemIcons
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
-import fr.nihilus.music.media.service.MusicService
+import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.ui.ConfirmDialogFragment
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission

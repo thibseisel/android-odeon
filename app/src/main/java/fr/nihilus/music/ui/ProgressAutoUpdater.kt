@@ -23,7 +23,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.widget.SeekBar
 import android.widget.TextView
-import fr.nihilus.music.media.extensions.duration
+import fr.nihilus.music.service.extensions.duration
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit

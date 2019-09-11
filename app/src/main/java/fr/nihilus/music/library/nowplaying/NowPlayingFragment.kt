@@ -21,9 +21,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.ViewModelProviders
@@ -35,8 +33,8 @@ import fr.nihilus.music.base.BaseFragment
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
-import fr.nihilus.music.media.extensions.displayIconUri
-import fr.nihilus.music.media.extensions.isPlaying
+import fr.nihilus.music.service.extensions.displayIconUri
+import fr.nihilus.music.service.extensions.isPlaying
 import fr.nihilus.music.ui.ProgressAutoUpdater
 import kotlinx.android.synthetic.main.fragment_now_playing.*
 import kotlinx.android.synthetic.main.fragment_now_playing_top.*

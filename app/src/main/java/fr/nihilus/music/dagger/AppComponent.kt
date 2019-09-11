@@ -21,7 +21,7 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.media.di.MediaServiceModule
+import fr.nihilus.music.service.MediaServiceModule
 import javax.inject.Singleton
 
 /**

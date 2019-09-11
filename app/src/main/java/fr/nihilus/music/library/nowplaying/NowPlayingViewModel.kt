@@ -22,7 +22,7 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.LiveData
 import fr.nihilus.music.base.BaseViewModel
 import fr.nihilus.music.client.MediaBrowserConnection
-import fr.nihilus.music.media.extensions.isPlaying
+import fr.nihilus.music.service.extensions.isPlaying
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
