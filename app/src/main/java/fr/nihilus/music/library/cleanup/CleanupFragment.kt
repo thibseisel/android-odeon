@@ -103,6 +103,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         if (requestCode == REQUEST_CONFIRM_CLEANUP && resultCode == DialogInterface.BUTTON_POSITIVE) {
             val selectedTracks = selectionTracker.selection.toList()
             viewModel.deleteTracks(selectedTracks)
+            selectionTracker.clearSelection()
         }
     }
 
