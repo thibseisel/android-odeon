@@ -18,9 +18,7 @@ package fr.nihilus.music.library.artists.detail
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -60,6 +58,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         super.onViewCreated(view, savedInstanceState)
 
         postponeEnterTransition()
+        toolbar.title = args.pickedArtist.description.title
         viewModel.loadChildrenOfArtist(args.pickedArtist)
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
