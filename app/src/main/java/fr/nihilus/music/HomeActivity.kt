@@ -25,6 +25,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
@@ -61,7 +62,8 @@ class HomeActivity : BaseActivity(),
 
     private val statusBarNavListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
-            if (destination.id != R.id.fragment_artist_detail) {
+            if (destination.id != R.id.fragment_album_detail) {
+                window.statusBarColor = ContextCompat.getColor(this, R.color.color_primary_dark)
                 window.darkSystemIcons = false
             }
         }

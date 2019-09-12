@@ -29,7 +29,9 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Transition
 import androidx.transition.TransitionInflater
+import androidx.transition.TransitionListenerAdapter
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -89,6 +91,12 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         val inflater = TransitionInflater.from(requireContext())
         val albumArtTransition = inflater.inflateTransition(android.R.transition.move)
         sharedElementEnterTransition = albumArtTransition
+
+        albumArtTransition.addListener(object : TransitionListenerAdapter() {
+            override fun onTransitionEnd(transition: Transition) {
+                activity?.window?.statusBarColor = 0x00000000
+            }
+        })
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
