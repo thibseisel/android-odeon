@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
@@ -24,6 +23,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
+    private val viewModel by activityViewModels<MusicLibraryViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,13 +61,24 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean =
-        item.onNavDestinationSelected(findNavController()) || super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.onNavDestinationSelected(findNavController())) {
+            return true
+        }
+
+        return when (item.itemId) {
+            R.id.action_shuffle -> {
+                viewModel.playAllShuffled()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     /**
      * An adapter that maps fragments displaying collection of media to items in a ViewPager.
      */
-    @SuppressLint("WrongConstant")
     private class MusicLibraryTabAdapter(
         private val context: Context,
         fm: FragmentManager

@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library
 
-import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
@@ -31,7 +30,6 @@ import javax.inject.Inject
 
 class MusicLibraryViewModel
 @Inject constructor(
-    context: Context,
     private val connection: MediaBrowserConnection
 ) : BaseViewModel() {
     private val client = MediaBrowserConnection.ClientToken()
