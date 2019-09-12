@@ -87,7 +87,6 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
         private val context = parent.context
         private val tickMark = itemView.findViewById<CheckBox>(R.id.selection_mark)
         private val title = itemView.findViewById<TextView>(R.id.title)
-        private val subtitle = itemView.findViewById<TextView>(R.id.subtitle)
         private val usageDescription = itemView.findViewById<TextView>(R.id.usage_description)
         private val fileSizeCaption = itemView.findViewById<TextView>(R.id.file_size)
 
@@ -110,7 +109,6 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
                 ?.getLong(MediaItems.EXTRA_LAST_PLAYED_TIME)
 
             title.text = item.title
-            subtitle.text = item.subtitle
             usageDescription.text = formatElapsedTimeSince(lastPlayedTime)
             fileSizeCaption.text = formatToHumanReadableByteCount(fileSizeBytes)
         }

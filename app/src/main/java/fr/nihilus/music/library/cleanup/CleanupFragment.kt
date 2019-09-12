@@ -28,6 +28,7 @@ import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaItems
@@ -56,6 +57,8 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
         val recyclerView = disposable_track_list
         recyclerView.setHasFixedSize(true)
+        val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+        recyclerView.addItemDecoration(dividers)
 
         val adapter = CleanupAdapter()
         recyclerView.adapter = adapter
@@ -73,6 +76,10 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
         action_delete_selected.setOnClickListener {
             askCleanupConfirmation(selectionTracker.selection)
+        }
+
+        check_all_label.setOnClickListener {
+            check_all_box.isChecked = !check_all_box.isChecked
         }
 
         check_all_box.setOnCheckedChangeListener { _, isChecked ->
