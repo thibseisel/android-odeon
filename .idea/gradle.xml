@@ -16,6 +16,7 @@
             <option value="$PROJECT_DIR$/media" />
             <option value="$PROJECT_DIR$/player-testing" />
             <option value="$PROJECT_DIR$/service" />
+            <option value="$PROJECT_DIR$/spotify-client" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
