@@ -32,6 +32,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -184,6 +185,29 @@ class MediaBrowserConnection
 
                 override fun onError(itemId: String) {
                     continuation.resume(null)
+                }
+            })
+        }
+    }
+
+    /**
+     * Search the given [terms][query] in the whole music library.
+     *
+     * @param query The searched terms.
+     * @return A list of media that matches the query.
+     */
+    suspend fun search(query: String): List<MediaBrowserCompat.MediaItem> {
+        deferredController.await()
+
+        return suspendCancellableCoroutine { continuation ->
+            mediaBrowser.search(query, null, object : MediaBrowserCompat.SearchCallback() {
+
+                override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaBrowserCompat.MediaItem>) {
+                    continuation.resume(items)
+                }
+
+                override fun onError(query: String, extras: Bundle?) {
+                    error("Unexpected failure when searching \"$query\".")
                 }
             })
         }

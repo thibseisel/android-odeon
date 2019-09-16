@@ -25,6 +25,8 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.base.BaseViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,6 +43,19 @@ class MusicLibraryViewModel
     private val _playerError = MutableLiveData<Event<CharSequence>>()
     val playerError: LiveData<Event<CharSequence>>
         get() = _playerError
+
+    private val _searchResults = MutableLiveData<List<MediaBrowserCompat.MediaItem>>()
+    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>>
+        get() = _searchResults
+
+    private val searchTerms = Channel<CharSequence>(Channel.CONFLATED).also { channel ->
+        channel.consumeAsFlow()
+            .filter { it.length > 2 }
+            .debounce(300)
+            .mapLatest { connection.search(it.toString()) }
+            .onEach { _searchResults.value = it }
+            .launchIn(this)
+    }
 
     private val playbackStateObserver = Observer<PlaybackStateCompat> {
         when (it?.state) {
@@ -72,6 +87,10 @@ class MusicLibraryViewModel
         launch {
             connection.playFromMediaId(playableMedia.mediaId!!)
         }
+    }
+
+    fun search(input: CharSequence) {
+        searchTerms.offer(input)
     }
 
     fun playAllShuffled() {

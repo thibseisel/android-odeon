@@ -25,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
@@ -61,6 +62,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         // Configure tabs and ViewPager.
         tab_host.setupWithViewPager(fragment_pager)
         fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
+
+        viewModel.searchResults.observe(this) { searchResults ->
+            suggestionsAdapter.submitList(searchResults)
+        }
     }
 
     private fun Toolbar.prepareMenu() {
