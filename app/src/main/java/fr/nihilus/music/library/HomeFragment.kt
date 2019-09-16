@@ -18,6 +18,7 @@ package fr.nihilus.music.library
 
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
@@ -29,11 +30,14 @@ import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
+import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
+import fr.nihilus.music.view.SearchInputView
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.util.concurrent.TimeUnit
 
@@ -44,7 +48,7 @@ import java.util.concurrent.TimeUnit
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     private val viewModel by activityViewModels<MusicLibraryViewModel>()
-    private val suggestionsAdapter = SearchSuggestionsAdapter(this)
+    private lateinit var suggestionsAdapter: SearchSuggestionsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,6 +56,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         // Postpone transition when returning from album detail.
         postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
         allowReturnTransitionOverlap = true
+
+        suggestionsAdapter = SearchSuggestionsAdapter(this)
 
         // Configure toolbar with title and menu.
         toolbar.run {
@@ -72,7 +78,46 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         inflateMenu(R.menu.menu_home)
         setOnMenuItemClickListener(::onOptionsItemSelected)
 
-        // TODO Setup input view with suggestions
+        val actionView = menu.findItem(R.id.action_search).actionView as SearchInputView
+        actionView.setHint(R.string.search_hint)
+        actionView.setAdapter(suggestionsAdapter)
+        actionView.doAfterTextChanged { text ->
+            viewModel.search(text ?: "")
+        }
+
+        actionView.setOnSuggestionSelected { position ->
+            val selectedItem = suggestionsAdapter.getItem(position)
+            handleSelectedSearchResult(selectedItem)
+        }
+    }
+
+    private fun handleSelectedSearchResult(item: MediaBrowserCompat.MediaItem) {
+        when {
+            item.isBrowsable -> browseMedia(item)
+            item.isPlayable -> viewModel.playMedia(item)
+        }
+    }
+
+    private fun browseMedia(item: MediaBrowserCompat.MediaItem) {
+        val navController = findNavController()
+        val (type, _, _) = item.mediaId.toMediaId()
+
+        when (type) {
+            MediaId.TYPE_ALBUMS -> {
+                val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(item, null)
+                navController.navigate(toAlbumDetail)
+            }
+
+            MediaId.TYPE_ARTISTS -> {
+                val toArtistDetail = HomeFragmentDirections.browseArtistDetail(item)
+                navController.navigate(toArtistDetail)
+            }
+
+            MediaId.TYPE_PLAYLISTS -> {
+                val toPlaylistContent = HomeFragmentDirections.browsePlaylistContent(item)
+                navController.navigate(toPlaylistContent)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

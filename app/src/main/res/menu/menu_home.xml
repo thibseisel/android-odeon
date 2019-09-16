@@ -15,16 +15,14 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_24dp"
         android:title="@string/action_search"
-        android:visible="false"
         app:showAsAction="ifRoom|collapseActionView"
-        tools:visible="true" />
+        app:actionViewClass="fr.nihilus.music.view.SearchInputView" />
 
     <item
         android:id="@+id/action_shuffle"
