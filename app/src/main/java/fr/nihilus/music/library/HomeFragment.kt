@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -40,7 +41,9 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
+
     private val viewModel by activityViewModels<MusicLibraryViewModel>()
+    private val suggestionsAdapter = SearchSuggestionsAdapter(this)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,13 +55,19 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         // Configure toolbar with title and menu.
         toolbar.run {
             setTitle(R.string.core_app_name)
-            inflateMenu(R.menu.menu_home)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
+            prepareMenu()
         }
 
         // Configure tabs and ViewPager.
         tab_host.setupWithViewPager(fragment_pager)
         fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
+    }
+
+    private fun Toolbar.prepareMenu() {
+        inflateMenu(R.menu.menu_home)
+        setOnMenuItemClickListener(::onOptionsItemSelected)
+
+        // TODO Setup input view with suggestions
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
