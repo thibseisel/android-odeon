@@ -51,9 +51,9 @@ class MusicLibraryViewModel
     private val searchTerms = Channel<CharSequence>(Channel.CONFLATED).also { channel ->
         channel.consumeAsFlow()
             .filter { it.length > 2 }
-            .debounce(300)
+            .debounce(200)
             .mapLatest { connection.search(it.toString()) }
-            .onEach { _searchResults.value = it }
+            .onEach { _searchResults.value = it.take(10) }
             .launchIn(this)
     }
 
