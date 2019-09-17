@@ -79,7 +79,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setOnMenuItemClickListener(::onOptionsItemSelected)
 
         val actionView = menu.findItem(R.id.action_search).actionView as SearchInputView
-        actionView.setHint(R.string.search_hint)
+        actionView.setQueryHint(R.string.search_hint)
         actionView.setAdapter(suggestionsAdapter)
         actionView.doAfterTextChanged { text ->
             viewModel.search(text ?: "")

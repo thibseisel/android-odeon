@@ -95,5 +95,5 @@
     <string name="action_cleanup_title">Libérer de l\'espace</string>
     <string name="select_all_elements">Tous les éléments</string>
     <string name="cleanup_confirmation_message">Cette opération est irréversible.</string>
-    <string name="search_hint">Rechercher un morceau ou un artiste</string>
+    <string name="search_hint">Rechercher un morceau, un artiste…</string>
 </resources>

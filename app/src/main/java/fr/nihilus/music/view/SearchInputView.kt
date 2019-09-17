@@ -17,50 +17,111 @@
 package fr.nihilus.music.view
 
 import android.content.Context
+import android.database.DataSetObserver
+import android.graphics.Rect
 import android.text.Editable
 import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.ListAdapter
 import androidx.annotation.StringRes
 import androidx.appcompat.view.CollapsibleActionView
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.appcompat.widget.ListPopupWindow
+import androidx.core.widget.doAfterTextChanged
+import fr.nihilus.music.R
+import kotlinx.android.synthetic.main.view_search_input.view.*
 
+/**
+ * A combo View that displays a text field associated with a popup window.
+ * The popup is displayed while typing and its content is backed by an [adapter][setAdapter].
+ */
 class SearchInputView
 @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : LinearLayoutCompat(context, attrs), CollapsibleActionView {
 
-    private val suggestionWindow = ListPopupWindow(context)
-    private val textChangedActions = mutableSetOf<(Editable?) -> Unit>()
+    private val popupVisibilityObserver = SuggestionPopupVisibilityObserver()
+
+    private val suggestionWindow: ListPopupWindow
+    private val textInput: EditText
+
+    private var adapter: ListAdapter? = null
 
     init {
-        suggestionWindow.anchorView = this
-        suggestionWindow.isModal = true
-        suggestionWindow.promptPosition = ListPopupWindow.POSITION_PROMPT_ABOVE
+        // Inflate the content of this view from a layout file.
+        val root = View.inflate(context, R.layout.view_search_input, this)
+        textInput = root.findViewById(R.id.search_input)
+        textInput.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN
+
+        suggestionWindow = ListPopupWindow(context).apply {
+            promptPosition = ListPopupWindow.POSITION_PROMPT_ABOVE
+            anchorView = root
+            isModal = true
+        }
     }
 
-    override fun onActionViewExpanded() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        if (!isFocusable) return super.requestFocus()
+        return textInput.requestFocus(direction, previouslyFocusedRect)
+    }
+
+    override fun clearFocus() {
+        super.clearFocus()
+        textInput.clearFocus()
     }
 
     override fun onActionViewCollapsed() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // Clear text and focus.
+        textInput.text = null
+        clearFocus()
     }
 
-    fun doAfterTextChanged(action: (Editable?) -> Unit) {
-        textChangedActions += action
+    override fun onActionViewExpanded() {
+        // Reset input text.
+        textInput.text = null
     }
 
-    fun setHint(@StringRes resId: Int) {
-        TODO("Set the EditText hint.")
+    /**
+     * Register an action to be performed some time after the typed text has been modified.
+     *
+     * @param action A callback function called after text has been changed.
+     */
+    fun doAfterTextChanged(action: (text: Editable?) -> Unit) {
+        textInput.doAfterTextChanged(action)
     }
 
-    fun setAdapter(adapter: ListAdapter) {
+    /**
+     * Sets the displayed hint for the text input.
+     *
+     * @param resId The identifier of a string resource to be used as the hint.
+     */
+    fun setQueryHint(@StringRes resId: Int) {
+        textInput.setHint(resId)
+    }
+
+    /**
+     * Sets the adapter that provides the data and the views to represent the data
+     * in the suggestions popup window.
+     *
+     * @param adapter The adapter to use to create the suggestion popup content.
+     */
+    fun setAdapter(adapter: ListAdapter?) {
+        this.adapter?.unregisterDataSetObserver(popupVisibilityObserver)
+        this.adapter = adapter
         suggestionWindow.setAdapter(adapter)
-        // TODO Show popup on receiving search results, or hide if there are none.
+        adapter?.registerDataSetObserver(popupVisibilityObserver)
     }
 
+    /**
+     * Register a callback function to be called when a suggestion is selected
+     * from the suggestion popup window.
+     *
+     * @param listener The callback function, called with the position of the selected suggestion.
+     */
     fun setOnSuggestionSelected(listener: ((position: Int) -> Unit)?) {
         if (listener != null) {
             suggestionWindow.setOnItemClickListener { _, _, position, _ ->
@@ -68,6 +129,17 @@ class SearchInputView
             }
         } else {
             suggestionWindow.setOnItemClickListener(null)
+        }
+    }
+
+    private inner class SuggestionPopupVisibilityObserver : DataSetObserver() {
+
+        override fun onChanged() {
+            if (adapter?.isEmpty == true) {
+                suggestionWindow.dismiss()
+            } else {
+                suggestionWindow.show()
+            }
         }
     }
 }
