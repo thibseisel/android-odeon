@@ -29,12 +29,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.core.ui.extensions.inflate
 
-private const val TYPE_TRACK = 1 shl 0
-private const val TYPE_ALBUM = 1 shl 1
-private const val TYPE_ARTIST = 1 shl 2
-private const val TYPE_PLAYLIST = 1 shl 3
+private const val TYPE_TRACK = 0
+private const val TYPE_ALBUM = 1
+private const val TYPE_ARTIST = 2
+private const val TYPE_PLAYLIST = 3
 
 internal class SearchSuggestionsAdapter(fragment: Fragment) : BaseAdapter() {
     private val items = mutableListOf<MediaBrowserCompat.MediaItem>()
@@ -42,7 +43,7 @@ internal class SearchSuggestionsAdapter(fragment: Fragment) : BaseAdapter() {
 
     override fun getItemViewType(position: Int): Int {
         val item = items[position]
-        val (type, category, track) = MediaId.parse(item.mediaId)
+        val (type, category, track) = item.mediaId.toMediaId()
 
         return when {
             track != null -> TYPE_TRACK
