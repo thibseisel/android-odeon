@@ -18,26 +18,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/fragment_search"
-        android:icon="@drawable/ic_search_24dp"
-        android:title="@string/action_search"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_shuffle"
-        android:icon="@drawable/ic_shuffle_24dp"
-        android:title="@string/play_all_shuffled"
-        android:titleCondensed="@string/action_condensed_play_shuffled"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/start_cleanup"
-        android:title="@string/action_cleanup_title"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/activity_settings"
-        android:icon="@drawable/ic_settings_24dp"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:id="@+id/action_clear"
+        android:icon="@drawable/ic_clear_24dp"
+        android:title="@string/action_clear"
+        app:showAsAction="ifRoom" />
 </menu>

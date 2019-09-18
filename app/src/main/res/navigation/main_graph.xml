@@ -15,10 +15,52 @@
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/main_graph"
-            app:startDestination="@id/fragment_home">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_graph"
+    app:startDestination="@id/fragment_home">
+
+    <activity
+        android:id="@+id/activity_settings"
+        android:name="fr.nihilus.music.settings.SettingsActivity"
+        android:label="@string/action_settings"
+        tools:layout="@layout/activity_settings" />
+    <activity
+        android:id="@+id/activity_cleanup"
+        android:name="fr.nihilus.music.library.cleanup.CleanupActivity"
+        android:label="@string/action_cleanup_title"
+        tools:layout="@layout/activity_cleanup" />
+
+    <fragment
+        android:id="@+id/fragment_artist_detail"
+        android:name="fr.nihilus.music.library.artists.detail.ArtistDetailFragment"
+        tools:layout="@layout/fragment_artist_detail">
+
+        <action
+            android:id="@+id/browse_artist_album"
+            app:destination="@id/fragment_album_detail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <argument
+            android:name="pickedArtist"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_playlist_detail"
+        android:name="fr.nihilus.music.library.playlists.MembersFragment"
+        tools:layout="@layout/fragment_playlist_members">
+
+        <argument
+            android:name="playlist"
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+        <argument
+            android:name="isDeletable"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
 
     <fragment
         android:id="@+id/fragment_home"
@@ -30,25 +72,29 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/browse_artist_detail"
             app:destination="@id/fragment_artist_detail"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/browse_playlist_content"
             app:destination="@id/fragment_playlist_detail"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/start_cleanup"
             app:destination="@id/activity_cleanup" />
+        <action
+            android:id="@+id/action_fragment_home_to_searchFragment"
+            app:destination="@id/fragment_search" />
     </fragment>
+
     <fragment
         android:id="@+id/fragment_album_detail"
         android:name="fr.nihilus.music.library.albums.AlbumDetailFragment"
@@ -56,53 +102,29 @@
         tools:layout="@layout/fragment_album_detail">
         <argument
             android:name="pickedAlbum"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
+            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
         <argument
             android:name="albumPalette"
             app:argType="fr.nihilus.music.library.albums.AlbumPalette"
-            app:nullable="true"/>
+            app:nullable="true" />
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_artist_detail"
-        android:name="fr.nihilus.music.library.artists.detail.ArtistDetailFragment"
-        tools:layout="@layout/fragment_artist_detail">
-
-        <argument
-            android:name="pickedArtist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
+        android:id="@+id/fragment_search"
+        android:name="fr.nihilus.music.library.search.SearchFragment"
+        android:label="@string/action_search"
+        tools:layout="@layout/fragment_search">
         <action
-            android:id="@+id/browse_artist_album"
+            android:id="@+id/browse_playlist_content"
+            app:destination="@id/fragment_playlist_detail"
+            app:popUpTo="@+id/fragment_home" />
+        <action
+            android:id="@+id/browse_artist_detail"
+            app:destination="@id/fragment_artist_detail"
+            app:popUpTo="@+id/fragment_home" />
+        <action
+            android:id="@+id/browse_album_detail"
             app:destination="@id/fragment_album_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
+            app:popUpTo="@+id/fragment_home" />
     </fragment>
-
-    <fragment
-        android:id="@+id/fragment_playlist_detail"
-        android:name="fr.nihilus.music.library.playlists.MembersFragment"
-        tools:layout="@layout/fragment_playlist_members">
-
-        <argument
-            android:name="playlist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem"/>
-        <argument
-            android:name="isDeletable"
-            android:defaultValue="false"
-            app:argType="boolean"/>
-    </fragment>
-
-    <activity
-        android:id="@+id/activity_settings"
-        android:name="fr.nihilus.music.settings.SettingsActivity"
-        android:label="@string/action_settings"
-        tools:layout="@layout/activity_settings"/>
-
-    <activity
-        android:id="@+id/activity_cleanup"
-        android:name="fr.nihilus.music.library.cleanup.CleanupActivity"
-        android:label="@string/action_cleanup_title"
-        tools:layout="@layout/activity_cleanup" />
 </navigation>

@@ -37,6 +37,7 @@ private const val TYPE_ALBUM = 1
 private const val TYPE_ARTIST = 2
 private const val TYPE_PLAYLIST = 3
 
+@Deprecated("The dedicated search Fragment will be used instead.")
 internal class SearchSuggestionsAdapter(fragment: Fragment) : BaseAdapter() {
     private val items = mutableListOf<MediaBrowserCompat.MediaItem>()
     private val glide = Glide.with(fragment).asBitmap()

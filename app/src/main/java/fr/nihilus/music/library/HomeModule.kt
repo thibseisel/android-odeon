@@ -27,6 +27,7 @@ import fr.nihilus.music.library.albums.AlbumsModule
 import fr.nihilus.music.library.artists.ArtistsModule
 import fr.nihilus.music.library.nowplaying.NowPlayingModule
 import fr.nihilus.music.library.playlists.PlaylistsModule
+import fr.nihilus.music.library.search.SearchModule
 import fr.nihilus.music.library.songs.SongsModule
 import javax.inject.Scope
 
@@ -53,7 +54,8 @@ abstract class HomeModule {
         SongsModule::class,
         AlbumsModule::class,
         ArtistsModule::class,
-        PlaylistsModule::class
+        PlaylistsModule::class,
+        SearchModule::class
     ])
     abstract fun homeActivity(): HomeActivity
 
