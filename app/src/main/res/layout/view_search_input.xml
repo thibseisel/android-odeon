@@ -16,21 +16,37 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/view_search_input"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:maxHeight="?actionBarSize"
     android:orientation="horizontal">
 
     <EditText
         android:id="@+id/search_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_weight="1"
+        android:background="@null"
+        android:ellipsize="end"
         android:importantForAutofill="no"
-        android:inputType="textNoSuggestions"
+        android:inputType="text|textAutoComplete|textNoSuggestions"
+        android:maxLines="1"
         tools:hint="@string/search_hint"
         tools:ignore="LabelFor" />
+
+    <ImageView
+        android:id="@+id/close_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_clear"
+        app:srcCompat="@drawable/ic_clear_24dp"
+        android:focusable="true"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp" />
 
 </LinearLayout>
