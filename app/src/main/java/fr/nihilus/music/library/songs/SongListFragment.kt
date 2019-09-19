@@ -40,7 +40,7 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import fr.nihilus.music.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.core.ui.base
 
 import android.view.View
 import android.view.ViewGroup

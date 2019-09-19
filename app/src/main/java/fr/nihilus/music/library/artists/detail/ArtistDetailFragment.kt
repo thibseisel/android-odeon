@@ -35,7 +35,7 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 import javax.inject.Inject
 

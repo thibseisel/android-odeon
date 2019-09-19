@@ -31,7 +31,7 @@ import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
