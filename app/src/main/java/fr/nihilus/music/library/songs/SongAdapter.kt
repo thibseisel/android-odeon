@@ -21,9 +21,10 @@ import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import com.bumptech.glide.load.resource.bitmap.FitCenter
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import android.widget.ImageView
+import android.widget.SectionIndexer
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.core.ui.extensions.inflate
@@ -42,13 +43,9 @@ class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), Sec
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
         glideRequest = GlideApp.with(fragment).asBitmap()
-            .transforms(FitCenter(), RoundedCorners(cornerRadius))
+            .roundedCorners(cornerRadius)
             .fallback(R.drawable.ic_audiotrack_24dp)
     }
-
-    override fun getCount() = songs.size
-
-    override fun getItem(pos: Int) = songs[pos]
 
     override fun hasStableIds() = true
 

@@ -19,8 +19,6 @@ package fr.nihilus.music.library.playlists
 import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.load.resource.bitmap.FitCenter
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import fr.nihilus.music.R
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -37,7 +35,7 @@ internal class MembersAdapter(
         val context = fragment.requireContext()
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
         glideRequest = GlideApp.with(fragment).asBitmap()
-            .transforms(FitCenter(), RoundedCorners(cornerRadius))
+            .roundedCorners(cornerRadius)
             .fallback(R.drawable.ic_audiotrack_24dp)
     }
 

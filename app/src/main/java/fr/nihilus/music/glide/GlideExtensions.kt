@@ -17,11 +17,14 @@
 package fr.nihilus.music.glide
 
 import android.graphics.Color
+import androidx.annotation.Px
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.annotation.GlideType
 import com.bumptech.glide.load.Option
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.BaseRequestOptions
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumPalette
@@ -34,6 +37,21 @@ object GlideExtensions {
      */
     @[JvmStatic GlideType(AlbumArt::class)]
     fun asAlbumArt(builder: RequestBuilder<AlbumArt>) = builder
+
+    /**
+     * Applies [RoundedCorners] to all default types and throws an exception
+     * if asked to transform an unknown type.
+     * This will override previous calls to [BaseRequestOptions.dontTransform].
+     *
+     * @param radius The desired corner rounding, in pixels.
+     *
+     * @see RoundedCorners
+     */
+    @[JvmStatic GlideOption]
+    fun roundedCorners(options: BaseRequestOptions<*>, @Px radius: Int): BaseRequestOptions<*> =
+        options
+            .downsample(DownsampleStrategy.FIT_CENTER)
+            .transform(RoundedCorners(radius))
 
     /**
      * Specify the default colors to use when one or more colors
