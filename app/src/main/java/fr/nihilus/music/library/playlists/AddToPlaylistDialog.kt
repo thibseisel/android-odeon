@@ -21,7 +21,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -32,7 +31,6 @@ import androidx.lifecycle.observe
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
-import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.ListAdapter
@@ -106,11 +104,12 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     /**
      * The adapter used to display available playlists in the dialog's body.
      */
-    private class TargetPlaylistsAdapter(fragment: Fragment) : ListAdapter<MediaItem, PlaylistHolder>() {
+    private class TargetPlaylistsAdapter(
+        fragment: Fragment
+    ) : ListAdapter<MediaItem, PlaylistHolder>() {
         private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
 
-        override fun onCreateViewHolder(container: ViewGroup): PlaylistHolder =
-            PlaylistHolder(container.inflate(R.layout.playlist_list_item))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(parent)
 
         override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
             holder.bind(getItem(position), glideRequest)
@@ -120,13 +119,15 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     /**
      * Holds references to views representing a playlist item.
      */
-    private class PlaylistHolder(itemView: View) : ListAdapter.ViewHolder(itemView) {
-        private val icon = itemView.findViewById<ImageView>(R.id.icon_view)
-        private val title = itemView.findViewById<TextView>(R.id.title_view)
+    private class PlaylistHolder(
+        parent: ViewGroup
+    ) : ListAdapter.ViewHolder(parent, R.layout.playlist_list_item) {
+        private val iconView = itemView.findViewById<ImageView>(R.id.icon_view)
+        private val titleView = itemView.findViewById<TextView>(R.id.title_view)
 
         fun bind(playlist: MediaItem, glide: GlideRequest<*>) {
-            title.text = playlist.description.title
-            glide.load(playlist.description.iconUri).into(icon)
+            titleView.text = playlist.description.title
+            glide.load(playlist.description.iconUri).into(iconView)
         }
     }
 

@@ -19,7 +19,6 @@ package fr.nihilus.music.library.songs
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SectionIndexer
@@ -27,14 +26,15 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaItems
-import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.AlphaSectionIndexer
+import fr.nihilus.music.ui.ListAdapter
 
-class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), SectionIndexer {
+class SongAdapter(
+    fragment: Fragment
+) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
-    private val songs = ArrayList<MediaBrowserCompat.MediaItem>()
     private val indexer = AlphaSectionIndexer()
     private val glideRequest: GlideRequest<Bitmap>
 
@@ -47,28 +47,10 @@ class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), Sec
             .fallback(R.drawable.ic_audiotrack_24dp)
     }
 
-    override fun hasStableIds() = true
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 
-    override fun getItemId(pos: Int): Long = ListView.NO_ID.toLong()
-
-    override fun getView(pos: Int, convertView: View?, parent: ViewGroup): View {
-        val itemView = convertView ?: createItemView(parent)
-
-        val holder = itemView.tag as ViewHolder
-        bindViewHolder(holder, pos)
-
-        return itemView
-    }
-
-    private fun createItemView(parent: ViewGroup): View {
-        return parent.inflate(R.layout.song_list_item, false).apply {
-            tag = ViewHolder(this)
-        }
-    }
-
-    private fun bindViewHolder(holder: ViewHolder, position: Int) {
-        val item = songs[position]
-        holder.bind(item, glideRequest)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(items[position], glideRequest)
     }
 
     override fun getSections(): Array<out Any> = indexer.sections
@@ -77,11 +59,9 @@ class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), Sec
 
     override fun getPositionForSection(sectionIndex: Int) = indexer.getPositionForSection(sectionIndex)
 
-    fun updateItems(newItems: List<MediaBrowserCompat.MediaItem>) {
-        songs.clear()
-        songs += newItems
-        updateIndexer(newItems)
-        notifyDataSetChanged()
+    override fun submitList(newList: List<MediaBrowserCompat.MediaItem>) {
+        updateIndexer(newList)
+        super.submitList(newList)
     }
 
     private fun updateIndexer(newItems: List<MediaBrowserCompat.MediaItem>) {
@@ -89,7 +69,7 @@ class SongAdapter(fragment: androidx.fragment.app.Fragment) : BaseAdapter(), Sec
         indexer.update(titleSequence)
     }
 
-    private class ViewHolder(itemView: View) {
+    class ViewHolder(parent: ViewGroup) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
         private val titleView: TextView = itemView.findViewById(R.id.title)
         private val subtitleView: TextView = itemView.findViewById(R.id.subtitle_view)
         private val cover: ImageView = itemView.findViewById(R.id.album_art_view)

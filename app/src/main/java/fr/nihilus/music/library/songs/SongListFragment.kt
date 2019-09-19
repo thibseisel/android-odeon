@@ -84,12 +84,12 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    songAdapter.updateItems(itemRequest.data)
+                    songAdapter.submitList(itemRequest.data)
                     group_empty_view.isVisible = itemRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
-                    songAdapter.updateItems(emptyList())
+                    songAdapter.submitList(emptyList())
                     group_empty_view.isVisible = true
                 }
             }
