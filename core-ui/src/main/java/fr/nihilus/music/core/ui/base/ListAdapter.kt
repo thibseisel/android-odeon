@@ -129,7 +129,8 @@ abstract class ListAdapter<T, VH : ListAdapter.ViewHolder> : BaseAdapter() {
      * [ListAdapter] implementations should subclass [ViewHolder] and add fields
      * for caching potentially expensive [View.findViewById] results.
      */
-    abstract class ViewHolder(val itemView: View) {
+    abstract class ViewHolder
+    protected constructor(val itemView: View) {
 
         /**
          * Inflating the [itemView] from a specified [layout resource][resId].
@@ -137,7 +138,7 @@ abstract class ListAdapter<T, VH : ListAdapter.ViewHolder> : BaseAdapter() {
          * @param parent The parent view that the item view would be eventually attached to.
          * @param resId The identifier of a layout resource that represents the item view.
          */
-        constructor(parent: ViewGroup, @LayoutRes resId: Int) : this(parent.inflate(resId))
+        protected constructor(parent: ViewGroup, @LayoutRes resId: Int) : this(parent.inflate(resId))
 
         /**
          * The view type of this ViewHolder.
