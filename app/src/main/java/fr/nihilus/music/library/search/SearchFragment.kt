@@ -16,15 +16,16 @@
 
 package fr.nihilus.music.library.search
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.common.media.MediaId
@@ -34,6 +35,9 @@ import kotlinx.android.synthetic.main.fragment_search.*
 
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private val viewModel by viewModels<SearchViewModel> { viewModelFactory }
+    private val keyboard by lazy(LazyThreadSafetyMode.NONE) {
+        requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
 
     private lateinit var resultsAdapter: SearchResultsAdapter
 
@@ -46,11 +50,10 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         recyclerView.adapter = resultsAdapter
 
         with(search_toolbar) {
-            setNavigationOnClickListener { findNavController().navigateUp() }
+            setNavigationOnClickListener { onNavigateUp() }
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }
 
-        search_input.requestFocus()
         search_input.doAfterTextChanged { text ->
             viewModel.search(text ?: "")
         }
@@ -69,6 +72,10 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         viewModel.searchResults.observe(this) { searchResults ->
             resultsAdapter.submitList(searchResults)
         }
+
+        if (savedInstanceState == null) {
+            showKeyboard(search_input)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
@@ -82,6 +89,21 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         else -> false
     }
 
+    private fun onNavigateUp() {
+        hideKeyboard(search_input)
+        val navController = findNavController()
+        navController.navigateUp()
+    }
+
+    private fun showKeyboard(view: View) {
+        view.requestFocus()
+        keyboard.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun hideKeyboard(view: View) {
+        keyboard.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     private fun onSuggestionSelected(item: MediaBrowserCompat.MediaItem) {
         when {
             item.isBrowsable -> browseMedia(item)
@@ -90,6 +112,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun browseMedia(item: MediaBrowserCompat.MediaItem) {
+        hideKeyboard(search_input)
         val navController = findNavController()
         val (type, _, _) = item.mediaId.toMediaId()
 
