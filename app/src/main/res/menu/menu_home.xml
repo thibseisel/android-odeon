@@ -18,11 +18,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_search"
+        android:id="@+id/fragment_search"
         android:icon="@drawable/ic_search_24dp"
         android:title="@string/action_search"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="fr.nihilus.music.view.SearchInputView" />
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_shuffle"
