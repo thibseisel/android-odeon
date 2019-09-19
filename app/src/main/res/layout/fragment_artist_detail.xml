@@ -38,6 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_arrow_back_24dp"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
                 tools:title="@sample/albums.json/data/artist" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>

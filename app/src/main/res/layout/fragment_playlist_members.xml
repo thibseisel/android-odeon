@@ -35,8 +35,9 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp"
             app:popupTheme="?actionBarPopupTheme"
-            tools:title="My playlist"/>
+            tools:title="My playlist" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
