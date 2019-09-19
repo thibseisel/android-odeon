@@ -49,8 +49,7 @@ data class AlbumPalette(
     override fun describeContents(): Int = 0
 
     companion object CREATOR : Parcelable.Creator<AlbumPalette> {
-        override fun createFromParcel(parcel: Parcel): AlbumPalette =
-            AlbumPalette(parcel)
+        override fun createFromParcel(parcel: Parcel): AlbumPalette = AlbumPalette(parcel)
         override fun newArray(size: Int): Array<AlbumPalette?> = arrayOfNulls(size)
     }
 }

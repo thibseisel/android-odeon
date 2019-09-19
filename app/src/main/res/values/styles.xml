@@ -36,12 +36,17 @@
 
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
-        <item name="actionModeCloseDrawable" tools:ignore="PrivateResource">
-            @drawable/abc_ic_clear_material
-        </item>
+        <item name="actionModeCloseDrawable">@drawable/ic_clear_24dp</item>
 
         <!-- Custom style for FastScroller -->
         <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
+
+        <!-- Color palette to use for an album that has no album art. -->
+        <item name="albumPalettePrimaryColor">@color/album_band_default</item>
+        <item name="albumPaletteAccentColor">?colorAccent</item>
+        <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimaryInverse</item>
+        <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondaryInverse</item>
+        <item name="albumPaletteTextOnAccentColor">?colorControlNormal</item>
 
         <!-- Make the action mode appear above the content instead of above the Toolbar. -->
         <item name="windowActionModeOverlay">true</item>

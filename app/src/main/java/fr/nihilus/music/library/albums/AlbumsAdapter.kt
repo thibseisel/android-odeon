@@ -23,13 +23,14 @@ import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 
 internal class AlbumsAdapter(
     fragment: Fragment,
-    private val defaultPalette: AlbumPalette,
     private val listener: OnItemSelectedListener
 ) : BaseAdapter<AlbumHolder>() {
 
+    private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
     private val glideRequest: GlideRequest<AlbumArt>
 
     init {

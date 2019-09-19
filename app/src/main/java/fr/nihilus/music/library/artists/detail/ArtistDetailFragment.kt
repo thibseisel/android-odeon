@@ -40,8 +40,6 @@ import kotlinx.android.synthetic.main.fragment_artist_detail.*
 import javax.inject.Inject
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
-
-    @Inject lateinit var defaultAlbumPalette: AlbumPalette
     private lateinit var childrenAdapter: ArtistDetailAdapter
 
     private val args: ArtistDetailFragmentArgs by navArgs()
@@ -51,7 +49,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        childrenAdapter = ArtistDetailAdapter(this, defaultAlbumPalette, this)
+        childrenAdapter = ArtistDetailAdapter(this, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -16,11 +16,12 @@
   -->
 
 <resources>
-    <declare-styleable name="SearchTextView">
-        <attr name="threshold" format="integer"/>
-        <attr name="popupTheme" format="reference"/>
-        <attr name="dropDownWidth" format="dimension"/>
-        <attr name="dropDownHeight" format="dimension"/>
-        <attr name="dropDownAnchor" format="reference"/>
+    <!-- Theme attributes to define the default colors of an album palette. -->
+    <declare-styleable name="DefaultAlbumPalette">
+        <attr name="albumPalettePrimaryColor" format="color|reference"/>
+        <attr name="albumPaletteAccentColor" format="color|reference" />
+        <attr name="albumPaletteBodyTextColor" format="color|reference" />
+        <attr name="albumPaletteTitleTextColor" format="color|reference" />
+        <attr name="albumPaletteTextOnAccentColor" format="color|reference" />
     </declare-styleable>
 </resources>

@@ -20,21 +20,21 @@ import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.library.albums.AlbumPalette
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
     fragment: Fragment,
-    private val defaultPalette: AlbumPalette,
     private val listener: OnItemSelectedListener
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {
 
     private val paletteLoader: GlideRequest<AlbumArt>
     private val bitmapLoader: GlideRequest<Bitmap>
+    private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     init {
         val context = fragment.requireContext()

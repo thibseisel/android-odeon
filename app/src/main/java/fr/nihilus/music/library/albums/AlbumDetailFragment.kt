@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
@@ -28,7 +29,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.transition.Transition
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
@@ -37,6 +37,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.extensions.luminance
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.CurrentlyPlayingDecoration
@@ -72,7 +73,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         setupAlbumArt()
         setupTrackList()
 
-        applyPaletteTheme(args.albumPalette!!)
+        val colorPalette = args.albumPalette ?: requireContext().resolveDefaultAlbumPalette()
+        applyPaletteTheme(colorPalette)
 
         // Change the decorated item when metadata changes
         viewModel.nowPlaying.observe(this, this::decoratePlayingTrack)
@@ -94,7 +96,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
 
         albumArtTransition.addListener(object : TransitionListenerAdapter() {
             override fun onTransitionEnd(transition: Transition) {
-                activity?.window?.statusBarColor = 0x00000000
+                activity?.window?.statusBarColor = Color.TRANSPARENT
             }
         })
     }
@@ -134,9 +136,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
     }
 
     private fun setupTrackList() {
-        val context = requireContext()
         recycler.also {
-            it.layoutManager = LinearLayoutManager(context)
             adapter = TrackAdapter(this)
             it.adapter = adapter
         }
@@ -160,7 +160,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
         decoration = CurrentlyPlayingDecoration(requireContext(), palette.accent)
         recycler.addItemDecoration(decoration)
-
     }
 
     private fun setDarkHomeUpIndicator(dark: Boolean) {

@@ -18,6 +18,8 @@ package fr.nihilus.music.library.albums
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.res.getColorOrThrow
+import androidx.core.content.res.use
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -39,9 +41,8 @@ import javax.inject.Inject
  */
 class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
 
-    @Inject lateinit var defaultAlbumPalette: AlbumPalette
-
     private val viewModel: AlbumGridViewModel by viewModels { viewModelFactory }
+
     private lateinit var albumAdapter: AlbumsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,7 +53,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
             progressIndicator.isVisible = progressVisible
         }
 
-        albumAdapter = AlbumsAdapter(this, defaultAlbumPalette, this)
+        albumAdapter = AlbumsAdapter(this, this)
         album_recycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
