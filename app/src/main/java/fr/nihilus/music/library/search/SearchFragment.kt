@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doBeforeTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
@@ -35,35 +35,47 @@ import kotlinx.android.synthetic.main.fragment_search.*
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private val viewModel by viewModels<SearchViewModel> { viewModelFactory }
 
+    private lateinit var resultsAdapter: SearchResultsAdapter
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val recyclerView = list_search_results
         recyclerView.setHasFixedSize(true)
-        val adapter = SearchResultsAdapter(this, ::onSuggestionSelected)
-        recyclerView.adapter = adapter
+        resultsAdapter = SearchResultsAdapter(this, ::onSuggestionSelected)
+        recyclerView.adapter = resultsAdapter
 
         with(search_toolbar) {
             setNavigationOnClickListener { findNavController().navigateUp() }
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }
 
-        search_input.doBeforeTextChanged { text, _, _, _ ->
-            setClearButtonVisibility(!text.isNullOrEmpty())
-        }
-
+        search_input.requestFocus()
         search_input.doAfterTextChanged { text ->
             viewModel.search(text ?: "")
         }
 
+        search_input.setOnEditorActionListener { v, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    viewModel.search(v.text ?: "")
+                    true
+                }
+
+                else -> false
+            }
+        }
+
         viewModel.searchResults.observe(this) { searchResults ->
-            adapter.submitList(searchResults)
+            resultsAdapter.submitList(searchResults)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_clear -> {
             search_input.text = null
+            search_input.requestFocus()
+            resultsAdapter.submitList(emptyList())
             true
         }
 
@@ -97,10 +109,5 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
                 navController.navigate(toPlaylistContent)
             }
         }
-    }
-
-    private fun setClearButtonVisibility(visible: Boolean) {
-        val menuItem = search_toolbar.menu.findItem(R.id.action_clear)
-        menuItem.isVisible = true
     }
 }
