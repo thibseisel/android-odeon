@@ -25,6 +25,7 @@ import com.squareup.moshi.JsonClass
  * the error response follows [RFC 6749][https://tools.ietf.org/html/rfc6749]
  * on the OAuth 2.0 Authorization Framework.
  */
+@JsonClass(generateAdapter = true)
 internal data class AuthenticationError(
 
     /**

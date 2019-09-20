@@ -45,8 +45,10 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     api "androidx.test:core:${versions.androidx.test_core}"
     api "androidx.test:runner:${versions.androidx.test_runner}"
+    api "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     api "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     api "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+    api "org.robolectric:robolectric:${versions.robolectric}"
 
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 }

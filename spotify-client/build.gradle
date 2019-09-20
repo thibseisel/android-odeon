@@ -37,6 +37,11 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:${versions.androidx.work}"
 
+    // Ktor Client - MultiPlatform HTTP Client
+    implementation "io.ktor:ktor-client-okhttp:${versions.ktor}"
+    implementation "io.ktor:ktor-client-logging-jvm:${versions.ktor}"
+    implementation "io.ktor:ktor-client-gson:${versions.ktor}"
+
     // Retrofit - API calls generator.
     implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
     implementation "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
@@ -47,5 +52,6 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
     testImplementation project(':common-test')
+    testImplementation "io.ktor:ktor-client-mock-jvm:${versions.ktor}"
     testImplementation "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 }

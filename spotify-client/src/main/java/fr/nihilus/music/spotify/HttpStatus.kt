@@ -19,6 +19,7 @@ package fr.nihilus.music.spotify
 /**
  * Constants for HTTP statuses that could be returned by the Spotify API.
  */
+@Deprecated("Ktor provides an exhaustive list of HTTP statuses.")
 internal object HttpStatus {
     /**
      * OK - The request has succeeded.
@@ -64,6 +65,11 @@ internal object HttpStatus {
      * Forbidden - The server understood the request, but is refusing to fulfill it.
      */
     const val FORBIDDEN = 403
+
+    /**
+     * Not Found - The requested resource does not exist or is no longer available.
+     */
+    const val NOT_FOUND = 404
 
     /**
      * Too Many Requests - Rate limiting has been applied.
