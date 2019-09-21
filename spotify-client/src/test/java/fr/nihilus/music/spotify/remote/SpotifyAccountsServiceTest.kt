@@ -38,6 +38,9 @@ private const val TEST_CLIENT_SECRET = "client_secret"
 private const val CLIENT_BASE64_KEY = "Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ="
 private const val TEST_USER_AGENT = "SpotifyAccountsService/1.0.0 KtorHttpClient/1.2.4"
 
+/**
+ * Checks the behavior of the Spotify Accounts API client.
+ */
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
 class SpotifyAccountsServiceTest {
@@ -52,15 +55,18 @@ class SpotifyAccountsServiceTest {
     @Test
     fun `Given bad credentials, when authenticating then fail with AuthenticationException`() = runBlockingTest {
         val failingAuthService = accountsService {
-            respondAuthError("Error message", "Bad client credentials")
+            respondJson("""{
+                "error": "invalid_client",
+                "error_description": "Invalid client"
+            }""".trimIndent(), HttpStatusCode.BadRequest)
         }
 
         val exception = shouldThrow<AuthenticationException> {
-            failingAuthService.authenticate(TEST_CLIENT_ID, "bad_client_secret")
+            failingAuthService.authenticate(TEST_CLIENT_ID, "wrong_client_secret")
         }
 
-        exception.error shouldBe "Error message"
-        exception.description shouldBe "Bad client credentials"
+        exception.error shouldBe "invalid_client"
+        exception.description shouldBe "Invalid client"
     }
 
     @Test
@@ -80,15 +86,18 @@ class SpotifyAccountsServiceTest {
 
         val token = authService.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET)
         token.token shouldBe TEST_TOKEN_STRING
+        token.type shouldBe "Bearer"
         token.expiresIn shouldBe 3600
     }
-}
 
-/**
- * Generate the response of the Spotify Accounts Web API in case of error.
- */
-private fun respondAuthError(error: String, description: String ) = respondJson("""{
-    "error": "$error",
-    "error_description": "$description"
-}""".trimIndent(), HttpStatusCode.BadRequest)
+    @Test
+    fun `When authenticating then perform the request with the specified User Agent`() = runBlockingTest {
+        val authService = accountsService { request ->
+            request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
+            respondJson(AUTH_TOKEN)
+        }
+
+        authService.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET)
+    }
+}
 

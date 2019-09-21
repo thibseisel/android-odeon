@@ -23,7 +23,7 @@ internal const val TEST_TOKEN_STRING = "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
 @Language("JSON")
 internal val AUTH_TOKEN = """{
     "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
-    "token_type": "bearer",
+    "token_type": "Bearer",
     "expires_in": 3600
 }""".trimIndent()
 

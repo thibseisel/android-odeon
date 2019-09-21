@@ -26,7 +26,7 @@ import com.squareup.moshi.JsonClass
  * on the OAuth 2.0 Authorization Framework.
  */
 @JsonClass(generateAdapter = true)
-internal data class AuthenticationError(
+internal data class OAuthError(
 
     /**
      * A high level description of the error as specified

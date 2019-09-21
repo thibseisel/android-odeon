@@ -20,7 +20,7 @@ import android.util.Base64
 import com.squareup.moshi.Moshi
 import fr.nihilus.music.spotify.OAuthToken
 import fr.nihilus.music.spotify.isSuccessful
-import fr.nihilus.music.spotify.model.AuthenticationError
+import fr.nihilus.music.spotify.model.OAuthError
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.features.UserAgent
@@ -35,8 +35,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
-import java.lang.Exception
 
+/**
+ * A service that connects to the Spotify Accounts API to generate an authorization token.
+ */
 internal interface SpotifyAccountsService {
 
     /**
@@ -58,8 +60,8 @@ internal class SpotifyAccountsServiceImpl(
     userAgent: String
 ) : SpotifyAccountsService {
 
-    private val tokenAdapter = moshi.adapter(OAuthToken::class.java)
-    private val errorAdapter = moshi.adapter(AuthenticationError::class.java)
+    private val tokenAdapter = moshi.adapter(OAuthToken::class.java).nonNull()
+    private val errorAdapter = moshi.adapter(OAuthError::class.java).nonNull()
 
     private val http = HttpClient(engine) {
         expectSuccess = false
@@ -72,35 +74,40 @@ internal class SpotifyAccountsServiceImpl(
             url {
                 protocol = URLProtocol.HTTPS
                 host = "accounts.spotify.com"
+                encodedPath = "api/token"
             }
         }
     }
 
     override suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken {
         val compositeKey = "$clientId:$clientSecret".toByteArray()
-        val base64Key =
-            Base64.encodeToString(compositeKey, Base64.NO_WRAP)
+        val base64Key = Base64.encodeToString(compositeKey, Base64.NO_WRAP)
 
-        val response = http.post<HttpResponse>(path = "api/token") {
+        val response = http.post<HttpResponse> {
             header(HttpHeaders.Authorization, "Basic $base64Key")
-            body =
-                FormDataContent(Parameters.build {
-                    append("grant_type", "client_credentials")
-                })
+            body = FormDataContent(Parameters.build {
+                append("grant_type", "client_credentials")
+            })
         }
 
         return if (response.isSuccessful) {
             tokenAdapter.fromJson(response.readText())!!
         } else {
             val errorPayload = errorAdapter.fromJson(response.readText())!!
-            throw AuthenticationException(
-                errorPayload.error,
-                errorPayload.description
-            )
+            throw AuthenticationException(errorPayload.error, errorPayload.description)
         }
     }
 }
 
+/**
+ * Thrown when authentication performed through [SpotifyAccountsService] fails.
+ *
+ * @param error A high level description of the error as specified in RFC 6749 Section 5.2.
+ * This will typically be `invalid_client`.
+ * @param description A more detailed description of the error as specified in RFC 6749 Section 4.1.2.1.
+ *
+ * @see OAuthError
+ */
 internal class AuthenticationException(
     val error: String,
     val description: String?
