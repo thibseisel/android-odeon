@@ -18,6 +18,9 @@ package fr.nihilus.music.spotify
 
 import dagger.Module
 import dagger.Provides
+import dagger.Reusable
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.okhttp.OkHttp
 import javax.inject.Named
 
 /**
@@ -27,16 +30,8 @@ import javax.inject.Named
 internal object SpotifyApiModule {
 
     @JvmStatic
-    @Provides @Named("SPOTIFY_AUTH_BASE")
-    fun providesSpotifyAuthBaseUrl() = "https://accounts.spotify.com/api/"
-
-    @JvmStatic
-    @Provides @Named("SPOTIFY_API_BASE")
-    fun providesSpotifyApiBaseUrl() = "https://api.spotify.com/v1/"
-
-    @JvmStatic
-    @Provides @Named("SPOTIFY_CLIENT_KEY")
-    fun providesClientKey() = "845647bc2d3147c1a2d48584fc6b978c"
+    @Provides @Reusable
+    fun providesOkHttpEngine(): HttpClientEngine = OkHttp.create()
 
     @JvmStatic
     @Provides @Named("SPOTIFY_CLIENT_SECRET")

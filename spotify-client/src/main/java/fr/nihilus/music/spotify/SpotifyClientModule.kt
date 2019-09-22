@@ -17,19 +17,15 @@
 package fr.nihilus.music.spotify
 
 import com.squareup.moshi.Moshi
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import fr.nihilus.music.spotify.service.SpotifyAccountsService
-import fr.nihilus.music.spotify.service.SpotifyAuthentication
-import fr.nihilus.music.spotify.service.SpotifyErrorInterceptor
-import fr.nihilus.music.spotify.service.SpotifyService
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
+import fr.nihilus.music.spotify.remote.SpotifyAccountsService
+import fr.nihilus.music.spotify.remote.SpotifyAccountsServiceImpl
+import fr.nihilus.music.spotify.remote.SpotifyService
+import fr.nihilus.music.spotify.remote.SpotifyServiceImpl
 import javax.inject.Named
-import javax.inject.Singleton
 
 /**
  * Provides declarations used internally by the Spotify Client feature
@@ -38,66 +34,33 @@ import javax.inject.Singleton
  * This module requires the following dependencies:
  * - [String] named `SPOTIFY_AUTH_BASE`: the base URL of the Spotify Authorization service.
  * - [String] named `SPOTIFY_API_BASE`: the base URL of the Spotify API.
- * - [String] named `SPOTIFY_CLIENT_KEY`: the Spotify client key registered for this application.
  * - [String] named `SPOTIFY_CLIENT_SECRET`: the Spotify secret key for this application.
  */
 @Module
-internal object SpotifyClientModule {
+internal abstract class SpotifyClientModule {
 
-    @JvmStatic
-    @Provides @Singleton
-    fun providesBaseOkHttp(): OkHttpClient = OkHttpClient()
+    @Binds
+    abstract fun bindsSpotifyAccountsService(impl: SpotifyAccountsServiceImpl): SpotifyAccountsService
 
-    @JvmStatic
-    @Provides @Singleton
-    fun providesSpotifyAuthService(
-        baseClient: OkHttpClient,
-        moshi: Moshi,
-        @Named("SPOTIFY_AUTH_BASE") authBaseUrl: String
-    ): SpotifyAccountsService {
-        val restAdapter = Retrofit.Builder()
-            .client(baseClient)
-            .baseUrl(authBaseUrl)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .validateEagerly(BuildConfig.DEBUG)
+    @Binds
+    abstract fun bindsSpotifyApiService(impl: SpotifyServiceImpl): SpotifyService
+
+    @Module
+    companion object {
+
+        @JvmStatic
+        @Provides @Named("SPOTIFY_CLIENT_KEY")
+        fun providesClientKey() = "845647bc2d3147c1a2d48584fc6b978c"
+
+        @JvmStatic
+        @Provides @Named("APP_USER_AGENT")
+        fun providesUserAgent() = "Odeon/${BuildConfig.VERSION_NAME} OkHttp"
+
+        @JvmStatic
+        @Provides @Reusable
+        fun providesMoshi(): Moshi = Moshi.Builder()
+            // Additional custom converters should be placed before the Kotlin JSON Adapter.
             .build()
-        return restAdapter.create()
     }
 
-    @JvmStatic
-    @Provides @Singleton
-    fun providesSpotifyApiService(
-        baseClient: OkHttpClient,
-        authService: SpotifyAccountsService,
-        @Named("SPOTIFY_API_BASE") apiBaseUrl: String,
-        @Named("SPOTIFY_CLIENT_KEY") clientKey: String,
-        @Named("SPOTIFY_CLIENT_SECRET") clientSecret: String,
-        moshi: Moshi
-    ): SpotifyService {
-        val modifiedClient = baseClient.newBuilder()
-            .addInterceptor(SpotifyErrorInterceptor(moshi))
-            .addInterceptor(
-                SpotifyAuthentication(
-                    authService,
-                    clientKey,
-                    clientSecret
-                )
-            )
-            .build()
-
-        val restAdapter = Retrofit.Builder()
-            .client(modifiedClient)
-            .baseUrl(apiBaseUrl)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .validateEagerly(BuildConfig.DEBUG)
-            .build()
-
-        return restAdapter.create()
-    }
-
-    @JvmStatic
-    @Provides @Reusable
-    fun providesMoshi(): Moshi = Moshi.Builder()
-        // Additional custom converters should be placed before the Kotlin JSON Adapter.
-        .build()
 }

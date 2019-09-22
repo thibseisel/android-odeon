@@ -19,7 +19,7 @@ package fr.nihilus.music.spotify
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import fr.nihilus.music.spotify.service.SpotifyService
+import fr.nihilus.music.spotify.remote.SpotifyService
 import javax.inject.Inject
 
 /**

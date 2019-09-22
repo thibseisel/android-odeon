@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.service
+package fr.nihilus.music.spotify
 
-import fr.nihilus.music.spotify.OAuthToken
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.Header
-import retrofit2.http.POST
+import dagger.Module
+import dagger.Provides
+import javax.inject.Named
 
-internal abstract class SpotifyAccountsService {
+@Module(includes = [SpotifyClientModule::class])
+object SpotifyTestModule {
 
-    @POST("token")
-    @FormUrlEncoded
-    abstract fun authenticateInternal(
-        @Field("grant_type") grantType: String,
-        @Header("Authorization") authorization: String
-    ): OAuthToken
-
-    fun authenticate(base64key: String): OAuthToken =
-        authenticateInternal("client_credentials", "Basic $base64key")
+    @JvmStatic
+    @Provides @Named("SPOTIFY_CLIENT_SECRET")
+    fun providesClientSecret() = "53CR3T"
 }

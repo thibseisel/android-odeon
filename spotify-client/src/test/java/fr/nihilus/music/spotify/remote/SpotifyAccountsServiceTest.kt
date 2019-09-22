@@ -28,6 +28,7 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -41,6 +42,7 @@ private const val TEST_USER_AGENT = "SpotifyAccountsService/1.0.0 KtorHttpClient
 /**
  * Checks the behavior of the Spotify Accounts API client.
  */
+@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
 class SpotifyAccountsServiceTest {

@@ -16,18 +16,24 @@
 
 package fr.nihilus.music.spotify
 
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.util.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.features.HttpClientFeature
+import io.ktor.client.features.HttpSend
+import io.ktor.client.features.feature
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.takeFrom
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.util.AttributeKey
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.delay
 
 /**
  * [HttpClient] feature that automatically re-sends requests
  * if the server responded with [the HTTP 421 status code][HttpStatusCode.TooManyRequests].
  * Requests are retried after a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
  */
+@KtorExperimentalAPI
 internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
     override val key: AttributeKey<RetryAfter> = AttributeKey("RetryAfter")
 

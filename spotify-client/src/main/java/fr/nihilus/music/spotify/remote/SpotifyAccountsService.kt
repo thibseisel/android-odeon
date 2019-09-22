@@ -35,6 +35,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
+import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * A service that connects to the Spotify Accounts API to generate an authorization token.
@@ -54,10 +56,11 @@ internal interface SpotifyAccountsService {
     suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken
 }
 
-internal class SpotifyAccountsServiceImpl(
+internal class SpotifyAccountsServiceImpl
+@Inject constructor(
     engine: HttpClientEngine,
     moshi: Moshi,
-    userAgent: String
+    @Named("APP_USER_AGENT") userAgent: String
 ) : SpotifyAccountsService {
 
     private val tokenAdapter = moshi.adapter(OAuthToken::class.java).nonNull()

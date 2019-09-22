@@ -33,8 +33,12 @@ import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
 import io.ktor.http.*
+import io.ktor.util.KtorExperimentalAPI
 import org.jetbrains.annotations.TestOnly
+import javax.inject.Inject
+import javax.inject.Named
 
+@UseExperimental(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl
 @TestOnly constructor(
     engine: HttpClientEngine,
@@ -46,13 +50,13 @@ internal class SpotifyServiceImpl
     private var token: OAuthToken? = null
 ): SpotifyService {
 
-    constructor(
+    @Inject constructor(
         engine: HttpClientEngine,
         moshi: Moshi,
         accountsService: SpotifyAccountsService,
-        userAgent: String,
-        clientKey: String,
-        clientSecret: String
+        @Named("APP_USER_AGENT") userAgent: String,
+        @Named("SPOTIFY_CLIENT_KEY") clientKey: String,
+        @Named("SPOTIFY_CLIENT_SECRET") clientSecret: String
     ) : this(engine, moshi, accountsService, userAgent, clientKey, clientSecret, null)
 
     private val deserializer = moshi.newBuilder()
