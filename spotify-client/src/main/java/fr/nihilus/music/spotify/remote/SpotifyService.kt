@@ -18,7 +18,7 @@ package fr.nihilus.music.spotify.remote
 
 import fr.nihilus.music.spotify.model.*
 
-internal interface SpotifyRemoteSource {
+internal interface SpotifyService {
 
     /**
      * Get Spotify catalog information for a single artist identified by its unique Spotify ID.
@@ -103,7 +103,7 @@ internal interface SpotifyRemoteSource {
      * @param ids The Spotify IDs for the tracks. Maximum: `50` IDs.
      * @return The information for each track, in the order requested.
      */
-    suspend fun getSeveralTracks(ids: List<String>): List<Track?>
+    suspend fun getSeveralTracks(ids: List<String>): Resource<List<Track?>>
 
     /**
      * Get audio feature information for a single track identified by its unique Spotify ID.
@@ -144,6 +144,15 @@ internal interface SpotifyRemoteSource {
         limit: Int = 20,
         offset: Int = 0
     ): SearchResults
+
+    companion object {
+        internal const val QUERY_Q = "q"
+        internal const val QUERY_IDS = "ids"
+        internal const val QUERY_LIMIT = "limit"
+        internal const val QUERY_OFFSET = "offset"
+        internal const val QUERY_TYPE = "type"
+        internal const val QUERY_INCLUDE_GROUPS = "include_groups"
+    }
 }
 
 

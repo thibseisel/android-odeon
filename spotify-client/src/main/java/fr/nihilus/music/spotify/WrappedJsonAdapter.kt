@@ -35,8 +35,8 @@ import com.squareup.moshi.JsonWriter
  * @param property The name of the property the payload is associated to.
  */
 class WrappedJsonAdapter<T>(
-    private val delegate: JsonAdapter<T>,
-    private val property: String
+    private val property: String,
+    private val delegate: JsonAdapter<T>
 ) : JsonAdapter<T>() {
 
     private val options = JsonReader.Options.of(property)

@@ -18,7 +18,7 @@ package fr.nihilus.music.spotify.remote
 
 internal sealed class Resource<out T : Any> {
 
-    class Loaded<T : Any>(
+    data class Loaded<T : Any>(
         val data: T,
         val eTag: String?
     ) : Resource<T>()
@@ -27,8 +27,8 @@ internal sealed class Resource<out T : Any> {
 
     object NotFound : Resource<Nothing>()
 
-    class Failed(
-        httpStatus: Int,
+    data class Failed(
+        val status: Int,
         val message: String?
     ) : Resource<Nothing>()
 }

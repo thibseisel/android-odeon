@@ -40,7 +40,7 @@ dependencies {
     // Ktor Client - MultiPlatform HTTP Client
     implementation "io.ktor:ktor-client-okhttp:${versions.ktor}"
     implementation "io.ktor:ktor-client-logging-jvm:${versions.ktor}"
-    implementation "io.ktor:ktor-client-gson:${versions.ktor}"
+    implementation "io.ktor:ktor-client-json:${versions.ktor}"
 
     // Retrofit - API calls generator.
     implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
@@ -48,10 +48,11 @@ dependencies {
 
     // Moshi - Kotlin JSON serialization
     kapt "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
-
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
     testImplementation project(':common-test')
     testImplementation "io.ktor:ktor-client-mock-jvm:${versions.ktor}"
     testImplementation "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
+    testImplementation "io.mockk:mockk:${versions.mockk}"
+    kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
 }
