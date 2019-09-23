@@ -218,7 +218,6 @@ class MusicService : BaseBrowserService() {
         extras: Bundle?,
         result: Result<List<MediaItem>>
     ) {
-        Log.i("AssistantSearch", "Searching $query. Extras=$extras")
         result.detach()
         launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)

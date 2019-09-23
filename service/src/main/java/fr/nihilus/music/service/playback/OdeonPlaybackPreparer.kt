@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service.playback
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -23,6 +24,7 @@ import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -118,7 +120,9 @@ internal class OdeonPlaybackPreparer
     /**
      * Handle requests to prepare for playing tracks picked from the results of a search.
      */
+    @SuppressLint("LogNotTimber")
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+        Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extras")
         val parsedQuery = SearchQuery.from(query, extras)
         if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
