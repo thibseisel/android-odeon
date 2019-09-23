@@ -50,15 +50,14 @@ interface BrowserTree {
      * otherwise, if the parent is not browsable, `null` is returned to indicate the absence of children.
      * Likewise, if the specified media id does not match an existing media in the tree, this also returns `null`.
      *
-     * Results can be paginated by specifying the optional [MediaBrowserCompat.EXTRA_PAGE_SIZE]
-     * and [MediaBrowserCompat.EXTRA_PAGE] as [options].
-     *
      * @param parentId The media id of an item whose children should be loaded.
-     * @param options An optional bundle of client-specified options.
+     * @param options Optional parameters specifying how results should be paginated,
+     * or `null` to return all results at once (no pagination).
+     *
      * @return The list of children of the media with the id [parentId],
      * or `null` if that media is not browsable or doesn't exist.
      */
-    suspend fun getChildren(parentId: MediaId, options: Bundle?): List<MediaItem>?
+    suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>?
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
@@ -77,4 +76,40 @@ interface BrowserTree {
      * @return A list of media items matching the search criteria.
      */
     suspend fun search(query: SearchQuery): List<MediaItem>
+}
+
+/**
+ * Define the parameters for paginating media items returned by [BrowserTree.getChildren].
+ *
+ * @param page The index of the page of results to return, `being` the first page.
+ * @param size The number of items returned per page.
+ */
+class PaginationOptions(val page: Int, val size: Int) {
+
+    companion object {
+
+        /**
+         * The default index of the returned page of media children when none is specified.
+         * This is the index of the first page.
+         */
+        const val DEFAULT_PAGE_NUMBER = 0
+
+        /**
+         * The default number of media items to return in a page when none is specified.
+         * All children will be returned in the same page.
+         */
+        const val DEFAULT_PAGE_SIZE = Int.MAX_VALUE
+
+        /**
+         * The minimum accepted value for [PaginationOptions.page].
+         * This is the index of the first page.
+         */
+        internal const val MINIMUM_PAGE_NUMBER = 0
+
+        /**
+         * The minimum accepted value for [PaginationOptions.size].
+         * This is the minimum of items that can be displayed in a page.
+         */
+        internal const val MINIMUM_PAGE_SIZE = 1
+    }
 }

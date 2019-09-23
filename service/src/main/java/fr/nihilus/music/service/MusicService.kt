@@ -21,6 +21,7 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.*
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -43,6 +44,7 @@ import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
 import fr.nihilus.music.media.tree.BrowserTree
+import fr.nihilus.music.media.tree.PaginationOptions
 import fr.nihilus.music.media.tree.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
@@ -147,12 +149,12 @@ class MusicService : BaseBrowserService() {
 
     override fun onLoadChildren(
         parentId: String,
-        result: Result<List<MediaBrowserCompat.MediaItem>>
+        result: Result<List<MediaItem>>
     ): Unit = onLoadChildren(parentId, result, Bundle.EMPTY)
 
     override fun onLoadChildren(
         parentId: String,
-        result: Result<List<MediaBrowserCompat.MediaItem>>,
+        result: Result<List<MediaItem>>,
         options: Bundle
     ) {
         result.detach()
@@ -161,7 +163,8 @@ class MusicService : BaseBrowserService() {
             val parentMediaId = parentId.toMediaIdOrNull()
             if (parentMediaId != null) {
                 try {
-                    val children = browserTree.getChildren(parentMediaId, options)
+                    val paginationOptions = getPaginationOptions(options)
+                    val children = browserTree.getChildren(parentMediaId, paginationOptions)
                     result.sendResult(children)
 
                 } catch (pde: PermissionDeniedException) {
@@ -176,7 +179,18 @@ class MusicService : BaseBrowserService() {
         }
     }
 
-    override fun onLoadItem(itemId: String?, result: Result<MediaBrowserCompat.MediaItem>) {
+    private fun getPaginationOptions(options: Bundle): PaginationOptions? {
+        return options.takeIf {
+            it.containsKey(EXTRA_PAGE) || it.containsKey(EXTRA_PAGE_SIZE)
+        }?.let {
+            PaginationOptions(
+                it.getInt(EXTRA_PAGE, PaginationOptions.DEFAULT_PAGE_NUMBER),
+                it.getInt(EXTRA_PAGE_SIZE, PaginationOptions.DEFAULT_PAGE_SIZE)
+            )
+        }
+    }
+
+    override fun onLoadItem(itemId: String?, result: Result<MediaItem>) {
         if (itemId == null) {
             result.sendResult(null)
         } else {
@@ -202,7 +216,7 @@ class MusicService : BaseBrowserService() {
     override fun onSearch(
         query: String,
         extras: Bundle?,
-        result: Result<List<MediaBrowserCompat.MediaItem>>
+        result: Result<List<MediaItem>>
     ) {
         Log.i("AssistantSearch", "Searching $query. Extras=$extras")
         result.detach()

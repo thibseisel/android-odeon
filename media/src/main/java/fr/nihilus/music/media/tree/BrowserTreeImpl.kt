@@ -18,7 +18,6 @@ package fr.nihilus.music.media.tree
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
@@ -48,30 +47,6 @@ import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
-
-/**
- * The default value of the [MediaBrowserCompat.EXTRA_PAGE] option of [BrowserTree.getChildren]
- * when none is specified. This is the index of the first page.
- */
-private const val DEFAULT_PAGE_NUMBER = 0
-
-/**
- * The default value of the [MediaBrowserCompat.EXTRA_PAGE_SIZE] option of [BrowserTree.getChildren]
- * when none is specified. All children will be returned in the same page.
- */
-private const val DEFAULT_PAGE_SIZE = Int.MAX_VALUE
-
-/**
- * The minimum accepted value for the [MediaBrowserCompat.EXTRA_PAGE] option.
- * This is the index of the first page.
- */
-private const val MINIMUM_PAGE_NUMBER = 0
-
-/**
- * The minimum accepted value for the [MediaBrowserCompat.EXTRA_PAGE_SIZE] option.
- * This is the minimum of items that can be displayed in a page.
- */
-private const val MINIMUM_PAGE_SIZE = 1
 
 /**
  * The arbitrary maximum correspondence score for a fuzzy match.
@@ -228,15 +203,15 @@ internal class BrowserTreeImpl
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override suspend fun getChildren(parentId: MediaId, options: Bundle?): List<MediaItem>? {
+    override suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>? {
         // Take pagination into account when specified.
-        val pageNumber = options?.getInt(MediaBrowserCompat.EXTRA_PAGE, DEFAULT_PAGE_NUMBER)
-            ?.coerceAtLeast(MINIMUM_PAGE_NUMBER)
-            ?: DEFAULT_PAGE_NUMBER
+        val pageNumber = options?.page
+            ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_NUMBER)
+            ?: PaginationOptions.DEFAULT_PAGE_NUMBER
 
-        val pageSize = options?.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, DEFAULT_PAGE_SIZE)
-            ?.coerceAtLeast(MINIMUM_PAGE_SIZE)
-            ?: DEFAULT_PAGE_SIZE
+        val pageSize = options?.size
+            ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_SIZE)
+            ?: PaginationOptions.DEFAULT_PAGE_SIZE
 
         return tree.getChildren(parentId, pageNumber, pageSize)
     }
