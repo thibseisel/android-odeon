@@ -25,15 +25,15 @@ import fr.nihilus.music.spotify.WrappedJsonAdapter
 import fr.nihilus.music.spotify.model.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.features.HttpSend
-import io.ktor.client.features.UserAgent
-import io.ktor.client.features.defaultRequest
-import io.ktor.client.features.feature
+import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
 import io.ktor.http.*
 import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.io.errors.IOException
 import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Named
@@ -83,7 +83,7 @@ internal class SpotifyServiceImpl
 
         install(RetryAfter)
 
-        defaultRequest {
+        install(DefaultRequest) {
             accept(ContentType.Application.Json)
             url {
                 protocol = URLProtocol.HTTPS
@@ -91,7 +91,7 @@ internal class SpotifyServiceImpl
             }
         }
 
-        install("Authenticator") {
+        install("AutoTokenAuthentication") {
             // Perform initial authentication if required, then set token has Authorization.
             requestPipeline.intercept(HttpRequestPipeline.State) { _ ->
                 val currentToken = token ?: authenticate()
@@ -131,9 +131,8 @@ internal class SpotifyServiceImpl
         return listResource(response, artistListAdapter)
     }
 
-    override suspend fun getArtistAlbums(artistId: String, limit: Int, offset: Int): Paging<Album> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getArtistAlbums(artistId: String): Flow<Album> =
+        paginatedFlow("v1/artists/$artistId/albums", pagingAdapterOf())
 
     override suspend fun getAlbum(id: String): Resource<Album> {
         require(id.isNotEmpty())
@@ -150,9 +149,8 @@ internal class SpotifyServiceImpl
         return listResource(response, albumListAdapter)
     }
 
-    override suspend fun getAlbumTracks(albumId: String, limit: Int, offset: Int): Paging<Track> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun getAlbumTracks(albumId: String): Flow<Track> =
+        paginatedFlow("v1/albums/$albumId/tracks", pagingAdapterOf())
 
     override suspend fun getTrack(id: String): Resource<Track> {
         require(id.isNotEmpty())
@@ -184,7 +182,7 @@ internal class SpotifyServiceImpl
         return listResource(response, featureListAdapter)
     }
 
-    override suspend fun search(
+    override fun search(
         query: String,
         type: Set<String>,
         limit: Int,
@@ -223,6 +221,55 @@ internal class SpotifyServiceImpl
         else -> parseApiError(response)
     }
 
+    private fun <T> paginatedFlow(
+        path: String,
+        pagingAdapter: JsonAdapter<Paging<T>>
+    ): Flow<T> = flow {
+        val pageRequest = HttpRequestBuilder(path = path) {
+            parameters[SpotifyService.QUERY_INCLUDE_GROUPS] = "album,single"
+        }
+
+        var hasNextPage: Boolean
+        pagination@ do {
+            val response = http.get<HttpResponse>(pageRequest)
+            when (response.status) {
+
+                HttpStatusCode.OK -> {
+                    // Emit items from the fetched page and prepare to fetch the next one, if any.
+                    val pageOfResults = pagingAdapter.fromJson(response.readText())!!
+                    for (result in pageOfResults.items) {
+                        emit(result)
+                    }
+
+                    if (pageOfResults.next != null) {
+                        pageRequest.url(pageOfResults.next)
+                        hasNextPage = true
+                    } else {
+                        hasNextPage = false
+                    }
+                }
+
+                HttpStatusCode.NotFound -> {
+                    // The parent resource does not exist. End the flow without an element.
+                    break@pagination
+                }
+
+                else -> {
+                    // That's an unexpected error code.
+                    val errorPayload = errorAdapter.fromJson(response.readText())
+                    val errorMessage = if (errorPayload != null) {
+                        "Unexpected HTTP status ${errorPayload.status}: ${errorPayload.message}."
+                    } else {
+                        "Unexpected HTTP status ${response.status.value}."
+                    }
+
+                    throw IOException(errorMessage)
+                }
+            }
+
+        } while (hasNextPage)
+    }
+
     private suspend fun parseApiError(response: HttpResponse): Resource.Failed {
         val errorPayload = errorAdapter.fromJson(response.readText())
         return if (errorPayload != null) {
@@ -234,6 +281,11 @@ internal class SpotifyServiceImpl
 
     private inline fun <reified T : Any> listAdapterOf(): JsonAdapter<List<T>> {
         val listType = Types.newParameterizedType(List::class.java, T::class.java)
-        return deserializer.adapter<List<T>>(listType)
+        return deserializer.adapter(listType)
+    }
+
+    private inline fun <reified T : Any> pagingAdapterOf(): JsonAdapter<Paging<T>> {
+        val pagingType = Types.newParameterizedType(Paging::class.java, T::class.java)
+        return deserializer.adapter(pagingType)
     }
 }

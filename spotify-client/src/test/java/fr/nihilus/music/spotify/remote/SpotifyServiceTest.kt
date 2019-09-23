@@ -20,6 +20,7 @@ import com.squareup.moshi.Moshi
 import fr.nihilus.music.spotify.OAuthToken
 import fr.nihilus.music.spotify.model.*
 import io.kotlintest.*
+import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
@@ -38,6 +39,7 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test
 
@@ -239,20 +241,20 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an artist's albums, then call artist albums endpoint with its id`() = runBlockingTest {
-        // TODO Rewrite the test to adhere to the new API.
-        val apiClient = spotifyService { request ->
+    fun `When getting an artist's albums, then fetch its albums page per page`() = runBlockingTest {
+        TODO("Rewrite this test to adhere to the new API.")
+        /*val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/artists/12Chz98pHFMPJEknJQMWvI/albums"
 
             withClue("Only albums and singles from that artist should be requested.") {
-                val includedGroups = request.url.parameters.getAll(SpotifyService.QUERY_INCLUDE_GROUPS)
-                includedGroups.shouldContainExactlyInAnyOrder("album", "single")
+                val includedGroups = request.url.parameters[SpotifyService.QUERY_INCLUDE_GROUPS]
+                includedGroups shouldBe "album,single"
             }
 
             respondJson(ARTIST_ALBUMS)
         }
 
-        val paginatedAlbums = apiClient.getArtistAlbums("12Chz98pHFMPJEknJQMWvI", 20, 0)
+        val paginatedAlbums = apiClient.getArtistAlbums("12Chz98pHFMPJEknJQMWvI")
 
         paginatedAlbums.total shouldBe 46
         val items = paginatedAlbums.items
@@ -272,17 +274,17 @@ class SpotifyServiceTest {
             it.releaseDate shouldBe "2015-06-04"
             it.releaseDatePrecision shouldBe "day"
             it.images shouldHaveSize 1
-        }
+        }*/
     }
 
     @Test
-    fun `When getting albums of an unknown artist, then fail with ResourceNotFound`() = runBlockingTest {
-        // TODO Rewrite the test to adhere to the new API.
+    fun `When getting albums of an unknown artist, then return an empty flow`() = runBlockingTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
 
-        apiClient.getArtistAlbums("unknown_artist_id", 20, 0)
+        val artistAlbums = apiClient.getArtistAlbums("unknown_artist_id").toList()
+        artistAlbums.shouldBeEmpty()
     }
 
     @Test
@@ -305,7 +307,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an unknown album then fail with ResourceNotFound`() = runBlockingTest {
+    fun `When getting an unknown album then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -352,9 +354,9 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an album's tracks then call album tracks endpoint with its id`() = runBlockingTest {
-        // TODO Rewrite the test to adhere to the new API.
-        val apiClient = spotifyService { request ->
+    fun `When getting an album's tracks then fetch its tracks page per page`() = runBlockingTest {
+        TODO("Rewrite the test to adhere to the new API.")
+        /*val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks"
             respondJson(ALBUM_TRACKS)
         }
@@ -380,17 +382,17 @@ class SpotifyServiceTest {
             it.trackNumber shouldBe 2
             it.duration shouldBe 227213
             it.explicit shouldBe false
-        }
+        }*/
     }
 
     @Test
-    fun `When getting tracks of an unknown album then fail with ResourceNotFound`() = runBlockingTest {
-        // TODO Rewrite the test to adhere to the new API.
+    fun `When getting tracks of an unknown album then return an empty flow`() = runBlockingTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
 
-        apiClient.getAlbumTracks("unknown_album_id", 20, 0)
+        val albumTracks = apiClient.getAlbumTracks("unknown_album_id").toList()
+        albumTracks.shouldBeEmpty()
     }
 
     @Test
@@ -413,7 +415,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an unknown track then fail with ResourceNotFound`() = runBlockingTest {
+    fun `When getting an unknown track then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -489,7 +491,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting features of an unknown track then fail with ResourceNotFound`() = runBlockingTest {
+    fun `When getting features of an unknown track then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -554,8 +556,8 @@ class SpotifyServiceTest {
 
     @Test
     fun `When searching, then call search endpoint with corresponding type`() = runBlockingTest {
-        // TODO Rewrite the test to adhere to the new API.
-        val searchClient = spotifyService { request ->
+        TODO("Rewrite the test to adhere to the new API.")
+        /*val searchClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/search"
 
             val parameters = request.url.parameters
@@ -616,7 +618,7 @@ class SpotifyServiceTest {
                 it.duration shouldBe 277397
                 it.explicit shouldBe false
             }
-        }
+        }*/
     }
 
     @Test

@@ -17,6 +17,7 @@
 package fr.nihilus.music.spotify.remote
 
 import fr.nihilus.music.spotify.model.*
+import kotlinx.coroutines.flow.Flow
 
 internal interface SpotifyService {
 
@@ -42,16 +43,10 @@ internal interface SpotifyService {
      * Get Spotify catalog information about an artist’s albums.
      *
      * @param artistId The Spotify ID for the artist.
-     * @param offset The index of the first album to return. Default: `0` (i.e., the first album).
-     * Use with [limit] to get the next set of albums.
-     * @param limit The number of albums to return. Default: `20`. Minimum: `1`. Maximum: `50`.
-     *
-     * @return A paginated list of albums where the requested artist participates.
-     * @throws ResourceNotFound If the requested artist does not exist.
-     *
-     * TODO Rethink this endpoint to return a Flow.
+     * @return An asynchronous flow of all albums the requested artist has participated.
+     * That flow will fail with [IllegalArgumentException] if the requested artist does not exists.
      */
-    suspend fun getArtistAlbums(artistId: String, limit: Int = 20, offset: Int = 0): Paging<Album>
+    fun getArtistAlbums(artistId: String): Flow<Album>
 
     /**
      * Get Spotify catalog information for a single album.
@@ -76,16 +71,10 @@ internal interface SpotifyService {
      * Get Spotify catalog information about an album’s tracks.
      *
      * @param albumId The SpotifyID for the album.
-     * @param offset The index of the first track to return. Default: `0`.
-     * Use with limit to get the next set of tracks.
-     * @param limit The maximum number of tracks to return. Default: `20`. Minimum: `1`. Maximum: `50`.
-     *
-     * @return A paginated list of tracks from the requested album.
-     * @throws ResourceNotFound If the requested album does not exist.
-     *
-     * TODO Rethink this endpoint to return a Flow.
+     * @return An asynchronous flow of all tracks from the requested album.
+     * That flow will fail with [IllegalArgumentException] if the requested artist does not exists.
      */
-    suspend fun getAlbumTracks(albumId: String, limit: Int = 20, offset: Int = 0): Paging<Track>
+    fun getAlbumTracks(albumId: String): Flow<Track>
 
     /**
      * Get Spotify catalog information for a single track identified by its unique Spotify ID.
@@ -138,7 +127,7 @@ internal interface SpotifyService {
      *
      * TODO Rethink this endpoint to return search results with Flow.
      */
-    suspend fun search(
+    fun search(
         query: String,
         type: Set<String>,
         limit: Int = 20,
@@ -154,5 +143,4 @@ internal interface SpotifyService {
         internal const val QUERY_INCLUDE_GROUPS = "include_groups"
     }
 }
-
 

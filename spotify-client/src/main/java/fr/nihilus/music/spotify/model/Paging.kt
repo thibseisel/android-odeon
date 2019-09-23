@@ -33,6 +33,13 @@ internal class Paging<T>(
     val offset: Int,
 
     /**
+     * The URL to request the next page of results.
+     * This will be `null` if this page is the last one.
+     */
+    @Json(name = "next")
+    val next: String?,
+
+    /**
      * The maximum number of items in the response (as set in the query or by default).
      */
     @Json(name = "limit")

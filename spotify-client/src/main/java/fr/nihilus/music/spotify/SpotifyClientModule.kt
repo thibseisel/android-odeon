@@ -25,6 +25,7 @@ import fr.nihilus.music.spotify.remote.SpotifyAccountsService
 import fr.nihilus.music.spotify.remote.SpotifyAccountsServiceImpl
 import fr.nihilus.music.spotify.remote.SpotifyService
 import fr.nihilus.music.spotify.remote.SpotifyServiceImpl
+import io.ktor.client.engine.HttpClientEngine
 import javax.inject.Named
 
 /**
@@ -32,9 +33,8 @@ import javax.inject.Named
  * such as REST web services, the HTTP client and JSON (de)serialization.
  *
  * This module requires the following dependencies:
- * - [String] named `SPOTIFY_AUTH_BASE`: the base URL of the Spotify Authorization service.
- * - [String] named `SPOTIFY_API_BASE`: the base URL of the Spotify API.
- * - [String] named `SPOTIFY_CLIENT_SECRET`: the Spotify secret key for this application.
+ * - [HttpClientEngine]: the engine that should execute HTTP requests,
+ * - a [String] named `SPOTIFY_CLIENT_SECRET`: the Spotify secret key for this application.
  */
 @Module
 internal abstract class SpotifyClientModule {
