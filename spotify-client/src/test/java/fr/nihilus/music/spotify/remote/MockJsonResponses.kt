@@ -124,6 +124,205 @@ internal val MULTIPLE_ARTISTS = """{
 }""".trimIndent()
 
 @Language("JSON")
+internal val ARTISTS_WITH_NULLS = """{
+  "artists": [
+    null,
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+      },
+      "followers": {
+        "href": null,
+        "total": 6381609
+      },
+      "genres": [
+        "alternative metal",
+        "alternative rock",
+        "modern rock",
+        "permanent wave",
+        "post-grunge",
+        "rock"
+      ],
+      "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+      "id": "7jy3rLJdDQY21OgRLCZ9sD",
+      "images": [
+        {
+          "height": 320,
+          "url": "https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d",
+          "width": 320
+        }
+      ],
+      "name": "Foo Fighters",
+      "popularity": 82,
+      "type": "artist",
+      "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+    },
+    null
+  ]
+}""".trimIndent()
+
+@Language("JSON")
+internal val ARTIST_ALBUMS_PAGES = arrayOf(
+    """{
+      "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?include_groups=album,single",
+      "items": [
+        {
+          "album_group": "album",
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/5OZgDtx180ZZPMpm36J2zC"
+          },
+          "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC",
+          "id": "5OZgDtx180ZZPMpm36J2zC",
+          "images": [
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/0b2a261f7bec0ed109a149316d116c15ca72e5ef",
+              "width": 300
+            }
+          ],
+          "name": "Simulation Theory (Super Deluxe)",
+          "release_date": "2018-11-09",
+          "release_date_precision": "day",
+          "total_tracks": 21,
+          "type": "album",
+          "uri": "spotify:album:5OZgDtx180ZZPMpm36J2zC"
+        },
+        {
+          "album_group": "album",
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/2wart5Qjnvx1fd7LPdQxgJ"
+          },
+          "href": "https://api.spotify.com/v1/albums/2wart5Qjnvx1fd7LPdQxgJ",
+          "id": "2wart5Qjnvx1fd7LPdQxgJ",
+          "images": [
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/8b6392caa83625135f0f53d6e2b0631bbe4c4c0b",
+              "width": 300
+            }
+          ],
+          "name": "Drones",
+          "release_date": "2015-06-04",
+          "release_date_precision": "day",
+          "total_tracks": 12,
+          "type": "album",
+          "uri": "spotify:album:2wart5Qjnvx1fd7LPdQxgJ"
+        }
+      ],
+      "limit": 2,
+      "next": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=2&limit=2&include_groups=album,single",
+      "offset": 0,
+      "previous": null,
+      "total": 4
+    }""".trimIndent(),
+    """{
+      "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=2&limit=2&include_groups=album,single",
+      "items": [
+        {
+          "album_group": "album",
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/3KuXEGcqLcnEYWnn3OEGy0"
+          },
+          "href": "https://api.spotify.com/v1/albums/3KuXEGcqLcnEYWnn3OEGy0",
+          "id": "3KuXEGcqLcnEYWnn3OEGy0",
+          "images": [
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/ca0f14d8190f1cfc7183884a65af00ccd3e2301e",
+              "width": 300
+            }
+          ],
+          "name": "The 2nd Law",
+          "release_date": "2012-09-24",
+          "release_date_precision": "day",
+          "total_tracks": 13,
+          "type": "album",
+          "uri": "spotify:album:3KuXEGcqLcnEYWnn3OEGy0"
+        },
+        {
+          "album_group": "album",
+          "album_type": "album",
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "external_urls": {
+            "spotify": "https://open.spotify.com/album/0eFHYz8NmK75zSplL5qlfM"
+          },
+          "href": "https://api.spotify.com/v1/albums/0eFHYz8NmK75zSplL5qlfM",
+          "id": "0eFHYz8NmK75zSplL5qlfM",
+          "images": [
+            {
+              "height": 300,
+              "url": "https://i.scdn.co/image/28752dcf4b27ba14c1fc62f04ff469aa53c113d7",
+              "width": 300
+            }
+          ],
+          "name": "The Resistance",
+          "release_date": "2009-09-10",
+          "release_date_precision": "day",
+          "total_tracks": 11,
+          "type": "album",
+          "uri": "spotify:album:0eFHYz8NmK75zSplL5qlfM"
+        }
+      ],
+      "limit": 2,
+      "next": null,
+      "offset": 2,
+      "previous": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=0&limit=2&include_groups=album,single",
+      "total": 4
+    }""".trimIndent()
+
+)
+
+@Language("JSON")
 internal val ARTIST_ALBUMS: String = """{
   "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=0&limit=2&include_groups=album,single&market=FR",
   "items": [
@@ -466,6 +665,146 @@ internal val MULTIPLE_ALBUMS = """{
     }
   ]
 }""".trimIndent()
+
+@Language("JSON")
+internal val ALBUM_TRACKS_PAGES = arrayOf(
+    """{
+      "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks?offset=0&limit=2",
+      "items": [
+        {
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "disc_number": 1,
+          "duration_ms": 245960,
+          "explicit": false,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/7f0vVL3xi4i78Rv5Ptn2s1"
+          },
+          "href": "https://api.spotify.com/v1/tracks/7f0vVL3xi4i78Rv5Ptn2s1",
+          "id": "7f0vVL3xi4i78Rv5Ptn2s1",
+          "is_local": false,
+          "is_playable": true,
+          "name": "Algorithm",
+          "preview_url": "https://p.scdn.co/mp3-preview/00d386644c07673f05878e337f977911c0ba740b?cid=774b29d4f13844c495f206cafdad9c86",
+          "track_number": 1,
+          "type": "track",
+          "uri": "spotify:track:7f0vVL3xi4i78Rv5Ptn2s1"
+        },
+        {
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "disc_number": 1,
+          "duration_ms": 227213,
+          "explicit": false,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/0dMYPDqcI4ca4cjqlmp9mE"
+          },
+          "href": "https://api.spotify.com/v1/tracks/0dMYPDqcI4ca4cjqlmp9mE",
+          "id": "0dMYPDqcI4ca4cjqlmp9mE",
+          "is_local": false,
+          "is_playable": true,
+          "name": "The Dark Side",
+          "preview_url": "https://p.scdn.co/mp3-preview/5995cbc458c74a9f4beb50ca250a9920d3b1d8ab?cid=774b29d4f13844c495f206cafdad9c86",
+          "track_number": 2,
+          "type": "track",
+          "uri": "spotify:track:0dMYPDqcI4ca4cjqlmp9mE"
+        }
+      ],
+      "limit": 2,
+      "next": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks?offset=2&limit=2",
+      "offset": 0,
+      "previous": null,
+      "total": 4
+    }""".trimIndent(),
+    """{
+      "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks?offset=2&limit=2",
+      "items": [
+        {
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "disc_number": 1,
+          "duration_ms": 235600,
+          "explicit": false,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/3eSyMBd7ERw68NVB3jlRmW"
+          },
+          "href": "https://api.spotify.com/v1/tracks/3eSyMBd7ERw68NVB3jlRmW",
+          "id": "3eSyMBd7ERw68NVB3jlRmW",
+          "is_local": false,
+          "is_playable": true,
+          "name": "Pressure",
+          "preview_url": "https://p.scdn.co/mp3-preview/261288083ebf6c294ee89f868bb1b3040c18346f?cid=774b29d4f13844c495f206cafdad9c86",
+          "track_number": 3,
+          "type": "track",
+          "uri": "spotify:track:3eSyMBd7ERw68NVB3jlRmW"
+        },
+        {
+          "artists": [
+            {
+              "external_urls": {
+                "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+              },
+              "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+              "id": "12Chz98pHFMPJEknJQMWvI",
+              "name": "Muse",
+              "type": "artist",
+              "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+            }
+          ],
+          "disc_number": 1,
+          "duration_ms": 180506,
+          "explicit": false,
+          "external_urls": {
+            "spotify": "https://open.spotify.com/track/2sHLWUTiaBPGOIZinpqO4C"
+          },
+          "href": "https://api.spotify.com/v1/tracks/2sHLWUTiaBPGOIZinpqO4C",
+          "id": "2sHLWUTiaBPGOIZinpqO4C",
+          "is_local": false,
+          "is_playable": true,
+          "name": "Propaganda",
+          "preview_url": "https://p.scdn.co/mp3-preview/f80e299a7079ada8c9d24bbff84da6935383b305?cid=774b29d4f13844c495f206cafdad9c86",
+          "track_number": 4,
+          "type": "track",
+          "uri": "spotify:track:2sHLWUTiaBPGOIZinpqO4C"
+        }
+      ],
+      "limit": 2,
+      "next": null,
+      "offset": 2,
+      "previous": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks?offset=0&limit=2",
+      "total": 4
+    }""".trimIndent()
+)
 
 @Language("JSON")
 internal val ALBUM_TRACKS = """{
