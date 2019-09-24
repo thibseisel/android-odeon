@@ -1,0 +1,63 @@
+{
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+      },
+      "followers": {
+        "href": null,
+        "total": 4961358
+      },
+      "genres": [
+        "modern rock",
+        "permanent wave",
+        "piano rock",
+        "post-grunge",
+        "rock"
+      ],
+      "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+      "id": "12Chz98pHFMPJEknJQMWvI",
+      "images": [
+        {
+          "height": 320,
+          "url": "https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde",
+          "width": 320
+        }
+      ],
+      "name": "Muse",
+      "popularity": 82,
+      "type": "artist",
+      "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+    },
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+      },
+      "followers": {
+        "href": null,
+        "total": 6381609
+      },
+      "genres": [
+        "alternative metal",
+        "alternative rock",
+        "modern rock",
+        "permanent wave",
+        "post-grunge",
+        "rock"
+      ],
+      "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+      "id": "7jy3rLJdDQY21OgRLCZ9sD",
+      "images": [
+        {
+          "height": 320,
+          "url": "https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d",
+          "width": 320
+        }
+      ],
+      "name": "Foo Fighters",
+      "popularity": 82,
+      "type": "artist",
+      "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+    }
+  ]
+}

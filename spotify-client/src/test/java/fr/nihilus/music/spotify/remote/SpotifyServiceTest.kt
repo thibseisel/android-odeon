@@ -85,7 +85,9 @@ class SpotifyServiceTest {
     @Test
     fun `Given no token, when calling any endpoint then authenticate`() = runBlockingTest {
         coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
-        val unauthenticatedService = spotifyService(token = null) { respondJson(SINGLE_ARTIST) }
+        val unauthenticatedService = spotifyService(token = null) {
+            respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
+        }
 
         unauthenticatedService.getArtist("12Chz98pHFMPJEknJQMWvI")
 
@@ -118,7 +120,7 @@ class SpotifyServiceTest {
         val authenticatedService = spotifyService(validToken) { request ->
             // Verify that the Authorization header is present.
             request.headers[HttpHeaders.Authorization] shouldBe "Bearer $TEST_TOKEN_STRING"
-            respondJson(SINGLE_ARTIST)
+            respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
 
         shouldNotThrow<AuthenticationException> {
@@ -147,7 +149,7 @@ class SpotifyServiceTest {
             } else {
                 // Check that the newly generated token has been used.
                 authorization shouldBe "Bearer $TEST_TOKEN_STRING"
-                respondJson(SINGLE_ARTIST)
+                respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
             }
         }
 
@@ -174,7 +176,7 @@ class SpotifyServiceTest {
     fun `When getting an artist then call artists endpoint with its id`() = runBlockingTest {
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/artists/12Chz98pHFMPJEknJQMWvI"
-            respondJson(SINGLE_ARTIST)
+            respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
 
         val artistResource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
@@ -209,7 +211,7 @@ class SpotifyServiceTest {
             val requestedIds = request.url.parameters[SpotifyService.QUERY_IDS]
             requestedIds shouldBe "12Chz98pHFMPJEknJQMWvI,7jy3rLJdDQY21OgRLCZ9sD"
 
-            respondJson(MULTIPLE_ARTISTS)
+            respondFile("artists/several.json")
         }
 
         val artistsResource = apiClient.getSeveralArtists(requestedArtistIds)
@@ -291,7 +293,7 @@ class SpotifyServiceTest {
     fun `When getting an album then call albums endpoint with its id`() = runBlockingTest {
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/albums/6KMkuqIwKkwUhUYRPL6dUc"
-            respondJson(SINGLE_ALBUM)
+            respondFile("albums/7jy3rLJdDQY21OgRLCZ9sD.json")
         }
 
         val albumResource = apiClient.getAlbum("6KMkuqIwKkwUhUYRPL6dUc")
@@ -326,7 +328,7 @@ class SpotifyServiceTest {
             val receivedIds = request.url.parameters[SpotifyService.QUERY_IDS]
             receivedIds shouldBe "5OZgDtx180ZZPMpm36J2zC,6KMkuqIwKkwUhUYRPL6dUc"
 
-            respondJson(MULTIPLE_ALBUMS)
+            respondFile("albums/several.json")
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
@@ -401,7 +403,7 @@ class SpotifyServiceTest {
 
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/tracks/$requestedTrackId"
-            respondJson(SINGLE_TRACK)
+            respondFile("tracks/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
         val resource = apiClient.getTrack(requestedTrackId)
@@ -435,7 +437,7 @@ class SpotifyServiceTest {
                 request.url.parameters[SpotifyService.QUERY_IDS]
             receivedTrackIds shouldBe "7f0vVL3xi4i78Rv5Ptn2s1,0dMYPDqcI4ca4cjqlmp9mE"
 
-            respondJson(MULTIPLE_TRACKS)
+            respondFile("tracks/several.json")
         }
 
         val tracks = apiClient.getSeveralTracks(requestedTrackIds)
@@ -469,7 +471,7 @@ class SpotifyServiceTest {
 
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "v1/audio-features/$requestedTrackId"
-            respondJson(SINGLE_AUDIO_FEATURES)
+            respondFile("features/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
         val audioFeatures = apiClient.getTrackFeatures(requestedTrackId)
@@ -511,7 +513,7 @@ class SpotifyServiceTest {
             val receivedTrackIds = request.url.parameters[SpotifyService.QUERY_IDS]
             receivedTrackIds shouldBe "7f0vVL3xi4i78Rv5Ptn2s1,5lnsL7pCg0fQKcWnlkD1F0"
 
-            respondJson(MULTIPLE_AUDIO_FEATURES)
+            respondFile("features/several.json")
         }
 
         val resource = apiClient.getSeveralTrackFeatures(requestedIds)
@@ -644,7 +646,7 @@ class SpotifyServiceTest {
     fun `When calling any endpoint, then send the provided UserAgent`() = runBlockingTest {
         val apiClient = spotifyService { request ->
             request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
-            respondJson(SINGLE_TRACK)
+            respondFile("tracks/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
         apiClient.getTrack("7f0vVL3xi4i78Rv5Ptn2s1")
@@ -676,7 +678,7 @@ class SpotifyServiceTest {
             retriedRequest.url shouldBe originalRequest.url
             retriedRequest.headers shouldBe originalRequest.headers
 
-            respondJson(SINGLE_ARTIST)
+            respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
 
         return MockEngine(engineConfig)

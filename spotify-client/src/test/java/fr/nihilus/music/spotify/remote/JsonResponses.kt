@@ -22,6 +22,19 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import org.intellij.lang.annotations.Language
+import java.io.BufferedReader
+import java.io.FileNotFoundException
+
+private object TestResources {
+
+    fun getTextFromFile(filepath: String): String {
+        val classLoader = this.javaClass.classLoader
+            ?: error("${this.javaClass} has no ClassLoader")
+        val resourceFileInput = classLoader.getResourceAsStream(filepath)
+            ?: throw FileNotFoundException(filepath)
+        return resourceFileInput.bufferedReader().use(BufferedReader::readText)
+    }
+}
 
 /**
  * Create an HTTP response with the provided [json] as the content body.
@@ -32,14 +45,21 @@ import org.intellij.lang.annotations.Language
 internal fun respondJson(
     @Language("JSON") json: String,
     status: HttpStatusCode = HttpStatusCode.OK
-) = respond(
-    json,
-    status,
-    headersOf(
+) = respond(json, status, headersOf(
         HttpHeaders.ContentType,
         ContentType.Application.Json.toString()
-    )
-)
+    ))
+
+/**
+ * Create an HTTP response whose content body is read from a resource file at the given [filepath].
+ *
+ * @param filepath Path of the file relative to the root resource folder.
+ * @param status The status code of the HTTP response. Defaults to 200 (OK).
+ */
+internal fun respondFile(
+    filepath: String,
+    status: HttpStatusCode = HttpStatusCode.OK
+) = respond(TestResources.getTextFromFile(filepath), status)
 
 /**
  * Produces the JSON response body returned by the Spotify Web API when it returns a 400+ status code.
@@ -54,3 +74,5 @@ fun jsonApiError(status: HttpStatusCode, message: String): String = """{
       "message": "$message"
     }
 }""".trimIndent()
+
+internal const val TEST_TOKEN_STRING = "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"

@@ -30,6 +30,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.intellij.lang.annotations.Language
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import kotlin.test.Test
@@ -38,6 +39,13 @@ private const val TEST_CLIENT_ID = "client_id"
 private const val TEST_CLIENT_SECRET = "client_secret"
 private const val CLIENT_BASE64_KEY = "Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ="
 private const val TEST_USER_AGENT = "SpotifyAccountsService/1.0.0 KtorHttpClient/1.2.4"
+
+@Language("JSON")
+private val AUTH_TOKEN = """{
+    "access_token": "MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3",
+    "token_type": "Bearer",
+    "expires_in": 3600
+}""".trimIndent()
 
 /**
  * Checks the behavior of the Spotify Accounts API client.
@@ -102,4 +110,3 @@ class SpotifyAccountsServiceTest {
         authService.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET)
     }
 }
-

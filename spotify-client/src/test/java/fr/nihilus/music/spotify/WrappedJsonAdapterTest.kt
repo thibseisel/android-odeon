@@ -20,12 +20,8 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import fr.nihilus.music.spotify.model.Artist
-import fr.nihilus.music.spotify.model.Image
 import fr.nihilus.music.spotify.model.SpotifyError
-import fr.nihilus.music.spotify.remote.MULTIPLE_ARTISTS
 import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.shouldBe
@@ -61,49 +57,6 @@ class WrappedJsonAdapterTest {
         }""".trimIndent())
 
         strings.shouldContainExactly("Foo", "Bar")
-    }
-
-    @Test
-    fun `Given wrapped array, when deserializing then return the array as a List`() {
-        val envelopeAdapter = WrappedJsonAdapter("artists", listAdapterOf<Artist>())
-
-        val artists = envelopeAdapter.fromJson(MULTIPLE_ARTISTS)
-
-        artists.shouldNotBeNull()
-        artists shouldHaveSize 2
-
-        with(artists[0]) {
-            id shouldBe "12Chz98pHFMPJEknJQMWvI"
-            name shouldBe "Muse"
-            popularity shouldBe 82
-            genres.shouldContainExactly(
-                "modern rock",
-                "permanent wave",
-                "piano rock",
-                "post-grunge",
-                "rock"
-            )
-            images.shouldContainExactly(
-                Image("https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde", 320, 320)
-            )
-        }
-
-        with(artists[1]) {
-            id shouldBe "7jy3rLJdDQY21OgRLCZ9sD"
-            name shouldBe "Foo Fighters"
-            popularity shouldBe 82
-            genres.shouldContainExactly(
-                "alternative metal",
-                "alternative rock",
-                "modern rock",
-                "permanent wave",
-                "post-grunge",
-                "rock"
-            )
-            images.shouldContainExactly(
-                Image("https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d", 320, 320)
-            )
-        }
     }
 
     @Test

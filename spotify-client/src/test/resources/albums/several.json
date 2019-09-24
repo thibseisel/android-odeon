@@ -1,0 +1,176 @@
+{
+  "albums": [
+    {
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+          },
+          "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+          "id": "12Chz98pHFMPJEknJQMWvI",
+          "name": "Muse",
+          "type": "artist",
+          "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+        }
+      ],
+      "copyrights": [
+        {
+          "text": "2018, Muse under exclusive licence to Warner Music UK Limited",
+          "type": "C"
+        },
+        {
+          "text": "2018, Muse under exclusive licence to Warner Music UK Limited with the exception of track 10 2017, Muse under exclusive licence to Warner Music UK",
+          "type": "P"
+        }
+      ],
+      "external_ids": {
+        "upc": "190295559205"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5OZgDtx180ZZPMpm36J2zC"
+      },
+      "genres": [],
+      "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC",
+      "id": "5OZgDtx180ZZPMpm36J2zC",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/0b2a261f7bec0ed109a149316d116c15ca72e5ef",
+          "width": 300
+        }
+      ],
+      "label": "Warner Bros.",
+      "name": "Simulation Theory (Super Deluxe)",
+      "popularity": 73,
+      "release_date": "2018-11-09",
+      "release_date_precision": "day",
+      "total_tracks": 21,
+      "tracks": {
+        "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks?offset=0&limit=50&market=FR",
+        "items": [
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+                },
+                "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+                "id": "12Chz98pHFMPJEknJQMWvI",
+                "name": "Muse",
+                "type": "artist",
+                "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 245960,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/7f0vVL3xi4i78Rv5Ptn2s1"
+            },
+            "href": "https://api.spotify.com/v1/tracks/7f0vVL3xi4i78Rv5Ptn2s1",
+            "id": "7f0vVL3xi4i78Rv5Ptn2s1",
+            "is_local": false,
+            "is_playable": true,
+            "name": "Algorithm",
+            "preview_url": "https://p.scdn.co/mp3-preview/00d386644c07673f05878e337f977911c0ba740b?cid=774b29d4f13844c495f206cafdad9c86",
+            "track_number": 1,
+            "type": "track",
+            "uri": "spotify:track:7f0vVL3xi4i78Rv5Ptn2s1"
+          }
+        ],
+        "limit": 50,
+        "next": null,
+        "offset": 0,
+        "previous": null,
+        "total": 1
+      },
+      "type": "album",
+      "uri": "spotify:album:5OZgDtx180ZZPMpm36J2zC"
+    },
+    {
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+          },
+          "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+          "id": "7jy3rLJdDQY21OgRLCZ9sD",
+          "name": "Foo Fighters",
+          "type": "artist",
+          "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+        }
+      ],
+      "copyrights": [
+        {
+          "text": "(P) 2017 Roswell Records, Inc. under license to RCA Records, a unit of Sony Music Entertainment",
+          "type": "P"
+        }
+      ],
+      "external_ids": {
+        "upc": "886446547176"
+      },
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/6KMkuqIwKkwUhUYRPL6dUc"
+      },
+      "genres": [],
+      "href": "https://api.spotify.com/v1/albums/6KMkuqIwKkwUhUYRPL6dUc",
+      "id": "6KMkuqIwKkwUhUYRPL6dUc",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/466a21e8c6f72e540392ae76a94e01c876a8f193",
+          "width": 300
+        }
+      ],
+      "label": "RCA Records Label",
+      "name": "Concrete and Gold",
+      "popularity": 68,
+      "release_date": "2017-09-15",
+      "release_date_precision": "day",
+      "total_tracks": 11,
+      "tracks": {
+        "href": "https://api.spotify.com/v1/albums/6KMkuqIwKkwUhUYRPL6dUc/tracks?offset=0&limit=50&market=FR",
+        "items": [
+          {
+            "artists": [
+              {
+                "external_urls": {
+                  "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+                },
+                "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+                "id": "7jy3rLJdDQY21OgRLCZ9sD",
+                "name": "Foo Fighters",
+                "type": "artist",
+                "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+              }
+            ],
+            "disc_number": 1,
+            "duration_ms": 323373,
+            "explicit": false,
+            "external_urls": {
+              "spotify": "https://open.spotify.com/track/1wLQwg0mloy3yXjL0jPE0N"
+            },
+            "href": "https://api.spotify.com/v1/tracks/1wLQwg0mloy3yXjL0jPE0N",
+            "id": "1wLQwg0mloy3yXjL0jPE0N",
+            "is_local": false,
+            "is_playable": true,
+            "name": "Run",
+            "preview_url": "https://p.scdn.co/mp3-preview/fded09b73c6308a8e8dccfad257bee228848481a?cid=774b29d4f13844c495f206cafdad9c86",
+            "track_number": 2,
+            "type": "track",
+            "uri": "spotify:track:1wLQwg0mloy3yXjL0jPE0N"
+          }
+        ],
+        "limit": 50,
+        "next": null,
+        "offset": 0,
+        "previous": null,
+        "total": 1
+      },
+      "type": "album",
+      "uri": "spotify:album:6KMkuqIwKkwUhUYRPL6dUc"
+    }
+  ]
+}

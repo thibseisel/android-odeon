@@ -1,0 +1,29 @@
+{
+  "external_urls": {
+    "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+  },
+  "followers": {
+    "href": null,
+    "total": 4961259
+  },
+  "genres": [
+    "modern rock",
+    "permanent wave",
+    "piano rock",
+    "post-grunge",
+    "rock"
+  ],
+  "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+  "id": "12Chz98pHFMPJEknJQMWvI",
+  "images": [
+    {
+      "height": 320,
+      "url": "https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde",
+      "width": 320
+    }
+  ],
+  "name": "Muse",
+  "popularity": 82,
+  "type": "artist",
+  "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+}

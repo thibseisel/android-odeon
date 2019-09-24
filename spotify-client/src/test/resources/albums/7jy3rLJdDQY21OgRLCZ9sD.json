@@ -1,0 +1,84 @@
+{
+  "album_type": "album",
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+      },
+      "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+      "id": "7jy3rLJdDQY21OgRLCZ9sD",
+      "name": "Foo Fighters",
+      "type": "artist",
+      "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+    }
+  ],
+  "copyrights": [
+    {
+      "text": "(P) 2017 Roswell Records, Inc. under license to RCA Records, a unit of Sony Music Entertainment",
+      "type": "P"
+    }
+  ],
+  "external_ids": {
+    "upc": "886446547176"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/album/6KMkuqIwKkwUhUYRPL6dUc"
+  },
+  "genres": [],
+  "href": "https://api.spotify.com/v1/albums/6KMkuqIwKkwUhUYRPL6dUc",
+  "id": "6KMkuqIwKkwUhUYRPL6dUc",
+  "images": [
+    {
+      "height": 300,
+      "url": "https://i.scdn.co/image/466a21e8c6f72e540392ae76a94e01c876a8f193",
+      "width": 300
+    }
+  ],
+  "label": "RCA Records Label",
+  "name": "Concrete and Gold",
+  "popularity": 68,
+  "release_date": "2017-09-15",
+  "release_date_precision": "day",
+  "total_tracks": 11,
+  "tracks": {
+    "href": "https://api.spotify.com/v1/albums/6KMkuqIwKkwUhUYRPL6dUc/tracks?offset=0&limit=50&market=FR",
+    "items": [
+      {
+        "artists": [
+          {
+            "external_urls": {
+              "spotify": "https://open.spotify.com/artist/7jy3rLJdDQY21OgRLCZ9sD"
+            },
+            "href": "https://api.spotify.com/v1/artists/7jy3rLJdDQY21OgRLCZ9sD",
+            "id": "7jy3rLJdDQY21OgRLCZ9sD",
+            "name": "Foo Fighters",
+            "type": "artist",
+            "uri": "spotify:artist:7jy3rLJdDQY21OgRLCZ9sD"
+          }
+        ],
+        "disc_number": 1,
+        "duration_ms": 320880,
+        "explicit": false,
+        "external_urls": {
+          "spotify": "https://open.spotify.com/track/5lnsL7pCg0fQKcWnlkD1F0"
+        },
+        "href": "https://api.spotify.com/v1/tracks/5lnsL7pCg0fQKcWnlkD1F0",
+        "id": "5lnsL7pCg0fQKcWnlkD1F0",
+        "is_local": false,
+        "is_playable": true,
+        "name": "Dirty Water",
+        "preview_url": "https://p.scdn.co/mp3-preview/165855a9cf8021df6e4d8dbf51cb92c5939ea8cd?cid=774b29d4f13844c495f206cafdad9c86",
+        "track_number": 6,
+        "type": "track",
+        "uri": "spotify:track:5lnsL7pCg0fQKcWnlkD1F0"
+      }
+    ],
+    "limit": 50,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 1
+  },
+  "type": "album",
+  "uri": "spotify:album:6KMkuqIwKkwUhUYRPL6dUc"
+}

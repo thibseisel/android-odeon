@@ -1,0 +1,78 @@
+{
+  "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?include_groups=album,single",
+  "items": [
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+          },
+          "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+          "id": "12Chz98pHFMPJEknJQMWvI",
+          "name": "Muse",
+          "type": "artist",
+          "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+        }
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/5OZgDtx180ZZPMpm36J2zC"
+      },
+      "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC",
+      "id": "5OZgDtx180ZZPMpm36J2zC",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/0b2a261f7bec0ed109a149316d116c15ca72e5ef",
+          "width": 300
+        }
+      ],
+      "name": "Simulation Theory (Super Deluxe)",
+      "release_date": "2018-11-09",
+      "release_date_precision": "day",
+      "total_tracks": 21,
+      "type": "album",
+      "uri": "spotify:album:5OZgDtx180ZZPMpm36J2zC"
+    },
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+          },
+          "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+          "id": "12Chz98pHFMPJEknJQMWvI",
+          "name": "Muse",
+          "type": "artist",
+          "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+        }
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/2wart5Qjnvx1fd7LPdQxgJ"
+      },
+      "href": "https://api.spotify.com/v1/albums/2wart5Qjnvx1fd7LPdQxgJ",
+      "id": "2wart5Qjnvx1fd7LPdQxgJ",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/8b6392caa83625135f0f53d6e2b0631bbe4c4c0b",
+          "width": 300
+        }
+      ],
+      "name": "Drones",
+      "release_date": "2015-06-04",
+      "release_date_precision": "day",
+      "total_tracks": 12,
+      "type": "album",
+      "uri": "spotify:album:2wart5Qjnvx1fd7LPdQxgJ"
+    }
+  ],
+  "limit": 2,
+  "next": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=2&limit=2&include_groups=album,single",
+  "offset": 0,
+  "previous": null,
+  "total": 4
+}

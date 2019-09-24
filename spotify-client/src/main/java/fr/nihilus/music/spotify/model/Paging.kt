@@ -17,6 +17,7 @@
 package fr.nihilus.music.spotify.model
 
 import com.squareup.moshi.Json
+import kotlinx.coroutines.flow.Flow
 
 internal class Paging<T>(
 
@@ -53,12 +54,7 @@ internal class Paging<T>(
 )
 
 internal class SearchResults(
-    @Json(name = "artists")
-    val artists: Paging<Artist>,
-
-    @Json(name = "albums")
-    val albums: Paging<Album>,
-
-    @Json(name = "tracks")
-    val tracks: Paging<Track>
+    val artists: Flow<Artist>,
+    val albums: Flow<Album>,
+    val tracks: Flow<Track>
 )

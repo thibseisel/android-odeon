@@ -1,0 +1,66 @@
+{
+  "album": {
+    "album_type": "album",
+    "artists": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+        },
+        "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+        "id": "12Chz98pHFMPJEknJQMWvI",
+        "name": "Muse",
+        "type": "artist",
+        "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+      }
+    ],
+    "external_urls": {
+      "spotify": "https://open.spotify.com/album/5OZgDtx180ZZPMpm36J2zC"
+    },
+    "href": "https://api.spotify.com/v1/albums/5OZgDtx180ZZPMpm36J2zC",
+    "id": "5OZgDtx180ZZPMpm36J2zC",
+    "images": [
+      {
+        "height": 300,
+        "url": "https://i.scdn.co/image/0b2a261f7bec0ed109a149316d116c15ca72e5ef",
+        "width": 300
+      }
+    ],
+    "name": "Simulation Theory (Super Deluxe)",
+    "release_date": "2018-11-09",
+    "release_date_precision": "day",
+    "total_tracks": 21,
+    "type": "album",
+    "uri": "spotify:album:5OZgDtx180ZZPMpm36J2zC"
+  },
+  "artists": [
+    {
+      "external_urls": {
+        "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+      },
+      "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+      "id": "12Chz98pHFMPJEknJQMWvI",
+      "name": "Muse",
+      "type": "artist",
+      "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+    }
+  ],
+  "disc_number": 1,
+  "duration_ms": 245960,
+  "explicit": false,
+  "external_ids": {
+    "isrc": "GBAHT1800406"
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/track/7f0vVL3xi4i78Rv5Ptn2s1"
+  },
+  "href": "https://api.spotify.com/v1/tracks/7f0vVL3xi4i78Rv5Ptn2s1",
+  "id": "7f0vVL3xi4i78Rv5Ptn2s1",
+  "is_local": false,
+  "is_playable": true,
+  "name": "Algorithm",
+  "popularity": 60,
+  "preview_url": "https://p.scdn.co/mp3-preview/00d386644c07673f05878e337f977911c0ba740b?cid=774b29d4f13844c495f206cafdad9c86",
+  "track_number": 1,
+  "type": "track",
+  "uri": "spotify:track:7f0vVL3xi4i78Rv5Ptn2s1"
+}

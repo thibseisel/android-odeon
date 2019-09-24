@@ -1,0 +1,78 @@
+{
+  "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=2&limit=2&include_groups=album,single",
+  "items": [
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+          },
+          "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+          "id": "12Chz98pHFMPJEknJQMWvI",
+          "name": "Muse",
+          "type": "artist",
+          "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+        }
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/3KuXEGcqLcnEYWnn3OEGy0"
+      },
+      "href": "https://api.spotify.com/v1/albums/3KuXEGcqLcnEYWnn3OEGy0",
+      "id": "3KuXEGcqLcnEYWnn3OEGy0",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/ca0f14d8190f1cfc7183884a65af00ccd3e2301e",
+          "width": 300
+        }
+      ],
+      "name": "The 2nd Law",
+      "release_date": "2012-09-24",
+      "release_date_precision": "day",
+      "total_tracks": 13,
+      "type": "album",
+      "uri": "spotify:album:3KuXEGcqLcnEYWnn3OEGy0"
+    },
+    {
+      "album_group": "album",
+      "album_type": "album",
+      "artists": [
+        {
+          "external_urls": {
+            "spotify": "https://open.spotify.com/artist/12Chz98pHFMPJEknJQMWvI"
+          },
+          "href": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI",
+          "id": "12Chz98pHFMPJEknJQMWvI",
+          "name": "Muse",
+          "type": "artist",
+          "uri": "spotify:artist:12Chz98pHFMPJEknJQMWvI"
+        }
+      ],
+      "external_urls": {
+        "spotify": "https://open.spotify.com/album/0eFHYz8NmK75zSplL5qlfM"
+      },
+      "href": "https://api.spotify.com/v1/albums/0eFHYz8NmK75zSplL5qlfM",
+      "id": "0eFHYz8NmK75zSplL5qlfM",
+      "images": [
+        {
+          "height": 300,
+          "url": "https://i.scdn.co/image/28752dcf4b27ba14c1fc62f04ff469aa53c113d7",
+          "width": 300
+        }
+      ],
+      "name": "The Resistance",
+      "release_date": "2009-09-10",
+      "release_date_precision": "day",
+      "total_tracks": 11,
+      "type": "album",
+      "uri": "spotify:album:0eFHYz8NmK75zSplL5qlfM"
+    }
+  ],
+  "limit": 2,
+  "next": null,
+  "offset": 2,
+  "previous": "https://api.spotify.com/v1/artists/12Chz98pHFMPJEknJQMWvI/albums?offset=0&limit=2&include_groups=album,single",
+  "total": 4
+}
