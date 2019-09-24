@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.squareup.moshi.Moshi
@@ -59,16 +59,22 @@ class SpotifyAccountsServiceTest {
 
     private fun accountsService(handler: suspend (HttpRequestData) -> HttpResponseData): SpotifyAccountsService {
         val simulatedServer = MockEngine(handler)
-        return SpotifyAccountsServiceImpl(simulatedServer, moshi, TEST_USER_AGENT)
+        return SpotifyAccountsServiceImpl(
+            simulatedServer,
+            moshi,
+            TEST_USER_AGENT
+        )
     }
 
     @Test
     fun `Given bad credentials, when authenticating then fail with AuthenticationException`() = runBlockingTest {
         val failingAuthService = accountsService {
-            respondJson("""{
+            respondJson(
+                """{
                 "error": "invalid_client",
                 "error_description": "Invalid client"
-            }""".trimIndent(), HttpStatusCode.BadRequest)
+            }""".trimIndent(), HttpStatusCode.BadRequest
+            )
         }
 
         val exception = shouldThrow<AuthenticationException> {
@@ -94,7 +100,10 @@ class SpotifyAccountsServiceTest {
             respondJson(AUTH_TOKEN)
         }
 
-        val token = authService.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET)
+        val token = authService.authenticate(
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET
+        )
         token.token shouldBe TEST_TOKEN_STRING
         token.type shouldBe "Bearer"
         token.expiresIn shouldBe 3600
@@ -107,6 +116,9 @@ class SpotifyAccountsServiceTest {
             respondJson(AUTH_TOKEN)
         }
 
-        authService.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET)
+        authService.authenticate(
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET
+        )
     }
 }

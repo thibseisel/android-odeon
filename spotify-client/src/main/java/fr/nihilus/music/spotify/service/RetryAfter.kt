@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.service
 
 import io.ktor.client.HttpClient
 import io.ktor.client.features.HttpClientFeature

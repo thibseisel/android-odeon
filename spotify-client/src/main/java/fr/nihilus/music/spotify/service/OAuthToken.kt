@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

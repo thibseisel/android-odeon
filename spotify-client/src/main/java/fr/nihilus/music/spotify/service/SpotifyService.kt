@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import fr.nihilus.music.spotify.model.*
 import kotlinx.coroutines.flow.Flow

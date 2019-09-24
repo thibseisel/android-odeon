@@ -21,10 +21,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import fr.nihilus.music.spotify.remote.SpotifyAccountsService
-import fr.nihilus.music.spotify.remote.SpotifyAccountsServiceImpl
-import fr.nihilus.music.spotify.remote.SpotifyService
-import fr.nihilus.music.spotify.remote.SpotifyServiceImpl
+import fr.nihilus.music.spotify.service.SpotifyAccountsService
+import fr.nihilus.music.spotify.service.SpotifyAccountsServiceImpl
+import fr.nihilus.music.spotify.service.SpotifyService
+import fr.nihilus.music.spotify.service.SpotifyServiceImpl
 import io.ktor.client.engine.HttpClientEngine
 import javax.inject.Named
 

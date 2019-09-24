@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import fr.nihilus.music.spotify.OAuthToken
-import fr.nihilus.music.spotify.RetryAfter
-import fr.nihilus.music.spotify.WrappedJsonAdapter
 import fr.nihilus.music.spotify.model.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -64,15 +61,22 @@ internal class SpotifyServiceImpl
         .add(Pitch::class.java, PitchAdapter())
         .build()
 
-    private val errorAdapter: JsonAdapter<SpotifyError> = WrappedJsonAdapter(
-        "error",
-        deserializer.adapter(SpotifyError::class.java)
-    )
+    private val errorAdapter: JsonAdapter<SpotifyError> =
+        WrappedJsonAdapter(
+            "error",
+            deserializer.adapter(SpotifyError::class.java)
+        )
 
-    private val artistListAdapter = WrappedJsonAdapter("artists", listAdapterOf<Artist>())
-    private val albumListAdapter = WrappedJsonAdapter("albums", listAdapterOf<Album>())
-    private val trackListAdapter = WrappedJsonAdapter("tracks", listAdapterOf<Track>())
-    private val featureListAdapter = WrappedJsonAdapter("audio_features", listAdapterOf<AudioFeatures>())
+    private val artistListAdapter =
+        WrappedJsonAdapter("artists", listAdapterOf<Artist>())
+    private val albumListAdapter =
+        WrappedJsonAdapter("albums", listAdapterOf<Album>())
+    private val trackListAdapter =
+        WrappedJsonAdapter("tracks", listAdapterOf<Track>())
+    private val featureListAdapter = WrappedJsonAdapter(
+        "audio_features",
+        listAdapterOf<AudioFeatures>()
+    )
 
     private val http = HttpClient(engine) {
         expectSuccess = false
@@ -261,7 +265,10 @@ internal class SpotifyServiceImpl
                     // That's an unexpected error code.
                     val errorPayload = errorAdapter.fromJson(response.readText())
                     if (errorPayload != null) {
-                        throw ApiException(errorPayload.status, errorPayload.message)
+                        throw ApiException(
+                            errorPayload.status,
+                            errorPayload.message
+                        )
                     } else {
                         throw IOException("Unexpected HTTP status ${response.status.value}")
                     }
@@ -274,9 +281,15 @@ internal class SpotifyServiceImpl
     private suspend fun parseApiError(response: HttpResponse): Resource.Failed {
         val errorPayload = errorAdapter.fromJson(response.readText())
         return if (errorPayload != null) {
-            Resource.Failed(errorPayload.status, errorPayload.message)
+            Resource.Failed(
+                errorPayload.status,
+                errorPayload.message
+            )
         } else {
-            Resource.Failed(response.status.value, "An unexpected error occurred.")
+            Resource.Failed(
+                response.status.value,
+                "An unexpected error occurred."
+            )
         }
     }
 

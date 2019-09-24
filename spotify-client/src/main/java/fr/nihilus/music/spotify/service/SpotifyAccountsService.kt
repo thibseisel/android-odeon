@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import android.util.Base64
 import com.squareup.moshi.Moshi
-import fr.nihilus.music.spotify.OAuthToken
-import fr.nihilus.music.spotify.isSuccessful
 import fr.nihilus.music.spotify.model.OAuthError
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
@@ -97,7 +95,10 @@ internal class SpotifyAccountsServiceImpl
             tokenAdapter.fromJson(response.readText())!!
         } else {
             val errorPayload = errorAdapter.fromJson(response.readText())!!
-            throw AuthenticationException(errorPayload.error, errorPayload.description)
+            throw AuthenticationException(
+                errorPayload.error,
+                errorPayload.description
+            )
         }
     }
 }

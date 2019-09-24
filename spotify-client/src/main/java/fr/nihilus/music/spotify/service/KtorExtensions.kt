@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
-import kotlinx.io.errors.IOException
+import io.ktor.client.response.HttpResponse
 
-/**
- * Thrown when the Spotify API responds with an unexpected HTTP status code and the client is unable to recover.
- * @param status The status code associated with the HTTP response.
- * @param description The optional error message provided by the API response, if any.
- */
-internal class ApiException(
-    val status: Int,
-    val description: String?
-) : IOException("Unexpected HTTP status $status: $description")
+internal val HttpResponse.isSuccessful: Boolean
+    get() = status.value in 200 until 300

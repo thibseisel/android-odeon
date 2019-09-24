@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.service
 
-import io.ktor.client.response.HttpResponse
+internal sealed class Resource<out T : Any> {
 
-internal val HttpResponse.isSuccessful: Boolean
-    get() = status.value in 200 until 300
+    data class Loaded<T : Any>(
+        val data: T,
+        val eTag: String?
+    ) : Resource<T>()
+
+    object Cached : Resource<Nothing>()
+
+    object NotFound : Resource<Nothing>()
+
+    data class Failed(
+        val status: Int,
+        val message: String?
+    ) : Resource<Nothing>()
+}

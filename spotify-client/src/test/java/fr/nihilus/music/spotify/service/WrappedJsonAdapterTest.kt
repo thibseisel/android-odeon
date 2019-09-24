@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonDataException
@@ -34,7 +34,10 @@ class WrappedJsonAdapterTest {
 
     @Test
     fun `Given wrapped object, when deserializing then return the payload`() {
-        val envelopeAdapter = WrappedJsonAdapter("error", jsonAdapterOf<SpotifyError>())
+        val envelopeAdapter = WrappedJsonAdapter(
+            "error",
+            jsonAdapterOf<SpotifyError>()
+        )
 
         val payload = envelopeAdapter.fromJson("""{
             "error": {
@@ -50,7 +53,8 @@ class WrappedJsonAdapterTest {
 
     @org.junit.Test
     fun `Given wrapped array of strings, when deserializing then return the List of strings`() {
-        val envelopeAdapter = WrappedJsonAdapter("data", listAdapterOf<String>())
+        val envelopeAdapter =
+            WrappedJsonAdapter("data", listAdapterOf<String>())
 
         val strings = envelopeAdapter.fromJson("""{
             "data": ["Foo", "Bar"]
@@ -61,7 +65,8 @@ class WrappedJsonAdapterTest {
 
     @Test
     fun `Given missing requested property, when deserializing then throw JsonDataException`() {
-        val envelopeAdapter = WrappedJsonAdapter("data", listAdapterOf<String>())
+        val envelopeAdapter =
+            WrappedJsonAdapter("data", listAdapterOf<String>())
 
         shouldThrow<JsonDataException> {
             envelopeAdapter.fromJson("""{
@@ -72,7 +77,8 @@ class WrappedJsonAdapterTest {
 
     @Test
     fun `Given wrapped null, when deserializing then return null`() {
-        val envelopeAdapter = WrappedJsonAdapter("data", jsonAdapterOf<String>())
+        val envelopeAdapter =
+            WrappedJsonAdapter("data", jsonAdapterOf<String>())
 
         val payload = envelopeAdapter.fromJson("""{ 
             "data": null
@@ -94,7 +100,10 @@ class WrappedJsonAdapterTest {
 
     @Test
     fun `Given object payload, when serializing then wrap the object`() {
-        val envelopeAdapter = WrappedJsonAdapter("error", jsonAdapterOf<SpotifyError>())
+        val envelopeAdapter = WrappedJsonAdapter(
+            "error",
+            jsonAdapterOf<SpotifyError>()
+        )
 
         val json = envelopeAdapter.toJson(
             SpotifyError(404, "Not Found")
@@ -105,7 +114,8 @@ class WrappedJsonAdapterTest {
 
     @Test
     fun `Given array payload, when serializing then wrap an array`() {
-        val envelopeAdapter = WrappedJsonAdapter("data", listAdapterOf<String>())
+        val envelopeAdapter =
+            WrappedJsonAdapter("data", listAdapterOf<String>())
 
         val json = envelopeAdapter.toJson(listOf("Foo", "Bar"))
         json shouldBe """{"data":["Foo","Bar"]}"""

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.remote
+package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Moshi
-import fr.nihilus.music.spotify.OAuthToken
 import fr.nihilus.music.spotify.model.*
 import io.kotlintest.*
 import io.kotlintest.matchers.collections.shouldBeEmpty
@@ -47,7 +46,8 @@ private const val TEST_USER_AGENT = "SpotifyServiceTest/1.0.0 KtorHttpClient/1.2
 private const val TEST_CLIENT_ID = "client_id"
 private const val TEST_CLIENT_SECRET = "client_secret"
 
-private val VALID_TOKEN = OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+private val VALID_TOKEN =
+    OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
 
 @ExperimentalCoroutinesApi
 class SpotifyServiceTest {
@@ -59,39 +59,48 @@ class SpotifyServiceTest {
     private fun spotifyService(
         token: OAuthToken? = VALID_TOKEN,
         handler: suspend (HttpRequestData) -> HttpResponseData
-    ): SpotifyService = SpotifyServiceImpl(
-        MockEngine(handler),
-        moshi,
-        accounts,
-        TEST_USER_AGENT,
-        TEST_CLIENT_ID,
-        TEST_CLIENT_SECRET,
-        token
-    )
+    ): SpotifyService =
+        SpotifyServiceImpl(
+            MockEngine(handler),
+            moshi,
+            accounts,
+            TEST_USER_AGENT,
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET,
+            token
+        )
 
     private fun spotifyService(
         engine: MockEngine,
         token: OAuthToken? = VALID_TOKEN
-    ): SpotifyService = SpotifyServiceImpl(
-        engine,
-        moshi,
-        accounts,
-        TEST_USER_AGENT,
-        TEST_CLIENT_ID,
-        TEST_CLIENT_SECRET,
-        token
-    )
+    ): SpotifyService =
+        SpotifyServiceImpl(
+            engine,
+            moshi,
+            accounts,
+            TEST_USER_AGENT,
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET,
+            token
+        )
 
     @Test
     fun `Given no token, when calling any endpoint then authenticate`() = runBlockingTest {
-        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(
+            TEST_TOKEN_STRING,
+            "Bearer",
+            3600
+        )
         val unauthenticatedService = spotifyService(token = null) {
             respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
 
         unauthenticatedService.getArtist("12Chz98pHFMPJEknJQMWvI")
 
-        coVerify(exactly = 1) { accounts.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET) }
+        coVerify(exactly = 1) { accounts.authenticate(
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET
+        ) }
         confirmVerified(accounts)
     }
 
@@ -103,7 +112,10 @@ class SpotifyServiceTest {
         )
 
         val failedAuthService = spotifyService(token = null) {
-            respondJsonError(HttpStatusCode.Unauthorized, "No token provided")
+            respondJsonError(
+                HttpStatusCode.Unauthorized,
+                "No token provided"
+            )
         }
 
         val authFailure = shouldThrow<AuthenticationException> {
@@ -116,7 +128,8 @@ class SpotifyServiceTest {
 
     @Test
     fun `Given valid token, when calling any endpoint then send it as Authorization`() = runBlockingTest {
-        val validToken = OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+        val validToken =
+            OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
         val authenticatedService = spotifyService(validToken) { request ->
             // Verify that the Authorization header is present.
             request.headers[HttpHeaders.Authorization] shouldBe "Bearer $TEST_TOKEN_STRING"
@@ -134,10 +147,15 @@ class SpotifyServiceTest {
 
     @Test
     fun `Given expired token, when calling any endpoint then renew token and retry`() = runBlockingTest {
-        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(
+            TEST_TOKEN_STRING,
+            "Bearer",
+            3600
+        )
 
         val oldTokenSequence = "3IjZmZGNjZTZ1EDN2MTO5QmZkJjN0QTM"
-        val expiredToken = OAuthToken(oldTokenSequence, "Bearer", 0)
+        val expiredToken =
+            OAuthToken(oldTokenSequence, "Bearer", 0)
 
         // The mock server returns a different response depending on the received token.
         val expiredService = spotifyService(token = expiredToken) { request ->
@@ -145,7 +163,10 @@ class SpotifyServiceTest {
 
             if (authorization == "Bearer $oldTokenSequence") {
                 // Fail when receiving the old token.
-                respondJsonError(HttpStatusCode.Unauthorized, "The access token expired")
+                respondJsonError(
+                    HttpStatusCode.Unauthorized,
+                    "The access token expired"
+                )
             } else {
                 // Check that the newly generated token has been used.
                 authorization shouldBe "Bearer $TEST_TOKEN_STRING"
@@ -155,7 +176,10 @@ class SpotifyServiceTest {
 
         expiredService.getArtist("12Chz98pHFMPJEknJQMWvI")
 
-        coVerify(exactly = 1) { accounts.authenticate(TEST_CLIENT_ID, TEST_CLIENT_SECRET) }
+        coVerify(exactly = 1) { accounts.authenticate(
+            TEST_CLIENT_ID,
+            TEST_CLIENT_SECRET
+        ) }
         confirmVerified(accounts)
     }
 
@@ -194,7 +218,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting an unknown artist then return a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
         val artistResource = apiClient.getArtist("non_existing_artist_id")
@@ -282,7 +309,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting albums of an unknown artist, then return an empty flow`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
         val artistAlbums = apiClient.getArtistAlbums("unknown_artist_id").toList()
@@ -311,7 +341,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting an unknown album then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
         val albumResource = apiClient.getAlbum("unknown_album_id")
@@ -394,7 +427,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting tracks of an unknown album then return an empty flow`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
         val albumTracks = apiClient.getAlbumTracks("unknown_album_id").toList()
@@ -423,7 +459,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting an unknown track then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
         val resource = apiClient.getTrack("unknown_track_id")
@@ -499,7 +538,10 @@ class SpotifyServiceTest {
     @Test
     fun `When getting features of an unknown track then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+            respondJsonError(
+                HttpStatusCode.NotFound,
+                "non existing id"
+            )
         }
 
 
@@ -659,7 +701,10 @@ class SpotifyServiceTest {
     @Test
     fun `Given any single resource endpoint, when receiving an error then return a Failed resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.InternalServerError, "Whoops!")
+            respondJsonError(
+                HttpStatusCode.InternalServerError,
+                "Whoops!"
+            )
         }
 
         val resource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
@@ -672,7 +717,10 @@ class SpotifyServiceTest {
     @Test
     fun `Given any several resource endpoint, when receiving an error then return a Failed resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.InternalServerError, "Whoops!")
+            respondJsonError(
+                HttpStatusCode.InternalServerError,
+                "Whoops!"
+            )
         }
 
         val resource = apiClient.getSeveralArtists(
@@ -688,7 +736,10 @@ class SpotifyServiceTest {
     @Test
     fun `Given any paginated endpoint, when receiving an error then throw an ApiException`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.InternalServerError, "Whoops!")
+            respondJsonError(
+                HttpStatusCode.InternalServerError,
+                "Whoops!"
+            )
         }
 
         val apiException = shouldThrow<ApiException> {
