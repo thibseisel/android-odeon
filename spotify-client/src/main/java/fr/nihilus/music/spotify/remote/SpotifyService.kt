@@ -41,10 +41,11 @@ internal interface SpotifyService {
 
     /**
      * Get Spotify catalog information about an artist’s albums.
-     *
      * @param artistId The Spotify ID for the artist.
+     *
      * @return An asynchronous flow of all albums the requested artist has participated.
-     * That flow will fail with [IllegalArgumentException] if the requested artist does not exists.
+     * That flow will be empty if the requested artist does not exist
+     * or will fail with [ApiException] if the server returns an error.
      */
     fun getArtistAlbums(artistId: String): Flow<Album>
 
@@ -69,10 +70,11 @@ internal interface SpotifyService {
 
     /**
      * Get Spotify catalog information about an album’s tracks.
-     *
      * @param albumId The SpotifyID for the album.
+     *
      * @return An asynchronous flow of all tracks from the requested album.
-     * That flow will fail with [IllegalArgumentException] if the requested artist does not exists.
+     * That flow will be empty if the requested album does not exist
+     * or will fail with [ApiException] if the server returns an error.
      */
     fun getAlbumTracks(albumId: String): Flow<Track>
 
@@ -143,4 +145,3 @@ internal interface SpotifyService {
         internal const val QUERY_INCLUDE_GROUPS = "include_groups"
     }
 }
-

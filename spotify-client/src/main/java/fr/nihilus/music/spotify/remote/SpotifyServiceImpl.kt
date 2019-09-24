@@ -257,13 +257,11 @@ internal class SpotifyServiceImpl
                 else -> {
                     // That's an unexpected error code.
                     val errorPayload = errorAdapter.fromJson(response.readText())
-                    val errorMessage = if (errorPayload != null) {
-                        "Unexpected HTTP status ${errorPayload.status}: ${errorPayload.message}."
+                    if (errorPayload != null) {
+                        throw ApiException(errorPayload.status, errorPayload.message)
                     } else {
-                        "Unexpected HTTP status ${response.status.value}."
+                        throw IOException("Unexpected HTTP status ${response.status.value}")
                     }
-
-                    throw IOException(errorMessage)
                 }
             }
 
