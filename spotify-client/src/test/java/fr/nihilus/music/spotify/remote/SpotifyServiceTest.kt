@@ -143,7 +143,7 @@ class SpotifyServiceTest {
 
             if (authorization == "Bearer $oldTokenSequence") {
                 // Fail when receiving the old token.
-                respondJsonError(HttpStatusCode.Unauthorized, "Expired token")
+                respondJsonError(HttpStatusCode.Unauthorized, "The access token expired")
             } else {
                 // Check that the newly generated token has been used.
                 authorization shouldBe "Bearer $TEST_TOKEN_STRING"
