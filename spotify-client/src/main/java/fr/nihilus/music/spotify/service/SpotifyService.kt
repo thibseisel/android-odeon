@@ -102,7 +102,7 @@ internal interface SpotifyService {
      *
      * @return The audio features for the requested track.
      */
-    suspend fun getTrackFeatures(trackId: String): Resource<AudioFeatures>
+    suspend fun getTrackFeatures(trackId: String): Resource<AudioFeature>
 
     /**
      * Get audio features for multiple tracks based on their Spotify IDs.
@@ -112,7 +112,7 @@ internal interface SpotifyService {
      * @param trackIds The Spotify IDs for the tracks. Maximum: `100` IDs.
      * @return The audio features for each track, in the order requested.
      */
-    suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeatures?>>
+    suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeature?>>
 
     /**
      * Get Spotify catalog information about artists, albums or tracks that match a keyword string.

@@ -518,7 +518,7 @@ class SpotifyServiceTest {
         }
 
         val audioFeatures = apiClient.getTrackFeatures(requestedTrackId)
-        audioFeatures.shouldBeTypeOf<Resource.Loaded<AudioFeatures>> { (audioFeatures, _) ->
+        audioFeatures.shouldBeTypeOf<Resource.Loaded<AudioFeature>> { (audioFeatures, _) ->
             audioFeatures.id shouldBe requestedTrackId
             audioFeatures.mode shouldBe MusicalMode.MAJOR
             audioFeatures.key shouldBe Pitch.D
@@ -563,7 +563,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralTrackFeatures(requestedIds)
-        resource.shouldBeTypeOf<Resource.Loaded<List<AudioFeatures?>>> { (features, _) ->
+        resource.shouldBeTypeOf<Resource.Loaded<List<AudioFeature?>>> { (features, _) ->
             features shouldHaveSize 2
 
             features[0].should {

@@ -75,7 +75,7 @@ internal class SpotifyServiceImpl
         WrappedJsonAdapter("tracks", listAdapterOf<Track>())
     private val featureListAdapter = WrappedJsonAdapter(
         "audio_features",
-        listAdapterOf<AudioFeatures>()
+        listAdapterOf<AudioFeature>()
     )
 
     private val http = HttpClient(engine) {
@@ -178,13 +178,13 @@ internal class SpotifyServiceImpl
         return listResource(response, trackListAdapter)
     }
 
-    override suspend fun getTrackFeatures(trackId: String): Resource<AudioFeatures> {
+    override suspend fun getTrackFeatures(trackId: String): Resource<AudioFeature> {
         require(trackId.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/audio-features/$trackId")
-        return singleResource(response, AudioFeatures::class.java)
+        return singleResource(response, AudioFeature::class.java)
     }
 
-    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeatures?>> {
+    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeature?>> {
         require(trackIds.size in 0..100)
         val response = http.get<HttpResponse>(path = "/v1/audio-features") {
             parameter(SpotifyService.QUERY_IDS, trackIds.joinToString(","))

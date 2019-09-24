@@ -20,7 +20,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-internal class AudioFeatures(
+internal class AudioFeature(
 
     /**
      * The unique identifier of the analyzed track in Spotify servers.
