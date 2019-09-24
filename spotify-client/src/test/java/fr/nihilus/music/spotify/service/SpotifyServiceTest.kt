@@ -204,7 +204,7 @@ class SpotifyServiceTest {
         }
 
         val artistResource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artistResource.shouldBeTypeOf<Resource.Loaded<Artist>> { (artist, _) ->
+        artistResource.shouldBeTypeOf<Resource.Loaded<Artist>> { (artist) ->
             artist.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             artist.name shouldBe "Muse"
             artist.popularity shouldBe 82
@@ -242,7 +242,7 @@ class SpotifyServiceTest {
         }
 
         val artistsResource = apiClient.getSeveralArtists(requestedArtistIds)
-        artistsResource.shouldBeTypeOf<Resource.Loaded<List<Artist?>>> { (artists, _) ->
+        artistsResource.shouldBeTypeOf<Resource.Loaded<List<Artist?>>> { (artists) ->
             artists shouldHaveSize 2
 
             artists[0].should {
@@ -327,7 +327,7 @@ class SpotifyServiceTest {
         }
 
         val albumResource = apiClient.getAlbum("6KMkuqIwKkwUhUYRPL6dUc")
-        albumResource.shouldBeTypeOf<Resource.Loaded<Album>> { (album, _) ->
+        albumResource.shouldBeTypeOf<Resource.Loaded<Album>> { (album) ->
             album.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
             album.name shouldBe "Concrete and Gold"
             album.releaseDate shouldBe "2017-09-15"
@@ -365,7 +365,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
-        resource.shouldBeTypeOf<Resource.Loaded<List<Album?>>> { (albums, _) ->
+        resource.shouldBeTypeOf<Resource.Loaded<List<Album?>>> { (albums) ->
             albums shouldHaveSize 2
 
             albums[0].should {
@@ -447,7 +447,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getTrack(requestedTrackId)
-        resource.shouldBeTypeOf<Resource.Loaded<Track>> { (track, _) ->
+        resource.shouldBeTypeOf<Resource.Loaded<Track>> { (track) ->
             track.id shouldBe requestedTrackId
             track.name shouldBe "Algorithm"
             track.discNumber shouldBe 1
@@ -484,7 +484,7 @@ class SpotifyServiceTest {
         }
 
         val tracks = apiClient.getSeveralTracks(requestedTrackIds)
-        tracks.shouldBeTypeOf<Resource.Loaded<List<Track?>>> { (tracks, _) ->
+        tracks.shouldBeTypeOf<Resource.Loaded<List<Track?>>> { (tracks) ->
             tracks shouldHaveSize 2
             tracks[0].should {
                 it.shouldNotBeNull()
@@ -518,30 +518,27 @@ class SpotifyServiceTest {
         }
 
         val audioFeatures = apiClient.getTrackFeatures(requestedTrackId)
-        audioFeatures.shouldBeTypeOf<Resource.Loaded<AudioFeature>> { (audioFeatures, _) ->
-            audioFeatures.id shouldBe requestedTrackId
-            audioFeatures.mode shouldBe MusicalMode.MAJOR
-            audioFeatures.key shouldBe Pitch.D
-            audioFeatures.tempo shouldBe 170.057f
-            audioFeatures.signature shouldBe 4
-            audioFeatures.loudness shouldBe -4.56f
-            audioFeatures.energy shouldBe 0.923f
-            audioFeatures.danceability shouldBe 0.522f
-            audioFeatures.instrumentalness shouldBe 0.017f
-            audioFeatures.speechiness shouldBe 0.0539f
-            audioFeatures.acousticness shouldBe 0.0125f
-            audioFeatures.liveness shouldBe 0.0854f
-            audioFeatures.valence shouldBe 0.595f
+        audioFeatures.shouldBeTypeOf<Resource.Loaded<AudioFeature>> { (feature) ->
+            feature.id shouldBe requestedTrackId
+            feature.mode shouldBe MusicalMode.MAJOR
+            feature.key shouldBe Pitch.D
+            feature.tempo shouldBe 170.057f
+            feature.signature shouldBe 4
+            feature.loudness shouldBe -4.56f
+            feature.energy shouldBe 0.923f
+            feature.danceability shouldBe 0.522f
+            feature.instrumentalness shouldBe 0.017f
+            feature.speechiness shouldBe 0.0539f
+            feature.acousticness shouldBe 0.0125f
+            feature.liveness shouldBe 0.0854f
+            feature.valence shouldBe 0.595f
         }
     }
 
     @Test
     fun `When getting features of an unknown track then fail with a NotFound resource`() = runBlockingTest {
         val apiClient = spotifyService {
-            respondJsonError(
-                HttpStatusCode.NotFound,
-                "non existing id"
-            )
+            respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
 
 
@@ -563,10 +560,10 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralTrackFeatures(requestedIds)
-        resource.shouldBeTypeOf<Resource.Loaded<List<AudioFeature?>>> { (features, _) ->
-            features shouldHaveSize 2
+        resource.shouldBeTypeOf<Resource.Loaded<List<AudioFeature?>>> { (feature) ->
+            feature shouldHaveSize 2
 
-            features[0].should {
+            feature[0].should {
                 it.shouldNotBeNull()
                 it.id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
                 it.mode shouldBe MusicalMode.MAJOR
@@ -583,7 +580,7 @@ class SpotifyServiceTest {
                 it.valence shouldBe 0.595f
             }
 
-            features[1].should {
+            feature[1].should {
                 it.shouldNotBeNull()
                 it.id shouldBe "5lnsL7pCg0fQKcWnlkD1F0"
                 it.mode shouldBe MusicalMode.MAJOR

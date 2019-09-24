@@ -210,7 +210,7 @@ internal class SpotifyServiceImpl
         HttpStatusCode.OK -> {
             val adapter = deserializer.adapter(targetType)
             val item = adapter.fromJson(response.readText())!!
-            Resource.Loaded(item, response.etag())
+            Resource.Loaded(item)
         }
 
         HttpStatusCode.NotModified -> Resource.Cached
@@ -225,7 +225,7 @@ internal class SpotifyServiceImpl
 
         HttpStatusCode.OK -> {
             val list = adapter.fromJson(response.readText())!!
-            Resource.Loaded(list, response.etag())
+            Resource.Loaded(list)
         }
 
         HttpStatusCode.NotModified -> Resource.Cached

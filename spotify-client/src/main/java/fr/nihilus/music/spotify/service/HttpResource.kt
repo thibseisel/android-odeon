@@ -18,10 +18,7 @@ package fr.nihilus.music.spotify.service
 
 internal sealed class Resource<out T : Any> {
 
-    data class Loaded<T : Any>(
-        val data: T,
-        val eTag: String?
-    ) : Resource<T>()
+    data class Loaded<T : Any>(val data: T) : Resource<T>()
 
     object Cached : Resource<Nothing>()
 
