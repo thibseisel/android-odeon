@@ -131,8 +131,13 @@ internal class SpotifyServiceImpl
         return listResource(response, artistListAdapter)
     }
 
-    override fun getArtistAlbums(artistId: String): Flow<Album> =
-        paginatedFlow("/v1/artists/$artistId/albums", pagingAdapterOf())
+    override fun getArtistAlbums(artistId: String): Flow<Album> {
+        val albumPageRequest = HttpRequestBuilder(path = "/v1/artists/$artistId/albums") {
+            parameters[SpotifyService.QUERY_INCLUDE_GROUPS] = "album,single"
+        }
+
+        return paginatedFlow(albumPageRequest, pagingAdapterOf())
+    }
 
     override suspend fun getAlbum(id: String): Resource<Album> {
         require(id.isNotEmpty())
@@ -149,8 +154,10 @@ internal class SpotifyServiceImpl
         return listResource(response, albumListAdapter)
     }
 
-    override fun getAlbumTracks(albumId: String): Flow<Track> =
-        paginatedFlow("/v1/albums/$albumId/tracks", pagingAdapterOf())
+    override fun getAlbumTracks(albumId: String): Flow<Track> {
+        val trackPageRequest = HttpRequestBuilder(path = "/v1/albums/$albumId/tracks")
+        return paginatedFlow(trackPageRequest, pagingAdapterOf())
+    }
 
     override suspend fun getTrack(id: String): Resource<Track> {
         require(id.isNotEmpty())
@@ -222,13 +229,9 @@ internal class SpotifyServiceImpl
     }
 
     private fun <T> paginatedFlow(
-        path: String,
+        pageRequest: HttpRequestBuilder,
         pagingAdapter: JsonAdapter<Paging<T>>
     ): Flow<T> = flow {
-        val pageRequest = HttpRequestBuilder(path = path) {
-            parameters[SpotifyService.QUERY_INCLUDE_GROUPS] = "album,single"
-        }
-
         var hasNextPage: Boolean
         pagination@ do {
             val response = http.get<HttpResponse>(pageRequest)
