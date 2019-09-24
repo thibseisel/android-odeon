@@ -118,13 +118,13 @@ internal class SpotifyServiceImpl
 
     override suspend fun getArtist(id: String): Resource<Artist> {
         require(id.isNotEmpty())
-        val response = http.get<HttpResponse>(path = "v1/artists/$id")
+        val response = http.get<HttpResponse>(path = "/v1/artists/$id")
         return singleResource(response, Artist::class.java)
     }
 
     override suspend fun getSeveralArtists(ids: List<String>): Resource<List<Artist?>> {
         require(ids.size in 0..50)
-        val response = http.get<HttpResponse>(path = "v1/artists") {
+        val response = http.get<HttpResponse>(path = "/v1/artists") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
         }
 
@@ -132,17 +132,17 @@ internal class SpotifyServiceImpl
     }
 
     override fun getArtistAlbums(artistId: String): Flow<Album> =
-        paginatedFlow("v1/artists/$artistId/albums", pagingAdapterOf())
+        paginatedFlow("/v1/artists/$artistId/albums", pagingAdapterOf())
 
     override suspend fun getAlbum(id: String): Resource<Album> {
         require(id.isNotEmpty())
-        val response = http.get<HttpResponse>(path = "v1/albums/$id")
+        val response = http.get<HttpResponse>(path = "/v1/albums/$id")
         return singleResource(response, Album::class.java)
     }
 
     override suspend fun getSeveralAlbums(ids: List<String>): Resource<List<Album?>> {
         require(ids.size in 0..20)
-        val response = http.get<HttpResponse>(path = "v1/albums") {
+        val response = http.get<HttpResponse>(path = "/v1/albums") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
         }
 
@@ -150,17 +150,17 @@ internal class SpotifyServiceImpl
     }
 
     override fun getAlbumTracks(albumId: String): Flow<Track> =
-        paginatedFlow("v1/albums/$albumId/tracks", pagingAdapterOf())
+        paginatedFlow("/v1/albums/$albumId/tracks", pagingAdapterOf())
 
     override suspend fun getTrack(id: String): Resource<Track> {
         require(id.isNotEmpty())
-        val response = http.get<HttpResponse>(path = "v1/tracks/$id")
+        val response = http.get<HttpResponse>(path = "/v1/tracks/$id")
         return singleResource(response, Track::class.java)
     }
 
     override suspend fun getSeveralTracks(ids: List<String>): Resource<List<Track?>> {
         require(ids.size in 0..50)
-        val response = http.get<HttpResponse>(path = "v1/tracks") {
+        val response = http.get<HttpResponse>(path = "/v1/tracks") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
         }
 
@@ -169,13 +169,13 @@ internal class SpotifyServiceImpl
 
     override suspend fun getTrackFeatures(trackId: String): Resource<AudioFeatures> {
         require(trackId.isNotEmpty())
-        val response = http.get<HttpResponse>(path = "v1/audio-features/$trackId")
+        val response = http.get<HttpResponse>(path = "/v1/audio-features/$trackId")
         return singleResource(response, AudioFeatures::class.java)
     }
 
     override suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeatures?>> {
         require(trackIds.size in 0..100)
-        val response = http.get<HttpResponse>(path = "v1/audio-features") {
+        val response = http.get<HttpResponse>(path = "/v1/audio-features") {
             parameter(SpotifyService.QUERY_IDS, trackIds.joinToString(","))
         }
 

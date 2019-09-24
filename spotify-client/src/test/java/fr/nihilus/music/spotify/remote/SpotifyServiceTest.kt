@@ -175,7 +175,7 @@ class SpotifyServiceTest {
     @Test
     fun `When getting an artist then call artists endpoint with its id`() = runBlockingTest {
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/artists/12Chz98pHFMPJEknJQMWvI"
+            request shouldGetOnSpotifyEndpoint "/v1/artists/12Chz98pHFMPJEknJQMWvI"
             respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
 
@@ -206,7 +206,7 @@ class SpotifyServiceTest {
         val requestedArtistIds = listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/artists"
+            request shouldGetOnSpotifyEndpoint "/v1/artists"
 
             val requestedIds = request.url.parameters[SpotifyService.QUERY_IDS]
             requestedIds shouldBe "12Chz98pHFMPJEknJQMWvI,7jy3rLJdDQY21OgRLCZ9sD"
@@ -246,7 +246,7 @@ class SpotifyServiceTest {
     fun `When getting an artist's albums, then fetch its albums page per page`() = runBlockingTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler {
-                it shouldGetOnSpotifyEndpoint "v1/artists/12Chz98pHFMPJEknJQMWvI/albums"
+                it shouldGetOnSpotifyEndpoint "/v1/artists/12Chz98pHFMPJEknJQMWvI/albums"
                 respondFile("artists/albums_page_1.json")
             }
 
@@ -292,7 +292,7 @@ class SpotifyServiceTest {
     @Test
     fun `When getting an album then call albums endpoint with its id`() = runBlockingTest {
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/albums/6KMkuqIwKkwUhUYRPL6dUc"
+            request shouldGetOnSpotifyEndpoint "/v1/albums/6KMkuqIwKkwUhUYRPL6dUc"
             respondFile("albums/7jy3rLJdDQY21OgRLCZ9sD.json")
         }
 
@@ -323,7 +323,7 @@ class SpotifyServiceTest {
         val requestedAlbumIds = listOf("5OZgDtx180ZZPMpm36J2zC", "6KMkuqIwKkwUhUYRPL6dUc")
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/albums"
+            request shouldGetOnSpotifyEndpoint "/v1/albums"
 
             val receivedIds = request.url.parameters[SpotifyService.QUERY_IDS]
             receivedIds shouldBe "5OZgDtx180ZZPMpm36J2zC,6KMkuqIwKkwUhUYRPL6dUc"
@@ -359,7 +359,7 @@ class SpotifyServiceTest {
     fun `When getting an album's tracks then fetch its tracks page per page`() = runBlockingTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler { firstPage ->
-                firstPage shouldGetOnSpotifyEndpoint "v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks"
+                firstPage shouldGetOnSpotifyEndpoint "/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks"
                 respondFile("albums/tracks_page_1.json")
             }
 
@@ -406,7 +406,7 @@ class SpotifyServiceTest {
         val requestedTrackId = "7f0vVL3xi4i78Rv5Ptn2s1"
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/tracks/$requestedTrackId"
+            request shouldGetOnSpotifyEndpoint "/v1/tracks/$requestedTrackId"
             respondFile("tracks/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
@@ -435,7 +435,7 @@ class SpotifyServiceTest {
         val requestedTrackIds = listOf("7f0vVL3xi4i78Rv5Ptn2s1", "0dMYPDqcI4ca4cjqlmp9mE")
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/tracks"
+            request shouldGetOnSpotifyEndpoint "/v1/tracks"
 
             val receivedTrackIds =
                 request.url.parameters[SpotifyService.QUERY_IDS]
@@ -474,7 +474,7 @@ class SpotifyServiceTest {
         val requestedTrackId = "7f0vVL3xi4i78Rv5Ptn2s1"
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/audio-features/$requestedTrackId"
+            request shouldGetOnSpotifyEndpoint "/v1/audio-features/$requestedTrackId"
             respondFile("features/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
@@ -512,7 +512,7 @@ class SpotifyServiceTest {
         val requestedIds = listOf("7f0vVL3xi4i78Rv5Ptn2s1", "5lnsL7pCg0fQKcWnlkD1F0")
 
         val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/audio-features"
+            request shouldGetOnSpotifyEndpoint "/v1/audio-features"
 
             val receivedTrackIds = request.url.parameters[SpotifyService.QUERY_IDS]
             receivedTrackIds shouldBe "7f0vVL3xi4i78Rv5Ptn2s1,5lnsL7pCg0fQKcWnlkD1F0"
