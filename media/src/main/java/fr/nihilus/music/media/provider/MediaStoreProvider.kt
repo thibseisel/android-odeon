@@ -277,19 +277,23 @@ internal class MediaStoreProvider
     }
 
     override fun registerObserver(observer: MediaProvider.Observer) {
-        if (observers.none { it.observer === observer }) {
-            val observedUri = getContentUriForMediaType(observer.type)
+        synchronized(observers) {
+            if (observers.none { it.observer === observer }) {
+                val observedUri = getContentUriForMediaType(observer.type)
 
-            val platformObserver = PlatformObserverDelegate(observer)
-            resolver.registerContentObserver(observedUri, true, platformObserver)
-            observers += platformObserver
+                val platformObserver = PlatformObserverDelegate(observer)
+                resolver.registerContentObserver(observedUri, true, platformObserver)
+                observers += platformObserver
+            }
         }
     }
 
     override fun unregisterObserver(observer: MediaProvider.Observer) {
-        val platformObserver = observers.find { it.observer === observer } ?: return
-        observers -= platformObserver
-        resolver.unregisterContentObserver(platformObserver)
+        synchronized(observers) {
+            val platformObserver = observers.find { it.observer === observer } ?: return
+            observers -= platformObserver
+            resolver.unregisterContentObserver(platformObserver)
+        }
     }
 
     /**
