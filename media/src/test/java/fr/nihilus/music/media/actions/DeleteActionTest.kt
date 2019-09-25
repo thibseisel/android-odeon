@@ -36,32 +36,28 @@ import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.media.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.*
 import io.kotlintest.shouldThrow
+import io.mockk.*
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Rule
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.BDDMockito.given
-import org.mockito.BDDMockito.then
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 @RunWith(AndroidJUnit4::class)
 class DeleteActionTest {
 
-    @[JvmField Rule]
-    val mockitoRule: MockitoRule = MockitoJUnit.rule()
-
     private val dispatcher = TestCoroutineDispatcher()
 
-    @Mock
+    @MockK
     private lateinit var provider: MediaProvider
-    @Mock
+
+    @MockK
     private lateinit var playlistDao: PlaylistDao
+
+    @Before
+    fun setUp() = MockKAnnotations.init(this)
 
     @Test
     fun whenReadingName_thenReturnActionDeleteMediaConstant() {
@@ -130,18 +126,20 @@ class DeleteActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        given(provider.deleteTracks(any())).willReturn(2)
+        every { provider.deleteTracks(any()) } returns 2
 
         val action = DeleteAction(provider, playlistDao, AppDispatchers(dispatcher))
         action.execute(Bundle(1).apply {
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
         })
 
-        then(provider).should().deleteTracks(longArrayOf(16L, 42L))
+        verify { provider.deleteTracks(longArrayOf(16L, 42L)) }
     }
 
     @Test
     fun givenExistingPlaylistIds_whenExecuting_thenDeleteThosePlaylists() = dispatcher.runBlockingTest {
+        coEvery { playlistDao.deletePlaylist(any()) } just Runs
+
         val deletedMediaIds = arrayOf(
             encode(TYPE_PLAYLISTS, "1"),
             encode(TYPE_PLAYLISTS, "2")
@@ -152,8 +150,10 @@ class DeleteActionTest {
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
         })
 
-        then(playlistDao).should().deletePlaylist(eq(1L))
-        then(playlistDao).should().deletePlaylist(eq(2L))
+        coVerify {
+            playlistDao.deletePlaylist(1L)
+            playlistDao.deletePlaylist(2L)
+        }
     }
 
     @Test

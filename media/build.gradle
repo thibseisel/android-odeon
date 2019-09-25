@@ -109,7 +109,6 @@ dependencies {
 
     // Test dependencies
     testImplementation project(':common-test')
-    testImplementation "org.mockito:mockito-core:${versions.mockito}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
@@ -120,7 +119,6 @@ dependencies {
     // Android-specific test dependencies
     androidTestImplementation "com.google.truth:truth:${versions.truth}"
     androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
-    androidTestImplementation "org.mockito:mockito-android:${versions.mockito}"
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
     androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
