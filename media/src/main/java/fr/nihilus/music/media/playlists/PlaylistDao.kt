@@ -35,18 +35,15 @@ internal interface PlaylistDao {
     @Query("SELECT playlist_id FROM playlist_track WHERE music_id IN (:trackIds)")
     suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
 
-    @Insert(onConflict = OnConflictStrategy.FAIL)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun savePlaylist(playlist: Playlist): Long
 
-    @WorkerThread
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addTracks(tracks: List<PlaylistTrack>)
 
-    @WorkerThread
     @Query("DELETE FROM playlist WHERE id = :playlistId")
     suspend fun deletePlaylist(playlistId: Long)
 
-    @WorkerThread
     @Query("DELETE FROM playlist_track WHERE music_id IN (:trackIds)")
     suspend fun deletePlaylistTracks(trackIds: LongArray)
 }

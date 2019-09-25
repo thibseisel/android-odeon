@@ -24,7 +24,7 @@ import androidx.room.Query
 @Dao
 internal interface UsageDao {
 
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun recordEvent(usageEvent: MediaUsageEvent)
 
     @Query("SELECT track_id, COUNT(*) AS event_count, MAX(event_time) AS last_event_time FROM usage_event GROUP BY track_id")
