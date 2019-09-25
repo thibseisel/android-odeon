@@ -87,6 +87,26 @@ android {
                 ]
             }
         }
+
+        /* Beta are built quite the same as releases, but differ by the following:
+         * - when installed on a device, it will not overwrite the release app.
+         * - it is obfuscated but still debuggable.
+         * - APKs are not required to be signed.
+         */
+        beta {
+            initWith buildTypes.release
+
+            signingConfig signingConfigs.debug
+            versionNameSuffix = '-beta'
+            applicationIdSuffix = '.debug'
+
+            // Unlike release builds, keep the app debuggable.
+            debuggable = true
+            proguardFiles += 'beta-rules.pro'
+
+            // Tell dependent modules to be compiled with their release variant.
+            matchingFallbacks = ['release']
+        }
     }
 }
 
