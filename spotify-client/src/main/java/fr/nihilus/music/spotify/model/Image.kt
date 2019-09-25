@@ -20,7 +20,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * An image illustrating a media hosted on Spotify.
+ * The reference to a remote image hosted on Spotify.
  */
 @JsonClass(generateAdapter = true)
 internal data class Image(

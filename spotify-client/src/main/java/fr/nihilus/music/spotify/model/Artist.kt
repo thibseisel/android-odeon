@@ -19,6 +19,9 @@ package fr.nihilus.music.spotify.model
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Metadata of an artist from the Spotify API.
+ */
 @JsonClass(generateAdapter = true)
 internal class Artist(
 

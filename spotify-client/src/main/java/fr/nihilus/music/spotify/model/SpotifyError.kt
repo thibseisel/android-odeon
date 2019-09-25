@@ -44,7 +44,7 @@ internal data class OAuthError(
 )
 
 /**
- * Representation of an unsuccessful response from the Spotify API.
+ * An unsuccessful response from the Spotify API.
  */
 @JsonClass(generateAdapter = true)
 internal data class SpotifyError(

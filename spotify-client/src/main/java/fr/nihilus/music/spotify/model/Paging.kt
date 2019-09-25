@@ -19,10 +19,21 @@ package fr.nihilus.music.spotify.model
 import com.squareup.moshi.Json
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * A Paging object is a subset of a collection of items of type [T], where
+ * [offset] is the index of the first item from [items] in the whole collection of size [total].
+ *
+ * Paging objects are returned by the Spotify API when the returned number of items for a request
+ * is not known in advance.
+ *
+ * @param T The type of the items in the collection.
+ */
 internal class Paging<T>(
 
     /**
      * The requested data.
+     * An item at index N in this subset is the the same as the item at index `offset + N`
+     * in the whole collection.
      */
     @Json(name = "items")
     val items: List<T>,

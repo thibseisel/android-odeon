@@ -19,6 +19,9 @@ package fr.nihilus.music.spotify.service
 import fr.nihilus.music.spotify.model.*
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * A service that reads media metadata from the Spotify API.
+ */
 internal interface SpotifyService {
 
     /**
@@ -27,7 +30,7 @@ internal interface SpotifyService {
      * @param id The Spotify ID for the artist.
      * @return The detailed information of this artist.
      */
-    suspend fun getArtist(id: String): Resource<Artist>
+    suspend fun getArtist(id: String): HttpResource<Artist>
 
     /**
      * Get Spotify catalog information for several artists based on their Spotify IDs.
@@ -37,7 +40,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the artists. Maximum `50` IDs.
      * @return The information for each artist, in the order requested.
      */
-    suspend fun getSeveralArtists(ids: List<String>): Resource<List<Artist?>>
+    suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<Artist?>>
 
     /**
      * Get Spotify catalog information about an artist’s albums.
@@ -56,7 +59,7 @@ internal interface SpotifyService {
      *
      * @return The detailed information of this album.
      */
-    suspend fun getAlbum(id: String): Resource<Album>
+    suspend fun getAlbum(id: String): HttpResource<Album>
 
     /**
      * Get Spotify catalog information for multiple albums identified by their Spotify IDs.
@@ -66,7 +69,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the albums. Maximum: `20` IDs.
      * @return The information for each album, in the order requested.
      */
-    suspend fun getSeveralAlbums(ids: List<String>): Resource<List<Album?>>
+    suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<Album?>>
 
     /**
      * Get Spotify catalog information about an album’s tracks.
@@ -84,7 +87,7 @@ internal interface SpotifyService {
      *
      * @return The detailed information of this track.
      */
-    suspend fun getTrack(id: String): Resource<Track>
+    suspend fun getTrack(id: String): HttpResource<Track>
 
     /**
      * Get Spotify catalog information for multiple tracks identified by their Spotify IDs.
@@ -94,7 +97,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the tracks. Maximum: `50` IDs.
      * @return The information for each track, in the order requested.
      */
-    suspend fun getSeveralTracks(ids: List<String>): Resource<List<Track?>>
+    suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<Track?>>
 
     /**
      * Get audio feature information for a single track identified by its unique Spotify ID.
@@ -102,7 +105,7 @@ internal interface SpotifyService {
      *
      * @return The audio features for the requested track.
      */
-    suspend fun getTrackFeatures(trackId: String): Resource<AudioFeature>
+    suspend fun getTrackFeatures(trackId: String): HttpResource<AudioFeature>
 
     /**
      * Get audio features for multiple tracks based on their Spotify IDs.
@@ -112,7 +115,7 @@ internal interface SpotifyService {
      * @param trackIds The Spotify IDs for the tracks. Maximum: `100` IDs.
      * @return The audio features for each track, in the order requested.
      */
-    suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeature?>>
+    suspend fun getSeveralTrackFeatures(trackIds: List<String>): HttpResource<List<AudioFeature?>>
 
     /**
      * Get Spotify catalog information about artists, albums or tracks that match a keyword string.

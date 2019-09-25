@@ -24,7 +24,6 @@ import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
-import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.matchers.withClue
@@ -165,7 +164,7 @@ class SpotifyServiceTest {
         val apiClient = spotifyService(rateLimitedServer)
 
         val artist = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artist.shouldBeTypeOf<Resource.Loaded<Artist>>()
+        artist.shouldBeTypeOf<HttpResource.Loaded<Artist>>()
 
         withClue("Client should wait at least the given Retry-After time before re-issuing the request") {
             currentTime shouldBeGreaterThanOrEqual 5000L
@@ -180,7 +179,7 @@ class SpotifyServiceTest {
         }
 
         val artistResource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artistResource.shouldBeTypeOf<Resource.Loaded<Artist>> { (artist) ->
+        artistResource.shouldBeTypeOf<HttpResource.Loaded<Artist>> { (artist) ->
             artist.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             artist.name shouldBe "Muse"
             artist.popularity shouldBe 82
@@ -198,7 +197,7 @@ class SpotifyServiceTest {
         }
 
         val artistResource = apiClient.getArtist("non_existing_artist_id")
-        artistResource.shouldBeTypeOf<Resource.NotFound>()
+        artistResource.shouldBeTypeOf<HttpResource.NotFound>()
     }
 
     @Test
@@ -215,7 +214,7 @@ class SpotifyServiceTest {
         }
 
         val artistsResource = apiClient.getSeveralArtists(requestedArtistIds)
-        artistsResource.shouldBeTypeOf<Resource.Loaded<List<Artist?>>> { (artists) ->
+        artistsResource.shouldBeTypeOf<HttpResource.Loaded<List<Artist?>>> { (artists) ->
             artists shouldHaveSize 2
 
             artists[0].should {
@@ -297,7 +296,7 @@ class SpotifyServiceTest {
         }
 
         val albumResource = apiClient.getAlbum("6KMkuqIwKkwUhUYRPL6dUc")
-        albumResource.shouldBeTypeOf<Resource.Loaded<Album>> { (album) ->
+        albumResource.shouldBeTypeOf<HttpResource.Loaded<Album>> { (album) ->
             album.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
             album.name shouldBe "Concrete and Gold"
             album.releaseDate shouldBe "2017-09-15"
@@ -315,7 +314,7 @@ class SpotifyServiceTest {
         }
 
         val albumResource = apiClient.getAlbum("unknown_album_id")
-        albumResource.shouldBeTypeOf<Resource.NotFound>()
+        albumResource.shouldBeTypeOf<HttpResource.NotFound>()
     }
 
     @Test
@@ -332,7 +331,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
-        resource.shouldBeTypeOf<Resource.Loaded<List<Album?>>> { (albums) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<Album?>>> { (albums) ->
             albums shouldHaveSize 2
 
             albums[0].should {
@@ -411,7 +410,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getTrack(requestedTrackId)
-        resource.shouldBeTypeOf<Resource.Loaded<Track>> { (track) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<Track>> { (track) ->
             track.id shouldBe requestedTrackId
             track.name shouldBe "Algorithm"
             track.discNumber shouldBe 1
@@ -427,7 +426,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getTrack("unknown_track_id")
-        resource.shouldBeTypeOf<Resource.NotFound>()
+        resource.shouldBeTypeOf<HttpResource.NotFound>()
     }
 
     @Test
@@ -444,7 +443,7 @@ class SpotifyServiceTest {
         }
 
         val tracks = apiClient.getSeveralTracks(requestedTrackIds)
-        tracks.shouldBeTypeOf<Resource.Loaded<List<Track?>>> { (tracks) ->
+        tracks.shouldBeTypeOf<HttpResource.Loaded<List<Track?>>> { (tracks) ->
             tracks shouldHaveSize 2
             tracks[0].should {
                 it.shouldNotBeNull()
@@ -478,7 +477,7 @@ class SpotifyServiceTest {
         }
 
         val audioFeatures = apiClient.getTrackFeatures(requestedTrackId)
-        audioFeatures.shouldBeTypeOf<Resource.Loaded<AudioFeature>> { (feature) ->
+        audioFeatures.shouldBeTypeOf<HttpResource.Loaded<AudioFeature>> { (feature) ->
             feature.id shouldBe requestedTrackId
             feature.mode shouldBe MusicalMode.MAJOR
             feature.key shouldBe Pitch.D
@@ -503,7 +502,7 @@ class SpotifyServiceTest {
 
 
         val resource = apiClient.getTrackFeatures("unknown_track_id")
-        resource.shouldBeTypeOf<Resource.NotFound>()
+        resource.shouldBeTypeOf<HttpResource.NotFound>()
     }
 
     @Test
@@ -520,7 +519,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralTrackFeatures(requestedIds)
-        resource.shouldBeTypeOf<Resource.Loaded<List<AudioFeature?>>> { (feature) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<AudioFeature?>>> { (feature) ->
             feature shouldHaveSize 2
 
             feature[0].should {
@@ -665,7 +664,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        resource.shouldBeTypeOf<Resource.Failed> {
+        resource.shouldBeTypeOf<HttpResource.Failed> {
             it.status shouldBe 500
             it.message shouldBe "Whoops!"
         }
@@ -684,7 +683,7 @@ class SpotifyServiceTest {
             listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
         )
 
-        resource.shouldBeTypeOf<Resource.Failed> {
+        resource.shouldBeTypeOf<HttpResource.Failed> {
             it.status shouldBe 500
             it.message shouldBe "Whoops!"
         }

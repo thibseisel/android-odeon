@@ -120,13 +120,13 @@ internal class SpotifyServiceImpl
     private suspend fun authenticate(): OAuthToken =
         accountsService.authenticate(clientKey, clientSecret).also { token = it }
 
-    override suspend fun getArtist(id: String): Resource<Artist> {
+    override suspend fun getArtist(id: String): HttpResource<Artist> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/artists/$id")
         return singleResource(response, Artist::class.java)
     }
 
-    override suspend fun getSeveralArtists(ids: List<String>): Resource<List<Artist?>> {
+    override suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<Artist?>> {
         require(ids.size in 0..50)
         val response = http.get<HttpResponse>(path = "/v1/artists") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
@@ -143,13 +143,13 @@ internal class SpotifyServiceImpl
         return paginatedFlow(albumPageRequest, pagingAdapterOf())
     }
 
-    override suspend fun getAlbum(id: String): Resource<Album> {
+    override suspend fun getAlbum(id: String): HttpResource<Album> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/albums/$id")
         return singleResource(response, Album::class.java)
     }
 
-    override suspend fun getSeveralAlbums(ids: List<String>): Resource<List<Album?>> {
+    override suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<Album?>> {
         require(ids.size in 0..20)
         val response = http.get<HttpResponse>(path = "/v1/albums") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
@@ -163,13 +163,13 @@ internal class SpotifyServiceImpl
         return paginatedFlow(trackPageRequest, pagingAdapterOf())
     }
 
-    override suspend fun getTrack(id: String): Resource<Track> {
+    override suspend fun getTrack(id: String): HttpResource<Track> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/tracks/$id")
         return singleResource(response, Track::class.java)
     }
 
-    override suspend fun getSeveralTracks(ids: List<String>): Resource<List<Track?>> {
+    override suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<Track?>> {
         require(ids.size in 0..50)
         val response = http.get<HttpResponse>(path = "/v1/tracks") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
@@ -178,13 +178,13 @@ internal class SpotifyServiceImpl
         return listResource(response, trackListAdapter)
     }
 
-    override suspend fun getTrackFeatures(trackId: String): Resource<AudioFeature> {
+    override suspend fun getTrackFeatures(trackId: String): HttpResource<AudioFeature> {
         require(trackId.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/audio-features/$trackId")
         return singleResource(response, AudioFeature::class.java)
     }
 
-    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): Resource<List<AudioFeature?>> {
+    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): HttpResource<List<AudioFeature?>> {
         require(trackIds.size in 0..100)
         val response = http.get<HttpResponse>(path = "/v1/audio-features") {
             parameter(SpotifyService.QUERY_IDS, trackIds.joinToString(","))
@@ -205,30 +205,28 @@ internal class SpotifyServiceImpl
     private suspend fun <T : Any> singleResource(
         response: HttpResponse,
         targetType: Class<T>
-    ): Resource<T> = when (response.status) {
+    ): HttpResource<T> = when (response.status) {
 
         HttpStatusCode.OK -> {
             val adapter = deserializer.adapter(targetType)
             val item = adapter.fromJson(response.readText())!!
-            Resource.Loaded(item)
+            HttpResource.Loaded(item)
         }
 
-        HttpStatusCode.NotModified -> Resource.Cached
-        HttpStatusCode.NotFound -> Resource.NotFound
+        HttpStatusCode.NotFound -> HttpResource.NotFound
         else -> parseApiError(response)
     }
 
     private suspend fun <T : Any> listResource(
         response: HttpResponse,
         adapter: WrappedJsonAdapter<List<T>>
-    ) : Resource<List<T?>> = when (response.status) {
+    ) : HttpResource<List<T?>> = when (response.status) {
 
         HttpStatusCode.OK -> {
             val list = adapter.fromJson(response.readText())!!
-            Resource.Loaded(list)
+            HttpResource.Loaded(list)
         }
 
-        HttpStatusCode.NotModified -> Resource.Cached
         else -> parseApiError(response)
     }
 
@@ -278,15 +276,15 @@ internal class SpotifyServiceImpl
         } while (hasNextPage)
     }
 
-    private suspend fun parseApiError(response: HttpResponse): Resource.Failed {
+    private suspend fun parseApiError(response: HttpResponse): HttpResource.Failed {
         val errorPayload = errorAdapter.fromJson(response.readText())
         return if (errorPayload != null) {
-            Resource.Failed(
+            HttpResource.Failed(
                 errorPayload.status,
                 errorPayload.message
             )
         } else {
-            Resource.Failed(
+            HttpResource.Failed(
                 response.status.value,
                 "An unexpected error occurred."
             )

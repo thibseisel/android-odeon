@@ -19,6 +19,9 @@ package fr.nihilus.music.spotify.model
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Audio features of a specific track from the Spotify API.
+ */
 @JsonClass(generateAdapter = true)
 internal class AudioFeature(
 
