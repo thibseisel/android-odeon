@@ -76,7 +76,7 @@ android {
             signingConfig signingConfigs.release
             shrinkResources true
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -92,20 +92,23 @@ android {
          * - when installed on a device, it will not overwrite the release app.
          * - it is obfuscated but still debuggable.
          * - APKs are not required to be signed.
+         *
+         * The main intent is to test the app in debug mode but with its code obfuscated
+         * since it could fail unexpectedly.
          */
         beta {
-            initWith buildTypes.release
+            initWith buildTypes.debug
 
-            signingConfig signingConfigs.debug
             versionNameSuffix = '-beta'
             applicationIdSuffix = '.debug'
 
             // Unlike release builds, keep the app debuggable.
-            debuggable = true
-            proguardFiles += 'beta-rules.pro'
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'beta-rules.pro'
 
-            // Tell dependent modules to be compiled with their release variant.
-            matchingFallbacks = ['release']
+            // Tell dependent modules to be compiled with their debug variant.
+            matchingFallbacks = ['debug']
         }
     }
 }
