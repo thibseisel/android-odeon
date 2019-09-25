@@ -24,7 +24,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import fr.nihilus.music.extensions.toHsl
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 /**
  * Tests the [PrimaryHueFilter] capacity to reject colors that are too close in hue
