@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music
+package fr.nihilus.music.spotify.database
 
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.core.ui.LoadRequest
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 
-typealias MediaItemRequest = LoadRequest<List<MediaBrowserCompat.MediaItem>>
+@Dao
+internal interface SpotifyDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveTrackFeature(link: RemoteLink, feature: TrackFeature)
+}

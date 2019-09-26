@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.playlists
 
-import androidx.annotation.WorkerThread
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

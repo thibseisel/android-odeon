@@ -217,20 +217,17 @@ private constructor(
         /**
          * The unique identifier of the parent of all albums.
          */
-        @JvmField val ALL_ALBUMS =
-            encode(TYPE_ALBUMS)
+        @JvmField val ALL_ALBUMS = encode(TYPE_ALBUMS)
 
         /**
          * The unique identifier of the parent of all artists.
          */
-        @JvmField val ALL_ARTISTS =
-            encode(TYPE_ARTISTS)
+        @JvmField val ALL_ARTISTS = encode(TYPE_ARTISTS)
 
         /**
          * The unique identifier of the parent of all playlists.
          */
-        @JvmField val ALL_PLAYLISTS =
-            encode(TYPE_PLAYLISTS)
+        @JvmField val ALL_PLAYLISTS = encode(TYPE_PLAYLISTS)
 
         /**
          * Convenience function for creating media ids from their component parts.

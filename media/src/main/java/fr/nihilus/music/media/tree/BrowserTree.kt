@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.media.tree
 
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.common.media.MediaId
 import io.reactivex.Flowable
@@ -29,15 +27,6 @@ import io.reactivex.Flowable
  * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
  */
 interface BrowserTree {
-
-    companion object {
-
-        /**
-         * Used as a boolean extra field to denote that search results from [BrowserTree.search]
-         * should only contain playable media.
-         */
-        const val EXTRA_PLAYABLE_ONLY = "fr.nihilus.music.extra.EXTRA_PLAYABLE_ONLY"
-    }
 
     val updatedParentIds: Flowable<MediaId>
 

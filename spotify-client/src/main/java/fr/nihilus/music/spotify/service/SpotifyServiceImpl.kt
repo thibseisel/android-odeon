@@ -97,7 +97,7 @@ internal class SpotifyServiceImpl
 
         install("AutoTokenAuthentication") {
             // Perform initial authentication if required, then set token has Authorization.
-            requestPipeline.intercept(HttpRequestPipeline.State) { _ ->
+            requestPipeline.intercept(HttpRequestPipeline.State) {
                 val currentToken = token ?: authenticate()
                 context.header(HttpHeaders.Authorization, "Bearer ${currentToken.token}")
             }

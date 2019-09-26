@@ -125,6 +125,6 @@ class WrappedJsonAdapterTest {
 
     private inline fun <reified E : Any> listAdapterOf(): JsonAdapter<List<E>> {
         val listType = Types.newParameterizedType(List::class.java, E::class.java)
-        return moshi.adapter<List<E>>(listType)
+        return moshi.adapter(listType)
     }
 }

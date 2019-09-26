@@ -146,7 +146,7 @@ internal class SilenceTrimmingAudioProcessor : AudioProcessor {
                 STATE_NOISY -> processNoisy(inputBuffer)
                 STATE_MAYBE_SILENT -> processMaybeSilence(inputBuffer)
                 STATE_SILENT -> processSilence(inputBuffer)
-                else -> NoWhenBranchMatchedException("Unexpected state code: $state")
+                else -> throw NoWhenBranchMatchedException("Unexpected state code: $state")
             }
         }
     }

@@ -44,5 +44,5 @@ abstract class MediaServiceModule {
         PlaybackModule::class,
         CustomActionModule::class
     ])
-    abstract fun contributesMusicService(): MusicService
+    abstract fun musicService(): MusicService
 }

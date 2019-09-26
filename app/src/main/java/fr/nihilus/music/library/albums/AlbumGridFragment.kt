@@ -18,22 +18,19 @@ package fr.nihilus.music.library.albums
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.res.getColorOrThrow
-import androidx.core.content.res.use
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_albums.*
-import javax.inject.Inject
 
 /**
  * Display all albums in a grid of images.
