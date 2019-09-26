@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
@@ -42,7 +43,7 @@ class SongListViewModel
     }
 
     fun deleteSongs(songsToDelete: List<MediaBrowserCompat.MediaItem>) {
-        launch {
+        viewModelScope.launch {
             val trackMediaIds = Array(songsToDelete.size) { position ->
                 songsToDelete[position].mediaId
             }

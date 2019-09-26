@@ -19,15 +19,16 @@ package fr.nihilus.music.core.ui.client
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.base.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
 abstract class BrowsableContentViewModel(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
@@ -38,7 +39,7 @@ abstract class BrowsableContentViewModel(
         connection.connect(token)
     }
 
-    protected fun observeChildren(parentId: String): Job = launch {
+    protected fun observeChildren(parentId: String): Job = viewModelScope.launch {
         _children.postValue(LoadRequest.Pending)
         val subscription = connection.subscribe(parentId)
         try {

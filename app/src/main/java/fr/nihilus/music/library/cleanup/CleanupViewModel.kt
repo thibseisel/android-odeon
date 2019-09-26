@@ -20,10 +20,11 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.base.BaseViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.channels.consumeEach
@@ -34,7 +35,7 @@ import javax.inject.Inject
 class CleanupViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
     private val _tracks = MutableLiveData<LoadRequest<List<MediaItem>>>(LoadRequest.Pending)
@@ -46,7 +47,7 @@ class CleanupViewModel
         loadDisposableTracks()
     }
 
-    private fun loadDisposableTracks() = launch {
+    private fun loadDisposableTracks() = viewModelScope.launch {
         try {
             val subscription = connection.subscribe(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE))
             subscription.consumeEach { disposableTracks ->
@@ -60,7 +61,7 @@ class CleanupViewModel
     }
 
     fun deleteTracks(selectedTracks: List<MediaItem>) {
-        launch {
+        viewModelScope.launch {
             connection.executeAction(CustomActions.ACTION_DELETE_MEDIA, Bundle(1).apply {
                 val deletedMediaIds = Array(selectedTracks.size) { selectedTracks[it].mediaId }
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)

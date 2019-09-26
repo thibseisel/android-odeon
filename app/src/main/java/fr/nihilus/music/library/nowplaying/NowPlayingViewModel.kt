@@ -20,7 +20,8 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.LiveData
-import fr.nihilus.music.core.ui.base.BaseViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.service.extensions.isPlaying
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ import javax.inject.Inject
 class NowPlayingViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
 
     val playbackState: LiveData<PlaybackStateCompat> get() = connection.playbackState
     val nowPlaying: LiveData<MediaMetadataCompat?> get() = connection.nowPlaying
@@ -37,26 +38,26 @@ class NowPlayingViewModel
     val shuffleMode: LiveData<Int> get() = connection.shuffleMode
 
     fun togglePlayPause() {
-        launch {
+        viewModelScope.launch {
             val isPlaying = playbackState.value?.isPlaying ?: false
             if (isPlaying) connection.pause() else connection.play()
         }
     }
 
     fun skipToPrevious() {
-        launch { connection.skipToPrevious() }
+        viewModelScope.launch { connection.skipToPrevious() }
     }
 
     fun skipToNext() {
-        launch { connection.skipToNext() }
+        viewModelScope.launch { connection.skipToNext() }
     }
 
     fun seekTo(position: Long) {
-        launch { connection.seekTo(position) }
+        viewModelScope.launch { connection.seekTo(position) }
     }
 
     fun toggleShuffleMode() {
-        launch {
+        viewModelScope.launch {
             when (shuffleMode.value ?: SHUFFLE_MODE_INVALID) {
                 SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> connection.setShuffleModeEnabled(true)
                 SHUFFLE_MODE_ALL -> connection.setShuffleModeEnabled(false)
@@ -65,7 +66,7 @@ class NowPlayingViewModel
     }
 
     fun toggleRepeatMode() {
-        launch {
+        viewModelScope.launch {
             val currentMode = repeatMode.value ?: REPEAT_MODE_INVALID
             if (currentMode != REPEAT_MODE_INVALID) {
                 connection.setRepeatMode((currentMode + 1) % 3)

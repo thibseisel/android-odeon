@@ -19,6 +19,7 @@ package fr.nihilus.music.library.albums
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.Job
@@ -49,7 +50,7 @@ class AlbumDetailViewModel
         get() = connection.nowPlaying
 
     fun playMedia(item: MediaBrowserCompat.MediaItem) {
-        launch {
+        viewModelScope.launch {
             connection.playFromMediaId(item.mediaId!!)
         }
     }

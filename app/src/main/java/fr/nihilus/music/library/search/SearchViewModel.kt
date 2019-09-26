@@ -19,7 +19,8 @@ package fr.nihilus.music.library.search
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.core.ui.base.BaseViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class SearchViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<MediaBrowserCompat.MediaItem>>()
     val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>>
@@ -45,7 +46,7 @@ class SearchViewModel
                 connection.search(query)
             }
             .onEach { _searchResults.value = it }
-            .launchIn(this)
+            .launchIn(viewModelScope)
     }
 
     fun search(query: CharSequence) {
@@ -53,7 +54,7 @@ class SearchViewModel
     }
 
     fun play(item: MediaBrowserCompat.MediaItem) {
-        launch {
+        viewModelScope.launch {
             connection.playFromMediaId(item.mediaId!!)
         }
     }

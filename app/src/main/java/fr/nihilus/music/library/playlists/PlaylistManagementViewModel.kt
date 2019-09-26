@@ -20,12 +20,13 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.InvalidMediaException
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.base.BaseViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
@@ -57,7 +58,7 @@ sealed class PlaylistActionResult {
 class PlaylistManagementViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
@@ -80,7 +81,7 @@ class PlaylistManagementViewModel
         get() = _userPlaylists
 
     fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
-        launch {
+        viewModelScope.launch {
             val membersTrackIds = Array(members.size) { members[it].mediaId }
 
             val params = Bundle(2).apply {
@@ -98,7 +99,7 @@ class PlaylistManagementViewModel
         targetPlaylist: MediaBrowserCompat.MediaItem,
         addedTracks: Array<MediaBrowserCompat.MediaItem>
     ) {
-        launch {
+        viewModelScope.launch {
             val playlistId = targetPlaylist.mediaId
             val newTrackMediaIds = Array(addedTracks.size) { addedTracks[it].mediaId }
 
@@ -122,7 +123,7 @@ class PlaylistManagementViewModel
         connection.disconnect(token)
     }
 
-    private fun loadUserPlaylists(): Job = launch {
+    private fun loadUserPlaylists(): Job = viewModelScope.launch {
         try {
             connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { playlists ->
                 _userPlaylists.postValue(LoadRequest.Success(playlists))

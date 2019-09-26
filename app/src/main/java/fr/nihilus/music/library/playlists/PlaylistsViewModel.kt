@@ -19,9 +19,10 @@ package fr.nihilus.music.library.playlists
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.base.BaseViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.*
@@ -31,7 +32,7 @@ import javax.inject.Inject
 class PlaylistsViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
@@ -43,7 +44,7 @@ class PlaylistsViewModel
         loadBuiltinAndUserPlaylists()
     }
 
-    private fun loadBuiltinAndUserPlaylists(): Job = launch {
+    private fun loadBuiltinAndUserPlaylists(): Job = viewModelScope.launch {
         _children.postValue(LoadRequest.Pending)
         coroutineScope {
             val mostRecent = loadBuiltInPlaylistItemAsync(MediaId.CATEGORY_RECENTLY_ADDED)

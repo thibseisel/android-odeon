@@ -18,12 +18,9 @@ package fr.nihilus.music.library
 
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
-import fr.nihilus.music.core.ui.base.BaseViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +28,7 @@ import javax.inject.Inject
 class MusicLibraryViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BaseViewModel() {
+) : ViewModel() {
     private val client = MediaBrowserConnection.ClientToken()
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
@@ -69,13 +66,13 @@ class MusicLibraryViewModel
     fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
         require(playableMedia.isPlayable) { "The specified media is not playable." }
 
-        launch {
+        viewModelScope.launch {
             connection.playFromMediaId(playableMedia.mediaId!!)
         }
     }
 
     fun playAllShuffled() {
-        launch {
+        viewModelScope.launch {
             connection.setShuffleModeEnabled(true)
             connection.playFromMediaId(MediaId.ALL_TRACKS)
         }

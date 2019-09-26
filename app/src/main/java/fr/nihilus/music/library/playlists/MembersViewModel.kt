@@ -18,6 +18,7 @@ package fr.nihilus.music.library.playlists
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
@@ -37,7 +38,7 @@ class MembersViewModel
     }
 
     fun deletePlaylist(playlist: MediaBrowserCompat.MediaItem) {
-        launch {
+        viewModelScope.launch {
             val params = Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlist.mediaId))
             }
