@@ -70,6 +70,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         viewModel.searchResults.observe(this) { searchResults ->
+            recyclerView.scrollToPosition(0)
             resultsAdapter.submitList(searchResults)
         }
 
