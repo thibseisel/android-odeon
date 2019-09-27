@@ -122,7 +122,12 @@ internal class OdeonPlaybackPreparer
      */
     @SuppressLint("LogNotTimber")
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-        Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extras")
+        // TODO Remove those lines when got enough info on how Assistant understands voice searches.
+        if (Log.isLoggable("AssistantSearch", Log.INFO)) {
+            val detailedExtras = extras?.keySet()?.joinToString(", ", "[", "]") { extras[it]?.toString() ?: "null" } ?: "null"
+            Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$detailedExtras")
+        }
+
         val parsedQuery = SearchQuery.from(query, extras)
         if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
