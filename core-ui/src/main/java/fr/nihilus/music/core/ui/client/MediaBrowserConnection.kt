@@ -26,8 +26,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.service.extensions.isPrepared
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -46,6 +44,11 @@ import kotlin.coroutines.suspendCoroutine
 private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
     .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
     .build()
+
+private val PlaybackStateCompat.isPrepared
+    get() = (state == PlaybackStateCompat.STATE_BUFFERING) ||
+            (state == PlaybackStateCompat.STATE_PLAYING) ||
+            (state == PlaybackStateCompat.STATE_PAUSED)
 
 /**
  * Thrown when subscribing for children of a given media failed for some reason.
@@ -78,7 +81,7 @@ class MediaBrowserConnection
 
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
-        ComponentName(applicationContext, MusicService::class.java),
+        ComponentName("fr.nihilus.music.service", "MusicService"),
         connectionCallback,
         null
     )
