@@ -107,7 +107,10 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private fun onSuggestionSelected(item: MediaBrowserCompat.MediaItem) {
         when {
             item.isBrowsable -> browseMedia(item)
-            item.isPlayable -> viewModel.play(item)
+            item.isPlayable -> {
+                viewModel.play(item)
+                onNavigateUp()
+            }
         }
     }
 
