@@ -54,7 +54,12 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         super.onViewCreated(view, savedInstanceState)
 
         postponeEnterTransition()
-        toolbar.title = args.pickedArtist.description.title
+
+        with (toolbar) {
+            title = args.pickedArtist.description.title
+            setNavigationOnClickListener { findNavController().navigateUp() }
+        }
+
         viewModel.loadChildrenOfArtist(args.pickedArtist)
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
