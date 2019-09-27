@@ -36,7 +36,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.extensions.luminance
+import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.BaseAdapter

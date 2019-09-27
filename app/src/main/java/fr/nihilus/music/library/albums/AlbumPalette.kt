@@ -19,7 +19,7 @@ package fr.nihilus.music.library.albums
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.ColorInt
-import fr.nihilus.music.extensions.darker
+import fr.nihilus.music.core.ui.extensions.darker
 
 data class AlbumPalette(
     @ColorInt val primary: Int,

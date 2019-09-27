@@ -21,7 +21,7 @@ import androidx.palette.graphics.Palette
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import fr.nihilus.music.extensions.toHsl
+import fr.nihilus.music.core.ui.extensions.toHsl
 import org.junit.Test
 import org.junit.runner.RunWith
 

@@ -27,7 +27,7 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
-import fr.nihilus.music.extensions.toHsl
+import fr.nihilus.music.core.ui.extensions.toHsl
 import fr.nihilus.music.glide.GlideExtensions
 import fr.nihilus.music.library.albums.AlbumPalette
 import timber.log.Timber
