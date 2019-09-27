@@ -23,7 +23,7 @@
     <dimen name="card_max_elevation">8dp</dimen>
     <dimen name="song_title_size">14sp</dimen>
     <dimen name="tick_mark_inset">12dp</dimen>
-    <dimen name="track_icon_corner_radius">4dp</dimen>
+    <dimen name="track_icon_corner_radius">8dp</dimen>
     <dimen name="playlist_title_input_spacing">16dp</dimen>
     <dimen name="collapsing_toolbar_height">192dp</dimen>
     <dimen name="artist_detail_overlay">96dp</dimen>
