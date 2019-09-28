@@ -91,7 +91,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
 
     private fun setupSharedElementTransitions() {
         val inflater = TransitionInflater.from(requireContext())
-        val albumArtTransition = inflater.inflateTransition(android.R.transition.move)
+        val albumArtTransition = inflater.inflateTransition(R.transition.album_art_transition)
         sharedElementEnterTransition = albumArtTransition
 
         albumArtTransition.addListener(object : TransitionListenerAdapter() {

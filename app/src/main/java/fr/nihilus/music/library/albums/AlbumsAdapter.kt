@@ -39,7 +39,7 @@ internal class AlbumsAdapter(
         glideRequest = GlideApp.with(fragment).asAlbumArt()
             .fallbackColors(defaultPalette)
             .fallback(fallbackIcon)
-            .centerCrop()
+            .dontTransform()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
