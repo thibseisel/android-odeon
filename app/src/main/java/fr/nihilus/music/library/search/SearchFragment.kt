@@ -122,7 +122,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
         when (type) {
             MediaId.TYPE_ALBUMS -> {
-                val toAlbumDetail = SearchFragmentDirections.browseAlbumDetail(item, null)
+                val albumId = item.mediaId!!
+                val toAlbumDetail = SearchFragmentDirections.browseAlbumDetail(albumId)
                 navController.navigate(toAlbumDetail)
             }
 

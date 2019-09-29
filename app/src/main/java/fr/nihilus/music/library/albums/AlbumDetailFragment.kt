@@ -20,9 +20,9 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -32,16 +32,19 @@ import androidx.navigation.fragment.navArgs
 import androidx.transition.Transition
 import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
+import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.luminance
-import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
+import fr.nihilus.music.extensions.doOnEnd
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 import fr.nihilus.music.ui.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.fragment_album_detail.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Display the tracks that are part of an album.
@@ -54,39 +57,65 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
     private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         setupSharedElementTransitions()
+        viewModel.setAlbumId(args.albumId)
+    }
 
-        viewModel.loadTracksOfAlbum(args.pickedAlbum)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // We are expecting an enter transition.
+        postponeEnterTransition(500, TimeUnit.MILLISECONDS)
 
-        with(args.pickedAlbum.description) {
-            title_view.text = title
-            subtitle_view.text = subtitle
-        }
+        // Set transition names.
+        // Note that they don't need to match with the names of the selected grid item.
+        // They only have to be unique in this fragment.
+        album_art_view.transitionName = args.albumId
 
         play_fab.setOnClickListener {
-            viewModel.playMedia(args.pickedAlbum)
+            viewModel.playAlbum()
         }
 
         setupToolbar()
-        setupAlbumArt()
         setupTrackList()
+        setDarkHomeUpIndicator(true)
+        setDarkStatusBarIcons(true)
 
-        val colorPalette = args.albumPalette ?: requireContext().resolveDefaultAlbumPalette()
-        applyPaletteTheme(colorPalette)
+        viewModel.album.observe(viewLifecycleOwner, ::onAlbumDetailLoaded)
 
         // Change the decorated item when metadata changes
         viewModel.nowPlaying.observe(this, this::decoratePlayingTrack)
 
         // Subscribe to children of this album
-        viewModel.children.observe(this) { trackUpdateRequest ->
+        viewModel.tracks.observe(this) { trackUpdateRequest ->
             if (trackUpdateRequest is LoadRequest.Success) {
                 adapter.submitList(trackUpdateRequest.data)
                 val currentMetadata = viewModel.nowPlaying.value
                 decoratePlayingTrack(currentMetadata)
             }
         }
+    }
+
+    private fun onAlbumDetailLoaded(album: MediaBrowserCompat.MediaItem) {
+        val description = album.description
+        title_view.text = description.title
+        subtitle_view.text = description.subtitle
+
+        GlideApp.with(this).asAlbumArt()
+            .load(description.iconUri)
+            .fallback(R.drawable.ic_album_24dp)
+            .dontTransform()
+            .doOnEnd(this::startPostponedEnterTransition)
+            .into(object : ImageViewTarget<AlbumArt>(album_art_view) {
+
+                override fun setResource(resource: AlbumArt?) {
+                    if (resource != null) {
+                        applyPaletteTheme(resource.palette)
+                        super.view.setImageBitmap(resource.bitmap)
+                    }
+                }
+            })
     }
 
     private fun setupSharedElementTransitions() {
@@ -103,7 +132,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val selectedTrack = adapter.getItem(position)
-        viewModel.playMedia(selectedTrack)
+        viewModel.playTrack(selectedTrack)
     }
 
     private fun decoratePlayingTrack(playingTrack: MediaMetadataCompat?) {
@@ -124,17 +153,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         }
     }
 
-    private fun setupAlbumArt() {
-        val albumArtView: ImageView = album_art_view
-        albumArtView.transitionName = args.pickedAlbum.mediaId
-
-        GlideApp.with(this).asBitmap()
-            .load(args.pickedAlbum.description.iconUri)
-            .fallback(R.drawable.ic_album_24dp)
-            .centerCrop()
-            .into(albumArtView)
-    }
-
     private fun setupTrackList() {
         recycler.also {
             adapter = TrackAdapter(this)
@@ -149,9 +167,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
 
         val darkStatusText = palette.bodyText.luminance < 0.5f
         setDarkHomeUpIndicator(darkStatusText)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity?.window?.darkSystemIcons = darkStatusText
-        }
+        setDarkStatusBarIcons(darkStatusText)
 
         collapsing_toolbar.setStatusBarScrimColor(palette.primaryDark)
         collapsing_toolbar.setContentScrimColor(palette.primary)
@@ -160,6 +176,12 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
         decoration = CurrentlyPlayingDecoration(requireContext(), palette.accent)
         recycler.addItemDecoration(decoration)
+    }
+
+    private fun setDarkStatusBarIcons(isDark: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            activity?.window?.darkSystemIcons = isDark
+        }
     }
 
     private fun setDarkHomeUpIndicator(dark: Boolean) {

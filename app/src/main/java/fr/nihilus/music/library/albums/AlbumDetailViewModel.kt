@@ -19,27 +19,51 @@ package fr.nihilus.music.library.albums
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
+import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AlbumDetailViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-) : BrowsableContentViewModel(connection) {
+) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
     private var observeTracksJob: Job? = null
+
+    private val _album = MutableLiveData<MediaBrowserCompat.MediaItem>()
+    val album: LiveData<MediaBrowserCompat.MediaItem> = _album
+
+    private val _tracks = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
+    val tracks: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> = _tracks
 
     init {
         connection.connect(token)
     }
 
-    fun loadTracksOfAlbum(album: MediaBrowserCompat.MediaItem) {
+    fun setAlbumId(albumId: String) {
+        viewModelScope.launch {
+            _album.value = connection.getItem(albumId)
+        }
+
         observeTracksJob?.cancel()
-        observeTracksJob = observeChildren(album.mediaId!!)
+        observeTracksJob = viewModelScope.launch {
+            _tracks.postValue(LoadRequest.Pending)
+            try {
+                connection.subscribe(albumId).consumeEach { albumTracks ->
+                    val success = LoadRequest.Success(albumTracks)
+                    _tracks.postValue(success)
+                }
+            } catch (mse: MediaSubscriptionException) {
+                _tracks.value = LoadRequest.Error(mse)
+            }
+        }
     }
 
     /**
@@ -49,10 +73,19 @@ class AlbumDetailViewModel
     val nowPlaying: LiveData<MediaMetadataCompat?>
         get() = connection.nowPlaying
 
-    fun playMedia(item: MediaBrowserCompat.MediaItem) {
-        viewModelScope.launch {
-            connection.playFromMediaId(item.mediaId!!)
+    fun playAlbum() {
+        val albumId = album.value?.mediaId
+        if (albumId != null) {
+            playMedia(albumId)
         }
+    }
+
+    fun playTrack(track: MediaBrowserCompat.MediaItem) {
+        playMedia(track.mediaId!!)
+    }
+
+    private fun playMedia(mediaId: String) = viewModelScope.launch {
+        connection.playFromMediaId(mediaId)
     }
 
     override fun onCleared() {

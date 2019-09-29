@@ -101,12 +101,8 @@
         android:label="fragment_album_detail"
         tools:layout="@layout/fragment_album_detail">
         <argument
-            android:name="pickedAlbum"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
-        <argument
-            android:name="albumPalette"
-            app:argType="fr.nihilus.music.library.albums.AlbumPalette"
-            app:nullable="true" />
+            android:name="albumId"
+            app:argType="string" />
     </fragment>
 
     <fragment

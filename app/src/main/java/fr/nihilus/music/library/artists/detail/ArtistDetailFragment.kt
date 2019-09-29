@@ -108,10 +108,10 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
     }
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {
-        val toAlbumDetail =
-            ArtistDetailFragmentDirections.browseArtistAlbum(album, holder.colorPalette)
+        val albumId = album.mediaId!!
+        val toAlbumDetail = ArtistDetailFragmentDirections.browseArtistAlbum(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to album.mediaId!!
+            holder.transitionView to albumId
         )
 
         findNavController().navigate(toAlbumDetail, transitionExtras)

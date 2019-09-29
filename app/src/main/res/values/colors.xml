@@ -24,8 +24,6 @@
     <color name="mtrl_deeppurple_500">#673ab7</color>
     <color name="mtrl_deeppurple_700">#512DA8</color>
 
-    <color name="album_band_default">#4c4c4c</color>
-
     <color name="color_primary">@color/mtrl_deeppurple_500</color>
     <color name="color_primary_dark">@color/mtrl_deeppurple_700</color>
     <color name="color_accent">@color/mtrl_blue_a400</color>
