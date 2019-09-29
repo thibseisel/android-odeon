@@ -124,8 +124,10 @@ internal class OdeonPlaybackPreparer
     override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
         if (Log.isLoggable("AssistantSearch", Log.INFO)) {
-            val detailedExtras = extras?.keySet()?.joinToString(", ", "[", "]") { extras[it]?.toString() ?: "null" } ?: "null"
-            Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$detailedExtras")
+            val extString = extras?.keySet()
+                ?.joinToString(", ", "{", "}") { "$it=${extras[it]}" }
+                ?: "null"
+            Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
         }
 
         val parsedQuery = SearchQuery.from(query, extras)
