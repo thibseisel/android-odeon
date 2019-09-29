@@ -86,6 +86,10 @@
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
+    <style name="Widget.AppTheme.TabLayout.Colored" parent="Widget.MaterialComponents.TabLayout.Colored">
+        <item name="android:background">?colorPrimary</item>
+    </style>
+
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
 
     <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">

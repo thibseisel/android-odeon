@@ -37,6 +37,7 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_host"
+            style="@style/Widget.AppTheme.TabLayout.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </com.google.android.material.tabs.TabLayout>
