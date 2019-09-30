@@ -68,7 +68,7 @@ internal fun respondFile(
  * @param message The error message provided as the `error` property of the JSON response.
  */
 @Language("JSON")
-fun jsonApiError(status: HttpStatusCode, message: String): String = """{
+internal fun jsonApiError(status: HttpStatusCode, message: String): String = """{
     "error": {
       "status": ${status.value},
       "message": "$message"

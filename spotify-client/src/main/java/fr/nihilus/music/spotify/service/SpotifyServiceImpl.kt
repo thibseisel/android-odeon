@@ -62,21 +62,16 @@ internal class SpotifyServiceImpl
         .build()
 
     private val errorAdapter: JsonAdapter<SpotifyError> =
-        WrappedJsonAdapter(
-            "error",
-            deserializer.adapter(SpotifyError::class.java)
-        )
+        WrappedJsonAdapter("error", deserializer.adapter(SpotifyError::class.java))
 
-    private val artistListAdapter =
-        WrappedJsonAdapter("artists", listAdapterOf<Artist>())
-    private val albumListAdapter =
-        WrappedJsonAdapter("albums", listAdapterOf<Album>())
-    private val trackListAdapter =
-        WrappedJsonAdapter("tracks", listAdapterOf<Track>())
-    private val featureListAdapter = WrappedJsonAdapter(
-        "audio_features",
-        listAdapterOf<AudioFeature>()
-    )
+    private val artistListAdapter = wrappedListAdapterOf<Artist>("artists")
+    private val albumListAdapter = wrappedListAdapterOf<Album>("albums")
+    private val trackListAdapter = wrappedListAdapterOf<Track>("tracks")
+    private val featureListAdapter = wrappedListAdapterOf<AudioFeature>("audio_features")
+
+    private val artistSearchAdapter = WrappedJsonAdapter("artists", pagingAdapterOf<Artist>())
+    private val albumSearchAdapter = WrappedJsonAdapter("albums", pagingAdapterOf<Album>())
+    private val trackSearchAdapter = WrappedJsonAdapter("tracks", pagingAdapterOf<Track>())
 
     private val http = HttpClient(engine) {
         expectSuccess = false
@@ -193,13 +188,32 @@ internal class SpotifyServiceImpl
         return listResource(response, featureListAdapter)
     }
 
-    override fun search(
-        query: String,
-        type: Set<String>,
-        limit: Int,
-        offset: Int
-    ): SearchResults {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun <T : Any> search(query: String, type: SearchType<T>): Flow<T> {
+        val searchParam: String
+        val searchAdapter: WrappedJsonAdapter<Paging<T>>
+
+        @Suppress("UNCHECKED_CAST")
+        when (type) {
+            SearchType.Artists -> {
+                searchParam = "artist"
+                searchAdapter = artistSearchAdapter as WrappedJsonAdapter<Paging<T>>
+            }
+            SearchType.Albums -> {
+                searchParam = "album"
+                searchAdapter = albumSearchAdapter as WrappedJsonAdapter<Paging<T>>
+            }
+            SearchType.Tracks -> {
+                searchParam = "track"
+                searchAdapter = trackSearchAdapter as WrappedJsonAdapter<Paging<T>>
+            }
+        }
+
+        val searchPageRequest = HttpRequestBuilder(path = "/v1/search") {
+            parameters[SpotifyService.QUERY_Q] = query
+            parameters[SpotifyService.QUERY_TYPE] = searchParam
+        }
+
+        return paginatedFlow(searchPageRequest, searchAdapter)
     }
 
     private suspend fun <T : Any> singleResource(
@@ -219,7 +233,7 @@ internal class SpotifyServiceImpl
 
     private suspend fun <T : Any> listResource(
         response: HttpResponse,
-        adapter: WrappedJsonAdapter<List<T>>
+        adapter: JsonAdapter<List<T>>
     ) : HttpResource<List<T?>> = when (response.status) {
 
         HttpStatusCode.OK -> {
@@ -291,9 +305,9 @@ internal class SpotifyServiceImpl
         }
     }
 
-    private inline fun <reified T : Any> listAdapterOf(): JsonAdapter<List<T>> {
+    private inline fun <reified T : Any> wrappedListAdapterOf(property: String): WrappedJsonAdapter<List<T>> {
         val listType = Types.newParameterizedType(List::class.java, T::class.java)
-        return deserializer.adapter(listType)
+        return WrappedJsonAdapter(property, deserializer.adapter(listType))
     }
 
     private inline fun <reified T : Any> pagingAdapterOf(): JsonAdapter<Paging<T>> {

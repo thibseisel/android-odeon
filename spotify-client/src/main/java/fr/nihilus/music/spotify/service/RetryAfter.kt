@@ -29,9 +29,9 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.delay
 
 /**
- * [HttpClient] feature that automatically re-sends requests
- * if the server responded with [the HTTP 421 status code][HttpStatusCode.TooManyRequests].
- * Requests are retried after a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
+ * [HttpClient] feature that automatically re-sends requests if the server responded with
+ * [the HTTP 429 status code][HttpStatusCode.TooManyRequests]. Requests are retried after
+ * a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
  */
 @KtorExperimentalAPI
 internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {

@@ -559,73 +559,6 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When searching, then call search endpoint with corresponding type`() = runBlockingTest {
-        TODO("Rewrite the test to adhere to the new API.")
-        /*val searchClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "v1/search"
-
-            val parameters = request.url.parameters
-            parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
-            val receivedSearchTypes = parameters[SpotifyService.QUERY_TYPE]
-            receivedSearchTypes shouldBe "track,album,artist"
-
-            respondJson(SEARCH_RESULTS)
-        }
-
-        val results = searchClient.search("rammstein", setOf("track", "album", "artist"))
-        results.albums.should { paginatedAlbums ->
-            paginatedAlbums.total shouldBe 1
-            paginatedAlbums.items shouldHaveSize 1
-            paginatedAlbums.items[0].should {
-                it.id shouldBe "1LoyJQVHPLHE3fCCS8Juek"
-                it.name shouldBe "RAMMSTEIN"
-                it.releaseDate shouldBe "2019-05-17"
-                it.releaseDatePrecision shouldBe "day"
-
-                it.images.shouldContainExactly(
-                    Image("https://i.scdn.co/image/389c1df3f21fa93570dde0b75332e75ab91bd878", 300, 300)
-                )
-            }
-        }
-
-        results.artists.should { paginatedArtists ->
-            paginatedArtists.total shouldBe 1
-            paginatedArtists.items shouldHaveSize 1
-            paginatedArtists.items[0].should {
-                it.id shouldBe "6wWVKhxIU2cEi0K81v7HvP"
-                it.name shouldBe "Rammstein"
-                it.popularity shouldBe 87
-                it.genres.shouldContainExactly(
-                    "alternative metal",
-                    "german metal",
-                    "industrial",
-                    "industrial metal",
-                    "industrial rock",
-                    "neue deutsche harte"
-                )
-
-                it.images.shouldContainExactly(
-                    Image("https://i.scdn.co/image/d7bba2e8eb624d93d8cc7cb57d9ba5fb35f0f901", 320, 320)
-                )
-            }
-        }
-
-        results.tracks.should { paginatedTracks ->
-            paginatedTracks.total shouldBe 1
-            paginatedTracks.items shouldHaveSize 1
-
-            paginatedTracks.items[0].should {
-                it.id shouldBe "5vZ4IeUenK2cHub2d7yfWk"
-                it.name shouldBe "RADIO"
-                it.discNumber shouldBe 1
-                it.trackNumber shouldBe 2
-                it.duration shouldBe 277397
-                it.explicit shouldBe false
-            }
-        }*/
-    }
-
-    @Test
     fun `When requesting too much resources at one time, then fail with IllegalArgumentException`() = runBlockingTest {
         val apiClient = spotifyService {
             fail("Expected no network call, but called endpoint ${it.url.encodedPath}.")
@@ -704,6 +637,104 @@ class SpotifyServiceTest {
 
         apiException.status shouldBe 500
         apiException.description shouldBe "Whoops!"
+    }
+
+    @Test
+    fun `When searching artists, then return a flow of artist results`() = runBlockingTest {
+        val apiClient = spotifyService {
+            it shouldGetOnSpotifyEndpoint "/v1/search"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "artist"
+
+            val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toInt()
+            if (offset == null) {
+                respondFile("search/artist_search_page_1.json")
+            } else {
+                fail("Unexpected offset: $offset")
+            }
+        }
+
+        val results = apiClient.search("rammstein", SearchType.Artists).toList()
+        results shouldHaveSize 1
+
+        with(results[0]) {
+            id shouldBe "6wWVKhxIU2cEi0K81v7HvP"
+            name shouldBe "Rammstein"
+            popularity shouldBe 82
+            genres.shouldContainExactlyInAnyOrder(
+                "alternative metal",
+                "german metal",
+                "industrial",
+                "industrial metal",
+                "industrial rock",
+                "neue deutsche harte",
+                "nu metal"
+            )
+            images.shouldContainExactlyInAnyOrder(
+                Image("https://i.scdn.co/image/d7bba2e8eb624d93d8cc7cb57d9ba5fb35f0f901", 320, 320)
+            )
+        }
+    }
+
+    @Test
+    fun `When searching albums, then return a flow of album results`() = runBlockingTest {
+        val apiClient = spotifyService {
+            it shouldGetOnSpotifyEndpoint "/v1/search"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "album"
+
+            when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
+                null -> respondFile("search/album_search_page_1.json")
+                2 -> respondFile("search/album_search_page_2.json")
+                else -> fail("Invalid offset: $offset")
+            }
+        }
+
+        val results = apiClient.search("rammstein", SearchType.Albums).toList()
+        results shouldHaveSize 4
+
+        with(results[0]) {
+            id shouldBe "1LoyJQVHPLHE3fCCS8Juek"
+            name shouldBe "RAMMSTEIN"
+            releaseDate shouldBe "2019-05-17"
+            releaseDatePrecision shouldBe "day"
+            images.shouldContainExactlyInAnyOrder(
+                Image("https://i.scdn.co/image/f6fc764b37c083731b244d9553ea1ca394588f21", 300, 300)
+            )
+        }
+        results[1].id shouldBe "1CtTTpKbHU8KbHRB4LmBbv"
+        results[2].id shouldBe "74ydDCcXTco741y42ceRJ5"
+        results[3].id shouldBe "2w6Vy8qZLU4niyQAHyu0Ag"
+    }
+
+    @Test
+    fun `When searching tracks, then return a flow of track results`() = runBlockingTest {
+        val apiClient = spotifyService {
+            it shouldGetOnSpotifyEndpoint "/v1/search"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "track"
+
+            when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
+                null -> respondFile("search/track_search_page_1.json")
+                2 -> respondFile("search/track_search_page_2.json")
+                else -> fail("Invalid offset: $offset")
+            }
+        }
+
+        val results = apiClient.search("rammstein", SearchType.Tracks).toList()
+        results shouldHaveSize 4
+
+        with(results[0]) {
+            id shouldBe "2bPGTMB5sFfFYQ2YvSmup0"
+            name shouldBe "DEUTSCHLAND"
+            duration shouldBe 322339
+            discNumber shouldBe 1
+            trackNumber shouldBe 1
+            explicit shouldBe false
+        }
+        results[1].id shouldBe "7j43FohbLVulScL7S9sQZk"
+        results[2].id shouldBe "3d3k8g4GTVx9EFIFlOZOEX"
+        results[3].id shouldBe "2iFgHPoa7FNHwgLnjXzu7F"
     }
 
     private fun givenReachedRateLimit(retryAfter: Int): MockEngine {

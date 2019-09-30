@@ -119,25 +119,23 @@ internal interface SpotifyService {
 
     /**
      * Get Spotify catalog information about artists, albums or tracks that match a keyword string.
-     * Search results include hits from all the specified item [types][type].
-     * For example, if [query] = `abacab` and [type] = `[album,track]`
+     * The Spotify Search endpoint accepts a query with a special syntax to refine the search results.
+     * - use simple keywords to return all results whose name matches in any order.
+     * - surround keywords with quotation marks `"` to match the keywords in order.
+     * - prefix keywords with `artist:` to match on the artist name.
+     * - prefix keywords with `album:` to match on the album name.
+     * - prefix keywords with `track:` to match on the track title.
+     *
+     * For example when searching tracks:
+     * - `artist:rammstein` returns all tracks by Rammstein ordered by descending popularity.
+     * - `album:rammstein` returns all tracks from the RAMMSTEIN album.
+     * - `track:rammstein` returns one track named "Rammstein" (from Herzeleid).
      *
      * @param query Search keywords and optional fields filters and operators.
-     * @param type The list of types to search across.
-     * @param limit Maximum number of results to return. Default `20`, minimum `1` and maximum `50`.
-     * __Note__: the limit is applied within each type, not on the total response.
-     * For example, if the limit value is 3 and the type is `[artist,album]`, the result contains 3 artists and 3 albums.
-     * @param offset The index of the first result to return. Defaults to `0` (the first result).
-     * The maximum offset (including limit) is `10000`.
-     *
-     * TODO Rethink this endpoint to return search results with Flow.
+     * The search query is not checked for correctness and is sent to Spotify as-is.
+     * @param type The type of the searched media.
      */
-    fun search(
-        query: String,
-        type: Set<String>,
-        limit: Int = 20,
-        offset: Int = 0
-    ): SearchResults
+    fun <T : Any> search(query: String, type: SearchType<T>): Flow<T>
 
     companion object {
         internal const val QUERY_Q = "q"

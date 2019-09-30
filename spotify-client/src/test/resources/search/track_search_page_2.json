@@ -136,9 +136,9 @@
       }
     ],
     "limit": 2,
-    "next": "https://api.spotify.com/v1/search?query=rammstein&type=track&offset=4&limit=2",
+    "next": null,
     "offset": 2,
     "previous": "https://api.spotify.com/v1/search?query=rammstein&type=track&offset=0&limit=2",
-    "total": 455
+    "total": 4
   }
 }

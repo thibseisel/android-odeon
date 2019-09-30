@@ -17,7 +17,6 @@
 package fr.nihilus.music.spotify.model
 
 import com.squareup.moshi.Json
-import kotlinx.coroutines.flow.Flow
 
 /**
  * A Paging object is a subset of a collection of items of type [T], where
@@ -28,7 +27,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * @param T The type of the items in the collection.
  */
-internal class Paging<T>(
+internal class Paging<out T>(
 
     /**
      * The requested data.
@@ -62,10 +61,4 @@ internal class Paging<T>(
      */
     @Json(name = "total")
     val total: Int
-)
-
-internal class SearchResults(
-    val artists: Flow<Artist>,
-    val albums: Flow<Album>,
-    val tracks: Flow<Track>
 )

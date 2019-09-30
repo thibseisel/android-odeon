@@ -61,4 +61,6 @@ internal class Track(
      */
     @Json(name = "explicit")
     val explicit: Boolean
-)
+) {
+    override fun toString(): String = "Track[id=$id, name=$name]"
+}

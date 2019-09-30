@@ -55,4 +55,6 @@ internal class Album(
      */
     @Json(name = "images")
     val images: List<Image>
-)
+) {
+    override fun toString(): String = "Album[$id=id, name$name]"
+}

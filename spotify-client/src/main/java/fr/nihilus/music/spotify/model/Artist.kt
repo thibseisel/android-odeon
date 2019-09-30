@@ -58,5 +58,7 @@ internal class Artist(
      */
     @Json(name = "images")
     val images: List<Image>
-)
+) {
+    override fun toString(): String = "Artist[id=$id, name=$name]"
+}
 

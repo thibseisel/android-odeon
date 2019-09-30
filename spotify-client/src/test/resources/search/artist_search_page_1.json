@@ -1,0 +1,43 @@
+{
+  "artists": {
+    "href": "https://api.spotify.com/v1/search?query=rammstein&type=artist&offset=0&limit=2",
+    "items": [
+      {
+        "external_urls": {
+          "spotify": "https://open.spotify.com/artist/6wWVKhxIU2cEi0K81v7HvP"
+        },
+        "followers": {
+          "href": null,
+          "total": 3390404
+        },
+        "genres": [
+          "alternative metal",
+          "german metal",
+          "industrial",
+          "industrial metal",
+          "industrial rock",
+          "neue deutsche harte",
+          "nu metal"
+        ],
+        "href": "https://api.spotify.com/v1/artists/6wWVKhxIU2cEi0K81v7HvP",
+        "id": "6wWVKhxIU2cEi0K81v7HvP",
+        "images": [
+          {
+            "height": 320,
+            "url": "https://i.scdn.co/image/d7bba2e8eb624d93d8cc7cb57d9ba5fb35f0f901",
+            "width": 320
+          }
+        ],
+        "name": "Rammstein",
+        "popularity": 82,
+        "type": "artist",
+        "uri": "spotify:artist:6wWVKhxIU2cEi0K81v7HvP"
+      }
+    ],
+    "limit": 2,
+    "next": null,
+    "offset": 0,
+    "previous": null,
+    "total": 1
+  }
+}
