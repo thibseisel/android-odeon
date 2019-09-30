@@ -31,6 +31,21 @@ import com.squareup.moshi.JsonWriter
  * allowing attackers to read sensitive data from JSON received in the browser,
  * it can also deserialize JSON objects.
  *
+ * For example, given the following JSON:
+ * ```json
+ * {
+ *   "payload": {
+ *     "first_name": "John",
+ *     "last_name": "Doe"
+ *   }
+ * }
+ * ```
+ * When deserializing to an object of type `Person` with an adapter created like the following:
+ * ```kotlin
+ * WrappedJsonAdapter("payload", moshi.adapter(Person::class.java)
+ * ```
+ * the deserializer will ignore the wrapping object and start reading at its `payload` property.
+ *
  * @param delegate The adapter to use when serializing/deserializing a payload of type [T].
  * @param property The name of the property the payload is associated to.
  */
