@@ -57,7 +57,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
             afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
-        viewModel.children.observe(this, { albumRequest ->
+        viewModel.children.observe(this) { albumRequest ->
             when (albumRequest) {
                 is LoadRequest.Pending -> refreshToggle.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -71,16 +71,17 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
                     group_empty_view.isVisible = true
                 }
             }
-        })
+        }
     }
 
     override fun onItemSelected(position: Int, actionId: Int) {
         val album = albumAdapter.getItem(position)
         val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 
-        val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(album, holder.colorPalette)
+        val albumId = album.mediaId!!
+        val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to album.mediaId!!
+            holder.transitionView to albumId
         )
 
         findNavController().navigate(toAlbumDetail, transitionExtras)

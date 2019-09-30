@@ -28,6 +28,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.EdgeToEdge
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
@@ -51,6 +52,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         allowReturnTransitionOverlap = true
 
         // Configure toolbar with title and menu.
+        EdgeToEdge.setupAppBar(appbar, toolbar)
         toolbar.run {
             setTitle(R.string.core_app_name)
             prepareMenu()

@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Theme.MaterialComponents.DayNight" parent="Theme.MaterialComponents.Light"/>
 
@@ -42,10 +42,10 @@
         <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
 
         <!-- Color palette to use for an album that has no album art. -->
-        <item name="albumPalettePrimaryColor">@color/album_band_default</item>
+        <item name="albumPalettePrimaryColor">?colorBackgroundFloating</item>
         <item name="albumPaletteAccentColor">?colorAccent</item>
-        <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimaryInverse</item>
-        <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondaryInverse</item>
+        <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimary</item>
+        <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondary</item>
         <item name="albumPaletteTextOnAccentColor">?colorControlNormal</item>
 
         <!-- Make the action mode appear above the content instead of above the Toolbar. -->
@@ -84,6 +84,10 @@
 
     <style name="Widget.AppTheme.CardView.Animated">
         <item name="android:stateListAnimator">@animator/card_state_list</item>
+    </style>
+
+    <style name="Widget.AppTheme.TabLayout.Colored" parent="Widget.MaterialComponents.TabLayout.Colored">
+        <item name="android:background">?colorPrimary</item>
     </style>
 
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->

@@ -19,11 +19,11 @@ package fr.nihilus.music.library.albums
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 
 internal class AlbumsAdapter(
     fragment: Fragment,
@@ -39,7 +39,7 @@ internal class AlbumsAdapter(
         glideRequest = GlideApp.with(fragment).asAlbumArt()
             .fallbackColors(defaultPalette)
             .fallback(fallbackIcon)
-            .centerCrop()
+            .dontTransform()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumHolder {
