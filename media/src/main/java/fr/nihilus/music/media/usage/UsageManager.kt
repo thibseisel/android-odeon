@@ -17,6 +17,8 @@
 package fr.nihilus.music.media.usage
 
 import fr.nihilus.music.common.os.Clock
+import fr.nihilus.music.database.usage.MediaUsageEvent
+import fr.nihilus.music.database.usage.UsageDao
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
@@ -116,7 +118,8 @@ internal class UsageManagerImpl
 
     override fun reportCompletion(trackId: Long) {
         scope.launch {
-            val newEvent = MediaUsageEvent(0, trackId, clock.currentEpochTime)
+            val newEvent =
+                MediaUsageEvent(0, trackId, clock.currentEpochTime)
             usageDao.recordEvent(newEvent)
         }
     }

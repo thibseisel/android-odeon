@@ -34,9 +34,7 @@ android {
 
 dependencies {
     implementation project(':common')
-
-    implementation "androidx.room:room-runtime:${versions.androidx.room}"
-    kapt "androidx.room:room-compiler:${versions.androidx.room}"
+    implementation project(':database')
 
     implementation "androidx.work:work-runtime-ktx:${versions.androidx.work}"
 

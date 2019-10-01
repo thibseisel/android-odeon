@@ -21,8 +21,8 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.database.AppDatabase
 import fr.nihilus.music.media.assertOn
-import fr.nihilus.music.media.database.AppDatabase
 import fr.nihilus.music.media.provider.MediaStoreSurrogate
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.matchers.collections.shouldContainExactly

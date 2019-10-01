@@ -24,7 +24,7 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.MediaProvider
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

@@ -32,11 +32,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.debug.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.debug.provider'
-        }
-
         release {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -46,9 +41,6 @@ android {
                         '-Xno-receiver-assertions'
                 ]
             }
-
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.provider'
         }
     }
 
@@ -57,58 +49,39 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-        freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
+    sourceSets {
+        // Add Room schemas to test sources in order to test database migrations.
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
     }
 
     testOptions {
         // Include Android resources in unit tests to be resolved by Robolectric.
         unitTests.includeAndroidResources = true
     }
-
-    sourceSets {
-        // Add Room schemas to test sources in order to test database migrations.
-        androidTest.assets.srcDirs += files("$projectDir/schemas")
-    }
 }
 
 kapt {
     arguments {
+        arg('room.schemaLocation', "$projectDir/schemas".toString())
+        arg('room.incremental', 'true')
         arg('dagger.formatGeneratedSource', 'disabled')
+        arg('dagger.incremental', 'enabled')
         arg('dagger.fastInit', 'enabled')
     }
 }
 
 dependencies {
     implementation project(':common')
-    implementation project(':database')
 
-    // Kotlin language support
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
-
-    // Android support libraries
-    implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
-    implementation "androidx.media:media:${versions.androidx.media}"
-
-    // Android Room
-    api "androidx.room:room-runtime:${versions.androidx.room}"
-    kapt "androidx.room:room-compiler:${versions.androidx.room}"
     implementation "androidx.room:room-ktx:${versions.androidx.room}"
     implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
+    kapt "androidx.room:room-compiler:${versions.androidx.room}"
 
-    // Dagger
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    // Other libraries
-    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
-
-    // Test dependencies
     testImplementation project(':common-test')
-    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "com.google.truth:truth:${versions.truth}"
-    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
-    testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
-    testImplementation "androidx.room:room-ktx:${versions.androidx.room}"
-    kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
+
+    androidTestImplementation project(':common-test')
+    androidTestImplementation "com.google.truth:truth:${versions.truth}"
+    androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
 }

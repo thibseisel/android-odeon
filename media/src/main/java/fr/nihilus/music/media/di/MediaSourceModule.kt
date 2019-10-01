@@ -18,7 +18,7 @@ package fr.nihilus.music.media.di
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.database.DatabaseModule
+import fr.nihilus.music.database.DatabaseModule
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.MediaDaoImpl
 import fr.nihilus.music.media.provider.MediaProvider

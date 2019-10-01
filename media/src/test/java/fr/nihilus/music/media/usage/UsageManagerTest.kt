@@ -17,6 +17,10 @@
 package fr.nihilus.music.media.usage
 
 import fr.nihilus.music.common.test.os.TestClock
+import fr.nihilus.music.database.usage.MediaUsageEvent
+import fr.nihilus.music.database.usage.TrackScore
+import fr.nihilus.music.database.usage.TrackUsage
+import fr.nihilus.music.database.usage.UsageDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.inspectors.forNone

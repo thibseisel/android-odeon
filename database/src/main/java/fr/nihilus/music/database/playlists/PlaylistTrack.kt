@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlists
+package fr.nihilus.music.database.playlists
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -38,7 +38,7 @@ import androidx.room.ForeignKey
     entity = Playlist::class, onDelete = ForeignKey.CASCADE,
     childColumns = ["playlist_id"], parentColumns = ["id"]
 )
-internal class PlaylistTrack(
+class PlaylistTrack(
 
     /**
      * Id of the playlist this track belongs to.

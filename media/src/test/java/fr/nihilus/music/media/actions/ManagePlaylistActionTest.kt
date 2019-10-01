@@ -30,9 +30,9 @@ import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.test.fail
 import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.media.os.FileSystem
-import fr.nihilus.music.media.playlists.Playlist
-import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.playlists.PlaylistTrack
+import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.database.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.playlists.TestPlaylistDao
 import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
@@ -43,7 +43,8 @@ import org.junit.runner.RunWith
 
 private const val NEW_PLAYLIST_TITLE = "New playlist"
 
-private val INITIAL_PLAYLIST = Playlist(2L, NEW_PLAYLIST_TITLE, 0L, null)
+private val INITIAL_PLAYLIST =
+    Playlist(2L, NEW_PLAYLIST_TITLE, 0L, null)
 
 @RunWith(AndroidJUnit4::class)
 class ManagePlaylistActionTest {

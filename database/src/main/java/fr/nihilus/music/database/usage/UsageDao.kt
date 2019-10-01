@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.usage
+package fr.nihilus.music.database.usage
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -22,7 +22,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-internal interface UsageDao {
+interface UsageDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun recordEvent(usageEvent: MediaUsageEvent)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlists
+package fr.nihilus.music.database.playlists
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -23,7 +23,7 @@ import androidx.room.Query
 import io.reactivex.Flowable
 
 @Dao
-internal interface PlaylistDao {
+interface PlaylistDao {
 
     @get:Query("SELECT * FROM playlist ORDER BY date_created ASC")
     val playlists: Flowable<List<Playlist>>

@@ -19,8 +19,8 @@ package fr.nihilus.music.media.tree
 import dagger.BindsInstance
 import dagger.Component
 import fr.nihilus.music.common.test.TestEnvironmentModule
-import fr.nihilus.music.media.database.AppDatabase
-import fr.nihilus.music.media.database.InMemoryDatabaseModule
+import fr.nihilus.music.database.AppDatabase
+import fr.nihilus.music.media.InMemoryDatabaseModule
 import fr.nihilus.music.media.di.MediaSourceModule
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.SimulatedSystemModule

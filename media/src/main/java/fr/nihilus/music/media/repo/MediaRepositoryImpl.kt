@@ -20,13 +20,13 @@ import fr.nihilus.music.common.collections.diffList
 import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.playlists.Playlist
-import fr.nihilus.music.media.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.usage.UsageDao
+import fr.nihilus.music.database.usage.UsageDao
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.*

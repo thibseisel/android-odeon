@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.database
+package fr.nihilus.music.media
 
 import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.di.ServiceScoped
+import dagger.Reusable
+import fr.nihilus.music.database.AppDatabase
+import fr.nihilus.music.database.DatabaseModule
 
 /**
  * Provides a shared connection to an in-memory SQLite database.
  * This database instance allows performing queries on the Main Thread.
  */
 @Module(includes = [DatabaseModule::class])
-internal object InMemoryDatabaseModule {
+object InMemoryDatabaseModule {
 
     @JvmStatic
-    @Provides @ServiceScoped
+    @Provides @Reusable
     fun providesInMemoryDatabase(context: Context): AppDatabase =
         Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()

@@ -19,8 +19,8 @@ package fr.nihilus.music.service
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.common.ExecutionContextModule
+import fr.nihilus.music.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.actions.CustomActionModule
-import fr.nihilus.music.media.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.di.MediaSourceModule
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.AndroidSystemModule

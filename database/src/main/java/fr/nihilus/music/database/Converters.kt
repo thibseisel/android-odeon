@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.database
+package fr.nihilus.music.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import android.net.Uri
+import androidx.core.net.toUri
+import androidx.room.TypeConverter
 
-@Dao
-internal interface SpotifyDao {
+internal class Converters {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveTrackFeature(link: RemoteLink, feature: TrackFeature)
+    @TypeConverter
+    fun fromString(str: String?): Uri? = str?.toUri()
+
+    @TypeConverter
+    fun toUriString(uri: Uri?): String? = uri?.toString()
+
 }

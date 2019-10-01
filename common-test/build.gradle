@@ -49,6 +49,7 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     api "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
     api "org.robolectric:robolectric:${versions.robolectric}"
+    api "io.mockk:mockk:${versions.mockk}"
 
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 }

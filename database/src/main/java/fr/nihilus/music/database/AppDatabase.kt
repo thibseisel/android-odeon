@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.database
+package fr.nihilus.music.database
 
 import androidx.room.Database
 import androidx.room.Entity
@@ -22,11 +22,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import fr.nihilus.music.media.playlists.Playlist
-import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.playlists.PlaylistTrack
-import fr.nihilus.music.media.usage.MediaUsageEvent
-import fr.nihilus.music.media.usage.UsageDao
+import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.database.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.PlaylistTrack
+import fr.nihilus.music.database.usage.MediaUsageEvent
+import fr.nihilus.music.database.usage.UsageDao
 
 /**
  * Definition of this application's local database.

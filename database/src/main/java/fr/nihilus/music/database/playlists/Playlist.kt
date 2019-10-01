@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlists
+package fr.nihilus.music.database.playlists
 
 import android.net.Uri
 import androidx.room.ColumnInfo
@@ -28,7 +28,7 @@ import androidx.room.PrimaryKey
  * to be included.
  */
 @Entity(tableName = "playlist")
-internal data class Playlist(
+data class Playlist(
 
     /**
      * The unique identifier of this playlist.

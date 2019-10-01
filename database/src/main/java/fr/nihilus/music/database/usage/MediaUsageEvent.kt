@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.usage
+package fr.nihilus.music.database.usage
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -36,7 +36,7 @@ import androidx.room.PrimaryKey
  * the number of seconds since `1970-01-01 00:00:00 UTC`.
  */
 @Entity(tableName = "usage_event")
-internal class MediaUsageEvent(
+class MediaUsageEvent(
     /**
      * The unique identifier for this event record in the database.
      * When not persisted, this is `0`.
@@ -62,7 +62,7 @@ internal class MediaUsageEvent(
  * A track associated with a given numeric score.
  * The higher the score, the more the related track is appreciated by users.
  */
-internal data class TrackScore(
+data class TrackScore(
     @ColumnInfo(name = "track_id")
     val trackId: Long,
 
@@ -77,7 +77,7 @@ internal data class TrackScore(
  * @param score The total number of events recorded for that track.
  * @param lastEventTime The time at which the last event has been recorded for that track.
  */
-internal data class TrackUsage(
+data class TrackUsage(
 
     @ColumnInfo(name = "track_id")
     val trackId: Long,

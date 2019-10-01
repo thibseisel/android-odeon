@@ -29,9 +29,9 @@ import fr.nihilus.music.common.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.common.media.toMediaIdOrNull
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
-import fr.nihilus.music.media.playlists.Playlist
-import fr.nihilus.music.media.playlists.PlaylistDao
-import fr.nihilus.music.media.playlists.PlaylistTrack
+import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.database.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.PlaylistTrack
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

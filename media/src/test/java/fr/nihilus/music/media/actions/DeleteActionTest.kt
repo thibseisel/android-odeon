@@ -33,7 +33,7 @@ import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.test.stub
-import fr.nihilus.music.media.playlists.PlaylistDao
+import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.media.provider.*
 import io.kotlintest.shouldThrow
 import io.mockk.*

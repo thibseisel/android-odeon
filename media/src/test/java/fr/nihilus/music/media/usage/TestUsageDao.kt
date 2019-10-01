@@ -16,6 +16,11 @@
 
 package fr.nihilus.music.media.usage
 
+import fr.nihilus.music.database.usage.MediaUsageEvent
+import fr.nihilus.music.database.usage.TrackScore
+import fr.nihilus.music.database.usage.TrackUsage
+import fr.nihilus.music.database.usage.UsageDao
+
 internal val SAMPLE_TRACK_SCORE = listOf(
     TrackScore(75L, 82),
     TrackScore(464L, 66),
@@ -43,7 +48,12 @@ internal class TestUsageDao(
     override suspend fun getTracksUsage(): List<TrackUsage> = TODO()
 
     override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> {
-        return scorePerTrack.map { (trackId, score) -> TrackScore(trackId, score) }
+        return scorePerTrack.map { (trackId, score) ->
+            TrackScore(
+                trackId,
+                score
+            )
+        }
             .sortedByDescending { it.score }
             .take(limit)
     }

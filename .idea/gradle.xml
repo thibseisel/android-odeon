@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/common-test" />
             <option value="$PROJECT_DIR$/core-ui" />
+            <option value="$PROJECT_DIR$/database" />
             <option value="$PROJECT_DIR$/media" />
             <option value="$PROJECT_DIR$/player-testing" />
             <option value="$PROJECT_DIR$/service" />
