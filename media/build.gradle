@@ -84,12 +84,6 @@ dependencies {
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
     implementation "androidx.media:media:${versions.androidx.media}"
 
-    // Android Room
-    api "androidx.room:room-runtime:${versions.androidx.room}"
-    kapt "androidx.room:room-compiler:${versions.androidx.room}"
-    implementation "androidx.room:room-ktx:${versions.androidx.room}"
-    implementation "androidx.room:room-rxjava2:${versions.androidx.room}"
-
     // Dagger
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
