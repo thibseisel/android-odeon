@@ -73,13 +73,6 @@ android {
     }
 }
 
-kapt {
-    arguments {
-        arg('dagger.formatGeneratedSource', 'disabled')
-        arg('dagger.fastInit', 'enabled')
-    }
-}
-
 dependencies {
     implementation project(':common')
     implementation project(':database')

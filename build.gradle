@@ -103,6 +103,15 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate {
+        extensions.findByName('kapt')?.arguments {
+            arg('dagger.formatGeneratedSource', 'disabled')
+            arg('dagger.fastInit', 'enabled')
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

@@ -117,13 +117,6 @@ androidExtensions {
     experimental = true
 }
 
-kapt {
-    arguments {
-        arg('dagger.formatGeneratedSource', 'disabled')
-        arg('dagger.fastInit', 'enabled')
-    }
-}
-
 dependencies {
     // Sub-project containing the Media Service.
     implementation project(':common')
