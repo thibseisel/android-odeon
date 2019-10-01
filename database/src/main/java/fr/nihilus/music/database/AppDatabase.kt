@@ -25,6 +25,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.database.playlists.PlaylistTrack
+import fr.nihilus.music.database.spotify.EnumConverters
+import fr.nihilus.music.database.spotify.SpotifyLink
+import fr.nihilus.music.database.spotify.TrackFeature
 import fr.nihilus.music.database.usage.MediaUsageEvent
 import fr.nihilus.music.database.usage.UsageDao
 
@@ -37,9 +40,11 @@ import fr.nihilus.music.database.usage.UsageDao
 @Database(entities = [
     Playlist::class,
     PlaylistTrack::class,
-    MediaUsageEvent::class
-], version = 3)
-@TypeConverters(Converters::class)
+    MediaUsageEvent::class,
+    SpotifyLink::class,
+    TrackFeature::class
+], version = 4)
+@TypeConverters(Converters::class, EnumConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val playlistDao: PlaylistDao
@@ -85,6 +90,19 @@ abstract class AppDatabase : RoomDatabase() {
                     execSQL("DROP TABLE `usage_event`")
                     execSQL("ALTER TABLE `usage_event_tmp` RENAME TO `usage_event`")
                 }
+            }
+        }
+
+        /**
+         * Define instructions to be executed on the database to migrate from schema v3 to v4:
+         * - create the new table `remote_link`
+         * - create the new table `track_feature`
+         */
+        internal val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Create new tables "remote_link" and "track_feature".
+                execSQL("CREATE TABLE IF NOT EXISTS `remote_link` (`local_id` INTEGER NOT NULL, `remote_id` TEXT NOT NULL, `sync_date` INTEGER NOT NULL, PRIMARY KEY(`local_id`))")
+                execSQL("CREATE TABLE IF NOT EXISTS `track_feature` (`id` TEXT NOT NULL, `key` INTEGER, `mode` INTEGER NOT NULL, `tempo` REAL NOT NULL, `time_signature` INTEGER NOT NULL, `loudness` REAL NOT NULL, `acousticness` REAL NOT NULL, `danceability` REAL NOT NULL, `energy` REAL NOT NULL, `instrumentalness` REAL NOT NULL, `liveness` REAL NOT NULL, `speechiness` REAL NOT NULL, `valence` REAL NOT NULL, PRIMARY KEY(`id`))")
             }
         }
     }

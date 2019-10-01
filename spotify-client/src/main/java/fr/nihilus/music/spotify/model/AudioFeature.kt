@@ -33,17 +33,39 @@ internal class AudioFeature(
 
     /**
      * The estimated overall key of the track.
-     * The value is `null` if the key is unknown.
+     * Pitch is encoded as a number:
+     *
+     * ```
+     * | Key | Pitch |
+     * |-----|-------|
+     * |   0 | C     |
+     * |   1 | C#/Db |
+     * |   2 | D     |
+     * |   3 | D#/Eb |
+     * |   4 | E     |
+     * |   5 | F     |
+     * |   6 | F#/Gb |
+     * |   7 | G     |
+     * |   8 | G#/Ab |
+     * |   9 | A     |
+     * |  10 | A#/Bb |
+     * |  11 | B     |
+     *  -------------
+     *  ```
+     *
+     * Value is `null` if the key is unknown.
      */
     @Json(name = "key")
-    val key: Pitch?,
+    val key: Int?,
 
     /**
      * Mode indicates the modality (major or minor) of a track,
      * the type of scale from which its melodic content is derived.
+     *
+     * The value is encoded as a number: `0` for minor, `1` for major.
      */
     @Json(name = "mode")
-    val mode: MusicalMode,
+    val mode: Int,
 
     /**
      * The overall estimated tempo of a track in beats per minute (BPM).
@@ -133,18 +155,3 @@ internal class AudioFeature(
     @Json(name = "valence")
     val valence: Float
 )
-
-/**
- * Enumeration of musical modes.
- */
-internal enum class MusicalMode {
-    MINOR, MAJOR;
-}
-
-/**
- * Values map to pitches using standard Pitch Class notation.
- * E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on.
- */
-internal enum class Pitch {
-    C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B;
-}

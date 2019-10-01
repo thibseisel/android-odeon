@@ -14,29 +14,24 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.database
+package fr.nihilus.music.database.spotify
 
 import androidx.room.TypeConverter
-import fr.nihilus.music.spotify.model.MusicalMode
-import fr.nihilus.music.spotify.model.Pitch
 
-class EnumConverters {
+internal class EnumConverters {
 
     @TypeConverter
-    internal fun encodeMusicalMode(mode: MusicalMode): Int = when (mode) {
+    internal fun MusicalMode.toEncodedMode(): Int = when (this) {
         MusicalMode.MINOR -> 0
         MusicalMode.MAJOR -> 1
     }
 
     @TypeConverter
-    internal fun decodeMusicalMode(mode: Int): MusicalMode = when (mode) {
-        0 -> MusicalMode.MINOR
-        1 -> MusicalMode.MAJOR
-        else -> error("Invalid encoded value for MusicalMode: $mode")
-    }
+    internal fun Int.toMusicalMode(): MusicalMode =
+        decodeMusicalMode(this)
 
     @TypeConverter
-    internal fun encodePitch(key: Pitch?): Int? = when (key) {
+    internal fun Pitch?.toEncodedKey(): Int? = when (this) {
         Pitch.C -> 0
         Pitch.C_SHARP -> 1
         Pitch.D -> 2
@@ -53,19 +48,6 @@ class EnumConverters {
     }
 
     @TypeConverter
-    internal fun decodePitch(encodedKey: Int?): Pitch? = when (encodedKey) {
-        0 -> Pitch.C
-        1 -> Pitch.C_SHARP
-        2 -> Pitch.D
-        3 -> Pitch.D_SHARP
-        4 -> Pitch.E
-        5 -> Pitch.F
-        6 -> Pitch.F_SHARP
-        7 -> Pitch.G
-        8 -> Pitch.G_SHARP
-        9 -> Pitch.A
-        10 -> Pitch.A_SHARP
-        11 -> Pitch.B
-        else -> null
-    }
+    internal fun Int?.toPitchKey(): Pitch? =
+        decodePitch(this)
 }

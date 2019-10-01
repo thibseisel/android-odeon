@@ -39,7 +39,7 @@ import javax.inject.Named
 internal class SpotifyServiceImpl
 @TestOnly constructor(
     engine: HttpClientEngine,
-    moshi: Moshi,
+    private val moshi: Moshi,
     private val accountsService: SpotifyAccountsService,
     userAgent: String,
     private val clientKey: String,
@@ -56,13 +56,8 @@ internal class SpotifyServiceImpl
         @Named("SPOTIFY_CLIENT_SECRET") clientSecret: String
     ) : this(engine, moshi, accountsService, userAgent, clientKey, clientSecret, null)
 
-    private val deserializer = moshi.newBuilder()
-        .add(MusicalMode::class.java, MusicalModeAdapter())
-        .add(Pitch::class.java, PitchAdapter())
-        .build()
-
     private val errorAdapter: JsonAdapter<SpotifyError> =
-        WrappedJsonAdapter("error", deserializer.adapter(SpotifyError::class.java))
+        WrappedJsonAdapter("error", moshi.adapter(SpotifyError::class.java))
 
     private val artistListAdapter = wrappedListAdapterOf<Artist>("artists")
     private val albumListAdapter = wrappedListAdapterOf<Album>("albums")
@@ -222,7 +217,7 @@ internal class SpotifyServiceImpl
     ): HttpResource<T> = when (response.status) {
 
         HttpStatusCode.OK -> {
-            val adapter = deserializer.adapter(targetType)
+            val adapter = moshi.adapter(targetType)
             val item = adapter.fromJson(response.readText())!!
             HttpResource.Loaded(item)
         }
@@ -307,11 +302,11 @@ internal class SpotifyServiceImpl
 
     private inline fun <reified T : Any> wrappedListAdapterOf(property: String): WrappedJsonAdapter<List<T>> {
         val listType = Types.newParameterizedType(List::class.java, T::class.java)
-        return WrappedJsonAdapter(property, deserializer.adapter(listType))
+        return WrappedJsonAdapter(property, moshi.adapter(listType))
     }
 
     private inline fun <reified T : Any> pagingAdapterOf(): JsonAdapter<Paging<T>> {
         val pagingType = Types.newParameterizedType(Paging::class.java, T::class.java)
-        return deserializer.adapter(pagingType)
+        return moshi.adapter(pagingType)
     }
 }

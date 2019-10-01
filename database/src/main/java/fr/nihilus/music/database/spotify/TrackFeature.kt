@@ -14,26 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.database
+package fr.nihilus.music.database.spotify
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import fr.nihilus.music.spotify.model.AudioFeature
-import fr.nihilus.music.spotify.model.MusicalMode
-import fr.nihilus.music.spotify.model.Pitch
 
 /**
  * Audio features of a specific track.
- *
- * Note: this has been intentionally made separate from [AudioFeature] so that both models
- * can change independently over time.
- * For example this entity may also store confidence scores for each audio feature,
- * which is not directly available on the `audio-feature` endpoint currently.
  */
 @Entity(tableName = "track_feature")
-internal class TrackFeature(
+class TrackFeature(
 
     /**
      * The unique identifier of the analyzed track.
@@ -143,26 +134,41 @@ internal class TrackFeature(
      */
     @ColumnInfo(name = "valence")
     val valence: Float
-) {
-    /**
-     * Create a database entity from the equivalent [AudioFeature] DTO.
-     *
-     * @param feature Source [AudioFeature] from which properties should be copied.
-     */
-    @Ignore
-    constructor(feature: AudioFeature) : this(
-        feature.id,
-        feature.key,
-        feature.mode,
-        feature.tempo,
-        feature.signature,
-        feature.loudness,
-        feature.acousticness,
-        feature.danceability,
-        feature.energy,
-        feature.instrumentalness,
-        feature.liveness,
-        feature.speechiness,
-        feature.valence
-    )
+)
+
+/**
+ * Enumeration of musical modes.
+ */
+enum class MusicalMode {
+    MINOR, MAJOR;
+}
+
+/**
+ * Values map to pitches using standard Pitch Class notation.
+ * E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on.
+ */
+enum class Pitch {
+    C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B;
+}
+
+fun decodeMusicalMode(mode: Int): MusicalMode = when (mode) {
+    0 -> MusicalMode.MINOR
+    1 -> MusicalMode.MAJOR
+    else -> error("Invalid encoded value for MusicalMode: $mode")
+}
+
+fun decodePitch(key: Int?): Pitch? = when (key) {
+    0 -> Pitch.C
+    1 -> Pitch.C_SHARP
+    2 -> Pitch.D
+    3 -> Pitch.D_SHARP
+    4 -> Pitch.E
+    5 -> Pitch.F
+    6 -> Pitch.F_SHARP
+    7 -> Pitch.G
+    8 -> Pitch.G_SHARP
+    9 -> Pitch.A
+    10 -> Pitch.A_SHARP
+    11 -> Pitch.B
+    else -> null
 }

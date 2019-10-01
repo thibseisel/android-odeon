@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify.database
+package fr.nihilus.music.database.spotify
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Define the association between media on the local storage (identified by their [localId])
- * and media metadata found on a remote server with the given [remoteId].
+ * Define the association between media on the local storage (identified by their [trackId])
+ * and media metadata found on a remote server with the given [spotifyId].
  */
-@Entity(tableName = "spotify_link")
-internal class RemoteLink(
+@Entity(tableName = "remote_link")
+class SpotifyLink(
 
     /**
      * The unique identifier of the media stored locally on the device.
@@ -33,14 +33,14 @@ internal class RemoteLink(
      */
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "local_id")
-    val localId: Long,
+    val trackId: Long,
 
     /**
      * The unique identifier of the media as given by the remote server.
      * Currently, only Spotify IDs for tracks are supported.
      */
     @ColumnInfo(name = "remote_id")
-    val remoteId: String,
+    val spotifyId: String,
 
     /**
      * The instant in time at which the association has been created,

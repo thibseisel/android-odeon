@@ -93,4 +93,13 @@ class DatabaseMigrationTest {
             assertThat(it.getLong(2)).isEqualTo(1556447033L)
         }
     }
+
+    @Test
+    fun migration3To4() {
+        val db = helper.createDatabase(TEST_DB, 3)
+        db.close()
+
+        // Check that tables have been added.
+        helper.runMigrationsAndValidate(TEST_DB, 3, false, AppDatabase.MIGRATION_3_4)
+    }
 }
