@@ -39,6 +39,8 @@ import io.kotlintest.shouldNotThrowAny
 import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -542,7 +544,7 @@ class MediaRepositoryTest {
     ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
 
     private object DummyPlaylistDao : PlaylistDao {
-        override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()
+        override val playlists: Flow<List<Playlist>> get() = emptyFlow()
         override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
         override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
         override suspend fun savePlaylist(playlist: Playlist): Long = 0L

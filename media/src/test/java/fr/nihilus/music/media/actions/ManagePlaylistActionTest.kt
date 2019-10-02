@@ -36,6 +36,7 @@ import fr.nihilus.music.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.playlists.TestPlaylistDao
 import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -203,7 +204,7 @@ class ManagePlaylistActionTest {
 }
 
 private object StubPlaylistDao : PlaylistDao {
-    override val playlists: Flowable<List<Playlist>> get() = stub()
+    override val playlists: Flow<List<Playlist>> get() = stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
     override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
     override suspend fun savePlaylist(playlist: Playlist): Long = stub()

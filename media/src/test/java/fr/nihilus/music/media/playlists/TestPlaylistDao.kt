@@ -23,37 +23,42 @@ import fr.nihilus.music.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.provider.TestDao
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 
 internal class TestPlaylistDao(
     initialPlaylists: List<Playlist>? = null,
     initialPlaylistTracks: List<PlaylistTrack> = emptyList()
 ) : PlaylistDao, TestDao<Playlist> {
 
-    private val _playlists =
-        if (initialPlaylists != null) BehaviorProcessor.createDefault(initialPlaylists)
-        else BehaviorProcessor.create()
+    private val _playlists = if (initialPlaylists != null) {
+        ConflatedBroadcastChannel(initialPlaylists)
+    } else ConflatedBroadcastChannel()
 
     private val _playlistTracks = initialPlaylistTracks.toMutableList()
 
-    val currentPlaylists: List<Playlist> get() = _playlists.value.orEmpty()
+    val currentPlaylists: List<Playlist> get() = _playlists.valueOrNull.orEmpty()
     val playlistTracks: List<PlaylistTrack>
         get() = _playlistTracks.toList()
 
-    override val playlists: Flowable<List<Playlist>>
-        get() = _playlists.onBackpressureBuffer()
+    override val playlists: Flow<List<Playlist>>
+        get() = _playlists.asFlow()
 
     override suspend fun savePlaylist(playlist: Playlist): Long {
-        val currentPlaylists = _playlists.value.orEmpty()
+        val currentPlaylists = _playlists.valueOrNull.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 
         val identifier = playlistIds.max() ?: 1L
-        _playlists.onNext(currentPlaylists + playlist.copy(id = identifier))
+        _playlists.offer(currentPlaylists + playlist.copy(id = identifier))
 
         return identifier
     }
 
     override suspend fun addTracks(tracks: List<PlaylistTrack>) {
-        val currentPlaylists = _playlists.value.orEmpty()
+        val currentPlaylists = _playlists.valueOrNull.orEmpty()
         val playlistIds = LongArray(currentPlaylists.size) { currentPlaylists[it].id!! }
 
         val invalidPlaylistTracks = tracks.filter { it.playlistId in playlistIds }
@@ -69,8 +74,8 @@ internal class TestPlaylistDao(
     }
 
     override suspend fun deletePlaylist(playlistId: Long) {
-        _playlists.value?.let { currentPlaylists ->
-            _playlists.onNext(currentPlaylists.filter { it.id == playlistId })
+        _playlists.valueOrNull?.let { currentPlaylists ->
+            _playlists.offer(currentPlaylists.filter { it.id == playlistId })
 
             // Apply on-delete cascade
             _playlistTracks.removeAll { it.playlistId == playlistId }
@@ -94,9 +99,9 @@ internal class TestPlaylistDao(
     }
 
     override fun update(updatedList: List<Playlist>) {
-        val currentPlaylists = _playlists.value.orEmpty()
+        val currentPlaylists = _playlists.valueOrNull.orEmpty()
         val (_, deleted) = diffList(currentPlaylists, updatedList) { a, b -> a.id == b.id }
-        _playlists.onNext(updatedList)
+        _playlists.offer(updatedList)
 
         // Also remove associated playlist tracks.
         deleted.forEach {deletedPlaylist ->
@@ -105,10 +110,10 @@ internal class TestPlaylistDao(
     }
 
     override fun complete() {
-        _playlists.onComplete()
+        _playlists.close()
     }
 
     override fun failWith(exception: Exception) {
-        _playlists.onError(exception)
+        _playlists.close(exception)
     }
 }

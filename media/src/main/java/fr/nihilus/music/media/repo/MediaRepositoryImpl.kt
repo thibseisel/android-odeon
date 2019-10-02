@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.consume
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.broadcastIn
 import kotlinx.coroutines.flow.scanReduce
 import kotlinx.coroutines.reactive.asFlow
@@ -100,7 +101,7 @@ internal class MediaRepositoryImpl
         receive()
     }
 
-    private fun trackSyncCache() = flowCache(mediaDao.tracks) { original, modified ->
+    private fun trackSyncCache() = mediaDao.tracks.asFlow().cacheMedia { original, modified ->
         // Dispatch update notifications to downstream
         _mediaChanges.onNext(ChangeNotification.AllTracks)
 
@@ -133,7 +134,7 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private fun albumSyncCache() = flowCache(mediaDao.albums) { original, modified ->
+    private fun albumSyncCache() = mediaDao.albums.asFlow().cacheMedia { original, modified ->
         // Notify that the list of all albums has changed.
         _mediaChanges.onNext(ChangeNotification.AllAlbums)
 
@@ -149,19 +150,18 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private fun artistSyncCache() = flowCache(mediaDao.artists) { _, _ ->
+    private fun artistSyncCache() = mediaDao.artists.asFlow().cacheMedia { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllArtists)
     }
 
-    private fun playlistSyncCache() = flowCache(playlistsDao.playlists) { _, _ ->
+    private fun playlistSyncCache() = playlistsDao.playlists.cacheMedia { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
     }
 
-    private fun <M : Any> flowCache(
-        mediaUpdateStream: Flowable<List<M>>,
+    private fun <M : Any> Flow<List<M>>.cacheMedia(
         onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
-    ): BroadcastChannel<List<M>> = mediaUpdateStream.asFlow()
-        .scanReduce { original, modified ->
+    ): BroadcastChannel<List<M>> =
+        scanReduce { original, modified ->
             onChanged(original, modified)
             modified
         }

@@ -21,12 +21,13 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistDao {
 
     @get:Query("SELECT * FROM playlist ORDER BY date_created ASC")
-    val playlists: Flowable<List<Playlist>>
+    val playlists: Flow<List<Playlist>>
 
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
     suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
