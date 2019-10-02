@@ -17,47 +17,45 @@
 package fr.nihilus.music.media.repo
 
 import fr.nihilus.music.common.collections.diffList
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
+import fr.nihilus.music.database.usage.UsageDao
+import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.database.usage.UsageDao
 import io.reactivex.Flowable
 import io.reactivex.processors.PublishProcessor
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.reactive.openSubscription
-import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.consume
+import kotlinx.coroutines.flow.broadcastIn
+import kotlinx.coroutines.flow.scanReduce
+import kotlinx.coroutines.reactive.asFlow
 import javax.inject.Inject
-
-private typealias Cache<M> = SendChannel<CompletableDeferred<List<M>>>
 
 @ServiceScoped
 internal class MediaRepositoryImpl
 @Inject constructor(
-    private val scope: CoroutineScope,
+    scope: CoroutineScope,
     private val mediaDao: MediaDao,
     private val playlistsDao: PlaylistDao,
-    private val usageDao: UsageDao,
-    private val dispatchers: AppDispatchers
+    private val usageDao: UsageDao
 ) : MediaRepository {
 
+    private val scope = CoroutineScope(scope.coroutineContext + SupervisorJob())
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
 
-    @Volatile private var tracksCache = scope.trackSyncCache()
-    @Volatile private var albumsCache = scope.albumSyncCache()
-    @Volatile private var artistsCache = scope.artistSyncCache()
-    @Volatile private var playlistsCache = scope.playlistSyncCache()
+    @Volatile private var tracksCache = trackSyncCache()
+    @Volatile private var albumsCache = albumSyncCache()
+    @Volatile private var artistsCache = artistSyncCache()
+    @Volatile private var playlistsCache = playlistSyncCache()
 
     override suspend fun getTracks(): List<Track> {
         if (tracksCache.isClosedForSend) {
-            tracksCache = scope.trackSyncCache()
+            tracksCache = trackSyncCache()
         }
 
         return request(tracksCache)
@@ -65,7 +63,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getAlbums(): List<Album> {
         if (albumsCache.isClosedForSend) {
-            albumsCache = scope.albumSyncCache()
+            albumsCache = albumSyncCache()
         }
 
         return request(albumsCache)
@@ -73,7 +71,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getArtists(): List<Artist> {
         if (artistsCache.isClosedForSend) {
-            artistsCache = scope.artistSyncCache()
+            artistsCache = artistSyncCache()
         }
 
         return request(artistsCache)
@@ -81,7 +79,7 @@ internal class MediaRepositoryImpl
 
     override suspend fun getPlaylists(): List<Playlist> {
         if (playlistsCache.isClosedForSend) {
-            playlistsCache = scope.playlistSyncCache()
+            playlistsCache = playlistSyncCache()
         }
 
         return request(playlistsCache)
@@ -98,13 +96,11 @@ internal class MediaRepositoryImpl
     override val changeNotifications: Flowable<ChangeNotification>
         get() = _mediaChanges.onBackpressureBuffer()
 
-    private suspend fun <T> request(cache: Cache<T>): List<T> {
-        val mediaRequest = CompletableDeferred<List<T>>()
-        cache.send(mediaRequest)
-        return mediaRequest.await()
+    private suspend fun <T> request(cache: BroadcastChannel<List<T>>): List<T> = cache.consume {
+        receive()
     }
 
-    private fun CoroutineScope.trackSyncCache() = syncCache(mediaDao.tracks) { original, modified ->
+    private fun trackSyncCache() = flowCache(mediaDao.tracks) { original, modified ->
         // Dispatch update notifications to downstream
         _mediaChanges.onNext(ChangeNotification.AllTracks)
 
@@ -137,7 +133,7 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private fun CoroutineScope.albumSyncCache() = syncCache(mediaDao.albums) { original, modified ->
+    private fun albumSyncCache() = flowCache(mediaDao.albums) { original, modified ->
         // Notify that the list of all albums has changed.
         _mediaChanges.onNext(ChangeNotification.AllAlbums)
 
@@ -153,67 +149,21 @@ internal class MediaRepositoryImpl
         }
     }
 
-    private fun CoroutineScope.artistSyncCache() = syncCache(mediaDao.artists) { _, _ ->
+    private fun artistSyncCache() = flowCache(mediaDao.artists) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllArtists)
     }
 
-    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlists) { _, _ ->
+    private fun playlistSyncCache() = flowCache(playlistsDao.playlists) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
     }
 
-    private fun <M : Any> CoroutineScope.syncCache(
+    private fun <M : Any> flowCache(
         mediaUpdateStream: Flowable<List<M>>,
         onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
-    ): Cache<M> = actor(dispatchers.Default, start = CoroutineStart.LAZY) {
-        // Wait until media are requested for the first time before observing.
-        val firstRequest = receive()
-
-        // Start observing media to a Channel.
-        val mediaUpdates = mediaUpdateStream.openSubscription()
-
-        // Cache the last received media list.
-        var lastReceivedMediaList: List<M>
-
-        try {
-            // Receive the current media list.
-            // This fails if permission is denied.
-            lastReceivedMediaList = mediaUpdates.receive()
-
-            // Satisfy the first request.
-            firstRequest.complete(lastReceivedMediaList)
-
-        } catch (e: PermissionDeniedException) {
-            firstRequest.completeExceptionally(e)
-            throw CancellationException()
+    ): BroadcastChannel<List<M>> = mediaUpdateStream.asFlow()
+        .scanReduce { original, modified ->
+            onChanged(original, modified)
+            modified
         }
-
-        try {
-            // Process incoming messages until scope is cancelled...
-            while (isActive) {
-                select<Unit> {
-                    // When receiving a request to load media from cache...
-                    onReceive { request ->
-                        // Satisfy it immediately.
-                        request.complete(lastReceivedMediaList)
-                    }
-
-                    // When receiving an up to date media list...
-                    if (!mediaUpdates.isClosedForReceive) {
-                        mediaUpdates.onReceiveOrNull { upToDateMediaList ->
-                            if (upToDateMediaList != null) {
-                                // Replace the cached list and notify for the change.
-                                val oldMediaList = lastReceivedMediaList
-                                lastReceivedMediaList = upToDateMediaList
-
-                                onChanged(oldMediaList, upToDateMediaList)
-                            }
-                        }
-                    }
-                }
-            }
-
-        } finally {
-            mediaUpdates.cancel()
-        }
-    }
+        .broadcastIn(scope)
 }

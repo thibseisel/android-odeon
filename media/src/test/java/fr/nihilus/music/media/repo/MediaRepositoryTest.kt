@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.repo
 
 import android.Manifest
-import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.database.playlists.Playlist
@@ -56,7 +55,6 @@ import org.junit.Test
 class MediaRepositoryTest {
 
     private val dispatcher = TestCoroutineDispatcher()
-    private val dispatchers = AppDispatchers(dispatcher)
 
     @After
     fun cleanup() {
@@ -114,37 +112,35 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting tracks then throw PermissionDeniedException`() =
-        test {
-            val failingTrackDao = TestTrackDao()
-            failingTrackDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
+    fun `Given denied permission, when requesting tracks then throw PermissionDeniedException`() = test {
+        val failingTrackDao = TestTrackDao()
+        failingTrackDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = failingTrackDao)
-                val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getTracks()
-                }
-
-                permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = failingTrackDao)
+            val permissionException = shouldThrow<PermissionDeniedException> {
+                repository.getTracks()
             }
+
+            permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
         }
+    }
 
     @Test
-    fun `Given denied permission, when requesting tracks after being granted then load the current track list`() =
-        test {
-            val grantingPermissionDao = PermissionMediaDao()
-            grantingPermissionDao.hasPermissions = false
+    fun `Given denied permission, when requesting tracks after being granted then load the current track list`() = test {
+        val grantingPermissionDao = PermissionMediaDao()
+        grantingPermissionDao.hasPermissions = false
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getTracks() }
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
+            runCatching { repository.getTracks() }
 
-                grantingPermissionDao.hasPermissions = true
-                shouldNotThrowAny {
-                    repository.getTracks()
-                }
+            grantingPermissionDao.hasPermissions = true
+            shouldNotThrowAny {
+                repository.getTracks()
             }
         }
+    }
 
     @Test
     fun `When requesting albums, then load albums from Dao`() = test {
@@ -182,37 +178,35 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting albums then throw PermissionDeniedException`() =
-        test {
-            val failingAlbumDao = TestAlbumDao()
-            failingAlbumDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
+    fun `Given denied permission, when requesting albums then throw PermissionDeniedException`() = test {
+        val failingAlbumDao = TestAlbumDao()
+        failingAlbumDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = failingAlbumDao)
-                val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getAlbums()
-                }
-
-                permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = failingAlbumDao)
+            val permissionException = shouldThrow<PermissionDeniedException> {
+                repository.getAlbums()
             }
+
+            permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
         }
+    }
 
     @Test
-    fun `Given denied permission, when requesting albums after being granted then load the current album list`() =
-        test {
-            val grantingPermissionDao = PermissionMediaDao()
-            grantingPermissionDao.hasPermissions = false
+    fun `Given denied permission, when requesting albums after being granted then load the current album list`() = test {
+        val grantingPermissionDao = PermissionMediaDao()
+        grantingPermissionDao.hasPermissions = false
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getAlbums() }
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
+            runCatching { repository.getAlbums() }
 
-                grantingPermissionDao.hasPermissions = true
-                shouldNotThrowAny {
-                    repository.getAlbums()
-                }
+            grantingPermissionDao.hasPermissions = true
+            shouldNotThrowAny {
+                repository.getAlbums()
             }
         }
+    }
 
     @Test
     fun `When requesting artists, then load artists from Dao`() = test {
@@ -250,37 +244,35 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting artists then throw PermissionDeniedException`() =
-        test {
-            val failingArtistDao = TestArtistDao()
-            failingArtistDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
+    fun `Given denied permission, when requesting artists then throw PermissionDeniedException`() = test {
+        val failingArtistDao = TestArtistDao()
+        failingArtistDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = failingArtistDao)
-                val permissionException = shouldThrow<PermissionDeniedException> {
-                    repository.getArtists()
-                }
-
-                permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = failingArtistDao)
+            val permissionException = shouldThrow<PermissionDeniedException> {
+                repository.getArtists()
             }
+
+            permissionException.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
         }
+    }
 
     @Test
-    fun `Given denied permission, when requesting artists after being granted then load the current artist list`() =
-        test {
-            val grantingPermissionDao = PermissionMediaDao()
-            grantingPermissionDao.hasPermissions = false
+    fun `Given denied permission, when requesting artists after being granted then load the current artist list`() = test {
+        val grantingPermissionDao = PermissionMediaDao()
+        grantingPermissionDao.hasPermissions = false
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
-                runCatching { repository.getArtists() }
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = grantingPermissionDao)
+            runCatching { repository.getArtists() }
 
-                grantingPermissionDao.hasPermissions = true
-                shouldNotThrowAny {
-                    repository.getArtists()
-                }
+            grantingPermissionDao.hasPermissions = true
+            shouldNotThrowAny {
+                repository.getArtists()
             }
         }
+    }
 
     @Test
     fun `When requesting playlists, then load playlist from Dao`() = test {
@@ -318,62 +310,58 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given the id of a playlist that does not exists, when requesting its tracks then return null`() =
-        test {
-            val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-            val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
+    fun `Given the id of a playlist that does not exists, when requesting its tracks then return null`() = test {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao, playlistDao)
-                val playlistTracks = repository.getPlaylistTracks(42L)
+        runInScope {
+            val repository = MediaRepository(this, mediaDao, playlistDao)
+            val playlistTracks = repository.getPlaylistTracks(42L)
 
-                playlistTracks.shouldBeNull()
-            }
+            playlistTracks.shouldBeNull()
         }
+    }
 
     @Test
-    fun `Given an empty existing playlist, when requesting its tracks then return an empty list`() =
-        test {
-            val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-            val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, emptyList())
+    fun `Given an empty existing playlist, when requesting its tracks then return an empty list`() = test {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, emptyList())
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao, playlistDao)
-                val playlistTracks = repository.getPlaylistTracks(1L)
+        runInScope {
+            val repository = MediaRepository(this, mediaDao, playlistDao)
+            val playlistTracks = repository.getPlaylistTracks(1L)
 
-                playlistTracks.shouldNotBeNull()
-                playlistTracks.shouldBeEmpty()
-            }
+            playlistTracks.shouldNotBeNull()
+            playlistTracks.shouldBeEmpty()
         }
+    }
 
     @Test
-    fun `Given an existing playlist, when requesting its tracks then load them from both Dao`() =
-        test {
-            val mediaDao = TestTrackDao(SAMPLE_TRACKS)
-            val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
+    fun `Given an existing playlist, when requesting its tracks then load them from both Dao`() = test {
+        val mediaDao = TestTrackDao(SAMPLE_TRACKS)
+        val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao, playlistDao)
-                val playlistTracks = repository.getPlaylistTracks(1L)
+        runInScope {
+            val repository = MediaRepository(this, mediaDao, playlistDao)
+            val playlistTracks = repository.getPlaylistTracks(1L)
 
-                playlistTracks.shouldNotBeNull()
-                playlistTracks.shouldContainExactly(SAMPLE_TRACKS[1])
-            }
+            playlistTracks.shouldNotBeNull()
+            playlistTracks.shouldContainExactly(SAMPLE_TRACKS[1])
         }
+    }
 
     @Test
-    fun `When track list changed for the first time, then do not dispatch change notifications`() =
-        test {
-            val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
+    fun `When track list changed for the first time, then do not dispatch change notifications`() = test {
+        val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
-            runInScope {
-                val repository = MediaRepository(this, mediaDao)
-                val subscriber = repository.changeNotifications.test()
+        runInScope {
+            val repository = MediaRepository(this, mediaDao)
+            val subscriber = repository.changeNotifications.test()
 
-                repository.getTracks()
-                subscriber.assertNoValues()
-            }
+            repository.getTracks()
+            subscriber.assertNoValues()
         }
+    }
 
     @Test
     fun `When receiving a track list update, then notify a change of all tracks`() = test {
@@ -400,60 +388,58 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving a track list update, then notify for the album of each modified track`() =
-        test {
-            val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
-            val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
+    fun `When receiving a track list update, then notify for the album of each modified track`() = test {
+        val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
+        val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
 
-            // Given a dao with the specified initial tracks...
-            val mediaDao = TestTrackDao(initialTrackList = initial)
+        // Given a dao with the specified initial tracks...
+        val mediaDao = TestTrackDao(initialTrackList = initial)
 
-            runInScope {
-                // and a repository that started caching tracks...
-                val repository = MediaRepository(this, mediaDao)
-                repository.getTracks()
+        runInScope {
+            // and a repository that started caching tracks...
+            val repository = MediaRepository(this, mediaDao)
+            repository.getTracks()
 
-                // and we are listening to media change notifications...
-                val subscriber = repository.changeNotifications.test()
+            // and we are listening to media change notifications...
+            val subscriber = repository.changeNotifications.test()
 
-                // when receiving a new track list
-                mediaDao.update(updated)
+            // when receiving a new track list
+            mediaDao.update(updated)
 
-                // Then receive the expected notifications.
-                subscriber.values().shouldContainAll(
-                    ChangeNotification.Album(65),
-                    ChangeNotification.Album(102)
-                )
-            }
+            // Then receive the expected notifications.
+            subscriber.values().shouldContainAll(
+                ChangeNotification.Album(65),
+                ChangeNotification.Album(102)
+            )
         }
+    }
 
     @Test
-    fun `When receiving a track list update, then notify for the artist of each modified track`() =
-        test {
-            val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
-            val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
+    fun `When receiving a track list update, then notify for the artist of each modified track`() = test {
+        val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
+        val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
 
-            // Given a dao with the specified initial tracks...
-            val mediaDao = TestTrackDao(initialTrackList = initial)
+        // Given a dao with the specified initial tracks...
+        val mediaDao = TestTrackDao(initialTrackList = initial)
 
-            runInScope {
-                // and a repository that started caching tracks...
-                val repository = MediaRepository(this, mediaDao)
-                repository.getTracks()
+        runInScope {
+            // and a repository that started caching tracks...
+            val repository = MediaRepository(this, mediaDao)
+            repository.getTracks()
 
-                // and we are listening to media change notifications...
-                val subscriber = repository.changeNotifications.test()
+            // and we are listening to media change notifications...
+            val subscriber = repository.changeNotifications.test()
 
-                // when receiving a new track list
-                mediaDao.update(updated)
+            // when receiving a new track list
+            mediaDao.update(updated)
 
-                // Then receive the expected notifications.
-                subscriber.values().shouldContainAll(
-                    ChangeNotification.Artist(26),
-                    ChangeNotification.Artist(13)
-                )
-            }
+            // Then receive the expected notifications.
+            subscriber.values().shouldContainAll(
+                ChangeNotification.Artist(26),
+                ChangeNotification.Artist(13)
+            )
         }
+    }
 
     @Test
     fun `When receiving an album list update, then notify a change of all albums`() = test {
@@ -480,32 +466,31 @@ class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving an album list update, then notify for the artist of each modified album`() =
-        test {
-            val initial = listOf(SAMPLE_ALBUMS[0], SAMPLE_ALBUMS[1])
-            val updated = listOf(SAMPLE_ALBUMS[1], SAMPLE_ALBUMS[2])
+    fun `When receiving an album list update, then notify for the artist of each modified album`() = test {
+        val initial = listOf(SAMPLE_ALBUMS[0], SAMPLE_ALBUMS[1])
+        val updated = listOf(SAMPLE_ALBUMS[1], SAMPLE_ALBUMS[2])
 
-            // Given a dao with the specified initial albums...
-            val mediaDao = TestAlbumDao(initialAlbumList = initial)
+        // Given a dao with the specified initial albums...
+        val mediaDao = TestAlbumDao(initialAlbumList = initial)
 
-            runInScope {
-                // and a repository that started caching albums...
-                val repository = MediaRepository(this, mediaDao)
-                repository.getAlbums()
+        runInScope {
+            // and a repository that started caching albums...
+            val repository = MediaRepository(this, mediaDao)
+            repository.getAlbums()
 
-                // and we are listening to media change notifications...
-                val subscriber = repository.changeNotifications.test()
+            // and we are listening to media change notifications...
+            val subscriber = repository.changeNotifications.test()
 
-                // when receiving a new album list
-                mediaDao.update(updated)
+            // when receiving a new album list
+            mediaDao.update(updated)
 
-                // Then receive the expected notifications.
-                subscriber.values().shouldContainAll(
-                    ChangeNotification.Artist(18),
-                    ChangeNotification.Artist(13)
-                )
-            }
+            // Then receive the expected notifications.
+            subscriber.values().shouldContainAll(
+                ChangeNotification.Artist(18),
+                ChangeNotification.Artist(13)
+            )
         }
+    }
 
     @Test
     fun `When receiving playlists update, then notify a change of all playlists`() = test {
@@ -555,7 +540,7 @@ class MediaRepositoryTest {
         mediaDao: MediaDao = DummyMediaDao,
         playlistDao: PlaylistDao = DummyPlaylistDao,
         usageDao: UsageDao = DummyUsageDao
-    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao, dispatchers)
+    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
 
     private object DummyPlaylistDao : PlaylistDao {
         override val playlists: Flowable<List<Playlist>> get() = Flowable.empty()

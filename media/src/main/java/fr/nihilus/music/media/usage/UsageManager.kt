@@ -118,8 +118,7 @@ internal class UsageManagerImpl
 
     override fun reportCompletion(trackId: Long) {
         scope.launch {
-            val newEvent =
-                MediaUsageEvent(0, trackId, clock.currentEpochTime)
+            val newEvent = MediaUsageEvent(0, trackId, clock.currentEpochTime)
             usageDao.recordEvent(newEvent)
         }
     }
