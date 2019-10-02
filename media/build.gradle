@@ -66,11 +66,6 @@ android {
         // Include Android resources in unit tests to be resolved by Robolectric.
         unitTests.includeAndroidResources = true
     }
-
-    sourceSets {
-        // Add Room schemas to test sources in order to test database migrations.
-        androidTest.assets.srcDirs += files("$projectDir/schemas")
-    }
 }
 
 dependencies {
