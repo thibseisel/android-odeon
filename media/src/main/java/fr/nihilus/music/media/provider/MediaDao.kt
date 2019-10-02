@@ -84,6 +84,7 @@ internal interface MediaDao {
      * this operation will fail with [PermissionDeniedException].
      *
      * @param trackIds The unique identifiers of tracks to be deleted.
+     * @return the number of tracks that have been successfully deleted.
      */
-    fun deleteTracks(trackIds: LongArray): Completable
+    suspend fun deleteTracks(trackIds: LongArray): Int
 }

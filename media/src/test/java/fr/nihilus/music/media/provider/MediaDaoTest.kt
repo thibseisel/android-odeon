@@ -22,8 +22,10 @@ import fr.nihilus.music.common.context.RxSchedulers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
 import fr.nihilus.music.media.provider.MediaProvider.Observer
+import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
 import io.reactivex.schedulers.TestScheduler
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
@@ -162,15 +164,14 @@ class MediaDaoTest {
     }
 
     @Test
-    fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() {
+    fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() = runBlockingTest {
         val provider = TestMediaProvider()
         provider.hasStoragePermission = false
         val mediaDao = MediaDaoImpl(provider, schedulers)
 
-        val observer = mediaDao.deleteTracks(longArrayOf(161L)).test()
-        testScheduler.triggerActions()
-
-        observer.assertError(PermissionDeniedException::class.java)
+        shouldThrow<PermissionDeniedException> {
+            mediaDao.deleteTracks(longArrayOf(161L))
+        }
     }
 
     private fun shouldUnregisterObserverOnDisposal(

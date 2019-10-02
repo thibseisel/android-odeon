@@ -25,7 +25,7 @@ import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.di.ServiceScoped
 import fr.nihilus.music.database.playlists.PlaylistDao
-import fr.nihilus.music.media.provider.MediaProvider
+import fr.nihilus.music.media.provider.MediaDao
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -37,14 +37,14 @@ import javax.inject.Inject
  * See [CustomActions.ACTION_DELETE_MEDIA] for detailed usage.
  *
  * @constructor
- * @param provider The dao used for deleting tracks.
+ * @param dao The dao used for deleting tracks.
  * @param playlistDao The dao used for deleting playlists.
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
 @ServiceScoped
 internal class DeleteAction
 @Inject constructor(
-    private val provider: MediaProvider,
+    private val dao: MediaDao,
     private val playlistDao: PlaylistDao,
     private val dispatchers: AppDispatchers
 ) : BrowserAction {
@@ -105,7 +105,7 @@ internal class DeleteAction
             // Proceed with deleting tracks, if any.
             val deletedTrackCount = if (deletedTrackIds.isEmpty()) 0 else withContext(dispatchers.IO) {
                 val trackIds = LongArray(deletedTrackIds.size) { deletedTrackIds[it] }
-                provider.deleteTracks(trackIds)
+                dao.deleteTracks(trackIds)
             }
 
             return Bundle(1).apply {

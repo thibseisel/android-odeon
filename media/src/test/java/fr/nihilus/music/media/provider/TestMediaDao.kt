@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
+import fr.nihilus.music.common.test.stub
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
@@ -35,8 +36,7 @@ internal sealed class TestMediaDao<M>(initialList: List<M>?) : MediaDao, TestDao
     override val tracks: Flowable<List<Track>> get() = Flowable.never()
     override val albums: Flowable<List<Album>> get() = Flowable.never()
     override val artists: Flowable<List<Artist>> get() = Flowable.never()
-
-    final override fun deleteTracks(trackIds: LongArray) = Completable.complete()
+    final override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 
     override fun update(updatedList: List<M>) {
         mediaStream.onNext(updatedList)

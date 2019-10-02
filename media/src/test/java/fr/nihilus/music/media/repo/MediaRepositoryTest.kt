@@ -37,7 +37,6 @@ import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotThrowAny
 import io.kotlintest.shouldThrow
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -556,7 +555,7 @@ class MediaRepositoryTest {
         override val tracks: Flowable<List<Track>> get() = Flowable.empty()
         override val albums: Flowable<List<Album>> get() = Flowable.empty()
         override val artists: Flowable<List<Artist>> get() = Flowable.empty()
-        override fun deleteTracks(trackIds: LongArray): Completable = Completable.complete()
+        override suspend fun deleteTracks(trackIds: LongArray) = 0
     }
 
     private object DummyUsageDao : UsageDao {
@@ -586,8 +585,7 @@ class MediaRepositoryTest {
         override val artists: Flowable<List<Artist>>
             get() = if (hasPermissions) mediaUpdates() else permissionFailure()
 
-        override fun deleteTracks(trackIds: LongArray): Completable =
-            stub()
+        override suspend fun deleteTracks(trackIds: LongArray) = stub()
 
         private fun <T> mediaUpdates(): Flowable<List<T>> =
             Flowable.concat(Flowable.just(emptyList()), Flowable.never())

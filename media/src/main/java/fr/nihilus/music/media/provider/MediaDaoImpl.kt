@@ -19,7 +19,6 @@ package fr.nihilus.music.media.provider
 import fr.nihilus.music.common.context.RxSchedulers
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.BackpressureStrategy
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposables
@@ -54,9 +53,9 @@ internal class MediaDaoImpl
         provider::queryArtists
     )
 
-    override fun deleteTracks(trackIds: LongArray): Completable = Completable.fromAction {
-        provider.deleteTracks(trackIds)
-    }.subscribeOn(schedulers.Database)
+    override suspend fun deleteTracks(trackIds: LongArray): Int {
+        return provider.deleteTracks(trackIds)
+    }
 
     private fun produceUpdateQueryTrigger(mediaType: MediaProvider.MediaType) = Flowable.create<Unit>({ emitter ->
         val observer = object : MediaProvider.Observer(mediaType) {
