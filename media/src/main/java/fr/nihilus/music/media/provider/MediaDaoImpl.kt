@@ -16,12 +16,14 @@
 
 package fr.nihilus.music.media.provider
 
+import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.context.RxSchedulers
 import fr.nihilus.music.media.di.ServiceScoped
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposables
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -35,7 +37,8 @@ import javax.inject.Inject
 internal class MediaDaoImpl
 @Inject constructor(
     private val provider: MediaProvider,
-    private val schedulers: RxSchedulers
+    private val schedulers: RxSchedulers,
+    private val dispatchers: AppDispatchers
 ) : MediaDao {
 
     override val tracks: Flowable<List<Track>> = produceUpToDateMediaList(
@@ -53,8 +56,8 @@ internal class MediaDaoImpl
         provider::queryArtists
     )
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int {
-        return provider.deleteTracks(trackIds)
+    override suspend fun deleteTracks(trackIds: LongArray): Int = withContext(dispatchers.IO) {
+        provider.deleteTracks(trackIds)
     }
 
     private fun produceUpdateQueryTrigger(mediaType: MediaProvider.MediaType) = Flowable.create<Unit>({ emitter ->

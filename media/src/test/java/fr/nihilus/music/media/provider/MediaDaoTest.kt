@@ -18,6 +18,7 @@ package fr.nihilus.music.media.provider
 
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.context.RxSchedulers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
@@ -25,6 +26,7 @@ import fr.nihilus.music.media.provider.MediaProvider.Observer
 import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
 import io.reactivex.schedulers.TestScheduler
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.TimeUnit
@@ -33,6 +35,7 @@ class MediaDaoTest {
 
     private val testScheduler = TestScheduler()
     private val schedulers = RxSchedulers(testScheduler)
+    private val dispatchers = AppDispatchers(TestCoroutineDispatcher())
 
     @Test
     fun givenDeniedPermission_whenSubscribingTracks_thenTerminateWithPermissionDeniedException() {
@@ -96,40 +99,40 @@ class MediaDaoTest {
 
     @Test
     fun whenSubscribingTracks_thenLoadCurrentTrackList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS), schedulers, dispatchers)
         shouldLoadMediaOnSubscription(mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun whenSubscribingAlbums_thenLoadCurrentAlbumList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS), schedulers, dispatchers)
         shouldLoadMediaOnSubscription(mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun whenSubscribingArtists_thenLoadCurrentArtistList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS), schedulers, dispatchers)
         shouldLoadMediaOnSubscription(mediaDao.artists, SAMPLE_ARTISTS)
     }
 
     @Test
     fun givenTrackSubscription_whenNotifiedForChange_thenReloadTrackList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
         shouldReloadMediaWhenNotified(provider, MediaType.TRACKS, mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun givenAlbumSubscription_whenNotifiedForChange_thenReloadAlbumList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
         shouldReloadMediaWhenNotified(provider, MediaType.ALBUMS, mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun givenArtistSubscription_whenNotifiedForChange_thenReloadArtistList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
         shouldReloadMediaWhenNotified(provider, MediaType.ARTISTS, mediaDao.artists, SAMPLE_ARTISTS)
     }
 
@@ -167,7 +170,7 @@ class MediaDaoTest {
     fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() = runBlockingTest {
         val provider = TestMediaProvider()
         provider.hasStoragePermission = false
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
 
         shouldThrow<PermissionDeniedException> {
             mediaDao.deleteTracks(longArrayOf(161L))
@@ -179,7 +182,7 @@ class MediaDaoTest {
         streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -194,7 +197,7 @@ class MediaDaoTest {
         streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers)
+        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
 
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -227,7 +230,7 @@ class MediaDaoTest {
 
     private fun shouldNeverComplete(streamProvider: MediaDao.() -> Flowable<out Any>) {
         // Given a realistic provider...
-        val mediaDao = MediaDaoImpl(TestMediaProvider(), schedulers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(), schedulers, dispatchers)
 
         // When subscribing and waiting for a long time...
         val subscriber = mediaDao.streamProvider().test()
@@ -243,7 +246,7 @@ class MediaDaoTest {
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers, dispatchers)
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 
@@ -262,7 +265,7 @@ class MediaDaoTest {
         val deniedProvider = TestMediaProvider()
         deniedProvider.hasStoragePermission = false
 
-        val mediaDao = MediaDaoImpl(deniedProvider, schedulers)
+        val mediaDao = MediaDaoImpl(deniedProvider, schedulers, dispatchers)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -276,7 +279,7 @@ class MediaDaoTest {
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers, dispatchers)
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 
