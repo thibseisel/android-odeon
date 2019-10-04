@@ -116,18 +116,7 @@ internal class ManagePlaylistAction
             extractTrackIdFrom(encodedId)
         } else LongArray(0)
 
-        val newPlaylistId = playlistDao.savePlaylist(
-            Playlist(title, playlistIconUri)
-        )
-
-        val newPlaylistTracks = trackIds.map { trackId ->
-            PlaylistTrack(newPlaylistId, trackId)
-        }
-
-        if (newPlaylistTracks.isNotEmpty()) {
-            playlistDao.addTracks(newPlaylistTracks)
-        }
-
+        playlistDao.createPlaylist(Playlist(title, playlistIconUri), trackIds)
         return null
     }
 
@@ -171,7 +160,7 @@ internal class ManagePlaylistAction
             CustomActions.ERROR_CODE_PARAMETER,
             "Executing this action required at least the following parameters: " +
                     "${CustomActions.EXTRA_TITLE} (creating a playlist), or " +
-                    "${CustomActions.EXTRA_PLAYLIST_ID} and ${CustomActions.EXTRA_MEDIA_IDS} (adding tracks t a playlist)"
+                    "${CustomActions.EXTRA_PLAYLIST_ID} and ${CustomActions.EXTRA_MEDIA_IDS} (adding tracks to a playlist)"
         )
     }
 }

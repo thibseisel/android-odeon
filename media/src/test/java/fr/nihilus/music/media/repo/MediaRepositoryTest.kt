@@ -543,7 +543,7 @@ class MediaRepositoryTest {
         usageDao: UsageDao = DummyUsageDao
     ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
 
-    private object DummyPlaylistDao : PlaylistDao {
+    private object DummyPlaylistDao : PlaylistDao() {
         override val playlists: Flow<List<Playlist>> get() = emptyFlow()
         override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
         override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)

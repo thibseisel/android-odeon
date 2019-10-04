@@ -203,7 +203,7 @@ class ManagePlaylistActionTest {
     }
 }
 
-private object StubPlaylistDao : PlaylistDao {
+private object StubPlaylistDao : PlaylistDao() {
     override val playlists: Flow<List<Playlist>> get() = stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
     override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()

@@ -21,10 +21,6 @@ import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.provider.TestDao
-import io.reactivex.Flowable
-import io.reactivex.processors.BehaviorProcessor
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -32,7 +28,7 @@ import kotlinx.coroutines.flow.asFlow
 internal class TestPlaylistDao(
     initialPlaylists: List<Playlist>? = null,
     initialPlaylistTracks: List<PlaylistTrack> = emptyList()
-) : PlaylistDao, TestDao<Playlist> {
+) : PlaylistDao(), TestDao<Playlist> {
 
     private val _playlists = if (initialPlaylists != null) {
         ConflatedBroadcastChannel(initialPlaylists)
@@ -66,7 +62,7 @@ internal class TestPlaylistDao(
             buildString {
                 append("Attempt to add playlist tracks ")
                 invalidPlaylistTracks.joinTo(this, ", ", "[", "]")
-                append(" that does not match to an existing playlist.")
+                append(" that does not match an existing playlist.")
             }
         }
 
