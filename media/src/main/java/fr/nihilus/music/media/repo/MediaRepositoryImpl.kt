@@ -94,6 +94,14 @@ internal class MediaRepositoryImpl
         return playlistMembers.mapNotNull { tracksById[it.trackId] }.takeUnless { it.isEmpty() }
     }
 
+    override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) {
+        playlistsDao.createPlaylist(newPlaylist, trackIds)
+    }
+
+    override suspend fun deletePlaylist(playlistId: Long) = playlistsDao.deletePlaylist(playlistId)
+
+    override suspend fun deleteTracks(trackIds: LongArray): Int = mediaDao.deleteTracks(trackIds)
+
     override val changeNotifications: Flowable<ChangeNotification>
         get() = _mediaChanges.onBackpressureBuffer()
 

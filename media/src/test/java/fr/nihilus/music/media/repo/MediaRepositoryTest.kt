@@ -17,7 +17,9 @@
 package fr.nihilus.music.media.repo
 
 import android.Manifest
+import android.net.Uri
 import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.common.test.neverFlow
 import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
@@ -37,10 +39,13 @@ import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotThrowAny
 import io.kotlintest.shouldThrow
+import io.mockk.*
 import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -352,6 +357,58 @@ class MediaRepositoryTest {
     }
 
     @Test
+    fun `When creating a playlist, then delegate to PlaylistDao`() = test {
+        val newPlaylist = Playlist("My Favorites", Uri.EMPTY)
+        val playlistTracks = longArrayOf(481L, 75L)
+
+        val mockDao = mockk<PlaylistDao> {
+            coEvery { playlists } returns neverFlow()
+            coEvery { createPlaylist(any(), any()) } just Runs
+        }
+
+        runInScope {
+            val repository = MediaRepository(this, playlistDao = mockDao)
+            repository.createPlaylist(newPlaylist, playlistTracks)
+        }
+
+        coVerify(exactly = 1) { mockDao.createPlaylist(newPlaylist, playlistTracks) }
+    }
+
+    @Test
+    fun `When deleting a playlist, then delegate to PlaylistDao`() = test {
+        val dao = mockk<PlaylistDao> {
+            coEvery { playlists } returns neverFlow()
+            coEvery { deletePlaylist(any()) } just Runs
+        }
+
+        runInScope {
+            val repository = MediaRepository(this, playlistDao = dao)
+            repository.deletePlaylist(3L)
+        }
+
+        coVerify(exactly = 1) { dao.deletePlaylist(3L) }
+    }
+
+    @Test
+    fun `When deleting tracks, then delegate to MediaDao`() = test {
+        val deletedTrackIds = longArrayOf(481L, 75L)
+        val dao = mockk<MediaDao> {
+            coEvery { tracks } returns Flowable.never()
+            coEvery { albums } returns Flowable.never()
+            coEvery { artists } returns Flowable.never()
+            coEvery { deleteTracks(any()) } answers { firstArg<LongArray>().size }
+        }
+
+        runInScope {
+            val repository = MediaRepository(this, mediaDao = dao)
+            val deleteCount = repository.deleteTracks(deletedTrackIds)
+            deleteCount shouldBe 2
+        }
+
+        coVerify(exactly = 1) { dao.deleteTracks(deletedTrackIds) }
+    }
+
+    @Test
     fun `When track list changed for the first time, then do not dispatch change notifications`() = test {
         val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
@@ -544,7 +601,7 @@ class MediaRepositoryTest {
     ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
 
     private object DummyPlaylistDao : PlaylistDao() {
-        override val playlists: Flow<List<Playlist>> get() = emptyFlow()
+        override val playlists: Flow<List<Playlist>> get() = neverFlow()
         override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
         override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
         override suspend fun savePlaylist(playlist: Playlist): Long = 0L

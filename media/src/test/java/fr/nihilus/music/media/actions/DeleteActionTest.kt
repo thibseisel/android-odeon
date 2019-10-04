@@ -32,8 +32,7 @@ import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.database.playlists.PlaylistDao
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.shouldThrow
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -50,23 +49,20 @@ class DeleteActionTest {
     private val dispatcher = TestCoroutineDispatcher()
 
     @MockK
-    private lateinit var mediaDao: MediaDao
-
-    @MockK
-    private lateinit var playlistDao: PlaylistDao
+    private lateinit var repository: MediaRepository
 
     @Before
     fun setUp() = MockKAnnotations.init(this)
 
     @Test
     fun whenReadingName_thenReturnActionDeleteMediaConstant() {
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         assertThat(action.name).isEqualTo(CustomActions.ACTION_DELETE_MEDIA)
     }
 
     @Test
     fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle.EMPTY)
         }
@@ -76,7 +72,7 @@ class DeleteActionTest {
     }
 
     private suspend fun assertUnsupported(mediaId: MediaId) {
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(mediaId.encoded))
@@ -88,9 +84,9 @@ class DeleteActionTest {
 
     @Test
     fun givenDeniedPermissionAndTracks_whenExecuting_thenFailWithDeniedPermission() = dispatcher.runBlockingTest {
-        coEvery { mediaDao.deleteTracks(any()) } throws PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        coEvery { repository.deleteTracks(any()) } throws PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(
@@ -124,33 +120,33 @@ class DeleteActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        coEvery { mediaDao.deleteTracks(any()) } returns 2
+        coEvery { repository.deleteTracks(any()) } returns 2
 
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         action.execute(Bundle(1).apply {
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
         })
 
-        coVerify { mediaDao.deleteTracks(longArrayOf(16L, 42L)) }
+        coVerify { repository.deleteTracks(longArrayOf(16L, 42L)) }
     }
 
     @Test
     fun givenExistingPlaylistIds_whenExecuting_thenDeleteThosePlaylists() = dispatcher.runBlockingTest {
-        coEvery { playlistDao.deletePlaylist(any()) } just Runs
+        coEvery { repository.deletePlaylist(any()) } just Runs
 
         val deletedMediaIds = arrayOf(
             encode(TYPE_PLAYLISTS, "1"),
             encode(TYPE_PLAYLISTS, "2")
         )
 
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         action.execute(Bundle(1).apply {
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
         })
 
-        coVerify {
-            playlistDao.deletePlaylist(1L)
-            playlistDao.deletePlaylist(2L)
+        coVerifyAll {
+            repository.deletePlaylist(1L)
+            repository.deletePlaylist(2L)
         }
     }
 
@@ -161,9 +157,9 @@ class DeleteActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        coEvery { mediaDao.deleteTracks(any()) } returns 2
+        coEvery { repository.deleteTracks(any()) } returns 2
 
-        val action = DeleteAction(mediaDao, playlistDao)
+        val action = DeleteAction(repository)
         val result = action.execute(Bundle(1).apply {
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
         })

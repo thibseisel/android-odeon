@@ -23,8 +23,7 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.database.playlists.PlaylistDao
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.repo.MediaRepository
 import javax.inject.Inject
 
 /**
@@ -41,8 +40,7 @@ import javax.inject.Inject
 @ServiceScoped
 internal class DeleteAction
 @Inject constructor(
-    private val dao: MediaDao,
-    private val playlistDao: PlaylistDao
+    private val repository: MediaRepository
 ) : BrowserAction {
 
     override val name: String
@@ -93,7 +91,7 @@ internal class DeleteAction
         // Proceed with deleting playlists, if any.
         if (deletedPlaylistIds.isNotEmpty()) {
             deletedPlaylistIds.forEach { playlistId ->
-                playlistDao.deletePlaylist(playlistId)
+                repository.deletePlaylist(playlistId)
             }
         }
 
@@ -101,7 +99,7 @@ internal class DeleteAction
             // Proceed with deleting tracks, if any.
             val deletedTrackCount = if (deletedTrackIds.isEmpty()) 0 else {
                 val trackIds = LongArray(deletedTrackIds.size) { deletedTrackIds[it] }
-                dao.deleteTracks(trackIds)
+                repository.deleteTracks(trackIds)
             }
 
             return Bundle(1).apply {

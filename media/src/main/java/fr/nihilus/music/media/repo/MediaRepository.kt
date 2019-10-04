@@ -30,6 +30,9 @@ internal interface MediaRepository {
     suspend fun getArtists(): List<Artist>
     suspend fun getPlaylists(): List<Playlist>
     suspend fun getPlaylistTracks(playlistId: Long): List<Track>?
+    suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray)
+    suspend fun deleteTracks(trackIds: LongArray): Int
+    suspend fun deletePlaylist(playlistId: Long)
 }
 
 internal sealed class ChangeNotification(private val name: String) {
