@@ -81,7 +81,7 @@ class MediaBrowserConnection
 
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
-        ComponentName("fr.nihilus.music.service", "MusicService"),
+        ComponentName(applicationContext, "fr.nihilus.music.service.MusicService"),
         connectionCallback,
         null
     )
