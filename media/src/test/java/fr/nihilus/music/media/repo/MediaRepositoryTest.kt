@@ -18,18 +18,21 @@ package fr.nihilus.music.media.repo
 
 import android.Manifest
 import android.net.Uri
+import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.common.test.neverFlow
 import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.database.playlists.PlaylistTrack
-import fr.nihilus.music.media.playlists.*
-import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.database.usage.MediaUsageEvent
 import fr.nihilus.music.database.usage.TrackScore
 import fr.nihilus.music.database.usage.TrackUsage
 import fr.nihilus.music.database.usage.UsageDao
+import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
+import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
+import fr.nihilus.music.media.playlists.TestPlaylistDao
+import fr.nihilus.music.media.provider.*
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldContainAll
@@ -42,10 +45,7 @@ import io.kotlintest.shouldThrow
 import io.mockk.*
 import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -61,6 +61,7 @@ import org.junit.Test
 class MediaRepositoryTest {
 
     private val dispatcher = TestCoroutineDispatcher()
+    private val dispatchers = AppDispatchers(dispatcher)
 
     @After
     fun cleanup() {
@@ -598,7 +599,7 @@ class MediaRepositoryTest {
         mediaDao: MediaDao = DummyMediaDao,
         playlistDao: PlaylistDao = DummyPlaylistDao,
         usageDao: UsageDao = DummyUsageDao
-    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
+    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao, dispatchers)
 
     private object DummyPlaylistDao : PlaylistDao() {
         override val playlists: Flow<List<Playlist>> get() = neverFlow()
