@@ -55,20 +55,20 @@ internal class MediaStoreSurrogate
         selectionArgs: Array<String>?,
         sortOrder: String?
     ): Cursor? {
-        val tableName = requireNotNull(getTableNameFor(uri)) { "Unsupported Uri: $uri" }
+        val tableName = getTableNameFor(uri)
         val db = inMemoryDatabaseHelper.readableDatabase
         return db.query(tableName, projection, selection, selectionArgs, null, null, sortOrder)
     }
 
-    private fun getTableNameFor(uri: Uri): String? = when (uri) {
+    private fun getTableNameFor(uri: Uri): String = when (uri) {
         Media.EXTERNAL_CONTENT_URI -> TABLE_MEDIA
         Albums.EXTERNAL_CONTENT_URI -> TABLE_ALBUM
         Artists.EXTERNAL_CONTENT_URI -> TABLE_ARTIST
-        else -> null
+        else -> throw IllegalArgumentException("Unsupported uri: $uri")
     }
 
     override fun delete(uri: Uri, where: String?, whereArgs: Array<String>?): Int {
-        val tableName = requireNotNull(getTableNameFor(uri)) { "Unsupported Uri: $uri" }
+        val tableName = getTableNameFor(uri)
         return inMemoryDatabaseHelper.writableDatabase.delete(tableName, where, whereArgs)
     }
 
