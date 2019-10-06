@@ -16,9 +16,17 @@
   -->
 
 <resources>
-    <color name="color_primary">@color/mtrl_deeppurple_300</color>
-    <color name="color_primary_dark">@android:color/black</color>
-    <color name="color_accent">@color/mtrl_blue_a200</color>
+    <color name="color_primary">#b39ddb</color>
+    <color name="color_primary_variant">#320b86</color>
+    <color name="color_primary_light">#e6ceff</color>
+    <color name="color_secondary">#ffd180</color>
+    <color name="color_secondary_variant">#ffd180</color>
+    <color name="color_on_primary">#000000</color>
+    <color name="color_on_secondary">#000000</color>
+    <color name="color_error">#CF6679</color>
+    <color name="color_on_error">#000000</color>
+    <color name="color_on_background">#FFFFFF</color>
+    <color name="color_on_surface">#FFFFFF</color>
 
     <color name="color_control_activated_compat">@color/mtrl_blue_a200</color>
 
@@ -27,4 +35,5 @@
 
     <color name="two_line_list_title">#FFFFFFFF</color>
     <color name="two_line_list_secondary">#CAFFFFFF</color>
+    <color name="elevation_8_overlay">#1DFFFFFF</color>
 </resources>

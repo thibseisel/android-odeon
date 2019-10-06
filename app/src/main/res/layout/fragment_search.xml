@@ -39,9 +39,6 @@
         android:id="@+id/card_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardElevation="4dp"
-        app:cardMaxElevation="4dp"
-        app:cardCornerRadius="@dimen/shape_corner_radius"
         app:cardUseCompatPadding="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +50,7 @@
             android:layout_height="?actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back_24dp"
             app:menu="@menu/menu_search"
-            app:popupTheme="@style/AppTheme.PopupOverlay">
+            app:popupTheme="?actionBarPopupTheme">
 
             <EditText
                 android:id="@+id/search_input"

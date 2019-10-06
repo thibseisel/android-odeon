@@ -15,38 +15,37 @@
   -->
 
 <resources>
-
-    <style name="Theme.MaterialComponents.DayNight" parent="Theme.MaterialComponents.Light"/>
-
     <!--
       - Pointer to the base theme used for both Light and Night.
       - Override this theme to apply API-level specific customizations.
       -->
     <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
 
-    <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight">
+    <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryDark">@color/color_primary_dark</item>
-        <item name="colorAccent">@color/color_accent</item>
-
-        <item name="actionBarTheme">@style/AppTheme.AppBarOverlay</item>
-        <item name="actionBarPopupTheme">@style/AppTheme.PopupOverlay</item>
-
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
+        <item name="colorSecondary">@color/color_secondary</item>
+        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
+        <item name="colorOnSurface">@color/color_on_surface</item>
+        <item name="colorError">@color/color_error</item>
+        <item name="colorOnError">@color/color_on_error</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorOnSecondary">@color/color_on_secondary</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
-        <item name="actionModeBackground">@color/mtrl_deeppurple_300</item>
+        <item name="actionModeBackground">?colorSecondaryVariant</item>
+        <item name="actionMenuTextColor">?colorOnSecondary</item>
         <item name="actionModeCloseDrawable">@drawable/ic_clear_24dp</item>
 
         <!-- Custom style for FastScroller -->
         <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
 
         <!-- Color palette to use for an album that has no album art. -->
-        <item name="albumPalettePrimaryColor">?colorBackgroundFloating</item>
-        <item name="albumPaletteAccentColor">?colorAccent</item>
+        <item name="albumPalettePrimaryColor">?colorSurface</item>
+        <item name="albumPaletteAccentColor">?colorSecondary</item>
         <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimary</item>
         <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondary</item>
-        <item name="albumPaletteTextOnAccentColor">?colorControlNormal</item>
+        <item name="albumPaletteTextOnAccentColor">?colorOnSecondary</item>
 
         <!-- Make the action mode appear above the content instead of above the Toolbar. -->
         <item name="windowActionModeOverlay">true</item>
@@ -62,7 +61,6 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
@@ -70,14 +68,14 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
     </style>
-
+    
     <!-- Style for SeekBar that removes horizontal padding. -->
     <style name="Widget.AppTheme.SeekBar.FullWidth" parent="Widget.AppCompat.SeekBar">
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
 
-    <style name="Widget.AppTheme.CardView" parent="Base.CardView">
+    <style name="Widget.AppTheme.CardView" parent="Widget.MaterialComponents.CardView">
         <item name="cardMaxElevation">@dimen/card_max_elevation</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
@@ -86,15 +84,11 @@
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
-    <style name="Widget.AppTheme.TabLayout.Colored" parent="Widget.MaterialComponents.TabLayout.Colored">
-        <item name="android:background">?colorPrimary</item>
-    </style>
-
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
-
     <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
         <item name="android:minWidth">124dp</item>
         <item name="android:typeface">monospace</item>
+        <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
     <!-- Style applied to the main Scrolling View in layouts that use NowPlayingFragment. -->

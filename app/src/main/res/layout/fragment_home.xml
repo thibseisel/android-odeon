@@ -30,14 +30,13 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:popupTheme="?actionBarPopupTheme"
-            app:title="@string/core_app_name"/>
+            app:title="@string/core_app_name"
+            app:popupTheme="?actionBarPopupTheme"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_host"
-            style="@style/Widget.AppTheme.TabLayout.Colored"
+            style="@style/Widget.MaterialComponents.TabLayout.PrimarySurface"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
         </com.google.android.material.tabs.TabLayout>

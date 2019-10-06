@@ -63,7 +63,7 @@ class HomeActivity : BaseActivity(),
     private val statusBarNavListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             if (destination.id != R.id.fragment_album_detail) {
-                window.statusBarColor = ContextCompat.getColor(this, R.color.color_primary_dark)
+                window.statusBarColor = ContextCompat.getColor(this, R.color.color_primary_variant)
                 window.darkSystemIcons = false
             }
         }

@@ -20,13 +20,18 @@
     <color name="mtrl_blue_a200">#448AFF</color>
     <color name="mtrl_blue_a400">#2979ff</color>
     <color name="mtrl_amber_300">#FFD54F</color>
-    <color name="mtrl_deeppurple_300">#9575cd</color>
-    <color name="mtrl_deeppurple_500">#673ab7</color>
-    <color name="mtrl_deeppurple_700">#512DA8</color>
 
-    <color name="color_primary">@color/mtrl_deeppurple_500</color>
-    <color name="color_primary_dark">@color/mtrl_deeppurple_700</color>
-    <color name="color_accent">@color/mtrl_blue_a400</color>
+    <color name="color_primary">#673ab7</color>
+    <color name="color_primary_variant">#320b86</color>
+    <color name="color_primary_light">#9a67ea</color>
+    <color name="color_secondary">#ffab40</color>
+    <color name="color_secondary_variant">#c77c02</color>
+    <color name="color_on_primary">#FFFFFF</color>
+    <color name="color_on_secondary">#D9000000</color>
+    <color name="color_error">#B00020</color>
+    <color name="color_on_error">#FFFFFF</color>
+    <color name="color_on_background">#000000</color>
+    <color name="color_on_surface">#000000</color>
 
     <color name="color_control_activated_compat">@color/mtrl_blue_a400</color>
 
@@ -36,4 +41,6 @@
     <color name="two_line_list_title">#DE000000</color>
     <color name="two_line_list_secondary">#99000000</color>
 
+    <color name="launcher_icon_background">@color/color_primary</color>
+    <color name="elevation_8_overlay">@android:color/transparent</color>
 </resources>

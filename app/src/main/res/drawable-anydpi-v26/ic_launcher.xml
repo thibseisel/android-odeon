@@ -18,6 +18,6 @@
 <adaptive-icon xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
     tools:keep="@drawable/ic_launcher">
-  <background android:drawable="@color/mtrl_deeppurple_500"/>
+  <background android:drawable="@color/launcher_icon_background"/>
   <foreground android:drawable="@drawable/ic_launcher_foreground"/>
 </adaptive-icon>
