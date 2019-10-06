@@ -32,6 +32,9 @@
         <item name="colorOnPrimary">@color/color_on_primary</item>
         <item name="colorOnSecondary">@color/color_on_secondary</item>
 
+        <!-- This color is still used as the default status bar color -->
+        <item name="colorPrimaryDark">@color/color_primary</item>
+
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="actionModeBackground">?colorSecondaryVariant</item>
         <item name="actionMenuTextColor">?colorOnSecondary</item>

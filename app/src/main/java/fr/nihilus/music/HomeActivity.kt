@@ -25,10 +25,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.navigation.NavigationView
@@ -36,6 +36,7 @@ import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
+import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
@@ -60,13 +61,20 @@ class HomeActivity : BaseActivity(),
     private val navController: NavController
         get() = findNavController(R.id.nav_host_fragment)
 
-    private val statusBarNavListener =
-        NavController.OnDestinationChangedListener { _, destination, _ ->
+    private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
+
+    private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
+        private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
+            resolveThemeColor(this@HomeActivity, R.attr.colorPrimaryDark)
+        }
+
+        override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
             if (destination.id != R.id.fragment_album_detail) {
-                window.statusBarColor = ContextCompat.getColor(this, R.color.color_primary_variant)
+                window.statusBarColor = statusBarColor
                 window.darkSystemIcons = false
             }
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,9 +106,11 @@ class HomeActivity : BaseActivity(),
     override fun onResume() {
         super.onResume()
         navController.addOnDestinationChangedListener(statusBarNavListener)
+        bottomSheet.addBottomSheetCallback(sheetCollapsingCallback)
     }
 
     override fun onPause() {
+        bottomSheet.removeBottomSheetCallback(sheetCollapsingCallback)
         navController.removeOnDestinationChangedListener(statusBarNavListener)
         super.onPause()
     }
@@ -117,21 +127,6 @@ class HomeActivity : BaseActivity(),
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         }
-
-        bottomSheet.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_SETTLING ||
-                    newState == BottomSheetBehavior.STATE_DRAGGING) {
-                    return
-                }
-
-                val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
-                        && newState != BottomSheetBehavior.STATE_HIDDEN
-                playerFragment.setCollapsed(!isExpandedOrExpanding)
-            }
-        })
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -239,5 +234,24 @@ class HomeActivity : BaseActivity(),
 
     private fun startRandomMix() {
         viewModel.playAllShuffled()
+    }
+
+    /**
+     * Toggle the visibility of elements in [NowPlayingFragment]
+     * depending on the collapsing state of the bottom sheet.
+     */
+    private inner class BottomSheetCollapsingCallback : BottomSheetBehavior.BottomSheetCallback() {
+        override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+
+        override fun onStateChanged(bottomSheet: View, newState: Int) {
+            if (newState == BottomSheetBehavior.STATE_SETTLING ||
+                newState == BottomSheetBehavior.STATE_DRAGGING) {
+                return
+            }
+
+            val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
+                    && newState != BottomSheetBehavior.STATE_HIDDEN
+            playerFragment.setCollapsed(!isExpandedOrExpanding)
+        }
     }
 }
