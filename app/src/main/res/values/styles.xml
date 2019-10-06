@@ -36,9 +36,8 @@
         <item name="colorPrimaryDark">@color/color_primary</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
-        <item name="actionModeBackground">?colorSecondaryVariant</item>
-        <item name="actionMenuTextColor">?colorOnSecondary</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_clear_24dp</item>
+        <item name="actionModeStyle">@style/Widget.AppTheme.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_action_mode_close</item>
 
         <!-- Custom style for FastScroller -->
         <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
@@ -70,6 +69,20 @@
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
+    </style>
+
+    <style name="Widget.AppTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">?colorSecondaryVariant</item>
+        <item name="titleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.SubTitle</item>
+    </style>
+
+    <style name="TextAppearance.AppTheme.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">?colorOnSecondary</item>
+    </style>
+
+    <style name="TextAppearance.AppTheme.Widget.ActionMode.SubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+        <item name="android:textColor">?colorOnSecondary</item>
     </style>
     
     <!-- Style for SeekBar that removes horizontal padding. -->
