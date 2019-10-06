@@ -29,11 +29,11 @@ import androidx.navigation.fragment.navArgs
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_playlist_members.*
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAdapter.OnItemSelectedListener {
@@ -99,7 +99,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
                     title = dialogTitle,
                     positiveButton = R.string.ok,
                     negativeButton = R.string.cancel
-                ).show(childFragmentManager, null)
+                ).show(requireFragmentManager(), null)
                 return true
             }
         }
