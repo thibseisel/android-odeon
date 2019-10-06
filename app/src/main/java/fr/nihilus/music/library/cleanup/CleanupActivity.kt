@@ -33,8 +33,10 @@ class CleanupActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cleanup)
 
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragment_host, CleanupFragment())
-            .commit()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.fragment_host, CleanupFragment())
+                .commit()
+        }
     }
 }
