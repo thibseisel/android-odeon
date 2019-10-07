@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <color name="launcher_icon_background">@color/color_secondary</color>
+    <color name="launcher_icon_background">@color/color_secondary_variant</color>
 </resources>
