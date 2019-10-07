@@ -82,7 +82,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
                 val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
                 val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
                 val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-                    selectedPlaylist,
+                    selectedPlaylist.mediaId!!,
                     isDeletablePlaylist
                 )
 

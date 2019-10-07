@@ -133,7 +133,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             }
 
             MediaId.TYPE_PLAYLISTS -> {
-                val toPlaylistContent = SearchFragmentDirections.browsePlaylistContent(item)
+                val playlistId = item.mediaId!!
+                val toPlaylistContent = SearchFragmentDirections.browsePlaylistContent(playlistId)
                 navController.navigate(toPlaylistContent)
             }
         }
