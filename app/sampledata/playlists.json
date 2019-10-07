@@ -1,13 +1,16 @@
 {
   "data": [
     {
-      "title": "Last added"
+      "title": "Last added",
+      "description": "Always good to hear the news."
     },
     {
-      "title": "Favorites"
+      "title": "Favorites",
+      "description": "You music library's Hall of Fame."
     },
     {
-      "title": "Most listened"
+      "title": "Zen",
+      "description": " "
     }
   ]
 }
