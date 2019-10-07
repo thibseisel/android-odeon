@@ -64,13 +64,15 @@ internal class SharedPreferencesUiSettings
     override val appTheme: UiSettings.AppTheme
         get() = getThemeForPrefValue(prefs.getString(KEY_THEME, defaultThemeValue)!!)
 
+    private val themeChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (key == KEY_THEME) {
+            updateUsingThemePreference()
+        }
+    }
+
     override fun setupTheme() {
         updateUsingThemePreference()
-        prefs.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == KEY_THEME) {
-                updateUsingThemePreference()
-            }
-        }
+        prefs.registerOnSharedPreferenceChangeListener(themeChangeListener)
     }
 
     private fun updateUsingThemePreference() {
