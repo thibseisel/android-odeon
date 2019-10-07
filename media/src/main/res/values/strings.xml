@@ -25,4 +25,6 @@
     <string name="media_last_added">Recently added</string>
     <string name="media_category_disposable">Disposable</string>
     <string name="media_artist_subtitle">%1$d albums, %2$d tracks</string>
+    <string name="media_recently_added_description">Always good to hear the news.</string>
+    <string name="media_most_rated_description">You music library\'s Hall of Fame.</string>
 </resources>

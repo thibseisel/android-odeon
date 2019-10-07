@@ -19,6 +19,7 @@ package fr.nihilus.music.library.playlists
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.activityViewModels
@@ -46,32 +47,31 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = MembersAdapter(this, this)
+        viewModel.setPlaylist(args.playlistId)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         toolbar.apply {
-            title = args.playlist.description.title
-            setNavigationOnClickListener { findNavController().navigateUp() }
-
             inflateMenu(R.menu.menu_playlist_details)
             menu.findItem(R.id.action_delete)?.isVisible = args.isDeletable
             setOnMenuItemClickListener(::onOptionsItemSelected)
+            setNavigationOnClickListener { findNavController().navigateUp() }
         }
-
-        viewModel.loadTracksOfPlaylist(args.playlist)
 
         val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
             progressIndicator.isVisible = shouldShow
         }
 
+        adapter = MembersAdapter(this, this)
         members_recycler.adapter = adapter
         members_recycler.setHasFixedSize(true)
 
-        viewModel.children.observe(this) { membersRequest ->
+        viewModel.playlist.observe(this, ::onPlaylistDetailLoaded)
+
+        viewModel.members.observe(this) { membersRequest ->
             when (membersRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -86,13 +86,18 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         }
     }
 
+    private fun onPlaylistDetailLoaded(playlist: MediaBrowserCompat.MediaItem) {
+        toolbar.title = playlist.description.title
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
                 val dialogTitle = getString(
                     R.string.delete_playlist_dialog_title,
-                    args.playlist.description.title
+                    viewModel.playlist.value?.description?.title
                 )
+
                 ConfirmDialogFragment.newInstance(
                     this,
                     REQUEST_DELETE_PLAYLIST,
@@ -114,7 +119,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_DELETE_PLAYLIST && resultCode == DialogInterface.BUTTON_POSITIVE) {
-            viewModel.deletePlaylist(args.playlist)
+            viewModel.deletePlaylist(args.playlistId)
             findNavController().popBackStack()
         }
     }

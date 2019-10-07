@@ -28,35 +28,28 @@ import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.ui.BaseAdapter
 
 /**
- * Display a playlist as a floating grid item.
- * Playlists that are marked as playable could be played by taping the play action icon.
+ * Display a playlist as a floating list item.
  */
 internal class PlaylistHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.playlist_item) {
 
-    private val title: TextView = itemView.findViewById(R.id.title)
     private val image: ImageView = itemView.findViewById(R.id.album_art)
-    private val actionPlay: View = itemView.findViewById(R.id.action_play)
+    private val title: TextView = itemView.findViewById(R.id.title)
+    private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
 
         itemView.setOnClickListener {
             client.onItemSelected(adapterPosition, R.id.action_browse_item)
         }
-
-        actionPlay.setOnClickListener {
-            client.onItemSelected(adapterPosition, R.id.action_play_item)
-        }
     }
 
     override fun onBind(item: MediaBrowserCompat.MediaItem) {
         val description = item.description
         title.text = description.title
+        subtitle.text = description.subtitle
         glide.load(description.iconUri).into(image)
-
-        // The play button is only shown if the item is playable
-        actionPlay.isVisible = item.isPlayable
     }
 }

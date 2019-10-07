@@ -54,8 +54,8 @@
         tools:layout="@layout/fragment_playlist_members">
 
         <argument
-            android:name="playlist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+            android:name="playlistId"
+            app:argType="string" />
         <argument
             android:name="isDeletable"
             android:defaultValue="false"

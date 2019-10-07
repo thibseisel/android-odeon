@@ -73,25 +73,28 @@ internal class BrowserTreeImpl
     private val tree = mediaTree(MediaId.ROOT) {
         rootName = context.getString(R.string.media_browser_root_title)
 
+        val res = context.resources
         type(TYPE_TRACKS) {
             title = context.getString(R.string.media_tracks_type_title)
 
             category(
                 CATEGORY_ALL,
-                context.getString(R.string.media_all_music),
+                title = res.getString(R.string.media_all_music),
                 children = ::provideAllTracks
             )
 
             category(
                 CATEGORY_MOST_RATED,
-                context.getString(R.string.media_most_rated),
-                iconUri = context.resources.getResourceUri(R.drawable.media_ic_most_rated_128dp),
+                title = res.getString(R.string.media_most_rated),
+                subtitle = res.getString(R.string.media_most_rated_description),
+                iconUri = res.getResourceUri(R.drawable.media_ic_most_rated_128dp),
                 children = ::provideMostRatedTracks
             )
 
             category(
                 CATEGORY_RECENTLY_ADDED,
                 context.getString(R.string.media_last_added),
+                subtitle = res.getString(R.string.media_recently_added_description),
                 iconUri = context.resources.getResourceUri(R.drawable.media_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
             )

@@ -18,29 +18,60 @@ package fr.nihilus.music.library.playlists
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
+import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MembersViewModel
 @Inject constructor(
     private val connection: MediaBrowserConnection
-): BrowsableContentViewModel(connection) {
-    private var observeMembersJob: Job? = null
+): ViewModel() {
+    private val token = MediaBrowserConnection.ClientToken()
+    private var observeTracksJob: Job? = null
 
-    fun loadTracksOfPlaylist(playlist: MediaBrowserCompat.MediaItem) {
-        observeMembersJob?.cancel()
-        observeMembersJob = observeChildren(playlist.mediaId!!)
+    private val _playlist = MutableLiveData<MediaItem>()
+    val playlist: LiveData<MediaItem> = _playlist
+
+    private val _members = MutableLiveData<LoadRequest<List<MediaItem>>>()
+    val members: LiveData<LoadRequest<List<MediaItem>>> = _members
+
+    init {
+        connection.connect(token)
     }
 
-    fun deletePlaylist(playlist: MediaBrowserCompat.MediaItem) {
+    fun setPlaylist(playlistId: String) {
+        viewModelScope.launch {
+            _playlist.value = connection.getItem(playlistId)
+        }
+
+        observeTracksJob?.cancel()
+        observeTracksJob = viewModelScope.launch {
+            _members.postValue(LoadRequest.Pending)
+            try {
+                connection.subscribe(playlistId).consumeEach { albumTracks ->
+                    val success = LoadRequest.Success(albumTracks)
+                    _members.postValue(success)
+                }
+            } catch (mse: MediaSubscriptionException) {
+                _members.value = LoadRequest.Error(mse)
+            }
+        }
+    }
+
+    fun deletePlaylist(playlistId: String) {
         viewModelScope.launch {
             val params = Bundle(1).apply {
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlist.mediaId))
+                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlistId))
             }
 
             connection.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
