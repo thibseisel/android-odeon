@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
@@ -25,11 +25,8 @@ import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.common.media.MediaId.Builder.encode
-import fr.nihilus.music.media.THEIR_MEDIA_ID
+import fr.nihilus.music.service.THEIR_MEDIA_ID
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.StubUsageManager
-import fr.nihilus.music.media.repo.TestMediaRepository
-import fr.nihilus.music.media.repo.TestUsageManager
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith

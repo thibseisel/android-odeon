@@ -26,7 +26,7 @@ import fr.nihilus.music.media.os.BasicFileSystem.makeSharedContentUri
  * A simulated file system used for testing purposes.
  * No actual files are stored.
  */
-class SimulatedFileSystem(
+internal class SimulatedFileSystem(
     vararg filenames: String
 ) : FileSystem {
     private val storedFiles = filenames.toMutableSet()

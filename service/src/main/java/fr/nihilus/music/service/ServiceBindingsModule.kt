@@ -20,12 +20,17 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
+import fr.nihilus.music.service.browser.BrowserTree
+import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader
 import fr.nihilus.music.service.metadata.IconDownloader
 import kotlinx.coroutines.CoroutineScope
 
 @Module
 internal abstract class ServiceBindingsModule {
+
+    @Binds
+    internal abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
     abstract fun bindsSettings(settings: SharedPreferencesMediaSettings): MediaSettings

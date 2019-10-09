@@ -42,9 +42,9 @@ import fr.nihilus.music.common.media.toMediaIdOrNull
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
-import fr.nihilus.music.media.tree.BrowserTree
-import fr.nihilus.music.media.tree.PaginationOptions
-import fr.nihilus.music.media.tree.SearchQuery
+import fr.nihilus.music.service.browser.BrowserTree
+import fr.nihilus.music.service.browser.PaginationOptions
+import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION

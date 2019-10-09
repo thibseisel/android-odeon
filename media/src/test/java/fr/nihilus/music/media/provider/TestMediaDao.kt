@@ -22,7 +22,7 @@ import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor
 
-interface TestDao<M> {
+internal interface TestDao<M> {
     fun update(updatedList: List<M>)
     fun complete()
     fun failWith(exception: Exception)

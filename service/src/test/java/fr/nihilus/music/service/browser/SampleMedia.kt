@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.service.browser
+
+import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.Track
 
 internal val SAMPLE_TRACKS = listOf(
     Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1466283480, 26, 65, 17_506_481),

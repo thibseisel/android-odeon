@@ -39,8 +39,8 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.media.R
-import fr.nihilus.music.media.tree.BrowserTree
-import fr.nihilus.music.media.tree.SearchQuery
+import fr.nihilus.music.service.browser.BrowserTree
+import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.MediaSettings
 import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlinx.coroutines.CoroutineScope

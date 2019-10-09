@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.extensions
+package fr.nihilus.music.service.browser
 
-import android.content.ContentResolver
-import android.content.res.Resources
-import android.net.Uri
-import androidx.annotation.DrawableRes
+import fr.nihilus.music.database.playlists.Playlist
 
-/**
- * Retrieve the [Uri] of a given drawable resource.
- */
-internal fun Resources.getResourceUri(@DrawableRes drawableResId: Int): Uri = Uri.Builder()
-    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-    .authority(getResourcePackageName(drawableResId))
-    .appendPath(getResourceTypeName(drawableResId))
-    .appendPath(getResourceName(drawableResId))
-    .build()
+internal val SAMPLE_PLAYLISTS = listOf(
+    Playlist(1, "Zen", 1551434321, null),
+    Playlist(2, "Sport", 1551435123, null),
+    Playlist(3, "Metal", 1551436125, null)
+)
+
+internal val SAMPLE_TRACKS_FOR_PLAYLIST = mapOf(
+    1L to listOf(SAMPLE_TRACKS[1]),
+    2L to listOf(SAMPLE_TRACKS[9], SAMPLE_TRACKS[3], SAMPLE_TRACKS[4]),
+    3L to listOf(SAMPLE_TRACKS[7], SAMPLE_TRACKS[0])
+)

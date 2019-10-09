@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.os.Bundle
 import android.provider.MediaStore
@@ -25,7 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class SearchQueryTest {
+internal class SearchQueryTest {
 
     @Test
     fun `When query is null, then parse as an Empty query`() {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
