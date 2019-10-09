@@ -58,7 +58,7 @@ import org.junit.Test
  * [MediaRepository][fr.nihilus.music.media.repo.MediaRepository] implementations
  * and especially [MediaRepositoryImpl].
  */
-class MediaRepositoryTest {
+internal class MediaRepositoryTest {
 
     private val dispatcher = TestCoroutineDispatcher()
     private val dispatchers = AppDispatchers(dispatcher)

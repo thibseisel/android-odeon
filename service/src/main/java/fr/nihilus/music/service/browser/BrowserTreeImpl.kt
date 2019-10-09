@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.content.Context
 import android.os.Bundle
@@ -34,14 +34,13 @@ import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.di.ServiceScoped
-import fr.nihilus.music.media.extensions.getResourceUri
+import fr.nihilus.music.service.extensions.getResourceUri
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
-import fr.nihilus.music.media.repo.mediaId
 import fr.nihilus.music.media.usage.UsageManager
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
@@ -58,6 +57,17 @@ private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
     val discNumberDiff = a.discNumber - b.discNumber
     if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
 }
+
+private val ChangeNotification.mediaId: MediaId
+    get() = when(this) {
+        is ChangeNotification.AllTracks -> MediaId(TYPE_TRACKS, CATEGORY_ALL)
+        is ChangeNotification.AllAlbums -> MediaId(TYPE_ALBUMS)
+        is ChangeNotification.AllArtists -> MediaId(TYPE_ARTISTS)
+        is ChangeNotification.AllPlaylists -> MediaId(TYPE_PLAYLISTS)
+        is ChangeNotification.Album -> MediaId(TYPE_ALBUMS, albumId.toString())
+        is ChangeNotification.Artist -> MediaId(TYPE_ARTISTS, artistId.toString())
+        is ChangeNotification.Playlist -> MediaId(TYPE_PLAYLISTS, playlistId.toString())
+    }
 
 @ServiceScoped
 internal class BrowserTreeImpl
@@ -450,8 +460,8 @@ internal class BrowserTreeImpl
                     .setSubtitle(track.subtitle)
                     .setExtras(Bundle().apply {
                         putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                        if (track.lastPlayedTime != null) {
-                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, track.lastPlayedTime)
+                        track.lastPlayedTime?.let { lastPlayedTime ->
+                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
                         }
                     })
                     .build()

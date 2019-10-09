@@ -44,7 +44,7 @@ private const val MUSIC_FOLDER_NAME = "Music"
 private const val TEST_FILENAME = "1741_(The_Battle_of_Cartagena).mp3"
 
 @RunWith(AndroidJUnit4::class)
-class MediaStoreProviderTest {
+internal class MediaStoreProviderTest {
     private lateinit var mediaStoreSurrogate: MediaStoreSurrogate
 
     @Before

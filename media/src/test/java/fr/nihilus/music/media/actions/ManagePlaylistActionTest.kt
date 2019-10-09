@@ -48,7 +48,7 @@ private val INITIAL_PLAYLIST =
     Playlist(2L, NEW_PLAYLIST_TITLE, 0L, null)
 
 @RunWith(AndroidJUnit4::class)
-class ManagePlaylistActionTest {
+internal class ManagePlaylistActionTest {
 
     private val dispatcher = TestCoroutineDispatcher()
 

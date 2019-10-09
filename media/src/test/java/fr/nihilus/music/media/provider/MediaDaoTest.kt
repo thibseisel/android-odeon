@@ -31,7 +31,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
-class MediaDaoTest {
+internal class MediaDaoTest {
 
     private val testScheduler = TestScheduler()
     private val schedulers = RxSchedulers(testScheduler)

@@ -23,7 +23,7 @@ import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
 import io.reactivex.Flowable
 
-internal interface MediaRepository {
+interface MediaRepository {
     val changeNotifications: Flowable<ChangeNotification>
     suspend fun getTracks(): List<Track>
     suspend fun getAlbums(): List<Album>
@@ -35,7 +35,7 @@ internal interface MediaRepository {
     suspend fun deletePlaylist(playlistId: Long)
 }
 
-internal sealed class ChangeNotification(private val name: String) {
+sealed class ChangeNotification(private val name: String) {
     override fun toString(): String = "NotificationChange ($name)"
 
     object AllTracks : ChangeNotification("All tracks")
@@ -46,14 +46,3 @@ internal sealed class ChangeNotification(private val name: String) {
     data class Artist(val artistId: Long): ChangeNotification("Artist with id $artistId")
     data class Playlist(val playlistId: Long) : ChangeNotification("Playlist with id $playlistId")
 }
-
-internal val ChangeNotification.mediaId: MediaId
-    get() = when(this) {
-        is ChangeNotification.AllTracks -> MediaId(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL)
-        is ChangeNotification.AllAlbums -> MediaId(MediaId.TYPE_ALBUMS)
-        is ChangeNotification.AllArtists -> MediaId(MediaId.TYPE_ARTISTS)
-        is ChangeNotification.AllPlaylists -> MediaId(MediaId.TYPE_PLAYLISTS)
-        is ChangeNotification.Album -> MediaId(MediaId.TYPE_ALBUMS, albumId.toString())
-        is ChangeNotification.Artist -> MediaId(MediaId.TYPE_ARTISTS, artistId.toString())
-        is ChangeNotification.Playlist -> MediaId(MediaId.TYPE_PLAYLISTS, playlistId.toString())
-    }

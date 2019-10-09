@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
@@ -37,11 +37,11 @@ import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.test.fail
 import fr.nihilus.music.common.test.failAssumption
-import fr.nihilus.music.media.THEIR_MEDIA_ID
-import fr.nihilus.music.media.assertOn
-import fr.nihilus.music.media.provider.generateRandomTrackSequence
+import fr.nihilus.music.service.THEIR_MEDIA_ID
+import fr.nihilus.music.service.assertOn
 import fr.nihilus.music.media.repo.*
 import fr.nihilus.music.media.usage.DisposableTrack
+import fr.nihilus.music.service.generateRandomTrackSequence
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.should

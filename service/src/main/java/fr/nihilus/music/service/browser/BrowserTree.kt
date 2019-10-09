@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tree
+package fr.nihilus.music.service.browser
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.common.media.MediaId
@@ -26,7 +26,7 @@ import io.reactivex.Flowable
  * - [Browsable items][MediaItem.isBrowsable] that have children themselves that can be retrieved using [getChildren],
  * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
  */
-interface BrowserTree {
+internal interface BrowserTree {
 
     val updatedParentIds: Flowable<MediaId>
 

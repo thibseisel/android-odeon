@@ -44,7 +44,7 @@ import org.junit.runner.RunWith
 import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 @RunWith(AndroidJUnit4::class)
-class DeleteActionTest {
+internal class DeleteActionTest {
 
     private val dispatcher = TestCoroutineDispatcher()
 

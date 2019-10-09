@@ -25,8 +25,6 @@ import fr.nihilus.music.media.provider.MediaProvider
 import fr.nihilus.music.media.provider.MediaStoreProvider
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
-import fr.nihilus.music.media.tree.BrowserTree
-import fr.nihilus.music.media.tree.BrowserTreeImpl
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
 
@@ -35,9 +33,6 @@ import fr.nihilus.music.media.usage.UsageManagerImpl
  */
 @Module(includes = [DatabaseModule::class])
 abstract class MediaSourceModule {
-
-    @Binds
-    internal abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
     internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
