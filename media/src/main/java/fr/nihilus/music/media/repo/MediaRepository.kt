@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.media.repo
 
-import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track

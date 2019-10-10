@@ -17,24 +17,37 @@
 package fr.nihilus.music.common
 
 import android.content.Context
+import android.content.SharedPreferences
 import dagger.BindsInstance
 import dagger.Component
 import fr.nihilus.music.common.context.AppDispatchers
+import fr.nihilus.music.common.context.ExecutionContextModule
 import fr.nihilus.music.common.context.RxSchedulers
+import fr.nihilus.music.common.database.SQLiteDatabaseModule
+import fr.nihilus.music.common.database.playlists.PlaylistDao
+import fr.nihilus.music.common.database.spotify.SpotifyDao
+import fr.nihilus.music.common.database.usage.UsageDao
 import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.RuntimePermissions
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [
     CommonModule::class,
-    ExecutionContextModule::class
+    ExecutionContextModule::class,
+    SQLiteDatabaseModule::class
 ])
 interface CoreComponent {
+    //val appScope: CoroutineScope
     val dispatchers: AppDispatchers
     val schedulers: RxSchedulers
     val permissions: RuntimePermissions
     val clock: Clock
+    val playlistDao: PlaylistDao
+    val usageDao: UsageDao
+    val spotifyDao: SpotifyDao
+    val prefs: SharedPreferences
 
     @Component.Factory
     interface Factory {

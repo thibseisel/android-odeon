@@ -25,6 +25,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import fr.nihilus.music.common.AppScope
 import fr.nihilus.music.common.media.CustomActions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
@@ -68,7 +69,7 @@ class MediaSubscriptionException(parentId: String) : Exception() {
  * sharing it across all clients.
  * The connection is disposed when the last client disconnects.
  */
-@Singleton
+@AppScope
 class MediaBrowserConnection
 @Inject constructor(applicationContext: Context) {
 

@@ -16,6 +16,9 @@
 
 package fr.nihilus.music.common.test
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,6 +27,7 @@ import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.common.test.os.RevocablePermission
 import fr.nihilus.music.common.test.os.TestClock
 import javax.inject.Named
+import javax.inject.Singleton
 
 /**
  * Components that include this module can optionally set the start time of the test clock
@@ -42,13 +46,19 @@ abstract class CommonTestModule {
     internal companion object {
 
         @JvmStatic
-        @Provides
+        @Provides @Singleton
         fun providesTestClock(
             @Named("TestClock.startTime") startTime: Long?
         ) = TestClock(startTime ?: 0L)
 
         @JvmStatic
-        @Provides
-        internal fun providesTestPermissions() = RevocablePermission()
+        @Provides @Singleton
+        fun providesTestPermissions() = RevocablePermission()
+
+        @JvmStatic
+        @Provides @Singleton
+        fun providesSharedPreferences(context: Context): SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(context)
+
     }
 }

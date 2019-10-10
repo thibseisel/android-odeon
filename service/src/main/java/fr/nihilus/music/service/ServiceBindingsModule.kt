@@ -20,6 +20,8 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader
@@ -39,8 +41,13 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsPlayer(player: ExoPlayer): Player
 
     @Binds
-    abstract fun bindsCoroutineScope(service: MusicService): CoroutineScope
-
-    @Binds
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
+
+    @Module
+    companion object {
+
+        @JvmStatic
+        @Provides @ServiceScoped
+        fun providesServiceScope(service: MusicService): CoroutineScope = service
+    }
 }

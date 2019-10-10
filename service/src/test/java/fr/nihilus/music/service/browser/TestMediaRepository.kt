@@ -17,7 +17,7 @@
 package fr.nihilus.music.service.browser
 
 import fr.nihilus.music.common.test.stub
-import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.Playlist
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository

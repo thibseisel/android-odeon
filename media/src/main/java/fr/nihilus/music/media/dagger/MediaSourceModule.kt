@@ -18,7 +18,9 @@ package fr.nihilus.music.media.dagger
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.database.DatabaseModule
+import fr.nihilus.music.common.database.DatabaseModule
+import fr.nihilus.music.media.actions.CustomActionModule
+import fr.nihilus.music.media.os.AndroidSystemModule
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.MediaDaoImpl
 import fr.nihilus.music.media.provider.MediaProvider
@@ -31,7 +33,10 @@ import fr.nihilus.music.media.usage.UsageManagerImpl
 /**
  * Define relations in the object graph for the "media" group of features.
  */
-@Module(includes = [DatabaseModule::class])
+@Module(includes = [
+    AndroidSystemModule::class,
+    CustomActionModule::class
+])
 abstract class MediaSourceModule {
 
     @Binds

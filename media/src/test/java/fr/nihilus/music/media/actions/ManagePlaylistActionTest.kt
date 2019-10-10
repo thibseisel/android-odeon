@@ -30,12 +30,11 @@ import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.test.fail
 import fr.nihilus.music.common.test.stub
 import fr.nihilus.music.media.os.FileSystem
-import fr.nihilus.music.database.playlists.Playlist
-import fr.nihilus.music.database.playlists.PlaylistDao
-import fr.nihilus.music.database.playlists.PlaylistTrack
+import fr.nihilus.music.common.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.PlaylistDao
+import fr.nihilus.music.common.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.playlists.TestPlaylistDao
 import io.kotlintest.shouldThrow
-import io.reactivex.Flowable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest

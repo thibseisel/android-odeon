@@ -21,19 +21,21 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.service.MediaServiceModule
-import javax.inject.Singleton
+import fr.nihilus.music.common.AppScope
+import fr.nihilus.music.common.CoreComponent
+import fr.nihilus.music.service.MusicServiceModule
 
 /**
  * The top-level component for this application.
  * Every injectable object annotated with `Singleton` is bound to it.
  */
-@Singleton
+@AppScope
 @Component(
+    dependencies = [CoreComponent::class],
     modules = [
         AndroidSupportInjectionModule::class,
         AppModule::class,
-        MediaServiceModule::class,
+        MusicServiceModule::class,
         ClientModule::class
     ]
 )
@@ -45,7 +47,10 @@ interface AppComponent : AndroidInjector<OdeonApplication> {
      * order to provide it as a dependency to any other object.
      */
     @Component.Factory
-    interface Factory : AndroidInjector.Factory<OdeonApplication> {
-        override fun create(@BindsInstance application: OdeonApplication): AppComponent
+    interface Factory {
+        fun create(
+            @BindsInstance application: OdeonApplication,
+            core: CoreComponent
+        ): AppComponent
     }
 }

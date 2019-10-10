@@ -30,6 +30,41 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
     }
+
+    buildTypes {
+        release {
+            // Configure Kotlin compiler optimisations for releases
+            kotlinOptions {
+                freeCompilerArgs += [
+                        '-Xno-param-assertions',
+                        '-Xno-call-assertions',
+                        '-Xno-receiver-assertions'
+                ]
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        // Add Room schemas to test sources in order to test database migrations.
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
+    }
+
+    testOptions {
+        // Include Android resources in unit tests to be resolved by Robolectric.
+        unitTests.includeAndroidResources = true
+    }
+}
+
+kapt {
+    arguments {
+        arg('room.schemaLocation', "$projectDir/schemas".toString())
+        arg('room.incremental', 'true')
+    }
 }
 
 dependencies {
@@ -51,6 +86,17 @@ dependencies {
     api "com.google.dagger:dagger:${versions.dagger}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
+    // Room Database
+    api "androidx.room:room-ktx:${versions.androidx.room}"
+    kapt "androidx.room:room-compiler:${versions.androidx.room}"
+
+    // Provides the instance of SharedPreferences
+    api "androidx.preference:preference-ktx:${versions.androidx.preference}"
+
     testImplementation "junit:junit:${versions.junit}"
     testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+
+    androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    androidTestImplementation "com.google.truth:truth:${versions.truth}"
+    androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
 }

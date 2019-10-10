@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 rootProject.name = 'android-odeon'
-include ':app', ':service', ':player-testing', ':media', ':common-test', ':common', ':core-ui', ':spotify-client', ':database'
+include ':app', ':service', ':player-testing', ':media', ':common-test', ':common', ':core-ui', ':spotify-client'

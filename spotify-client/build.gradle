@@ -34,7 +34,6 @@ android {
 
 dependencies {
     implementation project(':common')
-    implementation project(':database')
 
     implementation "androidx.work:work-runtime-ktx:${versions.androidx.work}"
 

@@ -18,6 +18,7 @@ package fr.nihilus.music
 
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
+import fr.nihilus.music.common.DaggerCoreComponent
 import fr.nihilus.music.dagger.DaggerAppComponent
 import fr.nihilus.music.settings.UiSettings
 import io.reactivex.plugins.RxJavaPlugins
@@ -44,6 +45,8 @@ class OdeonApplication : DaggerApplication() {
         settings.setupTheme()
     }
 
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
-        DaggerAppComponent.factory().create(this)
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
+        val coreDependencies = DaggerCoreComponent.factory().create(this)
+        return DaggerAppComponent.factory().create(this, coreDependencies)
+    }
 }

@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.common.test
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -24,12 +26,13 @@ import fr.nihilus.music.common.context.RxSchedulers
 import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
+import javax.inject.Singleton
 
 /**
  * Provides an execution context for testing code using RxJava and Kotlin Coroutines.
  * This module only uses a single execution context for all cases.
  *
- * Use this module as a test alternative to [ExecutionContextModule][fr.nihilus.music.common.ExecutionContextModule].
+ * Use this module as a test alternative to [ExecutionContextModule][fr.nihilus.music.common.context.ExecutionContextModule].
  *
  * Execution of RxJava operators and coroutines can be controlled from test code
  * with the [TestScheduler] and [TestCoroutineDispatcher] provided with this module.
@@ -38,22 +41,26 @@ import kotlinx.coroutines.test.TestCoroutineScope
 internal object TestExecutionContextModule {
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides
+    fun providesTestApplicationContext(): Context = ApplicationProvider.getApplicationContext()
+
+    @JvmStatic
+    @Provides @Singleton
     fun providesTestScheduler() = TestScheduler()
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides @Singleton
     fun providesTestingSchedulers(scheduler: TestScheduler) = RxSchedulers(scheduler)
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides @Singleton
     fun providesTestDispatcher() = TestCoroutineDispatcher()
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides @Singleton
     fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)
 
     @JvmStatic
-    @Provides @Reusable
+    @Provides @Singleton
     fun providesTestCoroutineScope(dispatcher: TestCoroutineDispatcher) = TestCoroutineScope(dispatcher)
 }
