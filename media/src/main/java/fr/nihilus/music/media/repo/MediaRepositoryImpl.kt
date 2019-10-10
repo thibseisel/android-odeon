@@ -22,7 +22,7 @@ import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.database.usage.UsageDao
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao

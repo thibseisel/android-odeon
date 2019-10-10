@@ -23,7 +23,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.Target
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.extensions.intoBitmap
 import javax.inject.Inject
 

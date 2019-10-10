@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.DefaultPlaybackController
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import javax.inject.Inject
 
 private const val REWIND_MILLIS = 10_000L

@@ -21,8 +21,8 @@ import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.common.ExecutionContextModule
 import fr.nihilus.music.database.SQLiteDatabaseModule
 import fr.nihilus.music.media.actions.CustomActionModule
-import fr.nihilus.music.media.di.MediaSourceModule
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.MediaSourceModule
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.AndroidSystemModule
 import fr.nihilus.music.service.playback.PlaybackModule
 

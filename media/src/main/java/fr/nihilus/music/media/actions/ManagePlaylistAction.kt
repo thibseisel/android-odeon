@@ -27,7 +27,7 @@ import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.common.media.toMediaIdOrNull
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao

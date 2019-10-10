@@ -18,7 +18,7 @@ package fr.nihilus.music.service
 
 import android.content.SharedPreferences
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import javax.inject.Inject
