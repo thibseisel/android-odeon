@@ -20,7 +20,7 @@ import android.content.ContentResolver
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import javax.inject.Inject
 
 /**

@@ -70,7 +70,6 @@ android {
 
 dependencies {
     implementation project(':common')
-    api project(':database')
     api project(':media')
 
     // Kotlin language support

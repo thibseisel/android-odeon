@@ -22,13 +22,13 @@ import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.os.PermissionDeniedException
 import fr.nihilus.music.common.test.neverFlow
 import fr.nihilus.music.common.test.stub
-import fr.nihilus.music.database.playlists.Playlist
-import fr.nihilus.music.database.playlists.PlaylistDao
-import fr.nihilus.music.database.playlists.PlaylistTrack
-import fr.nihilus.music.database.usage.MediaUsageEvent
-import fr.nihilus.music.database.usage.TrackScore
-import fr.nihilus.music.database.usage.TrackUsage
-import fr.nihilus.music.database.usage.UsageDao
+import fr.nihilus.music.common.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.PlaylistDao
+import fr.nihilus.music.common.database.playlists.PlaylistTrack
+import fr.nihilus.music.common.database.usage.MediaUsageEvent
+import fr.nihilus.music.common.database.usage.TrackScore
+import fr.nihilus.music.common.database.usage.TrackUsage
+import fr.nihilus.music.common.database.usage.UsageDao
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
@@ -359,7 +359,8 @@ internal class MediaRepositoryTest {
 
     @Test
     fun `When creating a playlist, then delegate to PlaylistDao`() = test {
-        val newPlaylist = Playlist("My Favorites", Uri.EMPTY)
+        val newPlaylist =
+            Playlist("My Favorites", Uri.EMPTY)
         val playlistTracks = longArrayOf(481L, 75L)
 
         val mockDao = mockk<PlaylistDao> {

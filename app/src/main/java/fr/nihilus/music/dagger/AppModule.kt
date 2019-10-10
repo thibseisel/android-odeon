@@ -17,13 +17,9 @@
 package fr.nihilus.music.dagger
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.common.CommonModule
-import javax.inject.Singleton
 
 /**
  * The main module for this application.
@@ -32,15 +28,10 @@ import javax.inject.Singleton
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module(includes = [CommonModule::class])
-object AppModule {
+@Module
+internal object AppModule {
 
     @JvmStatic
     @Provides
     fun provideContext(application: OdeonApplication): Context = application.applicationContext
-
-    @JvmStatic
-    @Provides @Singleton
-    fun provideAppPreferences(application: OdeonApplication): SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(application)
 }

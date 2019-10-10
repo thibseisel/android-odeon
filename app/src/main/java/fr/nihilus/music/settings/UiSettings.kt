@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import fr.nihilus.music.R
+import fr.nihilus.music.common.AppScope
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -52,7 +53,7 @@ interface UiSettings {
     }
 }
 
-@Singleton
+@AppScope
 internal class SharedPreferencesUiSettings
 @Inject constructor(
     private val context: Context,

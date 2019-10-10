@@ -16,19 +16,33 @@
 
 package fr.nihilus.music.common
 
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.DeviceClock
 import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.common.os.SystemRuntimePermissions
+import javax.inject.Singleton
 
 @Module
-abstract class CommonModule {
+internal abstract class CommonModule {
 
     @Binds
     internal abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
 
     @Binds
     internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
+
+    @Module
+    internal companion object {
+
+        @JvmStatic
+        @Provides @Singleton
+        fun providesSharedPreferences(context: Context): SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(context)
+    }
 }

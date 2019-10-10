@@ -20,7 +20,6 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import fr.nihilus.music.spotify.service.SpotifyService
-import javax.inject.Inject
 
 /**
  * Fetches media metadata from the Spotify API and saves them to local database for later use.

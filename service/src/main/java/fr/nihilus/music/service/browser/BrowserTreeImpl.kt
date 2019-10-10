@@ -33,9 +33,9 @@ import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.media.R
-import fr.nihilus.music.media.di.ServiceScoped
+import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.extensions.getResourceUri
-import fr.nihilus.music.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track

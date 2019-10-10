@@ -21,5 +21,5 @@ package fr.nihilus.music.service
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
-@Experimental(Experimental.Level.WARNING)
+@Experimental(Experimental.Level.ERROR)
 internal annotation class ExperimentalMediaApi
