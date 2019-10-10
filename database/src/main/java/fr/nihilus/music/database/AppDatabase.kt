@@ -22,6 +22,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import fr.nihilus.music.database.playlists.PlaylistConverters
 import fr.nihilus.music.database.playlists.Playlist
 import fr.nihilus.music.database.playlists.PlaylistDao
 import fr.nihilus.music.database.playlists.PlaylistTrack
@@ -44,7 +45,7 @@ import fr.nihilus.music.database.usage.UsageDao
     SpotifyLink::class,
     TrackFeature::class
 ], version = 4)
-@TypeConverters(Converters::class, EnumConverters::class)
+@TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val playlistDao: PlaylistDao
@@ -60,7 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
          * - Delete the `music_info` table.
          * - Create the `usage_event` table.
          */
-        internal val MIGRATION_1_2 = object : Migration(1, 2) {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 with(database) {
                     // Delete the obsolete and unused table "music_info".
@@ -72,7 +73,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        internal val MIGRATION_2_3 = object : Migration(2, 3) {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 with(database) {
                     // Recreate the whole playlist table without the unused "date_last_played" column.
@@ -98,7 +99,7 @@ abstract class AppDatabase : RoomDatabase() {
          * - create the new table `remote_link`
          * - create the new table `track_feature`
          */
-        internal val MIGRATION_3_4 = object : Migration(3, 4) {
+        val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) = with(database) {
                 // Create new tables "remote_link" and "track_feature".
                 execSQL("CREATE TABLE IF NOT EXISTS `remote_link` (`local_id` INTEGER NOT NULL, `remote_id` TEXT NOT NULL, `sync_date` INTEGER NOT NULL, PRIMARY KEY(`local_id`))")

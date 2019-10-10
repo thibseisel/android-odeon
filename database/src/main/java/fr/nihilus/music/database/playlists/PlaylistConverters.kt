@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.database
+package fr.nihilus.music.database.playlists
 
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.room.TypeConverter
 
-internal class Converters {
+internal class PlaylistConverters {
 
     @TypeConverter
     fun fromString(str: String?): Uri? = str?.toUri()
 
     @TypeConverter
     fun toUriString(uri: Uri?): String? = uri?.toString()
-
 }

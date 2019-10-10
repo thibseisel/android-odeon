@@ -18,20 +18,19 @@ package fr.nihilus.music.database.spotify
 
 import androidx.room.TypeConverter
 
-internal class EnumConverters {
+internal class SpotifyConverters {
 
     @TypeConverter
-    internal fun MusicalMode.toEncodedMode(): Int = when (this) {
+    fun MusicalMode.toEncodedMode(): Int = when (this) {
         MusicalMode.MINOR -> 0
         MusicalMode.MAJOR -> 1
     }
 
     @TypeConverter
-    internal fun Int.toMusicalMode(): MusicalMode =
-        decodeMusicalMode(this)
+    fun Int.toMusicalMode(): MusicalMode = decodeMusicalMode(this)
 
     @TypeConverter
-    internal fun Pitch?.toEncodedKey(): Int? = when (this) {
+    fun Pitch?.toEncodedKey(): Int? = when (this) {
         Pitch.C -> 0
         Pitch.C_SHARP -> 1
         Pitch.D -> 2
@@ -48,6 +47,5 @@ internal class EnumConverters {
     }
 
     @TypeConverter
-    internal fun Int?.toPitchKey(): Pitch? =
-        decodePitch(this)
+    fun Int?.toPitchKey(): Pitch? = decodePitch(this)
 }
