@@ -64,11 +64,18 @@ class MetadataProducerTest {
 
             val metadata = output.receive()
             assertThat(metadata.id).isEqualTo(sampleMediaDescription.mediaId)
+
+            // Generic display properties.
             assertThat(metadata.displayTitle).isEqualTo("Nightmare")
             assertThat(metadata.displaySubtitle).isEqualTo("Avenged Sevenfold")
             assertThat(metadata.displayDescription).isEqualTo("Well, that intro is creepy")
             assertThat(metadata.duration).isEqualTo(374648L)
             assertThat(metadata.displayIconUri).isEqualTo("file:///Music/Nightmare.mp3")
+
+            // Specific properties that may be used by some Bluetooth devices.
+            assertThat(metadata.title).isEqualTo("Nightmare")
+            assertThat(metadata.artist).isEqualTo("Avenged Sevenfold")
+            assertThat(metadata.album).isEqualTo("Nightmare")
 
             // Check that the loaded icon is 320x320 and has a red pixel on top, as defined by DummyBitmapFactory.
             metadata.albumArt?.let { iconBitmap ->
