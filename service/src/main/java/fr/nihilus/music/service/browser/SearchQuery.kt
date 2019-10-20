@@ -22,7 +22,7 @@ import android.provider.MediaStore
 /**
  * A compact representation of a request to list or play media.
  */
-sealed class SearchQuery {
+internal sealed class SearchQuery {
 
     /**
      * An empty search query.

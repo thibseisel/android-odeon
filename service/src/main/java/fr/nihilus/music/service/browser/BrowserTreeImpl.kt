@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
+import fr.nihilus.music.common.database.playlists.Playlist
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_DISPOSABLE
@@ -34,18 +35,19 @@ import fr.nihilus.music.common.media.MediaId.Builder.encode
 import fr.nihilus.music.common.media.MediaItems
 import fr.nihilus.music.media.R
 import fr.nihilus.music.media.dagger.ServiceScoped
-import fr.nihilus.music.service.extensions.getResourceUri
-import fr.nihilus.music.common.database.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.service.extensions.getResourceUri
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import java.util.*
 import javax.inject.Inject
+import kotlin.Comparator
 
 /**
  * The arbitrary maximum correspondence score for a fuzzy match.
@@ -232,25 +234,28 @@ internal class BrowserTreeImpl
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
     override suspend fun search(query: SearchQuery): List<MediaItem> {
+        // Most songs and albums have an english title.
+        // For the time being, we'll use english rules for matching text.
+        val searchLocale = Locale.ENGLISH
 
         val results = when (query) {
 
             is SearchQuery.Artist -> {
-                query.name?.toLowerCase()?.let { artistName ->
+                query.name?.toLowerCase(searchLocale)?.let { artistName ->
                     val artists = repository.getArtists()
                     singleTypeSearch(artistName, artists, Artist::name, artistItemFactory)
                 }
             }
 
             is SearchQuery.Album -> {
-                query.title?.toLowerCase()?.let { albumTitle ->
+                query.title?.toLowerCase(searchLocale)?.let { albumTitle ->
                     val albums = repository.getAlbums()
                     singleTypeSearch(albumTitle, albums, Album::title, albumItemFactory)
                 }
             }
 
             is SearchQuery.Song -> {
-                query.title?.toLowerCase()?.let { trackTitle ->
+                query.title?.toLowerCase(searchLocale)?.let { trackTitle ->
                     val tracks = repository.getTracks()
                     singleTypeSearch(trackTitle, tracks, Track::title) { builder ->
                         trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL, builder)
@@ -259,32 +264,15 @@ internal class BrowserTreeImpl
             }
 
             is SearchQuery.Unspecified -> coroutineScope {
-                val userQuery = query.userQuery
+                val userQuery = query.userQuery.toLowerCase(searchLocale)
                 val artists = async { repository.getArtists() }
                 val albums = async { repository.getAlbums() }
                 val tracks = async { repository.getTracks() }
 
                 val searchResults = mutableListOf<ItemScore>()
-                fuzzySearchTo(
-                    searchResults,
-                    userQuery,
-                    artists.await(),
-                    Artist::name,
-                    artistItemFactory
-                )
-                fuzzySearchTo(
-                    searchResults,
-                    userQuery,
-                    albums.await(),
-                    Album::title,
-                    albumItemFactory
-                )
-                fuzzySearchTo(
-                    searchResults,
-                    userQuery,
-                    tracks.await(),
-                    Track::title
-                ) { track, builder ->
+                fuzzySearchTo(searchResults, userQuery, artists.await(), Artist::name, artistItemFactory)
+                fuzzySearchTo(searchResults, userQuery, albums.await(), Album::title, albumItemFactory)
+                fuzzySearchTo(searchResults, userQuery, tracks.await(), Track::title) { track, builder ->
                     trackItemFactory(track, TYPE_TRACKS, CATEGORY_ALL, builder)
                 }
 
@@ -392,7 +380,7 @@ internal class BrowserTreeImpl
         val matchResult = MatchResult()
 
         availableMedias.fold(outResults) { results, media ->
-            fuzzyMatch(pattern, textProvider(media).toLowerCase(), matchResult)
+            fuzzyMatch(pattern, textProvider(media).toLowerCase(Locale.ENGLISH), matchResult)
 
             if (!matchResult.matched) results else {
                 val item = itemFactory(media, builder)
