@@ -20,7 +20,7 @@ import android.Manifest
 
 /**
  * Thrown when an operation has failed due to a Android permission not being granted.
- * This may be catch by UI components to request the missing permission.
+ * This may be caught by UI components to request the missing permission.
  *
  * @property permission The name of the permission that is denied.
  * This is a constant from [Manifest.permission].
