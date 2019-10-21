@@ -16,40 +16,33 @@
 
 package fr.nihilus.music.core.ui.client
 
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.LoadRequest
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 
 abstract class BrowsableContentViewModel(
     private val connection: MediaBrowserConnection
 ) : ViewModel() {
     private val token = MediaBrowserConnection.ClientToken()
 
-    private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _children
+    private val _children = MutableLiveData<LoadRequest<List<MediaItem>>>()
+    val children: LiveData<LoadRequest<List<MediaItem>>> = _children
 
     init {
         connection.connect(token)
     }
 
-    protected fun observeChildren(parentId: String): Job = viewModelScope.launch {
-        _children.postValue(LoadRequest.Pending)
-        val subscription = connection.subscribe(parentId)
-        try {
-            subscription.consumeEach { childrenUpdate ->
-                _children.postValue(LoadRequest.Success(childrenUpdate))
-            }
-        } catch (e: MediaSubscriptionException) {
-            _children.value = LoadRequest.Error(e)
-        }
-    }
+    protected fun observeChildren(parentId: String): Job = connection.subscribe(parentId)
+        .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+        .onStart { emit(LoadRequest.Pending) }
+        .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+        .onEach { _children.postValue(it) }
+        .launchIn(viewModelScope)
 
     override fun onCleared() {
         super.onCleared()

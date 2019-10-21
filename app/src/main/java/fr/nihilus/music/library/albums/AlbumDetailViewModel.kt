@@ -25,8 +25,9 @@ import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
+import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,25 +54,20 @@ class AlbumDetailViewModel
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = viewModelScope.launch {
-            _tracks.postValue(LoadRequest.Pending)
-            try {
-                connection.subscribe(albumId).consumeEach { albumTracks ->
-                    val success = LoadRequest.Success(albumTracks)
-                    _tracks.postValue(success)
-                }
-            } catch (mse: MediaSubscriptionException) {
-                _tracks.value = LoadRequest.Error(mse)
-            }
-        }
+        observeTracksJob = connection.subscribe(albumId)
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _tracks.postValue(it) }
+            .launchIn(viewModelScope)
     }
 
     /**
      * The track that the player is currently playing, if any.
      * TODO: would be better to share the position of the track that is currently playing
      */
-    val nowPlaying: LiveData<MediaMetadataCompat?>
-        get() = connection.nowPlaying
+    val nowPlaying: LiveData<MediaMetadataCompat?> =
+        connection.nowPlaying.consumeAsLiveData(viewModelScope)
 
     fun playAlbum() {
         val albumId = album.value?.mediaId

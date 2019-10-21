@@ -23,13 +23,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.common.media.InvalidMediaException
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -123,13 +123,11 @@ class PlaylistManagementViewModel
         connection.disconnect(token)
     }
 
-    private fun loadUserPlaylists(): Job = viewModelScope.launch {
-        try {
-            connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { playlists ->
-                _userPlaylists.postValue(LoadRequest.Success(playlists))
-            }
-        } catch (ime: InvalidMediaException) {
-            _userPlaylists.postValue(LoadRequest.Error(ime))
-        }
-    }
+    private fun loadUserPlaylists(): Job =
+        connection.subscribe(MediaId.encode(MediaId.TYPE_PLAYLISTS))
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _userPlaylists.value = it }
+            .launchIn(viewModelScope)
 }

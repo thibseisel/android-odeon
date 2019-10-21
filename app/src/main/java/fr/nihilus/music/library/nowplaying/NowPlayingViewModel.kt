@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import fr.nihilus.music.service.extensions.isPlaying
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,10 +33,10 @@ class NowPlayingViewModel
     private val connection: MediaBrowserConnection
 ) : ViewModel() {
 
-    val playbackState: LiveData<PlaybackStateCompat> get() = connection.playbackState
-    val nowPlaying: LiveData<MediaMetadataCompat?> get() = connection.nowPlaying
-    val repeatMode: LiveData<Int> get() = connection.repeatMode
-    val shuffleMode: LiveData<Int> get() = connection.shuffleMode
+    val playbackState: LiveData<PlaybackStateCompat> = connection.playbackState.consumeAsLiveData(viewModelScope)
+    val nowPlaying: LiveData<MediaMetadataCompat?> = connection.nowPlaying.consumeAsLiveData(viewModelScope)
+    val repeatMode: LiveData<Int> = connection.repeatMode.consumeAsLiveData(viewModelScope)
+    val shuffleMode: LiveData<Int> = connection.shuffleMode.consumeAsLiveData(viewModelScope)
 
     fun togglePlayPause() {
         viewModelScope.launch {
