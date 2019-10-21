@@ -220,8 +220,14 @@ class MusicService : BaseBrowserService() {
         result.detach()
         launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)
-            val searchResults = browserTree.search(parsedQuery)
-            result.sendResult(searchResults)
+
+            try {
+                val searchResults = browserTree.search(parsedQuery)
+                result.sendResult(searchResults)
+            } catch (pde: PermissionDeniedException) {
+                Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
+                result.sendResult(null)
+            }
         }
     }
 
