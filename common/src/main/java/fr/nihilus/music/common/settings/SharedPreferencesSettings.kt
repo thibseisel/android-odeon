@@ -41,18 +41,17 @@ internal class SharedPreferencesSettings
     private val preferences: SharedPreferences
 ) : Settings {
 
-    override val currentTheme: Flow<Settings.AppTheme>
-        get() = preferenceFlow(KEY_THEME) { prefs ->
-            val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
+    override val currentTheme: Flow<Settings.AppTheme> = preferenceFlow(KEY_THEME) { prefs ->
+        val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
 
-            when (val themeValue = prefs.getString(KEY_THEME, defaultThemeValue)) {
-                context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
-                context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
-                context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
-                context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
-                else -> error("Unexpected value for $KEY_THEME preference: $themeValue")
-            }
+        when (val themeValue = prefs.getString(KEY_THEME, defaultThemeValue)) {
+            context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
+            context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
+            context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
+            context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
+            else -> error("Unexpected value for $KEY_THEME preference: $themeValue")
         }
+    }
 
     override val queueIdentifier: Long
         get() = preferences.getLong(KEY_QUEUE_COUNTER, 0L)
@@ -123,6 +122,10 @@ internal class SharedPreferencesSettings
                 offer(preferenceValue)
             }
         }
+
+        // Emit the current value.
+        val initialValue = valueProvider(preferences)
+        offer(initialValue)
 
         preferences.registerOnSharedPreferenceChangeListener(valueListener)
         awaitClose { preferences.unregisterOnSharedPreferenceChangeListener(valueListener) }

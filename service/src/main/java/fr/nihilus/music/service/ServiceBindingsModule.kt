@@ -35,9 +35,6 @@ internal abstract class ServiceBindingsModule {
     internal abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
-    abstract fun bindsSettings(settings: SharedPreferencesMediaSettings): MediaSettings
-
-    @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player
 
     @Binds

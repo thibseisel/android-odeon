@@ -16,12 +16,16 @@
 
 package fr.nihilus.music
 
+import androidx.appcompat.app.AppCompatDelegate
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fr.nihilus.music.common.DaggerCoreComponent
+import fr.nihilus.music.common.settings.Settings
 import fr.nihilus.music.dagger.DaggerAppComponent
-import fr.nihilus.music.settings.UiSettings
 import io.reactivex.plugins.RxJavaPlugins
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -30,7 +34,7 @@ import javax.inject.Inject
  * This class also performs general configuration tasks.
  */
 class OdeonApplication : DaggerApplication() {
-    @Inject lateinit var settings: UiSettings
+    @Inject lateinit var settings: Settings
 
     override fun onCreate() {
         super.onCreate()
@@ -42,7 +46,11 @@ class OdeonApplication : DaggerApplication() {
             RxJavaPlugins.setErrorHandler { throw it }
         }
 
-        settings.setupTheme()
+        // Apply theme whenever it is changed via preferences.
+        settings.currentTheme.onEach { theme ->
+            Timber.tag("OdeonApplication").d("Setting theme to %s", theme)
+            AppCompatDelegate.setDefaultNightMode(theme.value)
+        }.launchIn(GlobalScope)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {

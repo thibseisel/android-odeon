@@ -40,16 +40,19 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.media.toMediaIdOrNull
 import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.common.settings.RepeatMode
+import fr.nihilus.music.common.settings.Settings
 import fr.nihilus.music.media.actions.ActionFailure
 import fr.nihilus.music.media.actions.BrowserAction
+import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
-import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.collect
 import timber.log.Timber
@@ -73,7 +76,7 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var session: MediaSessionCompat
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: Player
-    @Inject internal lateinit var settings: MediaSettings
+    @Inject internal lateinit var settings: Settings
     @Inject internal lateinit var customActions: Map<String, @JvmSuppressWildcards BrowserAction>
 
     private lateinit var mediaController: MediaControllerCompat
@@ -89,8 +92,19 @@ class MusicService : BaseBrowserService() {
         // Restore shuffle and repeat mode for the media session and the player (through callbacks)
         mediaController = MediaControllerCompat(this, session)
         mediaController.transportControls.run {
-            setShuffleMode(settings.shuffleMode)
-            setRepeatMode(settings.repeatMode)
+            setShuffleMode(
+                when(settings.shuffleModeEnabled) {
+                    true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+                    else -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+                }
+            )
+            setRepeatMode(
+                when (settings.repeatMode) {
+                    RepeatMode.ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
+                    RepeatMode.ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
+                    else -> PlaybackStateCompat.REPEAT_MODE_NONE
+                }
+            )
         }
 
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for state changes.
@@ -272,11 +286,16 @@ class MusicService : BaseBrowserService() {
         }
 
         override fun onShuffleModeChanged(shuffleMode: Int) {
-            settings.shuffleMode = shuffleMode
+            settings.shuffleModeEnabled = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
-            settings.repeatMode = repeatMode
+            settings.repeatMode = when (repeatMode) {
+                PlaybackStateCompat.REPEAT_MODE_ALL,
+                PlaybackStateCompat.REPEAT_MODE_GROUP -> RepeatMode.ALL
+                PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.ONE
+                else -> RepeatMode.DISABLED
+            }
         }
 
         private fun updateServiceState(state: PlaybackStateCompat) {
@@ -354,12 +373,12 @@ class MusicService : BaseBrowserService() {
         }
     }
 
-    private fun CoroutineScope.observeSkipSilenceSettings() = launch {
-        settings.skipSilenceUpdates.consumeEach { shouldSkipSilence ->
+    private fun CoroutineScope.observeSkipSilenceSettings() {
+        settings.skipSilence.onEach { shouldSkipSilence ->
             player.playbackParameters = if (shouldSkipSilence) {
                 PlaybackParameters(1f, 1f, true)
             } else PlaybackParameters.DEFAULT
-        }
+        }.launchIn(this)
     }
 
     private fun CoroutineScope.observeMediaChanges() = launch {

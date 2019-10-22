@@ -16,14 +16,11 @@
 
 package fr.nihilus.music.settings
 
-import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 @Module
 internal abstract class SettingsModule {
-    @Binds
-    internal abstract fun bindsUiSettings(settings: SharedPreferencesUiSettings): UiSettings
 
     @ContributesAndroidInjector
     abstract fun settingsActivity(): SettingsActivity

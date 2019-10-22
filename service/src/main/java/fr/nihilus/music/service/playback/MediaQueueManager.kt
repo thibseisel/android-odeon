@@ -25,8 +25,8 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
+import fr.nihilus.music.common.settings.Settings
 import fr.nihilus.music.media.dagger.ServiceScoped
-import fr.nihilus.music.service.MediaSettings
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +44,7 @@ internal class MediaQueueManager
 @Inject constructor(
     scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
-    private val prefs: MediaSettings,
+    private val prefs: Settings,
     downloader: IconDownloader
 ) : MediaSessionConnector.QueueNavigator {
 

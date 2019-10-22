@@ -38,10 +38,10 @@ import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
 import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.common.settings.Settings
 import fr.nihilus.music.media.R
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
-import fr.nihilus.music.service.MediaSettings
 import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -61,7 +61,7 @@ internal class OdeonPlaybackPreparer
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
-    private val settings: MediaSettings
+    private val settings: Settings
 ) : MediaSessionConnector.PlaybackPreparer {
 
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
