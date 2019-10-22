@@ -93,6 +93,8 @@ dependencies {
     // Provides the instance of SharedPreferences
     api "androidx.preference:preference-ktx:${versions.androidx.preference}"
 
+    implementation "androidx.media:media:${versions.androidx.media}"
+
     testImplementation "junit:junit:${versions.junit}"
     testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
 

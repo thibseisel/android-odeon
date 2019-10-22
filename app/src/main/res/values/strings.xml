@@ -93,6 +93,12 @@
     <string name="pref_theme_dark">Dark</string>
     <string name="pref_theme_battery">Set by Battery Saver</string>
     <string name="pref_theme_system">Use system default</string>
+    <string-array name="prefs_theme_titles">
+        <item>@string/pref_theme_light</item>
+        <item>@string/pref_theme_dark</item>
+        <item>@string/pref_theme_battery</item>
+        <item>@string/pref_theme_system</item>
+    </string-array>
     <string name="action_cleanup_title">Free storage space</string>
     <string name="select_all_elements">All elements</string>
     <string name="cleanup_confirmation_message">This operation cannot be undone.</string>

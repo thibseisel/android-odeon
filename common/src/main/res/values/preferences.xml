@@ -20,17 +20,9 @@
     <string name="pref_theme_dark_value" translatable="false">dark</string>
     <string name="pref_theme_battery_value" translatable="false">battery</string>
     <string name="pref_theme_system_value" translatable="false">system</string>
-    <string name="pref_theme_default_value" translatable="false">@string/pref_theme_battery_value</string>
 
     <!-- Defaults to Battery Saver on pre-Android Q. -->
-    <string name="pref_skip_silence" translatable="false">skip_silence</string>
-
-    <string-array name="prefs_theme_titles">
-        <item>@string/pref_theme_light</item>
-        <item>@string/pref_theme_dark</item>
-        <item>@string/pref_theme_battery</item>
-        <item>@string/pref_theme_system</item>
-    </string-array>
+    <string name="pref_theme_default_value" translatable="false">@string/pref_theme_battery_value</string>
 
     <string-array name="prefs_theme_values">
         <item>@string/pref_theme_light_value</item>
@@ -39,5 +31,6 @@
         <item>@string/pref_theme_system_value</item>
     </string-array>
 
+    <string name="pref_skip_silence" translatable="false">skip_silence</string>
     <bool name="pref_default_skip_silence">false</bool>
 </resources>

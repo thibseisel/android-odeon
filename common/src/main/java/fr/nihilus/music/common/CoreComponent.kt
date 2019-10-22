@@ -29,7 +29,7 @@ import fr.nihilus.music.common.database.spotify.SpotifyDao
 import fr.nihilus.music.common.database.usage.UsageDao
 import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.RuntimePermissions
-import kotlinx.coroutines.CoroutineScope
+import fr.nihilus.music.common.settings.Settings
 import javax.inject.Singleton
 
 @Singleton
@@ -47,6 +47,9 @@ interface CoreComponent {
     val playlistDao: PlaylistDao
     val usageDao: UsageDao
     val spotifyDao: SpotifyDao
+    val settings: Settings
+
+    @Deprecated("This should no longer be used a dependency. Inject Settings instead.")
     val prefs: SharedPreferences
 
     @Component.Factory
