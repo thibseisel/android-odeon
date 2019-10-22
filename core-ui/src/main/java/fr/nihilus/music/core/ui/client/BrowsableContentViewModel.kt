@@ -37,7 +37,7 @@ abstract class BrowsableContentViewModel(
         connection.connect(token)
     }
 
-    protected fun observeChildren(parentId: String): Job = connection.subscribe(parentId)
+    protected fun observeChildren(parentId: String): Job = connection.getChildren(parentId)
         .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
         .onStart { emit(LoadRequest.Pending) }
         .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

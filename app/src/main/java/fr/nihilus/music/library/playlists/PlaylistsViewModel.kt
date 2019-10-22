@@ -47,7 +47,7 @@ class PlaylistsViewModel
         val allPlaylists = combine(
             builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
             builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
-            connection.subscribe(MediaId.TYPE_PLAYLISTS)
+            connection.getChildren(MediaId.TYPE_PLAYLISTS)
         ) { mostRecent, mostRated, playlists ->
             ArrayList<MediaBrowserCompat.MediaItem>(playlists.size + 2).also {
                 it += mostRecent

@@ -54,7 +54,7 @@ class AlbumDetailViewModel
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = connection.subscribe(albumId)
+        observeTracksJob = connection.getChildren(albumId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

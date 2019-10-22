@@ -67,15 +67,17 @@ class MediaBrowserConnection
     )
 
     private val _playbackState = ConflatedBroadcastChannel<PlaybackStateCompat>(EMPTY_PLAYBACK_STATE)
-    val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
-
     private val _nowPlaying = ConflatedBroadcastChannel<MediaMetadataCompat?>()
-    val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
-
     private val _shuffleMode = ConflatedBroadcastChannel<@PlaybackStateCompat.ShuffleMode Int>()
-    val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
-
     private val _repeatMode = ConflatedBroadcastChannel<@PlaybackStateCompat.RepeatMode Int>()
+
+    /** A flow whose latest value is the current playback state. */
+    val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
+    /** A flow whose latest value is the currently playing track, or `null` if none. */
+    val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
+    /** A flow whose latest value is the current shuffle mode. */
+    val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
+    /** A flow whose latest value is the current repeat mode. */
     val repeatMode: Flow<Int> = _repeatMode.asFlow()
 
     /**
@@ -107,7 +109,19 @@ class MediaBrowserConnection
         }
     }
 
-    fun subscribe(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
+    /**
+     * Retrieve children of a specified browsable item from the media browser tree,
+     * observing changes to those children.
+     * The latest value emitted by the returned flow is always the latest up-to-date children.
+     * A new list is emitted whenever it changes.
+     *
+     * The flow will fail with a [MediaSubscriptionException] if the requested [parentId]
+     * does not exists or is not a browsable item in the hierarchy.
+     *
+     * @param parentId The media id of a browsable item.
+     * @return a flow of children of the specified browsable item.
+     */
+    fun getChildren(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
@@ -163,36 +177,62 @@ class MediaBrowserConnection
         }
     }
 
+    /**
+     * Requests the media service to start or resume playback.
+     */
     suspend fun play() {
         val controller = deferredController.await()
         controller.transportControls.play()
     }
 
+    /**
+     * Requests the media service to pause playback.
+     */
     suspend fun pause() {
         val controller = deferredController.await()
         controller.transportControls.pause()
     }
 
+    /**
+     * Requests the media service to play the item with the specified [mediaId].
+     * @param mediaId The media id of a playable item.
+     */
     suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
     }
 
+    /**
+     * Requests the media service to move its playback position
+     * to a given point in the currently playing media.
+     *
+     * @param positionMs The new position in the current media, in milliseconds.
+     */
     suspend fun seekTo(positionMs: Long) {
         val controller = deferredController.await()
         controller.transportControls.seekTo(positionMs)
     }
 
+    /**
+     * Requests the media service to move to the previous item in the current playlist.
+     */
     suspend fun skipToPrevious() {
         val controller = deferredController.await()
         controller.transportControls.skipToPrevious()
     }
 
+    /**
+     * Requests the media service to move to the next item in the current playlist.
+     */
     suspend fun skipToNext() {
         val controller = deferredController.await()
         controller.transportControls.skipToNext()
     }
 
+    /**
+     * Enable/Disable shuffling of playlists.
+     * @param enabled Whether shuffle should be enabled.
+     */
     suspend fun setShuffleModeEnabled(enabled: Boolean) {
         val controller = deferredController.await()
         controller.transportControls.setShuffleMode(
@@ -203,6 +243,10 @@ class MediaBrowserConnection
         )
     }
 
+    /**
+     * Sets the repeat mode.
+     * @param repeatMode The new repeat mode.
+     */
     suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
         if (
             repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ||
@@ -214,6 +258,19 @@ class MediaBrowserConnection
         }
     }
 
+    /**
+     * Requests the media service to execute a custom action.
+     *
+     * @param name The name of the action to execute.
+     * This should be one of the `CustomActions.ACTION_*` constants.
+     * @param params The parameters required for the execution of the custom action,
+     * as specified in the documentation or the action name.
+     *
+     * @return The result of the execution of the action, if any.
+     * @throws CustomActionException if the execution of the requested action failed.
+     *
+     * @see CustomActions
+     */
     suspend fun executeAction(name: String, params: Bundle?): Bundle? {
         // Wait until connected or the action will fail.
         deferredController.await()
@@ -295,7 +352,7 @@ class MediaBrowserConnection
         }
 
         override fun onConnectionFailed() {
-            Timber.wtf("Failed to connect to the MediaBrowserService.")
+            error("Failed to connect to the MediaBrowserService.")
         }
     }
 
@@ -336,6 +393,11 @@ class MediaBrowserConnection
      */
     class ClientToken
 
+    /**
+     * Thrown when a custom action execution failed.
+     * @param actionName The name of the executed custom action that failed.
+     * @param errorMessage An optional error message describing the error.
+     */
     class CustomActionException(
         actionName: String,
         errorMessage: String?

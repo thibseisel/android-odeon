@@ -54,7 +54,7 @@ class MembersViewModel
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = connection.subscribe(playlistId)
+        observeTracksJob = connection.getChildren(playlistId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

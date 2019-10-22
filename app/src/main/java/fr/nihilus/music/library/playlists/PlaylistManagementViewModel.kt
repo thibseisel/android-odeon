@@ -124,7 +124,7 @@ class PlaylistManagementViewModel
     }
 
     private fun loadUserPlaylists(): Job =
-        connection.subscribe(MediaId.encode(MediaId.TYPE_PLAYLISTS))
+        connection.getChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
