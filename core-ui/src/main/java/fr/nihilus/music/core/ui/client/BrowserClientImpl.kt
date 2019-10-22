@@ -50,10 +50,10 @@ import kotlin.coroutines.suspendCoroutine
  * The connection is disposed when the last client disconnects.
  */
 @AppScope
-class MediaBrowserConnection
-@Inject constructor(applicationContext: Context) {
+internal class BrowserClientImpl
+@Inject constructor(applicationContext: Context) : BrowserClient {
 
-    private val connectedClients = mutableSetOf<ClientToken>()
+    private val connectedClients = mutableSetOf<BrowserClient.ClientToken>()
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
 
@@ -72,13 +72,13 @@ class MediaBrowserConnection
     private val _repeatMode = ConflatedBroadcastChannel<@PlaybackStateCompat.RepeatMode Int>()
 
     /** A flow whose latest value is the current playback state. */
-    val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
+    override val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
     /** A flow whose latest value is the currently playing track, or `null` if none. */
-    val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
+    override val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
     /** A flow whose latest value is the current shuffle mode. */
-    val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
+    override val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
     /** A flow whose latest value is the current repeat mode. */
-    val repeatMode: Flow<Int> = _repeatMode.asFlow()
+    override val repeatMode: Flow<Int> = _repeatMode.asFlow()
 
     /**
      * Initiate connection to the media browser with the given [client]`.
@@ -89,7 +89,7 @@ class MediaBrowserConnection
      *
      * @param client A token used to identify clients that connects to the media browser.
      */
-    fun connect(client: ClientToken) {
+    override fun connect(client: BrowserClient.ClientToken) {
         if (connectedClients.isEmpty()) {
             mediaBrowser.connect()
         }
@@ -102,7 +102,7 @@ class MediaBrowserConnection
      *
      * @param client The same token used when connecting with [connect].
      */
-    fun disconnect(client: ClientToken) {
+    override fun disconnect(client: BrowserClient.ClientToken) {
         if (connectedClients.remove(client) && connectedClients.isEmpty()) {
             mediaBrowser.disconnect()
             deferredController = CompletableDeferred()
@@ -121,7 +121,7 @@ class MediaBrowserConnection
      * @param parentId The media id of a browsable item.
      * @return a flow of children of the specified browsable item.
      */
-    fun getChildren(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
+    override fun getChildren(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
@@ -138,7 +138,7 @@ class MediaBrowserConnection
      * @return A media item with the same media id as the one requested,
      * or `null` if no such item exists or an error occurred.
      */
-    suspend fun getItem(itemId: String): MediaItem? {
+    override suspend fun getItem(itemId: String): MediaItem? {
         deferredController.await()
 
         return suspendCoroutine { continuation ->
@@ -160,7 +160,7 @@ class MediaBrowserConnection
      * @param query The searched terms.
      * @return A list of media that matches the query.
      */
-    suspend fun search(query: String): List<MediaItem> {
+    override suspend fun search(query: String): List<MediaItem> {
         deferredController.await()
 
         return suspendCoroutine { continuation ->
@@ -180,7 +180,7 @@ class MediaBrowserConnection
     /**
      * Requests the media service to start or resume playback.
      */
-    suspend fun play() {
+    override suspend fun play() {
         val controller = deferredController.await()
         controller.transportControls.play()
     }
@@ -188,7 +188,7 @@ class MediaBrowserConnection
     /**
      * Requests the media service to pause playback.
      */
-    suspend fun pause() {
+    override suspend fun pause() {
         val controller = deferredController.await()
         controller.transportControls.pause()
     }
@@ -197,7 +197,7 @@ class MediaBrowserConnection
      * Requests the media service to play the item with the specified [mediaId].
      * @param mediaId The media id of a playable item.
      */
-    suspend fun playFromMediaId(mediaId: String) {
+    override suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
     }
@@ -208,7 +208,7 @@ class MediaBrowserConnection
      *
      * @param positionMs The new position in the current media, in milliseconds.
      */
-    suspend fun seekTo(positionMs: Long) {
+    override suspend fun seekTo(positionMs: Long) {
         val controller = deferredController.await()
         controller.transportControls.seekTo(positionMs)
     }
@@ -216,7 +216,7 @@ class MediaBrowserConnection
     /**
      * Requests the media service to move to the previous item in the current playlist.
      */
-    suspend fun skipToPrevious() {
+    override suspend fun skipToPrevious() {
         val controller = deferredController.await()
         controller.transportControls.skipToPrevious()
     }
@@ -224,7 +224,7 @@ class MediaBrowserConnection
     /**
      * Requests the media service to move to the next item in the current playlist.
      */
-    suspend fun skipToNext() {
+    override suspend fun skipToNext() {
         val controller = deferredController.await()
         controller.transportControls.skipToNext()
     }
@@ -233,7 +233,7 @@ class MediaBrowserConnection
      * Enable/Disable shuffling of playlists.
      * @param enabled Whether shuffle should be enabled.
      */
-    suspend fun setShuffleModeEnabled(enabled: Boolean) {
+    override suspend fun setShuffleModeEnabled(enabled: Boolean) {
         val controller = deferredController.await()
         controller.transportControls.setShuffleMode(
             when {
@@ -247,7 +247,7 @@ class MediaBrowserConnection
      * Sets the repeat mode.
      * @param repeatMode The new repeat mode.
      */
-    suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
+    override suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
         if (
             repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ||
             repeatMode == PlaybackStateCompat.REPEAT_MODE_ONE ||
@@ -267,11 +267,11 @@ class MediaBrowserConnection
      * as specified in the documentation or the action name.
      *
      * @return The result of the execution of the action, if any.
-     * @throws CustomActionException if the execution of the requested action failed.
+     * @throws BrowserClient.CustomActionException if the execution of the requested action failed.
      *
      * @see CustomActions
      */
-    suspend fun executeAction(name: String, params: Bundle?): Bundle? {
+    override suspend fun executeAction(name: String, params: Bundle?): Bundle? {
         // Wait until connected or the action will fail.
         deferredController.await()
 
@@ -286,7 +286,9 @@ class MediaBrowserConnection
                     checkNotNull(data) { "Service should have sent a Bundle explaining the error" }
 
                     val errorMessage = data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
-                    it.resumeWithException(CustomActionException(action, errorMessage))
+                    it.resumeWithException(
+                        BrowserClient.CustomActionException(action, errorMessage)
+                    )
                 }
             })
         }
@@ -388,20 +390,6 @@ class MediaBrowserConnection
         }
     }
 
-    /**
-     * Defines data required to maintain a connection to a client-side MediaBrowser connection.
-     */
-    class ClientToken
-
-    /**
-     * Thrown when a custom action execution failed.
-     * @param actionName The name of the executed custom action that failed.
-     * @param errorMessage An optional error message describing the error.
-     */
-    class CustomActionException(
-        actionName: String,
-        errorMessage: String?
-    ) : Exception("Custom action $actionName failed: $errorMessage")
 }
 
 /**
@@ -415,12 +403,3 @@ private val PlaybackStateCompat.isPrepared
     get() = (state == PlaybackStateCompat.STATE_BUFFERING) ||
             (state == PlaybackStateCompat.STATE_PLAYING) ||
             (state == PlaybackStateCompat.STATE_PAUSED)
-
-/**
- * Thrown when subscribing for children of a given media failed for some reason.
- *
- * @param parentId The parent media of the subscribed children.
- */
-class MediaSubscriptionException(parentId: String) : Exception() {
-    override val message: String? = "Unable to load children of parent $parentId."
-}

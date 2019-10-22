@@ -250,7 +250,10 @@ internal class MediaClientImpl
 
                     val errorMessage = data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
                     continuation.resumeWithException(
-                        MediaBrowserConnection.CustomActionException(action, errorMessage)
+                        BrowserClient.CustomActionException(
+                            action,
+                            errorMessage
+                        )
                     )
                 }
             })

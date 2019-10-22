@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -32,9 +32,9 @@ import javax.inject.Inject
 
 class MusicLibraryViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
-    private val client = MediaBrowserConnection.ClientToken()
+    private val client = BrowserClient.ClientToken()
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
     val playerSheetVisible: LiveData<Boolean> = _playerSheetVisible

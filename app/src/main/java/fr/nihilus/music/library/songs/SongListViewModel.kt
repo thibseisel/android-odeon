@@ -25,13 +25,13 @@ import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SongListViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : BrowsableContentViewModel(connection) {
 
     private val _deleteTracksConfirmation = MutableLiveData<Event<Int>>()

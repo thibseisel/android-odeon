@@ -22,7 +22,7 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import fr.nihilus.music.service.extensions.isPlaying
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 class NowPlayingViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
 
     val playbackState: LiveData<PlaybackStateCompat> = connection.playbackState.consumeAsLiveData(viewModelScope)

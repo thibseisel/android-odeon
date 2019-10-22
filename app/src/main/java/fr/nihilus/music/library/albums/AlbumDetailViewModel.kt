@@ -23,7 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import kotlinx.coroutines.Job
@@ -33,9 +33,9 @@ import javax.inject.Inject
 
 class AlbumDetailViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
-    private val token = MediaBrowserConnection.ClientToken()
+    private val token = BrowserClient.ClientToken()
     private var observeTracksJob: Job? = null
 
     private val _album = MutableLiveData<MediaBrowserCompat.MediaItem>()

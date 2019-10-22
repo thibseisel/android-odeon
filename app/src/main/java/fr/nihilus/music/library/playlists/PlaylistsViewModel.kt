@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -31,9 +31,9 @@ import javax.inject.Inject
 
 class PlaylistsViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
-    private val token = MediaBrowserConnection.ClientToken()
+    private val token = BrowserClient.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
     val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> = _children

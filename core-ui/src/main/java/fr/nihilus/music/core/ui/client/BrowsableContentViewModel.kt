@@ -26,9 +26,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 
 abstract class BrowsableContentViewModel(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
-    private val token = MediaBrowserConnection.ClientToken()
+    private val token = BrowserClient.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaItem>>>()
     val children: LiveData<LoadRequest<List<MediaItem>>> = _children

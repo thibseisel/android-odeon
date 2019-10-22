@@ -26,7 +26,7 @@ import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -57,9 +57,9 @@ sealed class PlaylistActionResult {
  */
 class PlaylistManagementViewModel
 @Inject constructor(
-    private val connection: MediaBrowserConnection
+    private val connection: BrowserClient
 ) : ViewModel() {
-    private val token = MediaBrowserConnection.ClientToken()
+    private val token = BrowserClient.ClientToken()
 
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
 

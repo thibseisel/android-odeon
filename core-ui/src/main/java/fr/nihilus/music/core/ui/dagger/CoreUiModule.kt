@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.artists.detail
+package fr.nihilus.music.core.ui.dagger
 
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
+import dagger.Binds
+import dagger.Module
 import fr.nihilus.music.core.ui.client.BrowserClient
-import kotlinx.coroutines.Job
-import javax.inject.Inject
+import fr.nihilus.music.core.ui.client.BrowserClientImpl
 
-class ArtistDetailViewModel
-@Inject constructor(
-    connection: BrowserClient
-) : BrowsableContentViewModel(connection) {
-    private var observeChildrenJob: Job? = null
+/**
+ * Provides an implementation of [BrowserClient] that connects to MusicService
+ * to read media hierarchy and send playback commands.
+ */
+@Module
+abstract class CoreUiModule {
 
-    fun loadChildrenOfArtist(artist: MediaBrowserCompat.MediaItem) {
-        observeChildrenJob?.cancel()
-        observeChildrenJob = observeChildren(artist.mediaId!!)
-    }
+    @Binds
+    internal abstract fun bindsBrowserClient(impl: BrowserClientImpl): BrowserClient
 }
