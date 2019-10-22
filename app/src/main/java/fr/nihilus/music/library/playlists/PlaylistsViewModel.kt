@@ -25,8 +25,8 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class PlaylistsViewModel
@@ -36,38 +36,36 @@ class PlaylistsViewModel
     private val token = MediaBrowserConnection.ClientToken()
 
     private val _children = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _children
+    val children: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> = _children
 
     init {
         connection.connect(token)
         loadBuiltinAndUserPlaylists()
     }
 
-    private fun loadBuiltinAndUserPlaylists(): Job = viewModelScope.launch {
-        _children.postValue(LoadRequest.Pending)
-        coroutineScope {
-            val mostRecent = loadBuiltInPlaylistItemAsync(MediaId.CATEGORY_RECENTLY_ADDED)
-            val mostRated = loadBuiltInPlaylistItemAsync(MediaId.CATEGORY_MOST_RATED)
-
-            try {
-                connection.subscribe(MediaId.ALL_PLAYLISTS).consumeEach { childrenUpdate ->
-                    val displayedItems = ArrayList<MediaBrowserCompat.MediaItem>(childrenUpdate.size + 2)
-                    displayedItems += mostRecent.await()
-                    displayedItems += mostRated.await()
-                    displayedItems += childrenUpdate
-
-                    _children.postValue(LoadRequest.Success(displayedItems))
-                }
-
-            } catch (e: MediaSubscriptionException) {
-                _children.postValue(LoadRequest.Error(e))
+    private fun loadBuiltinAndUserPlaylists(): Job {
+        val allPlaylists = combine(
+            builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
+            builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
+            connection.subscribe(MediaId.TYPE_PLAYLISTS)
+        ) { mostRecent, mostRated, playlists ->
+            ArrayList<MediaBrowserCompat.MediaItem>(playlists.size + 2).also {
+                it += mostRecent
+                it += mostRated
+                it += playlists
             }
         }
+
+        return allPlaylists
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _children.value = it }
+            .launchIn(viewModelScope)
     }
 
-    private fun CoroutineScope.loadBuiltInPlaylistItemAsync(category: String) = async {
+    private fun builtInPlaylistFlow(category: String) = flow<MediaBrowserCompat.MediaItem> {
         val itemId = MediaId.encode(MediaId.TYPE_TRACKS, category)
-        connection.getItem(itemId) ?: error("Item with id $itemId should always exist.")
+        emit(connection.getItem(itemId) ?: error("Item with id $itemId should always exist."))
     }
 }

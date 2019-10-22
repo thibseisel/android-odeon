@@ -18,10 +18,15 @@ package fr.nihilus.music.library
 
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,35 +37,31 @@ class MusicLibraryViewModel
     private val client = MediaBrowserConnection.ClientToken()
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
-    val playerSheetVisible: LiveData<Boolean>
-        get() = _playerSheetVisible
+    val playerSheetVisible: LiveData<Boolean> = _playerSheetVisible
 
     private val _playerError = MutableLiveData<Event<CharSequence>>()
-    val playerError: LiveData<Event<CharSequence>>
-        get() = _playerError
-
-    private val playbackStateObserver = Observer<PlaybackStateCompat> {
-        when (it?.state) {
-            PlaybackStateCompat.STATE_NONE,
-            PlaybackStateCompat.STATE_STOPPED -> {
-                _playerSheetVisible.value = false
-            }
-
-            PlaybackStateCompat.STATE_ERROR -> {
-                _playerSheetVisible.value = false
-                _playerError.value = Event(it.errorMessage)
-            }
-
-            PlaybackStateCompat.STATE_PAUSED,
-            PlaybackStateCompat.STATE_PLAYING -> {
-                _playerSheetVisible.value = true
-            }
-        }
-    }
+    val playerError: LiveData<Event<CharSequence>> = _playerError
 
     init {
         connection.connect(client)
-        connection.playbackState.observeForever(playbackStateObserver)
+        connection.playbackState.onEach {
+            when (it.state) {
+                PlaybackStateCompat.STATE_NONE,
+                PlaybackStateCompat.STATE_STOPPED -> {
+                    _playerSheetVisible.value = false
+                }
+
+                PlaybackStateCompat.STATE_ERROR -> {
+                    _playerSheetVisible.value = false
+                    _playerError.value = Event(it.errorMessage)
+                }
+
+                PlaybackStateCompat.STATE_PAUSED,
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    _playerSheetVisible.value = true
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
@@ -79,7 +80,6 @@ class MusicLibraryViewModel
     }
 
     override fun onCleared() {
-        connection.playbackState.removeObserver(playbackStateObserver)
         super.onCleared()
         connection.disconnect(client)
     }

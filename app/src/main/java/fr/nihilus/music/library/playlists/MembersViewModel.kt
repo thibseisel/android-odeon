@@ -17,8 +17,7 @@
 package fr.nihilus.music.library.playlists
 
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.*
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -28,7 +27,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -55,17 +54,12 @@ class MembersViewModel
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = viewModelScope.launch {
-            _members.postValue(LoadRequest.Pending)
-            try {
-                connection.subscribe(playlistId).consumeEach { albumTracks ->
-                    val success = LoadRequest.Success(albumTracks)
-                    _members.postValue(success)
-                }
-            } catch (mse: MediaSubscriptionException) {
-                _members.value = LoadRequest.Error(mse)
-            }
-        }
+        observeTracksJob = connection.subscribe(playlistId)
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _members.postValue(it) }
+            .launchIn(viewModelScope)
     }
 
     fun deletePlaylist(playlistId: String) {

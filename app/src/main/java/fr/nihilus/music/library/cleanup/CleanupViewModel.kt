@@ -27,9 +27,8 @@ import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.MediaBrowserConnection
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class CleanupViewModel
@@ -47,17 +46,13 @@ class CleanupViewModel
         loadDisposableTracks()
     }
 
-    private fun loadDisposableTracks() = viewModelScope.launch {
-        try {
-            val subscription = connection.subscribe(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE))
-            subscription.consumeEach { disposableTracks ->
-                _tracks.postValue(LoadRequest.Success(disposableTracks))
-            }
-
-        } catch (e: MediaSubscriptionException) {
-            Timber.e(e, "Failed to load disposable tracks.")
-            _tracks.postValue(LoadRequest.Success(emptyList()))
-        }
+    private fun loadDisposableTracks() {
+        connection.subscribe(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE))
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _tracks.postValue(it) }
+            .launchIn(viewModelScope)
     }
 
     fun deleteTracks(selectedTracks: List<MediaItem>) {

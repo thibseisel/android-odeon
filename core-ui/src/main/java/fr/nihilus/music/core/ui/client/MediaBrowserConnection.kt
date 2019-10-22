@@ -20,45 +20,25 @@ import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import fr.nihilus.music.common.AppScope
 import fr.nihilus.music.common.media.CustomActions
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
 import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-
-/**
- * The playback state used as an alternative to `null`.
- */
-private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
-    .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
-    .build()
-
-private val PlaybackStateCompat.isPrepared
-    get() = (state == PlaybackStateCompat.STATE_BUFFERING) ||
-            (state == PlaybackStateCompat.STATE_PLAYING) ||
-            (state == PlaybackStateCompat.STATE_PAUSED)
-
-/**
- * Thrown when subscribing for children of a given media failed for some reason.
- *
- * @param parentId The parent media of the subscribed children.
- */
-class MediaSubscriptionException(parentId: String) : Exception() {
-    override val message: String? = "Unable to load children of parent $parentId."
-}
 
 /**
  * Maintain a client-side connection to this application's media session,
@@ -77,8 +57,7 @@ class MediaBrowserConnection
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
 
-    @Volatile
-    private var deferredController = CompletableDeferred<MediaControllerCompat>()
+    @Volatile private var deferredController = CompletableDeferred<MediaControllerCompat>()
 
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
@@ -87,27 +66,17 @@ class MediaBrowserConnection
         null
     )
 
-    private val _playbackState = MutableLiveData<PlaybackStateCompat>()
-    val playbackState: LiveData<PlaybackStateCompat>
-        get() = _playbackState
+    private val _playbackState = ConflatedBroadcastChannel<PlaybackStateCompat>(EMPTY_PLAYBACK_STATE)
+    val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
 
-    private val _nowPlaying = MutableLiveData<MediaMetadataCompat?>()
-    val nowPlaying: LiveData<MediaMetadataCompat?>
-        get() = _nowPlaying
+    private val _nowPlaying = ConflatedBroadcastChannel<MediaMetadataCompat?>()
+    val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
 
-    private val _shuffleMode = MutableLiveData<@PlaybackStateCompat.ShuffleMode Int>()
-    val shuffleMode: LiveData<Int>
-        get() = _shuffleMode
+    private val _shuffleMode = ConflatedBroadcastChannel<@PlaybackStateCompat.ShuffleMode Int>()
+    val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
 
-    private val _repeatMode = MutableLiveData<@PlaybackStateCompat.RepeatMode Int>()
-    val repeatMode: LiveData<Int>
-        get() = _repeatMode
-
-    init {
-        _playbackState.postValue(EMPTY_PLAYBACK_STATE)
-        _shuffleMode.postValue(PlaybackStateCompat.SHUFFLE_MODE_INVALID)
-        _repeatMode.postValue(PlaybackStateCompat.REPEAT_MODE_INVALID)
-    }
+    private val _repeatMode = ConflatedBroadcastChannel<@PlaybackStateCompat.RepeatMode Int>()
+    val repeatMode: Flow<Int> = _repeatMode.asFlow()
 
     /**
      * Initiate connection to the media browser with the given [client]`.
@@ -138,38 +107,15 @@ class MediaBrowserConnection
         }
     }
 
-    suspend fun subscribe(parentId: String): ReceiveChannel<List<MediaBrowserCompat.MediaItem>> {
+    fun subscribe(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
 
-        return Channel<List<MediaBrowserCompat.MediaItem>>(capacity = Channel.CONFLATED).also {
-            val callback = object : MediaBrowserCompat.SubscriptionCallback() {
-                override fun onChildrenLoaded(
-                    parentId: String,
-                    children: List<MediaBrowserCompat.MediaItem>
-                ) = it.sendBlocking(children)
-
-                override fun onChildrenLoaded(
-                    parentId: String,
-                    children: List<MediaBrowserCompat.MediaItem>,
-                    options: Bundle
-                ) = onChildrenLoaded(parentId, children)
-
-                override fun onError(parentId: String) {
-                    Timber.e("Failed to load children of %s", parentId)
-                    it.close(MediaSubscriptionException(parentId))
-                }
-
-                override fun onError(parentId: String, options: Bundle) = onError(parentId)
-            }
-
-            mediaBrowser.subscribe(parentId, callback)
-            it.invokeOnClose {
-                mediaBrowser.unsubscribe(parentId, callback)
-            }
-        }
-    }
+        val subscription = ChannelSubscription(channel)
+        mediaBrowser.subscribe(parentId, subscription)
+        awaitClose { mediaBrowser.unsubscribe(parentId, subscription) }
+    }.conflate()
 
     /**
      * Retrieve information of a single item from the media browser.
@@ -178,12 +124,12 @@ class MediaBrowserConnection
      * @return A media item with the same media id as the one requested,
      * or `null` if no such item exists or an error occurred.
      */
-    suspend fun getItem(itemId: String): MediaBrowserCompat.MediaItem? {
+    suspend fun getItem(itemId: String): MediaItem? {
         deferredController.await()
 
         return suspendCoroutine { continuation ->
             mediaBrowser.getItem(itemId, object : MediaBrowserCompat.ItemCallback() {
-                override fun onItemLoaded(item: MediaBrowserCompat.MediaItem?) {
+                override fun onItemLoaded(item: MediaItem?) {
                     continuation.resume(item)
                 }
 
@@ -200,13 +146,13 @@ class MediaBrowserConnection
      * @param query The searched terms.
      * @return A list of media that matches the query.
      */
-    suspend fun search(query: String): List<MediaBrowserCompat.MediaItem> {
+    suspend fun search(query: String): List<MediaItem> {
         deferredController.await()
 
-        return suspendCancellableCoroutine { continuation ->
+        return suspendCoroutine { continuation ->
             mediaBrowser.search(query, null, object : MediaBrowserCompat.SearchCallback() {
 
-                override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaBrowserCompat.MediaItem>) {
+                override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaItem>) {
                     continuation.resume(items)
                 }
 
@@ -250,9 +196,10 @@ class MediaBrowserConnection
     suspend fun setShuffleModeEnabled(enabled: Boolean) {
         val controller = deferredController.await()
         controller.transportControls.setShuffleMode(
-            if (enabled)
-                PlaybackStateCompat.SHUFFLE_MODE_ALL else
-                PlaybackStateCompat.SHUFFLE_MODE_NONE
+            when {
+                enabled -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+                else -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+            }
         )
     }
 
@@ -281,15 +228,35 @@ class MediaBrowserConnection
                     checkNotNull(action) { "Failing custom action should have a name" }
                     checkNotNull(data) { "Service should have sent a Bundle explaining the error" }
 
-                    it.resumeWithException(
-                        CustomActionException(
-                            action,
-                            data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
-                        )
-                    )
+                    val errorMessage = data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
+                    it.resumeWithException(CustomActionException(action, errorMessage))
                 }
             })
         }
+    }
+
+    /**
+     * A subscription that sends updates to media children to a [SendChannel].
+     */
+    private class ChannelSubscription(
+        private val channel: SendChannel<List<MediaItem>>
+    ) : MediaBrowserCompat.SubscriptionCallback() {
+
+        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
+            channel.offer(children)
+        }
+
+        override fun onChildrenLoaded(
+            parentId: String,
+            children: List<MediaItem>,
+            options: Bundle
+        ) = onChildrenLoaded(parentId, children)
+
+        override fun onError(parentId: String) {
+            channel.close(MediaSubscriptionException(parentId))
+        }
+
+        override fun onError(parentId: String, options: Bundle) = onError(parentId)
     }
 
     private inner class ConnectionCallback(
@@ -300,10 +267,10 @@ class MediaBrowserConnection
             Timber.i("MediaBrowser is connected.")
             val controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
                 it.registerCallback(controllerCallback)
-                _playbackState.postValue(it.playbackState ?: EMPTY_PLAYBACK_STATE)
-                _nowPlaying.postValue(it.metadata)
-                _repeatMode.value = it.repeatMode
-                _shuffleMode.value = it.shuffleMode
+                _playbackState.offer(it.playbackState ?: EMPTY_PLAYBACK_STATE)
+                _nowPlaying.offer(it.metadata)
+                _repeatMode.offer(it.repeatMode)
+                _shuffleMode.offer(it.shuffleMode)
             }
 
             // Trigger all operations waiting for the browser to be connected.
@@ -342,20 +309,20 @@ class MediaBrowserConnection
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.STATE_PAUSED,
                 PlaybackStateCompat.STATE_PLAYING,
-                PlaybackStateCompat.STATE_ERROR -> _playbackState.postValue(newState)
+                PlaybackStateCompat.STATE_ERROR -> _playbackState.offer(newState)
             }
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            _nowPlaying.postValue(metadata)
+            _nowPlaying.offer(metadata)
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
-            _repeatMode.value = repeatMode
+            _repeatMode.offer(repeatMode)
         }
 
         override fun onShuffleModeChanged(shuffleMode: Int) {
-            _shuffleMode.value = shuffleMode
+            _shuffleMode.offer(shuffleMode)
         }
 
         override fun onSessionDestroyed() {
@@ -373,5 +340,25 @@ class MediaBrowserConnection
         actionName: String,
         errorMessage: String?
     ) : Exception("Custom action $actionName failed: $errorMessage")
+}
 
+/**
+ * The playback state used as an alternative to `null`.
+ */
+private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
+    .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
+    .build()
+
+private val PlaybackStateCompat.isPrepared
+    get() = (state == PlaybackStateCompat.STATE_BUFFERING) ||
+            (state == PlaybackStateCompat.STATE_PLAYING) ||
+            (state == PlaybackStateCompat.STATE_PAUSED)
+
+/**
+ * Thrown when subscribing for children of a given media failed for some reason.
+ *
+ * @param parentId The parent media of the subscribed children.
+ */
+class MediaSubscriptionException(parentId: String) : Exception() {
+    override val message: String? = "Unable to load children of parent $parentId."
 }
