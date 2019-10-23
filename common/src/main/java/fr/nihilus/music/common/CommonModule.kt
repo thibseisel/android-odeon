@@ -26,11 +26,10 @@ import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.DeviceClock
 import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.common.os.SystemRuntimePermissions
-import fr.nihilus.music.common.settings.Settings
-import fr.nihilus.music.common.settings.SharedPreferencesSettings
+import fr.nihilus.music.common.settings.SettingsModule
 import javax.inject.Singleton
 
-@Module
+@Module(includes = [SettingsModule::class])
 internal abstract class CommonModule {
 
     @Binds
@@ -38,9 +37,6 @@ internal abstract class CommonModule {
 
     @Binds
     internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
-
-    @Binds
-    internal abstract fun bindsSettings(settings: SharedPreferencesSettings): Settings
 
     @Module
     internal companion object {

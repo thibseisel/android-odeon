@@ -18,10 +18,10 @@ package fr.nihilus.music.common.test
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.common.settings.SettingsModule
 import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.RuntimePermissions
 import fr.nihilus.music.common.test.os.RevocablePermission
@@ -33,7 +33,7 @@ import javax.inject.Singleton
  * Components that include this module can optionally set the start time of the test clock
  * by binding a [Long] value [qualified by the name][Named] `TestClock.startTime`.
  */
-@Module
+@Module(includes = [SettingsModule::class])
 abstract class CommonTestModule {
 
     @Binds
@@ -58,7 +58,7 @@ abstract class CommonTestModule {
         @JvmStatic
         @Provides @Singleton
         fun providesSharedPreferences(context: Context): SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context)
+            context.getSharedPreferences("test", Context.MODE_PRIVATE)
 
     }
 }

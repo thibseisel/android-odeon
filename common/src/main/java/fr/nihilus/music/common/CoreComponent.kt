@@ -49,9 +49,6 @@ interface CoreComponent {
     val spotifyDao: SpotifyDao
     val settings: Settings
 
-    @Deprecated("This should no longer be used a dependency. Inject Settings instead.")
-    val prefs: SharedPreferences
-
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance applicationContext: Context): CoreComponent
