@@ -48,7 +48,6 @@ class OdeonApplication : DaggerApplication() {
 
         // Apply theme whenever it is changed via preferences.
         settings.currentTheme.onEach { theme ->
-            Timber.tag("OdeonApplication").d("Setting theme to %s", theme)
             AppCompatDelegate.setDefaultNightMode(theme.value)
         }.launchIn(GlobalScope)
     }

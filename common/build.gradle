@@ -95,8 +95,12 @@ dependencies {
 
     implementation "androidx.media:media:${versions.androidx.media}"
 
-    testImplementation "junit:junit:${versions.junit}"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
+    testImplementation "io.mockk:mockk:${versions.mockk}"
+    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
 
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     androidTestImplementation "com.google.truth:truth:${versions.truth}"

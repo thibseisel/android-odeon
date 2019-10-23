@@ -48,17 +48,6 @@ interface Settings {
     var lastQueueIndex: Int
 
     /**
-     * The last configured shuffle mode.
-     * When shuffle mode is enabled, tracks in a playlist are read in random order.
-     * This property value should be an `PlaybackStateCompat.SHUFFLE_MODE_*` constant.
-     */
-    @Deprecated(
-        "Shuffle mode can now have 2 states: enabled and disabled.",
-        ReplaceWith("shuffleModeEnabled")
-    )
-    var shuffleMode: Int
-
-    /**
      * Whether shuffle mode is enabled, i.e. tracks in a playlist are played in random order.
      * Defaults to `false`.
      */
