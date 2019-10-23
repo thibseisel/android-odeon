@@ -38,6 +38,8 @@ interface Settings {
     /**
      * The media ID of the last loaded playing queue.
      * Defaults to `null` when no playing queue has been built yet.
+     *
+     * Modifying this value automatically increments the [queueIdentifier].
      */
     var lastQueueMediaId: String?
 
