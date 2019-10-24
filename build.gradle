@@ -51,7 +51,7 @@ buildscript {
                         'ext_truth'        : '1.2.0',
                         'espresso'         : '3.2.0'
                 ],
-                'dagger'        : '2.24',
+                'dagger'        : '2.25.2',
                 'exoplayer'     : '2.9.6',
                 'glide'         : '4.10.0',
                 'kdenticon'     : '1.0.0-alpha5',

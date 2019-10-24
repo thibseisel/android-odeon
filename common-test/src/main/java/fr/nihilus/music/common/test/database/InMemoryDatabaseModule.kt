@@ -31,7 +31,6 @@ import javax.inject.Singleton
 @Module(includes = [DatabaseModule::class])
 internal object InMemoryDatabaseModule {
 
-    @JvmStatic
     @Provides @Singleton
     fun providesInMemoryDatabase(context: Context): AppDatabase =
         Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)

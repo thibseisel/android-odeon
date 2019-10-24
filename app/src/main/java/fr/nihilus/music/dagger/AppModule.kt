@@ -31,7 +31,6 @@ import fr.nihilus.music.OdeonApplication
 @Module
 internal object AppModule {
 
-    @JvmStatic
     @Provides
     fun provideContext(application: OdeonApplication): Context = application.applicationContext
 }

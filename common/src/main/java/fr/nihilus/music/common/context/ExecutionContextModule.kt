@@ -31,7 +31,6 @@ import javax.inject.Singleton
 @Module
 internal object ExecutionContextModule {
 
-    @JvmStatic
     @Provides @Singleton
     fun providesRxSchedulers() = RxSchedulers(
         AndroidSchedulers.mainThread(),
@@ -40,7 +39,6 @@ internal object ExecutionContextModule {
         Schedulers.single()
     )
 
-    @JvmStatic
     @Provides @Singleton
     fun providesCoroutineDispatchers() = AppDispatchers(
         Dispatchers.Main,
@@ -48,7 +46,6 @@ internal object ExecutionContextModule {
         Dispatchers.IO
     )
 
-    @JvmStatic
     @Provides @Singleton
     fun providesAppCoroutineScope(
         dispatchers: AppDispatchers

@@ -23,7 +23,6 @@ import javax.inject.Named
 @Module(includes = [SpotifyClientModule::class])
 object SpotifyTestModule {
 
-    @JvmStatic
     @Provides @Named("SPOTIFY_CLIENT_SECRET")
     fun providesClientSecret() = "53CR3T"
 }

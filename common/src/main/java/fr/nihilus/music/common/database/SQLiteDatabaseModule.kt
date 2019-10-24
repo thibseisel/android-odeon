@@ -28,7 +28,6 @@ import javax.inject.Singleton
 @Module(includes = [DatabaseModule::class])
 internal object SQLiteDatabaseModule {
 
-    @JvmStatic
     @Provides @Singleton
     fun providesRealDatabase(context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)

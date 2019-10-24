@@ -30,15 +30,12 @@ import fr.nihilus.music.common.database.usage.UsageDao
 @Module
 object DatabaseModule {
 
-    @JvmStatic
     @Provides @Reusable
     fun providePlaylistDao(db: AppDatabase): PlaylistDao = db.playlistDao
 
-    @JvmStatic
     @Provides @Reusable
     fun provideMediaUsageDao(db: AppDatabase): UsageDao = db.usageDao
 
-    @JvmStatic
     @Provides @Reusable
     fun provideSpotifyDao(db: AppDatabase): SpotifyDao = db.spotifyDao
 }

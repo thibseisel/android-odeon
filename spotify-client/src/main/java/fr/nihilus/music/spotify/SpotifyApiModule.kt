@@ -29,11 +29,9 @@ import javax.inject.Named
 @Module(includes = [SpotifyClientModule::class])
 internal object SpotifyApiModule {
 
-    @JvmStatic
     @Provides @Reusable
     fun providesOkHttpEngine(): HttpClientEngine = OkHttp.create()
 
-    @JvmStatic
     @Provides @Named("SPOTIFY_CLIENT_SECRET")
     fun providesClientSecret() = ""
 }

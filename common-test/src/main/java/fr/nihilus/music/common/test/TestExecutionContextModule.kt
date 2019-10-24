@@ -40,27 +40,21 @@ import javax.inject.Singleton
 @Module
 internal object TestExecutionContextModule {
 
-    @JvmStatic
     @Provides
     fun providesTestApplicationContext(): Context = ApplicationProvider.getApplicationContext()
 
-    @JvmStatic
     @Provides @Singleton
     fun providesTestScheduler() = TestScheduler()
 
-    @JvmStatic
     @Provides @Singleton
     fun providesTestingSchedulers(scheduler: TestScheduler) = RxSchedulers(scheduler)
 
-    @JvmStatic
     @Provides @Singleton
     fun providesTestDispatcher() = TestCoroutineDispatcher()
 
-    @JvmStatic
     @Provides @Singleton
     fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)
 
-    @JvmStatic
     @Provides @Singleton
     fun providesTestCoroutineScope(dispatcher: TestCoroutineDispatcher) = TestCoroutineScope(dispatcher)
 }
