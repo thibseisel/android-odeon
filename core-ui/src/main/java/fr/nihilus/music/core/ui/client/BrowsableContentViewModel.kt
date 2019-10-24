@@ -21,9 +21,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.core.ui.LoadRequest
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 
 abstract class BrowsableContentViewModel(
     private val connection: BrowserClient
@@ -41,8 +44,7 @@ abstract class BrowsableContentViewModel(
         .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
         .onStart { emit(LoadRequest.Pending) }
         .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-        .onEach { _children.postValue(it) }
-        .launchIn(viewModelScope)
+        .collectIn(viewModelScope) { _children.postValue(it) }
 
     override fun onCleared() {
         super.onCleared()

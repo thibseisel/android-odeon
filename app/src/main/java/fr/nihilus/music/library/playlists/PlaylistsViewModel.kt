@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
@@ -60,8 +61,7 @@ class PlaylistsViewModel
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .onEach { _children.value = it }
-            .launchIn(viewModelScope)
+            .collectIn(viewModelScope) { _children.value = it }
     }
 
     private fun builtInPlaylistFlow(category: String) = flow<MediaBrowserCompat.MediaItem> {

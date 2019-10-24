@@ -21,10 +21,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,8 +49,7 @@ class SearchViewModel
                 delay(200)
                 connection.search(query)
             }
-            .onEach { _searchResults.value = it }
-            .launchIn(viewModelScope)
+            .collectIn(viewModelScope) { _searchResults.value = it }
     }
 
     fun search(query: CharSequence) {

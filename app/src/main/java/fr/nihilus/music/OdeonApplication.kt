@@ -20,13 +20,12 @@ import androidx.appcompat.app.AppCompatDelegate
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fr.nihilus.music.common.DaggerCoreComponent
+import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.common.settings.Settings
 import fr.nihilus.music.dagger.DaggerAppComponent
 import io.reactivex.plugins.RxJavaPlugins
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.plus
 import timber.log.Timber
 import javax.inject.Inject
@@ -49,9 +48,9 @@ class OdeonApplication : DaggerApplication() {
         }
 
         // Apply theme whenever it is changed via preferences.
-        settings.currentTheme.onEach { theme ->
+        settings.currentTheme.collectIn(GlobalScope + Dispatchers.Main) { theme ->
             AppCompatDelegate.setDefaultNightMode(theme.value)
-        }.launchIn(GlobalScope + Dispatchers.Main)
+        }
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
