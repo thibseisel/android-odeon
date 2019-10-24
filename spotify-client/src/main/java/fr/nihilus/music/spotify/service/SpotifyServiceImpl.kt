@@ -35,7 +35,6 @@ import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Named
 
-@UseExperimental(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl
 @TestOnly constructor(
     engine: HttpClientEngine,
