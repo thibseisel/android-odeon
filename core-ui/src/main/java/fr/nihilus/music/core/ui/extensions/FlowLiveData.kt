@@ -18,9 +18,10 @@ package fr.nihilus.music.core.ui.extensions
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import fr.nihilus.music.common.extensions.collectIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * Collect each value emitted by a source [Flow] to a [LiveData].
@@ -30,6 +31,6 @@ import kotlinx.coroutines.flow.Flow
  */
 fun <T> Flow<T>.consumeAsLiveData(scope: CoroutineScope): LiveData<T> {
     val liveData = MutableLiveData<T>()
-    collectIn(scope) { liveData.value = it }
+    onEach { liveData.value = it }.launchIn(scope)
     return liveData
 }

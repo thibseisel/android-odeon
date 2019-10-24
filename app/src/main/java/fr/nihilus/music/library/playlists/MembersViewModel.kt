@@ -22,15 +22,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -61,7 +58,8 @@ class MembersViewModel
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .collectIn(viewModelScope) { _members.postValue(it) }
+            .onEach { _members.postValue(it) }
+            .launchIn(viewModelScope)
     }
 
     fun deletePlaylist(playlistId: String) {

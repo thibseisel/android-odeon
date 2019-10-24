@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.common.media.CustomActions
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.common.media.toMediaId
@@ -52,6 +51,8 @@ import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.collect
 import timber.log.Timber
@@ -373,11 +374,11 @@ class MusicService : BaseBrowserService() {
     }
 
     private fun CoroutineScope.observeSkipSilenceSettings() {
-        settings.skipSilence.collectIn(this) { shouldSkipSilence ->
+        settings.skipSilence.onEach { shouldSkipSilence ->
             player.playbackParameters = if (shouldSkipSilence) {
                 PlaybackParameters(1f, 1f, true)
             } else PlaybackParameters.DEFAULT
-        }
+        }.launchIn(this)
     }
 
     private fun CoroutineScope.observeMediaChanges() = launch {

@@ -22,10 +22,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.common.extensions.collectIn
 import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowserClient
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,7 +44,7 @@ class MusicLibraryViewModel
 
     init {
         connection.connect(client)
-        connection.playbackState.collectIn(viewModelScope) {
+        connection.playbackState.onEach {
             when (it.state) {
                 PlaybackStateCompat.STATE_NONE,
                 PlaybackStateCompat.STATE_STOPPED -> {
@@ -60,7 +61,7 @@ class MusicLibraryViewModel
                     _playerSheetVisible.value = true
                 }
             }
-        }
+        }.launchIn(viewModelScope)
     }
 
     fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
