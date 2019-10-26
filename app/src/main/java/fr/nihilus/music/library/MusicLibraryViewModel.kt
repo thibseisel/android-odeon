@@ -31,9 +31,8 @@ import javax.inject.Inject
 
 class MusicLibraryViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ) : ViewModel() {
-    private val client = BrowserClient.ClientToken()
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
     val playerSheetVisible: LiveData<Boolean> = _playerSheetVisible
@@ -42,8 +41,8 @@ class MusicLibraryViewModel
     val playerError: LiveData<Event<CharSequence>> = _playerError
 
     init {
-        connection.connect(client)
-        connection.playbackState.onEach {
+        client.connect()
+        client.playbackState.onEach {
             when (it.state) {
                 PlaybackStateCompat.STATE_NONE,
                 PlaybackStateCompat.STATE_STOPPED -> {
@@ -67,12 +66,12 @@ class MusicLibraryViewModel
         require(playableMedia.isPlayable) { "The specified media is not playable." }
 
         viewModelScope.launch {
-            connection.playFromMediaId(playableMedia.mediaId!!)
+            client.playFromMediaId(playableMedia.mediaId!!)
         }
     }
 
     override fun onCleared() {
+        client.disconnect()
         super.onCleared()
-        connection.disconnect(client)
     }
 }

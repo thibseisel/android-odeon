@@ -30,12 +30,11 @@ import javax.inject.Inject
 
 class SearchViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<MediaBrowserCompat.MediaItem>>()
-    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>>
-        get() = _searchResults
+    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>> = _searchResults
 
     private val searchActor = Channel<String>(Channel.CONFLATED).also { channel ->
         channel.consumeAsFlow()
@@ -43,7 +42,7 @@ class SearchViewModel
             .distinctUntilChanged()
             .mapLatest { query ->
                 delay(200)
-                connection.search(query)
+                client.search(query)
             }
             .onEach { _searchResults.value = it }
             .launchIn(viewModelScope)
@@ -55,7 +54,7 @@ class SearchViewModel
 
     fun play(item: MediaBrowserCompat.MediaItem) {
         viewModelScope.launch {
-            connection.playFromMediaId(item.mediaId!!)
+            client.playFromMediaId(item.mediaId!!)
         }
     }
 }

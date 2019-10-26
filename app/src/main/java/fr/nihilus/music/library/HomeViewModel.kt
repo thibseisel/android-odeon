@@ -37,7 +37,6 @@ class HomeViewModel
 @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
-    private val token = BrowserClient.ClientToken()
 
     val tracks: LiveData<LoadRequest<List<MediaItem>>> by lazyChildrenOf(MediaId.ALL_TRACKS)
     val albums: LiveData<LoadRequest<List<MediaItem>>> by lazyChildrenOf(MediaId.ALL_ALBUMS)
@@ -46,10 +45,6 @@ class HomeViewModel
 
     private val _deleteTracksConfirmation = MutableLiveData<Event<Int>>()
     val deleteTracksConfirmation: MutableLiveData<Event<Int>> = _deleteTracksConfirmation
-
-    init {
-        client.connect(token)
-    }
 
     fun deleteSongs(songsToDelete: List<MediaItem>) {
         viewModelScope.launch {
@@ -102,11 +97,6 @@ class HomeViewModel
     private fun builtInPlaylistFlow(category: String) = flow<MediaItem> {
         val itemId = MediaId.encode(MediaId.TYPE_TRACKS, category)
         emit(client.getItem(itemId) ?: error("Item with id $itemId should always exist."))
-    }
-
-    override fun onCleared() {
-        client.disconnect(token)
-        super.onCleared()
     }
 }
 

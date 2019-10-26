@@ -32,15 +32,10 @@ class ArtistDetailViewModel
 @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
-    private val token = BrowserClient.ClientToken()
     private var observeChildrenJob: Job? = null
 
     private val _children = MutableLiveData<LoadRequest<List<MediaItem>>>()
     val children: LiveData<LoadRequest<List<MediaItem>>> = _children
-
-    init {
-        client.connect(token)
-    }
 
     fun loadChildrenOfArtist(artist: MediaItem) {
         observeChildrenJob?.cancel()
@@ -50,10 +45,5 @@ class ArtistDetailViewModel
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .onEach { _children.postValue(it) }
             .launchIn(viewModelScope)
-    }
-
-    override fun onCleared() {
-        client.disconnect(token)
-        super.onCleared()
     }
 }

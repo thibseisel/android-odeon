@@ -28,8 +28,10 @@ import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,28 +59,19 @@ sealed class PlaylistActionResult {
  */
 class PlaylistManagementViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ) : ViewModel() {
-    private val token = BrowserClient.ClientToken()
 
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
+    val playlistActionResult: LiveData<Event<PlaylistActionResult>> = _playlistActionResult
 
-    private val _userPlaylists by lazy(LazyThreadSafetyMode.NONE) {
-        MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>().also {
-            it.postValue(LoadRequest.Pending)
-            loadUserPlaylists()
-        }
+    val userPlaylists by lazy(LazyThreadSafetyMode.NONE) {
+        client.getChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .consumeAsLiveData(viewModelScope)
     }
-
-    init {
-        connection.connect(token)
-    }
-
-    val playlistActionResult: LiveData<Event<PlaylistActionResult>>
-        get() = _playlistActionResult
-
-    val userPlaylists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>
-        get() = _userPlaylists
 
     fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
         viewModelScope.launch {
@@ -89,7 +82,7 @@ class PlaylistManagementViewModel
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, membersTrackIds)
             }
 
-            connection.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+            client.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Created(playlistName)
             )
@@ -108,7 +101,7 @@ class PlaylistManagementViewModel
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, newTrackMediaIds)
             }
 
-            connection.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+            client.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Edited(
                     targetPlaylist.description.title?.toString().orEmpty(),
@@ -117,17 +110,4 @@ class PlaylistManagementViewModel
             )
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        connection.disconnect(token)
-    }
-
-    private fun loadUserPlaylists(): Job =
-        connection.getChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
-            .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .onEach { _userPlaylists.value = it }
-            .launchIn(viewModelScope)
 }
