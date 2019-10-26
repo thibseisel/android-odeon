@@ -27,8 +27,7 @@ internal class SpotifyConverters {
     }
 
     @TypeConverter
-    fun Int.toMusicalMode(): MusicalMode =
-        decodeMusicalMode(this)
+    fun Int.toMusicalMode(): MusicalMode = decodeMusicalMode(this)
 
     @TypeConverter
     fun Pitch?.toEncodedKey(): Int? = when (this) {
@@ -48,6 +47,5 @@ internal class SpotifyConverters {
     }
 
     @TypeConverter
-    fun Int?.toPitchKey(): Pitch? =
-        decodePitch(this)
+    fun Int?.toPitchKey(): Pitch? = decodePitch(this)
 }
