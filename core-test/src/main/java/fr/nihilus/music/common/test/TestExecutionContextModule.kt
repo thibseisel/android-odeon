@@ -20,7 +20,6 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import fr.nihilus.music.common.context.AppDispatchers
 import fr.nihilus.music.common.context.RxSchedulers
 import io.reactivex.schedulers.TestScheduler

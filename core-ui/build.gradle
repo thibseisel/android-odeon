@@ -43,7 +43,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation project(':core')
 
     // Dispatcher to Android main thread
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
@@ -71,5 +71,5 @@ dependencies {
 
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
 }

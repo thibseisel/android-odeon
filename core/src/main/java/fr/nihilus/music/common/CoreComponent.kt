@@ -17,7 +17,6 @@
 package fr.nihilus.music.common
 
 import android.content.Context
-import android.content.SharedPreferences
 import dagger.BindsInstance
 import dagger.Component
 import fr.nihilus.music.common.context.AppDispatchers

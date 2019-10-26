@@ -119,7 +119,7 @@ androidExtensions {
 
 dependencies {
     // Sub-project containing the Media Service.
-    implementation project(':common')
+    implementation project(':core')
     implementation project(':core-ui')
     implementation project(':service')
 
@@ -142,7 +142,7 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
     // Test dependencies
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
     testImplementation "androidx.test:rules:${versions.androidx.test_rules}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"

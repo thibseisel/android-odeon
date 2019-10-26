@@ -69,7 +69,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation project(':core')
     api project(':media')
 
     // Kotlin language support
@@ -94,7 +94,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
     // Test dependencies
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"

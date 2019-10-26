@@ -18,8 +18,6 @@ package fr.nihilus.music.common.settings
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.common.settings.Settings
-import fr.nihilus.music.common.settings.SharedPreferencesSettings
 
 /**
  * Provides the implementation of the [Settings] store.

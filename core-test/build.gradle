@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    api project(':common')
+    api project(':core')
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     api "androidx.test:core:${versions.androidx.test_core}"

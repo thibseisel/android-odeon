@@ -21,9 +21,9 @@ import android.content.SharedPreferences
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.common.settings.SettingsModule
 import fr.nihilus.music.common.os.Clock
 import fr.nihilus.music.common.os.RuntimePermissions
+import fr.nihilus.music.common.settings.SettingsModule
 import fr.nihilus.music.common.test.os.RevocablePermission
 import fr.nihilus.music.common.test.os.TestClock
 import javax.inject.Named

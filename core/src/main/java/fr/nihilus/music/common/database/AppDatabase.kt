@@ -22,8 +22,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import fr.nihilus.music.common.database.playlists.PlaylistConverters
 import fr.nihilus.music.common.database.playlists.Playlist
+import fr.nihilus.music.common.database.playlists.PlaylistConverters
 import fr.nihilus.music.common.database.playlists.PlaylistDao
 import fr.nihilus.music.common.database.playlists.PlaylistTrack
 import fr.nihilus.music.common.database.spotify.SpotifyConverters
