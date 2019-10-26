@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.flow.Flow
 
 /**

@@ -21,8 +21,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException

@@ -21,7 +21,7 @@ import android.text.format.DateUtils
 import android.view.ViewGroup
 import android.widget.TextView
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
 internal class AlbumTrackHolder(

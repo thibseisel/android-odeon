@@ -18,9 +18,9 @@ package fr.nihilus.music.media.provider
 
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.context.RxSchedulers
-import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.context.RxSchedulers
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
 import fr.nihilus.music.media.provider.MediaProvider.Observer
 import io.kotlintest.shouldThrow

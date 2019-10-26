@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.media.usage
 
-import fr.nihilus.music.common.os.Clock
-import fr.nihilus.music.common.database.usage.MediaUsageEvent
-import fr.nihilus.music.common.database.usage.UsageDao
+import fr.nihilus.music.core.database.usage.MediaUsageEvent
+import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository

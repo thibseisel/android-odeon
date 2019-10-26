@@ -19,8 +19,8 @@ package fr.nihilus.music
 import androidx.appcompat.app.AppCompatDelegate
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
-import fr.nihilus.music.common.DaggerCoreComponent
-import fr.nihilus.music.common.settings.Settings
+import fr.nihilus.music.core.DaggerCoreComponent
+import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.dagger.DaggerAppComponent
 import io.reactivex.plugins.RxJavaPlugins
 import kotlinx.coroutines.Dispatchers

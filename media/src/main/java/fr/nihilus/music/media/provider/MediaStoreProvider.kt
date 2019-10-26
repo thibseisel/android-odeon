@@ -24,8 +24,8 @@ import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.common.os.RuntimePermissions
+import fr.nihilus.music.core.os.PermissionDeniedException
+import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.os.FileSystem

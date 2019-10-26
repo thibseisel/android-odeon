@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import fr.nihilus.music.common.settings.Settings
+import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer

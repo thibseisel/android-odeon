@@ -16,9 +16,11 @@
 
 package fr.nihilus.music.service.browser
 
-import fr.nihilus.music.common.test.stub
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.test.stub
+import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.DisposableTrack

@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.media.playlists
 
-import fr.nihilus.music.common.collections.diffList
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.common.database.playlists.PlaylistDao
-import fr.nihilus.music.common.database.playlists.PlaylistTrack
+import fr.nihilus.music.core.collections.diffList
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.provider.TestDao
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow

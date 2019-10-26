@@ -17,7 +17,7 @@
 package fr.nihilus.music.media.actions
 
 import android.os.Bundle
-import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.core.media.CustomActions
 
 /**
  * A service-side handler for executing media browser custom actions.

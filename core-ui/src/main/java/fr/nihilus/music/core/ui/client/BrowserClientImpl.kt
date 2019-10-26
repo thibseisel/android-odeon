@@ -24,8 +24,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.common.AppScope
-import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.core.AppScope
+import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.SendChannel

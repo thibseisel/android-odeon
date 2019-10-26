@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.common.test.stub
-import io.reactivex.Completable
+import fr.nihilus.music.core.test.stub
 import io.reactivex.Flowable
 import io.reactivex.processors.BehaviorProcessor
 import io.reactivex.processors.FlowableProcessor

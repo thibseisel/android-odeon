@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.media.usage
 
-import fr.nihilus.music.common.database.usage.MediaUsageEvent
-import fr.nihilus.music.common.database.usage.TrackScore
-import fr.nihilus.music.common.database.usage.TrackUsage
-import fr.nihilus.music.common.database.usage.UsageDao
+import fr.nihilus.music.core.database.usage.MediaUsageEvent
+import fr.nihilus.music.core.database.usage.TrackScore
+import fr.nihilus.music.core.database.usage.TrackUsage
+import fr.nihilus.music.core.database.usage.UsageDao
 
 internal val SAMPLE_TRACK_SCORE = listOf(
     TrackScore(75L, 82),

@@ -19,7 +19,7 @@ package fr.nihilus.music.media.os
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.net.Uri
-import fr.nihilus.music.common.test.stub
+import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.os.BasicFileSystem.makeSharedContentUri
 
 /**

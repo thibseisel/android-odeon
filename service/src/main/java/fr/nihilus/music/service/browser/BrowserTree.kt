@@ -17,7 +17,7 @@
 package fr.nihilus.music.service.browser
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.core.media.MediaId
 import io.reactivex.Flowable
 
 /**

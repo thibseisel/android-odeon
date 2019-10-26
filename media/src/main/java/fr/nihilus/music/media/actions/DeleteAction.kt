@@ -17,11 +17,11 @@
 package fr.nihilus.music.media.actions
 
 import android.os.Bundle
-import fr.nihilus.music.common.media.CustomActions
-import fr.nihilus.music.common.media.InvalidMediaException
-import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.common.media.toMediaId
-import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.InvalidMediaException
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.repo.MediaRepository
 import javax.inject.Inject

@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.media.repo
 
-import fr.nihilus.music.common.collections.diffList
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.common.database.playlists.PlaylistDao
-import fr.nihilus.music.common.database.usage.UsageDao
+import fr.nihilus.music.core.collections.diffList
+import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist

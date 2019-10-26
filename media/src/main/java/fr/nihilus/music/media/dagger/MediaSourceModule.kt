@@ -18,7 +18,6 @@ package fr.nihilus.music.media.dagger
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.common.database.DatabaseModule
 import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.os.AndroidSystemModule
 import fr.nihilus.music.media.provider.MediaDao
