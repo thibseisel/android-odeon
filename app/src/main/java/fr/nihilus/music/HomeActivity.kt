@@ -220,9 +220,6 @@ class HomeActivity : BaseActivity(),
     private fun handleIntent(intent: Intent?) {
         Timber.d("Received intent: %s", intent)
         when (intent?.action) {
-            ACTION_RANDOM -> {
-                startRandomMix()
-            }
 
             MusicService.ACTION_PLAYER_UI -> {
                 player_container.postDelayed({
@@ -230,10 +227,6 @@ class HomeActivity : BaseActivity(),
                 }, 300L)
             }
         }
-    }
-
-    private fun startRandomMix() {
-        viewModel.playAllShuffled()
     }
 
     /**

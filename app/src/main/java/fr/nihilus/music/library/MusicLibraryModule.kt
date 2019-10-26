@@ -16,12 +16,20 @@
 
 package fr.nihilus.music.library
 
+import androidx.lifecycle.ViewModel
+import dagger.Binds
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import dagger.multibindings.IntoMap
+import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 
 @Module
 abstract class MusicLibraryModule {
 
     @ContributesAndroidInjector
     abstract fun homeFragment(): HomeFragment
+
+    @Binds @IntoMap
+    @ViewModelKey(HomeViewModel::class)
+    abstract fun bindsHomeViewModel(viewModel: HomeViewModel): ViewModel
 }

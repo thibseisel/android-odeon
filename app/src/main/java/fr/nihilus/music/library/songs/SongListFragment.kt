@@ -34,23 +34,24 @@ import androidx.lifecycle.observe
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.isVisible
+import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
+    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
+    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels { viewModelFactory }
+
     private val multiSelectMode = SongListActionMode()
     private lateinit var songAdapter: SongAdapter
-
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
-    private val viewModel: SongListViewModel by viewModels { viewModelFactory }
-    private val playlistViewModel: PlaylistManagementViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +80,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
             }
         }
 
-        viewModel.children.observe(this) { itemRequest ->
+        viewModel.tracks.observe(this) { itemRequest ->
             when (itemRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -92,18 +93,6 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
                     songAdapter.submitList(emptyList())
                     group_empty_view.isVisible = true
                 }
-            }
-        }
-
-        viewModel.deleteTracksConfirmation.observe(this) { toastMessageEvent ->
-            toastMessageEvent.handle { deletedTracksCount ->
-                val message = resources.getQuantityString(
-                    R.plurals.deleted_songs_confirmation,
-                    deletedTracksCount,
-                    deletedTracksCount
-                )
-
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
 

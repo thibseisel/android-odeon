@@ -20,11 +20,10 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.*
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import fr.nihilus.music.R
@@ -41,7 +40,8 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val viewModel by activityViewModels<MusicLibraryViewModel>()
+    private val activityViewModel by activityViewModels<MusicLibraryViewModel>()
+    private val viewModel by viewModels<HomeViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,6 +59,18 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         // Configure tabs and ViewPager.
         tab_host.setupWithViewPager(fragment_pager)
         fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
+
+        viewModel.deleteTracksConfirmation.observe(this) { toastMessageEvent ->
+            toastMessageEvent.handle { deletedTracksCount ->
+                val message = resources.getQuantityString(
+                    R.plurals.deleted_songs_confirmation,
+                    deletedTracksCount,
+                    deletedTracksCount
+                )
+
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun Toolbar.prepareMenu() {

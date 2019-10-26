@@ -16,20 +16,44 @@
 
 package fr.nihilus.music.library.artists.detail
 
-import android.support.v4.media.MediaBrowserCompat
-import fr.nihilus.music.core.ui.client.BrowsableContentViewModel
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
+import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class ArtistDetailViewModel
 @Inject constructor(
-    connection: BrowserClient
-) : BrowsableContentViewModel(connection) {
+    private val client: BrowserClient
+) : ViewModel() {
+    private val token = BrowserClient.ClientToken()
     private var observeChildrenJob: Job? = null
 
-    fun loadChildrenOfArtist(artist: MediaBrowserCompat.MediaItem) {
+    private val _children = MutableLiveData<LoadRequest<List<MediaItem>>>()
+    val children: LiveData<LoadRequest<List<MediaItem>>> = _children
+
+    init {
+        client.connect(token)
+    }
+
+    fun loadChildrenOfArtist(artist: MediaItem) {
         observeChildrenJob?.cancel()
-        observeChildrenJob = observeChildren(artist.mediaId!!)
+        observeChildrenJob = client.getChildren(artist.mediaId!!)
+            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+            .onStart { emit(LoadRequest.Pending) }
+            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+            .onEach { _children.postValue(it) }
+            .launchIn(viewModelScope)
+    }
+
+    override fun onCleared() {
+        client.disconnect(token)
+        super.onCleared()
     }
 }

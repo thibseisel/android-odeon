@@ -22,7 +22,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.common.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.launchIn
@@ -69,13 +68,6 @@ class MusicLibraryViewModel
 
         viewModelScope.launch {
             connection.playFromMediaId(playableMedia.mediaId!!)
-        }
-    }
-
-    fun playAllShuffled() {
-        viewModelScope.launch {
-            connection.setShuffleModeEnabled(true)
-            connection.playFromMediaId(MediaId.ALL_TRACKS)
         }
     }
 

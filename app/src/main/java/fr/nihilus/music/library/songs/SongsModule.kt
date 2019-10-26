@@ -32,10 +32,6 @@ internal abstract class SongsModule {
     @ContributesAndroidInjector
     abstract fun songListFragment(): SongListFragment
 
-    @Binds @IntoMap
-    @ViewModelKey(SongListViewModel::class)
-    abstract fun bindsSongListViewModel(viewModel: SongListViewModel): ViewModel
-
     @ContributesAndroidInjector
     abstract fun addToPlaylistDialog(): AddToPlaylistDialog
 
