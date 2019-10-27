@@ -32,11 +32,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.debug.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.debug.provider'
-        }
-
         release {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -46,9 +41,6 @@ android {
                         '-Xno-receiver-assertions'
                 ]
             }
-
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.provider'
         }
     }
 

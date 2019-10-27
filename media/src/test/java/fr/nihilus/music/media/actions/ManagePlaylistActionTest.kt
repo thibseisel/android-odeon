@@ -27,7 +27,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.media.os.FileSystem
+import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.shouldThrow
 import io.mockk.*

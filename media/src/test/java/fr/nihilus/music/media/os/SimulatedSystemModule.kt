@@ -20,6 +20,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.test.CommonTestModule
 import fr.nihilus.music.media.provider.SQLiteMediaStoreModule

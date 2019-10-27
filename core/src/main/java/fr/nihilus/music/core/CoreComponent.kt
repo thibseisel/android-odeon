@@ -27,6 +27,7 @@ import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.spotify.SpotifyDao
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.settings.Settings
 import javax.inject.Singleton
@@ -47,6 +48,7 @@ interface CoreComponent {
     val usageDao: UsageDao
     val spotifyDao: SpotifyDao
     val settings: Settings
+    val fileSystem: FileSystem
 
     @Component.Factory
     interface Factory {

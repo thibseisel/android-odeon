@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.os
+package fr.nihilus.music.core.os
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
 import dagger.Reusable
-import fr.nihilus.music.media.BuildConfig
+import fr.nihilus.music.core.R
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -83,7 +83,7 @@ internal class AndroidFileSystem
 
         return if (successfullyWritten) FileProvider.getUriForFile(
             context,
-            BuildConfig.APP_PROVIDER_AUTHORITY,
+            context.getString(R.string.core_provider_authority),
             bitmapFile
         ) else null
     }
@@ -91,7 +91,7 @@ internal class AndroidFileSystem
     override fun makeSharedContentUri(filePath: String): Uri? {
         val file = File(filePath)
         return if (file.exists()) {
-            FileProvider.getUriForFile(context, BuildConfig.APP_PROVIDER_AUTHORITY, file)
+            FileProvider.getUriForFile(context, context.getString(R.string.core_provider_authority), file)
         } else null
     }
 

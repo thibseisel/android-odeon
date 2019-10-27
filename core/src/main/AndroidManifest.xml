@@ -14,4 +14,23 @@
   ~ limitations under the License.
   -->
 
-<manifest package="fr.nihilus.music.core" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.nihilus.music.core">
+
+    <application>
+        <!--
+            Allows sharing album arts with media browser clients.
+            By sharing content uris instead of file uris,
+            clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="@string/core_provider_authority"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/media_shared_filepaths" />
+        </provider>
+    </application>
+</manifest>

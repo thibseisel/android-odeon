@@ -19,22 +19,4 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <application>
-        <!--
-            Allows sharing album arts with media browser clients.
-            By sharing content uris instead of file uris,
-            clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
-        -->
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${providerAuthority}"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/media_shared_filepaths"/>
-        </provider>
-    </application>
-
 </manifest>

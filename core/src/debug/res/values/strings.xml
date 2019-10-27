@@ -17,4 +17,5 @@
 
 <resources>
     <string name="core_app_name">Odeon Dev</string>
+    <string name="core_provider_authority" translatable="false">fr.nihilus.music.debug.provider</string>
 </resources>

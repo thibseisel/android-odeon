@@ -22,11 +22,10 @@ import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.core.os.DeviceClock
-import fr.nihilus.music.core.os.RuntimePermissions
-import fr.nihilus.music.core.os.SystemRuntimePermissions
+import fr.nihilus.music.core.os.*
 import fr.nihilus.music.core.settings.SettingsModule
+import java.io.File
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module(includes = [SettingsModule::class])
@@ -38,6 +37,9 @@ internal abstract class CommonModule {
     @Binds
     internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
 
+    @Binds
+    internal abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
+
     @Module
     internal companion object {
 
@@ -45,5 +47,9 @@ internal abstract class CommonModule {
         @Provides @Singleton
         fun providesSharedPreferences(context: Context): SharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context)
+
+        @JvmStatic
+        @Provides @Named("internal")
+        fun providesInternalStorageRoot(context: Context): File = context.filesDir
     }
 }

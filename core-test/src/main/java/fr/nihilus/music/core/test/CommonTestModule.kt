@@ -22,8 +22,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.settings.SettingsModule
+import fr.nihilus.music.core.test.os.NoopFileSystem
 import fr.nihilus.music.core.test.os.RevocablePermission
 import fr.nihilus.music.core.test.os.TestClock
 import javax.inject.Named
@@ -54,6 +56,10 @@ abstract class CommonTestModule {
         @JvmStatic
         @Provides @Singleton
         fun providesTestPermissions() = RevocablePermission()
+
+        @JvmStatic
+        @Provides
+        fun providesFileSystem(): FileSystem = NoopFileSystem
 
         @JvmStatic
         @Provides @Singleton
