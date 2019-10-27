@@ -41,6 +41,7 @@ internal class TestMediaRepository(
     override suspend fun getPlaylists(): List<Playlist> = playlists
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
     override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
+    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
     override suspend fun deletePlaylist(playlistId: Long) = stub()
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 }
@@ -68,6 +69,7 @@ internal class StubMediaRepository : MediaRepository {
     override suspend fun getPlaylists(): List<Playlist> = stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = stub()
     override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
+    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
     override suspend fun deletePlaylist(playlistId: Long) = stub()
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 }

@@ -22,44 +22,46 @@ import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.core.test.fail
-import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.os.FileSystem
-import fr.nihilus.music.media.playlists.TestPlaylistDao
+import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.flow.Flow
+import io.mockk.*
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val NEW_PLAYLIST_TITLE = "New playlist"
-
-private val INITIAL_PLAYLIST =
-    Playlist(2L, NEW_PLAYLIST_TITLE, 0L, null)
 
 @RunWith(AndroidJUnit4::class)
 internal class ManagePlaylistActionTest {
 
     private val dispatcher = TestCoroutineDispatcher()
 
+    @MockK
+    private lateinit var repository: MediaRepository
+
+    @Before
+    fun setupMocks() {
+        MockKAnnotations.init(this)
+    }
+
     @Test
-    fun whenReadingName_thenReturnActionManagePlaylistConstant() {
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+    fun `Action name should be the constant ActionManagePlaylist`() {
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         assertThat(action.name).isEqualTo(CustomActions.ACTION_MANAGE_PLAYLIST)
     }
 
     @Test
-    fun givenNoParams_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+    fun `Given no params, when executing then fail with missing parameters`() = dispatcher.runBlockingTest {
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle.EMPTY)
         }
@@ -68,25 +70,29 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun givenNoPlaylistId_whenExecutingWithTitleParam_thenCreateNewEmptyPlaylist() = dispatcher.runBlockingTest {
-        val playlistDao = TestPlaylistDao()
-        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
+    fun `Given no playlist id but a title, when executing then create a new empty playlist`() = dispatcher.runBlockingTest {
+        coEvery { repository.createPlaylist(any(), any()) } just Runs
+
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(1).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
         })
 
-        val addedPlaylist = playlistDao.currentPlaylists.firstOrNull()
-            ?: fail("Expected a playlist to be created.")
-        assertThat(addedPlaylist.title).isEqualTo(NEW_PLAYLIST_TITLE)
+        coVerify(exactly = 1) {
+            repository.createPlaylist(
+                newPlaylist = match { it.title == NEW_PLAYLIST_TITLE },
+                trackIds = LongArray(0)
+            )
+        }
     }
 
     @Test
-    fun givenTrackMediaIds_whenExecutingWithoutTitleParam_thenFailWithMissingTitleParameter() = dispatcher.runBlockingTest {
+    fun `Given track media ids, when executing without title param then fail with missing title`() = dispatcher.runBlockingTest {
         val trackMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -98,10 +104,10 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun givenTitleAndNonTrackMediaIds_whenExecuting_thenFailWithInvalidMediaId() = dispatcher.runBlockingTest {
+    fun `Given title and non track media ids, when executing then fail with invalid media id`() = dispatcher.runBlockingTest {
         val mediaIds = arrayOf(encode(TYPE_TRACKS, CATEGORY_ALL))
 
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
@@ -113,40 +119,32 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun givenTitleAndTrackMediaIds_whenExecuting_thenCreateNewPlaylistWithGivenTracks() = dispatcher.runBlockingTest {
+    fun `Given title and track media ids, when executing then create a new playlist with those tracks`() = dispatcher.runBlockingTest {
         val trackMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val playlistDao = TestPlaylistDao()
-        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        coEvery { repository.createPlaylist(any(), any()) } just Runs
+
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
         })
 
-        // Then a new playlist has been created.
-        val addedPlaylist =
-            playlistDao.currentPlaylists.firstOrNull() ?: fail("Expected a playlist to be created.")
-        assertThat(addedPlaylist.id).isNotEqualTo(0L)
-        assertThat(addedPlaylist.title).isEqualTo(NEW_PLAYLIST_TITLE)
-
-        // Then both tracks are added to that playlist in order.
-        val addedTracks = playlistDao.playlistTracks
-        assertThat(addedTracks).hasSize(2)
-        val (firstTrack, secondTrack) = addedTracks
-
-        assertThat(firstTrack.playlistId).isEqualTo(addedPlaylist.id)
-        assertThat(firstTrack.trackId).isEqualTo(16L)
-
-        assertThat(secondTrack.playlistId).isEqualTo(addedPlaylist.id)
-        assertThat(secondTrack.trackId).isEqualTo(42L)
+        // Then a new playlist has been created with those tracks.
+        coVerify {
+            repository.createPlaylist(
+                newPlaylist = match { it.title == NEW_PLAYLIST_TITLE },
+                trackIds = longArrayOf(16L, 42L)
+            )
+        }
     }
 
     @Test
-    fun givenPlaylistId_whenExecutingWithoutTrackMediaIds_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+    fun `Given playlist id, when executing without track media ids then fail with missing parameter`() = dispatcher.runBlockingTest {
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
@@ -157,14 +155,14 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun givenNonPlaylistMediaId_whenExecuting_thenFailWithInvalidMediaId() = dispatcher.runBlockingTest {
+    fun `Given non playlist media id, when executing then fail with invalid parameter`() = dispatcher.runBlockingTest {
         val nonPlaylistMediaId = encode(TYPE_TRACKS, "2")
         val trackMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(StubPlaylistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, nonPlaylistMediaId)
@@ -177,39 +175,27 @@ internal class ManagePlaylistActionTest {
 
     @Test
     fun givenPlaylistIdAndTrackMediaIds_whenExecuting_thenAddTracksToThatPlaylist() = dispatcher.runBlockingTest {
-        val playlistDao = TestPlaylistDao(initialPlaylists = listOf(INITIAL_PLAYLIST))
         val trackMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, AppDispatchers(dispatcher))
+        coEvery { repository.addTracksToPlaylist(any(), any()) } just Runs
+
+        val action = ManagePlaylistAction(repository, NoopFileSystem, AppDispatchers(dispatcher))
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
         })
 
-        // Then add those 2 tracks to the playlist
-        val addedTracks = playlistDao.playlistTracks
-        assertThat(addedTracks).hasSize(2)
-
-        val (firstTrack, secondTrack) = addedTracks
-        assertThat(firstTrack.playlistId).isEqualTo(2L)
-        assertThat(firstTrack.trackId).isEqualTo(16L)
-
-        assertThat(secondTrack.playlistId).isEqualTo(2L)
-        assertThat(secondTrack.trackId).isEqualTo(42L)
+        // Then add those 2 tracks to the playlist.
+        coVerify {
+            repository.addTracksToPlaylist(
+                playlistId = 2L,
+                trackIds = longArrayOf(16L, 42L)
+            )
+        }
     }
-}
-
-private object StubPlaylistDao : PlaylistDao() {
-    override val playlists: Flow<List<Playlist>> get() = stub()
-    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
-    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
-    override suspend fun savePlaylist(playlist: Playlist): Long = stub()
-    override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
-    override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
-    override suspend fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
 }
 
 private object NoopFileSystem : FileSystem {

@@ -34,8 +34,7 @@ import javax.inject.Inject
  * See [CustomActions.ACTION_DELETE_MEDIA] for detailed usage.
  *
  * @constructor
- * @param dao The dao used for deleting tracks.
- * @param playlistDao The dao used for deleting playlists.
+ * @param repository The dao used for deleting tracks.
  */
 @ServiceScoped
 internal class DeleteAction

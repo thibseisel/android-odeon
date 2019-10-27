@@ -25,13 +25,12 @@ import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.FileSystem
+import fr.nihilus.music.media.repo.MediaRepository
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -52,20 +51,19 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  * This mode is triggered when the [CustomActions.EXTRA_PLAYLIST_ID] is specified.
  *
  * @constructor
- * @param playlistDao Main interface for reading/writing user-defined playlists.
+ * @param repository Main interface for reading/writing user-defined playlists.
  * @param files Main interface for reading/writing from/to the device's filesystem.
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
 @ServiceScoped
 internal class ManagePlaylistAction
 @Inject constructor(
-    private val playlistDao: PlaylistDao,
+    private val repository: MediaRepository,
     private val files: FileSystem,
     private val dispatchers: AppDispatchers
 ) : BrowserAction {
 
-    override val name: String
-        get() = CustomActions.ACTION_MANAGE_PLAYLIST
+    override val name: String = CustomActions.ACTION_MANAGE_PLAYLIST
 
     override suspend fun execute(parameters: Bundle?): Bundle? {
         when {
@@ -97,6 +95,11 @@ internal class ManagePlaylistAction
             "Missing parameter: ${CustomActions.EXTRA_TITLE}"
         )
 
+        val trackIds = if (encodedTrackIds != null) LongArray(encodedTrackIds.size) { index ->
+            val encodedId = encodedTrackIds[index]
+            extractTrackIdFrom(encodedId)
+        } else LongArray(0)
+
         val iconBitmap = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888)
         Identicon.fromValue(title, 320).apply {
             style = IdenticonStyle(
@@ -111,16 +114,7 @@ internal class ManagePlaylistAction
             files.writeBitmapToInternalStorage("$PLAYLIST_ICON_FOLDER/$fileName.png", iconBitmap)
         }
 
-        val trackIds = if (encodedTrackIds != null) LongArray(encodedTrackIds.size) { index ->
-            val encodedId = encodedTrackIds[index]
-            extractTrackIdFrom(encodedId)
-        } else LongArray(0)
-
-        playlistDao.createPlaylist(
-            Playlist(
-                title,
-                playlistIconUri
-            ), trackIds)
+        repository.createPlaylist(Playlist(title, playlistIconUri), trackIds)
         return null
     }
 
@@ -136,17 +130,18 @@ internal class ManagePlaylistAction
                 "$encodedPlaylistId is not a valid playlist media id."
             )
 
-        val playlistTracks = encodedTrackIds?.map { encodedId ->
-            val trackId = extractTrackIdFrom(encodedId)
-            PlaylistTrack(playlistId, trackId)
-        } ?: throw ActionFailure(
+        if (!encodedTrackIds.isNullOrEmpty()) {
+            val playlistTrackIds = LongArray(encodedTrackIds.size) { position->
+                val trackMediaId = encodedTrackIds[position]
+                extractTrackIdFrom(trackMediaId)
+            }
+
+            repository.addTracksToPlaylist(playlistId, playlistTrackIds)
+
+        } else throw ActionFailure(
             CustomActions.ERROR_CODE_PARAMETER,
             "You should specify the media ids of tracks to add to this playlist"
         )
-
-        if (!playlistTracks.isNullOrEmpty()) {
-            playlistDao.addTracks(playlistTracks)
-        }
 
         return null
     }

@@ -30,6 +30,7 @@ interface MediaRepository {
     suspend fun getPlaylists(): List<Playlist>
     suspend fun getPlaylistTracks(playlistId: Long): List<Track>?
     suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray)
+    suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray)
     suspend fun deleteTracks(trackIds: LongArray): Int
     suspend fun deletePlaylist(playlistId: Long)
 }
