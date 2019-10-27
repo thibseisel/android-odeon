@@ -43,6 +43,7 @@ buildscript {
                         'preference'       : '1.1.0',
                         'recyclerview'     : '1.0.0',
                         'room'             : '2.2.0',
+                        'viewpager2'       : '1.0.0-rc01',
                         'work'             : '2.2.0',
                         'test_core'        : '1.2.0',
                         'test_rules'       : '1.2.0',
