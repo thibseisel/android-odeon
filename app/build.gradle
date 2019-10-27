@@ -149,7 +149,6 @@ dependencies {
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "androidx.arch.core:core-testing:${versions.androidx.lifecycle}"
 
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
     androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"

@@ -134,7 +134,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
             positiveButton = R.string.action_delete,
             negativeButton = R.string.cancel
         )
-        confirm.show(requireFragmentManager(), null)
+        confirm.show(parentFragmentManager, null)
     }
 
     private fun deleteSelectedTracks() {
@@ -145,7 +145,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
     private fun openPlaylistChooserDialog() {
         val songsToAddToPlaylist = getSelectedTrack()
         val dialog = AddToPlaylistDialog.newInstance(this, songsToAddToPlaylist)
-        dialog.show(requireFragmentManager(), AddToPlaylistDialog.TAG)
+        dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
