@@ -22,7 +22,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -43,7 +42,6 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val activityViewModel by activityViewModels<MusicLibraryViewModel>()
     private val viewModel by viewModels<HomeViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,6 +59,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         // Configure tabs and ViewPager.
         fragment_pager.adapter = MusicLibraryTabAdapter(this)
+        fragment_pager.offscreenPageLimit = 1
         TabLayoutMediator(tab_host, fragment_pager, false) { tab, position ->
             tab.text = when (position) {
                 0 -> getString(R.string.all_music)
