@@ -52,11 +52,7 @@ internal class AlbumHolder(
 
     inline val transitionView get() = albumArt
 
-    var colorPalette: AlbumPalette? = null
-        private set
-
     private fun applyPalette(palette: AlbumPalette) {
-        colorPalette = palette
         card.setCardBackgroundColor(palette.primary)
         title.setTextColor(palette.bodyText)
         subtitle.setTextColor(palette.bodyText)
