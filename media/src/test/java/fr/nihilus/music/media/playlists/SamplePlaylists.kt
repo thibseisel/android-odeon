@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.media.playlists
 
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.common.database.playlists.PlaylistTrack
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.media.provider.SAMPLE_TRACKS
 
 internal val SAMPLE_PLAYLISTS = listOf(

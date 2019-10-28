@@ -25,12 +25,9 @@ import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 
 @Module
 abstract class PlaylistsModule {
+
     @ContributesAndroidInjector
     abstract fun playlistsFragment(): PlaylistsFragment
-
-    @Binds @IntoMap
-    @ViewModelKey(PlaylistsViewModel::class)
-    abstract fun bindsPlaylistsViewModel(viewModel: PlaylistsViewModel): ViewModel
 
     @ContributesAndroidInjector
     abstract fun playlistDetailFragment(): MembersFragment

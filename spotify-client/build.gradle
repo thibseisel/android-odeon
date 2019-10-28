@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation project(':core')
 
     implementation "androidx.work:work-runtime-ktx:${versions.androidx.work}"
 
@@ -47,7 +47,7 @@ dependencies {
     kapt "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
     testImplementation "io.ktor:ktor-client-mock-jvm:${versions.ktor}"
     testImplementation "io.mockk:mockk:${versions.mockk}"
     kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"

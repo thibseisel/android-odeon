@@ -27,8 +27,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.common.media.toMediaId
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest

@@ -104,7 +104,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
                     title = dialogTitle,
                     positiveButton = R.string.ok,
                     negativeButton = R.string.cancel
-                ).show(requireFragmentManager(), null)
+                ).show(parentFragmentManager, null)
                 return true
             }
         }

@@ -23,7 +23,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.ui.BaseAdapter
 
 /**

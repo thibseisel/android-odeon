@@ -32,11 +32,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.debug.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.debug.provider'
-        }
-
         release {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -46,9 +41,6 @@ android {
                         '-Xno-receiver-assertions'
                 ]
             }
-
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.provider'
         }
     }
 
@@ -69,7 +61,7 @@ android {
 }
 
 dependencies {
-    implementation project(':common')
+    implementation project(':core')
 
     // Kotlin language support
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
@@ -85,7 +77,7 @@ dependencies {
     implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
 
     // Test dependencies
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"

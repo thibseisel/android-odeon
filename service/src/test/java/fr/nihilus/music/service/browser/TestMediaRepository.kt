@@ -16,9 +16,11 @@
 
 package fr.nihilus.music.service.browser
 
-import fr.nihilus.music.common.test.stub
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.test.stub
+import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.DisposableTrack
@@ -39,6 +41,7 @@ internal class TestMediaRepository(
     override suspend fun getPlaylists(): List<Playlist> = playlists
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
     override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
+    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
     override suspend fun deletePlaylist(playlistId: Long) = stub()
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 }
@@ -66,6 +69,7 @@ internal class StubMediaRepository : MediaRepository {
     override suspend fun getPlaylists(): List<Playlist> = stub()
     override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = stub()
     override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
+    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
     override suspend fun deletePlaylist(playlistId: Long) = stub()
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 }

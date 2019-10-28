@@ -25,11 +25,11 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.core.ui.base.ListAdapter
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.AlphaSectionIndexer
-import fr.nihilus.music.core.ui.base.ListAdapter
 
 class SongAdapter(
     fragment: Fragment

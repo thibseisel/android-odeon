@@ -17,7 +17,7 @@
 package fr.nihilus.music.media.provider
 
 import android.Manifest
-import fr.nihilus.music.common.os.PermissionDeniedException
+import fr.nihilus.music.core.os.PermissionDeniedException
 
 /**
  * A test double for [MediaProvider] that simulates the behavior of the Android MediaStore

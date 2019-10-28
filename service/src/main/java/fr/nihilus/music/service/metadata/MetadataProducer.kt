@@ -18,7 +18,7 @@ package fr.nihilus.music.service.metadata
 
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

@@ -31,7 +31,7 @@ import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -125,7 +125,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             R.string.cancel
         )
 
-        dialog.show(requireFragmentManager(), null)
+        dialog.show(parentFragmentManager, null)
     }
 
     private fun setFabVisibility(visible: Boolean) {

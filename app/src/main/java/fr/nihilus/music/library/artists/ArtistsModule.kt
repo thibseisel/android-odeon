@@ -27,12 +27,9 @@ import fr.nihilus.music.library.artists.detail.ArtistDetailViewModel
 
 @Module
 internal abstract class ArtistsModule {
+
     @ContributesAndroidInjector
     abstract fun artistListFragment(): ArtistListFragment
-
-    @Binds @IntoMap
-    @ViewModelKey(ArtistListViewModel::class)
-    abstract fun bindsArtistListViewModel(viewModel: ArtistListViewModel): ViewModel
 
     @ContributesAndroidInjector
     abstract fun artistDetailFragment(): ArtistDetailFragment

@@ -29,6 +29,7 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
+import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_albums.*
 
@@ -37,8 +38,7 @@ import kotlinx.android.synthetic.main.fragment_albums.*
  * Selecting an album opens its [detail view][AlbumDetailFragment].
  */
 class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
-
-    private val viewModel: AlbumGridViewModel by viewModels { viewModelFactory }
+    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
 
     private lateinit var albumAdapter: AlbumsAdapter
 
@@ -57,7 +57,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
             afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
-        viewModel.children.observe(this) { albumRequest ->
+        viewModel.albums.observe(this) { albumRequest ->
             when (albumRequest) {
                 is LoadRequest.Pending -> refreshToggle.isRefreshing = true
                 is LoadRequest.Success -> {

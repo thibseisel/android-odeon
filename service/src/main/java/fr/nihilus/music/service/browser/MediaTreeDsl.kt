@@ -20,7 +20,7 @@ import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
-import fr.nihilus.music.common.media.MediaId
+import fr.nihilus.music.core.media.MediaId
 
 /**
  * Mark declarations that are used to define the structure of a media browser tree.

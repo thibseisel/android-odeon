@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.context.RxSchedulers
+import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.context.RxSchedulers
 import fr.nihilus.music.media.dagger.ServiceScoped
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

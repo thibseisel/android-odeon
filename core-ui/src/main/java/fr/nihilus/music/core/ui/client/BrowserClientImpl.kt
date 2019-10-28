@@ -24,8 +24,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.common.AppScope
-import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.core.AppScope
+import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.SendChannel
@@ -43,17 +43,11 @@ import kotlin.coroutines.suspendCoroutine
 /**
  * Maintain a client-side connection to this application's media session,
  * allowing to browser available media and send commands to the session transport controls.
- *
- * Rather than initiate a new connection for each client,
- * this class will initiate a single connection when the first client connects,
- * sharing it across all clients.
- * The connection is disposed when the last client disconnects.
  */
 @AppScope
 internal class BrowserClientImpl
 @Inject constructor(applicationContext: Context) : BrowserClient {
 
-    private val connectedClients = mutableSetOf<BrowserClient.ClientToken>()
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
 
@@ -80,47 +74,21 @@ internal class BrowserClientImpl
     /** A flow whose latest value is the current repeat mode. */
     override val repeatMode: Flow<Int> = _repeatMode.asFlow()
 
-    /**
-     * Initiate connection to the media browser with the given [client]`.
-     * Operations on the Media Session are only available once the media browser is connected.
-     *
-     * Make sure to [disconnect] the [client] from the media browser
-     * when it is no longer needed to avoid wasting resources.
-     *
-     * @param client A token used to identify clients that connects to the media browser.
-     */
-    override fun connect(client: BrowserClient.ClientToken) {
-        if (connectedClients.isEmpty()) {
+    override fun connect() {
+        if (!mediaBrowser.isConnected) {
+            Timber.tag("BrowserClientImpl").i("Connecting to service...")
             mediaBrowser.connect()
         }
-
-        connectedClients += client
     }
 
-    /**
-     * Disconnect the given [client] from the media browser.
-     *
-     * @param client The same token used when connecting with [connect].
-     */
-    override fun disconnect(client: BrowserClient.ClientToken) {
-        if (connectedClients.remove(client) && connectedClients.isEmpty()) {
+    override fun disconnect() {
+        if (mediaBrowser.isConnected) {
+            Timber.tag("BrowserClientImpl").i("Disconnecting from service...")
             mediaBrowser.disconnect()
             deferredController = CompletableDeferred()
         }
     }
 
-    /**
-     * Retrieve children of a specified browsable item from the media browser tree,
-     * observing changes to those children.
-     * The latest value emitted by the returned flow is always the latest up-to-date children.
-     * A new list is emitted whenever it changes.
-     *
-     * The flow will fail with a [MediaSubscriptionException] if the requested [parentId]
-     * does not exists or is not a browsable item in the hierarchy.
-     *
-     * @param parentId The media id of a browsable item.
-     * @return a flow of children of the specified browsable item.
-     */
     override fun getChildren(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
@@ -131,13 +99,6 @@ internal class BrowserClientImpl
         awaitClose { mediaBrowser.unsubscribe(parentId, subscription) }
     }.conflate()
 
-    /**
-     * Retrieve information of a single item from the media browser.
-     *
-     * @param itemId The media id of the item to retrieve.
-     * @return A media item with the same media id as the one requested,
-     * or `null` if no such item exists or an error occurred.
-     */
     override suspend fun getItem(itemId: String): MediaItem? {
         deferredController.await()
 
@@ -154,12 +115,6 @@ internal class BrowserClientImpl
         }
     }
 
-    /**
-     * Search the given [terms][query] in the whole music library.
-     *
-     * @param query The searched terms.
-     * @return A list of media that matches the query.
-     */
     override suspend fun search(query: String): List<MediaItem> {
         deferredController.await()
 
@@ -177,62 +132,36 @@ internal class BrowserClientImpl
         }
     }
 
-    /**
-     * Requests the media service to start or resume playback.
-     */
     override suspend fun play() {
         val controller = deferredController.await()
         controller.transportControls.play()
     }
 
-    /**
-     * Requests the media service to pause playback.
-     */
     override suspend fun pause() {
         val controller = deferredController.await()
         controller.transportControls.pause()
     }
 
-    /**
-     * Requests the media service to play the item with the specified [mediaId].
-     * @param mediaId The media id of a playable item.
-     */
     override suspend fun playFromMediaId(mediaId: String) {
         val controller = deferredController.await()
         controller.transportControls.playFromMediaId(mediaId, null)
     }
 
-    /**
-     * Requests the media service to move its playback position
-     * to a given point in the currently playing media.
-     *
-     * @param positionMs The new position in the current media, in milliseconds.
-     */
     override suspend fun seekTo(positionMs: Long) {
         val controller = deferredController.await()
         controller.transportControls.seekTo(positionMs)
     }
 
-    /**
-     * Requests the media service to move to the previous item in the current playlist.
-     */
     override suspend fun skipToPrevious() {
         val controller = deferredController.await()
         controller.transportControls.skipToPrevious()
     }
 
-    /**
-     * Requests the media service to move to the next item in the current playlist.
-     */
     override suspend fun skipToNext() {
         val controller = deferredController.await()
         controller.transportControls.skipToNext()
     }
 
-    /**
-     * Enable/Disable shuffling of playlists.
-     * @param enabled Whether shuffle should be enabled.
-     */
     override suspend fun setShuffleModeEnabled(enabled: Boolean) {
         val controller = deferredController.await()
         controller.transportControls.setShuffleMode(
@@ -243,10 +172,6 @@ internal class BrowserClientImpl
         )
     }
 
-    /**
-     * Sets the repeat mode.
-     * @param repeatMode The new repeat mode.
-     */
     override suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
         if (
             repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ||
@@ -258,19 +183,6 @@ internal class BrowserClientImpl
         }
     }
 
-    /**
-     * Requests the media service to execute a custom action.
-     *
-     * @param name The name of the action to execute.
-     * This should be one of the `CustomActions.ACTION_*` constants.
-     * @param params The parameters required for the execution of the custom action,
-     * as specified in the documentation or the action name.
-     *
-     * @return The result of the execution of the action, if any.
-     * @throws BrowserClient.CustomActionException if the execution of the requested action failed.
-     *
-     * @see CustomActions
-     */
     override suspend fun executeAction(name: String, params: Bundle?): Bundle? {
         // Wait until connected or the action will fail.
         deferredController.await()
@@ -323,7 +235,7 @@ internal class BrowserClientImpl
     ) : MediaBrowserCompat.ConnectionCallback() {
 
         override fun onConnected() {
-            Timber.i("MediaBrowser is connected.")
+            Timber.tag("BrowserClientImpl").i("MediaBrowser is connected.")
             val controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
                 it.registerCallback(controllerCallback)
                 _playbackState.offer(it.playbackState ?: EMPTY_PLAYBACK_STATE)
@@ -342,7 +254,7 @@ internal class BrowserClientImpl
         }
 
         override fun onConnectionSuspended() {
-            Timber.i("Connection to the MediaBrowserService has been suspended.")
+            Timber.tag("BrowserClientImpl").i("Connection to the service has been suspended.")
             if (deferredController.isCompleted) {
                 val controller = deferredController.getCompleted()
                 controller.unregisterCallback(controllerCallback)
@@ -385,7 +297,7 @@ internal class BrowserClientImpl
         }
 
         override fun onSessionDestroyed() {
-            Timber.i("MediaSession has been destroyed.")
+            Timber.tag("BrowserClientImpl").i("MediaSession has been destroyed.")
             connectionCallback.onConnectionSuspended()
         }
     }

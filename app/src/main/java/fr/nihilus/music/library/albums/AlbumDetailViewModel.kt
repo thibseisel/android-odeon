@@ -35,7 +35,6 @@ class AlbumDetailViewModel
 @Inject constructor(
     private val connection: BrowserClient
 ) : ViewModel() {
-    private val token = BrowserClient.ClientToken()
     private var observeTracksJob: Job? = null
 
     private val _album = MutableLiveData<MediaBrowserCompat.MediaItem>()
@@ -43,10 +42,6 @@ class AlbumDetailViewModel
 
     private val _tracks = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
     val tracks: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> = _tracks
-
-    init {
-        connection.connect(token)
-    }
 
     fun setAlbumId(albumId: String) {
         viewModelScope.launch {
@@ -82,10 +77,5 @@ class AlbumDetailViewModel
 
     private fun playMedia(mediaId: String) = viewModelScope.launch {
         connection.playFromMediaId(mediaId)
-    }
-
-    override fun onCleared() {
-        connection.disconnect(token)
-        super.onCleared()
     }
 }

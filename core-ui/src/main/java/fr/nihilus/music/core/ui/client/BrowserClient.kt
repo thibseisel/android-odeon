@@ -20,8 +20,8 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.flow.Flow
-import fr.nihilus.music.common.media.CustomActions
 
 /**
  * Manage interactions with a remote Media Session.
@@ -49,22 +49,18 @@ interface BrowserClient {
     val repeatMode: Flow<Int>
 
     /**
-     * Initiate connection to the media browser with the given [client]`.
+     * Initiate connection to the media browser.
      * Operations on the Media Session are only available once the media browser is connected.
      *
-     * Make sure to [disconnect] the [client] from the media browser
-     * when it is no longer needed to avoid wasting resources.
-     *
-     * @param client A token used to identify clients that connects to the media browser.
+     * Make sure to [disconnect] from the media browser when it is no longer needed
+     * to avoid wasting resources.
      */
-    fun connect(client: ClientToken)
+    fun connect()
 
     /**
-     * Disconnect the given [client] from the media browser.
-     *
-     * @param client The same token used when connecting with [connect].
+     * Disconnects from the media browser.
      */
-    fun disconnect(client: ClientToken)
+    fun disconnect()
 
     /**
      * Retrieve children of a specified browsable item from the media browser tree,
@@ -157,11 +153,6 @@ interface BrowserClient {
      * @see CustomActions
      */
     suspend fun executeAction(name: String, params: Bundle?): Bundle?
-
-    /**
-     * Defines data required to maintain a connection to a client-side MediaBrowser connection.
-     */
-    class ClientToken
 
     /**
      * Thrown when a custom action execution failed.

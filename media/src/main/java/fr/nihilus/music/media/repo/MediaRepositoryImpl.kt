@@ -16,12 +16,13 @@
 
 package fr.nihilus.music.media.repo
 
-import fr.nihilus.music.common.collections.diffList
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.common.database.playlists.Playlist
-import fr.nihilus.music.common.database.playlists.PlaylistDao
-import fr.nihilus.music.common.database.usage.UsageDao
+import fr.nihilus.music.core.collections.diffList
+import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
+import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
@@ -96,6 +97,11 @@ internal class MediaRepositoryImpl
 
     override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) {
         playlistsDao.createPlaylist(newPlaylist, trackIds)
+    }
+
+    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) {
+        val tracks = trackIds.map { trackId -> PlaylistTrack(playlistId, trackId) }
+        playlistsDao.addTracks(tracks)
     }
 
     override suspend fun deletePlaylist(playlistId: Long) = playlistsDao.deletePlaylist(playlistId)

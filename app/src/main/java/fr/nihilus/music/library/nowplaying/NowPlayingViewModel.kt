@@ -30,38 +30,38 @@ import javax.inject.Inject
 
 class NowPlayingViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ) : ViewModel() {
 
-    val playbackState: LiveData<PlaybackStateCompat> = connection.playbackState.consumeAsLiveData(viewModelScope)
-    val nowPlaying: LiveData<MediaMetadataCompat?> = connection.nowPlaying.consumeAsLiveData(viewModelScope)
-    val repeatMode: LiveData<Int> = connection.repeatMode.consumeAsLiveData(viewModelScope)
-    val shuffleMode: LiveData<Int> = connection.shuffleMode.consumeAsLiveData(viewModelScope)
+    val playbackState: LiveData<PlaybackStateCompat> = client.playbackState.consumeAsLiveData(viewModelScope)
+    val nowPlaying: LiveData<MediaMetadataCompat?> = client.nowPlaying.consumeAsLiveData(viewModelScope)
+    val repeatMode: LiveData<Int> = client.repeatMode.consumeAsLiveData(viewModelScope)
+    val shuffleMode: LiveData<Int> = client.shuffleMode.consumeAsLiveData(viewModelScope)
 
     fun togglePlayPause() {
         viewModelScope.launch {
             val isPlaying = playbackState.value?.isPlaying ?: false
-            if (isPlaying) connection.pause() else connection.play()
+            if (isPlaying) client.pause() else client.play()
         }
     }
 
     fun skipToPrevious() {
-        viewModelScope.launch { connection.skipToPrevious() }
+        viewModelScope.launch { client.skipToPrevious() }
     }
 
     fun skipToNext() {
-        viewModelScope.launch { connection.skipToNext() }
+        viewModelScope.launch { client.skipToNext() }
     }
 
     fun seekTo(position: Long) {
-        viewModelScope.launch { connection.seekTo(position) }
+        viewModelScope.launch { client.seekTo(position) }
     }
 
     fun toggleShuffleMode() {
         viewModelScope.launch {
             when (shuffleMode.value ?: SHUFFLE_MODE_INVALID) {
-                SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> connection.setShuffleModeEnabled(true)
-                SHUFFLE_MODE_ALL -> connection.setShuffleModeEnabled(false)
+                SHUFFLE_MODE_NONE, SHUFFLE_MODE_GROUP -> client.setShuffleModeEnabled(true)
+                SHUFFLE_MODE_ALL -> client.setShuffleModeEnabled(false)
             }
         }
     }
@@ -70,7 +70,7 @@ class NowPlayingViewModel
         viewModelScope.launch {
             val currentMode = repeatMode.value ?: REPEAT_MODE_INVALID
             if (currentMode != REPEAT_MODE_INVALID) {
-                connection.setRepeatMode((currentMode + 1) % 3)
+                client.setRepeatMode((currentMode + 1) % 3)
             }
         }
     }

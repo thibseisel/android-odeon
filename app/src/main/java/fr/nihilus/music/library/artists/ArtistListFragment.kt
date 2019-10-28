@@ -18,24 +18,22 @@ package fr.nihilus.music.library.artists
 
 import android.os.Bundle
 import android.view.View
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
+import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_artists.*
 
 class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.OnItemSelectedListener {
-
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory)[ArtistListViewModel::class.java]
-    }
+    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
 
     private lateinit var adapter: ArtistAdapter
 
@@ -55,7 +53,7 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.
         artist_recycler.adapter = adapter
         artist_recycler.setHasFixedSize(true)
 
-        viewModel.children.observe(this) { artistRequest ->
+        viewModel.artists.observe(this) { artistRequest ->
             when (artistRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {

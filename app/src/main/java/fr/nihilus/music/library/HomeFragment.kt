@@ -16,17 +16,18 @@
 
 package fr.nihilus.music.library
 
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.albums.AlbumGridFragment
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val viewModel by activityViewModels<MusicLibraryViewModel>()
+    private val viewModel by viewModels<HomeViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,8 +58,30 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         // Configure tabs and ViewPager.
-        tab_host.setupWithViewPager(fragment_pager)
-        fragment_pager.adapter = MusicLibraryTabAdapter(requireContext(), childFragmentManager)
+        fragment_pager.adapter = MusicLibraryTabAdapter(this)
+        fragment_pager.offscreenPageLimit = 1
+        TabLayoutMediator(tab_host, fragment_pager, false) { tab, position ->
+            tab.text = when (position) {
+                0 -> getString(R.string.all_music)
+                1 -> getString(R.string.action_albums)
+                2 -> getString(R.string.action_artists)
+                3 -> getString(R.string.action_playlists)
+                else -> null
+            }
+        }.attach()
+
+
+        viewModel.deleteTracksConfirmation.observe(this) { toastMessageEvent ->
+            toastMessageEvent.handle { deletedTracksCount ->
+                val message = resources.getQuantityString(
+                    R.plurals.deleted_songs_confirmation,
+                    deletedTracksCount,
+                    deletedTracksCount
+                )
+
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun Toolbar.prepareMenu() {
@@ -84,27 +107,16 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     /**
      * An adapter that maps fragments displaying collection of media to items in a ViewPager.
      */
-    private class MusicLibraryTabAdapter(
-        private val context: Context,
-        fm: FragmentManager
-    ) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    private class MusicLibraryTabAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
-        override fun getCount(): Int = 4
+        override fun getItemCount(): Int = 4
 
-        override fun getItem(position: Int): Fragment = when (position) {
+        override fun createFragment(position: Int): Fragment = when(position) {
             0 -> SongListFragment()
             1 -> AlbumGridFragment()
             2 -> ArtistListFragment()
             3 -> PlaylistsFragment()
             else -> error("Requested a Fragment for a tab at unexpected position: $position")
-        }
-
-        override fun getPageTitle(position: Int): CharSequence? = when (position) {
-            0 -> context.getString(R.string.all_music)
-            1 -> context.getString(R.string.action_albums)
-            2 -> context.getString(R.string.action_artists)
-            3 -> context.getString(R.string.action_playlists)
-            else -> null
         }
     }
 }

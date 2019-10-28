@@ -23,21 +23,22 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.common.media.toMediaId
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
+import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.core.ui.ProgressTimeLatch
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
-    private val viewModel: PlaylistsViewModel by viewModels { viewModelFactory }
+    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
 
     private lateinit var adapter: PlaylistsAdapter
 
@@ -57,7 +58,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
         playlist_recycler.adapter = adapter
         playlist_recycler.setHasFixedSize(true)
 
-        viewModel.children.observe(this) { playlistsRequest ->
+        viewModel.playlists.observe(this) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {

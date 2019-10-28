@@ -22,7 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.common.media.CustomActions
+import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
@@ -33,9 +33,9 @@ import javax.inject.Inject
 
 class MembersViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ): ViewModel() {
-    private val token = BrowserClient.ClientToken()
+
     private var observeTracksJob: Job? = null
 
     private val _playlist = MutableLiveData<MediaItem>()
@@ -44,17 +44,13 @@ class MembersViewModel
     private val _members = MutableLiveData<LoadRequest<List<MediaItem>>>()
     val members: LiveData<LoadRequest<List<MediaItem>>> = _members
 
-    init {
-        connection.connect(token)
-    }
-
     fun setPlaylist(playlistId: String) {
         viewModelScope.launch {
-            _playlist.value = connection.getItem(playlistId)
+            _playlist.value = client.getItem(playlistId)
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = connection.getChildren(playlistId)
+        observeTracksJob = client.getChildren(playlistId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
@@ -68,7 +64,7 @@ class MembersViewModel
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlistId))
             }
 
-            connection.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
+            client.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
         }
     }
 }

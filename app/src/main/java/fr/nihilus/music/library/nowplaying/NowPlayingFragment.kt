@@ -24,7 +24,7 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.lifecycle.ViewModelProviders
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -53,9 +53,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
-    private val viewModel by lazy(LazyThreadSafetyMode.NONE) {
-        ViewModelProviders.of(this, viewModelFactory).get(NowPlayingViewModel::class.java)
-    }
+    private val viewModel by viewModels<NowPlayingViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

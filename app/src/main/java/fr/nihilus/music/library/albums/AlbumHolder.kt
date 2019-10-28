@@ -24,7 +24,7 @@ import androidx.cardview.widget.CardView
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.ui.BaseAdapter
 

@@ -25,11 +25,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.common.test.fail
-import fr.nihilus.music.common.test.failAssumption
-import fr.nihilus.music.common.test.os.DeniedPermission
-import fr.nihilus.music.common.test.os.GrantedPermission
+import fr.nihilus.music.core.os.PermissionDeniedException
+import fr.nihilus.music.core.test.fail
+import fr.nihilus.music.core.test.failAssumption
+import fr.nihilus.music.core.test.os.DeniedPermission
+import fr.nihilus.music.core.test.os.GrantedPermission
 import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.ContentResolverDelegate
 import fr.nihilus.music.media.os.SimulatedFileSystem

@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.repo
 
-import fr.nihilus.music.common.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
@@ -30,6 +30,7 @@ interface MediaRepository {
     suspend fun getPlaylists(): List<Playlist>
     suspend fun getPlaylistTracks(playlistId: Long): List<Track>?
     suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray)
+    suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray)
     suspend fun deleteTracks(trackIds: LongArray): Int
     suspend fun deletePlaylist(playlistId: Long)
 }

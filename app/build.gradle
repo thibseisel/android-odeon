@@ -119,7 +119,7 @@ androidExtensions {
 
 dependencies {
     // Sub-project containing the Media Service.
-    implementation project(':common')
+    implementation project(':core')
     implementation project(':core-ui')
     implementation project(':service')
 
@@ -127,6 +127,7 @@ dependencies {
     implementation "androidx.cardview:cardview:${versions.androidx.cardview}"
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
     implementation "androidx.recyclerview:recyclerview-selection:${versions.androidx.recyclerview}"
+    implementation "androidx.viewpager2:viewpager2:${versions.androidx.viewpager2}"
     implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
     implementation "androidx.preference:preference-ktx:${versions.androidx.preference}"
 
@@ -142,13 +143,12 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
     // Test dependencies
-    testImplementation project(':common-test')
+    testImplementation project(':core-test')
     testImplementation "androidx.test:rules:${versions.androidx.test_rules}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "androidx.arch.core:core-testing:${versions.androidx.lifecycle}"
 
     androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
     androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"

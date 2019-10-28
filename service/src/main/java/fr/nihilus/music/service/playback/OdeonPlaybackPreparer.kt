@@ -34,11 +34,11 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import fr.nihilus.music.common.context.AppDispatchers
-import fr.nihilus.music.common.media.MediaId
-import fr.nihilus.music.common.media.toMediaId
-import fr.nihilus.music.common.os.PermissionDeniedException
-import fr.nihilus.music.common.settings.Settings
+import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.os.PermissionDeniedException
+import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.R
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery

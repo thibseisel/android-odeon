@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.service.browser
 
-import fr.nihilus.music.common.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.Playlist
 
 internal val SAMPLE_PLAYLISTS = listOf(
     Playlist(1, "Zen", 1551434321, null),

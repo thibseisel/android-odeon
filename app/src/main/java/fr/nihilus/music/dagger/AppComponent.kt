@@ -21,8 +21,8 @@ import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.OdeonApplication
-import fr.nihilus.music.common.AppScope
-import fr.nihilus.music.common.CoreComponent
+import fr.nihilus.music.core.AppScope
+import fr.nihilus.music.core.CoreComponent
 import fr.nihilus.music.service.MusicServiceModule
 
 /**

@@ -24,11 +24,11 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.common.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.common.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.common.media.MediaId.Builder.encode
-import fr.nihilus.music.common.media.MediaItems
-import fr.nihilus.music.common.test.fail
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.core.media.MediaId.Builder.encode
+import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel

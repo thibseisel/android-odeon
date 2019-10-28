@@ -1,16 +1,22 @@
-*.iml
+#Gradle
 .gradle
-local.properties
-.idea/workspace.xml
-.idea/assetWizardSettings.xml
-.idea/libraries
-.idea/icon.png
-.idea/icon_dark.png
-.idea/kotlinc.xml
-.idea/misc.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-/projectFilesBackup
+build/
 
+# Local only files
+local.properties
+captures/
+
+# IntelliJ .idea folder
+.idea/workspace.xml
+.idea/libraries
+.idea/shelf
+.idea/caches
+.idea/navEditor.xml
+.idea/tasks.xml
+.idea/modules.xml
+gradle.xml
+*.iml
+
+# General
+.DS_Store
+.externalNativeBuild

@@ -27,7 +27,7 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
-import fr.nihilus.music.common.media.MediaItems
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.ui.MediaItemDiffer
 
