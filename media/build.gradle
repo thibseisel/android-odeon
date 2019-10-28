@@ -73,9 +73,6 @@ dependencies {
     // Dagger
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    // Other libraries
-    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
-
     // Test dependencies
     testImplementation project(':core-test')
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"

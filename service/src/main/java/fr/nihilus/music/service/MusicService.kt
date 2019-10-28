@@ -42,8 +42,8 @@ import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.RepeatMode
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.media.actions.ActionFailure
-import fr.nihilus.music.media.actions.BrowserAction
+import fr.nihilus.music.service.actions.ActionFailure
+import fr.nihilus.music.service.actions.BrowserAction
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions

@@ -20,6 +20,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.dagger.MediaSourceModule
 import fr.nihilus.music.media.dagger.ServiceScoped
+import fr.nihilus.music.service.actions.CustomActionModule
 import fr.nihilus.music.service.playback.PlaybackModule
 
 /**
@@ -34,7 +35,8 @@ abstract class MusicServiceModule {
         ServiceBindingsModule::class,
         MediaSessionModule::class,
         MediaSourceModule::class,
-        PlaybackModule::class
+        PlaybackModule::class,
+        CustomActionModule::class
     ])
     abstract fun musicService(): MusicService
 }

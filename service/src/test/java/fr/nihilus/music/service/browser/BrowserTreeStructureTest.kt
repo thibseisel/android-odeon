@@ -58,7 +58,7 @@ import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
  * - children of those nodes are correctly fetched and mapped to [MediaItem]s.
  */
 @RunWith(AndroidJUnit4::class)
-class BrowserTreeStructureTest {
+internal class BrowserTreeStructureTest {
 
     private val context: Context
         get() = ApplicationProvider.getApplicationContext()

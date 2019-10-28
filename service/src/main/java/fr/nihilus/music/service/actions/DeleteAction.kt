@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.actions
+package fr.nihilus.music.service.actions
 
 import android.os.Bundle
 import fr.nihilus.music.core.media.CustomActions
@@ -55,7 +55,10 @@ internal class DeleteAction
                 )
 
         } catch (ime: InvalidMediaException) {
-            throw ActionFailure(CustomActions.ERROR_CODE_PARAMETER, ime.message)
+            throw ActionFailure(
+                CustomActions.ERROR_CODE_PARAMETER,
+                ime.message
+            )
         }
 
         val deletedTrackIds = mutableListOf<Long>()
@@ -107,7 +110,10 @@ internal class DeleteAction
 
         } catch (pde: PermissionDeniedException) {
             // Permission to write to storage is not granted.
-            throw ActionFailure(CustomActions.ERROR_CODE_PERMISSION_DENIED, pde.permission)
+            throw ActionFailure(
+                CustomActions.ERROR_CODE_PERMISSION_DENIED,
+                pde.permission
+            )
         }
     }
 }

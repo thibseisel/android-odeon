@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.actions
+package fr.nihilus.music.service.actions
 
 import android.graphics.Bitmap
 import android.graphics.Color

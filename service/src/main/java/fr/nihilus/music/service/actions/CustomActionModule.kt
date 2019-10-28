@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.actions
+package fr.nihilus.music.service.actions
 
 import dagger.Binds
 import dagger.Module
@@ -22,8 +22,12 @@ import dagger.multibindings.IntoMap
 import dagger.multibindings.StringKey
 import fr.nihilus.music.core.media.CustomActions
 
+/**
+ * Provides a [Map] of [handlers for custom actions][BrowserAction] received by the media service.
+ * Handlers are identified by the [name][BrowserAction.name] in the resulting map.
+ */
 @Module
-abstract class CustomActionModule {
+internal abstract class CustomActionModule {
 
     @Binds @IntoMap
     @StringKey(CustomActions.ACTION_DELETE_MEDIA)

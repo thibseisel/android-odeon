@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.actions
+package fr.nihilus.music.service.actions
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -174,7 +174,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun givenPlaylistIdAndTrackMediaIds_whenExecuting_thenAddTracksToThatPlaylist() = dispatcher.runBlockingTest {
+    fun `Given playlist id and track media ids, when executing then add tracks to that playlist`() = dispatcher.runBlockingTest {
         val trackMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)

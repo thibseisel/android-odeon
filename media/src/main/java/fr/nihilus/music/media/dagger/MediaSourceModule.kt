@@ -18,7 +18,6 @@ package fr.nihilus.music.media.dagger
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.actions.CustomActionModule
 import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.repo.MediaRepositoryImpl
@@ -29,8 +28,7 @@ import fr.nihilus.music.media.usage.UsageManagerImpl
  * Define relations in the object graph for the "media" group of features.
  */
 @Module(includes = [
-    MediaStoreModule::class,
-    CustomActionModule::class
+    MediaStoreModule::class
 ])
 abstract class MediaSourceModule {
 
