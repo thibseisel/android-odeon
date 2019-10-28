@@ -44,8 +44,8 @@
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <argument
-            android:name="pickedArtist"
-            app:argType="android.support.v4.media.MediaBrowserCompat$MediaItem" />
+            android:name="artistId"
+            app:argType="string" />
     </fragment>
 
     <fragment

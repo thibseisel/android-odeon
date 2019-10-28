@@ -47,6 +47,8 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel.setArtist(args.artistId)
         childrenAdapter = ArtistDetailAdapter(this, this)
     }
 
@@ -55,12 +57,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
 
         postponeEnterTransition()
 
-        with (toolbar) {
-            title = args.pickedArtist.description.title
-            setNavigationOnClickListener { findNavController().navigateUp() }
-        }
-
-        viewModel.loadChildrenOfArtist(args.pickedArtist)
+        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
         val manager = GridLayoutManager(context, spanCount)
@@ -83,8 +80,10 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
             progressIndicator.isVisible = shouldShow
         }
 
+        viewModel.artist.observe(this, ::onArtistDetailLoaded)
+
         viewModel.children.observe(this) { childrenRequest ->
-            when  (childrenRequest) {
+            when (childrenRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
@@ -105,6 +104,10 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
             R.id.view_type_track -> onTrackSelected(selectedItem)
             R.id.view_type_album -> onAlbumSelected(holder as AlbumHolder, selectedItem)
         }
+    }
+
+    private fun onArtistDetailLoaded(artist: MediaItem) {
+        toolbar.title = artist.description.title
     }
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {

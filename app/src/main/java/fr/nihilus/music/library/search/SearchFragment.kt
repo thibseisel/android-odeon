@@ -128,7 +128,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             }
 
             MediaId.TYPE_ARTISTS -> {
-                val toArtistDetail = SearchFragmentDirections.browseArtistDetail(item)
+                val artistId = item.mediaId!!
+                val toArtistDetail = SearchFragmentDirections.browseArtistDetail(artistId)
                 navController.navigate(toArtistDetail)
             }
 

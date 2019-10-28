@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 class AlbumDetailViewModel
 @Inject constructor(
-    private val connection: BrowserClient
+    private val client: BrowserClient
 ) : ViewModel() {
     private var observeTracksJob: Job? = null
 
@@ -45,11 +45,11 @@ class AlbumDetailViewModel
 
     fun setAlbumId(albumId: String) {
         viewModelScope.launch {
-            _album.value = connection.getItem(albumId)
+            _album.value = client.getItem(albumId)
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = connection.getChildren(albumId)
+        observeTracksJob = client.getChildren(albumId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
@@ -62,7 +62,7 @@ class AlbumDetailViewModel
      * TODO: would be better to share the position of the track that is currently playing
      */
     val nowPlaying: LiveData<MediaMetadataCompat?> =
-        connection.nowPlaying.consumeAsLiveData(viewModelScope)
+        client.nowPlaying.consumeAsLiveData(viewModelScope)
 
     fun playAlbum() {
         val albumId = album.value?.mediaId
@@ -76,6 +76,6 @@ class AlbumDetailViewModel
     }
 
     private fun playMedia(mediaId: String) = viewModelScope.launch {
-        connection.playFromMediaId(mediaId)
+        client.playFromMediaId(mediaId)
     }
 }
