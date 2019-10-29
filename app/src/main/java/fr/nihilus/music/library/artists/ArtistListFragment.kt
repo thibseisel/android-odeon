@@ -18,6 +18,7 @@ package fr.nihilus.music.library.artists
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -25,7 +26,6 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter

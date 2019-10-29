@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -32,7 +33,6 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_playlist_members.*

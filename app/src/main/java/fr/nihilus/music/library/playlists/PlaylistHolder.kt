@@ -18,13 +18,11 @@ package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.ui.BaseAdapter
 
 /**

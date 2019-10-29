@@ -35,20 +35,6 @@ import androidx.annotation.LayoutRes
 fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
     LayoutInflater.from(context).inflate(resource, this, attach)
 
-/**
- * Whether a View is visible.
- * Setting this property to `false` will set the View's visibility to [View.GONE].
- */
-@Deprecated(
-    "This extension is now part of AndroidX.",
-    ReplaceWith("isVisible", "androidx.core.view.isVisible")
-)
-var View.isVisible: Boolean
-    get() = visibility == View.VISIBLE
-    set(value) {
-        visibility = if (value) View.VISIBLE else View.GONE
-    }
-
 inline fun <T : View> T.afterMeasure(crossinline block: T.() -> Unit) {
     viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {

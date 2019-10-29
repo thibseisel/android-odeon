@@ -28,6 +28,7 @@ import android.widget.AbsListView.MultiChoiceModeListener
 import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -36,7 +37,6 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.isVisible
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
