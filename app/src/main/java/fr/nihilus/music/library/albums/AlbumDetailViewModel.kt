@@ -16,63 +16,86 @@
 
 package fr.nihilus.music.library.albums
 
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaMetadataCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.ui.LoadRequest
+import androidx.lifecycle.*
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import fr.nihilus.music.service.extensions.id
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class AlbumDetailViewModel
+internal class AlbumDetailViewModel
 @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
-    private var observeTracksJob: Job? = null
 
-    private val _album = MutableLiveData<MediaBrowserCompat.MediaItem>()
-    val album: LiveData<MediaBrowserCompat.MediaItem> = _album
+    private val albumId = MutableLiveData<String>()
 
-    private val _tracks = MutableLiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>>()
-    val tracks: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> = _tracks
+    /**
+     * Live UI state describing detail of the viewed album with its tracks.
+     * The value of this [LiveData] will only be available after [setAlbumId] has been called.
+     */
+    val state: LiveData<AlbumDetailState> = albumId.asFlow()
+        .distinctUntilChanged()
+        .flatMapLatest { albumId ->
+            val albumFlow = flow { emit(client.getItem(albumId)) }
+            val albumTracksFlow = client.getChildren(albumId)
 
+            combine(albumFlow, albumTracksFlow, client.nowPlaying) { album, tracks, nowPlaying ->
+                val currentlyPlayingMediaId = nowPlaying?.id
+                checkNotNull(album)
+
+                AlbumDetailState(
+                    id = checkNotNull(album.mediaId),
+                    title = album.description.title?.toString() ?: "",
+                    subtitle = album.description.subtitle?.toString() ?: "",
+                    artworkUri = album.description.iconUri,
+                    tracks = tracks.map {
+                        val trackId = checkNotNull(it.mediaId)
+                        val extras = checkNotNull(it.description.extras)
+
+                        AlbumDetailState.Track(
+                            id = trackId,
+                            title = it.description.title?.toString() ?: "",
+                            number = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER),
+                            duration = extras.getLong(MediaItems.EXTRA_DURATION),
+                            isPlaying = trackId == currentlyPlayingMediaId
+                        )
+                    }
+                )
+            }
+        }.asLiveData()
+
+    /**
+     * Loads the detail of the album with the specified [media id][albumId].
+     * If an album is already loading or loaded it will be replaced.
+     *
+     * @param albumId The media id of the album.
+     */
     fun setAlbumId(albumId: String) {
-        viewModelScope.launch {
-            _album.value = client.getItem(albumId)
-        }
-
-        observeTracksJob?.cancel()
-        observeTracksJob = client.getChildren(albumId)
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
-            .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .onEach { _tracks.postValue(it) }
-            .launchIn(viewModelScope)
+        this.albumId.value = albumId
     }
 
     /**
-     * The track that the player is currently playing, if any.
-     * TODO: would be better to share the position of the track that is currently playing
+     * Start playback of all tracks from the currently displayed album.
      */
-    val nowPlaying: LiveData<MediaMetadataCompat?> =
-        client.nowPlaying.consumeAsLiveData(viewModelScope)
-
     fun playAlbum() {
-        val albumId = album.value?.mediaId
+        val albumId = this.albumId.value
         if (albumId != null) {
             playMedia(albumId)
         }
     }
 
-    fun playTrack(track: MediaBrowserCompat.MediaItem) {
-        playMedia(track.mediaId!!)
+    /**
+     * Start playback of a given track in the album.
+     *
+     * @param track The track to be played.
+     */
+    fun playTrack(track: AlbumDetailState.Track) {
+        playMedia(track.id)
     }
 
     private fun playMedia(mediaId: String) = viewModelScope.launch {

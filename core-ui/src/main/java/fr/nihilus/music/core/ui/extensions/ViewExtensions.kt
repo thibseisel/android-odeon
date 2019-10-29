@@ -39,6 +39,10 @@ fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
  * Whether a View is visible.
  * Setting this property to `false` will set the View's visibility to [View.GONE].
  */
+@Deprecated(
+    "This extension is now part of AndroidX.",
+    ReplaceWith("isVisible", "androidx.core.view.isVisible")
+)
 var View.isVisible: Boolean
     get() = visibility == View.VISIBLE
     set(value) {

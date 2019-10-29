@@ -20,8 +20,6 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
@@ -34,25 +32,19 @@ import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.extensions.doOnEnd
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.CurrentlyPlayingDecoration
 import kotlinx.android.synthetic.main.fragment_album_detail.*
 import java.util.concurrent.TimeUnit
 
 /**
  * Display the tracks that are part of an album.
  */
-class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAdapter.OnItemSelectedListener {
-
-    private lateinit var adapter: TrackAdapter
-    private lateinit var decoration: CurrentlyPlayingDecoration
+class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
     private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
@@ -73,37 +65,30 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         // They only have to be unique in this fragment.
         album_art_view.transitionName = args.albumId
 
+        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+
         play_fab.setOnClickListener {
             viewModel.playAlbum()
         }
 
-        setupToolbar()
-        setupTrackList()
+        val adapter = TrackAdapter(viewModel::playTrack)
+        recycler.adapter = adapter
+
         setDarkHomeUpIndicator(true)
         setDarkStatusBarIcons(true)
 
-        viewModel.album.observe(viewLifecycleOwner, ::onAlbumDetailLoaded)
-
-        // Change the decorated item when metadata changes
-        viewModel.nowPlaying.observe(this, this::decoratePlayingTrack)
-
-        // Subscribe to children of this album
-        viewModel.tracks.observe(this) { trackUpdateRequest ->
-            if (trackUpdateRequest is LoadRequest.Success) {
-                adapter.submitList(trackUpdateRequest.data)
-                val currentMetadata = viewModel.nowPlaying.value
-                decoratePlayingTrack(currentMetadata)
-            }
+        viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
+            onAlbumDetailLoaded(albumDetail)
+            adapter.submitList(albumDetail.tracks)
         }
     }
 
-    private fun onAlbumDetailLoaded(album: MediaBrowserCompat.MediaItem) {
-        val description = album.description
-        title_view.text = description.title
-        subtitle_view.text = description.subtitle
+    private fun onAlbumDetailLoaded(album: AlbumDetailState) {
+        title_view.text = album.title
+        subtitle_view.text = album.subtitle
 
         GlideApp.with(this).asAlbumArt()
-            .load(description.iconUri)
+            .load(album.artworkUri)
             .fallback(R.drawable.ic_album_24dp)
             .dontTransform()
             .doOnEnd(this::startPostponedEnterTransition)
@@ -130,36 +115,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
         })
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
-        val selectedTrack = adapter.getItem(position)
-        viewModel.playTrack(selectedTrack)
-    }
-
-    private fun decoratePlayingTrack(playingTrack: MediaMetadataCompat?) {
-        if (playingTrack != null) {
-            val position = adapter.indexOf(playingTrack)
-
-            if (position != -1) {
-                decoration.decoratedPosition = position
-                recycler.invalidateItemDecorations()
-            }
-        }
-    }
-
-    private fun setupToolbar() {
-        toolbar.apply {
-            title = null
-            setNavigationOnClickListener { findNavController().navigateUp() }
-        }
-    }
-
-    private fun setupTrackList() {
-        recycler.also {
-            adapter = TrackAdapter(this)
-            it.adapter = adapter
-        }
-    }
-
     private fun applyPaletteTheme(palette: AlbumPalette) {
         album_info_layout.setBackgroundColor(palette.primary)
         title_view.setTextColor(palette.titleText)
@@ -174,8 +129,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail), BaseAd
 
         play_fab.backgroundTintList = ColorStateList.valueOf(palette.accent)
         play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
-        decoration = CurrentlyPlayingDecoration(requireContext(), palette.accent)
-        recycler.addItemDecoration(decoration)
     }
 
     private fun setDarkStatusBarIcons(isDark: Boolean) {
