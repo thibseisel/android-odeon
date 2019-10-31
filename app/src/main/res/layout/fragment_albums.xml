@@ -33,11 +33,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="gone"/>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <fr.nihilus.music.view.GridRecyclerView
         android:id="@+id/album_recycler"
         style="@style/MainScrollingView.FastScrollRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layoutAnimation="@anim/grid_layout_slide_up"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="@integer/album_grid_span_count"
         tools:listitem="@layout/album_grid_item"/>
