@@ -445,7 +445,6 @@ internal class BrowserTreeImpl
                 val mediaId = MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE, track.trackId)
                 val description = builder.setMediaId(mediaId.encoded)
                     .setTitle(track.title)
-                    .setSubtitle(track.subtitle)
                     .setExtras(Bundle().apply {
                         putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
                         track.lastPlayedTime?.let { lastPlayedTime ->

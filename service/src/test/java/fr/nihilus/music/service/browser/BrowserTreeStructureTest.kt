@@ -336,8 +336,8 @@ internal class BrowserTreeStructureTest {
     @Test
     fun `When loading children of Disposable, then return disposable items from usage manager`() = runBlockingTest {
         val usageManager = TestUsageManager(emptyList(), disposableTracks = listOf(
-            DisposableTrack(48L, "Give It Up", "AC/DC", 5_716_578, null),
-            DisposableTrack(161L, "1741 (The Battle of Cartagena)", "Alestorm", 17_506_481, 1565272800)
+            DisposableTrack(48L, "Give It Up", 5_716_578, null),
+            DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
         ))
 
         val browserTree = BrowserTreeImpl(context, StubMediaRepository(), usageManager)

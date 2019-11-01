@@ -94,7 +94,7 @@ internal class UsageManagerImpl
         val allTracks = allTracksAsync.await()
         val neverPlayedTracks = allTracks.asSequence()
             .filterNot { it.id in usageByTrack }
-            .map { DisposableTrack(it.id, it.title, it.artist, it.fileSize, null) }
+            .map { DisposableTrack(it.id, it.title, it.fileSize, null) }
 
         // Of all tracks that have been played at least once,
         // select those that have not been played for more than a month.
@@ -105,7 +105,7 @@ internal class UsageManagerImpl
             .filter { (_, usage) -> usage.lastEventTime < lastMonth }
             .mapNotNull { (trackId, usage) ->
                 tracksById[trackId]?.let {
-                    DisposableTrack(trackId, it.title, it.artist, it.fileSize, usage.lastEventTime)
+                    DisposableTrack(trackId, it.title, it.fileSize, usage.lastEventTime)
                 }
             }
 
@@ -145,7 +145,6 @@ private const val ONE_MONTH_MILLIS = 3600 * 24 * 30
 class DisposableTrack(
     val trackId: Long,
     val title: String,
-    val subtitle: String?,
     val fileSizeBytes: Long,
     val lastPlayedTime: Long?
 )
