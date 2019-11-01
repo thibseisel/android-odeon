@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -109,8 +110,17 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         sharedElementEnterTransition = albumArtTransition
 
         albumArtTransition.addListener(object : TransitionListenerAdapter() {
+
+            override fun onTransitionStart(transition: Transition) {
+                // Hide the Floating Action Button at the beginning of the animation.
+                play_fab.isVisible = false
+            }
+
             override fun onTransitionEnd(transition: Transition) {
                 activity?.window?.statusBarColor = Color.TRANSPARENT
+
+                // Show the Floating Action Button after transition is completed.
+                play_fab?.show()
             }
         })
     }
