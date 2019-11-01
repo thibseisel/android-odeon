@@ -28,6 +28,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionManager
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
@@ -35,6 +38,7 @@ import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.ui.Stagger
 import kotlinx.android.synthetic.main.fragment_playlist_members.*
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAdapter.OnItemSelectedListener {
@@ -69,6 +73,17 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         members_recycler.adapter = adapter
         members_recycler.setHasFixedSize(true)
 
+        // Disable add animations because we'll manually animate those.
+        members_recycler.itemAnimator = object : DefaultItemAnimator() {
+            override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
+                dispatchAddFinished(holder)
+                dispatchAddStarting(holder)
+                return false
+            }
+        }
+
+        val staggerTransition = Stagger()
+
         viewModel.playlist.observe(this, ::onPlaylistDetailLoaded)
 
         viewModel.members.observe(this) { membersRequest ->
@@ -76,6 +91,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
+                    TransitionManager.beginDelayedTransition(members_recycler, staggerTransition)
                     adapter.submitList(membersRequest.data)
                 }
                 is LoadRequest.Error -> {

@@ -32,6 +32,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.transition.TransitionManager
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
@@ -42,6 +43,7 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
+import fr.nihilus.music.ui.Stagger
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {
@@ -80,11 +82,14 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
             }
         }
 
+        val staggerTransition = Stagger()
+
         viewModel.tracks.observe(this) { itemRequest ->
             when (itemRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
+                    TransitionManager.beginDelayedTransition(songs_listview, staggerTransition)
                     songAdapter.submitList(itemRequest.data)
                     group_empty_view.isVisible = itemRequest.data.isEmpty()
                 }
