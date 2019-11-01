@@ -55,6 +55,12 @@ import kotlin.Comparator
  */
 private const val BASE_SCORE = 100
 
+/**
+ * An increase of the search score that is attributed when the query matches
+ * the start of the first word.
+ */
+private const val FIRST_WORD_BONUS = 30
+
 private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
     val discNumberDiff = a.discNumber - b.discNumber
     if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
@@ -351,8 +357,14 @@ internal class BrowserTreeImpl
             outResult.matched = false
             outResult.score = Int.MIN_VALUE
         } else {
+            var score = BASE_SCORE - matchPosition - text.length
+            if (matchPosition == 0) {
+                // The query matched the start of the first word, give it a bonus.
+                score += FIRST_WORD_BONUS
+            }
+
             outResult.matched = true
-            outResult.score = (BASE_SCORE - matchPosition - text.length)
+            outResult.score = score
         }
     }
 

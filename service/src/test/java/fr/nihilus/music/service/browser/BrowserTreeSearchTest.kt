@@ -25,11 +25,13 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
+import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.THEIR_MEDIA_ID
 import io.kotlintest.matchers.collections.shouldContainAll
+import io.kotlintest.matchers.collections.shouldContainExactly
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlinx.coroutines.test.runBlockingTest as test
@@ -193,6 +195,31 @@ class BrowserTreeSearchTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 63),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42)
         ).inOrder()
+    }
+
+    @Test
+    fun `When search pattern matches multiple items, then first return results that matches the start of a word`() = test {
+        val tracks = listOf(
+            Track(90, "Avalanche", "Ghost", "Prequelle", 0, 1, 12, "", null, 0, 56, 97, 0),
+            Track(91, "No Grave But The Sea", "Alestorm", "No Grave But The Sea", 0, 1, 1, "", null, 0, 456, 856, 0),
+            Track(356, "Gravity", "Bullet For My Valentine", "Gravity", 0, 1, 8, "", null, 0, 45, 99, 0)
+        )
+
+        val artist = listOf(
+            Artist(65, "Avatar", 0, 0, null),
+            Artist(98, "Avenged Sevenfold", 0, 0, null)
+        )
+
+        val tree = BrowserTree(repository = TestMediaRepository(tracks, emptyList(), artist))
+        val results = tree.search(SearchQuery.Unspecified("av")).map { it.mediaId }
+
+        results.shouldContainExactly(
+            encode(TYPE_ARTISTS, "65"), // AVatar
+            encode(TYPE_TRACKS, CATEGORY_ALL, 90), // AValanche
+            encode(TYPE_ARTISTS, "98"), // AVenged Sevenfold
+            encode(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
+            encode(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
+        )
     }
 
     private fun BrowserTree(
