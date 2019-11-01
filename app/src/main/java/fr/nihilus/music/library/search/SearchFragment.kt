@@ -27,6 +27,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -39,6 +40,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
+    private val backToTopObserver =  BackToTopObserver()
     private lateinit var resultsAdapter: SearchResultsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,13 +72,22 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         viewModel.searchResults.observe(this) { searchResults ->
-            recyclerView.scrollToPosition(0)
             resultsAdapter.submitList(searchResults)
         }
 
         if (savedInstanceState == null) {
             showKeyboard(search_input)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        resultsAdapter.registerAdapterDataObserver(backToTopObserver)
+    }
+
+    override fun onStop() {
+        resultsAdapter.unregisterAdapterDataObserver(backToTopObserver)
+        super.onStop()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
@@ -138,6 +149,19 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
                 val toPlaylistContent = SearchFragmentDirections.browsePlaylistContent(playlistId)
                 navController.navigate(toPlaylistContent)
             }
+        }
+    }
+
+    private inner class BackToTopObserver : RecyclerView.AdapterDataObserver() {
+
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = onChanged()
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) = onChanged()
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = onChanged()
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = onChanged()
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = onChanged()
+
+        override fun onChanged() {
+            list_search_results.scrollToPosition(0)
         }
     }
 }
