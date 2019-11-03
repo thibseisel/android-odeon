@@ -43,6 +43,8 @@
         android:layout_marginStart="32dp"
         android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
         app:firstBaselineToTopHeight="32dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         app:layout_constraintEnd_toStartOf="@id/file_size"
         app:layout_constraintStart_toEndOf="@id/selection_mark"
         app:layout_constraintTop_toTopOf="parent"
