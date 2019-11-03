@@ -21,9 +21,5 @@
     public *;
 }
 
-# Navigation Component requires that arguments passed between destinations are not mangled.
--keepnames class android.support.v4.media.MediaBrowserCompat$MediaItem
--keepnames class fr.nihilus.music.library.albums.AlbumPalette
-
 # Suppress warnings that occur during obfuscation.
 -dontwarn com.google.errorprone.annotations.*
