@@ -30,6 +30,7 @@ interface UsageDao {
     @Query("SELECT track_id, COUNT(*) AS event_count, MAX(event_time) AS last_event_time FROM usage_event GROUP BY track_id")
     suspend fun getTracksUsage(): List<TrackUsage>
 
+    @Deprecated("Prefer getTracksUsage() as it provides the same result.", ReplaceWith("getTracksUsage()"))
     @Query("SELECT track_id, COUNT(*) AS event_count FROM usage_event GROUP BY track_id ORDER BY COUNT(*) DESC LIMIT :limit")
     suspend fun getMostRatedTracks(limit: Int): List<TrackScore>
 
