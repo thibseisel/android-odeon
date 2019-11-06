@@ -75,6 +75,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/scrim_guideline"
+            app:autoSizeTextType="uniform"
+            app:autoSizePresetSizes="@array/preset_album_title_size"
             tools:text="@sample/songs.json/data/title" />
 
         <TextView
