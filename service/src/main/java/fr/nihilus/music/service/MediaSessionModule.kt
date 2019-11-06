@@ -35,45 +35,8 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
 /**
  * Configures and provides MediaSession-related dependencies.
  */
-@Module(includes = [SessionConnectorModule::class])
-internal class MediaSessionModule {
-
-    /**
-     * Creates a media session associated with the given [service].
-     */
-    @Provides @ServiceScoped
-    fun providesMediaSession(service: MusicService): MediaSessionCompat {
-        val sessionActivityPendingIntent =
-            service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
-                sessionIntent.action = MusicService.ACTION_PLAYER_UI
-                PendingIntent.getActivity(service, 0, sessionIntent, 0)
-            }
-
-        return MediaSessionCompat(service, "MusicService").also {
-            it.setSessionActivity(sessionActivityPendingIntent)
-            it.setRatingType(RatingCompat.RATING_NONE)
-        }
-    }
-
-    @Provides @ServiceScoped
-    fun providesSessionConnector(
-        player: ExoPlayer,
-        mediaSession: MediaSessionCompat,
-        controller: MediaSessionConnector.PlaybackController,
-        preparer: MediaSessionConnector.PlaybackPreparer,
-        navigator: MediaSessionConnector.QueueNavigator,
-        errorHandler: ErrorMessageProvider<ExoPlaybackException>
-
-    ) = MediaSessionConnector(mediaSession, controller, null).also {
-        it.setPlayer(player, preparer)
-        it.setQueueNavigator(navigator)
-        it.setErrorMessageProvider(errorHandler)
-    }
-}
-
 @Module
-@Suppress("unused")
-internal abstract class SessionConnectorModule {
+internal abstract class MediaSessionModule {
 
     @Binds
     abstract fun bindsPlaybackController(controller: OdeonPlaybackController): MediaSessionConnector.PlaybackController
@@ -86,4 +49,42 @@ internal abstract class SessionConnectorModule {
 
     @Binds
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
+
+    @Module
+    companion object {
+
+        /**
+         * Creates a media session associated with the given [service].
+         */
+        @JvmStatic
+        @Provides @ServiceScoped
+        fun providesMediaSession(service: MusicService): MediaSessionCompat {
+            val sessionActivityPendingIntent =
+                service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
+                    sessionIntent.action = MusicService.ACTION_PLAYER_UI
+                    PendingIntent.getActivity(service, 0, sessionIntent, 0)
+                }
+
+            return MediaSessionCompat(service, "MusicService").also {
+                it.setSessionActivity(sessionActivityPendingIntent)
+                it.setRatingType(RatingCompat.RATING_NONE)
+            }
+        }
+
+        @JvmStatic
+        @Provides @ServiceScoped
+        fun providesSessionConnector(
+            player: ExoPlayer,
+            mediaSession: MediaSessionCompat,
+            controller: MediaSessionConnector.PlaybackController,
+            preparer: MediaSessionConnector.PlaybackPreparer,
+            navigator: MediaSessionConnector.QueueNavigator,
+            errorHandler: ErrorMessageProvider<ExoPlaybackException>
+
+        ) = MediaSessionConnector(mediaSession, controller, null).also {
+            it.setPlayer(player, preparer)
+            it.setQueueNavigator(navigator)
+            it.setErrorMessageProvider(errorHandler)
+        }
+    }
 }

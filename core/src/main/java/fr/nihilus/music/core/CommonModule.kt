@@ -32,16 +32,16 @@ import javax.inject.Singleton
 internal abstract class CommonModule {
 
     @Binds
-    internal abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
+    abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
 
     @Binds
-    internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
+    abstract fun bindsSystemClock(clock: DeviceClock): Clock
 
     @Binds
-    internal abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
+    abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
 
     @Module
-    internal companion object {
+    companion object {
 
         @JvmStatic
         @Provides @Singleton

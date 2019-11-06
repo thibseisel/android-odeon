@@ -31,9 +31,9 @@ internal abstract class CustomActionModule {
 
     @Binds @IntoMap
     @StringKey(CustomActions.ACTION_DELETE_MEDIA)
-    internal abstract fun bindsDeleteAction(action: DeleteAction): BrowserAction
+    abstract fun bindsDeleteAction(action: DeleteAction): BrowserAction
 
     @Binds @IntoMap
     @StringKey(CustomActions.ACTION_MANAGE_PLAYLIST)
-    internal abstract fun bindsManagePlaylistAction(action: ManagePlaylistAction): BrowserAction
+    abstract fun bindsManagePlaylistAction(action: ManagePlaylistAction): BrowserAction
 }

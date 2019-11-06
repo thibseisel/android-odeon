@@ -28,9 +28,9 @@ import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.ServiceBindingsModule
 
 @Module(includes = [ServiceBindingsModule::class])
-internal class PlaybackModule {
+internal object PlaybackModule {
 
-    @[Provides ServiceScoped]
+    @Provides @ServiceScoped
     fun provideExoPlayer(context: MusicService): ExoPlayer = ExoPlayerFactory.newSimpleInstance(
         context,
         AudioOnlyRenderersFactory(context),

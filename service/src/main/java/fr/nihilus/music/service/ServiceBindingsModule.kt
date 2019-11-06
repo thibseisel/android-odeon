@@ -32,7 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 internal abstract class ServiceBindingsModule {
 
     @Binds
-    internal abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
+    abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player
