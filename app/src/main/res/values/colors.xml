@@ -45,4 +45,5 @@
     <color name="elevation_8_overlay">@android:color/transparent</color>
 
     <color name="translucent_scrim">#B3FFFFFF</color>
+    <color name="album_translucent_scrim">#DFFFFFFF</color>
 </resources>

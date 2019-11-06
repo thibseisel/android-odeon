@@ -38,4 +38,5 @@
     <color name="elevation_8_overlay">#1DFFFFFF</color>
 
     <color name="translucent_scrim">#B3000000</color>
+    <color name="album_translucent_scrim">#DF000000</color>
 </resources>

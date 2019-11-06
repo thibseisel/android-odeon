@@ -128,7 +128,7 @@ private fun ByteArray.writeInt(startIndex: Int, value: Int) {
 private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): AlbumPalette {
     // Generate a coarse Palette to extract the primary color from the bottom of the image.
     val primaryPalette = Palette.from(bitmap)
-        .setRegion(0, 4 * bitmap.height / 5, bitmap.width, bitmap.height)
+        .setRegion(0, 3 * bitmap.height / 4, bitmap.width, bitmap.height)
         .resizeBitmapArea(MAX_BITMAP_AREA)
         .clearFilters()
         .clearTargets()

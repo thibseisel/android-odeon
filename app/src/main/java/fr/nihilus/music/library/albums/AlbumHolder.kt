@@ -58,7 +58,7 @@ internal class AlbumHolder(
     private fun applyPalette(palette: AlbumPalette) {
         card.setCardBackgroundColor(palette.primary)
         textScrim.backgroundTintList = ColorStateList.valueOf(palette.primary)
-        title.setTextColor(palette.bodyText)
+        title.setTextColor(palette.titleText)
         subtitle.setTextColor(palette.bodyText)
     }
 
