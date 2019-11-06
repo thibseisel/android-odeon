@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaBrowserCompat
 import android.view.View
 import android.view.ViewGroup
@@ -51,6 +52,11 @@ internal class AlbumHolder(
                 super.view.setImageBitmap(resource.bitmap)
             }
         }
+
+        override fun onLoadFailed(errorDrawable: Drawable?) {
+            super.onLoadFailed(errorDrawable)
+            applyPalette(defaultPalette)
+        }
     }
 
     inline val transitionView get() = albumArt
@@ -78,8 +84,6 @@ internal class AlbumHolder(
         } else {
             description.subtitle
         }
-
-        applyPalette(defaultPalette)
 
         glide.load(description.iconUri).into(albumViewTarget)
         albumArt.transitionName = description.mediaId
