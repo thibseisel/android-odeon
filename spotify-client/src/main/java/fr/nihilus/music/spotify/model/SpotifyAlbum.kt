@@ -20,47 +20,41 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Metadata of a track from the Spotify API.
+ * Metadata of an album from the Spotify API.
  */
 @JsonClass(generateAdapter = true)
-internal class Track(
+internal class SpotifyAlbum(
 
     /**
-     * The unique identifier of this track on Spotify servers.
+     * The unique identifier of this album on Spotify servers.
      */
     @Json(name = "id")
     val id: String,
 
     /**
-     * The name of the track.
+     * The name of the album.
      */
     @Json(name = "name")
     val name: String,
 
     /**
-     * The disc number (usually 1 unless the album consists of more than one disc).
+     * The date the album was first released, for example `1981`.
+     * Depending on the precision, it might be shown as `1981-12` or `1981-12-15`.
      */
-    @Json(name = "disc_number")
-    val discNumber: Int,
+    @Json(name = "release_date")
+    val releaseDate: String,
 
     /**
-     * The number of the track.
-     * If an album has several discs, the track number is the number on the specified disc.
+     * The precision with which release_date value is known: year, month, or day.
      */
-    @Json(name = "track_number")
-    val trackNumber: Int,
+    @Json(name = "release_date_precision")
+    val releaseDatePrecision: String,
 
     /**
-     * The track length in milliseconds.
+     * The cover art for the album in various sizes, widest first.
      */
-    @Json(name = "duration_ms")
-    val duration: Int,
-
-    /**
-     * Whether or not the track has explicit lyrics ( true = yes it does; false = no it does not OR unknown).
-     */
-    @Json(name = "explicit")
-    val explicit: Boolean
+    @Json(name = "images")
+    val images: List<Image>
 ) {
-    override fun toString(): String = "Track[id=$id, name=$name]"
+    override fun toString(): String = "SpotifyAlbum[$id=id, name$name]"
 }

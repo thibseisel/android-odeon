@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.spotify.service
 
-import fr.nihilus.music.spotify.model.Album
-import fr.nihilus.music.spotify.model.Artist
-import fr.nihilus.music.spotify.model.Track
+import fr.nihilus.music.spotify.model.SpotifyAlbum
+import fr.nihilus.music.spotify.model.SpotifyArtist
+import fr.nihilus.music.spotify.model.SpotifyTrack
 
 internal class SpotifyQuery(
     val query: String? = null,
@@ -28,7 +28,7 @@ internal class SpotifyQuery(
 )
 
 internal sealed class SearchType<T : Any> {
-    object Tracks : SearchType<Track>()
-    object Albums : SearchType<Album>()
-    object Artists : SearchType<Artist>()
+    object Tracks : SearchType<SpotifyTrack>()
+    object Albums : SearchType<SpotifyAlbum>()
+    object Artists : SearchType<SpotifyArtist>()
 }

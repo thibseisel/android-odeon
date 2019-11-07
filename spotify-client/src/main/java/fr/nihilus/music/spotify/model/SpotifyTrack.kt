@@ -20,45 +20,47 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Metadata of an artist from the Spotify API.
+ * Metadata of a track from the Spotify API.
  */
 @JsonClass(generateAdapter = true)
-internal class Artist(
+internal class SpotifyTrack(
 
     /**
-     * The unique identifier of this artist on Spotify servers.
+     * The unique identifier of this track on Spotify servers.
      */
     @Json(name = "id")
     val id: String,
 
     /**
-     * The name of this artist.
+     * The name of the track.
      */
     @Json(name = "name")
     val name: String,
 
     /**
-     * The popularity of the artist.
-     * The value will be between `0` and `100`, with `100` being the most popular.
-     * The artist’s popularity is calculated from the popularity of all the artist’s tracks.
+     * The disc number (usually 1 unless the album consists of more than one disc).
      */
-    @Json(name = "popularity")
-    val popularity: Int,
+    @Json(name = "disc_number")
+    val discNumber: Int,
 
     /**
-     * A list of the genres the artist is associated with.
-     * For example: "Prog Rock" , "Post-Grunge".
-     * (If not yet classified, the array is empty.)
+     * The number of the track.
+     * If an album has several discs, the track number is the number on the specified disc.
      */
-    @Json(name = "genres")
-    val genres: List<String>,
+    @Json(name = "track_number")
+    val trackNumber: Int,
 
     /**
-     * Images of the artist in various sizes, widest first.
+     * The track length in milliseconds.
      */
-    @Json(name = "images")
-    val images: List<Image>
+    @Json(name = "duration_ms")
+    val duration: Int,
+
+    /**
+     * Whether or not the track has explicit lyrics ( true = yes it does; false = no it does not OR unknown).
+     */
+    @Json(name = "explicit")
+    val explicit: Boolean
 ) {
-    override fun toString(): String = "Artist[id=$id, name=$name]"
+    override fun toString(): String = "SpotifyTrack[id=$id, name=$name]"
 }
-

@@ -27,7 +27,6 @@ import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
 import io.ktor.http.*
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.errors.IOException
@@ -58,14 +57,14 @@ internal class SpotifyServiceImpl
     private val errorAdapter: JsonAdapter<SpotifyError> =
         WrappedJsonAdapter("error", moshi.adapter(SpotifyError::class.java))
 
-    private val artistListAdapter = wrappedListAdapterOf<Artist>("artists")
-    private val albumListAdapter = wrappedListAdapterOf<Album>("albums")
-    private val trackListAdapter = wrappedListAdapterOf<Track>("tracks")
+    private val artistListAdapter = wrappedListAdapterOf<SpotifyArtist>("artists")
+    private val albumListAdapter = wrappedListAdapterOf<SpotifyAlbum>("albums")
+    private val trackListAdapter = wrappedListAdapterOf<SpotifyTrack>("tracks")
     private val featureListAdapter = wrappedListAdapterOf<AudioFeature>("audio_features")
 
-    private val artistSearchAdapter = WrappedJsonAdapter("artists", pagingAdapterOf<Artist>())
-    private val albumSearchAdapter = WrappedJsonAdapter("albums", pagingAdapterOf<Album>())
-    private val trackSearchAdapter = WrappedJsonAdapter("tracks", pagingAdapterOf<Track>())
+    private val artistSearchAdapter = WrappedJsonAdapter("artists", pagingAdapterOf<SpotifyArtist>())
+    private val albumSearchAdapter = WrappedJsonAdapter("albums", pagingAdapterOf<SpotifyAlbum>())
+    private val trackSearchAdapter = WrappedJsonAdapter("tracks", pagingAdapterOf<SpotifyTrack>())
 
     private val http = HttpClient(engine) {
         expectSuccess = false
@@ -109,13 +108,13 @@ internal class SpotifyServiceImpl
     private suspend fun authenticate(): OAuthToken =
         accountsService.authenticate(clientKey, clientSecret).also { token = it }
 
-    override suspend fun getArtist(id: String): HttpResource<Artist> {
+    override suspend fun getArtist(id: String): HttpResource<SpotifyArtist> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/artists/$id")
-        return singleResource(response, Artist::class.java)
+        return singleResource(response, SpotifyArtist::class.java)
     }
 
-    override suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<Artist?>> {
+    override suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<SpotifyArtist?>> {
         require(ids.size in 0..50)
         val response = http.get<HttpResponse>(path = "/v1/artists") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
@@ -124,7 +123,7 @@ internal class SpotifyServiceImpl
         return listResource(response, artistListAdapter)
     }
 
-    override fun getArtistAlbums(artistId: String): Flow<Album> {
+    override fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum> {
         val albumPageRequest = HttpRequestBuilder(path = "/v1/artists/$artistId/albums") {
             parameters[SpotifyService.QUERY_INCLUDE_GROUPS] = "album,single"
         }
@@ -132,13 +131,13 @@ internal class SpotifyServiceImpl
         return paginatedFlow(albumPageRequest, pagingAdapterOf())
     }
 
-    override suspend fun getAlbum(id: String): HttpResource<Album> {
+    override suspend fun getAlbum(id: String): HttpResource<SpotifyAlbum> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/albums/$id")
-        return singleResource(response, Album::class.java)
+        return singleResource(response, SpotifyAlbum::class.java)
     }
 
-    override suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<Album?>> {
+    override suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<SpotifyAlbum?>> {
         require(ids.size in 0..20)
         val response = http.get<HttpResponse>(path = "/v1/albums") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
@@ -147,18 +146,18 @@ internal class SpotifyServiceImpl
         return listResource(response, albumListAdapter)
     }
 
-    override fun getAlbumTracks(albumId: String): Flow<Track> {
+    override fun getAlbumTracks(albumId: String): Flow<SpotifyTrack> {
         val trackPageRequest = HttpRequestBuilder(path = "/v1/albums/$albumId/tracks")
         return paginatedFlow(trackPageRequest, pagingAdapterOf())
     }
 
-    override suspend fun getTrack(id: String): HttpResource<Track> {
+    override suspend fun getTrack(id: String): HttpResource<SpotifyTrack> {
         require(id.isNotEmpty())
         val response = http.get<HttpResponse>(path = "/v1/tracks/$id")
-        return singleResource(response, Track::class.java)
+        return singleResource(response, SpotifyTrack::class.java)
     }
 
-    override suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<Track?>> {
+    override suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<SpotifyTrack?>> {
         require(ids.size in 0..50)
         val response = http.get<HttpResponse>(path = "/v1/tracks") {
             parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))

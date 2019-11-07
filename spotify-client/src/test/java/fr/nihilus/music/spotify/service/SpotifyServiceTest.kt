@@ -164,7 +164,7 @@ class SpotifyServiceTest {
         val apiClient = spotifyService(rateLimitedServer)
 
         val artist = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artist.shouldBeTypeOf<HttpResource.Loaded<Artist>>()
+        artist.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>>()
 
         withClue("Client should wait at least the given Retry-After time before re-issuing the request") {
             currentTime shouldBeGreaterThanOrEqual 5000L
@@ -179,7 +179,7 @@ class SpotifyServiceTest {
         }
 
         val artistResource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artistResource.shouldBeTypeOf<HttpResource.Loaded<Artist>> { (artist) ->
+        artistResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>> { (artist) ->
             artist.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             artist.name shouldBe "Muse"
             artist.popularity shouldBe 82
@@ -214,7 +214,7 @@ class SpotifyServiceTest {
         }
 
         val artistsResource = apiClient.getSeveralArtists(requestedArtistIds)
-        artistsResource.shouldBeTypeOf<HttpResource.Loaded<List<Artist?>>> { (artists) ->
+        artistsResource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>> { (artists) ->
             artists shouldHaveSize 2
 
             artists[0].should {
@@ -296,7 +296,7 @@ class SpotifyServiceTest {
         }
 
         val albumResource = apiClient.getAlbum("6KMkuqIwKkwUhUYRPL6dUc")
-        albumResource.shouldBeTypeOf<HttpResource.Loaded<Album>> { (album) ->
+        albumResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyAlbum>> { (album) ->
             album.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
             album.name shouldBe "Concrete and Gold"
             album.releaseDate shouldBe "2017-09-15"
@@ -331,7 +331,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<Album?>>> { (albums) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>> { (albums) ->
             albums shouldHaveSize 2
 
             albums[0].should {
@@ -410,7 +410,7 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getTrack(requestedTrackId)
-        resource.shouldBeTypeOf<HttpResource.Loaded<Track>> { (track) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<SpotifyTrack>> { (track) ->
             track.id shouldBe requestedTrackId
             track.name shouldBe "Algorithm"
             track.discNumber shouldBe 1
@@ -443,7 +443,7 @@ class SpotifyServiceTest {
         }
 
         val tracks = apiClient.getSeveralTracks(requestedTrackIds)
-        tracks.shouldBeTypeOf<HttpResource.Loaded<List<Track?>>> { (tracks) ->
+        tracks.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>> { (tracks) ->
             tracks shouldHaveSize 2
             tracks[0].should {
                 it.shouldNotBeNull()

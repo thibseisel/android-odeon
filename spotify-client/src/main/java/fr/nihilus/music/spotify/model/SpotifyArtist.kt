@@ -20,41 +20,45 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Metadata of an album from the Spotify API.
+ * Metadata of an artist from the Spotify API.
  */
 @JsonClass(generateAdapter = true)
-internal class Album(
+internal class SpotifyArtist(
 
     /**
-     * The unique identifier of this album on Spotify servers.
+     * The unique identifier of this artist on Spotify servers.
      */
     @Json(name = "id")
     val id: String,
 
     /**
-     * The name of the album.
+     * The name of this artist.
      */
     @Json(name = "name")
     val name: String,
 
     /**
-     * The date the album was first released, for example `1981`.
-     * Depending on the precision, it might be shown as `1981-12` or `1981-12-15`.
+     * The popularity of the artist.
+     * The value will be between `0` and `100`, with `100` being the most popular.
+     * The artist’s popularity is calculated from the popularity of all the artist’s tracks.
      */
-    @Json(name = "release_date")
-    val releaseDate: String,
+    @Json(name = "popularity")
+    val popularity: Int,
 
     /**
-     * The precision with which release_date value is known: year, month, or day.
+     * A list of the genres the artist is associated with.
+     * For example: "Prog Rock" , "Post-Grunge".
+     * (If not yet classified, the array is empty.)
      */
-    @Json(name = "release_date_precision")
-    val releaseDatePrecision: String,
+    @Json(name = "genres")
+    val genres: List<String>,
 
     /**
-     * The cover art for the album in various sizes, widest first.
+     * Images of the artist in various sizes, widest first.
      */
     @Json(name = "images")
     val images: List<Image>
 ) {
-    override fun toString(): String = "Album[$id=id, name$name]"
+    override fun toString(): String = "SpotifyArtist[id=$id, name=$name]"
 }
+

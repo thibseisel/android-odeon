@@ -30,7 +30,7 @@ internal interface SpotifyService {
      * @param id The Spotify ID for the artist.
      * @return The detailed information of this artist.
      */
-    suspend fun getArtist(id: String): HttpResource<Artist>
+    suspend fun getArtist(id: String): HttpResource<SpotifyArtist>
 
     /**
      * Get Spotify catalog information for several artists based on their Spotify IDs.
@@ -40,7 +40,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the artists. Maximum `50` IDs.
      * @return The information for each artist, in the order requested.
      */
-    suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<Artist?>>
+    suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<SpotifyArtist?>>
 
     /**
      * Get Spotify catalog information about an artist’s albums.
@@ -50,7 +50,7 @@ internal interface SpotifyService {
      * That flow will be empty if the requested artist does not exist
      * or will fail with [ApiException] if the server returns an error.
      */
-    fun getArtistAlbums(artistId: String): Flow<Album>
+    fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum>
 
     /**
      * Get Spotify catalog information for a single album.
@@ -59,7 +59,7 @@ internal interface SpotifyService {
      *
      * @return The detailed information of this album.
      */
-    suspend fun getAlbum(id: String): HttpResource<Album>
+    suspend fun getAlbum(id: String): HttpResource<SpotifyAlbum>
 
     /**
      * Get Spotify catalog information for multiple albums identified by their Spotify IDs.
@@ -69,7 +69,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the albums. Maximum: `20` IDs.
      * @return The information for each album, in the order requested.
      */
-    suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<Album?>>
+    suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<SpotifyAlbum?>>
 
     /**
      * Get Spotify catalog information about an album’s tracks.
@@ -79,7 +79,7 @@ internal interface SpotifyService {
      * That flow will be empty if the requested album does not exist
      * or will fail with [ApiException] if the server returns an error.
      */
-    fun getAlbumTracks(albumId: String): Flow<Track>
+    fun getAlbumTracks(albumId: String): Flow<SpotifyTrack>
 
     /**
      * Get Spotify catalog information for a single track identified by its unique Spotify ID.
@@ -87,7 +87,7 @@ internal interface SpotifyService {
      *
      * @return The detailed information of this track.
      */
-    suspend fun getTrack(id: String): HttpResource<Track>
+    suspend fun getTrack(id: String): HttpResource<SpotifyTrack>
 
     /**
      * Get Spotify catalog information for multiple tracks identified by their Spotify IDs.
@@ -97,7 +97,7 @@ internal interface SpotifyService {
      * @param ids The Spotify IDs for the tracks. Maximum: `50` IDs.
      * @return The information for each track, in the order requested.
      */
-    suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<Track?>>
+    suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<SpotifyTrack?>>
 
     /**
      * Get audio feature information for a single track identified by its unique Spotify ID.
