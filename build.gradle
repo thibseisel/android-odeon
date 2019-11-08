@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ buildscript {
                         'constraint_layout': '1.1.3',
                         'core'             : '1.1.0',
                         'fragment'         : '1.1.0',
-                        'lifecycle'        : '2.2.0-rc01',
+                        'lifecycle'        : '2.2.0-rc02',
                         'media'            : '1.1.0',
                         'navigation'       : '2.1.0',
                         'palette'          : '1.0.0',
@@ -57,7 +57,7 @@ buildscript {
                 'glide'         : '4.10.0',
                 'kdenticon'     : '1.0.0-alpha5',
                 'ktor'          : '1.2.5',
-                'material'      : '1.1.0-beta01',
+                'material'      : '1.1.0-beta02',
                 'moshi'         : '1.8.0',
                 'ratioimageview': '1.0.0',
                 'rxjava'        : '2.2.8',
@@ -85,7 +85,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}"
     }
