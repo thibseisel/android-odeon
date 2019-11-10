@@ -27,7 +27,7 @@ import fr.nihilus.music.media.provider.SQLiteMediaStoreModule
 import javax.inject.Named
 
 /**
- * Provides fake implementations of [ContentResolverDelegate], [RuntimePermissions],
+ * Provides fake implementations of [MediaStoreDatabase], [RuntimePermissions],
  * [Clock] and [FileSystem] that simulate the behavior of the Android system in tests.
  *
  * Components that include this module can optionally set the start time of the test clock

@@ -18,7 +18,7 @@ package fr.nihilus.music.media.provider
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.os.ContentResolverDelegate
+import fr.nihilus.music.media.os.MediaStoreDatabase
 
 /**
  * Provides a fake [MediaStore][android.provider.MediaStore] implementation
@@ -28,5 +28,5 @@ import fr.nihilus.music.media.os.ContentResolverDelegate
 internal abstract class SQLiteMediaStoreModule {
 
     @Binds
-    abstract fun bindsMediaStoreSurrogate(surrogate: MediaStoreSurrogate): ContentResolverDelegate
+    abstract fun bindsMediaStoreSurrogate(fakeStore: SQLiteMediaStore): MediaStoreDatabase
 }

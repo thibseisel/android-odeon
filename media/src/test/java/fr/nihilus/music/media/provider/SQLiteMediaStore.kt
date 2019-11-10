@@ -25,7 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore.Audio.*
-import fr.nihilus.music.media.os.ContentResolverDelegate
+import fr.nihilus.music.media.os.MediaStoreDatabase
 import java.io.File
 import javax.inject.Inject
 
@@ -40,10 +40,10 @@ private const val TABLE_ARTIST = "artist"
  *
  * @param context The application context, needed for creating the database.
  */
-internal class MediaStoreSurrogate
+internal class SQLiteMediaStore
 @Inject constructor(
     context: Context
-) : ContentResolverDelegate {
+) : MediaStoreDatabase {
 
     private val inMemoryDatabaseHelper = InMemoryMediaStoreDatabase(context)
     val observers = mutableSetOf<ObserverSpec>()

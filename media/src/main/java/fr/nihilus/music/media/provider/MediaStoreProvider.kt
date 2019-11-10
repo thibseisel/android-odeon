@@ -28,7 +28,7 @@ import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.media.dagger.ServiceScoped
-import fr.nihilus.music.media.os.ContentResolverDelegate
+import fr.nihilus.music.media.os.MediaStoreDatabase
 import javax.inject.Inject
 
 /**
@@ -41,7 +41,7 @@ import javax.inject.Inject
 @ServiceScoped
 internal class MediaStoreProvider
 @Inject constructor(
-    private val resolver: ContentResolverDelegate,
+    private val resolver: MediaStoreDatabase,
     private val fileSystem: FileSystem,
     private val permissions: RuntimePermissions
 ) : MediaProvider {
