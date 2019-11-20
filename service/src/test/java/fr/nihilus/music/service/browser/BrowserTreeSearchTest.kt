@@ -89,7 +89,7 @@ class BrowserTreeSearchTest {
     fun `Given exact artist name, when searching unfocused then return that artist`() = test {
         val tree = givenRealisticBrowserTree()
 
-            val results = tree.search(SearchQuery.Unspecified("foo fighters"))
+        val results = tree.search(SearchQuery.Unspecified("foo fighters"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ARTISTS, "13")
         )
@@ -99,7 +99,7 @@ class BrowserTreeSearchTest {
     fun `Given exact album title, when searching unfocused then return that album`() = test {
         val tree = givenRealisticBrowserTree()
 
-            val results = tree.search(SearchQuery.Unspecified("concrete and gold"))
+        val results = tree.search(SearchQuery.Unspecified("concrete and gold"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "102")
         )
@@ -109,7 +109,7 @@ class BrowserTreeSearchTest {
     fun `Given exact song title, when searching unfocused then return that song`() = test {
         val tree = givenRealisticBrowserTree()
 
-            val results = tree.search(SearchQuery.Unspecified("dirty water"))
+        val results = tree.search(SearchQuery.Unspecified("dirty water"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
@@ -119,7 +119,7 @@ class BrowserTreeSearchTest {
     fun `Given query matching both album and song, when searching albums then return only that album`() = test {
         val tree = givenRealisticBrowserTree()
 
-            val results = tree.search(SearchQuery.Album("Avenged Sevenfold", "Nightmare"))
+        val results = tree.search(SearchQuery.Album("Avenged Sevenfold", "Nightmare"))
         assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
             encode(TYPE_ALBUMS, "6")
         )

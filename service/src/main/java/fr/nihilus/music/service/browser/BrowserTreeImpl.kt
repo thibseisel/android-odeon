@@ -293,25 +293,6 @@ internal class BrowserTreeImpl
     }
 
     /**
-     * Holds the result of performing a fuzzy search of a pattern in a string.
-     * Its properties are mutable by design, so that the same instance can be reused
-     * when performing sequential fuzzy searches.
-     */
-    private class MatchResult {
-
-        /**
-         * Whether the pattern was found in the tested string.
-         */
-        var matched = false
-
-        /**
-         * Correspondence score.
-         * The higher, the better the tested string matches the pattern.
-         */
-        var score = Int.MIN_VALUE
-    }
-
-    /**
      * Groups a media item with its correspondence score.
      */
     private class ItemScore(val media: MediaItem, val score: Int)
@@ -343,19 +324,18 @@ internal class BrowserTreeImpl
 
     /**
      * Search a [pattern] in a [text] string.
-     * Result of matching is then available in the passed [outResult].
      *
      * @param pattern Set of characters to be found in the [text] string.
      * @param text String that should be validated again the [pattern].
-     * @param outResult An instance that will hold the result of the matching.
-     * Its state is modified after calling this function.
+     *
+     * @return The matching score. Higher is better.
+     * A score of [Int.MIN_VALUE] indicates that the pattern haven't matched.
      */
-    private fun fuzzyMatch(pattern: String, text: String, outResult: MatchResult) {
+    private fun fuzzyMatch(pattern: String, text: String): Int {
         val matchPosition = text.indexOf(pattern)
 
         if (matchPosition < 0) {
-            outResult.matched = false
-            outResult.score = Int.MIN_VALUE
+            return Int.MIN_VALUE
         } else {
             var score = BASE_SCORE - matchPosition - text.length
             if (matchPosition == 0) {
@@ -363,8 +343,7 @@ internal class BrowserTreeImpl
                 score += FIRST_WORD_BONUS
             }
 
-            outResult.matched = true
-            outResult.score = score
+            return score
         }
     }
 
@@ -389,15 +368,15 @@ internal class BrowserTreeImpl
         itemFactory: (T, MediaDescriptionCompat.Builder) -> MediaItem
     ) {
         val builder = MediaDescriptionCompat.Builder()
-        val matchResult = MatchResult()
-
         availableMedias.fold(outResults) { results, media ->
-            fuzzyMatch(pattern, textProvider(media).toLowerCase(Locale.ENGLISH), matchResult)
 
-            if (!matchResult.matched) results else {
-                val item = itemFactory(media, builder)
-                results += ItemScore(item, matchResult.score)
-                results
+            when(val score = fuzzyMatch(pattern, textProvider(media).toLowerCase(Locale.ENGLISH))) {
+                Int.MIN_VALUE -> results
+                else -> {
+                    val item = itemFactory(media, builder)
+                    results += ItemScore(item, score)
+                    results
+                }
             }
         }
     }
