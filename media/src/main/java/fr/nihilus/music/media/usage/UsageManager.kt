@@ -98,11 +98,8 @@ internal class UsageManagerImpl
 
     override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
         val allTracksAsync = async { repository.getTracks() }
-
-        // Retrieve lastPlayedTime records for each track.
         val usageByTrack = usageDao.getTracksUsage().associateBy { it.trackId }
 
-        // Find all tracks that have never been played.
         val currentEpochTime = clock.currentEpochTime
         val allTracks = allTracksAsync.await()
 
