@@ -21,18 +21,18 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.os.ContentResolverDelegate
-import fr.nihilus.music.media.os.PlatformResolverDelegate
+import fr.nihilus.music.media.os.MediaStoreDatabase
+import fr.nihilus.music.media.os.PlatformMediaStore
 
 /**
- * Provides a [ContentResolverDelegate] that delegates calls to the system's [ContentResolver],
+ * Provides a [MediaStoreDatabase] that delegates calls to the system's [ContentResolver],
  * retrieving media definitions from Android's [MediaStore][android.provider.MediaStore].
  */
 @Module
 internal abstract class MediaStoreModule {
 
     @Binds
-    abstract fun bindsMediaStoreDelegate(delegate: PlatformResolverDelegate): ContentResolverDelegate
+    abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
 
     @Module
     companion object {

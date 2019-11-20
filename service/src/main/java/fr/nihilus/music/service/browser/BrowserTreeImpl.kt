@@ -33,7 +33,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.media.R
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
@@ -41,6 +40,7 @@ import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.service.R
 import fr.nihilus.music.service.extensions.getResourceUri
 import io.reactivex.Flowable
 import kotlinx.coroutines.async
@@ -89,57 +89,57 @@ internal class BrowserTreeImpl
      * The tree structure of the media browser.
      */
     private val tree = mediaTree(MediaId.ROOT) {
-        rootName = context.getString(R.string.media_browser_root_title)
+        rootName = context.getString(R.string.svc_browser_root_title)
 
         val res = context.resources
         type(TYPE_TRACKS) {
-            title = context.getString(R.string.media_tracks_type_title)
+            title = context.getString(R.string.svc_tracks_type_title)
 
             category(
                 CATEGORY_ALL,
-                title = res.getString(R.string.media_all_music),
+                title = res.getString(R.string.svc_all_music),
                 children = ::provideAllTracks
             )
 
             category(
                 CATEGORY_MOST_RATED,
-                title = res.getString(R.string.media_most_rated),
-                subtitle = res.getString(R.string.media_most_rated_description),
-                iconUri = res.getResourceUri(R.drawable.media_ic_most_rated_128dp),
+                title = res.getString(R.string.svc_most_rated),
+                subtitle = res.getString(R.string.svc_most_rated_description),
+                iconUri = res.getResourceUri(R.drawable.svc_ic_most_rated_128dp),
                 children = ::provideMostRatedTracks
             )
 
             category(
                 CATEGORY_RECENTLY_ADDED,
-                context.getString(R.string.media_last_added),
-                subtitle = res.getString(R.string.media_recently_added_description),
-                iconUri = context.resources.getResourceUri(R.drawable.media_ic_most_recent_128dp),
+                context.getString(R.string.svc_last_added),
+                subtitle = res.getString(R.string.svc_recently_added_description),
+                iconUri = context.resources.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
             )
 
             category(
                 CATEGORY_DISPOSABLE,
-                context.getString(R.string.media_category_disposable),
+                context.getString(R.string.svc_category_disposable),
                 children = ::provideDisposableTracks
             )
         }
 
         type(TYPE_ALBUMS) {
-            title = context.getString(R.string.media_albums_type_title)
+            title = context.getString(R.string.svc_albums_type_title)
 
             categories(provider = ::provideAllAlbums)
             categoryChildren(provider = ::provideAlbumTracks)
         }
 
         type(TYPE_ARTISTS) {
-            title = context.getString(R.string.media_artists_type_title)
+            title = context.getString(R.string.svc_artists_type_title)
 
             categories(provider = ::provideAllArtists)
             categoryChildren(provider = ::provideArtistChildren)
         }
 
         type(TYPE_PLAYLISTS) {
-            title = context.getString(R.string.media_playlists_type_title)
+            title = context.getString(R.string.svc_playlists_type_title)
 
             categories(provider = ::provideAllPlaylists)
             categoryChildren(provider = ::providePlaylistTracks)
@@ -155,7 +155,7 @@ internal class BrowserTreeImpl
         val mediaId = encode(TYPE_ARTISTS, id.toString())
         val artistDescription = builder.setMediaId(mediaId)
             .setTitle(name)
-            .setSubtitle(context.getString(R.string.media_artist_subtitle, albumCount, trackCount))
+            .setSubtitle(context.getString(R.string.svc_artist_subtitle, albumCount, trackCount))
             .setIconUri(iconUri?.toUri())
             .setExtras(Bundle().apply {
                 putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)

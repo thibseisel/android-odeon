@@ -30,4 +30,8 @@
     <dimen name="three_lines_item_height">88dp</dimen>
     <dimen name="two_line_list_item_height">72dp</dimen>
     <dimen name="shape_corner_radius">8dp</dimen>
+    <array name="preset_album_title_size">
+        <item>14sp</item>
+        <item>16sp</item>
+    </array>
 </resources>

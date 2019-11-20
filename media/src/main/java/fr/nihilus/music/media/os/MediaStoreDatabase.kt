@@ -20,16 +20,21 @@ import android.content.ContentResolver
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
-import fr.nihilus.music.media.dagger.ServiceScoped
+import android.provider.MediaStore
+import dagger.Reusable
 import javax.inject.Inject
 
 /**
- * A replacement for the Android platform's [ContentResolver].
+ * Main entry point for accessing media metadata from the Android [MediaStore].
+ * This interface purposely expose the same APIs as [ContentResolver] to perform queries
+ * and observe changes to the database in order to validate query parameters in tests.
+ *
+ * All [Uri]s should have the [MediaStore] authority.
  */
-internal interface ContentResolverDelegate {
+internal interface MediaStoreDatabase {
 
     /**
-     * Query the given URI, returning a [Cursor] over the result set.
+     * Query media metadata from the [MediaStore], returning a [Cursor] over the result set.
      *
      * For best performance, the caller should follow these guidelines:
      * - Provide an explicit projection,
@@ -39,7 +44,8 @@ internal interface ContentResolverDelegate {
      * so that queries that differ only by those values will be recognized as the same
      * for caching purposes.
      *
-     * @param uri The URI, using the _content://_ scheme, for the content to retrieve.
+     * @param uri The URI for the content to retrieve.
+     * It must be using the _content://_ scheme and point to a [MediaStore] content.
      * @param projection A list of which columns to return.
      * Passing `null` will return all columns, which is inefficient.
      * @param selection A filter declaring which rows to return, formatted as an SQL WHERE clause
@@ -51,7 +57,6 @@ internal interface ContentResolverDelegate {
      * (excluding the ORDER BY itself).
      * Passing `null` will use the default sort order, which may be unordered.
      * @return A Cursor object, which is positioned before the first entry, or `null`
-     * @see Cursor
      */
     fun query(
         uri: Uri,
@@ -62,9 +67,7 @@ internal interface ContentResolverDelegate {
     ): Cursor?
 
     /**
-     * Deletes row(s) specified by a content URI.
-     *
-     * If the content provider supports transactions, the deletion will be atomic.
+     * Deletes media metadata specified by a content URI.
      *
      * @param uri The URI of the row to delete.
      * @param where A filter to apply to rows before deleting,
@@ -76,9 +79,6 @@ internal interface ContentResolverDelegate {
     /**
      * Register an observer class that gets callbacks when data identified by a
      * given content URI changes.
-     *
-     * Starting in [android.os.Build.VERSION_CODES.O], all content notifications must be backed
-     * by a valid [android.content.ContentProvider].
      *
      * @param uri The URI to watch for changes. This can be a specific row URI,
      * or a base URI for a whole class of content.
@@ -104,13 +104,13 @@ internal interface ContentResolverDelegate {
 /**
  * A resolver that delegates calls to the platform's [ContentResolver].
  *
- * @param platformResolver The wrapped [ContentResolver] to which requests are delegated.
+ * @param resolver The wrapped [ContentResolver] to which requests are delegated.
  */
-@ServiceScoped
-internal class PlatformResolverDelegate
+@Reusable
+internal class PlatformMediaStore
 @Inject constructor(
-    private val platformResolver: ContentResolver
-) : ContentResolverDelegate {
+    private val resolver: ContentResolver
+) : MediaStoreDatabase {
 
     override fun query(
         uri: Uri,
@@ -118,18 +118,32 @@ internal class PlatformResolverDelegate
         selection: String?,
         selectionArgs: Array<String>?,
         sortOrder: String?
-    ): Cursor? = platformResolver.query(uri, projection, selection, selectionArgs, sortOrder)
+    ): Cursor? {
+        requireMediaStoreUri(uri)
+        return resolver.query(uri, projection, selection, selectionArgs, sortOrder)
+    }
 
-    override fun delete(uri: Uri, where: String?, whereArgs: Array<String>?): Int =
-        platformResolver.delete(uri, where, whereArgs)
+    override fun delete(uri: Uri, where: String?, whereArgs: Array<String>?): Int {
+        requireMediaStoreUri(uri)
+        return resolver.delete(uri, where, whereArgs)
+    }
 
     override fun registerContentObserver(
         uri: Uri,
         notifyForDescendants: Boolean,
         observer: ContentObserver
-    ) = platformResolver.registerContentObserver(uri, notifyForDescendants, observer)
+    ) {
+        requireMediaStoreUri(uri)
+        resolver.registerContentObserver(uri, notifyForDescendants, observer)
+    }
 
-    override fun unregisterContentObserver(observer: ContentObserver) =
-        platformResolver.unregisterContentObserver(observer)
+    override fun unregisterContentObserver(observer: ContentObserver) {
+        resolver.unregisterContentObserver(observer)
+    }
 
+    private fun requireMediaStoreUri(uri: Uri) {
+        require(uri.scheme == ContentResolver.SCHEME_CONTENT && uri.authority == MediaStore.AUTHORITY) {
+            "Attempt to operate on a non-MediaStore uri: $uri"
+        }
+    }
 }

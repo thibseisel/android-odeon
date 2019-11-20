@@ -20,7 +20,7 @@
     android:viewportHeight="48.0"
     android:viewportWidth="48.0">
 
-    <path android:fillColor="@color/media_mtrl_deeppurple_300"
+    <path android:fillColor="@color/svc_mtrl_deeppurple_300"
         android:pathData="M0,0V48H48V0z"/>
 
     <path

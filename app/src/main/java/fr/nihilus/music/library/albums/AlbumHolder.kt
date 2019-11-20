@@ -16,9 +16,8 @@
 
 package fr.nihilus.music.library.albums
 
-import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaBrowserCompat
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -38,7 +37,6 @@ internal class AlbumHolder(
 ) : BaseAdapter.ViewHolder(parent, R.layout.album_grid_item) {
 
     private val card: CardView = itemView.findViewById(R.id.card)
-    private val textScrim: View = itemView.findViewById(R.id.text_scrim)
     private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
     private val subtitle: TextView = itemView.findViewById(R.id.artist)
@@ -51,14 +49,18 @@ internal class AlbumHolder(
                 super.view.setImageBitmap(resource.bitmap)
             }
         }
+
+        override fun onLoadFailed(errorDrawable: Drawable?) {
+            super.onLoadFailed(errorDrawable)
+            applyPalette(defaultPalette)
+        }
     }
 
     inline val transitionView get() = albumArt
 
     private fun applyPalette(palette: AlbumPalette) {
         card.setCardBackgroundColor(palette.primary)
-        textScrim.backgroundTintList = ColorStateList.valueOf(palette.primary)
-        title.setTextColor(palette.bodyText)
+        title.setTextColor(palette.titleText)
         subtitle.setTextColor(palette.bodyText)
     }
 
@@ -78,8 +80,6 @@ internal class AlbumHolder(
         } else {
             description.subtitle
         }
-
-        applyPalette(defaultPalette)
 
         glide.load(description.iconUri).into(albumViewTarget)
         albumArt.transitionName = description.mediaId

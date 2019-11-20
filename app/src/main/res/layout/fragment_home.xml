@@ -32,7 +32,6 @@
             app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="?actionBarPopupTheme"
             android:theme="?actionBarTheme"
-            android:background="@null"
             app:title="@string/core_app_name" />
 
         <com.google.android.material.tabs.TabLayout

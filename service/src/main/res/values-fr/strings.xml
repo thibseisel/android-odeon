@@ -16,6 +16,19 @@
   -->
 
 <resources>
+    <string name="svc_browser_root_title">Bibliothèque musicale de l\'appareil</string>
+    <string name="svc_tracks_type_title">Morceaux</string>
+    <string name="svc_albums_type_title">Abums</string>
+    <string name="svc_artists_type_title">Artistes</string>
+    <string name="svc_playlists_type_title">Playlists</string>
+    <string name="svc_all_music">Tous les morceaux</string>
+    <string name="svc_last_added">Derniers ajouts</string>
+    <string name="svc_most_rated">Favoris</string>
+    <string name="svc_category_disposable">Nettoyage</string>
+    <string name="svc_artist_subtitle">%1$d albums, %2$d morceaux</string>
+    <string name="svc_recently_added_description">C\'est nouveau ça vient de sortir !</string>
+    <string name="svc_most_rated_description">Le Panthéon de votre bibliothèque musicale.</string>
+
     <string name="svc_player_unknown_error">Oups, quelque chose a planté et le lecteur s\'est arrêté ! Toutes nos excuses pour la gêne occasionnée.</string>
     <string name="svc_action_play">Lire</string>
     <string name="svc_action_pause">Pause</string>

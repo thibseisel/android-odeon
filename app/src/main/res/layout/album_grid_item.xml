@@ -15,16 +15,15 @@
   ~ limitations under the License.
   -->
 
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card"
     style="@style/Widget.AppTheme.CardView.Animated"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textDirection="locale"
     android:foreground="?selectableItemBackground"
+    android:textDirection="locale"
     app:cardMaxElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,29 +37,18 @@
             android:layout_height="0dp"
             android:contentDescription="@string/album_art"
             android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/band_guideline"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
 
         <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/scrim_guideline"
+            android:id="@+id/band_guideline"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="horizontal"
             app:layout_constraintGuide_end="64dp" />
-
-        <View
-            android:id="@+id/text_scrim"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:background="@color/translucent_scrim"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/scrim_guideline"
-            tools:backgroundTint="@android:color/white"/>
 
         <TextView
             android:id="@+id/title"
@@ -71,10 +59,13 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
-            app:firstBaselineToTopHeight="32dp"
+            app:autoSizePresetSizes="@array/preset_album_title_size"
+            app:autoSizeTextType="uniform"
+            app:firstBaselineToTopHeight="28dp"
+            app:lastBaselineToBottomHeight="4dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scrim_guideline"
+            app:layout_constraintTop_toBottomOf="@+id/band_guideline"
             tools:text="@sample/songs.json/data/title" />
 
         <TextView
@@ -86,6 +77,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Odeon.Caption"
+            app:firstBaselineToTopHeight="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/title"

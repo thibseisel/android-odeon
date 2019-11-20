@@ -17,11 +17,11 @@
 package fr.nihilus.music.media.repo
 
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
 import io.reactivex.Flowable
-import fr.nihilus.music.core.os.PermissionDeniedException
 
 /**
  * Main entry point for accessing and modifying media.

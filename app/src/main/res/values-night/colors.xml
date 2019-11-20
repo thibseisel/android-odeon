@@ -36,6 +36,4 @@
     <color name="two_line_list_title">#FFFFFFFF</color>
     <color name="two_line_list_secondary">#CAFFFFFF</color>
     <color name="elevation_8_overlay">#1DFFFFFF</color>
-
-    <color name="translucent_scrim">#B3000000</color>
 </resources>
