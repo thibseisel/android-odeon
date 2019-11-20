@@ -270,10 +270,7 @@ internal class SpotifyServiceImpl
                     // That's an unexpected error code.
                     val errorPayload = errorAdapter.fromJson(response.readText())
                     if (errorPayload != null) {
-                        throw ApiException(
-                            errorPayload.status,
-                            errorPayload.message
-                        )
+                        throw ApiException(errorPayload.status, errorPayload.message)
                     } else {
                         throw IOException("Unexpected HTTP status ${response.status.value}")
                     }
@@ -286,15 +283,9 @@ internal class SpotifyServiceImpl
     private suspend fun parseApiError(response: HttpResponse): HttpResource.Failed {
         val errorPayload = errorAdapter.fromJson(response.readText())
         return if (errorPayload != null) {
-            HttpResource.Failed(
-                errorPayload.status,
-                errorPayload.message
-            )
+            HttpResource.Failed(errorPayload.status, errorPayload.message)
         } else {
-            HttpResource.Failed(
-                response.status.value,
-                "An unexpected error occurred."
-            )
+            HttpResource.Failed(response.status.value, "An unexpected error occurred.")
         }
     }
 
