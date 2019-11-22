@@ -78,15 +78,6 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             askCleanupConfirmation(selectionTracker.selection)
         }
 
-        check_all_label.setOnClickListener {
-            check_all_box.isChecked = !check_all_box.isChecked
-        }
-
-        check_all_box.setOnCheckedChangeListener { _, isChecked ->
-            val allTracks = adapter.currentList
-            selectionTracker.setItemsSelected(allTracks, isChecked)
-        }
-
         viewModel.tracks.observe(this) { disposableTracksRequest ->
             when (disposableTracksRequest) {
                 is LoadRequest.Success -> {
@@ -232,7 +223,6 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
             selectionTracker.clearSelection()
-            this@CleanupFragment.check_all_box.isChecked = false
         }
     }
 }

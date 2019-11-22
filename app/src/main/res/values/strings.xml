@@ -100,7 +100,6 @@
         <item>@string/pref_theme_system</item>
     </string-array>
     <string name="action_cleanup_title">Free storage space</string>
-    <string name="select_all_elements">All elements</string>
     <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
     <string name="search_hint">Find a track, an artist…</string>
     <string name="action_clear">Clear</string>
