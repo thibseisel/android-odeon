@@ -18,17 +18,13 @@ package fr.nihilus.music.library.playlists
 
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -65,13 +61,12 @@ class PlaylistManagementViewModel
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
     val playlistActionResult: LiveData<Event<PlaylistActionResult>> = _playlistActionResult
 
-    val userPlaylists by lazy(LazyThreadSafetyMode.NONE) {
+    val userPlaylists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> =
         client.getChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .consumeAsLiveData(viewModelScope)
-    }
+            .asLiveData()
 
     fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
         viewModelScope.launch {

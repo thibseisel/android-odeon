@@ -20,13 +20,13 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import fr.nihilus.music.core.ui.extensions.consumeAsLiveData
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -38,13 +38,12 @@ class CleanupViewModel
     private val client: BrowserClient
 ) : ViewModel() {
 
-    val tracks: LiveData<LoadRequest<List<MediaItem>>> by lazy {
+    val tracks: LiveData<LoadRequest<List<MediaItem>>> =
         client.getChildren(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE))
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .consumeAsLiveData(viewModelScope)
-    }
+            .asLiveData()
 
     fun deleteTracks(selectedTracks: List<MediaItem>) {
         viewModelScope.launch {
