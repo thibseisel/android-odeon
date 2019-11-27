@@ -21,7 +21,6 @@ import fr.nihilus.music.core.os.PermissionDeniedException
 /**
  * Interface to perform read and write operations on music media stored locally on the device.
  * This acts as an abstraction layer over the Android MediaStore.
- * All available operations are long-running and should _not_ be performed directly on the Main Thread.
  *
  * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
  * all operations may fail if permission to read/write external storage is denied.
@@ -36,7 +35,7 @@ internal interface MediaProvider {
      * @return A list of tracks sorted alphabetically by title, ignoring common english prefixes such as "the", "an" and "a".
      * @throws PermissionDeniedException If permission to read external storage is not granted.
      */
-    fun queryTracks(): List<Track>
+    suspend fun queryTracks(): List<Track>
 
     /**
      * Loads metadata of all albums whose tracks are stored on the device's external storage.
@@ -47,7 +46,7 @@ internal interface MediaProvider {
      * @return A list of albums sorted alphabetically by title, ignoring common english prefixes such as "the", "an" and "a".
      * @throws PermissionDeniedException If permission to read external storage is not granted.
      */
-    fun queryAlbums(): List<Album>
+    suspend fun queryAlbums(): List<Album>
 
     /**
      * Load metadata of all artists that produced tracks stored on the device's external storage.
@@ -57,7 +56,7 @@ internal interface MediaProvider {
      * @return A list of artists sorted alphabetically by name, ignoring common english prefixes such as "the", "an" and "a".
      * @throws PermissionDeniedException If permission to read external storage is not granted.
      */
-    fun queryArtists(): List<Artist>
+    suspend fun queryArtists(): List<Artist>
 
     /**
      * Deletes a set of tracks identified by their [unique id][Track.id] from the device's external storage.
@@ -74,7 +73,7 @@ internal interface MediaProvider {
      * @return The number of tracks that have been deleted.
      * @throws PermissionDeniedException If permission to write to external storage is not granted.
      */
-    fun deleteTracks(trackIds: LongArray): Int
+    suspend fun deleteTracks(trackIds: LongArray): Int
 
     /**
      * Starts observing changes to the list of media.

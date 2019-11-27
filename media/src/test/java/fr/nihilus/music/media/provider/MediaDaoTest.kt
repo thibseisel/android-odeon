@@ -18,15 +18,12 @@ package fr.nihilus.music.media.provider
 
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
-import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.context.RxSchedulers
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
 import fr.nihilus.music.media.provider.MediaProvider.Observer
 import io.kotlintest.shouldThrow
 import io.reactivex.Flowable
 import io.reactivex.schedulers.TestScheduler
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import java.util.concurrent.TimeUnit
@@ -34,8 +31,6 @@ import java.util.concurrent.TimeUnit
 internal class MediaDaoTest {
 
     private val testScheduler = TestScheduler()
-    private val schedulers = RxSchedulers(testScheduler)
-    private val dispatchers = AppDispatchers(TestCoroutineDispatcher())
 
     @Test
     fun givenDeniedPermission_whenSubscribingTracks_thenTerminateWithPermissionDeniedException() {
@@ -99,40 +94,40 @@ internal class MediaDaoTest {
 
     @Test
     fun whenSubscribingTracks_thenLoadCurrentTrackList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS), schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(tracks = SAMPLE_TRACKS))
         shouldLoadMediaOnSubscription(mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun whenSubscribingAlbums_thenLoadCurrentAlbumList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS), schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(albums = SAMPLE_ALBUMS))
         shouldLoadMediaOnSubscription(mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun whenSubscribingArtists_thenLoadCurrentArtistList() {
-        val mediaDao = MediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS), schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider(artists = SAMPLE_ARTISTS))
         shouldLoadMediaOnSubscription(mediaDao.artists, SAMPLE_ARTISTS)
     }
 
     @Test
     fun givenTrackSubscription_whenNotifiedForChange_thenReloadTrackList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
         shouldReloadMediaWhenNotified(provider, MediaType.TRACKS, mediaDao.tracks, SAMPLE_TRACKS)
     }
 
     @Test
     fun givenAlbumSubscription_whenNotifiedForChange_thenReloadAlbumList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
         shouldReloadMediaWhenNotified(provider, MediaType.ALBUMS, mediaDao.albums, SAMPLE_ALBUMS)
     }
 
     @Test
     fun givenArtistSubscription_whenNotifiedForChange_thenReloadArtistList() {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
         shouldReloadMediaWhenNotified(provider, MediaType.ARTISTS, mediaDao.artists, SAMPLE_ARTISTS)
     }
 
@@ -170,7 +165,7 @@ internal class MediaDaoTest {
     fun givenDeniedPermission_whenDeletingTracks_thenFailWithPermissionDeniedException() = runBlockingTest {
         val provider = TestMediaProvider()
         provider.hasStoragePermission = false
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
 
         shouldThrow<PermissionDeniedException> {
             mediaDao.deleteTracks(longArrayOf(161L))
@@ -182,7 +177,7 @@ internal class MediaDaoTest {
         streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -197,7 +192,7 @@ internal class MediaDaoTest {
         streamProvider: MediaDao.() -> Flowable<out Any>
     ) {
         val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(provider)
 
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -213,7 +208,7 @@ internal class MediaDaoTest {
         expected: List<M>
     ) {
         val subscriber = stream.test()
-        testScheduler.triggerActions()
+        subscriber.awaitCount(1)
 
         provider.notifyChange(type)
         testScheduler.triggerActions()
@@ -230,7 +225,7 @@ internal class MediaDaoTest {
 
     private fun shouldNeverComplete(streamProvider: MediaDao.() -> Flowable<out Any>) {
         // Given a realistic provider...
-        val mediaDao = MediaDaoImpl(TestMediaProvider(), schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(TestMediaProvider())
 
         // When subscribing and waiting for a long time...
         val subscriber = mediaDao.streamProvider().test()
@@ -246,7 +241,7 @@ internal class MediaDaoTest {
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider)
         mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 
@@ -265,7 +260,7 @@ internal class MediaDaoTest {
         val deniedProvider = TestMediaProvider()
         deniedProvider.hasStoragePermission = false
 
-        val mediaDao = MediaDaoImpl(deniedProvider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(deniedProvider)
 
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
@@ -279,7 +274,7 @@ internal class MediaDaoTest {
     ) {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(revokingPermissionProvider, schedulers, dispatchers)
+        val mediaDao = MediaDaoImpl(revokingPermissionProvider)
         val subscriber = mediaDao.streamProvider().test()
         testScheduler.triggerActions()
 

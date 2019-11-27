@@ -16,29 +16,22 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.context.RxSchedulers
 import fr.nihilus.music.media.dagger.ServiceScoped
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Single
 import io.reactivex.disposables.Disposables
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.rx2.rxSingle
 import javax.inject.Inject
 
 /**
- * Implementation of [MediaDao] that wraps a [MediaProvider], delegating read/write operations to it
- * while adding a provider layer and thread confinement.
+ * Implementation of [MediaDao] that wraps a [MediaProvider] to expose a Reactive API.
  *
  * @param provider The media provider to which operations should be delegated.
- * @param schedulers The pool of RxJava schedulers on which background operations should be performed.
  */
 @ServiceScoped
 internal class MediaDaoImpl
 @Inject constructor(
-    private val provider: MediaProvider,
-    private val schedulers: RxSchedulers,
-    private val dispatchers: AppDispatchers
+    private val provider: MediaProvider
 ) : MediaDao {
 
     override val tracks: Flowable<List<Track>> = produceUpToDateMediaList(
@@ -56,9 +49,7 @@ internal class MediaDaoImpl
         provider::queryArtists
     )
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int = withContext(dispatchers.IO) {
-        provider.deleteTracks(trackIds)
-    }
+    override suspend fun deleteTracks(trackIds: LongArray): Int = provider.deleteTracks(trackIds)
 
     private fun produceUpdateQueryTrigger(mediaType: MediaProvider.MediaType) = Flowable.create<Unit>({ emitter ->
         val observer = object : MediaProvider.Observer(mediaType) {
@@ -85,8 +76,9 @@ internal class MediaDaoImpl
 
     private fun <E> produceUpToDateMediaList(
         mediaType: MediaProvider.MediaType,
-        mediaListProvider: () -> List<E>
+        mediaListProvider: suspend () -> List<E>
     ): Flowable<List<E>> = produceUpdateQueryTrigger(mediaType)
-        .observeOn(schedulers.Database)
-        .flatMapSingle { Single.fromCallable(mediaListProvider) }
+        .flatMapSingle {
+            rxSingle { mediaListProvider() }
+        }
 }

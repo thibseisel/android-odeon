@@ -24,11 +24,13 @@ import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.MediaStoreDatabase
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -43,7 +45,8 @@ internal class MediaStoreProvider
 @Inject constructor(
     private val resolver: MediaStoreDatabase,
     private val fileSystem: FileSystem,
-    private val permissions: RuntimePermissions
+    private val permissions: RuntimePermissions,
+    private val dispatchers: AppDispatchers
 ) : MediaProvider {
 
     private val trackColumns = arrayOf(
@@ -84,124 +87,130 @@ internal class MediaStoreProvider
         val releaseYear: Int
     )
 
-    override fun queryTracks(): List<Track> {
+    override suspend fun queryTracks(): List<Track> {
         requireReadPermission()
 
-        // Preload art Uris for each album to associate them with tracks.
-        val artUriPerAlbum = queryAlbumArtUris()
+        return withContext(dispatchers.IO) {
+            // Preload art Uris for each album to associate them with tracks.
+            val artUriPerAlbum = queryAlbumArtUris()
 
-        return resolver.query(
-            Media.EXTERNAL_CONTENT_URI,
-            trackColumns,
-            "${Media.IS_MUSIC} = 1",
-            null,
-            Media.DEFAULT_SORT_ORDER
-        )?.use { cursor ->
-            // Memorize cursor column indexes for faster lookup
-            val colId = cursor.getColumnIndexOrThrow(BaseColumns._ID)
-            val colTitle = cursor.getColumnIndexOrThrow(Media.TITLE)
-            val colAlbum = cursor.getColumnIndexOrThrow(Media.ALBUM)
-            val colArtist = cursor.getColumnIndexOrThrow(Media.ARTIST)
-            val colDuration = cursor.getColumnIndexOrThrow(Media.DURATION)
-            val colTrackNo = cursor.getColumnIndexOrThrow(Media.TRACK)
-            val colAlbumId = cursor.getColumnIndexOrThrow(Media.ALBUM_ID)
-            val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colDateAdded = cursor.getColumnIndexOrThrow(Media.DATE_ADDED)
-            val colFileSize = cursor.getColumnIndexOrThrow(Media.SIZE)
+            resolver.query(
+                Media.EXTERNAL_CONTENT_URI,
+                trackColumns,
+                "${Media.IS_MUSIC} = 1",
+                null,
+                Media.DEFAULT_SORT_ORDER
+            )?.use { cursor ->
+                // Memorize cursor column indexes for faster lookup
+                val colId = cursor.getColumnIndexOrThrow(BaseColumns._ID)
+                val colTitle = cursor.getColumnIndexOrThrow(Media.TITLE)
+                val colAlbum = cursor.getColumnIndexOrThrow(Media.ALBUM)
+                val colArtist = cursor.getColumnIndexOrThrow(Media.ARTIST)
+                val colDuration = cursor.getColumnIndexOrThrow(Media.DURATION)
+                val colTrackNo = cursor.getColumnIndexOrThrow(Media.TRACK)
+                val colAlbumId = cursor.getColumnIndexOrThrow(Media.ALBUM_ID)
+                val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
+                val colDateAdded = cursor.getColumnIndexOrThrow(Media.DATE_ADDED)
+                val colFileSize = cursor.getColumnIndexOrThrow(Media.SIZE)
 
-            ArrayList<Track>(cursor.count).also { trackList ->
-                while (cursor.moveToNext()) {
-                    val trackId = cursor.getLong(colId)
-                    val albumId = cursor.getLong(colAlbumId)
-                    val trackNo = cursor.getInt(colTrackNo)
-                    val trackUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId).toString()
+                ArrayList<Track>(cursor.count).also { trackList ->
+                    while (cursor.moveToNext()) {
+                        val trackId = cursor.getLong(colId)
+                        val albumId = cursor.getLong(colAlbumId)
+                        val trackNo = cursor.getInt(colTrackNo)
+                        val trackUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId).toString()
 
-                    trackList += Track(
-                        id = trackId,
-                        title = cursor.getString(colTitle),
-                        artist = cursor.getString(colArtist),
-                        album = cursor.getString(colAlbum),
-                        duration = cursor.getLong(colDuration),
-                        discNumber = trackNo / 1000,
-                        trackNumber = trackNo % 1000,
-                        mediaUri = trackUri,
-                        albumArtUri = artUriPerAlbum[albumId],
-                        availabilityDate = cursor.getLong(colDateAdded),
-                        artistId = cursor.getLong(colArtistId),
-                        albumId = albumId,
-                        fileSize = cursor.getLong(colFileSize)
-                    )
+                        trackList += Track(
+                            id = trackId,
+                            title = cursor.getString(colTitle),
+                            artist = cursor.getString(colArtist),
+                            album = cursor.getString(colAlbum),
+                            duration = cursor.getLong(colDuration),
+                            discNumber = trackNo / 1000,
+                            trackNumber = trackNo % 1000,
+                            mediaUri = trackUri,
+                            albumArtUri = artUriPerAlbum[albumId],
+                            availabilityDate = cursor.getLong(colDateAdded),
+                            artistId = cursor.getLong(colArtistId),
+                            albumId = albumId,
+                            fileSize = cursor.getLong(colFileSize)
+                        )
+                    }
                 }
-            }
-        } ?: emptyList()
+            } ?: emptyList<Track>()
+        }
     }
 
-    override fun queryAlbums(): List<Album> {
+    override suspend fun queryAlbums(): List<Album> {
         requireReadPermission()
 
-        return resolver.query(
-            Albums.EXTERNAL_CONTENT_URI,
-            albumColumns,
-            null,
-            null,
-            Albums.DEFAULT_SORT_ORDER
-        )?.use { cursor ->
-            val colId = cursor.getColumnIndexOrThrow(Albums._ID)
-            val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
-            val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
-            val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
-            val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
-            val colAlbumArt = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
+        return withContext(dispatchers.IO) {
+            resolver.query(
+                Albums.EXTERNAL_CONTENT_URI,
+                albumColumns,
+                null,
+                null,
+                Albums.DEFAULT_SORT_ORDER
+            )?.use { cursor ->
+                val colId = cursor.getColumnIndexOrThrow(Albums._ID)
+                val colTitle = cursor.getColumnIndexOrThrow(Albums.ALBUM)
+                val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
+                val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
+                val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
+                val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
+                val colAlbumArt = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
 
-            ArrayList<Album>(cursor.count).also { albumList ->
-                while (cursor.moveToNext()) {
-                    albumList += Album(
-                        id = cursor.getLong(colId),
-                        title = cursor.getString(colTitle),
-                        trackCount = cursor.getInt(colSongCount),
-                        releaseYear = cursor.getInt(colYear),
-                        albumArtUri = cursor.getString(colAlbumArt)?.let { albumArtFilepath ->
-                            fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
-                        },
-                        artistId = cursor.getLong(colArtistId),
-                        artist = cursor.getString(colArtist)
-                    )
+                ArrayList<Album>(cursor.count).also { albumList ->
+                    while (cursor.moveToNext()) {
+                        albumList += Album(
+                            id = cursor.getLong(colId),
+                            title = cursor.getString(colTitle),
+                            trackCount = cursor.getInt(colSongCount),
+                            releaseYear = cursor.getInt(colYear),
+                            albumArtUri = cursor.getString(colAlbumArt)?.let { albumArtFilepath ->
+                                fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
+                            },
+                            artistId = cursor.getLong(colArtistId),
+                            artist = cursor.getString(colArtist)
+                        )
+                    }
                 }
-            }
 
-        } ?: emptyList()
+            } ?: emptyList<Album>()
+        }
     }
 
-    override fun queryArtists(): List<Artist> {
+    override suspend fun queryArtists(): List<Artist> {
         requireReadPermission()
         val albumArtPerArtistId = queryAlbumArtPerArtist()
 
-        return resolver.query(
-            Artists.EXTERNAL_CONTENT_URI,
-            artistColumns,
-            null,
-            null,
-            Artists.DEFAULT_SORT_ORDER
-        )?.use { cursor ->
-            val colArtistId = cursor.getColumnIndexOrThrow(Artists._ID)
-            val colArtistName = cursor.getColumnIndexOrThrow(Artists.ARTIST)
-            val colAlbumCount = cursor.getColumnIndexOrThrow(Artists.NUMBER_OF_ALBUMS)
-            val colTrackCount = cursor.getColumnIndexOrThrow(Artists.NUMBER_OF_TRACKS)
+        return withContext(dispatchers.IO) {
+            resolver.query(
+                Artists.EXTERNAL_CONTENT_URI,
+                artistColumns,
+                null,
+                null,
+                Artists.DEFAULT_SORT_ORDER
+            )?.use { cursor ->
+                val colArtistId = cursor.getColumnIndexOrThrow(Artists._ID)
+                val colArtistName = cursor.getColumnIndexOrThrow(Artists.ARTIST)
+                val colAlbumCount = cursor.getColumnIndexOrThrow(Artists.NUMBER_OF_ALBUMS)
+                val colTrackCount = cursor.getColumnIndexOrThrow(Artists.NUMBER_OF_TRACKS)
 
-            ArrayList<Artist>(cursor.count).also { artistList ->
-                while (cursor.moveToNext()) {
-                    val artistId = cursor.getLong(colArtistId)
-                    artistList += Artist(
-                        artistId,
-                        name = cursor.getString(colArtistName),
-                        albumCount = cursor.getInt(colAlbumCount),
-                        trackCount = cursor.getInt(colTrackCount),
-                        iconUri = albumArtPerArtistId[artistId]
-                    )
+                ArrayList<Artist>(cursor.count).also { artistList ->
+                    while (cursor.moveToNext()) {
+                        val artistId = cursor.getLong(colArtistId)
+                        artistList += Artist(
+                            artistId,
+                            name = cursor.getString(colArtistName),
+                            albumCount = cursor.getInt(colAlbumCount),
+                            trackCount = cursor.getInt(colTrackCount),
+                            iconUri = albumArtPerArtistId[artistId]
+                        )
+                    }
                 }
-            }
-        } ?: emptyList()
+            } ?: emptyList<Artist>()
+        }
     }
 
     private fun queryAlbumArtPerArtist() = LongSparseArray<String?>().also { albumArtPerArtistId ->
@@ -237,43 +246,45 @@ internal class MediaStoreProvider
         }
     }
 
-    override fun deleteTracks(trackIds: LongArray): Int {
+    override suspend fun deleteTracks(trackIds: LongArray): Int {
         requireWritePermission()
 
-        var whereClause = buildInClause(trackIds.size)
-        var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
+        return withContext(dispatchers.IO) {
+            var whereClause = buildInClause(trackIds.size)
+            var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
 
-        return resolver.query(
-            Media.EXTERNAL_CONTENT_URI,
-            arrayOf(Media._ID, Media.DATA),
-            whereClause,
-            whereArgs,
-            Media._ID
-        )?.use { cursor ->
-            val colId = cursor.getColumnIndexOrThrow(Media._ID)
-            val colFilepath = cursor.getColumnIndexOrThrow(Media.DATA)
+            resolver.query(
+                Media.EXTERNAL_CONTENT_URI,
+                arrayOf(Media._ID, Media.DATA),
+                whereClause,
+                whereArgs,
+                Media._ID
+            )?.use { cursor ->
+                val colId = cursor.getColumnIndexOrThrow(Media._ID)
+                val colFilepath = cursor.getColumnIndexOrThrow(Media.DATA)
 
-            val deletedTrackIds = mutableListOf<Long>()
-            while (cursor.moveToNext()) {
-                val trackId = cursor.getLong(colId)
-                val path = cursor.getString(colFilepath)
+                val deletedTrackIds = mutableListOf<Long>()
+                while (cursor.moveToNext()) {
+                    val trackId = cursor.getLong(colId)
+                    val path = cursor.getString(colFilepath)
 
-                // Attempt to delete each file.
-                if (fileSystem.deleteFile(path)) {
-                    deletedTrackIds += trackId
+                    // Attempt to delete each file.
+                    if (fileSystem.deleteFile(path)) {
+                        deletedTrackIds += trackId
+                    }
                 }
-            }
 
-            // if some tracks have not been deleted, rewrite delete clause.
-            if (deletedTrackIds.size < trackIds.size) {
-                whereClause = buildInClause(deletedTrackIds.size)
-                whereArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
-            }
+                // if some tracks have not been deleted, rewrite delete clause.
+                if (deletedTrackIds.size < trackIds.size) {
+                    whereClause = buildInClause(deletedTrackIds.size)
+                    whereArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
+                }
 
-            // Delete track information from the MediaStore.
-            // Only tracks whose file have been successfully deleted are removed.
-            resolver.delete(Media.EXTERNAL_CONTENT_URI, whereClause, whereArgs)
-        } ?: 0
+                // Delete track information from the MediaStore.
+                // Only tracks whose file have been successfully deleted are removed.
+                resolver.delete(Media.EXTERNAL_CONTENT_URI, whereClause, whereArgs)
+            } ?: 0
+        }
     }
 
     override fun registerObserver(observer: MediaProvider.Observer) {

@@ -49,22 +49,22 @@ internal class TestMediaProvider(
     val registeredObservers: Set<MediaProvider.Observer>
         get() = _observers
 
-    override fun queryTracks(): List<Track> =
+    override suspend fun queryTracks(): List<Track> =
         if (hasStoragePermission) tracks else throw PermissionDeniedException(
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
 
-    override fun queryAlbums(): List<Album> =
+    override suspend fun queryAlbums(): List<Album> =
         if (hasStoragePermission) albums else throw PermissionDeniedException(
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
 
-    override fun queryArtists(): List<Artist> =
+    override suspend fun queryArtists(): List<Artist> =
         if (hasStoragePermission) artists else throw PermissionDeniedException(
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
 
-    override fun deleteTracks(trackIds: LongArray): Int {
+    override suspend fun deleteTracks(trackIds: LongArray): Int {
         if (!hasStoragePermission) {
             throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
