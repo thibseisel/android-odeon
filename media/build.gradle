@@ -63,9 +63,6 @@ android {
 dependencies {
     implementation project(':core')
 
-    // Kotlin language support
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
-
     // Android support libraries
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
     implementation "androidx.media:media:${versions.androidx.media}"
