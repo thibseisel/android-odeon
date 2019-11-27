@@ -28,7 +28,6 @@ import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.neverFlow
-import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
@@ -43,9 +42,11 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotThrowAny
 import io.kotlintest.shouldThrow
 import io.mockk.*
-import io.reactivex.Flowable
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -120,11 +121,8 @@ internal class MediaRepositoryTest {
 
     @Test
     fun `Given denied permission, when requesting tracks then throw PermissionDeniedException`() = test {
-        val failingTrackDao = TestTrackDao()
-        failingTrackDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
-
         runInScope {
-            val repository = MediaRepository(this, mediaDao = failingTrackDao)
+            val repository = MediaRepository(this, mediaDao = PermissionDeniedDao)
             val permissionException = shouldThrow<PermissionDeniedException> {
                 repository.getTracks()
             }
@@ -395,9 +393,9 @@ internal class MediaRepositoryTest {
     fun `When deleting tracks, then delegate to MediaDao`() = test {
         val deletedTrackIds = longArrayOf(481L, 75L)
         val dao = mockk<MediaDao> {
-            coEvery { tracks } returns Flowable.never()
-            coEvery { albums } returns Flowable.never()
-            coEvery { artists } returns Flowable.never()
+            coEvery { tracks } returns neverFlow()
+            coEvery { albums } returns neverFlow()
+            coEvery { artists } returns neverFlow()
             coEvery { deleteTracks(any()) } answers { firstArg<LongArray>().size }
         }
 
@@ -613,9 +611,9 @@ internal class MediaRepositoryTest {
     }
 
     private object DummyMediaDao : MediaDao {
-        override val tracks: Flowable<List<Track>> get() = Flowable.empty()
-        override val albums: Flowable<List<Album>> get() = Flowable.empty()
-        override val artists: Flowable<List<Artist>> get() = Flowable.empty()
+        override val tracks: Flow<List<Track>> get() = emptyFlow()
+        override val albums: Flow<List<Album>> get() = emptyFlow()
+        override val artists: Flow<List<Artist>> get() = emptyFlow()
         override suspend fun deleteTracks(trackIds: LongArray) = 0
     }
 
@@ -624,6 +622,20 @@ internal class MediaRepositoryTest {
         override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
         override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()
         override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
+    }
+
+    private object PermissionDeniedDao : MediaDao {
+        override val tracks: Flow<List<Track>> = permissionDeniedFlow()
+        override val albums: Flow<List<Album>> = permissionDeniedFlow()
+        override val artists: Flow<List<Artist>> = permissionDeniedFlow()
+
+        override suspend fun deleteTracks(trackIds: LongArray): Int {
+            throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        private fun permissionDeniedFlow() = flow<Nothing> {
+            throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
     /**
@@ -637,21 +649,25 @@ internal class MediaRepositoryTest {
          */
         var hasPermissions = false
 
-        override val tracks: Flowable<List<Track>>
+        override val tracks: Flow<List<Track>>
             get() = if (hasPermissions) mediaUpdates() else permissionFailure()
 
-        override val albums: Flowable<List<Album>>
+        override val albums: Flow<List<Album>>
             get() = if (hasPermissions) mediaUpdates() else permissionFailure()
 
-        override val artists: Flowable<List<Artist>>
+        override val artists: Flow<List<Artist>>
             get() = if (hasPermissions) mediaUpdates() else permissionFailure()
 
-        override suspend fun deleteTracks(trackIds: LongArray) = stub()
+        override suspend fun deleteTracks(trackIds: LongArray): Int =
+            throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-        private fun <T> mediaUpdates(): Flowable<List<T>> =
-            Flowable.concat(Flowable.just(emptyList()), Flowable.never())
+        private fun <T> mediaUpdates(): Flow<List<T>> = flow {
+            emit(emptyList())
+            delay(Long.MAX_VALUE)
+        }
 
-        private fun <T> permissionFailure() =
-            Flowable.error<T>(PermissionDeniedException("android.permission"))
+        private fun permissionFailure() = flow<Nothing> {
+            throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 }

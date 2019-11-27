@@ -17,15 +17,13 @@
 package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.core.os.PermissionDeniedException
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides an entry point for performing read and write operations on media stored on the device's external storage.
  * This acts as a reactive layer over the Android MediaStore as an alternative to [MediaProvider].
  * Each set of media, namely [tracks], [albums] and [artists], are available as infinite data streams
  * whose latest emitted element is the most up-to-date media list.
- *
- * All background operations are performed on a dedicated Thread, thus preventing from blocking the Main Thread.
  *
  * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
  * all operations may fail if permission to read/write external storage is denied.
@@ -42,7 +40,7 @@ internal interface MediaDao {
      *
      * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
-    val tracks: Flowable<List<Track>>
+    val tracks: Flow<List<Track>>
 
     /**
      * The list of all albums that are stored on the device's external storage, sorted by title.
@@ -54,7 +52,7 @@ internal interface MediaDao {
      *
      * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
-    val albums: Flowable<List<Album>>
+    val albums: Flow<List<Album>>
 
     /**
      * The list of all artists that are stored on the device's external storage, sorted by name.
@@ -66,7 +64,7 @@ internal interface MediaDao {
      *
      * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
-    val artists: Flowable<List<Artist>>
+    val artists: Flow<List<Artist>>
 
     /**
      * Deletes a set of tracks identified by their [unique id][Track.id] from the device's external storage.

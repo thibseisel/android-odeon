@@ -17,10 +17,11 @@
 package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.media.dagger.ServiceScoped
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.disposables.Disposables
-import kotlinx.coroutines.rx2.rxSingle
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 
 /**
@@ -34,51 +35,42 @@ internal class MediaDaoImpl
     private val provider: MediaProvider
 ) : MediaDao {
 
-    override val tracks: Flowable<List<Track>> = produceUpToDateMediaList(
+    override val tracks: Flow<List<Track>> = produceUpToDateMediaList(
         MediaProvider.MediaType.TRACKS,
         provider::queryTracks
     )
 
-    override val albums: Flowable<List<Album>> = produceUpToDateMediaList(
+    override val albums: Flow<List<Album>> = produceUpToDateMediaList(
         MediaProvider.MediaType.ALBUMS,
         provider::queryAlbums
     )
 
-    override val artists: Flowable<List<Artist>> = produceUpToDateMediaList(
+    override val artists: Flow<List<Artist>> = produceUpToDateMediaList(
         MediaProvider.MediaType.ARTISTS,
         provider::queryArtists
     )
 
     override suspend fun deleteTracks(trackIds: LongArray): Int = provider.deleteTracks(trackIds)
 
-    private fun produceUpdateQueryTrigger(mediaType: MediaProvider.MediaType) = Flowable.create<Unit>({ emitter ->
+    private fun produceUpdateQueryTrigger(mediaType: MediaProvider.MediaType) = callbackFlow {
+        // Emit the current media list.
+        offer(Unit)
+
+        // Register an observer that request to reload the list when it has changed.
         val observer = object : MediaProvider.Observer(mediaType) {
             override fun onChanged() {
-                // Request to reload the list as it has been updated.
-                if (!emitter.isCancelled) {
-                    emitter.onNext(Unit)
-                }
+                offer(Unit)
             }
         }
 
-        if (!emitter.isCancelled) {
-            provider.registerObserver(observer)
-            emitter.setDisposable(Disposables.fromAction {
-                provider.unregisterObserver(observer)
-            })
-        }
+        provider.registerObserver(observer)
+        awaitClose { provider.unregisterObserver(observer) }
+    }.conflate()
 
-        // Emit the current media list. This behavior is the same as Rooms'.
-        if (!emitter.isCancelled) {
-            emitter.onNext(Unit)
-        }
-    }, BackpressureStrategy.LATEST)
-
-    private fun <E> produceUpToDateMediaList(
+    private inline fun <E> produceUpToDateMediaList(
         mediaType: MediaProvider.MediaType,
-        mediaListProvider: suspend () -> List<E>
-    ): Flowable<List<E>> = produceUpdateQueryTrigger(mediaType)
-        .flatMapSingle {
-            rxSingle { mediaListProvider() }
-        }
+        crossinline mediaListProvider: suspend () -> List<E>
+    ): Flow<List<E>> = produceUpdateQueryTrigger(mediaType).mapLatest {
+        mediaListProvider()
+    }
 }

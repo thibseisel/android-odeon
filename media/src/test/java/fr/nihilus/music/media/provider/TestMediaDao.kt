@@ -16,10 +16,11 @@
 
 package fr.nihilus.music.media.provider
 
+import fr.nihilus.music.core.test.neverFlow
 import fr.nihilus.music.core.test.stub
-import io.reactivex.Flowable
-import io.reactivex.processors.BehaviorProcessor
-import io.reactivex.processors.FlowableProcessor
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 
 internal interface TestDao<M> {
     fun update(updatedList: List<M>)
@@ -28,36 +29,36 @@ internal interface TestDao<M> {
 }
 
 internal sealed class TestMediaDao<M>(initialList: List<M>?) : MediaDao, TestDao<M> {
-    protected val mediaStream: FlowableProcessor<List<M>> =
-        if (initialList == null) BehaviorProcessor.create()
-        else BehaviorProcessor.createDefault(initialList)
+    protected val mediaStream: ConflatedBroadcastChannel<List<M>> =
+        if (initialList == null) ConflatedBroadcastChannel()
+        else ConflatedBroadcastChannel(initialList)
 
-    override val tracks: Flowable<List<Track>> get() = Flowable.never()
-    override val albums: Flowable<List<Album>> get() = Flowable.never()
-    override val artists: Flowable<List<Artist>> get() = Flowable.never()
+    override val tracks: Flow<List<Track>> get() = neverFlow()
+    override val albums: Flow<List<Album>> get() = neverFlow()
+    override val artists: Flow<List<Artist>> get() = neverFlow()
     final override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 
     override fun update(updatedList: List<M>) {
-        mediaStream.onNext(updatedList)
+        mediaStream.offer(updatedList)
     }
 
     override fun complete() {
-        mediaStream.onComplete()
+        mediaStream.close()
     }
 
     override fun failWith(exception: Exception) {
-        mediaStream.onError(exception)
+        mediaStream.close(exception)
     }
 }
 
 internal class TestTrackDao(initialTrackList: List<Track>? = null) : TestMediaDao<Track>(initialTrackList) {
-    override val tracks: Flowable<List<Track>> get() = mediaStream.onBackpressureBuffer()
+    override val tracks: Flow<List<Track>> get() = mediaStream.asFlow()
 }
 
 internal class TestAlbumDao(initialAlbumList: List<Album>? = null) : TestMediaDao<Album>(initialAlbumList) {
-    override val albums: Flowable<List<Album>> get() = mediaStream.onBackpressureBuffer()
+    override val albums: Flow<List<Album>> get() = mediaStream.asFlow()
 }
 
 internal class TestArtistDao(initialArtistList: List<Artist>? = null) : TestMediaDao<Artist>(initialArtistList) {
-    override val artists: Flowable<List<Artist>> get() = mediaStream.onBackpressureBuffer()
+    override val artists: Flow<List<Artist>> get() = mediaStream.asFlow()
 }

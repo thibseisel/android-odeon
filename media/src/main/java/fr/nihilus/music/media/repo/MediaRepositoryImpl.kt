@@ -33,8 +33,8 @@ import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.reactive.openSubscription
-import kotlinx.coroutines.rx2.asFlowable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 
@@ -170,19 +170,19 @@ internal class MediaRepositoryImpl
         _mediaChanges.onNext(ChangeNotification.AllArtists)
     }
 
-    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlists.asFlowable()) { _, _ ->
+    private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlists) { _, _ ->
         _mediaChanges.onNext(ChangeNotification.AllPlaylists)
     }
 
     private fun <M : Any> CoroutineScope.syncCache(
-        mediaUpdateStream: Flowable<List<M>>,
+        mediaUpdateStream: Flow<List<M>>,
         onChanged: suspend (original: List<M>, modified: List<M>) -> Unit
-    ): SendChannel<CompletableDeferred<List<M>>> = actor(dispatchers.Default, start = CoroutineStart.LAZY) {
+    ): SendChannel<CompletableDeferred<List<M>>> = actor(start = CoroutineStart.LAZY) {
         // Wait until media are requested for the first time before observing.
         val firstRequest = receive()
 
         // Start observing media to a Channel.
-        val mediaUpdates = mediaUpdateStream.openSubscription()
+        val mediaUpdates = mediaUpdateStream.produceIn(this + SupervisorJob())
 
         // Cache the last received media list.
         var lastReceivedMediaList: List<M>

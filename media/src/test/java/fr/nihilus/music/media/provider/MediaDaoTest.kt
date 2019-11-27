@@ -16,21 +16,19 @@
 
 package fr.nihilus.music.media.provider
 
-import com.google.common.truth.Correspondence
-import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
-import fr.nihilus.music.media.provider.MediaProvider.Observer
+import io.kotlintest.inspectors.forNone
+import io.kotlintest.inspectors.forOne
+import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.matchers.collections.shouldHaveSize
+import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import io.reactivex.Flowable
-import io.reactivex.schedulers.TestScheduler
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
-import java.util.concurrent.TimeUnit
 
 internal class MediaDaoTest {
-
-    private val testScheduler = TestScheduler()
 
     @Test
     fun givenDeniedPermission_whenSubscribingTracks_thenTerminateWithPermissionDeniedException() {
@@ -64,32 +62,17 @@ internal class MediaDaoTest {
 
     @Test
     fun givenTrackSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.TRACKS, MediaDao::tracks)
+        shouldUnregisterObserverOnFlowFailure(MediaType.TRACKS, MediaDao::tracks)
     }
 
     @Test
     fun givenAlbumSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.ALBUMS, MediaDao::albums)
+        shouldUnregisterObserverOnFlowFailure(MediaType.ALBUMS, MediaDao::albums)
     }
 
     @Test
     fun givenArtistSubscription_whenTerminatingWithError_thenUnregisterObserver() {
-        shouldUnregisterObserverOnStreamFailure(MediaType.ARTISTS, MediaDao::artists)
-    }
-
-    @Test
-    fun whenSubscribingTracks_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(MediaDao::tracks)
-    }
-
-    @Test
-    fun whenSubscribingAlbums_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(MediaDao::albums)
-    }
-
-    @Test
-    fun whenSubscribingArtists_thenStreamShouldNeverComplete() {
-        shouldNeverComplete(MediaDao::artists)
+        shouldUnregisterObserverOnFlowFailure(MediaType.ARTISTS, MediaDao::artists)
     }
 
     @Test
@@ -172,123 +155,115 @@ internal class MediaDaoTest {
         }
     }
 
-    private fun shouldUnregisterObserverOnDisposal(
-        observerType: MediaType,
-        streamProvider: MediaDao.() -> Flowable<out Any>
-    ) {
-        val provider = TestMediaProvider()
-        val mediaDao = MediaDaoImpl(provider)
-
-        val subscriber = mediaDao.streamProvider().test()
-        testScheduler.triggerActions()
-        subscriber.dispose()
-
-        assertThat(provider.registeredObservers).comparingElementsUsing(THEIR_MEDIA_TYPE)
-            .doesNotContain(observerType)
-    }
-
     private fun shouldRegisterAnObserverWhenSubscribed(
         observerType: MediaType,
-        streamProvider: MediaDao.() -> Flowable<out Any>
-    ) {
+        flowProvider: MediaDao.() -> Flow<Any>
+    ) = runBlockingTest {
         val provider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(provider)
 
-        mediaDao.streamProvider().test()
-        testScheduler.triggerActions()
+        val values = mediaDao.flowProvider().produceIn(this)
+        try {
+            provider.registeredObservers.forOne { it.type shouldBe observerType }
+        } finally {
+            values.cancel()
+        }
 
-        assertThat(provider.registeredObservers).comparingElementsUsing(THEIR_MEDIA_TYPE)
-            .contains(observerType)
+    }
+
+    private fun shouldUnregisterObserverOnDisposal(
+        observerType: MediaType,
+        flowProvider: MediaDao.() -> Flow<Any>
+    ) = runBlockingTest {
+        val provider = TestMediaProvider()
+        val mediaDao = MediaDaoImpl(provider)
+
+        mediaDao.flowProvider().take(1).collect()
+        provider.registeredObservers.forNone { it.type shouldBe observerType }
     }
 
     private fun <M> shouldReloadMediaWhenNotified(
         provider: TestMediaProvider,
         type: MediaType,
-        stream: Flowable<List<M>>,
+        stream: Flow<List<M>>,
         expected: List<M>
-    ) {
-        val subscriber = stream.test()
-        subscriber.awaitCount(1)
-
-        provider.notifyChange(type)
-        testScheduler.triggerActions()
-
-        subscriber.assertValueAt(1, expected)
+    ) = runBlockingTest {
+        val updates = stream.produceIn(this)
+        try {
+            updates.receive()
+            provider.notifyChange(type)
+            updates.receive() shouldContainExactly expected
+        } finally {
+            updates.cancel()
+        }
     }
 
-    private fun <M> shouldLoadMediaOnSubscription(stream: Flowable<List<M>>, expected: List<M>) {
-        val subscriber = stream.test()
-        testScheduler.triggerActions()
+    private fun <M> shouldLoadMediaOnSubscription(
+        flow: Flow<List<M>>,
+        expectedMedia: List<M>
+    ) = runBlockingTest {
+        val values = flow.take(1).toList()
 
-        subscriber.assertValue(expected)
+        values shouldHaveSize 1
+        values[0] shouldContainExactly expectedMedia
     }
 
-    private fun shouldNeverComplete(streamProvider: MediaDao.() -> Flowable<out Any>) {
-        // Given a realistic provider...
-        val mediaDao = MediaDaoImpl(TestMediaProvider())
-
-        // When subscribing and waiting for a long time...
-        val subscriber = mediaDao.streamProvider().test()
-        testScheduler.advanceTimeBy(3L, TimeUnit.DAYS)
-
-        // it should never complete.
-        subscriber.assertNotComplete()
-    }
-
-    private fun shouldUnregisterObserverOnStreamFailure(
+    private fun shouldUnregisterObserverOnFlowFailure(
         type: MediaType,
-        streamProvider: MediaDao.() -> Flowable<out Any>
-    ) {
+        flowProvider: MediaDao.() -> Flow<Any>
+    ) = runBlockingTest {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(revokingPermissionProvider)
-        mediaDao.streamProvider().test()
-        testScheduler.triggerActions()
+        val values = mediaDao.flowProvider().produceIn(this)
+        values.receive()
 
         // When receiving an update that triggers an error...
         revokingPermissionProvider.hasStoragePermission = false
         revokingPermissionProvider.notifyChange(type)
-        testScheduler.triggerActions()
 
-        // Then unregister observer of the subscribed stream.
-        assertThat(revokingPermissionProvider.registeredObservers)
-            .comparingElementsUsing(THEIR_MEDIA_TYPE)
-            .doesNotContain(type)
+        try {
+            revokingPermissionProvider.registeredObservers.forNone { it.type shouldBe type }
+        } finally {
+            values.cancel()
+        }
     }
 
-    private fun shouldTerminateIfPermissionIsDenied(streamProvider: MediaDao.() -> Flowable<out Any>) {
+    private fun shouldTerminateIfPermissionIsDenied(
+        flowProvider: MediaDao.() -> Flow<Any>
+    ) = runBlockingTest {
         val deniedProvider = TestMediaProvider()
         deniedProvider.hasStoragePermission = false
 
         val mediaDao = MediaDaoImpl(deniedProvider)
 
-        val subscriber = mediaDao.streamProvider().test()
-        testScheduler.triggerActions()
-
-        subscriber.assertError(PermissionDeniedException::class.java)
+        shouldThrow<PermissionDeniedException> {
+            mediaDao.flowProvider().take(1).collect()
+        }
     }
 
     private fun shouldTerminateWhenPermissionIsRevoked(
         type: MediaType,
-        streamProvider: MediaDao.() -> Flowable<out Any>
-    ) {
+        flowProvider: MediaDao.() -> Flow<Any>
+    ) = runBlockingTest {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(revokingPermissionProvider)
-        val subscriber = mediaDao.streamProvider().test()
-        testScheduler.triggerActions()
+        val updates = mediaDao.flowProvider().produceIn(this)
+        updates.receive()
 
-        // When permission is revoked and an update notification is received...
-        revokingPermissionProvider.hasStoragePermission = false
-        revokingPermissionProvider.notifyChange(type)
-        testScheduler.triggerActions()
+        try {
+            // When permission is revoked and an update notification is received...
+            revokingPermissionProvider.hasStoragePermission = false
+            revokingPermissionProvider.notifyChange(type)
 
-        // Subscriber should be notified of an error.
-        subscriber.assertError(PermissionDeniedException::class.java)
+            // Flow should fail with an error.
+            shouldThrow<PermissionDeniedException> {
+                updates.receive()
+            }
+
+        } finally {
+            updates.cancel()
+        }
     }
 }
-
-private val THEIR_MEDIA_TYPE = Correspondence.transforming<Observer, MediaType>(
-    { it!!.type },
-    "has a type of"
-)
