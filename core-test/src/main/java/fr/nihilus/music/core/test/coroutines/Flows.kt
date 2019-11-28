@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.test
+package fr.nihilus.music.core.test.coroutines
 
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.core.test.neverFlow
+import fr.nihilus.music.core.test.coroutines.neverFlow
 import fr.nihilus.music.core.test.stub
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow

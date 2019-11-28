@@ -27,8 +27,8 @@ import fr.nihilus.music.core.database.usage.TrackScore
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.core.test.neverFlow
-import fr.nihilus.music.core.test.rules.CoroutineTestRule
+import fr.nihilus.music.core.test.coroutines.neverFlow
+import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
@@ -60,7 +60,8 @@ import org.junit.Test
  */
 internal class MediaRepositoryTest {
 
-    @get:Rule val test = CoroutineTestRule()
+    @get:Rule val test =
+        CoroutineTestRule()
     private val dispatchers = AppDispatchers(test.dispatcher)
 
     /**
