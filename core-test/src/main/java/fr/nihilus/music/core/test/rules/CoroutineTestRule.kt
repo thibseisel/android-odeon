@@ -25,27 +25,49 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A JUnit Rule that encapsulates management of tests using coroutines.
+ * A JUnit Rule for running tests that use Kotlin Coroutines.
+ *
+ * Example usage:
+ * ```
+ * class FooTest {
+ *
+ *    @get:Rule
+ *    val test = CoroutineTestRule()
+ *
+ *    @Test
+ *    fun `Check happy path`() = test.run {
+ *        // This test body can now run suspend functions.
+ *    }
+ * }
+ * ```
  */
 @ExperimentalCoroutinesApi
 class CoroutineTestRule : TestRule {
-    val dispatcher = TestCoroutineDispatcher()
-    private val scope = TestCoroutineScope(dispatcher)
 
     /**
-     * Run the provided [test block][testBody] in a dedicated coroutine scope.
+     * The dispatcher used for immediate execution of coroutines in test.
+     * Use this dispatcher to virtually advance time or pause the immediate execution of coroutines.
+     */
+    val dispatcher = TestCoroutineDispatcher()
+
+    /**
+     * Executes a [testBody] inside an immediate execution dispatcher.
+     * This a convenience function over `dispatcher.runBlockingTest`.
+     *
      * @param testBody The code of the unit test.
      *
      * @see runBlockingTest
      */
-    fun run(testBody: suspend TestCoroutineScope.() -> Unit): Unit = scope.runBlockingTest(testBody)
+    fun run(
+        testBody: suspend TestCoroutineScope.() -> Unit
+    ) = dispatcher.runBlockingTest(testBody)
 
     override fun apply(base: Statement, description: Description?): Statement = object : Statement() {
         override fun evaluate() {
             try {
                 base.evaluate()
             } finally {
-                scope.cleanupTestCoroutines()
+                dispatcher.cleanupTestCoroutines()
             }
         }
     }

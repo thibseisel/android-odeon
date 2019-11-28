@@ -28,6 +28,7 @@ import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.neverFlow
+import fr.nihilus.music.core.test.rules.CoroutineTestRule
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
@@ -48,10 +49,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.After
+import org.junit.Rule
 import org.junit.Test
 
 /**
@@ -61,18 +60,8 @@ import org.junit.Test
  */
 internal class MediaRepositoryTest {
 
-    private val dispatcher = TestCoroutineDispatcher()
-    private val dispatchers = AppDispatchers(dispatcher)
-
-    @After
-    fun cleanup() {
-        dispatcher.cleanupTestCoroutines()
-    }
-
-    /**
-     * Convenience function to execute the test [body] with [runBlockingTest].
-     */
-    private fun test(body: suspend TestCoroutineScope.() -> Unit) = dispatcher.runBlockingTest(body)
+    @get:Rule val test = CoroutineTestRule()
+    private val dispatchers = AppDispatchers(test.dispatcher)
 
     /**
      * Execute the given [block] in the context of a child coroutine scope, then cancel that scope.
@@ -85,7 +74,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting all tracks, then load tracks from Dao`() = test {
+    fun `When requesting all tracks, then load tracks from Dao`() = test.run {
         val sampleTracks = TestTrackDao(SAMPLE_TRACKS)
 
         runInScope {
@@ -97,7 +86,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting tracks, then always return the latest track list`() = test {
+    fun `When requesting tracks, then always return the latest track list`() = test.run {
         val initialTracks = listOf(SAMPLE_TRACKS[0])
         val updatedTracks = listOf(SAMPLE_TRACKS[1])
         val trackDao = TestTrackDao(initialTracks)
@@ -120,7 +109,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting tracks then throw PermissionDeniedException`() = test {
+    fun `Given denied permission, when requesting tracks then throw PermissionDeniedException`() = test.run {
         runInScope {
             val repository = MediaRepository(this, mediaDao = PermissionDeniedDao)
             val permissionException = shouldThrow<PermissionDeniedException> {
@@ -132,7 +121,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting tracks after being granted then load the current track list`() = test {
+    fun `Given denied permission, when requesting tracks after being granted then load the current track list`() = test.run {
         val grantingPermissionDao = PermissionMediaDao()
         grantingPermissionDao.hasPermissions = false
 
@@ -148,7 +137,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting albums, then load albums from Dao`() = test {
+    fun `When requesting albums, then load albums from Dao`() = test.run {
         val albumDao = TestAlbumDao(SAMPLE_ALBUMS)
 
         runInScope {
@@ -160,7 +149,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting albums, then always return the latest album list`() = test {
+    fun `When requesting albums, then always return the latest album list`() = test.run {
         val initialAlbums = listOf(SAMPLE_ALBUMS[0])
         val updatedAlbums = listOf(SAMPLE_ALBUMS[1])
         val albumDao = TestAlbumDao(initialAlbums)
@@ -183,7 +172,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting albums then throw PermissionDeniedException`() = test {
+    fun `Given denied permission, when requesting albums then throw PermissionDeniedException`() = test.run {
         val failingAlbumDao = TestAlbumDao()
         failingAlbumDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
 
@@ -198,7 +187,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting albums after being granted then load the current album list`() = test {
+    fun `Given denied permission, when requesting albums after being granted then load the current album list`() = test.run {
         val grantingPermissionDao = PermissionMediaDao()
         grantingPermissionDao.hasPermissions = false
 
@@ -214,7 +203,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting artists, then load artists from Dao`() = test {
+    fun `When requesting artists, then load artists from Dao`() = test.run {
         val artistDao = TestArtistDao(SAMPLE_ARTISTS)
 
         runInScope {
@@ -226,7 +215,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting artists, then always return the latest artist list`() = test {
+    fun `When requesting artists, then always return the latest artist list`() = test.run {
         val initialArtists = listOf(SAMPLE_ARTISTS[0])
         val updatedArtists = listOf(SAMPLE_ARTISTS[1])
         val artistDao = TestArtistDao(initialArtists)
@@ -249,7 +238,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting artists then throw PermissionDeniedException`() = test {
+    fun `Given denied permission, when requesting artists then throw PermissionDeniedException`() = test.run {
         val failingArtistDao = TestArtistDao()
         failingArtistDao.failWith(PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE))
 
@@ -264,7 +253,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given denied permission, when requesting artists after being granted then load the current artist list`() = test {
+    fun `Given denied permission, when requesting artists after being granted then load the current artist list`() = test.run {
         val grantingPermissionDao = PermissionMediaDao()
         grantingPermissionDao.hasPermissions = false
 
@@ -280,7 +269,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When requesting playlists, then load playlist from Dao`() = test {
+    fun `When requesting playlists, then load playlist from Dao`() = test.run {
         val dao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
 
         runInScope {
@@ -292,7 +281,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When loading playlists, then always return the latest playlist set`() = test {
+    fun `When loading playlists, then always return the latest playlist set`() = test.run {
         val original = listOf(SAMPLE_PLAYLISTS[0])
         val updated = listOf(SAMPLE_PLAYLISTS[1])
         val dao = TestPlaylistDao(original, emptyList())
@@ -315,7 +304,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given the id of a playlist that does not exists, when requesting its tracks then return null`() = test {
+    fun `Given the id of a playlist that does not exists, when requesting its tracks then return null`() = test.run {
         val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
 
@@ -328,7 +317,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given an empty existing playlist, when requesting its tracks then return an empty list`() = test {
+    fun `Given an empty existing playlist, when requesting its tracks then return an empty list`() = test.run {
         val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, emptyList())
 
@@ -342,7 +331,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `Given an existing playlist, when requesting its tracks then load them from both Dao`() = test {
+    fun `Given an existing playlist, when requesting its tracks then load them from both Dao`() = test.run {
         val mediaDao = TestTrackDao(SAMPLE_TRACKS)
         val playlistDao = TestPlaylistDao(SAMPLE_PLAYLISTS, SAMPLE_PLAYLIST_TRACKS)
 
@@ -356,7 +345,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When creating a playlist, then delegate to PlaylistDao`() = test {
+    fun `When creating a playlist, then delegate to PlaylistDao`() = test.run {
         val newPlaylist =
             Playlist("My Favorites", Uri.EMPTY)
         val playlistTracks = longArrayOf(481L, 75L)
@@ -375,7 +364,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When deleting a playlist, then delegate to PlaylistDao`() = test {
+    fun `When deleting a playlist, then delegate to PlaylistDao`() = test.run {
         val dao = mockk<PlaylistDao> {
             coEvery { playlists } returns neverFlow()
             coEvery { deletePlaylist(any()) } just Runs
@@ -390,7 +379,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When deleting tracks, then delegate to MediaDao`() = test {
+    fun `When deleting tracks, then delegate to MediaDao`() = test.run {
         val deletedTrackIds = longArrayOf(481L, 75L)
         val dao = mockk<MediaDao> {
             coEvery { tracks } returns neverFlow()
@@ -409,7 +398,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When track list changed for the first time, then do not dispatch change notifications`() = test {
+    fun `When track list changed for the first time, then do not dispatch change notifications`() = test.run {
         val mediaDao = TestTrackDao(initialTrackList = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1]))
 
         runInScope {
@@ -422,7 +411,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving a track list update, then notify a change of all tracks`() = test {
+    fun `When receiving a track list update, then notify a change of all tracks`() = test.run {
         val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
         val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
 
@@ -446,7 +435,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving a track list update, then notify for the album of each modified track`() = test {
+    fun `When receiving a track list update, then notify for the album of each modified track`() = test.run {
         val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
         val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
 
@@ -473,7 +462,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving a track list update, then notify for the artist of each modified track`() = test {
+    fun `When receiving a track list update, then notify for the artist of each modified track`() = test.run {
         val initial = listOf(SAMPLE_TRACKS[0], SAMPLE_TRACKS[1])
         val updated = listOf(SAMPLE_TRACKS[1], SAMPLE_TRACKS[2])
 
@@ -500,7 +489,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving an album list update, then notify a change of all albums`() = test {
+    fun `When receiving an album list update, then notify a change of all albums`() = test.run {
         val initial = listOf(SAMPLE_ALBUMS[0], SAMPLE_ALBUMS[1])
         val updated = listOf(SAMPLE_ALBUMS[1], SAMPLE_ALBUMS[2])
 
@@ -524,7 +513,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving an album list update, then notify for the artist of each modified album`() = test {
+    fun `When receiving an album list update, then notify for the artist of each modified album`() = test.run {
         val initial = listOf(SAMPLE_ALBUMS[0], SAMPLE_ALBUMS[1])
         val updated = listOf(SAMPLE_ALBUMS[1], SAMPLE_ALBUMS[2])
 
@@ -551,7 +540,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving playlists update, then notify a change of all playlists`() = test {
+    fun `When receiving playlists update, then notify a change of all playlists`() = test.run {
         val initial = listOf(SAMPLE_PLAYLISTS[0], SAMPLE_PLAYLISTS[1])
         val updated = listOf(SAMPLE_PLAYLISTS[1], SAMPLE_PLAYLISTS[2])
         val playlistDao = TestPlaylistDao(initialPlaylists = initial)
@@ -568,7 +557,7 @@ internal class MediaRepositoryTest {
     }
 
     @Test
-    fun `When receiving an artists update, then notify a change of all artists`() = test {
+    fun `When receiving an artists update, then notify a change of all artists`() = test.run {
         val initial = listOf(SAMPLE_ARTISTS[0], SAMPLE_ARTISTS[1])
         val updated = listOf(SAMPLE_ARTISTS[1], SAMPLE_ARTISTS[2])
         val mediaDao = TestArtistDao(initialArtistList = initial)

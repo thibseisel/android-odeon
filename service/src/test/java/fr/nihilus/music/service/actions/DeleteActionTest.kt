@@ -36,7 +36,6 @@ import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.shouldThrow
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
@@ -45,8 +44,6 @@ import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 @RunWith(AndroidJUnit4::class)
 internal class DeleteActionTest {
-
-    private val dispatcher = TestCoroutineDispatcher()
 
     @MockK
     private lateinit var repository: MediaRepository
@@ -61,7 +58,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = dispatcher.runBlockingTest {
+    fun givenNoParameters_whenExecuting_thenFailWithMissingParameter() = runBlockingTest {
         val action = DeleteAction(repository)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle.EMPTY)
@@ -83,7 +80,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenDeniedPermissionAndTracks_whenExecuting_thenFailWithDeniedPermission() = dispatcher.runBlockingTest {
+    fun givenDeniedPermissionAndTracks_whenExecuting_thenFailWithDeniedPermission() = runBlockingTest {
         coEvery { repository.deleteTracks(any()) } throws PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
         val action = DeleteAction(repository)
@@ -100,7 +97,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenInvalidMediaIds_whenExecuting_thenFailWithUnsupportedParameter() = dispatcher.runBlockingTest {
+    fun givenInvalidMediaIds_whenExecuting_thenFailWithUnsupportedParameter() = runBlockingTest {
         assertUnsupported(MediaId(TYPE_ROOT))
         assertUnsupported(MediaId(TYPE_TRACKS))
         assertUnsupported(MediaId(TYPE_ALBUMS))
@@ -114,7 +111,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenExistingTrackMediaIds_whenExecuting_thenDeleteThoseTracks() = dispatcher.runBlockingTest {
+    fun givenExistingTrackMediaIds_whenExecuting_thenDeleteThoseTracks() = runBlockingTest {
         val deletedMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
@@ -131,7 +128,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenExistingPlaylistIds_whenExecuting_thenDeleteThosePlaylists() = dispatcher.runBlockingTest {
+    fun givenExistingPlaylistIds_whenExecuting_thenDeleteThosePlaylists() = runBlockingTest {
         coEvery { repository.deletePlaylist(any()) } just Runs
 
         val deletedMediaIds = arrayOf(
@@ -151,7 +148,7 @@ internal class DeleteActionTest {
     }
 
     @Test
-    fun givenExistingTrackIds_whenExecuting_thenReturnTheNumberOfDeletedTracks() = dispatcher.runBlockingTest {
+    fun givenExistingTrackIds_whenExecuting_thenReturnTheNumberOfDeletedTracks() = runBlockingTest {
         val deletedMediaIds = arrayOf(
             encode(TYPE_TRACKS, CATEGORY_ALL, 16L),
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)

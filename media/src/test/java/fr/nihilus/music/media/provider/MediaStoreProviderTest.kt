@@ -33,16 +33,15 @@ import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission
+import fr.nihilus.music.core.test.rules.CoroutineTestRule
 import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
 import fr.nihilus.music.media.provider.FailingMediaStore.query
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -52,9 +51,9 @@ private const val TEST_FILENAME = "1741_(The_Battle_of_Cartagena).mp3"
 @RunWith(AndroidJUnit4::class)
 internal class MediaStoreProviderTest {
 
-    private val dispatcher = TestCoroutineDispatcher()
-    private val dispatchers = AppDispatchers(dispatcher)
+    @get:Rule val test = CoroutineTestRule()
 
+    private val dispatchers = AppDispatchers(test.dispatcher)
     private lateinit var storeSurrogate: SQLiteMediaStore
 
     @Before
@@ -65,7 +64,6 @@ internal class MediaStoreProviderTest {
     @After
     fun tearDown() {
         storeSurrogate.release()
-        dispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -84,14 +82,14 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying tracks, then there should be all music tracks`() = test {
+    fun `When querying tracks, then there should be all music tracks`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
         assertThat(allTracks).hasSize(10)
     }
 
     @Test
-    fun `When querying tracks, then translate metadata to a Track`() = test {
+    fun `When querying tracks, then translate metadata to a Track`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
         val aTrack = allTracks.find { it.id == 161L } ?: failAssumption("Missing a track with id = 161")
@@ -108,7 +106,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying tracks, then media uri should be content uri for track`() = test {
+    fun `When querying tracks, then media uri should be content uri for track`() = test.run {
         val provider = MediaStoreProvider()
 
         val allTracks = provider.queryTracks()
@@ -118,7 +116,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying tracks, then disc and track numbers should be calculated`() = dispatcher.runBlockingTest {
+    fun `When querying tracks, then disc and track numbers should be calculated`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
 
@@ -134,7 +132,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying tracks, then resolve content uri from album art path of corresponding album`() = dispatcher.runBlockingTest {
+    fun `When querying tracks, then resolve content uri from album art path of corresponding album`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
 
@@ -145,7 +143,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying tracks, then those should be sorted alphabetically without common prefixes`() = dispatcher.runBlockingTest {
+    fun `When querying tracks, then those should be sorted alphabetically without common prefixes`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
 
@@ -155,7 +153,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying albums, then there should be all albums`() = dispatcher.runBlockingTest {
+    fun `When querying albums, then there should be all albums`() = test.run {
         val provider = MediaStoreProvider()
         val allAlbums = provider.queryAlbums()
 
@@ -163,7 +161,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying albums, then translate metadata to an Album`() = dispatcher.runBlockingTest {
+    fun `When querying albums, then translate metadata to an Album`() = test.run {
         val provider = MediaStoreProvider()
 
         val allAlbums = provider.queryAlbums()
@@ -179,7 +177,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying albums, then albums should be sorted alphabetically without common prefixes`() = dispatcher.runBlockingTest {
+    fun `When querying albums, then albums should be sorted alphabetically without common prefixes`() = test.run {
         val provider = MediaStoreProvider()
 
         val allAlbums = provider.queryAlbums()
@@ -190,7 +188,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying artists, then return all artists`() = dispatcher.runBlockingTest {
+    fun `When querying artists, then return all artists`() = test.run {
         val provider = MediaStoreProvider()
 
         val allArtists = provider.queryArtists()
@@ -198,7 +196,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying artists, then translate metadata to an Artist`() = dispatcher.runBlockingTest {
+    fun `When querying artists, then translate metadata to an Artist`() = test.run {
         val provider = MediaStoreProvider()
         val allArtists = provider.queryArtists()
         val anArtist = allArtists.find { it.id == 5L } ?: failAssumption("Missing an artist with id = 5")
@@ -210,7 +208,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying artists, then its icon should be that of its most recent album`() = dispatcher.runBlockingTest {
+    fun `When querying artists, then its icon should be that of its most recent album`() = test.run {
         val provider = MediaStoreProvider()
         val allArtists = provider.queryArtists()
 
@@ -224,7 +222,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When querying artists, then artists should be sorted alphabetically without common prefixes`() = dispatcher.runBlockingTest {
+    fun `When querying artists, then artists should be sorted alphabetically without common prefixes`() = test.run {
         val provider = MediaStoreProvider()
         val allArtists = provider.queryArtists()
         assume().that(allArtists.size).isAtLeast(3)
@@ -264,22 +262,22 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `Given failing MediaStore, when querying tracks then return an empty track list`() = dispatcher.runBlockingTest {
+    fun `Given failing MediaStore, when querying tracks then return an empty track list`() = test.run {
         assertQueryFailsGracefully(MediaProvider::queryTracks)
     }
 
     @Test
-    fun `Given failing MediaStore, when querying albums then return an empty album list`() = dispatcher.runBlockingTest {
+    fun `Given failing MediaStore, when querying albums then return an empty album list`() = test.run {
         assertQueryFailsGracefully(MediaProvider::queryAlbums)
     }
 
     @Test
-    fun `Given failing MediaStore, when querying artists then return an empty artist list`() = dispatcher.runBlockingTest {
+    fun `Given failing MediaStore, when querying artists then return an empty artist list`() = test.run {
         assertQueryFailsGracefully(MediaProvider::queryArtists)
     }
 
     @Test
-    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() = dispatcher.runBlockingTest {
+    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() = test.run {
         val provider = MediaStoreProvider(permissions = DeniedPermission)
         val exception = shouldThrow<PermissionDeniedException> {
             provider.deleteTracks(longArrayOf(161, 309))
@@ -289,7 +287,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When deleting a track, then also delete the corresponding file`() = dispatcher.runBlockingTest {
+    fun `When deleting a track, then also delete the corresponding file`() = test.run {
         val simulatedFileSystem = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
         val provider = MediaStoreProvider(
             fs = simulatedFileSystem
@@ -301,7 +299,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When a track file is deleted, then delete its metadata from MediaStore`() = dispatcher.runBlockingTest {
+    fun `When a track file is deleted, then delete its metadata from MediaStore`() = test.run {
         val provider = MediaStoreProvider(
             fs = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
         )
@@ -313,7 +311,7 @@ internal class MediaStoreProviderTest {
     }
 
     @Test
-    fun `When a track file cannot be deleted, then do not delete its metadata from MediaStore`() = dispatcher.runBlockingTest {
+    fun `When a track file cannot be deleted, then do not delete its metadata from MediaStore`() = test.run {
         // Files doesn't exists, so deleting them will fail.
         val provider = MediaStoreProvider(fs = SimulatedFileSystem())
 
@@ -349,7 +347,7 @@ internal class MediaStoreProviderTest {
 
     private fun assertProviderThrowsWhenPermissionIsDenied(
         queryFun: suspend MediaProvider.() -> List<Any>
-    ) = test {
+    ) = test.run {
         val provider = MediaStoreProvider(permissions = DeniedPermission)
 
         val exception = shouldThrow<PermissionDeniedException> {
@@ -364,8 +362,6 @@ internal class MediaStoreProviderTest {
         fs: FileSystem = BasicFileSystem,
         permissions: RuntimePermissions = GrantedPermission
     ) = MediaStoreProvider(store, fs, permissions, dispatchers)
-
-    private fun test(block: suspend TestCoroutineScope.() -> Unit) = dispatcher.runBlockingTest(block)
 }
 
 /**
