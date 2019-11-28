@@ -32,9 +32,7 @@ import javax.inject.Singleton
  * This module only uses a single execution context for all cases.
  *
  * Use this module as a test alternative to [ExecutionContextModule][fr.nihilus.music.core.context.ExecutionContextModule].
- *
- * Execution of RxJava operators and coroutines can be controlled from test code
- * with the [TestScheduler] and [TestCoroutineDispatcher] provided with this module.
+ * This modules has a dependency on a [TestCoroutineDispatcher] instance.
  */
 @Module
 internal object TestExecutionContextModule {
@@ -47,9 +45,6 @@ internal object TestExecutionContextModule {
 
     @Provides @Singleton
     fun providesTestingSchedulers(scheduler: TestScheduler) = RxSchedulers(scheduler)
-
-    @Provides @Singleton
-    fun providesTestDispatcher() = TestCoroutineDispatcher()
 
     @Provides @Singleton
     fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)

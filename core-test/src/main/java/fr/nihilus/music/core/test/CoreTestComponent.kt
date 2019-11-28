@@ -37,13 +37,28 @@ import javax.inject.Singleton
 interface CoreTestComponent : CoreComponent {
     override val permissions: RevocablePermission
     override val clock: TestClock
-    /*override */val appScope: TestCoroutineScope
-    val dispatcher: TestCoroutineDispatcher
+    val appScope: TestCoroutineScope
     val scheduler: TestScheduler
 
     @Component.Builder
     interface Builder {
+
+        /**
+         * Sets the test dispatcher to use for immediate execution of coroutines.
+         */
+        fun dispatcher(@BindsInstance dispatcher: TestCoroutineDispatcher): Builder
+
+        /**
+         * Specify the optional instant at which the clock should be initialized,
+         * expressed as the number of seconds since January 1st 1970 00:00:00.
+         *
+         * If not set, this defaults to January 1st 1970 00:00:00.
+         */
         fun clockTime(@BindsInstance @Named("TestClock.startTime") timeMillis: Long?): Builder
+
+        /**
+         * Create the test component.
+         */
         fun create(): CoreTestComponent
     }
 }

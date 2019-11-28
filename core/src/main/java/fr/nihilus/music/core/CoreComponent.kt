@@ -39,7 +39,6 @@ import javax.inject.Singleton
     SQLiteDatabaseModule::class
 ])
 interface CoreComponent {
-    //val appScope: CoroutineScope
     val dispatchers: AppDispatchers
     val schedulers: RxSchedulers
     val permissions: RuntimePermissions
