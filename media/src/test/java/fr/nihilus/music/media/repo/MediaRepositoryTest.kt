@@ -27,8 +27,8 @@ import fr.nihilus.music.core.database.usage.TrackScore
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.core.test.coroutines.neverFlow
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
+import fr.nihilus.music.core.test.coroutines.NeverFlow
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
@@ -352,7 +352,7 @@ internal class MediaRepositoryTest {
         val playlistTracks = longArrayOf(481L, 75L)
 
         val mockDao = mockk<PlaylistDao> {
-            coEvery { playlists } returns neverFlow()
+            coEvery { playlists } returns NeverFlow
             coEvery { createPlaylist(any(), any()) } just Runs
         }
 
@@ -367,7 +367,7 @@ internal class MediaRepositoryTest {
     @Test
     fun `When deleting a playlist, then delegate to PlaylistDao`() = test.run {
         val dao = mockk<PlaylistDao> {
-            coEvery { playlists } returns neverFlow()
+            coEvery { playlists } returns NeverFlow
             coEvery { deletePlaylist(any()) } just Runs
         }
 
@@ -383,9 +383,9 @@ internal class MediaRepositoryTest {
     fun `When deleting tracks, then delegate to MediaDao`() = test.run {
         val deletedTrackIds = longArrayOf(481L, 75L)
         val dao = mockk<MediaDao> {
-            coEvery { tracks } returns neverFlow()
-            coEvery { albums } returns neverFlow()
-            coEvery { artists } returns neverFlow()
+            coEvery { tracks } returns NeverFlow
+            coEvery { albums } returns NeverFlow
+            coEvery { artists } returns NeverFlow
             coEvery { deleteTracks(any()) } answers { firstArg<LongArray>().size }
         }
 
@@ -591,7 +591,7 @@ internal class MediaRepositoryTest {
     ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao, dispatchers)
 
     private object DummyPlaylistDao : PlaylistDao() {
-        override val playlists: Flow<List<Playlist>> get() = neverFlow()
+        override val playlists: Flow<List<Playlist>> get() = NeverFlow
         override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = emptyList()
         override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = LongArray(0)
         override suspend fun savePlaylist(playlist: Playlist): Long = 0L

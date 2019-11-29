@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.core.test.coroutines.neverFlow
+import fr.nihilus.music.core.test.coroutines.NeverFlow
 import fr.nihilus.music.core.test.stub
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
@@ -33,9 +33,9 @@ internal sealed class TestMediaDao<M>(initialList: List<M>?) : MediaDao, TestDao
         if (initialList == null) ConflatedBroadcastChannel()
         else ConflatedBroadcastChannel(initialList)
 
-    override val tracks: Flow<List<Track>> get() = neverFlow()
-    override val albums: Flow<List<Album>> get() = neverFlow()
-    override val artists: Flow<List<Artist>> get() = neverFlow()
+    override val tracks: Flow<List<Track>> get() = NeverFlow
+    override val albums: Flow<List<Album>> get() = NeverFlow
+    override val artists: Flow<List<Artist>> get() = NeverFlow
     final override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 
     override fun update(updatedList: List<M>) {

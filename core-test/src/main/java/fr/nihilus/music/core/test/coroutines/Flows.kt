@@ -16,19 +16,19 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-@UseExperimental(InternalCoroutinesApi::class)
-private object NeverFlow : Flow<Nothing> {
-    override suspend fun collect(collector: FlowCollector<Nothing>) {
+/**
+ * A flow that does not emit any item and never terminates.
+ * This could be used to simulate a an infinite flow sequence.
+ */
+@UseExperimental(FlowPreview::class)
+object NeverFlow : AbstractFlow<Nothing>() {
+    override suspend fun collectSafely(collector: FlowCollector<Nothing>) {
         suspendCancellableCoroutine<Nothing> {}
     }
 }
-
-/**
- * Returns an empty flow that never terminates.
- */
-fun <T> neverFlow(): Flow<T> = NeverFlow
