@@ -60,8 +60,9 @@ import org.junit.Test
  */
 internal class MediaRepositoryTest {
 
-    @get:Rule val test =
-        CoroutineTestRule()
+    @get:Rule
+    val test = CoroutineTestRule()
+
     private val dispatchers = AppDispatchers(test.dispatcher)
 
     /**

@@ -29,11 +29,11 @@ import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
+import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission
-import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
@@ -51,8 +51,8 @@ private const val TEST_FILENAME = "1741_(The_Battle_of_Cartagena).mp3"
 @RunWith(AndroidJUnit4::class)
 internal class MediaStoreProviderTest {
 
-    @get:Rule val test =
-        CoroutineTestRule()
+    @get:Rule
+    val test = CoroutineTestRule()
 
     private val dispatchers = AppDispatchers(test.dispatcher)
     private lateinit var storeSurrogate: SQLiteMediaStore
