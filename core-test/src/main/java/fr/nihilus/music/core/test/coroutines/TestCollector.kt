@@ -16,53 +16,148 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import io.kotlintest.shouldBe
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.produceIn
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.Exception
 
-suspend inline fun <T> Flow<T>.test(crossinline block: suspend TestCollector<T>.() -> Unit) {
+/**
+ * Subscribes to the source Flow, allowing to control the pace at which elements are collected.
+ * This makes it easier to test scenarios that require to manually collect elements such as
+ * infinite streams of values, flows that use a buffering policy (slow consumers, conflation)
+ * or callback-driven flows.
+ *
+ * ## Example usage ##
+ *
+ * ```kotlin
+ * val source = flow {
+ *     emit(0)
+ *     delay(200)
+ *     emit(1)
+ *     emit(2)
+ *     throw Exception("Flow failure")
+ * }
+ *
+ * source.test {
+ *     expect(1)
+ *     assertEquals(0, values[0])
+ *
+ *     expect(2, 200, TimeUnit.MILLISECONDS)
+ *     assertEquals(1, values[1])
+ *     assertEquals(2, values[2])
+ *
+ *     val exception = expectFailure()
+ *     assertEquals("Flow failure", exception.message)
+ * }
+ * ```
+ *
+ * @param block Assertions to be performed on the elements to be collected from the source flow.
+ * Collection of the flow is automatically cancelled at the end of the block.
+ */
+suspend fun <T> Flow<T>.test(block: suspend TestCollector<T>.() -> Unit) {
     val upstream = this
-    coroutineScope {
-        val collector = TestCollector<T>()
-        launch {
-            collector.emitAll(upstream)
-        }
+    supervisorScope {
+        val channel = upstream.produceIn(this)
+        val collector = TestCollector(channel)
 
-        block(collector)
-        collector.dispose()
+        try {
+            block(collector)
+        } finally {
+            channel.cancel()
+        }
     }
 }
 
-class TestCollector<T> : FlowCollector<T> {
-    private val channel = Channel<T>(Channel.RENDEZVOUS)
-
+/**
+ * Controls the collection of a source `Flow`.
+ */
+class TestCollector<T> internal constructor(
+    private val channel: ReceiveChannel<T>
+) {
     private val _values = mutableListOf<T>()
+
+    /**
+     * The list of elements that have been currently collected from the source `Flow`
+     * in the order of reception.
+     *
+     * Elements are appended to this list by calls to the [expect] function.
+     */
     val values: List<T>
         get() = _values
 
-    override suspend fun emit(value: T) {
-        channel.send(value)
-    }
-
     /**
-     * Freely consumes elements from the source flow for a given amount of time,
-     * suspending the caller while doing so.
-     * If collecting the flow throws an exception while waiting,
-     * then this exception is rethrown by this function.
+     * Immediately consumes exactly [count] elements from the source flow.
+     * The assertion will fail if the source Flow terminates
+     * or throws an exception before those elements could be collected.
      *
-     * @param duration The duration to wait.
-     * @param unit The unit of time that [duration] is expressed in.
+     * @param count The number of elements to immediately expect from the flow.
+     * Should be strictly positive.
      */
-    suspend fun wait(duration: Long, unit: TimeUnit) {
-        require(duration >= 0)
-        delay(unit.toMillis(duration))
+    suspend fun expect(count: Int) {
+        require(count > 0)
+
+        var collectCount = 0
+        try {
+            repeat(count) {
+                yield()
+                val value = channel.poll()
+
+                when {
+                    value != null -> {
+                        _values += value
+                        collectCount++
+                    }
+
+                    channel.isClosedForReceive -> {
+                        throw AssertionError(buildString {
+                            append("Expected to collect exactly ").append(count).append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("source Flow unexpectedly completed.")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append(" before source Flow unexpectedly completed.")
+                            }
+                        })
+                    }
+
+                    else -> {
+                        throw AssertionError(buildString {
+                            append("Expected to collect exactly ").append(count).append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("did not receive any.")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append('.')
+                            }
+                        })
+                    }
+                }
+            }
+
+        } catch (flowFailure: Exception) {
+            throw AssertionError(buildString {
+                append("Expected to collect exactly ").append(count).append(" element(s) but ")
+                if (collectCount == 0) {
+                    append("source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
+                } else {
+                    append("only received ")
+                    appendElements(values.takeLast(collectCount))
+                    append(" before source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
+                }
+            }, flowFailure)
+        }
     }
 
     /**
@@ -70,15 +165,13 @@ class TestCollector<T> : FlowCollector<T> {
      * This checks that at least [count] elements remains to be collected from the flow.
      * The assertion will fail if those elements couldn't be collected before [duration] has elapsed.
      *
-     * @param count The number of elements to expect from the flow.
-     * @param duration The maximum time to wait for the requested elements. Defaults to 1 second.
+     * @param count The number of elements to expect from the source flow within the given time duration.
+     * Should be strictly positive.
+     * @param duration The maximum time to wait for the requested elements.
+     * Should be strictly positive.
      * @param unit The unit of time that [duration] is expressed in.
      */
-    suspend fun expect(
-        count: Int,
-        duration: Long = 1,
-        unit: TimeUnit = TimeUnit.SECONDS
-    ) {
+    suspend fun expect(count: Int, duration: Long, unit: TimeUnit) {
         require(count > 0)
         require(duration > 0)
 
@@ -91,31 +184,32 @@ class TestCollector<T> : FlowCollector<T> {
                 }
             }
 
-        } catch (tce: TimeoutCancellationException) {
+        } catch (collectTimeout: TimeoutCancellationException) {
             throw AssertionError(buildString {
-                append("Expected to collect exactly ").append(count).append(" element(s), ")
+                append("Expected to collect exactly ").append(count).append(" element(s) ")
                 if (collectCount == 0) {
                     append("but did not receive any")
                 } else {
-                    append("but only received those ").append(collectCount).append(' ')
-                    values.takeLast(collectCount).joinTo(this, prefix = "[", postfix = "]")
+                    append("but only received ")
+                    appendElements(values.takeLast(collectCount))
                 }
 
-                append(" after waiting for ")
+                append(" within ")
                 append(duration)
                 append(' ')
                 append(unit.name.toLowerCase(Locale.ENGLISH))
+                append('.')
             })
 
         } catch (flowCompletion: ClosedReceiveChannelException) {
             throw AssertionError(buildString {
                 append("Expected to collect exactly ").append(count).append(" element(s) ")
                 if (collectCount == 0) {
-                    append("but source flow unexpectedly completed")
+                    append("but source Flow unexpectedly completed.")
                 } else {
-                    append("but only received those ").append(collectCount).append(' ')
-                    values.takeLast(collectCount).joinTo(this, prefix = "[", postfix = "]")
-                    append(" before it completed.")
+                    append("but only received ")
+                    appendElements(values.takeLast(collectCount))
+                    append(" before source Flow unexpectedly completed.")
                 }
             })
 
@@ -123,64 +217,46 @@ class TestCollector<T> : FlowCollector<T> {
             throw AssertionError(buildString {
                 append("Expected to collect exactly ").append(count).append(" element(s) ")
                 if (collectCount == 0) {
-                    append("but source flow unexpected failed with ").append(flowFailure::class.simpleName)
+                    append("but source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
                 } else {
-                    append("but only received those ").append(collectCount).append(' ')
-                    values.takeLast(collectCount).joinTo(this, prefix = "[", postfix = "]")
-                    append(" before it failed with ").append(flowFailure::class.simpleName)
+                    append("but only received ")
+                    appendElements(values.takeLast(collectCount))
+                    append(" before source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
                 }
             }, flowFailure)
         }
     }
 
     /**
-     * Expects the source flow to terminate normally without an exception.
-     */
-    suspend fun expectTermination() {
-        TODO()
-    }
-
-    /**
      * Expects the source flow to terminate with an exception.
+     * This assertion will fail if the source Flow emits an element or terminates normally.
+     *
+     * @return The exception thrown by the source Flow.
      */
     suspend fun expectFailure(): Exception {
         try {
-            channel.receive()
-            throw AssertionError("Expected the Flow to terminate with an error, but none was thrown.")
-        } catch (closed: ClosedReceiveChannelException) {
-            throw AssertionError("Expected the Flow to terminate with an error, but it terminated normally.")
-        } catch (failure: Exception) {
-            return failure
+            val value = channel.receive()
+            throw AssertionError("Expected the source Flow to throw an exception but it emitted \"$value\" instead.")
+
+        } catch (flowCompletion: ClosedReceiveChannelException) {
+            throw AssertionError("Expected the source Flow to throw an exception but it terminated normally.")
+
+        } catch (flowFailure: Exception) {
+            return flowFailure
         }
     }
 
-    fun dispose() {
-        channel.cancel()
-    }
-}
-
-fun main() = runBlockingTest {
-    try {
-        runTest()
-        println("Test completed successfully.")
-    } catch (assert: AssertionError) {
-        println("Test failure: ${assert.message}")
-    }
-}
-
-private suspend fun TestCoroutineScope.runTest() {
-    val source = flow {
-        emit(1)
-        emit(2)
-        delay(200)
-        error("Well, that escalated quickly.")
-    }
-
-    source.test {
-        expect(2)
-        values[0] shouldBe 1
-        values[1] shouldBe 2
-        expect(1, 200, TimeUnit.MILLISECONDS)
-        values[2] shouldBe 3
+    private fun Appendable.appendElements(values: List<*>) {
+        values.joinTo(
+            buffer = this,
+            separator = ",\n  ",
+            prefix = "[\n  ",
+            postfix = "\n]",
+            limit = 10
+        )
     }
 }

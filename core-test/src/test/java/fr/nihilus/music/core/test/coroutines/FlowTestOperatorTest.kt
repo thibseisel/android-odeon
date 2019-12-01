@@ -16,11 +16,12 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import io.kotlintest.*
 import io.kotlintest.matchers.beEmpty
 import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.matchers.string.shouldStartWith
+import io.kotlintest.should
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotThrowAny
+import io.kotlintest.shouldThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
@@ -29,51 +30,181 @@ import kotlinx.coroutines.test.runBlockingTest
 import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 
+/**
+ * Validates the behavior of the `Flow.test` operator.
+ */
 internal class FlowTestOperatorTest {
 
     @Test
     fun `Given empty flow, when expecting an element then fail assertion`() = runBlockingTest {
         val source = emptyFlow<String>()
 
-        val assertionFailure = shouldThrow<AssertionError> {
-            source.test {
-                expect(1)
-            }
+        // When expecting items immediately.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(1) }
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but source Flow unexpectedly completed."
         }
 
-        assertionFailure.message shouldBe "Expected to collect exactly 1 element(s), but source flow unexpectedly completed"
+        // When expecting items within a delay.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(1, 200, TimeUnit.MILLISECONDS)
+            }
+
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but source Flow unexpectedly completed."
+        }
     }
 
     @Test
-    fun `Given delayed flow, when expecting an element right away then fail assertion`() = runBlockingTest {
+    fun `Given delayed flow, when expecting an element then fail assertion`() = runBlockingTest {
         val source = flow {
-            delay(2000)
+            delay(3000)
             emit(42)
         }
 
-        val assertionFailure = shouldThrow<AssertionError> {
-            source.test {
-                expect(1)
-            }
+        // When expecting items immediately.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(1) }
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but did not receive any."
         }
 
-        assertionFailure.message shouldStartWith "Expected to collect exactly 1 element(s), but did not receive any"
+        // When expecting items within an insufficient delay.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(1, 2, TimeUnit.SECONDS)
+            }
+
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but did not receive any within 2 seconds."
+        }
+    }
+
+    @Test
+    fun `Given delayed flow, when expecting multiple elements and collected only some then fail assertion`() = runBlockingTest {
+        val source = flow {
+            emit(1)
+            emit(2)
+            delay(500)
+            emit(3)
+        }
+
+        // When expecting 3 items immediately.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(3) }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect exactly 3 element(s) but only received [
+                |  1,
+                |  2
+                |].
+            """.trimMargin()
+        }
+
+        // When expecting 3 items within an insufficient delay.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(3, 200, TimeUnit.MILLISECONDS)
+            }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect exactly 3 element(s) but only received [
+                |  1,
+                |  2
+                |] within 200 milliseconds.
+            """.trimMargin()
+        }
+    }
+
+    @Test
+    fun `Given one element flow, when expecting multiple elements then fail assertion`() = runBlockingTest {
+        val source = flowOf(98, 7)
+
+        // When expecting too many items immediately.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(3) }
+
+            failedAssertion.message shouldBe """
+            |Expected to collect exactly 3 element(s) but only received [
+            |  98,
+            |  7
+            |] before source Flow unexpectedly completed.
+        """.trimMargin()
+        }
+
+        // When expecting too many items immediately within a delay.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(3, 200, TimeUnit.MILLISECONDS)
+            }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect exactly 3 element(s) but only received [
+                |  98,
+                |  7
+                |] before source Flow unexpectedly completed.
+            """.trimMargin()
+        }
     }
 
     @Test
     fun `Given failed flow, when expecting an element then fail assertion`() = runBlockingTest {
         val source = flow<Int> {
-            throw Exception("Unexpected flow failure")
+            throw Exception("Unexpected Flow failure")
         }
 
-        val assertionFailure = shouldThrow<AssertionError> {
-            source.test {
-                expect(1)
+        // When expecting elements immediately and got an exception.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(1) }
+
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but source Flow unexpectedly failed with Exception."
+            failedAssertion.cause?.message shouldBe "Unexpected Flow failure"
+        }
+
+        // When expecting elements within a delay and got an exception.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(1, 200, TimeUnit.MILLISECONDS)
             }
+
+            failedAssertion.message shouldBe "Expected to collect exactly 1 element(s) but source Flow unexpectedly failed with Exception."
+            failedAssertion.cause?.message shouldBe "Unexpected Flow failure"
+        }
+    }
+
+    @Test
+    fun `Given flow with elements then failure, when expecting more elements then fail assertion`() = runBlockingTest {
+        val source = flow {
+            emit(102)
+            emit(56)
+            throw Exception("Unexpected Flow failure")
         }
 
-        assertionFailure.message shouldBe "Expected to collect exactly 1 element(s), but source flow unexpectedly failed with Exception"
-        assertionFailure.cause?.message shouldBe "Unexpected flow failure"
+        // When expecting 3 items immediately and got an exception instead of 3rd element.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expect(3) }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect exactly 3 element(s) but only received [
+                |  102,
+                |  56
+                |] before source Flow unexpectedly failed with Exception.
+            """.trimMargin()
+            failedAssertion.cause?.message shouldBe "Unexpected Flow failure"
+        }
+
+        // When expecting 3 items within a delay and got an exception instead of 3rd element.
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> {
+                expect(3, 200, TimeUnit.MILLISECONDS)
+            }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect exactly 3 element(s) but only received [
+                |  102,
+                |  56
+                |] before source Flow unexpectedly failed with Exception.
+            """.trimMargin()
+            failedAssertion.cause?.message shouldBe "Unexpected Flow failure"
+        }
     }
 
     @Test
@@ -109,24 +240,22 @@ internal class FlowTestOperatorTest {
     fun `Given empty flow, when expecting failure then fail assertion`() = runBlockingTest {
         val source = emptyFlow<String>()
 
-        shouldThrow<AssertionError> {
-            source.test {
-                expectFailure()
-            }
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectFailure() }
+            failedAssertion.message shouldBe "Expected the source Flow to throw an exception but it terminated normally."
         }
     }
 
     @Test
-    fun `Given flows with elements then failure, when expecting failure then fail assertion`() = runBlockingTest {
+    fun `Given flow with elements then failure, when expecting failure then fail assertion`() = runBlockingTest {
         val source = flow {
             emit(42)
-            throw Exception("Expected failure")
+            throw Exception("Expected Flow failure")
         }
 
-        shouldThrow<AssertionError> {
-            source.test {
-                expectFailure()
-            }
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectFailure() }
+            failedAssertion.message shouldBe "Expected the source Flow to throw an exception but it emitted \"42\" instead."
         }
     }
 
@@ -134,7 +263,7 @@ internal class FlowTestOperatorTest {
     fun `Given flows with elements then failure, when expecting failure after expecting elements, then test passes`() = runBlockingTest {
         val source = flow {
             emit(42)
-            throw Exception("Expected failure")
+            throw Exception("Expected Flow failure")
         }
 
         shouldNotThrowAny {
@@ -148,7 +277,7 @@ internal class FlowTestOperatorTest {
     @Test
     fun `Given failed flow, when expecting failure then test passes`() = runBlockingTest {
         val source = flow<Nothing> {
-            throw Exception("Expected failure")
+            throw Exception("Expected Flow failure")
         }
 
         shouldNotThrowAny {
