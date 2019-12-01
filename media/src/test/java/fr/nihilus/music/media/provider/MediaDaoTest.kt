@@ -17,14 +17,19 @@
 package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.core.os.PermissionDeniedException
+import fr.nihilus.music.core.test.coroutines.test
 import fr.nihilus.music.media.provider.MediaProvider.MediaType
 import io.kotlintest.inspectors.forNone
 import io.kotlintest.inspectors.forOne
 import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldHaveSize
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
@@ -162,13 +167,9 @@ internal class MediaDaoTest {
         val provider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(provider)
 
-        val values = mediaDao.flowProvider().produceIn(this)
-        try {
+        mediaDao.flowProvider().test {
             provider.registeredObservers.forOne { it.type shouldBe observerType }
-        } finally {
-            values.cancel()
         }
-
     }
 
     private fun shouldUnregisterObserverOnDisposal(
@@ -188,13 +189,11 @@ internal class MediaDaoTest {
         stream: Flow<List<M>>,
         expected: List<M>
     ) = runBlockingTest {
-        val updates = stream.produceIn(this)
-        try {
-            updates.receive()
+        stream.test {
             provider.notifyChange(type)
-            updates.receive() shouldContainExactly expected
-        } finally {
-            updates.cancel()
+            expect(2)
+
+            values[1] shouldContainExactly expected
         }
     }
 
@@ -215,18 +214,16 @@ internal class MediaDaoTest {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(revokingPermissionProvider)
-        val values = mediaDao.flowProvider().produceIn(this)
-        values.receive()
 
-        // When receiving an update that triggers an error...
-        revokingPermissionProvider.hasStoragePermission = false
-        revokingPermissionProvider.notifyChange(type)
+        mediaDao.flowProvider().test {
+            expect(1)
 
-        try {
-            revokingPermissionProvider.registeredObservers.forNone { it.type shouldBe type }
-        } finally {
-            values.cancel()
+            // When receiving an update that triggers an error...
+            revokingPermissionProvider.hasStoragePermission = false
+            revokingPermissionProvider.notifyChange(type)
         }
+
+        revokingPermissionProvider.registeredObservers.forNone { it.type shouldBe type }
     }
 
     private fun shouldTerminateIfPermissionIsDenied(
@@ -249,21 +246,16 @@ internal class MediaDaoTest {
         // Given an active subscription...
         val revokingPermissionProvider = TestMediaProvider()
         val mediaDao = MediaDaoImpl(revokingPermissionProvider)
-        val updates = mediaDao.flowProvider().produceIn(this)
-        updates.receive()
 
-        try {
+        mediaDao.flowProvider().test {
+            expect(1)
+
             // When permission is revoked and an update notification is received...
             revokingPermissionProvider.hasStoragePermission = false
             revokingPermissionProvider.notifyChange(type)
 
-            // Flow should fail with an error.
-            shouldThrow<PermissionDeniedException> {
-                updates.receive()
-            }
-
-        } finally {
-            updates.cancel()
+            val failure = expectFailure()
+            failure.shouldBeInstanceOf<PermissionDeniedException>()
         }
     }
 }
