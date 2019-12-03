@@ -46,8 +46,6 @@ import kotlinx.android.synthetic.main.activity_home.*
 import timber.log.Timber
 import javax.inject.Inject
 
-private const val ACTION_RANDOM = "fr.nihilus.music.ACTION_RANDOM"
-
 class HomeActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
@@ -119,7 +117,7 @@ class HomeActivity : BaseActivity(),
         bottomSheet = BottomSheetBehavior.from(player_container)
 
         // Show / hide BottomSheet on startup without an animation
-        setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value)
+        setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value == true)
         viewModel.playerSheetVisible.observe(this, this::onSheetVisibilityChanged)
 
         viewModel.playerError.observe(this) { playerErrorEvent ->
@@ -186,28 +184,21 @@ class HomeActivity : BaseActivity(),
      * Show or hide the player view depending on the passed playback state.
      * This method is meant to be called only once to show or hide player view without animation.
      */
-    private fun setInitialBottomSheetVisibility(shouldShow: Boolean?) {
-        bottomSheet.peekHeight = if (shouldShow == true) {
+    private fun setInitialBottomSheetVisibility(shouldShow: Boolean) {
+        bottomSheet.peekHeight = if (shouldShow) {
             resources.getDimensionPixelSize(R.dimen.playerview_height)
         } else {
             resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
         }
     }
 
-    private fun onSheetVisibilityChanged(sheetVisible: Boolean?) {
-        if (sheetVisible == true) {
-            if (bottomSheet.isHideable || bottomSheet.peekHeight == 0) {
-                // Take action to show BottomSheet only if it is hidden
-                bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-                player_container.post { bottomSheet.isHideable = false }
-                val playerViewHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
-                bottomSheet.peekHeight = playerViewHeight
-            }
-        } else {
-            bottomSheet.isHideable = true
-            bottomSheet.state = BottomSheetBehavior.STATE_HIDDEN
-
-        }
+    private fun onSheetVisibilityChanged(sheetVisible: Boolean) {
+        bottomSheet.setPeekHeight(
+            when {
+                sheetVisible -> resources.getDimensionPixelSize(R.dimen.playerview_height)
+                else -> resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+            }, true
+        )
     }
 
     /**

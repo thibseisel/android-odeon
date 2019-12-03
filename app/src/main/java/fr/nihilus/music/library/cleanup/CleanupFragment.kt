@@ -116,7 +116,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             R.string.cancel
         )
 
-        dialog.show(parentFragmentManager, null)
+        dialog.show(requireFragmentManager(), null)
     }
 
     private fun setFabVisibility(visible: Boolean) {

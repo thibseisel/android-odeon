@@ -40,7 +40,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.core.settings.RepeatMode
+import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.actions.ActionFailure
 import fr.nihilus.music.service.actions.BrowserAction

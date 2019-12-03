@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.settings
+package fr.nihilus.music.core.playback
 
 /**
  * Defines how tracks in a playing queue should be repeated.

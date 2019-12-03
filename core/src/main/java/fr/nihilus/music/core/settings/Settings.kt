@@ -17,6 +17,7 @@
 package fr.nihilus.music.core.settings
 
 import androidx.appcompat.app.AppCompatDelegate
+import fr.nihilus.music.core.playback.RepeatMode
 import kotlinx.coroutines.flow.Flow
 
 /**
