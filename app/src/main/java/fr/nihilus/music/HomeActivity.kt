@@ -192,13 +192,13 @@ class HomeActivity : BaseActivity(),
         }
     }
 
-    private fun onSheetVisibilityChanged(sheetVisible: Boolean) {
-        bottomSheet.setPeekHeight(
-            when {
-                sheetVisible -> resources.getDimensionPixelSize(R.dimen.playerview_height)
-                else -> resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
-            }, true
-        )
+    private fun onSheetVisibilityChanged(sheetVisible: Boolean) = if (sheetVisible) {
+        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_height), true)
+    } else if (bottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED) {
+        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_hidden_height), true)
+    } else {
+        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_hidden_height), false)
+        bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     /**
