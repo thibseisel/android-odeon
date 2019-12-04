@@ -46,8 +46,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 import timber.log.Timber
 import javax.inject.Inject
 
-class HomeActivity : BaseActivity(),
-    NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : BaseActivity() {
 
     @Inject lateinit var permissions: RuntimePermissions
 
@@ -125,11 +124,6 @@ class HomeActivity : BaseActivity(),
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
         }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        onOptionsItemSelected(item)
-        return true
     }
 
     /**
