@@ -103,4 +103,6 @@
     <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
     <string name="search_hint">Find a track, an artist…</string>
     <string name="action_clear">Clear</string>
+    <string name="description_more_actions">More actions</string>
+    <string name="action_dev_options">Developer Options</string>
 </resources>

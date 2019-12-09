@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2019 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,5 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'android-odeon'
-include ':app', ':service', ':player-testing', ':media', ':core-test', ':core', ':core-ui', ':spotify-client', ':devmenu'
+
+package fr.nihilus.music.devmenu
+
+import android.os.Bundle
+import android.widget.FrameLayout
+import androidx.appcompat.app.AppCompatActivity
+
+class SpotifyDebugActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val rootView = FrameLayout(this)
+        setContentView(rootView)
+    }
+}

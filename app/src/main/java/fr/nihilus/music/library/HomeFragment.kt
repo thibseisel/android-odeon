@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.library
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View

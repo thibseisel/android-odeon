@@ -122,6 +122,7 @@ dependencies {
     implementation project(':core')
     implementation project(':core-ui')
     implementation project(':service')
+    debugImplementation project(':devmenu')
 
     // Support library dependencies
     implementation "androidx.cardview:cardview:${versions.androidx.cardview}"

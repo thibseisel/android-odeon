@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2019 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <declare-styleable name="RangeSlider">
+        <!-- The drawable resource used to draw the inactive portions of the slider. -->
+        <attr name="trackDrawable" format="reference"/>
+        <!-- The drawable resource used to draw the active portion of the slider. -->
+        <attr name="progressDrawable" format="reference"/>
+        <!-- The drawable resource used to draw the draggable thumbs. -->
+        <attr name="thumbDrawable" format="reference"/>
+        <!--
+            The optional drawable resource used to draw tick marks onto the slider.
+            Should be used only when accepting discrete values.
+            -->
+        <attr name="tickMarkDrawable" format="reference"/>
+        <!--
+            The minimum value of the range.
+            Defaults to 0.0 if not specified.
+            -->
+        <attr name="lowerBound" format="float"/>
+        <!--
+            The maximum value of the range.
+            This value should be greater than or equal to that of lowerBound.
+            Defaults to 1.0 if not specified.
+            -->
+        <attr name="upperBound" format="float"/>
+        <!--
+            The interval between tick marks.
+            This has a direct impact on the number of tick marks.
+            For example, if lowerBound=0 and upperBound=1.0, a step of 0.1 will display 10 marks,
+            while a step of 0.02 will show 20.
+            -->
+        <attr name="step" format="float"/>
+        <!--
+            The initial lower value of the range.
+            This value should be included in the [lowerBound ; upperBound] interval
+            and is clamped otherwise.
+            Defaults the value of lowerBound if not specified.
+            -->
+        <attr name="lowerValue" format="float"/>
+        <!--
+            The initial upper value of the range.
+            This value should be included in the [lowerValue ; upperBound] interval
+            and is clamped otherwise.
+            Defaults to the value of upperBound if not specified.
+            -->
+        <attr name="upperValue" format="float"/>
+    </declare-styleable>
+</resources>

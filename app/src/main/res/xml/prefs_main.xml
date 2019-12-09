@@ -36,5 +36,14 @@
             android:key="skip_silence"
             android:summary="@string/pref_summary_skip_silence"
             android:title="@string/pref_title_skip_silence" />
+
+        <Preference
+            android:key="debug_menu"
+            android:title="@string/action_dev_options"
+            app:isPreferenceVisible="@bool/core_is_debug_enabled">
+
+            <intent android:action="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
+        </Preference>
+
     </PreferenceCategory>
 </PreferenceScreen>
