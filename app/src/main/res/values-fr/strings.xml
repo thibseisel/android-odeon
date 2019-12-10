@@ -41,10 +41,7 @@
     <string name="empty_playlist">Aucune playlist</string>
     <string name="cancel">Annuler</string>
     <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
-    <plurals name="delete_dialog_message">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau sera effacé de votre appareil.</item>
-        <item quantity="other">Ces %d morceaux seront effacés de votre appareil.</item>
-    </plurals>
+    <string name="delete_dialog_message">Ce morceau sera effacé de votre appareil.</string>
     <plurals name="deleted_songs_confirmation">
         <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau a été supprimé.</item>
         <item quantity="other">Ces morceaux ont été supprimés.</item>

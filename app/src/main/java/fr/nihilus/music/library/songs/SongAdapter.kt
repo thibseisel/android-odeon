@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SectionIndexer
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
@@ -31,8 +32,15 @@ import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
+/**
+ * Bridge each media track to its list UI representation.
+ *
+ * @param fragment The fragment in which the list is displayed.
+ * @param actionListener A function to be called when an action is triggered on a single track item.
+ */
 class SongAdapter(
-    fragment: Fragment
+    fragment: Fragment,
+    private val actionListener: (MediaBrowserCompat.MediaItem, ItemAction) -> Unit
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
     private val indexer = AlphaSectionIndexer()
@@ -69,10 +77,40 @@ class SongAdapter(
         indexer.update(titleSequence)
     }
 
-    class ViewHolder(parent: ViewGroup) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
+    /**
+     * Holds the UI representation of a track.
+     *
+     * @param parent The parent list view.
+     */
+    inner class ViewHolder(parent: ViewGroup) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
         private val titleView: TextView = itemView.findViewById(R.id.title)
         private val subtitleView: TextView = itemView.findViewById(R.id.subtitle_view)
         private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
+
+        init {
+            // Open the popup menu when the overflow icon is clicked.
+            val overflowIcon = itemView.findViewById<ImageView>(R.id.overflow_icon)
+            val popup = PopupMenu(itemView.context, overflowIcon)
+            popup.inflate(R.menu.track_popup_menu)
+
+            popup.setOnMenuItemClickListener { item ->
+                val track = items[position]
+
+                when (item.itemId) {
+                    R.id.action_playlist -> {
+                        actionListener(track, ItemAction.ADD_TO_PLAYLIST)
+                        true
+                    }
+
+                    R.id.action_delete -> {
+                        actionListener(track, ItemAction.DELETE)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+        }
 
         fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
             with(item.description) {
@@ -86,5 +124,21 @@ class SongAdapter(
             val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
             textView.text = textView.context.getString(R.string.song_item_subtitle, text, duration)
         }
+    }
+
+    /**
+     * Enumeration of actions that could be performed on a single track item.
+     */
+    enum class ItemAction {
+
+        /**
+         * Append the selected track to a user-defined playlist.
+         */
+        ADD_TO_PLAYLIST,
+
+        /**
+         * Delete the selected track from the device.
+         */
+        DELETE
     }
 }
