@@ -25,27 +25,17 @@
     android:checkable="true"
     android:textDirection="locale">
 
-    <FrameLayout
-        android:id="@+id/art_wrapper"
-        style="@style/TwoLineList_LargeIcon"
+    <ImageView
+        android:id="@+id/album_art_view"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_centerVertical="true"
-        android:foreground="@drawable/selected_tick_mark"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:layout_marginStart="16dp"
+        android:contentDescription="@string/album_art"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/album_art_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:contentDescription="@string/album_art"
-            android:scaleType="fitCenter"
-            tools:src="@tools:sample/avatars" />
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/title"
@@ -55,7 +45,7 @@
         android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
-        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        app:layout_constraintStart_toEndOf="@id/album_art_view"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title" />
 
@@ -67,21 +57,22 @@
         android:textAppearance="@style/TextAppearance.Odeon.Caption"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
-        app:layout_constraintStart_toEndOf="@id/art_wrapper"
+        app:layout_constraintStart_toEndOf="@id/album_art_view"
         app:layout_constraintTop_toBottomOf="@id/title"
         tools:text="@sample/songs.json/data/subtitle" />
 
     <ImageView
         android:id="@+id/overflow_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:scaleType="center"
+        android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/description_more_actions"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_overflow_24dp" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

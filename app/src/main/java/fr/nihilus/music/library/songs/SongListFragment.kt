@@ -19,7 +19,6 @@ package fr.nihilus.music.library.songs
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ListView
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -58,19 +57,13 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
         val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val songsListView = view.findViewById<ListView>(R.id.songs_listview)
+        songsListView.adapter = songAdapter
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
             progressIndicator.isVisible = shouldShowProgress
             songsListView.isVisible = !shouldShowProgress
         }
 
-        songsListView.apply {
-            adapter = songAdapter
-            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                val selectedTrack = songAdapter.getItem(position)
-                hostViewModel.playMedia(selectedTrack)
-            }
-        }
 
         val staggerTransition = Stagger()
 
@@ -121,6 +114,10 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
      */
     private fun onTrackAction(track: MediaBrowserCompat.MediaItem, action: SongAdapter.ItemAction) {
         when (action) {
+            SongAdapter.ItemAction.PLAY -> {
+                hostViewModel.playMedia(track)
+            }
+
             SongAdapter.ItemAction.DELETE -> {
                 val dialog = DeleteTrackDialog.newInstance(track)
                 dialog.show(requireFragmentManager(), DeleteTrackDialog.TAG)

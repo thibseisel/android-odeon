@@ -110,6 +110,15 @@ class SongAdapter(
                     else -> false
                 }
             }
+
+            overflowIcon.setOnClickListener {
+                popup.show()
+            }
+
+            itemView.setOnClickListener {
+                val track = items[position]
+                actionListener(track, ItemAction.PLAY)
+            }
         }
 
         fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
@@ -130,6 +139,11 @@ class SongAdapter(
      * Enumeration of actions that could be performed on a single track item.
      */
     enum class ItemAction {
+
+        /**
+         * Start playback of the selected track.
+         */
+        PLAY,
 
         /**
          * Append the selected track to a user-defined playlist.
