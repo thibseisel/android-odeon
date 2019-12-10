@@ -100,6 +100,9 @@
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
 
+    <!-- Style for PopupMenu that overlaps the anchor and supports Night Theme. -->
+    <style name="Widget.AppTheme.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow"/>
+
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
     <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
         <item name="android:minWidth">124dp</item>
