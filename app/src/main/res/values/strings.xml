@@ -16,8 +16,6 @@
 
 <resources>
     <string name="album_art">Album art</string>
-    <string name="drawer_opened">Drawer opened</string>
-    <string name="drawer_closed">Drawer closed</string>
     <string name="action_albums">Albums</string>
     <string name="action_settings">Settings</string>
     <string name="action_artists">Artists</string>
@@ -26,7 +24,6 @@
     <string name="empty_songs">No songs</string>
     <string name="all_music">Tracks</string>
     <string name="empty_albums">No album</string>
-    <string name="music_library">Music library</string>
     <string name="prefs_category_appearance">Appearance</string>
     <string name="pref_theme_title">Theme</string>
     <string name="action_playlists">Playlists</string>
@@ -72,15 +69,12 @@
     <string name="ok">OK</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
-    <string name="action_play">Play</string>
     <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
-    <string name="home">Home</string>
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
     <string name="action_condensed_play_shuffled">Read shuffled</string>
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
-    <string name="error_playlist_title_taken">Playlist title \"%s\" is already taken</string>
     <string name="pref_title_skip_silence">Skip silence in tracks</string>
     <string name="pref_summary_skip_silence">Skip start or end of a track if it produces no noise</string>
     <string name="pref_category_experimental">Experimental</string>

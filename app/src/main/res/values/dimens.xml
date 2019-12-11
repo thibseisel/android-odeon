@@ -19,17 +19,12 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="playerview_height">64dp</dimen>
     <dimen name="playerview_hidden_height">0dp</dimen>
-    <dimen name="list_item_horizontal_padding">16dp</dimen>
     <dimen name="card_max_elevation">8dp</dimen>
-    <dimen name="song_title_size">14sp</dimen>
-    <dimen name="tick_mark_inset">12dp</dimen>
     <dimen name="track_icon_corner_radius">8dp</dimen>
     <dimen name="playlist_title_input_spacing">16dp</dimen>
     <dimen name="collapsing_toolbar_height">192dp</dimen>
     <dimen name="artist_detail_overlay">96dp</dimen>
-    <dimen name="three_lines_item_height">88dp</dimen>
     <dimen name="two_line_list_item_height">72dp</dimen>
-    <dimen name="shape_corner_radius">8dp</dimen>
     <array name="preset_album_title_size">
         <item>14sp</item>
         <item>16sp</item>

@@ -20,14 +20,11 @@
     <string name="action_artists">Artistes</string>
     <string name="action_settings">Paramètres</string>
     <string name="album_art">Pochette d\'album</string>
-    <string name="drawer_closed">Tiroir ouvert</string>
-    <string name="drawer_opened">Tiroir fermé</string>
     <string name="play_all_shuffled">Tout lire en mode aléatoire</string>
     <string name="action_search">Rechercher</string>
     <string name="empty_songs">Aucun morceau</string>
     <string name="all_music">Morceaux</string>
     <string name="empty_albums">Aucun album</string>
-    <string name="music_library">Bibliothèque musicale</string>
     <string name="pref_theme_title">Thème</string>
     <string name="prefs_category_appearance">Apparence</string>
     <string name="action_playlists">Playlists</string>
@@ -68,17 +65,14 @@
 
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
     <string name="ok">OK</string>
-    <string name="action_play">Lire</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
-    <string name="home">Accueil</string>
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
     <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
     <string name="action_repeat_mode">Répéter la lecture</string>
     <string name="action_create_playlist">Nouvelle playlist</string>
     <string name="hint_playlist_title">Titre de la playlist</string>
-    <string name="error_playlist_title_taken">La playlist \"%s\" existe déjà</string>
     <string name="pref_title_skip_silence">Passer les silences</string>
     <string name="pref_summary_skip_silence">Ne pas jouer le début ou la fin d\'un morceau s\'il n\'est pas audible</string>
     <string name="pref_category_experimental">Fonctionnalités expérimentales</string>

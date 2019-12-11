@@ -20,7 +20,9 @@
   - velocity (the fastest point of an element’s movement) and ends at rest.
   -->
 <pathInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:controlX1="0"
     android:controlY1="0"
     android:controlX2="0.2"
-    android:controlY2="1.0" />
+    android:controlY2="1.0"
+    tools:keep="@anim/linear_out_slow_in" />

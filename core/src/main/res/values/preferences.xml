@@ -31,6 +31,5 @@
         <item>@string/pref_theme_system_value</item>
     </string-array>
 
-    <string name="pref_skip_silence" translatable="false">skip_silence</string>
     <bool name="pref_default_skip_silence">false</bool>
 </resources>

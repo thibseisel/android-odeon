@@ -15,6 +15,6 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="core_app_name">Odéon Dev</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="core_app_name" tools:keep="@string/core_app_name">Odéon Dev</string>
 </resources>

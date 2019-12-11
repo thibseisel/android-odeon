@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +15,7 @@
   ~ limitations under the License.
   -->
 
-<!--  -->
-<set xmlns:android="http://schemas.android.com/apk/res/android"
-    android:duration="@integer/default_animation_duration">
-    <translate
-        android:fromYDelta="50%p"
-        android:interpolator="@anim/linear_out_slow_in"
-        android:toYDelta="0" />
-    <alpha
-        android:fromAlpha="0"
-        android:interpolator="@anim/linear_out_slow_in"
-        android:toAlpha="1" />
-</set>
+<resources>
+    <!-- Make all resources private to this module. -->
+    <public/>
+</resources>

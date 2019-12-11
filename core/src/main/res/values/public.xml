@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +15,11 @@
   ~ limitations under the License.
   -->
 
-<!--
-  - Apply a "slide up" animation to items in a grid layout.
-  - Items in a same row are animated at the same time, followed by the next row, from top to bottom.
-  -->
-<gridLayoutAnimation xmlns:android="http://schemas.android.com/apk/res/android"
-    android:animation="@anim/slide_up_animation"
-    android:animationOrder="normal"
-    android:columnDelay="0%"
-    android:direction="top_to_bottom"
-    android:rowDelay="15%" />
+<resources>
+    <public name="core_app_name" type="string"/>
+    <public name="core_provider_authority" type="string"/>
+    <public name="core_is_debug_enabled" type="bool"/>
+
+    <public name="prefs_theme_values" type="array"/>
+    <public name="pref_default_skip_silence" type="bool"/>
+</resources>

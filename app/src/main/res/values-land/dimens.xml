@@ -17,6 +17,4 @@
 
 <resources>
     <dimen name="playerview_height">64dp</dimen>
-    <dimen name="song_title_size">13sp</dimen>
-    <dimen name="tick_mark_inset">8dp</dimen>
 </resources>
