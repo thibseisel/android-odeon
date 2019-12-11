@@ -89,8 +89,7 @@ internal class UsageManagerImpl
         val tracksById = repository.getTracks().associateBy { it.id }
         val trackScores = usageDao.getTracksUsage()
 
-        return trackScores
-            .asSequence()
+        return trackScores.asSequence()
             .mapNotNull { tracksById[it.trackId] }
             .take(25)
             .toCollection(ArrayList(25))
