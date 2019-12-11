@@ -130,21 +130,6 @@
         <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
     </style>
 
-    <style name="TwoLineList_Title">
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="firstBaselineToTopHeight">32dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
-    <style name="TwoLineList_Secondary">
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
     <!-- Text styles. -->
     <style name="TextAppearance.Odeon.Headline1" parent="TextAppearance.MaterialComponents.Headline1"/>
     <style name="TextAppearance.Odeon.Headline2" parent="TextAppearance.MaterialComponents.Headline2"/>
