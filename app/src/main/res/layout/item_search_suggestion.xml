@@ -21,6 +21,7 @@
     android:id="@+id/item_search_suggestion"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
     android:minHeight="56dp">
 
     <ImageView

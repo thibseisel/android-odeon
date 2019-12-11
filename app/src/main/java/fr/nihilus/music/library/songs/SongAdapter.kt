@@ -19,6 +19,7 @@ package fr.nihilus.music.library.songs
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
+import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SectionIndexer
@@ -90,7 +91,13 @@ class SongAdapter(
         init {
             // Open the popup menu when the overflow icon is clicked.
             val overflowIcon = itemView.findViewById<ImageView>(R.id.overflow_icon)
-            val popup = PopupMenu(itemView.context, overflowIcon)
+            val popup = PopupMenu(
+                itemView.context,
+                overflowIcon,
+                Gravity.BOTTOM or Gravity.END,
+                0,
+                R.style.Widget_AppTheme_PopupMenu_Overflow
+            )
             popup.inflate(R.menu.track_popup_menu)
 
             popup.setOnMenuItemClickListener { item ->
@@ -109,6 +116,15 @@ class SongAdapter(
 
                     else -> false
                 }
+            }
+
+            overflowIcon.setOnClickListener {
+                popup.show()
+            }
+
+            itemView.setOnClickListener {
+                val track = items[position]
+                actionListener(track, ItemAction.PLAY)
             }
         }
 
@@ -130,6 +146,11 @@ class SongAdapter(
      * Enumeration of actions that could be performed on a single track item.
      */
     enum class ItemAction {
+
+        /**
+         * Start playback of the selected track.
+         */
+        PLAY,
 
         /**
          * Append the selected track to a user-defined playlist.
