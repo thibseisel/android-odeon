@@ -21,9 +21,9 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * A Fragment that displays an AlertDialog that can be used to confirm user decisions.
@@ -45,10 +45,9 @@ class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener 
             "Instances of ConfirmDialogFragment should be created using the newInstance method."
         }
 
-        val builder = AlertDialog.Builder(requireContext()).setTitle(args.getString(ARG_TITLE))
-
-        val message = args.getString(ARG_MESSAGE)
-        builder.setMessage(message)
+        val builder = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(args.getString(ARG_TITLE))
+            .setMessage(args.getString(ARG_MESSAGE))
 
         val positive = args.getInt(ARG_POSITIVE)
         if (positive != 0) {

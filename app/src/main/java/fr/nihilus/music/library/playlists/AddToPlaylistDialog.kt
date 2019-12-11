@@ -24,10 +24,10 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
@@ -51,7 +51,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)
-        return AlertDialog.Builder(requireContext())
+        return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.add_to_playlist)
             .setAdapter(playlistAdapter, dialogEventHandler)
             .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)

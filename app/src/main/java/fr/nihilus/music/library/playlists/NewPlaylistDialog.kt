@@ -24,9 +24,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 
@@ -35,10 +35,10 @@ class NewPlaylistDialog : BaseDialogFragment() {
     private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireCallerFragment)
     private lateinit var titleInputView: EditText
 
-    @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
 
+        @SuppressLint("InflateParams")
         val inputLayout = LayoutInflater.from(context).inflate(R.layout.new_playlist_input, null)
         inputLayout.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -47,7 +47,7 @@ class NewPlaylistDialog : BaseDialogFragment() {
 
         titleInputView = inputLayout.findViewById(R.id.title_input)
 
-        return AlertDialog.Builder(context)
+        return MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
             .setView(inputLayout)
             .setNegativeButton(R.string.cancel, null)
