@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library.search
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
 import android.view.Gravity
@@ -34,7 +33,6 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.MediaItemDiffer
 
 internal class SearchResultsAdapter(
@@ -58,7 +56,7 @@ internal class SearchResultsAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent, glide)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent, viewType)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
@@ -67,14 +65,14 @@ internal class SearchResultsAdapter(
 
     inner class ViewHolder(
         parent: ViewGroup,
-        private val glide: GlideRequest<Bitmap>
+        viewType: Int
     ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_search_suggestion)) {
 
         private val iconView: ImageView = itemView.findViewById(R.id.icon_view)
         private val titleView: TextView = itemView.findViewById(R.id.title_view)
 
         init {
-            setupTrackActionMenu()
+            setupTrackActionMenu(viewType)
 
             itemView.setOnClickListener {
                 val selectedItem = getItem(adapterPosition)
@@ -94,9 +92,9 @@ internal class SearchResultsAdapter(
             }.into(iconView)
         }
 
-        private fun setupTrackActionMenu() {
+        private fun setupTrackActionMenu(viewType: Int) {
             val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
-            val isTrack = (itemViewType == R.id.view_type_track)
+            val isTrack = (viewType == R.id.view_type_track)
             overflowIcon.isVisible = isTrack
 
             if (isTrack) {
