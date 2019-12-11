@@ -19,10 +19,13 @@ package fr.nihilus.music.library.search
 import android.graphics.Bitmap
 import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat
+import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Adapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,14 +37,9 @@ import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.ui.MediaItemDiffer
 
-private const val TYPE_TRACK = 0
-private const val TYPE_ALBUM = 1
-private const val TYPE_ARTIST = 2
-private const val TYPE_PLAYLIST = 3
-
 internal class SearchResultsAdapter(
     fragment: Fragment,
-    private val listener: (item: MediaBrowserCompat.MediaItem) -> Unit
+    private val listener: (item: MediaBrowserCompat.MediaItem, action: ItemAction) -> Unit
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
 
     private val glide = GlideApp.with(fragment).asBitmap()
@@ -51,11 +49,11 @@ internal class SearchResultsAdapter(
         val (type, category, track) = item.mediaId.toMediaId()
 
         return when {
-            track != null -> TYPE_TRACK
+            track != null -> R.id.view_type_track
             category == null -> Adapter.IGNORE_ITEM_VIEW_TYPE
-            type == MediaId.TYPE_ALBUMS -> TYPE_ALBUM
-            type == MediaId.TYPE_ARTISTS -> TYPE_ARTIST
-            type == MediaId.TYPE_PLAYLISTS -> TYPE_PLAYLIST
+            type == MediaId.TYPE_ALBUMS -> R.id.view_type_album
+            type == MediaId.TYPE_ARTISTS -> R.id.view_type_artist
+            type == MediaId.TYPE_PLAYLISTS -> R.id.view_type_playlist
             else -> Adapter.IGNORE_ITEM_VIEW_TYPE
         }
     }
@@ -76,9 +74,11 @@ internal class SearchResultsAdapter(
         private val titleView: TextView = itemView.findViewById(R.id.title_view)
 
         init {
+            setupTrackActionMenu()
+
             itemView.setOnClickListener {
                 val selectedItem = getItem(adapterPosition)
-                listener(selectedItem)
+                listener(selectedItem, ItemAction.PRIMARY)
             }
         }
 
@@ -86,12 +86,75 @@ internal class SearchResultsAdapter(
             titleView.text = title
 
             when (itemViewType) {
-                TYPE_TRACK -> glide.fallback(R.drawable.ic_audiotrack_24dp).load(iconUri)
-                TYPE_ALBUM -> glide.fallback(R.drawable.ic_album_24dp).load(null as Uri?)
-                TYPE_ARTIST -> glide.fallback(R.drawable.ic_person_24dp).load(null as Uri?)
-                TYPE_PLAYLIST -> glide.fallback(R.drawable.ic_playlist_24dp).load(iconUri)
+                R.id.view_type_track -> glide.fallback(R.drawable.ic_audiotrack_24dp).load(iconUri)
+                R.id.view_type_album -> glide.fallback(R.drawable.ic_album_24dp).load(null as Uri?)
+                R.id.view_type_artist -> glide.fallback(R.drawable.ic_person_24dp).load(null as Uri?)
+                R.id.view_type_playlist -> glide.fallback(R.drawable.ic_playlist_24dp).load(iconUri)
                 else -> error("Unexpected view type: $itemViewType")
             }.into(iconView)
         }
+
+        private fun setupTrackActionMenu() {
+            val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
+            val isTrack = (itemViewType == R.id.view_type_track)
+            overflowIcon.isVisible = isTrack
+
+            if (isTrack) {
+                val popup = PopupMenu(
+                    itemView.context,
+                    overflowIcon,
+                    Gravity.END or Gravity.BOTTOM,
+                    0,
+                    R.style.Widget_AppTheme_PopupMenu_Overflow
+                )
+
+                popup.inflate(R.menu.track_popup_menu)
+                popup.setOnMenuItemClickListener {
+                    val item = getItem(adapterPosition)
+
+                    when (it.itemId) {
+                        R.id.action_playlist -> {
+                            listener(item, ItemAction.ADD_TO_PLAYLIST)
+                            true
+                        }
+
+                        R.id.action_delete -> {
+                            listener(item, ItemAction.DELETE)
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
+
+                overflowIcon.setOnClickListener {
+                    popup.show()
+                }
+            }
+        }
+    }
+
+    /**
+     * Set of actions that could be performed on a search result.
+     */
+    enum class ItemAction {
+
+        /**
+         * Given the nature of the selected media, either play it (if it is playable)
+         * or browse its content (if it is browsable).
+         */
+        PRIMARY,
+
+        /**
+         * Append the selected media to a playlist.
+         * This is only applicable to tracks.
+         */
+        ADD_TO_PLAYLIST,
+
+        /**
+         * Delete the selected media.
+         * This is only applicable to tracks.
+         */
+        DELETE
     }
 }

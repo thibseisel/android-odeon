@@ -18,4 +18,6 @@
     <!-- View types -->
     <item name="view_type_album" type="id"/>
     <item name="view_type_track" type="id"/>
+    <item name="view_type_artist" type="id"/>
+    <item name="view_type_playlist" type="id"/>
 </resources>

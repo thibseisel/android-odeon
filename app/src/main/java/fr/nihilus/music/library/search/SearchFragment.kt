@@ -32,6 +32,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.library.playlists.AddToPlaylistDialog
+import fr.nihilus.music.library.songs.DeleteTrackDialog
 import kotlinx.android.synthetic.main.fragment_search.*
 
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
@@ -116,12 +118,27 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         keyboard.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    private fun onSuggestionSelected(item: MediaBrowserCompat.MediaItem) {
-        when {
-            item.isBrowsable -> browseMedia(item)
-            item.isPlayable -> {
-                viewModel.play(item)
-                onNavigateUp()
+    private fun onSuggestionSelected(
+        item: MediaBrowserCompat.MediaItem,
+        action: SearchResultsAdapter.ItemAction
+    ) {
+        when (action) {
+            SearchResultsAdapter.ItemAction.PRIMARY -> when {
+                item.isBrowsable -> browseMedia(item)
+                item.isPlayable -> {
+                    viewModel.play(item)
+                    onNavigateUp()
+                }
+            }
+
+            SearchResultsAdapter.ItemAction.ADD_TO_PLAYLIST -> {
+                val dialog = AddToPlaylistDialog.newInstance(this, listOf(item))
+                dialog.show(requireFragmentManager(), AddToPlaylistDialog.TAG)
+            }
+
+            SearchResultsAdapter.ItemAction.DELETE -> {
+                val dialog = DeleteTrackDialog.newInstance(item)
+                dialog.show(requireFragmentManager(), DeleteTrackDialog.TAG)
             }
         }
     }
