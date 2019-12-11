@@ -111,7 +111,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         }
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
+    override fun onItemSelected(position: Int) {
         val selectedItem = childrenAdapter.getItem(position)
         val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) ?: return
         when (holder.itemViewType) {

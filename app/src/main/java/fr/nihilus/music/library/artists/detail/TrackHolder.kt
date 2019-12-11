@@ -38,7 +38,7 @@ internal class TrackHolder(
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition, R.id.action_play_item)
+            client.onItemSelected(adapterPosition)
         }
     }
 
@@ -51,6 +51,5 @@ internal class TrackHolder(
             val millis = it.getLong(MediaItems.EXTRA_DURATION)
             duration.text = DateUtils.formatElapsedTime(millis / 1000L)
         }
-
     }
 }

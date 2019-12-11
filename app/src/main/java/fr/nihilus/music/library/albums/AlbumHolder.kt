@@ -66,7 +66,7 @@ internal class AlbumHolder(
 
     override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition, R.id.action_browse_item)
+            client.onItemSelected(adapterPosition)
         }
     }
 

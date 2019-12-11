@@ -128,7 +128,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
+    override fun onItemSelected(position: Int) {
         val member = adapter.getItem(position)
         hostViewModel.playMedia(member)
     }

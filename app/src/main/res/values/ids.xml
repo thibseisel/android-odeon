@@ -16,19 +16,6 @@
 
 <resources>
     <!-- View types -->
-
     <item name="view_type_album" type="id"/>
     <item name="view_type_track" type="id"/>
-
-    <!-- Action codes used by BaseAdapter.OnItemSelectedListener -->
-
-    <item name="action_play_item" type="id"/>
-    <item name="action_browse_item" type="id"/>
-
-    <!-- Request codes -->
-
-    <!-- Request to start the activity associated with the MediaSession. -->
-    <!-- Request to delete tracks from the music library. -->
-    <item name="request_delete_tracks" type="id"/>
-
 </resources>

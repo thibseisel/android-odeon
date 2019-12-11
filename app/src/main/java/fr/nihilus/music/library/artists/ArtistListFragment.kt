@@ -70,7 +70,7 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.
         }
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
+    override fun onItemSelected(position: Int) {
         val artist = adapter.getItem(position)
         val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
         findNavController().navigate(toArtistDetail)

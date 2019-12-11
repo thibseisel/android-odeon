@@ -74,7 +74,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
         }
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
+    override fun onItemSelected(position: Int) {
         val album = albumAdapter.getItem(position)
         val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 

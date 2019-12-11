@@ -19,7 +19,6 @@ package fr.nihilus.music.library.playlists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -31,13 +30,11 @@ import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
 
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
     private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
 
     private lateinit var adapter: PlaylistsAdapter
@@ -75,20 +72,15 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
         }
     }
 
-    override fun onItemSelected(position: Int, actionId: Int) {
+    override fun onItemSelected(position: Int) {
         val selectedPlaylist = adapter.getItem(position)
-        when (actionId) {
-            R.id.action_play_item -> hostViewModel.playMedia(selectedPlaylist)
-            R.id.action_browse_item -> {
-                val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
-                val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
-                val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-                    selectedPlaylist.mediaId!!,
-                    isDeletablePlaylist
-                )
+        val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
+        val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
+        val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
+            playlistId = selectedPlaylist.mediaId!!,
+            isDeletable = isDeletablePlaylist
+        )
 
-                findNavController().navigate(toPlaylistTracks)
-            }
-        }
+        findNavController().navigate(toPlaylistTracks)
     }
 }
