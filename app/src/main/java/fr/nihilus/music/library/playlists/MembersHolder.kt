@@ -33,7 +33,7 @@ import fr.nihilus.music.ui.BaseAdapter
 internal class MembersHolder(
     parent: ViewGroup,
     private val glide: GlideRequest<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.song_list_item) {
+) : BaseAdapter.ViewHolder(parent, R.layout.playlist_track_item) {
 
     private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
