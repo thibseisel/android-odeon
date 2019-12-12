@@ -16,11 +16,15 @@
 
 package fr.nihilus.music.spotify.service
 
-import fr.nihilus.music.spotify.model.*
+import fr.nihilus.music.spotify.model.AudioFeature
+import fr.nihilus.music.spotify.model.SpotifyAlbum
+import fr.nihilus.music.spotify.model.SpotifyArtist
+import fr.nihilus.music.spotify.model.SpotifyTrack
 import kotlinx.coroutines.flow.Flow
 
 /**
- * A service that reads media metadata from the Spotify API.
+ * A remote service that reads media metadata from the Spotify API endpoints.
+ * All API calls are main-safe and will suspend the caller until the result is available.
  */
 internal interface SpotifyService {
 
@@ -119,23 +123,17 @@ internal interface SpotifyService {
 
     /**
      * Get Spotify catalog information about artists, albums or tracks that match a keyword string.
-     * The Spotify Search endpoint accepts a query with a special syntax to refine the search results.
-     * - use simple keywords to return all results whose name matches in any order.
-     * - surround keywords with quotation marks `"` to match the keywords in order.
-     * - prefix keywords with `artist:` to match on the artist name.
-     * - prefix keywords with `album:` to match on the album name.
-     * - prefix keywords with `track:` to match on the track title.
      *
-     * For example when searching tracks:
-     * - `artist:rammstein` returns all tracks by Rammstein ordered by descending popularity.
-     * - `album:rammstein` returns all tracks from the RAMMSTEIN album.
-     * - `track:rammstein` returns one track named "Rammstein" (from Herzeleid).
+     * For example searching...
+     * - `SpotifyQuery.Artist("rammstein")` returns all tracks by Rammstein ordered by descending popularity.
+     * - `SpotifyQuery.Album("rammstein")` returns all tracks from the RAMMSTEIN album.
+     * - `SpotifyQuery.Track("rammstein")` returns one track named "Rammstein" (from Herzeleid).
      *
-     * @param query Search keywords and optional fields filters and operators.
-     * The search query is not checked for correctness and is sent to Spotify as-is.
-     * @param type The type of the searched media.
+     * @param query The query to be submitted to the search endpoint.
+     * That query hints both what to search (the type of the media to return)
+     * and how to search (special criteria used to refine the search).
      */
-    fun <T : Any> search(query: String, type: SearchType<T>): Flow<T>
+    fun <T : Any> search(query: SpotifyQuery<T>): Flow<T>
 
     companion object {
         internal const val QUERY_Q = "q"

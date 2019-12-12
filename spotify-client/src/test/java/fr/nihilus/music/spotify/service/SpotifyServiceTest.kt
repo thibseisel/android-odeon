@@ -643,7 +643,7 @@ class SpotifyServiceTest {
     fun `When searching artists, then return a flow of artist results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
-            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
             it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "artist"
 
             val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toInt()
@@ -654,7 +654,7 @@ class SpotifyServiceTest {
             }
         }
 
-        val results = apiClient.search("rammstein", SearchType.Artists).toList()
+        val results = apiClient.search(SpotifyQuery.Artist("rammstein")).toList()
         results shouldHaveSize 1
 
         with(results[0]) {
@@ -680,7 +680,7 @@ class SpotifyServiceTest {
     fun `When searching albums, then return a flow of album results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
-            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
             it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "album"
 
             when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
@@ -690,7 +690,7 @@ class SpotifyServiceTest {
             }
         }
 
-        val results = apiClient.search("rammstein", SearchType.Albums).toList()
+        val results = apiClient.search(SpotifyQuery.Album("rammstein")).toList()
         results shouldHaveSize 4
 
         with(results[0]) {
@@ -711,7 +711,7 @@ class SpotifyServiceTest {
     fun `When searching tracks, then return a flow of track results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
-            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "rammstein"
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
             it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "track"
 
             when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
@@ -721,7 +721,7 @@ class SpotifyServiceTest {
             }
         }
 
-        val results = apiClient.search("rammstein", SearchType.Tracks).toList()
+        val results = apiClient.search(SpotifyQuery.Track("rammstein")).toList()
         results shouldHaveSize 4
 
         with(results[0]) {

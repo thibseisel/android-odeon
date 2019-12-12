@@ -22,11 +22,17 @@ import com.squareup.moshi.Types
 import fr.nihilus.music.spotify.model.*
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
-import io.ktor.client.features.*
+import io.ktor.client.features.DefaultRequest
+import io.ktor.client.features.HttpSend
+import io.ktor.client.features.UserAgent
+import io.ktor.client.features.feature
 import io.ktor.client.request.*
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.URLProtocol
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.errors.IOException
@@ -181,28 +187,28 @@ internal class SpotifyServiceImpl
         return listResource(response, featureListAdapter)
     }
 
-    override fun <T : Any> search(query: String, type: SearchType<T>): Flow<T> {
+    override fun <T : Any> search(query: SpotifyQuery<T>): Flow<T> {
         val searchParam: String
         val searchAdapter: WrappedJsonAdapter<Paging<T>>
 
         @Suppress("UNCHECKED_CAST")
-        when (type) {
-            SearchType.Artists -> {
+        when (query) {
+            is SpotifyQuery.Artist -> {
                 searchParam = "artist"
                 searchAdapter = artistSearchAdapter as WrappedJsonAdapter<Paging<T>>
             }
-            SearchType.Albums -> {
+            is SpotifyQuery.Album -> {
                 searchParam = "album"
                 searchAdapter = albumSearchAdapter as WrappedJsonAdapter<Paging<T>>
             }
-            SearchType.Tracks -> {
+            is SpotifyQuery.Track -> {
                 searchParam = "track"
                 searchAdapter = trackSearchAdapter as WrappedJsonAdapter<Paging<T>>
             }
         }
 
         val searchPageRequest = HttpRequestBuilder(path = "/v1/search") {
-            parameters[SpotifyService.QUERY_Q] = query
+            parameters[SpotifyService.QUERY_Q] = query.toString()
             parameters[SpotifyService.QUERY_TYPE] = searchParam
         }
 
