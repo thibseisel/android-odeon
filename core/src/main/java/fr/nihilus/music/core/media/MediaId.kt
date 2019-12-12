@@ -16,9 +16,6 @@
 
 package fr.nihilus.music.core.media
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
-
 /**
  * Thrown when [parsing][MediaId.parse] or [encoding][MediaId.encode] a media ID
  * that does not match the required format.
@@ -368,13 +365,7 @@ private constructor(
  * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver.
  * @throws InvalidMediaException If the parsed string is `null` or an invalid media id.
  */
-@UseExperimental(ExperimentalContracts::class)
-fun String?.toMediaId(): MediaId {
-    contract {
-        returns() implies (this@toMediaId != null)
-    }
-    return MediaId.parse(this)
-}
+fun String?.toMediaId(): MediaId = MediaId.parse(this)
 
 /**
  * Attempt to parse the receiver string to a media id,
