@@ -113,7 +113,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
             override fun onTransitionStart(transition: Transition) {
                 // Hide the Floating Action Button at the beginning of the animation.
-                play_fab.isVisible = false
+                play_fab?.isVisible = false
             }
 
             override fun onTransitionEnd(transition: Transition) {
