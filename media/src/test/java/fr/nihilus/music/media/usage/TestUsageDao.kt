@@ -45,7 +45,7 @@ internal class TestUsageDao(
         scorePerTrack[usageEvent.trackId] = currentScore + 1
     }
 
-    override suspend fun getTracksUsage(): List<TrackUsage> = TODO()
+    override suspend fun getTracksUsage(since: Long): List<TrackUsage> = TODO()
 
     override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> {
         return scorePerTrack.map { (trackId, score) ->

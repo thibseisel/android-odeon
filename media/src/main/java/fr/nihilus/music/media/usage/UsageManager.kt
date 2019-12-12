@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.sqrt
 
@@ -39,6 +40,17 @@ interface UsageManager {
      * Tracks are sorted by descending score.
      */
     suspend fun getMostRatedTracks(): List<Track>
+
+    /**
+     * Retrieve tracks that have been played the most in the last specified time period.
+     * Tracks are sorted by descending score.
+     *
+     * @param period The duration of the time period to retrieve.
+     * For example, to get the most popular tracks in the 2 latest weeks
+     * you should call `getPopularTracksSince(14, TimeUnit.DAYS)`.
+     * @param unit The unit of the [period].
+     */
+    suspend fun getPopularTracksSince(period: Long, unit: TimeUnit): List<Track>
 
     /**
      * Load tracks that could be deleted by the user to free-up the device's storage.
@@ -87,7 +99,7 @@ internal class UsageManagerImpl
 
     override suspend fun getMostRatedTracks(): List<Track> {
         val tracksById = repository.getTracks().associateBy { it.id }
-        val trackScores = usageDao.getTracksUsage()
+        val trackScores = usageDao.getTracksUsage(0L)
 
         return trackScores.asSequence()
             .mapNotNull { tracksById[it.trackId] }
@@ -95,9 +107,28 @@ internal class UsageManagerImpl
             .toCollection(ArrayList(25))
     }
 
+    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit): List<Track> {
+        require(period >= 0)
+
+        val tracksById = repository.getTracks().associateBy { it.id }
+        val tracksUsage = usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
+
+        return if (tracksUsage.isEmpty()) emptyList() else {
+            val bestScore = tracksUsage.first().score
+
+            // We only consider the top 3 quartiles to ignore tracks that were only played punctually.
+            val threshold = bestScore / 4
+
+            tracksUsage.asSequence()
+                .filter { it.score > threshold }
+                .mapNotNull { tracksById[it.trackId] }
+                .toList()
+        }
+    }
+
     override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
         val allTracksAsync = async { repository.getTracks() }
-        val usageByTrack = usageDao.getTracksUsage().associateBy { it.trackId }
+        val usageByTrack = usageDao.getTracksUsage(0L).associateBy { it.trackId }
 
         val currentEpochTime = clock.currentEpochTime
         val allTracks = allTracksAsync.await()

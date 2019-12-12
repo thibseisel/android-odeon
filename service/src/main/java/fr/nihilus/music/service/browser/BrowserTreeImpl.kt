@@ -26,6 +26,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
@@ -46,6 +47,7 @@ import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.Comparator
 
@@ -60,11 +62,6 @@ private const val BASE_SCORE = 100
  * the start of the first word.
  */
 private const val FIRST_WORD_BONUS = 30
-
-private val ALBUM_TRACK_ORDERING = Comparator<Track> { a, b ->
-    val discNumberDiff = a.discNumber - b.discNumber
-    if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
-}
 
 private val ChangeNotification.mediaId: MediaId
     get() = when(this) {
@@ -84,6 +81,11 @@ internal class BrowserTreeImpl
     private val repository: MediaRepository,
     private val usageManager: UsageManager
 ) : BrowserTree {
+
+    private val albumTrackOrdering = Comparator<Track> { a, b ->
+        val discNumberDiff = a.discNumber - b.discNumber
+        if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
+    }
 
     /**
      * The tree structure of the media browser.
@@ -110,10 +112,18 @@ internal class BrowserTreeImpl
             )
 
             category(
+                CATEGORY_POPULAR,
+                title = context.getString(R.string.svc_category_popular),
+                subtitle = context.getString(R.string.svc_category_popular_description),
+                iconUri = null,
+                children = ::provideMonthPopularTracks
+            )
+
+            category(
                 CATEGORY_RECENTLY_ADDED,
                 context.getString(R.string.svc_last_added),
                 subtitle = res.getString(R.string.svc_recently_added_description),
-                iconUri = context.resources.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
+                iconUri = res.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
                 children = ::provideRecentlyAddedTracks
             )
 
@@ -412,6 +422,17 @@ internal class BrowserTreeImpl
                 trackItemFactory(track, TYPE_TRACKS, CATEGORY_MOST_RATED, builder)
             }
     }
+    
+    private suspend fun provideMonthPopularTracks(fromIndex: Int, count: Int): List<MediaItem> {
+        val builder = MediaDescriptionCompat.Builder()
+        
+        return usageManager.getPopularTracksSince(30, TimeUnit.DAYS).asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { track ->
+                trackItemFactory(track, TYPE_TRACKS, CATEGORY_POPULAR, builder)
+            }
+    }
 
     private suspend fun provideRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
@@ -466,7 +487,7 @@ internal class BrowserTreeImpl
 
             repository.getTracks().asSequence()
                 .filter { it.albumId == albumId }
-                .sortedWith(ALBUM_TRACK_ORDERING)
+                .sortedWith(albumTrackOrdering)
                 .drop(fromIndex)
                 .take(count)
                 .mapTo(mutableListOf()) { albumTrack ->

@@ -38,4 +38,6 @@
     <string name="svc_player_error_unsupported_file">Odeon does not support playing this file.</string>
     <string name="svc_player_error_unsupported_file_format">Odeon does not support playing %s files.</string>
     <string name="svc_player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
+    <string name="svc_category_popular">Popular this month</string>
+    <string name="svc_category_popular_description">A review of your last musical trends</string>
 </resources>

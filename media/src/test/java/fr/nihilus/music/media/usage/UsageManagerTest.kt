@@ -83,7 +83,7 @@ class UsageManagerTest {
             CYDONIA,
             NIGHTMARE
         )
-        coEvery { usageDao.getTracksUsage() } returns listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(75L, 82, TIME_NOW),  // Nightmare
             TrackUsage(294L, 43, TIME_NOW), // Knights of Cydonia
             TrackUsage(481L, 20, TIME_NOW), // Dirty Water
@@ -99,7 +99,7 @@ class UsageManagerTest {
     @Test
     fun `When loading most rated tracks, then omit tracks without usage`() = runBlockingTest {
         coEvery { repository.getTracks() } returns listOf(NIGHTMARE, GIVE_IT_UP, CYDONIA, NIGHTMARE)
-        coEvery { usageDao.getTracksUsage() } returns  listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns  listOf(
             TrackUsage(75L, 82, TIME_NOW), // Nightmare
             TrackUsage(294L, 43, TIME_NOW) // Knights of Cydonia
         )
@@ -114,7 +114,7 @@ class UsageManagerTest {
     @Test
     fun `When loading most rated tracks, then ignore scores of unknown tracks`() = runBlockingTest {
         coEvery { repository.getTracks() } returns listOf(DIRTY_WATER)
-        coEvery { usageDao.getTracksUsage() } returns listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(42L, 120, TIME_NOW), // Unknown
             TrackUsage(481L, 20, TIME_NOW), // Dirty Water
             TrackUsage(100L, 56, TIME_NOW)  // Unknown
@@ -136,7 +136,7 @@ class UsageManagerTest {
             sampleTrack(4, "The Stage")
         )
 
-        coEvery { usageDao.getTracksUsage() } returns listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(2, 10, TIME_NOW),
             TrackUsage(3, 7, TIME_NOW)
         )
@@ -158,7 +158,7 @@ class UsageManagerTest {
             sampleTrack(3, "Wish You Were Here")
         )
 
-        coEvery { usageDao.getTracksUsage() } returns listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(1, 1,TIME_NOW - ONE_DAY),
             TrackUsage(2, 1, TIME_NOW - THREE_DAYS),
             TrackUsage(3, 1, TIME_NOW - ONE_HOUR)
@@ -184,7 +184,7 @@ class UsageManagerTest {
             sampleTrack(5, "Torn Apart", fileSize = 15_654_501)
         )
 
-        coEvery { usageDao.getTracksUsage() } returns emptyList()
+        coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
         val manager = UsageManager(repository, usageDao)
 
         val tracks = manager.getDisposableTracks().map { it.title }
@@ -206,7 +206,7 @@ class UsageManagerTest {
             sampleTrack(4, "Under The Bridge")
         )
 
-        coEvery { usageDao.getTracksUsage() } returns listOf(
+        coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(2, 45, TIME_NOW),
             TrackUsage(1, 178, TIME_NOW),
             TrackUsage(4, 8, TIME_NOW),
@@ -233,7 +233,7 @@ class UsageManagerTest {
             sampleTrack(4, "Welcome to the Jungle", fileSize = 4_420_827)
         )
 
-        coEvery { usageDao.getTracksUsage() } returns emptyList()
+        coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
 
         val manager = UsageManager(repository, usageDao)
         val tracks = manager.getDisposableTracks().map { it.title }

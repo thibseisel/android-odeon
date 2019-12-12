@@ -611,7 +611,7 @@ internal class MediaRepositoryTest {
     private object DummyUsageDao : UsageDao {
         override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
         override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
-        override suspend fun getTracksUsage(): List<TrackUsage> = emptyList()
+        override suspend fun getTracksUsage(since: Long): List<TrackUsage> = emptyList()
         override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
     }
 
