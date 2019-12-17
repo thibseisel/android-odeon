@@ -23,13 +23,13 @@
 
     <ImageView
         android:id="@+id/chevron"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="12dp"
+        android:layout_margin="8dp"
         app:srcCompat="@drawable/level_chevron_up_down"
         tools:srcCompat="@drawable/ic_chevron_down_24dp"
         android:scaleType="centerInside"/>

@@ -116,12 +116,12 @@
     <!-- Action buttons -->
     <ImageView
         android:id="@+id/repeat_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginStart="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_repeat_mode"
-        android:padding="8dp"
+        android:padding="12dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_level_repeat"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -131,11 +131,11 @@
 
     <ImageView
         android:id="@+id/skip_prev_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_previous"
-        android:padding="4dp"
+        android:padding="8dp"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/master_play_pause"
@@ -158,11 +158,11 @@
 
     <ImageView
         android:id="@+id/skip_next_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
-        android:padding="4dp"
+        android:padding="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -172,12 +172,12 @@
 
     <ImageView
         android:id="@+id/shuffle_button"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="16dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_shuffle_mode"
-        android:padding="8dp"
+        android:padding="12dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_shuffle_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
