@@ -26,6 +26,7 @@ import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import io.reactivex.Flowable
+import java.util.concurrent.TimeUnit
 
 internal class TestMediaRepository(
     private val tracks: List<Track> = SAMPLE_TRACKS,
@@ -51,12 +52,14 @@ internal class TestUsageManager(
     private val disposableTracks: List<DisposableTrack> = emptyList()
 ) : UsageManager {
     override suspend fun getMostRatedTracks(): List<Track> = mostRatedTracks
+    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = mostRatedTracks
     override suspend fun getDisposableTracks(): List<DisposableTrack> = disposableTracks
     override fun reportCompletion(trackId: Long) = stub()
 }
 
 internal object StubUsageManager : UsageManager {
     override suspend fun getMostRatedTracks(): List<Track> = stub()
+    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
     override suspend fun getDisposableTracks(): List<DisposableTrack> = stub()
     override fun reportCompletion(trackId: Long) = stub()
 }
