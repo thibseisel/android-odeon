@@ -640,6 +640,30 @@ class SpotifyServiceTest {
     }
 
     @Test
+    fun `When searching, then properly encode query parameters as url`() = runBlockingTest {
+        val apiClient = spotifyService { request ->
+            request.url.fullPath.let {
+                it shouldContain "type=track"
+                it shouldContain "query=%22algorithm%22+artist%3A%22muse%22"
+            }
+
+            respondJson("""{
+                "tracks": {
+                  "href": "https://api.spotify.com/v1/search?query=%22algorithm%22+artist%3A%22muse%22&type=track",
+                  "items": [],
+                  "limit": 20,
+                  "next": null,
+                  "offset": 0, 
+                  "previous": null, 
+                  "total": 0
+                }
+            }""".trimMargin())
+        }
+
+        apiClient.search(SpotifyQuery.Track("algorithm", artist = "Muse"))
+    }
+
+    @Test
     fun `When searching artists, then return a flow of artist results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
