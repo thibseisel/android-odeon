@@ -18,24 +18,18 @@ package fr.nihilus.music.library.nowplaying
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
+import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
-import fr.nihilus.music.service.extensions.displayIconUri
-import fr.nihilus.music.service.extensions.isPlaying
-import fr.nihilus.music.ui.ProgressAutoUpdater
 import kotlinx.android.synthetic.main.fragment_now_playing.*
 import kotlinx.android.synthetic.main.fragment_now_playing_top.*
 import timber.log.Timber
@@ -60,11 +54,9 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
 
         val context = requireContext()
         albumArtTarget = SwitcherTarget(album_art_switcher)
-        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) { position ->
-            viewModel.seekTo(position)
+        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) {
+            position -> viewModel.seekTo(position)
         }
-
-        seek_bar.setOnSeekBarChangeListener(autoUpdater)
 
         // Change color when shuffle mode and repeat mode buttons are activated
         val activationStateList = AppCompatResources.getColorStateList(
@@ -107,14 +99,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel.playbackState.observe(this, this::onPlaybackStateChanged)
-        viewModel.nowPlaying.observe(this, this::onMetadataChanged)
-        viewModel.repeatMode.observe(this) {
-            onRepeatModeChanged(it)
-        }
-        viewModel.shuffleMode.observe(this) {
-            onShuffleModeChanged(it)
-        }
+        viewModel.state.observe(this, ::onPlayerStateChanged)
 
         if (savedInstanceState != null) {
             isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)
@@ -154,79 +139,51 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         mini_next_button?.visibility = targetVisibility
     }
 
-    private fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-        if (metadata != null) {
-            val media = metadata.description
-            title_view.text = media.title
-            subtitle_view.text = media.subtitle
+    private fun onPlayerStateChanged(state: PlayerState) {
+        // Update controls activation based on available actions.
+        updateControls(state.availableActions)
 
-            autoUpdater.setMetadata(metadata)
-            glideRequest.load(metadata.displayIconUri).into(albumArtTarget)
+        // Update display of play/pause toggle buttons
+        play_pause_button.isPlaying = state.isPlaying
+        master_play_pause.isPlaying = state.isPlaying
+
+        // Update appearance of shuffle and repeat buttons based on current mode.
+        shuffle_button.isActivated = state.shuffleModeEnabled
+        repeat_button.isActivated = state.repeatMode != RepeatMode.DISABLED
+        repeat_button.setImageLevel(if (state.repeatMode == RepeatMode.ONE) 1 else 0)
+
+        if (state.currentTrack != null) {
+            val media = state.currentTrack
+
+            // Set the title and the description.
+            title_view.text = media.title
+            subtitle_view.text = media.artist
+
+            // Update progress and labels
+            autoUpdater.update(state.position, media.duration, state.lastPositionUpdateTime, state.isPlaying)
+
+            // Update artwork.
+            glideRequest.load(media.artworkUri).into(albumArtTarget)
 
         } else {
-            // Reset views
             title_view.text = null
             subtitle_view.text = null
 
-            autoUpdater.setMetadata(null)
-            Glide.with(this).clear(albumArtTarget)
+            autoUpdater.update(0L, 0L, state.lastPositionUpdateTime, false)
         }
     }
 
-    private fun onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode mode: Int) {
-        shuffle_button.apply {
-            isActivated = mode == SHUFFLE_MODE_ALL
-        }
-    }
+    private fun updateControls(availableActions: Set<PlayerState.Action>) {
+        play_pause_button.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
 
-    private fun onRepeatModeChanged(@PlaybackStateCompat.RepeatMode mode: Int) {
-        repeat_button.apply {
-            isActivated = (mode == REPEAT_MODE_ONE) || (mode == REPEAT_MODE_ALL)
-            setImageLevel(mode)
-        }
-    }
+        mini_prev_button?.isEnabled = PlayerState.Action.SKIP_BACKWARD in availableActions
+        mini_next_button?.isEnabled = PlayerState.Action.SKIP_FORWARD in availableActions
 
-    /**
-     * Updates the playback state currently represented by this fragment's views.
-     * Playback state describes what actions are available.
-     *
-     * @param newState The last playback state.
-     */
-    private fun onPlaybackStateChanged(newState: PlaybackStateCompat?) {
-        // Update playback state for seekBar region
-        autoUpdater.setPlaybackState(newState)
-
-        if (newState != null) {
-            toggleControls(newState.actions)
-
-            val isPlaying = newState.isPlaying
-            play_pause_button.isPlaying = isPlaying
-            master_play_pause.isPlaying = isPlaying
-
-        } else {
-            toggleControls(0L)
-            play_pause_button.isPlaying = false
-            master_play_pause.isPlaying = false
-        }
-    }
-
-    /**
-     * Enables or disables actions depending on parameters provided by the current playback state.
-     * If an action is disabled, its associated view is also disabled and does not react to clicks.
-     *
-     * @param actions A set of flags describing what actions are available on this media session.
-     */
-    private fun toggleControls(@PlaybackStateCompat.Actions actions: Long) {
-        play_pause_button.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
-
-        mini_prev_button?.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
-        mini_next_button?.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
-
-        repeat_button.isEnabled = actions and ACTION_SET_REPEAT_MODE != 0L
-        skip_prev_button.isEnabled = actions and ACTION_SKIP_TO_PREVIOUS != 0L
-        master_play_pause.isEnabled = actions and ACTION_PLAY_PAUSE != 0L
-        skip_next_button.isEnabled = actions and ACTION_SKIP_TO_NEXT != 0L
-        shuffle_button.isEnabled = actions and ACTION_SET_SHUFFLE_MODE != 0L
+        repeat_button.isEnabled = PlayerState.Action.SET_REPEAT_MODE in availableActions
+        skip_prev_button.isEnabled = PlayerState.Action.SKIP_BACKWARD in availableActions
+        master_play_pause.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
+        skip_next_button.isEnabled = PlayerState.Action.SKIP_FORWARD in availableActions
+        shuffle_button.isEnabled = PlayerState.Action.SET_SHUFFLE_MODE in availableActions
     }
 
     private inner class WidgetClickListener : View.OnClickListener {
@@ -239,7 +196,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
                 R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
                 R.id.shuffle_button -> viewModel.toggleShuffleMode()
                 R.id.repeat_button -> viewModel.toggleRepeatMode()
-                else -> Timber.w("Unhandled click event for View : %s", view.javaClass.name)
+                else -> Timber.w("Unhandled click event for View with id: %s", view.id)
             }
         }
     }

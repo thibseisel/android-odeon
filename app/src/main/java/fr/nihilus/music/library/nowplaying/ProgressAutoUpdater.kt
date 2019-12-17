@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.library.nowplaying
 
 import android.os.Handler
 import android.os.SystemClock
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.text.format.DateUtils
 import android.widget.SeekBar
 import android.widget.TextView
-import fr.nihilus.music.service.extensions.duration
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -53,11 +50,10 @@ private const val PROGRESS_UPDATE_PERIOD = 1000L
  */
 class ProgressAutoUpdater(
     private val seekBar: SeekBar,
-    private val seekPosition: TextView?,
-    private val seekDuration: TextView?,
+    private val seekPosition: TextView,
+    private val seekDuration: TextView,
     private val updateListener: (Long) -> Unit
-) : SeekBar.OnSeekBarChangeListener {
-
+) {
     private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
     private val handler = Handler()
@@ -67,63 +63,43 @@ class ProgressAutoUpdater(
         handler.post(uiThreadUpdate)
     }
 
-    private var currentState: PlaybackStateCompat? = null
+    private var lastPositionUpdate = -1L
+    private var lastPositionUpdateTime = -1L
+    private var shouldAutoAdvance = false
     private var updateFuture: ScheduledFuture<*>? = null
 
-    /**
-     * Updates the media metadata for this SeekBar. It will be used to define the maximum progress
-     * of this SeekBar based on the track's duration.
-     *
-     * It the metadata is `null`, the maximum progress will be reset to zero.
-     *
-     * @param metadata The metadata of the currently playing track
-     */
-    fun setMetadata(metadata: MediaMetadataCompat?) {
-        val maxProgress = metadata?.duration ?: 0L
-        seekBar.max = maxProgress.toInt()
-        seekDuration?.text = DateUtils.formatElapsedTime(builder, maxProgress / 1000L)
+    init {
+        val listener = UserSeekListener()
+        seekBar.setOnSeekBarChangeListener(listener)
     }
 
-    /**
-     * Updates the playback state for this SeekBar.
-     * Automatic updates will only be done if playback is active.
-     *
-     * @param state The current playback state for this media session.
-     */
-    fun setPlaybackState(state: PlaybackStateCompat?) {
-        currentState = state
+    fun update(position: Long, duration: Long, updateTime: Long, autoAdvance: Boolean) {
+        assert(position <= duration)
 
-        if (state != null) {
-            val isPlaying = state.state == PlaybackStateCompat.STATE_PLAYING
-            val position = state.position
+        // Remember the last time position was updated for auto-update based on time.
+        lastPositionUpdate = position
+        lastPositionUpdateTime = updateTime
 
-            if (position != PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN) {
-                seekBar.progress = position.toInt()
-            } else {
-                seekPosition?.text = null
-            }
+        // Update the max progression.
+        seekBar.max = duration.toInt()
+        seekDuration.text = DateUtils.formatElapsedTime(builder, duration / 1000L)
 
-            if (isPlaying) scheduleProgressUpdate()
-            else stopProgressUpdate()
-
+        // Update the visual playback position.
+        if (position != -1L) {
+            seekBar.progress = position.toInt()
+            seekPosition.text = DateUtils.formatElapsedTime(builder, position / 1000L)
         } else {
-            seekPosition?.text = null
-            stopProgressUpdate()
+            seekBar.progress = 0
+            seekPosition.text = null
         }
 
-    }
-
-    override fun onProgressChanged(view: SeekBar, progress: Int, fromUser: Boolean) {
-        seekPosition?.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
-    }
-
-    override fun onStartTrackingTouch(view: SeekBar) {
-        stopProgressUpdate()
-    }
-
-    override fun onStopTrackingTouch(view: SeekBar) {
-        updateListener.invoke(view.progress.toLong())
-        scheduleProgressUpdate()
+        // Schedule to automatically update playback position if requested.
+        shouldAutoAdvance = autoAdvance
+        if (autoAdvance) {
+            scheduleProgressUpdate()
+        } else {
+            stopProgressUpdate()
+        }
     }
 
     private fun scheduleProgressUpdate() {
@@ -139,18 +115,26 @@ class ProgressAutoUpdater(
     }
 
     private fun updateProgress() {
-        currentState?.let { state ->
-            var currentPosition = state.position
-            if (state.state == PlaybackStateCompat.STATE_PLAYING) {
-
-                /* Calculate the elapsed time between the last position update and now
-                 * and unless paused, we can assume (delta * speed) + current position
-                 * is approximately the latest position. */
-                val timeDelta = SystemClock.elapsedRealtime() - state.lastPositionUpdateTime
-                currentPosition += (timeDelta * state.playbackSpeed).toLong()
-            }
-
+        if (shouldAutoAdvance) {
+            val elapsedTime = SystemClock.elapsedRealtime() - lastPositionUpdateTime
+            val currentPosition = lastPositionUpdate + elapsedTime
             seekBar.progress = currentPosition.toInt()
+        }
+    }
+
+    private inner class UserSeekListener : SeekBar.OnSeekBarChangeListener {
+
+        override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+            seekPosition.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar) {
+            stopProgressUpdate()
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar) {
+            updateListener(seekBar.progress.toLong())
+            scheduleProgressUpdate()
         }
     }
 }
