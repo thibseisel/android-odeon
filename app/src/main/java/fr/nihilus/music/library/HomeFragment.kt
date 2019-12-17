@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.library
 
-import android.content.Intent
-import android.content.IntentFilter
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -60,16 +59,12 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         // Configure tabs and ViewPager.
-        fragment_pager.adapter = MusicLibraryTabAdapter(this)
+        val pagerAdapter = MusicLibraryTabAdapter(this)
+        fragment_pager.adapter = pagerAdapter
         fragment_pager.offscreenPageLimit = 1
         TabLayoutMediator(tab_host, fragment_pager, false) { tab, position ->
-            tab.text = when (position) {
-                0 -> getString(R.string.all_music)
-                1 -> getString(R.string.action_albums)
-                2 -> getString(R.string.action_artists)
-                3 -> getString(R.string.action_playlists)
-                else -> null
-            }
+            tab.icon = pagerAdapter.getIcon(position)
+            tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()
 
 
@@ -110,6 +105,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
      * An adapter that maps fragments displaying collection of media to items in a ViewPager.
      */
     private class MusicLibraryTabAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
+        private val context = fragment.requireContext()
 
         override fun getItemCount(): Int = 4
 
@@ -119,6 +115,22 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             2 -> ArtistListFragment()
             3 -> PlaylistsFragment()
             else -> error("Requested a Fragment for a tab at unexpected position: $position")
+        }
+
+        fun getTitle(position: Int): String? = when (position) {
+            0 -> context.getString(R.string.all_music)
+            1 -> context.getString(R.string.action_albums)
+            2 -> context.getString(R.string.action_artists)
+            3 -> context.getString(R.string.action_playlists)
+            else -> null
+        }
+
+        fun getIcon(position: Int): Drawable? = when (position) {
+            0 -> context.getDrawable(R.drawable.ic_audiotrack_24dp)
+            1 -> context.getDrawable(R.drawable.ic_album_24dp)
+            2 -> context.getDrawable(R.drawable.ic_person_24dp)
+            3 -> context.getDrawable(R.drawable.ic_playlist_24dp)
+            else -> null
         }
     }
 }
