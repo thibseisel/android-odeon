@@ -59,18 +59,6 @@ class MediaUsageEvent(
 )
 
 /**
- * A track associated with a given numeric score.
- * The higher the score, the more the related track is appreciated by users.
- */
-data class TrackScore(
-    @ColumnInfo(name = "track_id")
-    val trackId: Long,
-
-    @ColumnInfo(name = "event_count")
-    val score: Int
-)
-
-/**
  * Summary of the usage events for a given track.
  *
  * @param trackId The unique identifier of the track associated with the recorded events.

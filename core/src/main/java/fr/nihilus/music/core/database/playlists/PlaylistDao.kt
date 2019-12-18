@@ -80,10 +80,7 @@ abstract class PlaylistDao {
         val playlistId = savePlaylist(newPlaylist)
         if (trackIds.isNotEmpty()) {
             val tracks = trackIds.map {
-                PlaylistTrack(
-                    playlistId,
-                    it
-                )
+                PlaylistTrack(playlistId, it)
             }
             addTracks(tracks)
         }

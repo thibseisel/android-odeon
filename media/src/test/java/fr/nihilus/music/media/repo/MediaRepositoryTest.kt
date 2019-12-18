@@ -23,7 +23,6 @@ import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
-import fr.nihilus.music.core.database.usage.TrackScore
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
@@ -610,7 +609,6 @@ internal class MediaRepositoryTest {
 
     private object DummyUsageDao : UsageDao {
         override suspend fun recordEvent(usageEvent: MediaUsageEvent) = Unit
-        override suspend fun getMostRatedTracks(limit: Int): List<TrackScore> = emptyList()
         override suspend fun getTracksUsage(since: Long): List<TrackUsage> = emptyList()
         override suspend fun deleteEventsForTracks(trackIds: LongArray) = Unit
     }
