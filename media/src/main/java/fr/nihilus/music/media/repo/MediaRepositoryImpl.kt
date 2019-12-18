@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.repo
 
 import fr.nihilus.music.core.collections.diffList
-import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
@@ -44,8 +43,7 @@ internal class MediaRepositoryImpl
     private val scope: CoroutineScope,
     private val mediaDao: MediaDao,
     private val playlistsDao: PlaylistDao,
-    private val usageDao: UsageDao,
-    private val dispatchers: AppDispatchers
+    private val usageDao: UsageDao
 ) : MediaRepository {
 
     private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
