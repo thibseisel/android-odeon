@@ -23,6 +23,7 @@ import dagger.android.support.AndroidSupportInjectionModule
 import fr.nihilus.music.OdeonApplication
 import fr.nihilus.music.core.AppScope
 import fr.nihilus.music.core.CoreComponent
+import fr.nihilus.music.core.worker.WorkManagerModule
 import fr.nihilus.music.service.MusicServiceModule
 
 /**
@@ -36,7 +37,8 @@ import fr.nihilus.music.service.MusicServiceModule
         AndroidSupportInjectionModule::class,
         AppModule::class,
         MusicServiceModule::class,
-        ClientModule::class
+        ClientModule::class,
+        WorkManagerModule::class
     ]
 )
 interface AppComponent : AndroidInjector<OdeonApplication> {

@@ -74,6 +74,7 @@ dependencies {
 
     // Shared AndroidX libraries
     api "androidx.core:core-ktx:${versions.androidx.core}"
+    api "androidx.work:work-runtime-ktx:${versions.androidx.work}"
 
     // Timber Logging
     api "com.jakewharton.timber:timber:${versions.timber}"

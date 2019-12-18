@@ -17,6 +17,9 @@
 package fr.nihilus.music
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.work.Configuration
+import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
 import fr.nihilus.music.core.DaggerCoreComponent
@@ -37,6 +40,7 @@ import javax.inject.Inject
  */
 class OdeonApplication : DaggerApplication() {
     @Inject lateinit var settings: Settings
+    @Inject lateinit var workerFactory: WorkerFactory
 
     override fun onCreate() {
         super.onCreate()
@@ -52,6 +56,10 @@ class OdeonApplication : DaggerApplication() {
         settings.currentTheme.onEach { theme ->
             AppCompatDelegate.setDefaultNightMode(theme.value)
         }.launchIn(GlobalScope + Dispatchers.Main)
+
+        // Configure WorkManager to use the Dagger Worker factory.
+        val workerConfig = Configuration.Builder().setWorkerFactory(workerFactory).build()
+        WorkManager.initialize(this, workerConfig)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
