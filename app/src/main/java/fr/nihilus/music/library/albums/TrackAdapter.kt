@@ -76,6 +76,7 @@ internal class TrackAdapter(
          */
         fun setPlaybackState(isPlaying: Boolean) {
             isPlayingIndicator.isVisible = isPlaying
+            trackNo.isVisible = !isPlaying
         }
 
         /**
