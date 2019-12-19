@@ -18,8 +18,6 @@ package fr.nihilus.music.core.context
 
 import dagger.Module
 import dagger.Provides
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
@@ -30,14 +28,6 @@ import javax.inject.Singleton
  */
 @Module
 internal object ExecutionContextModule {
-
-    @Provides @Singleton
-    fun providesRxSchedulers() = RxSchedulers(
-        AndroidSchedulers.mainThread(),
-        Schedulers.computation(),
-        Schedulers.io(),
-        Schedulers.single()
-    )
 
     @Provides @Singleton
     fun providesCoroutineDispatchers() = AppDispatchers(

@@ -21,7 +21,6 @@ import dagger.BindsInstance
 import dagger.Component
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.context.ExecutionContextModule
-import fr.nihilus.music.core.context.RxSchedulers
 import fr.nihilus.music.core.database.SQLiteDatabaseModule
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.spotify.SpotifyDao
@@ -40,7 +39,6 @@ import javax.inject.Singleton
 ])
 interface CoreComponent {
     val dispatchers: AppDispatchers
-    val schedulers: RxSchedulers
     val permissions: RuntimePermissions
     val clock: Clock
     val playlistDao: PlaylistDao

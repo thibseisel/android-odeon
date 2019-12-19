@@ -21,8 +21,6 @@ import androidx.test.core.app.ApplicationProvider
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.context.RxSchedulers
-import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import javax.inject.Singleton
@@ -39,12 +37,6 @@ internal object TestExecutionContextModule {
 
     @Provides
     fun providesTestApplicationContext(): Context = ApplicationProvider.getApplicationContext()
-
-    @Provides @Singleton
-    fun providesTestScheduler() = TestScheduler()
-
-    @Provides @Singleton
-    fun providesTestingSchedulers(scheduler: TestScheduler) = RxSchedulers(scheduler)
 
     @Provides @Singleton
     fun providesTestingDispatchers(dispatcher: TestCoroutineDispatcher) = AppDispatchers(dispatcher)

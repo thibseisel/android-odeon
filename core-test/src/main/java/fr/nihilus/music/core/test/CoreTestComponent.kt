@@ -22,7 +22,6 @@ import fr.nihilus.music.core.CoreComponent
 import fr.nihilus.music.core.test.database.InMemoryDatabaseModule
 import fr.nihilus.music.core.test.os.RevocablePermission
 import fr.nihilus.music.core.test.os.TestClock
-import io.reactivex.schedulers.TestScheduler
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import javax.inject.Named
@@ -38,7 +37,6 @@ interface CoreTestComponent : CoreComponent {
     override val permissions: RevocablePermission
     override val clock: TestClock
     val appScope: TestCoroutineScope
-    val scheduler: TestScheduler
 
     @Component.Builder
     interface Builder {

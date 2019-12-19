@@ -25,7 +25,6 @@ import dagger.android.support.DaggerApplication
 import fr.nihilus.music.core.DaggerCoreComponent
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.dagger.DaggerAppComponent
-import io.reactivex.plugins.RxJavaPlugins
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
@@ -48,8 +47,6 @@ class OdeonApplication : DaggerApplication() {
         if (BuildConfig.DEBUG) {
             // Print logs to Logcat
             Timber.plant(Timber.DebugTree())
-            // Rethrow unexpected RxJava errors to fail fast
-            RxJavaPlugins.setErrorHandler { throw it }
         }
 
         // Apply theme whenever it is changed via preferences.
