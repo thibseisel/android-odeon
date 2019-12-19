@@ -17,6 +17,7 @@
 package fr.nihilus.music.core.test.coroutines
 
 import io.kotlintest.matchers.beEmpty
+import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.should
 import io.kotlintest.shouldBe
@@ -115,7 +116,7 @@ internal class FlowTestOperatorTest {
     }
 
     @Test
-    fun `Given one element flow, when expecting multiple elements then fail assertion`() = runBlockingTest {
+    fun `Given flow of N elements, when expecting exactly more elements then fail assertion`() = runBlockingTest {
         val source = flowOf(98, 7)
 
         // When expecting too many items immediately.
@@ -283,6 +284,116 @@ internal class FlowTestOperatorTest {
         shouldNotThrowAny {
             source.test {
                 expectFailure()
+            }
+        }
+    }
+
+    @Test
+    fun `Given delayed flow, when expecting no elements then test passes`() = runBlockingTest {
+        val source = flow {
+            delay(200)
+            emit(42)
+        }
+
+        shouldNotThrowAny {
+            source.test {
+                expectNone()
+            }
+        }
+    }
+
+    @Test
+    fun `Given sequential flow, when expecting no elements then fail assertion`() = runBlockingTest {
+        val source = flowOf(1, 2, 3)
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectNone() }
+            failedAssertion.message shouldBe "Expected the source flow to have emitted no elements."
+        }
+    }
+
+    @Test
+    fun `Given empty flow, when expecting at least 1 element then fail assertion`() = runBlockingTest {
+        val source = emptyFlow<Nothing>()
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectAtLeast(1) }
+            failedAssertion.message shouldBe "Expected to collect at least 1 element(s) but source Flow unexpectedly completed."
+        }
+    }
+
+    @Test
+    fun `Given delayed flow, when expecting at least 1 element then fail assertion`() = runBlockingTest {
+        val source = flow {
+            delay(200)
+            emit(42)
+        }
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectAtLeast(1) }
+            failedAssertion.message shouldBe "Expected to collect at least 1 element(s) but did not receive any."
+        }
+    }
+
+    @Test
+    fun `Given delayed flow, when expecting at least N elements and collected fewer then fail assertion`() = runBlockingTest {
+        val source = flow {
+            emit(1)
+            emit(2)
+            delay(500)
+            emit(3)
+        }
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectAtLeast(3) }
+
+            failedAssertion.message shouldBe """
+                |Expected to collect at least 3 element(s) but only received [
+                |  1,
+                |  2
+                |].
+            """.trimMargin()
+        }
+    }
+
+    @Test
+    fun `Given flow of N elements, when expecting at least more elements then fail assertion`() = runBlockingTest {
+        val source = flowOf(98, 7)
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectAtLeast(3) }
+
+            failedAssertion.message shouldBe """
+            |Expected to collect at least 3 element(s) but only received [
+            |  98,
+            |  7
+            |] before source Flow unexpectedly completed.
+        """.trimMargin()
+        }
+    }
+
+    @Test
+    fun `Given failed flow, when expecting at least an element then fail assertion`() = runBlockingTest {
+        val source = flow<Int> {
+            throw Exception("Unexpected Flow failure")
+        }
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectAtLeast(1) }
+
+            failedAssertion.message shouldBe "Expected to collect at least 1 element(s) but source Flow unexpectedly failed with Exception."
+            failedAssertion.cause?.message shouldBe "Unexpected Flow failure"
+        }
+    }
+
+    @Test
+    fun `Given flow of N elements, when expecting at least N-1 elements then collect N`() = runBlockingTest {
+        val source = flowOf(1, 2, 3)
+
+        shouldNotThrowAny {
+            source.test {
+                expectAtLeast(2)
+                values.shouldContainExactly(1, 2, 3)
             }
         }
     }

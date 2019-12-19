@@ -161,6 +161,95 @@ class TestCollector<T> internal constructor(
     }
 
     /**
+     * Immediately collects at least [count] from the source flow.
+     * Unlike [expect], more elements may be collected from the flow if available.
+     *
+     * The assertion will fail if the source Flow terminates
+     * or throws an exception before those elements could be collected.
+     *
+     * @param count The minimum number of elements to be collected from the source flow.
+     * Should be strictly positive.
+     */
+    suspend fun expectAtLeast(count: Int) {
+        require(count > 0)
+
+        var collectCount = 0
+        try {
+            collector@ while (true) {
+                yield()
+                val value = channel.poll()
+
+                when {
+                    value != null -> {
+                        _values += value
+                        collectCount++
+                    }
+
+                    channel.isClosedForReceive -> {
+                        if (collectCount < count) {
+                            throw AssertionError(buildString {
+                                append("Expected to collect at least ").append(count).append(" element(s) but ")
+                                if (collectCount == 0) {
+                                    append("source Flow unexpectedly completed.")
+                                } else {
+                                    append("only received ")
+                                    appendElements(values.takeLast(collectCount))
+                                    append(" before source Flow unexpectedly completed.")
+                                }
+                            })
+                        } else {
+                            break@collector
+                        }
+                    }
+
+                    else -> {
+                        if (collectCount < count) {
+                            throw AssertionError(buildString {
+                                append("Expected to collect at least ").append(count).append(" element(s) but ")
+                                if (collectCount == 0) {
+                                    append("did not receive any.")
+                                } else {
+                                    append("only received ")
+                                    appendElements(values.takeLast(collectCount))
+                                    append('.')
+                                }
+                            })
+                        } else {
+                            break@collector
+                        }
+                    }
+                }
+            }
+
+        } catch (flowFailure: Exception) {
+            throw AssertionError(buildString {
+                append("Expected to collect at least ").append(count).append(" element(s) but ")
+                if (collectCount == 0) {
+                    append("source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
+                } else {
+                    append("only received ")
+                    appendElements(values.takeLast(collectCount))
+                    append(" before source Flow unexpectedly failed with ")
+                    append(flowFailure::class.simpleName)
+                    append('.')
+                }
+            }, flowFailure)
+        }
+    }
+
+    /**
+     * Assert that there is currently no elements to be collected from the source flow.
+     * This assertion will fail if one or more elements are immediately available.
+     */
+    fun expectNone() {
+        if (!channel.isEmpty) {
+            throw AssertionError("Expected the source flow to have emitted no elements.")
+        }
+    }
+
+    /**
      * Consumes exactly [count] elements from the source flow, waiting at most the specified [duration].
      * This checks that at least [count] elements remains to be collected from the flow.
      * The assertion will fail if those elements couldn't be collected before [duration] has elapsed.
@@ -251,12 +340,16 @@ class TestCollector<T> internal constructor(
     }
 
     private fun Appendable.appendElements(values: List<*>) {
-        values.joinTo(
-            buffer = this,
-            separator = ",\n  ",
-            prefix = "[\n  ",
-            postfix = "\n]",
-            limit = 10
-        )
+        if (values.isNotEmpty()) {
+            values.joinTo(
+                buffer = this,
+                separator = ",\n  ",
+                prefix = "[\n  ",
+                postfix = "\n]",
+                limit = 10
+            )
+        } else {
+            append("[]")
+        }
     }
 }
