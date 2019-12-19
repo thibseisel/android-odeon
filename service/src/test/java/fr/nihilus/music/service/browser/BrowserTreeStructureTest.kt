@@ -78,11 +78,12 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Track type, then return track categories`() = runBlockingTest {
         val trackTypeChildren = loadChildrenOf(MediaId(TYPE_TRACKS))
 
-        assertThat(trackTypeChildren).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        trackTypeChildren.map { it.mediaId }.shouldContainExactlyInAnyOrder(
             "$TYPE_TRACKS/$CATEGORY_ALL",
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED",
-            "$TYPE_TRACKS/$CATEGORY_DISPOSABLE"
+            "$TYPE_TRACKS/$CATEGORY_DISPOSABLE",
+            "$TYPE_TRACKS/$CATEGORY_POPULAR"
         )
 
         assertThatAllAreBrowsableAmong(trackTypeChildren)
