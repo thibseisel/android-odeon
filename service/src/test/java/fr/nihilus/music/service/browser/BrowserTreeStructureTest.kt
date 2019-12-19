@@ -349,7 +349,6 @@ internal class BrowserTreeStructureTest {
         children[0] should {
             it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|48"
             it.description.title shouldBe "Give It Up"
-            it.description.subtitle shouldBe "AC/DC"
 
             assertOn(it.description.extras) {
                 longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(5_716_578)
@@ -360,7 +359,6 @@ internal class BrowserTreeStructureTest {
         children[1] should {
             it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|161"
             it.description.title shouldBe "1741 (The Battle of Cartagena)"
-            it.description.subtitle shouldBe "Alestorm"
 
             assertOn(it.description.extras) {
                 longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(17_506_481)
