@@ -28,14 +28,12 @@ import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.NeverFlow
+import fr.nihilus.music.core.test.coroutines.test
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLISTS
 import fr.nihilus.music.media.playlists.SAMPLE_PLAYLIST_TRACKS
 import fr.nihilus.music.media.playlists.TestPlaylistDao
 import fr.nihilus.music.media.provider.*
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContain
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.matchers.collections.*
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.shouldBe
@@ -404,10 +402,11 @@ internal class MediaRepositoryTest {
 
         runInScope {
             val repository = MediaRepository(this, mediaDao)
-            val subscriber = repository.changeNotifications.test()
 
-            repository.getTracks()
-            subscriber.assertNoValues()
+            repository.changeNotifications.test {
+                repository.getTracks()
+                expectNone()
+            }
         }
     }
 
@@ -425,13 +424,12 @@ internal class MediaRepositoryTest {
             repository.getTracks()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test()
+            repository.changeNotifications.test {
+                mediaDao.update(updated)
+                expectAtLeast(1)
 
-            // when receiving a new track list
-            mediaDao.update(updated)
-
-            // then receive the expected notifications.
-            subscriber.values().shouldContain(ChangeNotification.AllTracks)
+                values[0] shouldBe ChangeNotification.AllTracks
+            }
         }
     }
 
@@ -449,16 +447,15 @@ internal class MediaRepositoryTest {
             repository.getTracks()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test()
+            repository.changeNotifications.test {
+                mediaDao.update(updated)
 
-            // when receiving a new track list
-            mediaDao.update(updated)
-
-            // Then receive the expected notifications.
-            subscriber.values().shouldContainAll(
-                ChangeNotification.Album(65),
-                ChangeNotification.Album(102)
-            )
+                expectAtLeast(2)
+                values.shouldContainAll(
+                    ChangeNotification.Album(65),
+                    ChangeNotification.Album(102)
+                )
+            }
         }
     }
 
@@ -476,16 +473,17 @@ internal class MediaRepositoryTest {
             repository.getTracks()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test()
+            val subscriber = repository.changeNotifications.test {
+                // when receiving a new track list
+                mediaDao.update(updated)
 
-            // when receiving a new track list
-            mediaDao.update(updated)
-
-            // Then receive the expected notifications.
-            subscriber.values().shouldContainAll(
-                ChangeNotification.Artist(26),
-                ChangeNotification.Artist(13)
-            )
+                // Then receive the expected notifications.
+                expectAtLeast(2)
+                values.shouldContainAll(
+                    ChangeNotification.Artist(26),
+                    ChangeNotification.Artist(13)
+                )
+            }
         }
     }
 
@@ -503,13 +501,13 @@ internal class MediaRepositoryTest {
             repository.getAlbums()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test()
+            repository.changeNotifications.test {
+                // when receiving a new album list
+                mediaDao.update(updated)
 
-            // when receiving a new album list
-            mediaDao.update(updated)
-
-            // Then receive the expected notifications.
-            subscriber.values() shouldContain ChangeNotification.AllAlbums
+                expectAtLeast(1)
+                values shouldContain ChangeNotification.AllAlbums
+            }
         }
     }
 
@@ -527,16 +525,16 @@ internal class MediaRepositoryTest {
             repository.getAlbums()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test()
+            repository.changeNotifications.test {
+                // when receiving a new album list
+                mediaDao.update(updated)
 
-            // when receiving a new album list
-            mediaDao.update(updated)
-
-            // Then receive the expected notifications.
-            subscriber.values().shouldContainAll(
-                ChangeNotification.Artist(18),
-                ChangeNotification.Artist(13)
-            )
+                expectAtLeast(2)
+                values.shouldContainAll(
+                    ChangeNotification.Artist(18),
+                    ChangeNotification.Artist(13)
+                )
+            }
         }
     }
 
@@ -549,11 +547,13 @@ internal class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, playlistDao = playlistDao)
             repository.getPlaylists()
-            val subscriber = repository.changeNotifications.test()
 
-            playlistDao.update(updated)
+            repository.changeNotifications.test {
+                playlistDao.update(updated)
 
-            subscriber.values() shouldContain ChangeNotification.AllPlaylists
+                expectAtLeast(1)
+                values shouldContain ChangeNotification.AllPlaylists
+            }
         }
     }
 
@@ -566,11 +566,12 @@ internal class MediaRepositoryTest {
         runInScope {
             val repository = MediaRepository(this, mediaDao)
             repository.getArtists()
-            val subscriber = repository.changeNotifications.test()
 
-            mediaDao.update(updated)
-
-            subscriber.values() shouldContain ChangeNotification.AllArtists
+            repository.changeNotifications.test {
+                mediaDao.update(updated)
+                expectAtLeast(1)
+                values shouldContain ChangeNotification.AllArtists
+            }
         }
     }
 
@@ -588,7 +589,7 @@ internal class MediaRepositoryTest {
         mediaDao: MediaDao = DummyMediaDao,
         playlistDao: PlaylistDao = DummyPlaylistDao,
         usageDao: UsageDao = DummyUsageDao
-    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao, dispatchers)
+    ) = MediaRepositoryImpl(scope, mediaDao, playlistDao, usageDao)
 
     private object DummyPlaylistDao : PlaylistDao() {
         override val playlists: Flow<List<Playlist>> get() = NeverFlow

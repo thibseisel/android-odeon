@@ -43,9 +43,10 @@ import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.extensions.getResourceUri
-import io.reactivex.Flowable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -391,14 +392,18 @@ internal class BrowserTreeImpl
         }
     }
 
-    override val updatedParentIds: Flowable<MediaId>
-        get() = repository.changeNotifications.flatMap {
-            if (it is ChangeNotification.AllTracks) Flowable.just(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL),
-                MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED),
-                MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED),
-                MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
-            ) else Flowable.just(it.mediaId)
+    override val updatedParentIds: Flow<MediaId>
+        get() = repository.changeNotifications.transform {
+            when (it) {
+                is ChangeNotification.AllTracks -> {
+                    emit(MediaId(TYPE_TRACKS, CATEGORY_ALL))
+                    emit(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
+                    emit(MediaId(TYPE_TRACKS, CATEGORY_POPULAR))
+                    emit(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
+                    emit(MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE))
+                }
+                else -> emit(it.mediaId)
+            }
         }
 
     private suspend fun provideAllTracks(fromIndex: Int, count: Int): List<MediaItem> {

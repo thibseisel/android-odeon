@@ -21,7 +21,7 @@ import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Main entry point for accessing and modifying media.
@@ -37,7 +37,7 @@ interface MediaRepository {
      * Each element from this flow is a subclass of [ChangeNotification]
      * indicating which media collection has changed.
      */
-    val changeNotifications: Flowable<ChangeNotification>
+    val changeNotifications: Flow<ChangeNotification>
 
     /**
      * Load the list of all available tracks.

@@ -74,7 +74,6 @@ dependencies {
 
     // Kotlin language support
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-rx2:${versions.koroutines}"
 
     // Android support libraries
     implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"

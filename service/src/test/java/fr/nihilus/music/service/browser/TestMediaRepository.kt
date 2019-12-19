@@ -25,7 +25,8 @@ import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import java.util.concurrent.TimeUnit
 
 internal class TestMediaRepository(
@@ -34,7 +35,7 @@ internal class TestMediaRepository(
     private val artists: List<Artist> = SAMPLE_ARTISTS,
     private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
     private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_TRACKS_FOR_PLAYLIST,
-    override val changeNotifications: Flowable<ChangeNotification> = Flowable.empty()
+    override val changeNotifications: Flow<ChangeNotification> = emptyFlow()
 ) : MediaRepository {
     override suspend fun getTracks(): List<Track> = tracks
     override suspend fun getAlbums(): List<Album> = albums
@@ -65,7 +66,7 @@ internal object StubUsageManager : UsageManager {
 }
 
 internal class StubMediaRepository : MediaRepository {
-    override val changeNotifications: Flowable<ChangeNotification> get() = stub()
+    override val changeNotifications: Flow<ChangeNotification> get() = stub()
     override suspend fun getTracks(): List<Track> = stub()
     override suspend fun getAlbums(): List<Album> = stub()
     override suspend fun getArtists(): List<Artist> = stub()

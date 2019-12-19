@@ -580,7 +580,7 @@ internal class BrowserTreeStructureTest {
     }
 
     @Test
-    fun `When receiving change notification, then map to the corresponding media id`() {
+    fun `When receiving change notification, then map to the corresponding media id`() = runBlockingTest {
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_ALL))
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
         assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
@@ -596,15 +596,17 @@ internal class BrowserTreeStructureTest {
         assertNotifyParentChanged(ChangeNotification.Playlist(1L), MediaId(TYPE_PLAYLISTS, "1"))
     }
 
-    private fun assertNotifyParentChanged(notification: ChangeNotification, changedParentId: MediaId) {
-        val changeNotifier = PublishProcessor.create<ChangeNotification>()
-        val repository = TestMediaRepository(changeNotifications = changeNotifier)
+    private suspend fun assertNotifyParentChanged(notification: ChangeNotification, changedParentId: MediaId) {
+        val changeNotifier = BroadcastChannel<ChangeNotification>(Channel.BUFFERED)
+        val repository = TestMediaRepository(changeNotifications = changeNotifier.asFlow())
         val browserTree = BrowserTreeImpl(context, repository, StubUsageManager)
 
-        val subscriber = browserTree.updatedParentIds.test()
-        changeNotifier.onNext(notification)
+        browserTree.updatedParentIds.test {
+            changeNotifier.offer(notification)
 
-        assertThat(subscriber.values()).contains(changedParentId)
+            expectAtLeast(1)
+            values shouldContain changedParentId
+        }
     }
 
     private suspend fun assertItemIsPartOfItsParentsChildren(parentId: MediaId, itemId: MediaId) {

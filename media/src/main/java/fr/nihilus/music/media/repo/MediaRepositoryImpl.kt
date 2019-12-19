@@ -27,12 +27,13 @@ import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import io.reactivex.Flowable
-import io.reactivex.processors.PublishProcessor
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
@@ -46,7 +47,7 @@ internal class MediaRepositoryImpl
     private val usageDao: UsageDao
 ) : MediaRepository {
 
-    private val _mediaChanges = PublishProcessor.create<ChangeNotification>()
+    private val _mediaChanges = BroadcastChannel<ChangeNotification>(Channel.BUFFERED)
 
     @Volatile private var tracksCache = scope.trackSyncCache()
     @Volatile private var albumsCache = scope.albumSyncCache()
@@ -106,8 +107,8 @@ internal class MediaRepositoryImpl
 
     override suspend fun deleteTracks(trackIds: LongArray): Int = mediaDao.deleteTracks(trackIds)
 
-    override val changeNotifications: Flowable<ChangeNotification>
-        get() = _mediaChanges.onBackpressureBuffer()
+    override val changeNotifications: Flow<ChangeNotification>
+        get() = _mediaChanges.asFlow()
 
     private suspend fun <T> request(cache: SendChannel<CompletableDeferred<List<T>>>): List<T> {
         val mediaRequest = CompletableDeferred<List<T>>()
@@ -117,7 +118,7 @@ internal class MediaRepositoryImpl
 
     private fun CoroutineScope.trackSyncCache() = syncCache(mediaDao.tracks) { original, modified ->
         // Dispatch update notifications to downstream
-        _mediaChanges.onNext(ChangeNotification.AllTracks)
+        _mediaChanges.send(ChangeNotification.AllTracks)
 
         // Calculate the diff between the old and the new track list.
         val (added, deleted) = diffList(original, modified)
@@ -131,11 +132,11 @@ internal class MediaRepositoryImpl
         deleted.mapTo(modifiedArtistIds, Track::artistId)
 
         modifiedAlbumIds.forEach {
-            _mediaChanges.onNext(ChangeNotification.Album(it))
+            _mediaChanges.send(ChangeNotification.Album(it))
         }
 
         modifiedArtistIds.forEach {
-            _mediaChanges.onNext(ChangeNotification.Artist(it))
+            _mediaChanges.send(ChangeNotification.Artist(it))
         }
 
         val deletedTrackIds = LongArray(deleted.size) { deleted[it].id }
@@ -144,13 +145,13 @@ internal class MediaRepositoryImpl
         usageDao.deleteEventsForTracks(deletedTrackIds)
 
         affectedPlaylistIds.forEach {
-            _mediaChanges.onNext(ChangeNotification.Playlist(it))
+            _mediaChanges.send(ChangeNotification.Playlist(it))
         }
     }
 
     private fun CoroutineScope.albumSyncCache() = syncCache(mediaDao.albums) { original, modified ->
         // Notify that the list of all albums has changed.
-        _mediaChanges.onNext(ChangeNotification.AllAlbums)
+        _mediaChanges.send(ChangeNotification.AllAlbums)
 
         // Calculate the diff between the old and the new album list.
         val (added, deleted) = diffList(original, modified)
@@ -160,16 +161,16 @@ internal class MediaRepositoryImpl
         deleted.mapTo(modifiedArtistIds, Album::artistId)
 
         modifiedArtistIds.forEach { artistId ->
-            _mediaChanges.onNext(ChangeNotification.Artist(artistId))
+            _mediaChanges.send(ChangeNotification.Artist(artistId))
         }
     }
 
     private fun CoroutineScope.artistSyncCache() = syncCache(mediaDao.artists) { _, _ ->
-        _mediaChanges.onNext(ChangeNotification.AllArtists)
+        _mediaChanges.send(ChangeNotification.AllArtists)
     }
 
     private fun CoroutineScope.playlistSyncCache() = syncCache(playlistsDao.playlists) { _, _ ->
-        _mediaChanges.onNext(ChangeNotification.AllPlaylists)
+        _mediaChanges.send(ChangeNotification.AllPlaylists)
     }
 
     private fun <M : Any> CoroutineScope.syncCache(

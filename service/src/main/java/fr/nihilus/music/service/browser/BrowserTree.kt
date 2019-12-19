@@ -18,7 +18,7 @@ package fr.nihilus.music.service.browser
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
-import io.reactivex.Flowable
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Define the hierarchy of media that can be browsed by remote clients connected to the service.
@@ -28,7 +28,7 @@ import io.reactivex.Flowable
  */
 internal interface BrowserTree {
 
-    val updatedParentIds: Flowable<MediaId>
+    val updatedParentIds: Flow<MediaId>
 
     /**
      * Retrieve children media of an item with the given [parentId] in the browser tree.

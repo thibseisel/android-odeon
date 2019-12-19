@@ -42,9 +42,9 @@ import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.actions.ActionFailure
 import fr.nihilus.music.service.actions.BrowserAction
-import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
@@ -54,7 +54,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.collect
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -381,10 +380,10 @@ class MusicService : BaseBrowserService() {
         }.launchIn(this)
     }
 
-    private fun CoroutineScope.observeMediaChanges() = launch {
-        browserTree.updatedParentIds.collect { parentId ->
+    private fun CoroutineScope.observeMediaChanges() {
+        browserTree.updatedParentIds.onEach { parentId ->
             notifyChildrenChanged(parentId.encoded)
-        }
+        }.launchIn(this)
     }
 
     private inner class TrackCompletionListener : Player.EventListener {
