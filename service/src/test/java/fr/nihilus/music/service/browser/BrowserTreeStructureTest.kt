@@ -20,12 +20,11 @@ import android.content.Context
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.TruthJUnit.assume
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
@@ -35,18 +34,23 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.test.coroutines.test
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.usage.DisposableTrack
-import fr.nihilus.music.service.THEIR_MEDIA_ID
 import fr.nihilus.music.service.assertOn
 import fr.nihilus.music.service.generateRandomTrackSequence
-import io.kotlintest.matchers.collections.shouldHaveSize
+import io.kotlintest.inspectors.forOne
+import io.kotlintest.matchers.collections.*
+import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldNotBeNull
+import io.kotlintest.matchers.withClue
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-import io.reactivex.processors.PublishProcessor
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,8 +71,12 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Root, then return all available types`() = runBlockingTest {
         val rootChildren = loadChildrenOf(MediaId(TYPE_ROOT))
 
-        assertThat(rootChildren).comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactly(TYPE_TRACKS, TYPE_ARTISTS, TYPE_ALBUMS, TYPE_PLAYLISTS)
+        rootChildren.ids.shouldContainExactlyInAnyOrder(
+            TYPE_TRACKS,
+            TYPE_ARTISTS,
+            TYPE_ALBUMS,
+            TYPE_PLAYLISTS
+        )
 
         assertThatAllAreBrowsableAmong(rootChildren)
         assertThatNoneArePlayableAmong(rootChildren)
@@ -78,7 +86,7 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Track type, then return track categories`() = runBlockingTest {
         val trackTypeChildren = loadChildrenOf(MediaId(TYPE_TRACKS))
 
-        trackTypeChildren.map { it.mediaId }.shouldContainExactlyInAnyOrder(
+        trackTypeChildren.ids.shouldContainExactlyInAnyOrder(
             "$TYPE_TRACKS/$CATEGORY_ALL",
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED",
@@ -94,17 +102,16 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Album type, then return all albums from repository`() = runBlockingTest {
         val albumTypeChildren = loadChildrenOf(MediaId(TYPE_ALBUMS))
 
-        assertThat(albumTypeChildren).comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactly(
-                "$TYPE_ALBUMS/40",
-                "$TYPE_ALBUMS/38",
-                "$TYPE_ALBUMS/102",
-                "$TYPE_ALBUMS/95",
-                "$TYPE_ALBUMS/7",
-                "$TYPE_ALBUMS/6",
-                "$TYPE_ALBUMS/65",
-                "$TYPE_ALBUMS/26"
-            ).inOrder()
+        albumTypeChildren.ids.shouldContainExactly(
+            "$TYPE_ALBUMS/40",
+            "$TYPE_ALBUMS/38",
+            "$TYPE_ALBUMS/102",
+            "$TYPE_ALBUMS/95",
+            "$TYPE_ALBUMS/7",
+            "$TYPE_ALBUMS/6",
+            "$TYPE_ALBUMS/65",
+            "$TYPE_ALBUMS/26"
+        )
 
         assertThatAllAreBrowsableAmong(albumTypeChildren)
     }
@@ -115,8 +122,8 @@ internal class BrowserTreeStructureTest {
         val anAlbum = allAlbums.requireItemWith(MediaId(TYPE_ALBUMS, "40"))
 
         with(anAlbum.description) {
-            assertThat(title).isEqualTo("The 2nd Law")
-            assertThat(subtitle).isEqualTo("Muse")
+            title shouldBe "The 2nd Law"
+            subtitle shouldBe "Muse"
         }
 
         assertThatBundle(anAlbum.description.extras).integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
@@ -126,13 +133,14 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Artist type, then return all artists from repository`() = runBlockingTest {
         val allArtists = loadChildrenOf(MediaId(TYPE_ARTISTS))
 
-        assertThat(allArtists).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        allArtists.ids.shouldContainExactly(
             "$TYPE_ARTISTS/5",
             "$TYPE_ARTISTS/26",
             "$TYPE_ARTISTS/4",
             "$TYPE_ARTISTS/13",
             "$TYPE_ARTISTS/18"
-        ).inOrder()
+        )
+
         assertThatAllAreBrowsableAmong(allArtists)
     }
 
@@ -142,9 +150,10 @@ internal class BrowserTreeStructureTest {
         val anArtist = allArtists.requireItemWith(MediaId(TYPE_ARTISTS, "5"))
 
         with(anArtist.description) {
-            assertThat(title).isEqualTo("AC/DC")
+            title shouldBe "AC/DC"
             // TODO Use a plural string resource instead.
-            assertThat(subtitle).isEqualTo("1 albums, 2 tracks")
+            subtitle shouldBe "1 albums, 2 tracks"
+
             assertOn(extras) {
                 integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(2)
             }
@@ -155,11 +164,11 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Playlist type, then return all playlists`() = runBlockingTest {
         val allPlaylists = loadChildrenOf(MediaId(TYPE_PLAYLISTS))
 
-        assertThat(allPlaylists).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        allPlaylists.ids.shouldContainExactly(
             "$TYPE_PLAYLISTS/1",
             "$TYPE_PLAYLISTS/2",
             "$TYPE_PLAYLISTS/3"
-        ).inOrder()
+        )
 
         assertThatAllAreBrowsableAmong(allPlaylists)
     }
@@ -169,7 +178,7 @@ internal class BrowserTreeStructureTest {
         val allPlaylists = loadChildrenOf(MediaId(TYPE_PLAYLISTS))
 
         val aPlaylist = allPlaylists.requireItemWith(MediaId(TYPE_PLAYLISTS, "1"))
-        assertThat(aPlaylist.description.title).isEqualTo("Zen")
+        aPlaylist.description.title shouldBe "Zen"
     }
 
     @Test
@@ -182,9 +191,9 @@ internal class BrowserTreeStructureTest {
                 val childId = child.mediaId.toMediaId()
                 val children = browserTree.getChildren(childId, null)
 
-                assertThat(children)
-                    .named("Children of item %s (parent = %s)", childId, parentId)
-                    .isNotNull()
+                withClue("Browsable item $childId (child of $parentId) should have children.") {
+                    children.shouldNotBeNull()
+                }
             }
         }
     }
@@ -199,9 +208,9 @@ internal class BrowserTreeStructureTest {
                 val childId = child.mediaId.toMediaId()
                 val children = browserTree.getChildren(childId, null)
 
-                assertThat(children)
-                    .named("Children of %s (parent = %s)", childId, parentId)
-                    .isNull()
+                withClue("Non-browsable item $childId (child of $parentId) should not have children.") {
+                    children.shouldBeNull()
+                }
             }
         }
     }
@@ -210,7 +219,7 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of All Tracks, then return all tracks from repository`() = runBlockingTest {
         val allTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_ALL))
 
-        assertThat(allTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        allTracks.ids.shouldContainExactly(
             "$TYPE_TRACKS/$CATEGORY_ALL|161",
             "$TYPE_TRACKS/$CATEGORY_ALL|309",
             "$TYPE_TRACKS/$CATEGORY_ALL|481",
@@ -221,7 +230,7 @@ internal class BrowserTreeStructureTest {
             "$TYPE_TRACKS/$CATEGORY_ALL|75",
             "$TYPE_TRACKS/$CATEGORY_ALL|464",
             "$TYPE_TRACKS/$CATEGORY_ALL|477"
-        ).inOrder()
+        )
 
         assertThatAllArePlayableAmong(allTracks)
         assertThatNoneAreBrowsableAmong(allTracks)
@@ -233,8 +242,8 @@ internal class BrowserTreeStructureTest {
         val aTrack = allTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_ALL, 125L))
 
         with(aTrack.description) {
-            assertThat(title).isEqualTo("Jailbreak")
-            assertThat(subtitle).isEqualTo("AC/DC")
+            title shouldBe "Jailbreak"
+            subtitle shouldBe "AC/DC"
 
             assertOn(extras) {
                 containsKey(MediaItems.EXTRA_DURATION)
@@ -248,13 +257,13 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Most Rated, then return most rated tracks from usage manager`() = runBlockingTest {
         val mostRatedTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
 
-        assertThat(mostRatedTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        mostRatedTracks.ids.shouldContainExactly(
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|75",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|464",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|48",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|477",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED|294"
-        ).inOrder()
+        )
 
         assertThatAllArePlayableAmong(mostRatedTracks)
         assertThatNoneAreBrowsableAmong(mostRatedTracks)
@@ -266,8 +275,8 @@ internal class BrowserTreeStructureTest {
         val aTrack = mostRecentTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED, 75L))
 
         with(aTrack.description) {
-            assertThat(title).isEqualTo("Nightmare")
-            assertThat(subtitle).isEqualTo("Avenged Sevenfold")
+            title shouldBe "Nightmare"
+            subtitle shouldBe "Avenged Sevenfold"
 
             assertOn(extras) {
                 containsKey(MediaItems.EXTRA_DURATION)
@@ -281,7 +290,7 @@ internal class BrowserTreeStructureTest {
     fun `When loading children of Recently Added, then return tracks sorted by descending availability date`() = runBlockingTest {
         val mostRecentTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
 
-        assertThat(mostRecentTracks).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        mostRecentTracks.ids.shouldContainExactly(
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|481", // September 25th, 2019 (21:22)
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|477", // September 25th, 2019 (21:22)
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|161", // June 18th, 2016
@@ -292,7 +301,7 @@ internal class BrowserTreeStructureTest {
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|75",  // August 14th, 2015
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|294", // November 1st, 2014
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED|219"  // February 12th, 2013
-        ).inOrder()
+        )
     }
 
     @Test
@@ -314,7 +323,7 @@ internal class BrowserTreeStructureTest {
             options = null
         ) ?: failAssumption("Expected $TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED to have children")
 
-        assertThat(mostRecentTracks.size).named("Number of most recent tracks").isAtMost(25)
+        mostRecentTracks shouldHaveAtMostSize 25
     }
 
     @Test
@@ -323,8 +332,8 @@ internal class BrowserTreeStructureTest {
         val aTrack = mostRecentTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, 481L))
 
         with(aTrack.description) {
-            assertThat(title).isEqualTo("Dirty Water")
-            assertThat(subtitle).isEqualTo("Foo Fighters")
+            title shouldBe "Dirty Water"
+            subtitle shouldBe "Foo Fighters"
 
             assertOn(extras) {
                 containsKey(MediaItems.EXTRA_DURATION)
@@ -386,10 +395,7 @@ internal class BrowserTreeStructureTest {
         assertThatAllArePlayableAmong(children)
         assertThatNoneAreBrowsableAmong(children)
 
-        assertThat(children)
-            .comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactlyElementsIn(expectedMediaIds)
-            .inOrder()
+        children.ids.shouldContainExactly(expectedMediaIds)
     }
 
     @Test
@@ -399,7 +405,7 @@ internal class BrowserTreeStructureTest {
         val childrenAfterAlbums = artistChildren.subList(indexOfFirstTrack, artistChildren.size)
 
         val nonTracksAfterAlbums = childrenAfterAlbums.filter { it.mediaId.toMediaId().track == null }
-        assertThat(nonTracksAfterAlbums).isEmpty()
+        nonTracksAfterAlbums.shouldBeEmpty()
     }
 
     @Test
@@ -414,10 +420,7 @@ internal class BrowserTreeStructureTest {
         val artistAlbums = artistChildren.filter { it.mediaId.toMediaId().track == null }
 
         assertThatAllAreBrowsableAmong(artistAlbums)
-        assertThat(artistAlbums)
-            .comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactlyElementsIn(expectedAlbumIds)
-            .inOrder()
+        artistAlbums.ids.shouldContainExactly(expectedAlbumIds)
     }
 
     @Test
@@ -441,7 +444,7 @@ internal class BrowserTreeStructureTest {
         val anAlbum = artistChildren.requireItemWith(MediaId(TYPE_ALBUMS, "65"))
 
         with(anAlbum.description) {
-            assertThat(title).isEqualTo("Sunset on the Golden Age")
+            title shouldBe "Sunset on the Golden Age"
             assertOn(extras) {
                 integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
             }
@@ -454,7 +457,7 @@ internal class BrowserTreeStructureTest {
         val aTrack = artistChildren.requireItemWith(MediaId(TYPE_ARTISTS, "26", 161L))
 
         with(aTrack.description) {
-            assertThat(title).isEqualTo("1741 (The Battle of Cartagena)")
+            title shouldBe "1741 (The Battle of Cartagena)"
 
             assertOn(extras) {
                 containsKey(MediaItems.EXTRA_DURATION)
@@ -478,7 +481,7 @@ internal class BrowserTreeStructureTest {
         val aPlaylistTrack = playlistChildren.requireItemWith(MediaId(TYPE_PLAYLISTS, "1", 309L))
 
         with(aPlaylistTrack.description) {
-            assertThat(title).isEqualTo("The 2nd Law: Isolated System")
+            title shouldBe "The 2nd Law: Isolated System"
             assertOn(extras) {
                 containsKey(MediaItems.EXTRA_DURATION)
             }
@@ -513,8 +516,8 @@ internal class BrowserTreeStructureTest {
         val browserTree = BrowserTreeImpl(context, repository, StubUsageManager)
 
         val requestedItem = browserTree.getItem(itemId)
-        assume().that(requestedItem).isNotNull()
-        assertThat(requestedItem!!.mediaId).isEqualTo(itemId.encoded)
+            ?: failAssumption("Expected an item with id $itemId")
+        requestedItem.mediaId shouldBe itemId.encoded
     }
 
     @Test
@@ -538,13 +541,13 @@ internal class BrowserTreeStructureTest {
         val paginatedChildren = browserTree.getChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
             PaginationOptions(0, 3)
-        )
+        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
 
-        assertThat(paginatedChildren).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        paginatedChildren.ids.shouldContainExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 161),
             encode(TYPE_TRACKS, CATEGORY_ALL, 309),
             encode(TYPE_TRACKS, CATEGORY_ALL, 481)
-        ).inOrder()
+        )
     }
 
     @Test
@@ -555,12 +558,12 @@ internal class BrowserTreeStructureTest {
         val paginatedChildren = browserTree.getChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
             PaginationOptions(3, 2)
-        )
+        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
 
-        assertThat(paginatedChildren).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
+        paginatedChildren.ids.shouldContainExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 219),
             encode(TYPE_TRACKS, CATEGORY_ALL, 75)
-        ).inOrder()
+        )
     }
 
     @Test
@@ -571,9 +574,9 @@ internal class BrowserTreeStructureTest {
         val pagePastChildren = browserTree.getChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
             PaginationOptions(2, 5)
-        )
+        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
 
-        assertThat(pagePastChildren).isEmpty()
+        pagePastChildren.shouldBeEmpty()
     }
 
     @Test
@@ -613,15 +616,24 @@ internal class BrowserTreeStructureTest {
         val parentChildren = browserTree.getChildren(parentId, null)
             ?: failAssumption("Expected $parentId to have children")
 
-        assertThat(parentChildren)
-            .comparingElementsUsing(THEIR_MEDIA_ID)
-            .contains(item.mediaId)
+        parentChildren.forOne {
+            it.mediaId shouldBe item.mediaId
+            it.isBrowsable shouldBe item.isBrowsable
+            it.isPlayable shouldBe item.isPlayable
+
+            with (it.description) {
+                title shouldBe item.description.title
+                subtitle shouldBe item.description.subtitle
+                iconUri shouldBe item.description.iconUri
+                mediaUri shouldBe item.description.mediaUri
+            }
+        }
     }
 
     private suspend fun assertHasNoChildren(parentId: MediaId) {
         val browserTree = BrowserTreeImpl(context, TestMediaRepository(), StubUsageManager)
         val children = browserTree.getChildren(parentId, null)
-        assertThat(children).isNull()
+        children.shouldBeNull()
     }
 
     private suspend fun assertPlaylistHasTracks(playlistId: Long, expectedTrackIds: List<String>) {
@@ -630,10 +642,7 @@ internal class BrowserTreeStructureTest {
         assertThatAllArePlayableAmong(playlistChildren)
         assertThatNoneAreBrowsableAmong(playlistChildren)
 
-        assertThat(playlistChildren)
-            .comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactlyElementsIn(expectedTrackIds)
-            .inOrder()
+        playlistChildren.ids.shouldContainExactly(expectedTrackIds)
     }
 
     /**
@@ -656,10 +665,7 @@ internal class BrowserTreeStructureTest {
         assertThatAllArePlayableAmong(artistTracks)
         assertThatNoneAreBrowsableAmong(artistTracks)
 
-        assertThat(artistTracks)
-            .comparingElementsUsing(THEIR_MEDIA_ID)
-            .containsExactlyElementsIn(expectedTrackIds)
-            .inOrder()
+        artistTracks.ids.shouldContainExactly(expectedTrackIds)
     }
 
     private suspend fun loadChildrenOf(parentId: MediaId): List<MediaItem> {
@@ -735,3 +741,6 @@ private suspend fun BrowserTree.walk(
         walk(child.mediaId.toMediaId(), action)
     }
 }
+
+private val List<MediaItem>.ids: List<String?>
+    get() = map { it.mediaId }
