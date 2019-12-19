@@ -59,7 +59,7 @@ buildscript {
                 'kdenticon'     : '1.0.0-alpha5',
                 'ktor'          : '1.2.5',
                 'material'      : '1.1.0-beta02',
-                'moshi'         : '1.8.0',
+                'moshi'         : '1.9.2',
                 'ratioimageview': '1.0.0',
                 'timber'        : '4.7.1',
 

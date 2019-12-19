@@ -17,6 +17,7 @@
 package fr.nihilus.music.spotify.model
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * A Paging object is a subset of a collection of items of type [T], where
@@ -27,6 +28,7 @@ import com.squareup.moshi.Json
  *
  * @param T The type of the items in the collection.
  */
+@JsonClass(generateAdapter = true)
 internal class Paging<out T>(
 
     /**
