@@ -30,7 +30,7 @@
         android:layout_marginBottom="8dp"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/horizontal_edge_margin"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"

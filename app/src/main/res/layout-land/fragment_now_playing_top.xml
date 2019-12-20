@@ -99,7 +99,7 @@
         android:id="@+id/mini_next_button"
         android:layout_width="48dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/horizontal_edge_margin"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
         android:padding="12dp"

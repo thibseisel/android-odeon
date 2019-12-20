@@ -69,7 +69,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:orientation="vertical"
-            android:padding="32dp"
+            android:paddingStart="@dimen/larger_horizontal_edge_margin"
+            android:paddingEnd="@dimen/larger_horizontal_edge_margin"
+            android:paddingTop="32dp"
+            android:paddingBottom="32dp"
             android:theme="@style/ThemeOverlay.AppCompat.Light">
 
             <TextView
@@ -110,9 +113,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:fabSize="normal"
-        android:layout_margin="@dimen/fab_margin"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_play_arrow_24dp"
+        app:useCompatPadding="true"
         app:layout_anchor="@id/collapsing_toolbar"
         app:layout_anchorGravity="bottom|end"/>
 

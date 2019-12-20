@@ -35,14 +35,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="16dp"/>
+        app:layout_constraintGuide_begin="@dimen/horizontal_edge_margin"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="16dp"/>
+        app:layout_constraintGuide_end="@dimen/horizontal_edge_margin"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottom_guideline"
@@ -118,7 +118,7 @@
         android:id="@+id/repeat_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/horizontal_edge_margin"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_repeat_mode"
         android:padding="12dp"
@@ -174,7 +174,7 @@
         android:id="@+id/shuffle_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="@dimen/horizontal_edge_margin"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_shuffle_mode"
         android:padding="12dp"

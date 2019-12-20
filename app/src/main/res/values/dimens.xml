@@ -16,6 +16,8 @@
 
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="horizontal_edge_margin">16dp</dimen>
+    <dimen name="larger_horizontal_edge_margin">32dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="playerview_height">64dp</dimen>
     <dimen name="playerview_hidden_height">0dp</dimen>

@@ -40,35 +40,43 @@
             app:layout_constraintDimensionRatio="2:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/band_guideline"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/dummy_album_art"/>
+            tools:src="@drawable/ic_person_24dp"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/band_guideline"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="64dp"/>
 
         <TextView
             android:id="@+id/subtitle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="@dimen/horizontal_edge_margin"
+            android:layout_marginStart="@dimen/horizontal_edge_margin"
+            app:firstBaselineToTopHeight="28dp"
+            app:lastBaselineToBottomHeight="4dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/album_art_view"
+            app:layout_constraintTop_toBottomOf="@+id/band_guideline"
             tools:text="@sample/artists.json/data/name"/>
 
         <TextView
             android:id="@+id/subtitle_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginStart="16dp"
+            android:layout_marginEnd="@dimen/horizontal_edge_margin"
+            android:layout_marginStart="@dimen/horizontal_edge_margin"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Odeon.Caption"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:firstBaselineToTopHeight="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/subtitle"
