@@ -182,9 +182,10 @@ internal class MediaStoreProvider
 
     override suspend fun queryArtists(): List<Artist> {
         requireReadPermission()
-        val albumArtPerArtistId = queryAlbumArtPerArtist()
 
         return withContext(dispatchers.IO) {
+            val albumArtPerArtistId = queryAlbumArtPerArtist()
+
             resolver.query(
                 Artists.EXTERNAL_CONTENT_URI,
                 artistColumns,
@@ -238,7 +239,11 @@ internal class MediaStoreProvider
 
             albumInfo.groupingBy { it.artistId }
                 .reduce { _, mostRecent, info ->
-                    if (mostRecent.releaseYear <= info.releaseYear) info else mostRecent
+                    when {
+                        info.albumArtPath != null && mostRecent.releaseYear <= info.releaseYear -> info
+                        mostRecent.albumArtPath == null -> info
+                        else -> mostRecent
+                    }
                 }
                 .forEach { (artistId, info) ->
                     albumArtPerArtistId.put(artistId, info.albumArtPath)

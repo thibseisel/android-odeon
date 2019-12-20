@@ -38,6 +38,8 @@ import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
 import fr.nihilus.music.media.provider.FailingMediaStore.query
+import io.kotlintest.matchers.withClue
+import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.After
 import org.junit.Before
@@ -86,7 +88,7 @@ internal class MediaStoreProviderTest {
     fun `When querying tracks, then there should be all music tracks`() = test.run {
         val provider = MediaStoreProvider()
         val allTracks = provider.queryTracks()
-        assertThat(allTracks).hasSize(10)
+        assertThat(allTracks).hasSize(11)
     }
 
     @Test
@@ -150,7 +152,7 @@ internal class MediaStoreProviderTest {
 
         assume().that(allTracks.size).isAtLeast(3)
         val trackIds = allTracks.map { it.id }
-        assertThat(trackIds).containsExactly(161L, 309L, 481L, 48L, 125L, 294L, 219L, 75L, 464L, 477L).inOrder()
+        assertThat(trackIds).containsExactly(161L, 309L, 865L, 481L, 48L, 125L, 294L, 219L, 75L, 464L, 477L).inOrder()
     }
 
     @Test
@@ -158,7 +160,7 @@ internal class MediaStoreProviderTest {
         val provider = MediaStoreProvider()
         val allAlbums = provider.queryAlbums()
 
-        assertThat(allAlbums).hasSize(8)
+        assertThat(allAlbums).hasSize(9)
     }
 
     @Test
@@ -185,7 +187,7 @@ internal class MediaStoreProviderTest {
         assume().that(allAlbums.size).isAtLeast(3)
 
         val albumIds = allAlbums.map { it.id }
-        assertThat(albumIds).containsExactly(40L, 38L, 102L, 95L, 7L, 6L, 65L, 26L).inOrder()
+        assertThat(albumIds).containsExactly(40L, 38L, 102L, 95L, 7L, 6L, 98L, 65L, 26L).inOrder()
     }
 
     @Test
@@ -214,12 +216,19 @@ internal class MediaStoreProviderTest {
         val allArtists = provider.queryArtists()
 
         // Alestorm only have one album here ; its icon should be that of that album
-        val artistWithOneAlbum = allArtists.find { it.id == 26L } ?: failAssumption("Missing an artist with id = 26")
-        assertThat(artistWithOneAlbum.iconUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548")
+        val alestorm = allArtists.find { it.id == 26L } ?: failAssumption("Alestorm is missing (id = 26)")
+        alestorm.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548"
 
         // Foo Fighters have 3 albums, use the icon of "Concrete and Gold"
-        val artistWithMultipleAlbums = allArtists.find { it.id == 13L } ?: failAssumption("Missing an artist with id = 13")
-        assertThat(artistWithMultipleAlbums.iconUri).isEqualTo("content://fr.nihilus.music.media.test.provider/albumthumbs/1509627413029")
+        val fooFighters = allArtists.find { it.id == 13L } ?: failAssumption("Foo Fighters is missing (id = 13)")
+        fooFighters.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509627413029"
+
+        // Muse have 3 albums but the latest one does not have an artwork.
+        // Use that of "The 2nd Law" instead.
+        withClue("If the latest album does not have an artwork, then the artist icon should be that of the latest album that have one.") {
+            val muse = allArtists.find { it.id == 18L } ?: failAssumption("Muse is missing (id = 18)")
+            muse.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509627051019"
+        }
     }
 
     @Test
