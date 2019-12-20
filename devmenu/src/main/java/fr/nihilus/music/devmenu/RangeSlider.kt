@@ -17,10 +17,10 @@
 package fr.nihilus.music.devmenu
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.MotionEvent
 import android.view.View
 import kotlin.math.roundToInt
 
@@ -29,8 +29,8 @@ class RangeSlider @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs, 0, R.style.Widget_RangeSlider) {
 
-    private val lowerBound: Float
-    private val upperBound: Float
+    private var _minValue: Float = DEFAULT_MIN_VALUE
+    private var _maxValue: Float = DEFAULT_MAX_VALUE
     private val step: Float
 
     private val trackDrawable: Drawable?
@@ -38,8 +38,8 @@ class RangeSlider @JvmOverloads constructor(
     private val thumbDrawable: Drawable?
     private val tickMark: Drawable?
 
-    private var _lowerValue: Float
-    private var _upperValue: Float
+    private var _lowerValue: Float = _minValue
+    private var _upperValue: Float = _maxValue
 
     private val leftTrackBounds = Rect()
     private val progressBounds = Rect()
@@ -48,40 +48,102 @@ class RangeSlider @JvmOverloads constructor(
     private val lowerThumbBounds = Rect()
     private val upperThumbBounds = Rect()
 
+    private var rangeListener: OnRangeChangedListener? = null
+
+    /**
+     * The minimum value of the range.
+     * Defaults to `0.0` if not specified.
+     *
+     * @see R.styleable.RangeSlider_minValue
+     */
+    var minValue: Float
+        get() = _minValue
+        set(value) {
+            _minValue = value
+            invalidate()
+        }
+
+    /**
+     * The maximum value of the range.
+     * This should be greater than or equal to [minValue], and is clamped otherwise.
+     * Defaults to 1.0 if not specified.
+     *
+     * @see R.styleable.RangeSlider_maxValue
+     */
+    var maxValue: Float
+        get() = _maxValue
+        set(value) {
+            _maxValue = value.coerceAtLeast(_minValue)
+            invalidate()
+        }
+
+    /**
+     * The lower value of the range.
+     * This value should be included in the `[minValue ; maxValue]` interval and is clamped otherwise.
+     * Defaults to [minValue] if not specified.
+     *
+     * @see R.styleable.RangeSlider_lowerBound
+     */
+    var lowerBound: Float
+        get() = _lowerValue
+        set(value) {
+            _lowerValue = value.coerceIn(_minValue, _maxValue)
+            invalidate()
+        }
+
+    /**
+     * The upper value of the range.
+     * This value should be included in the [lowerBound ; maxValue] interval and is clamped otherwise.
+     * Defaults to [maxValue] if not specified.
+     *
+     * @see R.styleable.RangeSlider_upperBound
+     */
+    var upperBound: Float
+        get() = _upperValue
+        set(value) {
+            _upperValue = value.coerceIn(_lowerValue, _maxValue)
+            invalidate()
+        }
+
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.RangeSlider, 0, R.style.Widget_RangeSlider)
         try {
-            lowerBound = a.getFloat(R.styleable.RangeSlider_lowerBound, DEFAULT_LOWER_BOUND)
-            upperBound = a.getFloat(R.styleable.RangeSlider_upperBound, DEFAULT_UPPER_BOUND)
-                .coerceAtLeast(lowerBound)
+            minValue = a.getFloat(R.styleable.RangeSlider_minValue, DEFAULT_MIN_VALUE)
+            maxValue = a.getFloat(R.styleable.RangeSlider_maxValue, DEFAULT_MAX_VALUE)
 
-            val defaultStep = (upperBound - lowerBound) / DEFAULT_TICK_MARKS
-            val minimumStep = (upperBound - lowerBound) / MAX_TICK_MARKS
+            val defaultStep = (_maxValue - _minValue) / DEFAULT_TICK_MARKS
+            val minimumStep = (_maxValue - _minValue) / MAX_TICK_MARKS
             step = a.getFloat(R.styleable.RangeSlider_step, defaultStep)
-                .coerceIn(minimumStep, upperBound)
+                .coerceIn(minimumStep, _maxValue)
 
             trackDrawable = a.getDrawable(R.styleable.RangeSlider_trackDrawable)
             progressDrawable = a.getDrawable(R.styleable.RangeSlider_progressDrawable)
             thumbDrawable = a.getDrawable(R.styleable.RangeSlider_thumbDrawable)
             tickMark = a.getDrawable(R.styleable.RangeSlider_tickMarkDrawable)
 
-            _lowerValue = a.getFloat(R.styleable.RangeSlider_lowerValue, lowerBound)
-                .coerceIn(lowerBound, upperBound)
-            _upperValue = a.getFloat(R.styleable.RangeSlider_upperValue, upperBound)
-                .coerceIn(_lowerValue, upperBound)
+            lowerBound = a.getFloat(R.styleable.RangeSlider_lowerBound, _minValue)
+            upperBound = a.getFloat(R.styleable.RangeSlider_upperBound, _maxValue)
 
         } finally {
             a.recycle()
         }
     }
 
+    /**
+     * Convert the value of one bound in `[min ; max]` to fit in `[0.0, 1.0]`.
+     */
+    private fun getScaledPosition(bound: Float): Float {
+        val range = _maxValue - _minValue
+        return if (range > 0f) (bound - _minValue) / range else 0f
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         val ww = w - paddingLeft - paddingRight
         val hh = h - paddingTop - paddingBottom
 
-        val rangeLength = upperBound - lowerBound
-        val lowerX = paddingLeft + ((ww / rangeLength) * (_lowerValue - lowerBound)).roundToInt()
-        val upperX = paddingLeft + ((ww / rangeLength) * (_upperValue - lowerBound)).roundToInt()
+        val rangeLength = _maxValue - _minValue
+        val lowerX = paddingLeft + ((ww / rangeLength) * (_lowerValue - _minValue)).roundToInt()
+        val upperX = paddingLeft + ((ww / rangeLength) * (_upperValue - _minValue)).roundToInt()
 
         val medianHeight = hh / 2 + paddingTop
 
@@ -197,7 +259,7 @@ class RangeSlider @JvmOverloads constructor(
 
     private fun drawTickMarks(canvas: Canvas) {
         if (tickMark != null && !step.isNaN()) {
-            val numberOfTicks = ((upperBound - lowerBound) / step).toInt()
+            val numberOfTicks = ((_maxValue - _minValue) / step).toInt()
             if (numberOfTicks > 1) {
                 val w = tickMark.intrinsicWidth
                 val h = tickMark.intrinsicHeight
@@ -219,17 +281,39 @@ class RangeSlider @JvmOverloads constructor(
             }
         }
     }
+
+    /**
+     * Sets a listener to receive notifications of changes to the RangeSlider's bounds.
+     * Also provides notifications of when the user starts and stops a touch gesture within the Slider.
+     *
+     * @param listener The slider notification listener.
+     *
+     * @see RangeSlider.OnRangeChangedListener
+     */
+    fun setOnRangeChangedListener(listener: OnRangeChangedListener?) {
+        rangeListener = listener
+    }
+
+    /**
+     * A callback that notifies clients when the range bounds have been changed
+     * by the user through a touch gesture.
+     */
+    interface OnRangeChangedListener {
+        fun onRangeChanged(slider: RangeSlider, lower: Float, upper: Float)
+        fun onStartTrackingTouch(slider: RangeSlider)
+        fun onStopTrackingTouch(slider: RangeSlider)
+    }
 }
 
 /**
  * The default minimum value.
  */
-private const val DEFAULT_LOWER_BOUND = 0.0f
+private const val DEFAULT_MIN_VALUE = 0.0f
 
 /**
  * The default maximum value.
  */
-private const val DEFAULT_UPPER_BOUND = 1.0f
+private const val DEFAULT_MAX_VALUE = 1.0f
 
 /**
  * The default number of tick marks to display when no step is specified.

@@ -32,13 +32,13 @@
             The minimum value of the range.
             Defaults to 0.0 if not specified.
             -->
-        <attr name="lowerBound" format="float"/>
+        <attr name="minValue" format="float"/>
         <!--
             The maximum value of the range.
-            This value should be greater than or equal to that of lowerBound.
+            This value should be greater than or equal to that of minValue.
             Defaults to 1.0 if not specified.
             -->
-        <attr name="upperBound" format="float"/>
+        <attr name="maxValue" format="float"/>
         <!--
             The interval between tick marks.
             This has a direct impact on the number of tick marks.
@@ -48,17 +48,17 @@
         <attr name="step" format="float"/>
         <!--
             The initial lower value of the range.
-            This value should be included in the [lowerBound ; upperBound] interval
+            This value should be included in the [minValue ; maxValue] interval
             and is clamped otherwise.
-            Defaults the value of lowerBound if not specified.
+            Defaults to minValue if not specified.
             -->
-        <attr name="lowerValue" format="float"/>
+        <attr name="lowerBound" format="float"/>
         <!--
             The initial upper value of the range.
-            This value should be included in the [lowerValue ; upperBound] interval
+            This value should be included in the [lowerBound ; maxValue] interval
             and is clamped otherwise.
-            Defaults to the value of upperBound if not specified.
+            Defaults to maxValue if not specified.
             -->
-        <attr name="upperValue" format="float"/>
+        <attr name="upperBound" format="float"/>
     </declare-styleable>
 </resources>
