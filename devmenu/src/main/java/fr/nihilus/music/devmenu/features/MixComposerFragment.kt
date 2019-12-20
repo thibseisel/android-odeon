@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.devmenu
+package fr.nihilus.music.devmenu.features
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import fr.nihilus.music.devmenu.R
+import kotlinx.android.synthetic.main.fragment_mix_composer.*
 
 internal class MixComposerFragment : Fragment(R.layout.fragment_mix_composer) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val adapter = FeatureSpecAdapter()
+        val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.HORIZONTAL)
+        feature_criteria.adapter = adapter
+        feature_criteria.addItemDecoration(dividers)
     }
 }
