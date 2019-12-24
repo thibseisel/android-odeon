@@ -18,7 +18,6 @@ package fr.nihilus.music.core.test.coroutines
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.AbstractFlow
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.suspendCancellableCoroutine
 

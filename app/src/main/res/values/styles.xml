@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,76 +16,6 @@
   -->
 
 <resources>
-    <!--
-      - Pointer to the base theme used for both Light and Night.
-      - Override this theme to apply API-level specific customizations.
-      -->
-    <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
-
-    <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
-        <item name="colorSecondary">@color/color_secondary</item>
-        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
-        <item name="colorOnSurface">@color/color_on_surface</item>
-        <item name="colorError">@color/color_error</item>
-        <item name="colorOnError">@color/color_on_error</item>
-        <item name="colorOnPrimary">@color/color_on_primary</item>
-        <item name="colorOnSecondary">@color/color_on_secondary</item>
-
-        <!-- This color is still used as the default status bar color -->
-        <item name="colorPrimaryDark">@color/color_primary</item>
-
-        <!-- Styling ActionMode to look like Material Design Specs -->
-        <item name="actionModeStyle">@style/Widget.AppTheme.ActionMode</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_action_mode_close</item>
-
-        <!-- Custom style for FastScroller -->
-        <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
-
-        <!-- Color palette to use for an album that has no album art. -->
-        <item name="albumPalettePrimaryColor">?colorSurface</item>
-        <item name="albumPaletteAccentColor">?colorSecondary</item>
-        <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimary</item>
-        <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondary</item>
-        <item name="albumPaletteTextOnAccentColor">?colorOnSecondary</item>
-
-        <!-- Make the action mode appear above the content instead of above the Toolbar. -->
-        <item name="windowActionModeOverlay">true</item>
-    </style>
-
-    <!-- The default theme for the whole application. -->
-    <style name="AppTheme" parent="Base.AppTheme"/>
-
-    <!--
-      - Extension of the default theme that removes the decor ActionBar.
-      - This allows using Toolbar in XML layouts.
-      -->
-    <style name="AppTheme.NoActionBar">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-    </style>
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
-
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
-        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
-    </style>
-
-    <style name="Widget.AppTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
-        <item name="background">?colorSecondaryVariant</item>
-        <item name="titleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.SubTitle</item>
-    </style>
-
-    <style name="TextAppearance.AppTheme.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">?colorOnSecondary</item>
-    </style>
-
-    <style name="TextAppearance.AppTheme.Widget.ActionMode.SubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
-        <item name="android:textColor">?colorOnSecondary</item>
-    </style>
-    
     <!-- Style for SeekBar that removes horizontal padding. -->
     <style name="Widget.AppTheme.SeekBar.FullWidth" parent="Widget.AppCompat.SeekBar">
         <item name="android:paddingStart">0dp</item>
@@ -99,49 +30,4 @@
     <style name="Widget.AppTheme.CardView.Animated">
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
-
-    <!-- Style for PopupMenu that overlaps the anchor and supports Night Theme. -->
-    <style name="Widget.AppTheme.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow"/>
-
-    <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
-    <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
-        <item name="android:minWidth">124dp</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:textColor">?colorOnSecondary</item>
-    </style>
-
-    <!-- Style applied to the main Scrolling View in layouts that use NowPlayingFragment. -->
-    <style name="MainScrollingView">
-        <item name="android:clipToPadding">false</item>
-        <item name="android:paddingBottom">72dp</item>
-    </style>
-
-    <!-- Specialization for Lists. -->
-    <style name="MainScrollingView.List">
-        <item name="android:paddingTop">8dp</item>
-    </style>
-
-    <!-- Specialization for non-list RecyclerViews with fast scrolling enabled. -->
-    <style name="MainScrollingView.FastScrollRecyclerView">
-        <item name="fastScrollEnabled">true</item>
-        <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
-        <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
-    </style>
-
-    <!-- Text styles. -->
-    <style name="TextAppearance.Odeon.Headline1" parent="TextAppearance.MaterialComponents.Headline1"/>
-    <style name="TextAppearance.Odeon.Headline2" parent="TextAppearance.MaterialComponents.Headline2"/>
-    <style name="TextAppearance.Odeon.Headline3" parent="TextAppearance.MaterialComponents.Headline3"/>
-    <style name="TextAppearance.Odeon.Headline4" parent="TextAppearance.MaterialComponents.Headline4"/>
-    <style name="TextAppearance.Odeon.Headline5" parent="TextAppearance.MaterialComponents.Headline5"/>
-    <style name="TextAppearance.Odeon.Headline6" parent="TextAppearance.MaterialComponents.Headline6"/>
-    <style name="TextAppearance.Odeon.Body1" parent="TextAppearance.MaterialComponents.Body1"/>
-    <style name="TextAppearance.Odeon.Body2" parent="TextAppearance.MaterialComponents.Body2"/>
-    <style name="TextAppearance.Odeon.Button" parent="TextAppearance.MaterialComponents.Button"/>
-    <style name="TextAppearance.Odeon.Caption" parent="TextAppearance.MaterialComponents.Caption"/>
-    <style name="TextAppearance.Odeon.Overline" parent="TextAppearance.MaterialComponents.Overline"/>
-    <style name="TextAppearance.Odeon.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1"/>
-    <style name="TextAppearance.Odeon.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2"/>
 </resources>

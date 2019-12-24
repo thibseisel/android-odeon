@@ -22,6 +22,11 @@
 
     <application>
 
+        <!-- Declare support for Android Auto. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/svc_automotive_app_desc"/>
+
         <!--
             Main music service.
             Provides media browsing and media playback services to consumers through MediaSession.

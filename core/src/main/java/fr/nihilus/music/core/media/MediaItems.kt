@@ -32,12 +32,6 @@ object MediaItems {
      * Type: integer
      */
     const val EXTRA_NUMBER_OF_TRACKS = "number_of_tracks"
-    /**
-     * Year in which this media item has been released.
-     *
-     * Type: integer
-     */
-    const val EXTRA_YEAR = "last_year"
 
     /**
      * The number of this track in its album.

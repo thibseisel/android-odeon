@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2019 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -27,9 +27,6 @@
     <color name="color_on_error">#000000</color>
     <color name="color_on_background">#FFFFFF</color>
     <color name="color_on_surface" tools:keep="@color/color_on_surface">#FFFFFF</color>
-
-    <color name="control_normal_compat_disabled">#7fffffff</color>
-    <color name="control_normal_compat">#ffffffff</color>
 
     <color name="elevation_8_overlay">#1DFFFFFF</color>
 </resources>

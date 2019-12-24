@@ -28,11 +28,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- Declare support for Android Auto. -->
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc"/>
-
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"

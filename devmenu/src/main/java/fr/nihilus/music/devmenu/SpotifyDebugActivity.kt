@@ -17,7 +17,6 @@
 package fr.nihilus.music.devmenu
 
 import android.os.Bundle
-import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import fr.nihilus.music.devmenu.features.MixComposerFragment
 

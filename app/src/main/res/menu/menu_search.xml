@@ -19,7 +19,7 @@
 
     <item
         android:id="@+id/action_clear"
-        android:icon="@drawable/ic_clear_24dp"
+        android:icon="@drawable/ui_ic_clear_24dp"
         android:title="@string/action_clear"
         app:showAsAction="ifRoom" />
 </menu>

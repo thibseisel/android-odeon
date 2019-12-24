@@ -67,7 +67,7 @@ class HomeViewModel
     private fun allPlaylists() = combine(
         builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
         builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
-        client.getChildren(MediaId.TYPE_PLAYLISTS)
+        client.getChildren(MediaId.ALL_PLAYLISTS)
     ) { mostRecent, mostRated, playlists ->
         ArrayList<MediaItem>(playlists.size + 2).also {
             it += mostRecent

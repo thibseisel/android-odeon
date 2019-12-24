@@ -20,7 +20,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -31,7 +30,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.navigation.NavigationView
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
@@ -131,11 +129,12 @@ class HomeActivity : BaseActivity() {
      * This will close the navigation drawer if open, collapse the player view if expanded,
      * or otherwise follow the default behavior (pop fragment back stack or finish activity).
      */
-    override fun onBackPressed() = when {
-        bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED ->
+    override fun onBackPressed() {
+        if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-
-        else -> super.onBackPressed()
+        } else {
+            super.onBackPressed()
+        }
     }
 
     /**
@@ -186,13 +185,22 @@ class HomeActivity : BaseActivity() {
         }
     }
 
-    private fun onSheetVisibilityChanged(sheetVisible: Boolean) = if (sheetVisible) {
-        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_height), true)
-    } else if (bottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED) {
-        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_hidden_height), true)
-    } else {
-        bottomSheet.setPeekHeight(resources.getDimensionPixelSize(R.dimen.playerview_hidden_height), false)
-        bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+    private fun onSheetVisibilityChanged(sheetVisible: Boolean) = when {
+        sheetVisible -> {
+            val collapsedSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
+            bottomSheet.setPeekHeight(collapsedSheetHeight, true)
+        }
+
+        bottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED -> {
+            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+            bottomSheet.setPeekHeight(hiddenSheetHeight, true)
+        }
+
+        else -> {
+            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+            bottomSheet.setPeekHeight(hiddenSheetHeight, false)
+            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
     }
 
     /**

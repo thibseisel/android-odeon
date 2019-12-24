@@ -27,12 +27,6 @@ val PlaybackStateCompat.isPlayEnabled
             ((actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L) &&
                     (state == PlaybackStateCompat.STATE_PAUSED))
 
-val PlaybackStateCompat.isPauseEnabled
-    get() = (actions and PlaybackStateCompat.ACTION_PAUSE != 0L) ||
-            ((actions and PlaybackStateCompat.ACTION_PLAY_PAUSE != 0L) &&
-                    (state == PlaybackStateCompat.STATE_BUFFERING ||
-                            state == PlaybackStateCompat.STATE_PLAYING))
-
 val PlaybackStateCompat.isSkipToNextEnabled
     get() = actions and PlaybackStateCompat.ACTION_SKIP_TO_NEXT != 0L
 

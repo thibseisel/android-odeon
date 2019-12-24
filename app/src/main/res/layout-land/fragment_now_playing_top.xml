@@ -80,7 +80,8 @@
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="InconsistentLayout" />
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/play_pause_button"
@@ -107,5 +108,6 @@
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="InconsistentLayout"/>
 </merge>

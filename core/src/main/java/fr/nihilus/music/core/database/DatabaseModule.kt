@@ -18,7 +18,6 @@ package fr.nihilus.music.core.database
 
 import dagger.Module
 import dagger.Provides
-import dagger.Reusable
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.spotify.SpotifyDao
 import fr.nihilus.music.core.database.usage.UsageDao
