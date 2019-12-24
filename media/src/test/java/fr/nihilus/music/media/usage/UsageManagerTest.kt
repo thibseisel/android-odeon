@@ -84,10 +84,10 @@ class UsageManagerTest {
             NIGHTMARE
         )
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
-            TrackUsage(75L, 82, TIME_NOW),  // Nightmare
-            TrackUsage(294L, 43, TIME_NOW), // Knights of Cydonia
-            TrackUsage(481L, 20, TIME_NOW), // Dirty Water
-            TrackUsage(48L, 12, TIME_NOW)   // Give It Up
+            TrackUsage(NIGHTMARE.id, 82, TIME_NOW),
+            TrackUsage(CYDONIA.id, 43, TIME_NOW),
+            TrackUsage(DIRTY_WATER.id, 20, TIME_NOW),
+            TrackUsage(GIVE_IT_UP.id, 12, TIME_NOW)
         )
 
         val manager = UsageManager(repository, usageDao)
@@ -100,8 +100,8 @@ class UsageManagerTest {
     fun `When loading most rated tracks, then omit tracks without usage`() = runBlockingTest {
         coEvery { repository.getTracks() } returns listOf(NIGHTMARE, GIVE_IT_UP, CYDONIA, NIGHTMARE)
         coEvery { usageDao.getTracksUsage(0L) } returns  listOf(
-            TrackUsage(75L, 82, TIME_NOW), // Nightmare
-            TrackUsage(294L, 43, TIME_NOW) // Knights of Cydonia
+            TrackUsage(NIGHTMARE.id, 82, TIME_NOW),
+            TrackUsage(CYDONIA.id, 43, TIME_NOW)
         )
 
         val manager = UsageManager(repository, usageDao)
@@ -116,7 +116,7 @@ class UsageManagerTest {
         coEvery { repository.getTracks() } returns listOf(DIRTY_WATER)
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(42L, 120, TIME_NOW), // Unknown
-            TrackUsage(481L, 20, TIME_NOW), // Dirty Water
+            TrackUsage(DIRTY_WATER.id, 20, TIME_NOW), // Dirty Water
             TrackUsage(100L, 56, TIME_NOW)  // Unknown
         )
 
