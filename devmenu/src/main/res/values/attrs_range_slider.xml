@@ -60,5 +60,7 @@
             Defaults to maxValue if not specified.
             -->
         <attr name="upperBound" format="float"/>
+
+        <attr name="android:enabled" format="boolean"/>
     </declare-styleable>
 </resources>

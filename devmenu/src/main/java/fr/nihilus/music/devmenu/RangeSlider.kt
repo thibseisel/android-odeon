@@ -19,10 +19,14 @@ package fr.nihilus.music.devmenu
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.Region
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
-import kotlin.math.roundToInt
+import android.view.ViewConfiguration
+import android.view.ViewGroup
+import androidx.core.graphics.withSave
 
 class RangeSlider @JvmOverloads constructor(
     context: Context,
@@ -33,20 +37,23 @@ class RangeSlider @JvmOverloads constructor(
     private var _maxValue: Float = DEFAULT_MAX_VALUE
     private val step: Float
 
-    private val trackDrawable: Drawable?
-    private val progressDrawable: Drawable?
-    private val thumbDrawable: Drawable?
+    private val track: Drawable?
+    private val activeTrack: Drawable?
+    private val thumb: Drawable?
     private val tickMark: Drawable?
 
     private var _lowerValue: Float = _minValue
     private var _upperValue: Float = _maxValue
 
-    private val leftTrackBounds = Rect()
-    private val progressBounds = Rect()
-    private val rightTrackBounds = Rect()
+    private val activeBounds = Rect()
 
     private val lowerThumbBounds = Rect()
     private val upperThumbBounds = Rect()
+
+    /**
+     * Distance in pixels a touch can wander before we think the user is scrolling.
+     */
+    private val scaledTouchSlop: Int
 
     private var rangeListener: OnRangeChangedListener? = null
 
@@ -88,6 +95,10 @@ class RangeSlider @JvmOverloads constructor(
         get() = _lowerValue
         set(value) {
             _lowerValue = value.coerceIn(_minValue, _maxValue)
+            val paddedWidth = width - paddingLeft - paddingRight
+            val lowerScale = scaled(_lowerValue)
+            activeBounds.left = (paddedWidth * lowerScale).toInt()
+
             invalidate()
         }
 
@@ -102,118 +113,62 @@ class RangeSlider @JvmOverloads constructor(
         get() = _upperValue
         set(value) {
             _upperValue = value.coerceIn(_lowerValue, _maxValue)
+            val paddedWidth = width - paddingLeft - paddingRight
+            val upperScale = scaled(_upperValue)
+            activeBounds.right = (paddedWidth * upperScale).toInt()
+
             invalidate()
         }
 
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.RangeSlider, 0, R.style.Widget_RangeSlider)
         try {
+            // Retrieve the drawable components used for the appearance of the slider.
+            track = a.getDrawable(R.styleable.RangeSlider_trackDrawable)
+            activeTrack = a.getDrawable(R.styleable.RangeSlider_progressDrawable)
+            thumb = a.getDrawable(R.styleable.RangeSlider_thumbDrawable)
+            tickMark = a.getDrawable(R.styleable.RangeSlider_tickMarkDrawable)
+
+            // Retrieve the extreme values for the widest range.
             minValue = a.getFloat(R.styleable.RangeSlider_minValue, DEFAULT_MIN_VALUE)
             maxValue = a.getFloat(R.styleable.RangeSlider_maxValue, DEFAULT_MAX_VALUE)
 
-            val defaultStep = (_maxValue - _minValue) / DEFAULT_TICK_MARKS
             val minimumStep = (_maxValue - _minValue) / MAX_TICK_MARKS
-            step = a.getFloat(R.styleable.RangeSlider_step, defaultStep)
+            step = a.getFloat(R.styleable.RangeSlider_step, STEP_CONTINUOUS)
                 .coerceIn(minimumStep, _maxValue)
 
-            trackDrawable = a.getDrawable(R.styleable.RangeSlider_trackDrawable)
-            progressDrawable = a.getDrawable(R.styleable.RangeSlider_progressDrawable)
-            thumbDrawable = a.getDrawable(R.styleable.RangeSlider_thumbDrawable)
-            tickMark = a.getDrawable(R.styleable.RangeSlider_tickMarkDrawable)
-
+            // Sets the initial range.
             lowerBound = a.getFloat(R.styleable.RangeSlider_lowerBound, _minValue)
             upperBound = a.getFloat(R.styleable.RangeSlider_upperBound, _maxValue)
+
+            isEnabled = a.getBoolean(R.styleable.RangeSlider_android_enabled, true)
 
         } finally {
             a.recycle()
         }
-    }
 
-    /**
-     * Convert the value of one bound in `[min ; max]` to fit in `[0.0, 1.0]`.
-     */
-    private fun getScaledPosition(bound: Float): Float {
-        val range = _maxValue - _minValue
-        return if (range > 0f) (bound - _minValue) / range else 0f
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        val ww = w - paddingLeft - paddingRight
-        val hh = h - paddingTop - paddingBottom
-
-        val rangeLength = _maxValue - _minValue
-        val lowerX = paddingLeft + ((ww / rangeLength) * (_lowerValue - _minValue)).roundToInt()
-        val upperX = paddingLeft + ((ww / rangeLength) * (_upperValue - _minValue)).roundToInt()
-
-        val medianHeight = hh / 2 + paddingTop
-
-        if (trackDrawable != null) {
-            val trackHeight = trackDrawable.intrinsicHeight
-
-            leftTrackBounds.apply {
-                left = paddingLeft
-                top = medianHeight - trackHeight / 2
-                right = lowerX
-                bottom = medianHeight + trackHeight / 2
-            }
-
-            rightTrackBounds.apply {
-                left = upperX
-                top = medianHeight - trackHeight / 2
-                right = w - paddingRight
-                bottom = medianHeight + trackHeight / 2
-            }
-        }
-
-        if (progressDrawable != null) {
-            val progressHeight = progressDrawable.intrinsicHeight
-
-            progressBounds.apply {
-                left = lowerX
-                top = medianHeight - progressHeight / 2
-                right = upperX
-                bottom = medianHeight + progressHeight / 2
-            }
-        }
-
-        if (thumbDrawable != null) {
-            val thumbWidth = thumbDrawable.intrinsicWidth
-            val thumbHeight = thumbDrawable.intrinsicHeight
-
-            lowerThumbBounds.apply {
-                left = lowerX - thumbWidth / 2
-                top = medianHeight - thumbHeight / 2
-                right = lowerX + thumbWidth / 2
-                bottom = medianHeight + thumbHeight / 2
-            }
-
-            upperThumbBounds.apply {
-                left = upperX - thumbWidth / 2
-                top = medianHeight - thumbHeight / 2
-                right = upperX + thumbWidth / 2
-                bottom = medianHeight + thumbHeight / 2
-            }
-        }
+        scaledTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
     }
 
     override fun getSuggestedMinimumWidth(): Int {
         val minimumWidth = super.getSuggestedMinimumWidth()
-        return minimumWidth + maxOf(
-            trackDrawable?.minimumWidth ?: 0,
-            progressDrawable?.minimumWidth ?: 0,
-            thumbDrawable?.minimumWidth ?: 0
+        val trackWidth = minimumWidth + maxOf(
+            track?.minimumWidth ?: 0,
+            activeTrack?.minimumWidth ?: 0
         )
+
+        return maxOf(minimumWidth, trackWidth)
     }
 
     override fun getSuggestedMinimumHeight(): Int {
         val minimumHeight = super.getSuggestedMinimumHeight()
         val drawableHeight = maxOf(
-            trackDrawable?.minimumHeight ?: 0,
-            progressDrawable?.minimumHeight ?: 0,
-            thumbDrawable?.minimumHeight ?: 0
+            track?.minimumHeight ?: 0,
+            activeTrack?.minimumHeight ?: 0,
+            thumb?.minimumHeight ?: 0
         )
 
-        return minimumHeight + drawableHeight
+        return maxOf(minimumHeight, drawableHeight)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -225,40 +180,111 @@ class RangeSlider @JvmOverloads constructor(
         setMeasuredDimension(measuredWidth, measuredHeight)
     }
 
+    /**
+     * Convert the value of one bound in `[min ; max]` to fit in `[0.0, 1.0]`.
+     */
+    private fun scaled(bound: Float): Float {
+        val range = _maxValue - _minValue
+        return if (range > 0f) (bound - _minValue) / range else 0f
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        val paddedWidth = w - paddingLeft - paddingRight
+
+        activeBounds.apply {
+            left = (scaled(_lowerValue) * paddedWidth).toInt()
+            top = 0
+            right = (scaled(_upperValue) * paddedWidth).toInt()
+            bottom = h - paddingTop - paddingBottom
+        }
+
+        updateTrackAndThumbsPosition(w, h)
+    }
+
+    private fun updateTrackAndThumbsPosition(width: Int, height: Int) {
+        val paddedWidth = width - paddingLeft - paddingRight
+        val paddedHeight = height - paddingTop - paddingBottom
+
+        val trackHeight = track?.intrinsicHeight ?: 0
+        val activeHeight = activeTrack?.intrinsicHeight ?: 0
+        val thumbHeight = thumb?.intrinsicHeight ?: 0
+
+        // Find the tallest item, and offset the others so that they are centered vertically.
+        val tallestHeight = maxOf(trackHeight, activeHeight, thumbHeight)
+        val offsetHeight = (paddedHeight - tallestHeight) / 2
+
+        val trackOffset = offsetHeight + (tallestHeight - trackHeight) / 2
+        val activeOffset = offsetHeight + (tallestHeight - activeHeight) / 2
+        val thumbOffset = offsetHeight + (tallestHeight - thumbHeight) / 2
+
+        track?.setBounds(0, trackOffset, paddedWidth, trackOffset + trackHeight)
+        activeTrack?.setBounds(0, activeOffset, paddedWidth, activeOffset + activeHeight)
+
+        if (thumb != null) {
+            setThumbPosition(width, lowerThumbBounds, scaled(_lowerValue), thumbOffset)
+            setThumbPosition(width, upperThumbBounds, scaled(_upperValue), thumbOffset)
+        }
+    }
+
+    private fun setThumbPosition(width: Int, thumbBounds: Rect, scale: Float, offset: Int) {
+        check(thumb != null)
+        val paddedWidth = width - paddingLeft - paddingRight
+        val thumbWidth = thumb.intrinsicWidth
+        val thumbHeight = thumb.intrinsicHeight
+
+        val thumbPosition = (scale * paddedWidth).toInt()
+        thumbBounds.apply {
+            left = thumbPosition
+            top = offset
+            right = left + thumbWidth
+            bottom = offset + thumbHeight
+        }
+    }
+
     override fun onDraw(canvas: Canvas) {
         drawBar(canvas)
         drawTickMarks(canvas)
         drawThumbs(canvas)
     }
 
-    private fun drawThumbs(canvas: Canvas) {
-        if (thumbDrawable != null) {
-            thumbDrawable.bounds = lowerThumbBounds
-            thumbDrawable.draw(canvas)
+    private fun drawBar(canvas: Canvas) {
+        if (track != null || activeTrack != null) {
+            canvas.withSave {
+                translate(paddingLeft.toFloat(), paddingTop.toFloat())
 
-            thumbDrawable.bounds = upperThumbBounds
-            thumbDrawable.draw(canvas)
+                if (track != null) {
+                    canvas.withSave {
+                        clipRect(activeBounds, Region.Op.DIFFERENCE)
+                        track.draw(this)
+                    }
+                }
+
+                if (activeTrack != null) {
+                    canvas.withSave {
+                        clipRect(activeBounds)
+                        activeTrack.draw(this)
+                    }
+                }
+            }
         }
     }
 
-    private fun drawBar(canvas: Canvas) {
-        // Inactive portion
-        if (trackDrawable != null) {
-            trackDrawable.bounds = leftTrackBounds
-            trackDrawable.draw(canvas)
+    private fun drawThumbs(canvas: Canvas) {
+        if (thumb != null) {
+            val thumbOffset = thumb.intrinsicWidth / 2f
+            canvas.withSave {
+                translate(paddingLeft - thumbOffset, paddingTop.toFloat())
+                thumb.bounds = lowerThumbBounds
+                thumb.draw(canvas)
 
-            trackDrawable.bounds = rightTrackBounds
-            trackDrawable.draw(canvas)
-        }
-
-        if (progressDrawable != null) {
-            progressDrawable.bounds = progressBounds
-            progressDrawable.draw(canvas)
+                thumb.bounds = upperThumbBounds
+                thumb.draw(canvas)
+            }
         }
     }
 
     private fun drawTickMarks(canvas: Canvas) {
-        if (tickMark != null && !step.isNaN()) {
+        if (tickMark != null && step > STEP_CONTINUOUS) {
             val numberOfTicks = ((_maxValue - _minValue) / step).toInt()
             if (numberOfTicks > 1) {
                 val w = tickMark.intrinsicWidth
@@ -268,18 +294,52 @@ class RangeSlider @JvmOverloads constructor(
                 tickMark.setBounds(-halfW, -halfH, halfW, halfH)
 
                 val spacing = (width - paddingLeft - paddingRight).toFloat() / numberOfTicks
-                val saveCount = canvas.save()
+                val medianHeight = (height - paddingTop - paddingBottom) / 2
 
-                val medianHeight = paddingTop + (height - paddingTop - paddingBottom) / 2f
-                canvas.translate(paddingLeft.toFloat(), medianHeight)
-                repeat(numberOfTicks) {
-                    tickMark.draw(canvas)
-                    canvas.translate(spacing, 0f)
+                canvas.withSave {
+                    translate(paddingLeft.toFloat(), (paddingTop + medianHeight).toFloat())
+
+                    repeat(numberOfTicks + 1) {
+                        tickMark.draw(this)
+                        translate(spacing, 0f)
+                    }
                 }
-
-                canvas.restoreToCount(saveCount)
             }
         }
+    }
+
+    override fun drawableStateChanged() {
+        super.drawableStateChanged()
+
+        val viewState = drawableState
+        val trackChanged = track?.isStateful == true && track.setState(viewState)
+        val activeTrackChanged = activeTrack?.isStateful == true && activeTrack.setState(viewState)
+        val thumbChanged = thumb?.isStateful == true && thumb.setState(viewState)
+        val tickMarkChanged = tickMark?.isStateful == true && tickMark.setState(viewState)
+
+        if (trackChanged || activeTrackChanged || thumbChanged || tickMarkChanged) {
+            invalidate()
+        }
+    }
+
+    /**
+     * If this returns true, we can't start dragging the Slider immediately
+     * when we receive a [MotionEvent.ACTION_DOWN].
+     * Instead, we must wait for a [MotionEvent.ACTION_MOVE].
+     *
+     * Copied from hidden method of [View] isInScrollingContainer.
+     *
+     * @return true if any of this View's parents is a scrolling View.
+     */
+    private fun isInScrollingContainer(): Boolean {
+        var p = parent
+        while (p is ViewGroup) {
+            if (p.shouldDelayChildPressedState()) {
+                return true
+            }
+            p = p.getParent()
+        }
+        return false
     }
 
     /**
@@ -314,6 +374,11 @@ private const val DEFAULT_MIN_VALUE = 0.0f
  * The default maximum value.
  */
 private const val DEFAULT_MAX_VALUE = 1.0f
+
+/**
+ * Special value for the step property of [RangeSlider] that causes it to run in continuous mode.
+ */
+private const val STEP_CONTINUOUS = 0.0f
 
 /**
  * The default number of tick marks to display when no step is specified.
