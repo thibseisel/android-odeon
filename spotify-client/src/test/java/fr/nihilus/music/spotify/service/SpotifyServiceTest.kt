@@ -25,6 +25,7 @@ import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.matchers.string.shouldContain
+import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.matchers.withClue
@@ -243,6 +244,22 @@ class SpotifyServiceTest {
     }
 
     @Test
+    fun `Given bad ids, when getting multiple artists then return null for those ids`() = runBlockingTest {
+        val requestedArtistIds = listOf("first_bad_id", "7jy3rLJdDQY21OgRLCZ9sD", "second_bad_id")
+        val apiClient = spotifyService {
+            respondFile("artists/several_with_nulls.json")
+        }
+
+        val resource = apiClient.getSeveralArtists(requestedArtistIds)
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>> { (artists) ->
+            artists shouldHaveSize 3
+            artists[0].shouldBeNull()
+            artists[1].shouldNotBeNull()
+            artists[2].shouldBeNull()
+        }
+    }
+
+    @Test
     fun `When getting an artist's albums, then fetch its albums page per page`() = runBlockingTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler {
@@ -356,6 +373,22 @@ class SpotifyServiceTest {
     }
 
     @Test
+    fun `Given bad ids, when getting multiple albums then return null for those ids`() = runBlockingTest {
+        val requestedAlbumIds = listOf("first_bad_id", "6KMkuqIwKkwUhUYRPL6dUc", "second_bad_id")
+        val apiClient = spotifyService {
+            respondFile("albums/several_with_nulls.json")
+        }
+
+        val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>> { (albums) ->
+            albums shouldHaveSize 3
+            albums[0].shouldBeNull()
+            albums[1].shouldNotBeNull()
+            albums[2].shouldBeNull()
+        }
+    }
+
+    @Test
     fun `When getting an album's tracks then fetch its tracks page per page`() = runBlockingTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler { firstPage ->
@@ -465,6 +498,22 @@ class SpotifyServiceTest {
                 it.duration shouldBe 227213
                 it.explicit shouldBe false
             }
+        }
+    }
+
+    @Test
+    fun `Given bad ids, when getting multiple tracks then return null for those ids`() = runBlockingTest {
+        val requestedAlbumIds = listOf("first_bad_id", "0dMYPDqcI4ca4cjqlmp9mE", "second_bad_id")
+        val apiClient = spotifyService {
+            respondFile("tracks/several_with_nulls.json")
+        }
+
+        val resource = apiClient.getSeveralTracks(requestedAlbumIds)
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>> { (tracks) ->
+            tracks shouldHaveSize 3
+            tracks[0].shouldBeNull()
+            tracks[1].shouldNotBeNull()
+            tracks[2].shouldBeNull()
         }
     }
 
