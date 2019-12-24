@@ -30,7 +30,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -116,9 +115,6 @@ class MusicService : BaseBrowserService() {
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.svc_allowed_media_browser_callers)
-
-        // Observe changes to the "skip silence" settings, applying it to the player when changed.
-        observeSkipSilenceSettings()
 
         // Listen for changes in the repository to notify media browsers.
         // If the changed media ID is a track, notify for its parent category.
@@ -370,14 +366,6 @@ class MusicService : BaseBrowserService() {
                 release()
             }
         }
-    }
-
-    private fun CoroutineScope.observeSkipSilenceSettings() {
-        settings.skipSilence.onEach { shouldSkipSilence ->
-            player.playbackParameters = if (shouldSkipSilence) {
-                PlaybackParameters(1f, 1f, true)
-            } else PlaybackParameters.DEFAULT
-        }.launchIn(this)
     }
 
     private fun CoroutineScope.observeMediaChanges() {

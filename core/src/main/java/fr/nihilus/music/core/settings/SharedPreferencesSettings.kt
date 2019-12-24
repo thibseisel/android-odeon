@@ -101,7 +101,7 @@ internal class SharedPreferencesSettings
             })
             .apply()
 
-    override val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)
+    val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)
         .map { it.getBoolean(PREF_KEY_SKIP_SILENCE, false) }
 
     @ExperimentalCoroutinesApi

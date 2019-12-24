@@ -21,9 +21,7 @@ import android.os.Handler
 import com.google.android.exoplayer2.DefaultRenderersFactory
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.RenderersFactory
-import com.google.android.exoplayer2.audio.AudioCapabilities
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
-import com.google.android.exoplayer2.audio.DefaultAudioSink
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
 import com.google.android.exoplayer2.drm.DrmSessionManager
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
@@ -31,7 +29,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.metadata.MetadataOutput
 import com.google.android.exoplayer2.text.TextOutput
 import com.google.android.exoplayer2.video.VideoRendererEventListener
-import fr.nihilus.music.service.playback.processor.CustomAudioProcessorChain
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
@@ -57,19 +54,6 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
         drmSessionManager: DrmSessionManager<FrameworkMediaCrypto>?
     ) = arrayOf<Renderer>(
         // Audio-only renderer
-        MediaCodecAudioRenderer(
-            context,
-            MediaCodecSelector.DEFAULT,
-            null,
-            false,
-            eventHandler,
-            audioRendererEventListener,
-            // Configure a custom processor chain to change the silence skipping behavior.
-            DefaultAudioSink(
-                AudioCapabilities.getCapabilities(context),
-                CustomAudioProcessorChain(),
-                false
-            )
-        )
+        MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT)
     )
 }

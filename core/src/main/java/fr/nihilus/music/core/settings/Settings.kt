@@ -63,13 +63,6 @@ interface Settings {
     var repeatMode: RepeatMode
 
     /**
-     * Observe changes of the skip silence preference.
-     * The first received value should be whether the option is actually enabled.
-     * Subsequent values are received whenever skip silence is enabled or disabled.
-     */
-    val skipSilence: Flow<Boolean>
-
-    /**
      * Enumeration of values for the [currentTheme] settings.
      *
      * @property value The value to be used when setting the current theme
