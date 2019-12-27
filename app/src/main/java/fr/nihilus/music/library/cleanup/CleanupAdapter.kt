@@ -94,7 +94,9 @@ class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
          * The detail of this track item.
          * This is used by the selection library to determine the behavior of individual items.
          */
-        val itemDetails = TrackDetails(this, currentList::getOrNull)
+        val itemDetails = TrackDetails(this) { position ->
+            currentList.getOrNull(position)
+        }
 
         /**
          * Updates this holder's view to reflect the data in the provided [track].
