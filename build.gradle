@@ -24,8 +24,8 @@ buildscript {
         targetSdkVersion = 28
 
         // App Version shared across modules
-        appVersionCode = 20018
-        appVersionName = '2.0.1-beta4'
+        appVersionCode = 20019
+        appVersionName = '2.0.1-beta5'
 
         versions = [
                 'kotlin'        : '1.3.61',
