@@ -76,7 +76,10 @@ android {
             signingConfig signingConfigs.release
             shrinkResources true
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles(
+                    getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+            )
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
@@ -105,7 +108,7 @@ android {
             // Unlike release builds, keep the app debuggable.
             shrinkResources true
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'beta-rules.pro'
+            proguardFiles = buildTypes.release.proguardFiles + 'beta-rules.pro'
 
             // Tell dependent modules to be compiled with their debug variant.
             matchingFallbacks = ['debug']
