@@ -54,6 +54,6 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
         drmSessionManager: DrmSessionManager<FrameworkMediaCrypto>?
     ) = arrayOf<Renderer>(
         // Audio-only renderer
-        MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT)
+        MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT, eventHandler, audioRendererEventListener)
     )
 }
