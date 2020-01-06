@@ -23,6 +23,7 @@ import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.model.SpotifyTrack
+import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContain
 import org.junit.Rule
 import kotlin.test.Test
@@ -56,6 +57,46 @@ class SpotifyManagerTest {
 
         localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
         localDao.features shouldContain TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
+    }
+
+    @Test
+    fun `When syncing and no track matched, then create no link`() = test.run {
+        val localDao = FakeSpotifyDao()
+        val repository = FakeMediaRepository(
+            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
+        )
+
+        val service = FakeSpotifyService(
+            tracks = emptyList(),
+            features = emptyList()
+        )
+
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        manager.sync()
+
+        localDao.links.shouldBeEmpty()
+        localDao.features.shouldBeEmpty()
+    }
+
+    @Test
+    fun `When syncing and features are not found, then create no link`() = test.run {
+        val localDao = FakeSpotifyDao()
+        val repository = FakeMediaRepository(
+            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
+        )
+
+        val service = FakeSpotifyService(
+            tracks = listOf(
+                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
+            ),
+            features = emptyList()
+        )
+
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        manager.sync()
+
+        localDao.links.shouldBeEmpty()
+        localDao.features.shouldBeEmpty()
     }
 }
 
