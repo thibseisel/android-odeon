@@ -21,17 +21,10 @@ import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.model.SpotifyTrack
-import fr.nihilus.music.spotify.service.HttpResource
-import fr.nihilus.music.spotify.service.SpotifyQuery
-import fr.nihilus.music.spotify.service.SpotifyService
-import io.mockk.*
-import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.flow.flowOf
+import io.kotlintest.matchers.collections.shouldContain
 import org.junit.Rule
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class SpotifyManagerTest {
@@ -42,48 +35,27 @@ class SpotifyManagerTest {
     private val clock = TestClock(123456789L)
     private val dispatchers = AppDispatchers(test.dispatcher)
 
-    @MockK private lateinit var repository: MediaRepository
-    @MockK private lateinit var service: SpotifyService
-    @MockK private lateinit var localDao: SpotifyDao
-
-    private lateinit var manager: SpotifyManager
-
-    @BeforeTest
-    fun setupMocks() = MockKAnnotations.init(this)
-
-    @BeforeTest
-    fun setupSubject() {
-        manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
-    }
-
     @Test
     fun `When syncing tracks, then create a link to the spotify ID for each`() = test.run {
-        coEvery { repository.getTracks() } returns listOf(
+        val localDao = FakeSpotifyDao()
+        val repository = FakeMediaRepository(
             sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
         )
 
-        coEvery { localDao.getLinks() } returns emptyList()
-
-        every { service.search(any<SpotifyQuery.Track>()) } returns flowOf(
-            SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
+        val service = FakeSpotifyService(
+            tracks = listOf(
+                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
+            ),
+            features = listOf(
+                AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
+            )
         )
 
-        coEvery {
-            service.getSeveralTrackFeatures(listOf("7f0vVL3xi4i78Rv5Ptn2s1"))
-        } returns HttpResource.Loaded(
-            listOf(AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f))
-        )
-
-        coEvery { localDao.saveTrackFeature(any(), any()) } just Runs
-
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
         manager.sync()
 
-        coVerify(exactly = 1) {
-            localDao.saveTrackFeature(
-                eq(SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)),
-                eq(TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f))
-            )
-        }
+        localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
+        localDao.features shouldContain TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
     }
 }
 
