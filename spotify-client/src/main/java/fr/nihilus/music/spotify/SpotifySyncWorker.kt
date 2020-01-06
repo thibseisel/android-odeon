@@ -18,25 +18,36 @@ package fr.nihilus.music.spotify
 
 import android.content.Context
 import androidx.work.CoroutineWorker
+import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
-import fr.nihilus.music.spotify.service.SpotifyService
+import fr.nihilus.music.core.worker.SingleWorkerFactory
+import javax.inject.Provider
 
 /**
  * Fetches media metadata from the Spotify API and saves them to local database for later use.
  */
 class SpotifySyncWorker(
     context: Context,
-    params: WorkerParameters
+    params: WorkerParameters,
+    private val manager: SpotifyManager
 ) : CoroutineWorker(context, params) {
-    @Inject internal lateinit var spotifyService: SpotifyService
 
     override suspend fun doWork(): Result {
-        DaggerSpotifyClientComponent.create().inject(this)
         // TODO Perform synchronization.
         // Here are some thoughts about how it should perform:
         // 1. Scan the cached music metadata to find tracks that do not have features
         // 2. Download features for those tracks.
         // Callers could send parameters pointing out tracks that should be updated.
+        manager.sync()
         return Result.failure()
+    }
+
+    internal class Factory(
+        private val manager: Provider<SpotifyManager>
+    ) : SingleWorkerFactory {
+
+        override fun createWorker(appContext: Context, params: WorkerParameters): ListenableWorker {
+            return SpotifySyncWorker(appContext, params, manager.get())
+        }
     }
 }

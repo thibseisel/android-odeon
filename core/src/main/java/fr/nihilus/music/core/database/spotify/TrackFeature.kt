@@ -24,7 +24,7 @@ import androidx.room.PrimaryKey
  * Audio features of a specific track.
  */
 @Entity(tableName = "track_feature")
-class TrackFeature(
+data class TrackFeature(
 
     /**
      * The unique identifier of the analyzed track.

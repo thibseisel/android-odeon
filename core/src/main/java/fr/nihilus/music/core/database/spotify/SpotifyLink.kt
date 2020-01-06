@@ -25,7 +25,7 @@ import androidx.room.PrimaryKey
  * and media metadata found on a remote server with the given [spotifyId].
  */
 @Entity(tableName = "remote_link")
-class SpotifyLink(
+data class SpotifyLink(
 
     /**
      * The unique identifier of the media stored locally on the device.
