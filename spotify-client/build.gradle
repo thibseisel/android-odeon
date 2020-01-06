@@ -34,8 +34,7 @@ android {
 
 dependencies {
     implementation project(':core')
-
-    implementation "androidx.work:work-runtime-ktx:${versions.androidx.work}"
+    implementation project(':media')
 
     // Ktor Client - MultiPlatform HTTP Client
     implementation "io.ktor:ktor-client-okhttp:${versions.ktor}"
