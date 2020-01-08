@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.spotify.manager.FeatureFilter
 
 /**
  * Main entry point for tagging and classifying media stored on the device.

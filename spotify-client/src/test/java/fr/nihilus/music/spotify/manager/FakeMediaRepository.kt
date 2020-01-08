@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.spotify
+package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.test.stub
