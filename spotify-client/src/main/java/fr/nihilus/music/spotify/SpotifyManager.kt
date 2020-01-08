@@ -16,95 +16,38 @@
 
 package fr.nihilus.music.spotify
 
-import fr.nihilus.music.core.collections.associateByLong
-import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.database.spotify.*
-import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
-import fr.nihilus.music.spotify.model.AudioFeature
-import fr.nihilus.music.spotify.model.SpotifyTrack
-import fr.nihilus.music.spotify.service.HttpResource
-import fr.nihilus.music.spotify.service.SpotifyQuery
-import fr.nihilus.music.spotify.service.SpotifyService
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
 
+/**
+ * Main entry point for tagging and classifying media stored on the device.
+ *
+ * In order to provide audio classification capabilities even when device is offline,
+ * this manager maintains a local cache of audio features that should periodically be refreshed by
+ * [syncing it with the Spotify REST API][sync].
+ */
 interface SpotifyManager {
+
+    /**
+     * Among all tracks stored locally on the device, list those whose audio features
+     * match a given set of [filters].
+     *
+     * Tracks that have not been linked with a track on the Spotify API are not listed
+     * due to having no audio features.
+     *
+     * @param filters Set of constraints on the value of track features.
+     * Having no filters will return all tracks (except unlinked ones).
+     * @return Tracks whose audio features match all provided filters.
+     */
+    suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Track>
+
+    /**
+     * Fetch media metadata from the Spotify API and store them locally for offline use.
+     *
+     * The synchronization performs the following steps:
+     * 1. Identify tracks that have not been synced yet.
+     * 2. For each track, search for that track on the Spotify API.
+     * If it is found, that track is considered linked to its remote counterpart.
+     * 3. Download audio features for each newly linked track and save them locally.
+     */
     suspend fun sync()
-}
-
-internal class SpotifyManagerImpl(
-    private val repository: MediaRepository,
-    private val service: SpotifyService,
-    private val localDao: SpotifyDao,
-    private val dispatchers: AppDispatchers,
-    private val clock: Clock
-) : SpotifyManager {
-
-    override suspend fun sync() {
-        val unSyncedTracks = findUnSyncedTracks()
-
-        if (unSyncedTracks.isNotEmpty()) {
-            val newLinks = mutableListOf<SpotifyLink>()
-
-            for (track in unSyncedTracks) {
-                val spotifyTrack = withContext(dispatchers.IO) {
-                    val query = buildSearchQueryFor(track)
-                    val results = service.search(query).take(1).toList()
-                    results.firstOrNull()
-                }
-
-                if (spotifyTrack != null) {
-                    newLinks += SpotifyLink(track.id, spotifyTrack.id, clock.currentEpochTime)
-                }
-            }
-
-            withContext(dispatchers.IO) {
-                val trackIds = newLinks.map { it.spotifyId }
-                when (val resource = service.getSeveralTrackFeatures(trackIds)) {
-                    is HttpResource.Loaded -> {
-                        for (index in newLinks.indices) {
-                            val link = newLinks[index]
-                            val feature = resource.data[index] ?: continue
-                            localDao.saveTrackFeature(link, feature.asLocalFeature())
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    private suspend fun findUnSyncedTracks(): List<Track> = coroutineScope {
-        val asyncTracks = async { repository.getTracks() }
-        val remoteLinks = localDao.getLinks().associateByLong(SpotifyLink::trackId)
-
-        asyncTracks.await().filterNot { remoteLinks.containsKey(it.id) }
-    }
-
-    private fun buildSearchQueryFor(track: Track) = SpotifyQuery.Track(
-        title = track.title,
-        artist = track.artist
-    )
-
-    private fun AudioFeature.asLocalFeature(): TrackFeature = TrackFeature(
-        id = id,
-        key = decodePitch(key),
-        mode = decodeMusicalMode(mode),
-        tempo = tempo,
-        signature = signature,
-        loudness = loudness,
-        acousticness = acousticness,
-        danceability = danceability,
-        energy = energy,
-        instrumentalness = instrumentalness,
-        liveness = liveness,
-        speechiness = speechiness,
-        valence = valence
-    )
 }
