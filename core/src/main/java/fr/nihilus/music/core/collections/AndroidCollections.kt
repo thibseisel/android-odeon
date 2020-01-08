@@ -29,3 +29,13 @@ inline fun <T> Iterable<T>.associateByLong(keySelector: (T) -> Long) = LongSpars
         it.put(keySelector(element), element)
     }
 }
+
+/**
+ * The list of values that are stored in the [LongSparseArray].
+ */
+val <E> LongSparseArray<E>.values: List<E>
+    get() = ArrayList<E>(size()).also {
+        for (index in 0 until size()) {
+            it.add(valueAt(index))
+        }
+    }

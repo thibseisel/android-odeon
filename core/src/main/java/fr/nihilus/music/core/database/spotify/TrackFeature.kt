@@ -17,6 +17,7 @@
 package fr.nihilus.music.core.database.spotify
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -137,6 +138,27 @@ data class TrackFeature(
 )
 
 /**
+ * Audio features associated with a track stored locally on the device.
+ */
+class LocalizedTrackFeature(
+
+    /**
+     * The unique identifier of a track stored on the device's storage.
+     */
+    @ColumnInfo(name = "local_id")
+    val trackId: Long,
+
+    /**
+     * The audio features that have been linked to that local track.
+     */
+    @Embedded
+    val features: TrackFeature
+) {
+    operator fun component1() = trackId
+    operator fun component2() = features
+}
+
+/**
  * Enumeration of musical modes.
  */
 enum class MusicalMode {
@@ -151,12 +173,18 @@ enum class Pitch {
     C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B;
 }
 
+/**
+ * Parse the raw code for the `mode` property from the Spotify AudioFeature object.
+ */
 fun decodeMusicalMode(mode: Int): MusicalMode = when (mode) {
     0 -> MusicalMode.MINOR
     1 -> MusicalMode.MAJOR
     else -> error("Invalid encoded value for MusicalMode: $mode")
 }
 
+/**
+ * Parse the raw code for the `key` property from the Spotify AudioFeature object.
+ */
 fun decodePitch(key: Int?): Pitch? = when (key) {
     0 -> Pitch.C
     1 -> Pitch.C_SHARP

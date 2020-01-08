@@ -53,18 +53,19 @@ sealed class FeatureFilter {
     /**
      * Filters tracks based on an accepted range of values for one specific feature.
      *
+     * @param featureSelector The specific audio feature on which perform filtering.
      * @param lowest The lowest accepted value.
      * @param highest The highest accepted value.
      */
     class OnRange(
-        private val featureProvider: (TrackFeature) -> Float,
+        private val featureSelector: TrackFeature.() -> Float,
         private val lowest: Float,
         highest: Float
     ) : FeatureFilter() {
         private val highest: Float = highest.coerceAtLeast(lowest)
 
         override fun matches(feature: TrackFeature): Boolean {
-            val featureValue = featureProvider(feature)
+            val featureValue = featureSelector(feature)
             return featureValue in lowest..highest
         }
     }

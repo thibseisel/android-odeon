@@ -36,23 +36,17 @@ internal class FakeSpotifyService(
     private val tracks = tracks.associateBy { it.id }
     private val features = features.associateBy { it.id }
 
-    override suspend fun getArtist(id: String): HttpResource<SpotifyArtist> =
-        stub()
+    override suspend fun getArtist(id: String): HttpResource<SpotifyArtist> = stub()
 
-    override suspend fun getSeveralArtists(ids: List<String>) =
-        stub()
+    override suspend fun getSeveralArtists(ids: List<String>) = stub()
 
-    override fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum> =
-        stub()
+    override fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum> = stub()
 
-    override suspend fun getAlbum(id: String): HttpResource<SpotifyAlbum> =
-        stub()
+    override suspend fun getAlbum(id: String): HttpResource<SpotifyAlbum> = stub()
 
-    override suspend fun getSeveralAlbums(ids: List<String>) =
-        stub()
+    override suspend fun getSeveralAlbums(ids: List<String>) = stub()
 
-    override fun getAlbumTracks(albumId: String): Flow<SpotifyTrack> =
-        stub()
+    override fun getAlbumTracks(albumId: String): Flow<SpotifyTrack> = stub()
 
     override suspend fun getTrack(id: String): HttpResource<SpotifyTrack> {
         return tracks[id]
