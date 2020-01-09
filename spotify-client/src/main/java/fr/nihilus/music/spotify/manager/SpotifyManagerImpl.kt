@@ -31,12 +31,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * Implementation of the [SpotifyManager] that retrieve tracks from [MediaRepository]
  * and downloads track metadata from the [Spotify API][SpotifyService].
  */
-internal class SpotifyManagerImpl(
+internal class SpotifyManagerImpl @Inject constructor(
     private val repository: MediaRepository,
     private val service: SpotifyService,
     private val localDao: SpotifyDao,
@@ -61,19 +62,14 @@ internal class SpotifyManagerImpl(
             val newLinks = mutableListOf<SpotifyLink>()
 
             for (track in unSyncedTracks) {
-                val spotifyTrack =
-                    withContext(dispatchers.IO) {
-                        val query = buildSearchQueryFor(track)
-                        val results = service.search(query).take(1).toList()
-                        results.firstOrNull()
-                    }
+                val spotifyTrack = withContext(dispatchers.IO) {
+                    val query = buildSearchQueryFor(track)
+                    val results = service.search(query).take(1).toList()
+                    results.firstOrNull()
+                }
 
                 if (spotifyTrack != null) {
-                    newLinks += SpotifyLink(
-                        track.id,
-                        spotifyTrack.id,
-                        clock.currentEpochTime
-                    )
+                    newLinks += SpotifyLink(track.id, spotifyTrack.id, clock.currentEpochTime)
                 }
             }
 
@@ -95,32 +91,29 @@ internal class SpotifyManagerImpl(
     private suspend fun findUnSyncedTracks(): List<Track> =
         coroutineScope {
             val asyncTracks = async { repository.getTracks() }
-            val remoteLinks = localDao.getLinks()
-                .associateByLong(SpotifyLink::trackId)
+            val remoteLinks = localDao.getLinks().associateByLong(SpotifyLink::trackId)
 
             asyncTracks.await().filterNot { remoteLinks.containsKey(it.id) }
         }
 
-    private fun buildSearchQueryFor(track: Track) =
-        SpotifyQuery.Track(
-            title = track.title,
-            artist = track.artist
-        )
+    private fun buildSearchQueryFor(track: Track) = SpotifyQuery.Track(
+        title = track.title,
+        artist = track.artist
+    )
 
-    private fun AudioFeature.asLocalFeature(): TrackFeature =
-        TrackFeature(
-            id = id,
-            key = decodePitch(key),
-            mode = decodeMusicalMode(mode),
-            tempo = tempo,
-            signature = signature,
-            loudness = loudness,
-            acousticness = acousticness,
-            danceability = danceability,
-            energy = energy,
-            instrumentalness = instrumentalness,
-            liveness = liveness,
-            speechiness = speechiness,
-            valence = valence
-        )
+    private fun AudioFeature.asLocalFeature() = TrackFeature(
+        id = id,
+        key = decodePitch(key),
+        mode = decodeMusicalMode(mode),
+        tempo = tempo,
+        signature = signature,
+        loudness = loudness,
+        acousticness = acousticness,
+        danceability = danceability,
+        energy = energy,
+        instrumentalness = instrumentalness,
+        liveness = liveness,
+        speechiness = speechiness,
+        valence = valence
+    )
 }
