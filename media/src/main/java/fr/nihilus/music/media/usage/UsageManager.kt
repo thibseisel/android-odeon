@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.media.usage
 
+import dagger.Reusable
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
 import kotlinx.coroutines.CoroutineScope
@@ -81,7 +81,7 @@ interface UsageManager {
  * @param repository The repository for media files.
  * @param usageDao The DAO that controls storage of lastPlayedTime statistics.
  */
-@ServiceScoped
+@Reusable
 internal class UsageManagerImpl
 @Inject constructor(
     private val scope: CoroutineScope,

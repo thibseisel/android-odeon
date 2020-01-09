@@ -22,7 +22,7 @@ import fr.nihilus.music.core.media.InvalidMediaException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.media.dagger.ServiceScoped
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.media.repo.MediaRepository
 import javax.inject.Inject
 

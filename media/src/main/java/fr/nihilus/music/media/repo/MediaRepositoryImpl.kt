@@ -16,13 +16,13 @@
 
 package fr.nihilus.music.media.repo
 
+import dagger.Reusable
 import fr.nihilus.music.core.collections.diffList
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 
-@ServiceScoped
+@Reusable
 internal class MediaRepositoryImpl
 @Inject constructor(
     private val scope: CoroutineScope,
