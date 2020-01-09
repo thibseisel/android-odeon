@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.dagger.ServiceScoped
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.ServiceBindingsModule
 

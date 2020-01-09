@@ -29,7 +29,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.media.dagger.ServiceScoped
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.extensions.*

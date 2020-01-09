@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.media.dagger.ServiceScoped
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -29,7 +28,6 @@ import javax.inject.Inject
  *
  * @param provider The media provider to which operations should be delegated.
  */
-@ServiceScoped
 internal class MediaDaoImpl
 @Inject constructor(
     private val provider: MediaProvider

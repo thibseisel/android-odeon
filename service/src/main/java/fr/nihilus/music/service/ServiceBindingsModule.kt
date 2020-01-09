@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader

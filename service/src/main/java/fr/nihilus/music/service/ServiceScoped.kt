@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.dagger
+package fr.nihilus.music.service
 
 import javax.inject.Scope
 

@@ -24,11 +24,11 @@ import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import dagger.Reusable
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -40,7 +40,7 @@ import javax.inject.Inject
  * @param fileSystem Manager for reading and writing to the file system.
  * @param permissions Manager for reading system permissions.
  */
-@ServiceScoped
+@Reusable
 internal class MediaStoreProvider
 @Inject constructor(
     private val resolver: MediaStoreDatabase,

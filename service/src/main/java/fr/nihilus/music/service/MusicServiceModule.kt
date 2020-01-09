@@ -19,7 +19,6 @@ package fr.nihilus.music.service
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import fr.nihilus.music.media.dagger.MediaSourceModule
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.actions.CustomActionModule
 import fr.nihilus.music.service.playback.PlaybackModule
 
