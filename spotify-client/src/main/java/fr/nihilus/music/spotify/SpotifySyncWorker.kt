@@ -21,10 +21,13 @@ import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import fr.nihilus.music.core.worker.SingleWorkerFactory
+import fr.nihilus.music.spotify.manager.SpotifyManager
+import javax.inject.Inject
 import javax.inject.Provider
 
 /**
- * Fetches media metadata from the Spotify API and saves them to local database for later use.
+ * A tasks for deferring download of media metadata from the Spotify API.
+ * The execution of this task requires an internet connection.
  */
 class SpotifySyncWorker(
     context: Context,
@@ -33,16 +36,11 @@ class SpotifySyncWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        // TODO Perform synchronization.
-        // Here are some thoughts about how it should perform:
-        // 1. Scan the cached music metadata to find tracks that do not have features
-        // 2. Download features for those tracks.
-        // Callers could send parameters pointing out tracks that should be updated.
         manager.sync()
-        return Result.failure()
+        return Result.success()
     }
 
-    internal class Factory(
+    internal class Factory @Inject constructor(
         private val manager: Provider<SpotifyManager>
     ) : SingleWorkerFactory {
 
