@@ -39,8 +39,5 @@ abstract class MediaSourceModule {
     internal abstract fun bindsMediaRepository(impl: MediaRepositoryImpl): MediaRepository
 
     @Binds
-    internal abstract fun bindsMediaDao(impl: MediaDaoImpl): MediaDao
-
-    @Binds
-    internal abstract fun bindsMediaProvider(mediaStoreProvider: MediaStoreProvider): MediaProvider
+    internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
 }

@@ -322,7 +322,7 @@ class MediaStoreDaoTest {
 
         dao.deleteTracks(longArrayOf(161L))
 
-        fakeMediaStore.exists(MediaProvider.MediaType.TRACKS, 161L) shouldBe false
+        fakeMediaStore.mediaExists(161L) shouldBe false
     }
 
     @Test
@@ -332,7 +332,7 @@ class MediaStoreDaoTest {
 
         dao.deleteTracks(longArrayOf(161L))
 
-        fakeMediaStore.exists(MediaProvider.MediaType.TRACKS, 161L) shouldBe true
+        fakeMediaStore.mediaExists(161L) shouldBe true
     }
 
     private fun MediaDao(
