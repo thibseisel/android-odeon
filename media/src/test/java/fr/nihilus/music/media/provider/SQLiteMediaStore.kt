@@ -89,19 +89,13 @@ internal class SQLiteMediaStore
     }
 
     /**
-     * Check that a row exists for the given [media type][type] and having the specified [id].
+     * Check that a row exists in the media table having the specified [id].
      * @return `true` if one row exists, `false` otherwise.
      */
-    fun exists(type: MediaProvider.MediaType, id: Long): Boolean {
-        val tableName = when (type) {
-            MediaProvider.MediaType.TRACKS -> TABLE_MEDIA
-            MediaProvider.MediaType.ALBUMS -> TABLE_ALBUM
-            MediaProvider.MediaType.ARTISTS -> TABLE_ARTIST
-        }
-
+    fun mediaExists(id: Long): Boolean {
         val db = inMemoryDatabaseHelper.readableDatabase
         return db.query(
-            tableName,
+            TABLE_MEDIA,
             arrayOf(BaseColumns._ID),
             "${BaseColumns._ID} = ?",
             arrayOf(id.toString()),
