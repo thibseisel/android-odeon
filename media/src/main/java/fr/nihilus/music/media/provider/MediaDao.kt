@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides an entry point for performing read and write operations on media stored on the device's external storage.
- * This acts as a reactive layer over the Android MediaStore as an alternative to [MediaProvider].
  * Each set of media, namely [tracks], [albums] and [artists], are available as infinite data streams
  * whose latest emitted element is the most up-to-date media list.
  *
