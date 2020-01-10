@@ -17,8 +17,6 @@
 package fr.nihilus.music.media.provider
 
 import android.Manifest
-import android.database.ContentObserver
-import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore.Audio.*
 import androidx.test.core.app.ApplicationProvider
@@ -37,7 +35,7 @@ import fr.nihilus.music.core.test.os.GrantedPermission
 import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
-import fr.nihilus.music.media.provider.FailingMediaStore.query
+import io.kotlintest.matchers.withClue
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import org.junit.After
@@ -374,29 +372,3 @@ private class NoopObserver(
 ) : MediaProvider.Observer(mediaType) {
     override fun onChanged() = Unit
 }
-
-/**
- * A test fixture for a media provider whose query always fail
- * (i.e. [query] always return a `null` cursor).
- */
-private object FailingMediaStore : MediaStoreDatabase {
-
-    override fun query(
-        uri: Uri,
-        projection: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        sortOrder: String?
-    ): Cursor? = null
-
-    override fun delete(uri: Uri, where: String?, whereArgs: Array<String>?): Int = 0
-
-    override fun registerContentObserver(
-        uri: Uri,
-        notifyForDescendants: Boolean,
-        observer: ContentObserver
-    ) = Unit
-
-    override fun unregisterContentObserver(observer: ContentObserver) = Unit
-}
-

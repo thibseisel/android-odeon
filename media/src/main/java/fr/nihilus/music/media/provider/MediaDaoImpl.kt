@@ -28,6 +28,10 @@ import javax.inject.Inject
  *
  * @param provider The media provider to which operations should be delegated.
  */
+@Deprecated(
+    "This implementation only added a reactive layer over MediaProvider. Because of their common responsibility, MediaProvider has been merged into MediaDao.",
+    ReplaceWith("MediaStoreDao")
+)
 internal class MediaDaoImpl
 @Inject constructor(
     private val provider: MediaProvider

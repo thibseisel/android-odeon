@@ -25,6 +25,10 @@ import fr.nihilus.music.core.os.PermissionDeniedException
  * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
  * all operations may fail if permission to read/write external storage is denied.
  */
+@Deprecated(
+    "MediaProvider and MediaDao have been split to make testing easier. This limitation has now been lifted and since MediaProvider is only used by MediaDao, this interface will be integrated in the implementation of MediaDao.",
+    ReplaceWith("MediaDao")
+)
 internal interface MediaProvider {
 
     /**

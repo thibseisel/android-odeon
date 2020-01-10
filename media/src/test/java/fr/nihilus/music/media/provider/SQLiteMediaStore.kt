@@ -46,7 +46,10 @@ internal class SQLiteMediaStore
 ) : MediaStoreDatabase {
 
     private val inMemoryDatabaseHelper = InMemoryMediaStoreDatabase(context)
-    val observers = mutableSetOf<ObserverSpec>()
+
+    private val _observers = mutableSetOf<ObserverSpec>()
+    val observers: Set<ObserverSpec>
+        get() = _observers
 
     override fun query(
         uri: Uri,
@@ -78,11 +81,11 @@ internal class SQLiteMediaStore
         observer: ContentObserver
     ) {
         val spec = ObserverSpec(uri, notifyForDescendants, observer)
-        observers += spec
+        _observers += spec
     }
 
     override fun unregisterContentObserver(observer: ContentObserver) {
-        observers.removeAll { it.observer == observer }
+        _observers.removeAll { it.observer == observer }
     }
 
     /**
