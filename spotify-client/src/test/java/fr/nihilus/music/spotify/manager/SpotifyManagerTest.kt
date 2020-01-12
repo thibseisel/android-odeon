@@ -43,15 +43,8 @@ class SpotifyManagerTest {
     @Test
     fun `When syncing tracks, then create a link to the spotify ID for each`() = test.run {
         val localDao = FakeSpotifyDao()
-        val repository = FakeMediaRepository(
-            sampleTrack(
-                294,
-                "Algorithm",
-                "Muse",
-                "Simulation Theory",
-                1,
-                1
-            )
+        val repository = FakeMediaDao(
+            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
         )
 
         val service = FakeSpotifyService(
@@ -59,21 +52,7 @@ class SpotifyManagerTest {
                 SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
             ),
             features = listOf(
-                AudioFeature(
-                    "7f0vVL3xi4i78Rv5Ptn2s1",
-                    2,
-                    1,
-                    170.057f,
-                    4,
-                    -4.56f,
-                    0.0125f,
-                    0.522f,
-                    0.923f,
-                    0.017f,
-                    0.0854f,
-                    0.0539f,
-                    0.595f
-                )
+                AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
             )
         )
 
@@ -93,15 +72,8 @@ class SpotifyManagerTest {
     @Test
     fun `When syncing and no track matched, then create no link`() = test.run {
         val localDao = FakeSpotifyDao()
-        val repository = FakeMediaRepository(
-            sampleTrack(
-                294,
-                "Algorithm",
-                "Muse",
-                "Simulation Theory",
-                1,
-                1
-            )
+        val repository = FakeMediaDao(
+            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
         )
 
         val service = FakeSpotifyService(
@@ -109,13 +81,7 @@ class SpotifyManagerTest {
             features = emptyList()
         )
 
-        val manager = SpotifyManagerImpl(
-            repository,
-            service,
-            localDao,
-            dispatchers,
-            clock
-        )
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
         manager.sync()
 
         localDao.links.shouldBeEmpty()
@@ -125,15 +91,8 @@ class SpotifyManagerTest {
     @Test
     fun `When syncing and features are not found, then create no link`() = test.run {
         val localDao = FakeSpotifyDao()
-        val repository = FakeMediaRepository(
-            sampleTrack(
-                294,
-                "Algorithm",
-                "Muse",
-                "Simulation Theory",
-                1,
-                1
-            )
+        val repository = FakeMediaDao(
+            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
         )
 
         val service = FakeSpotifyService(
@@ -143,13 +102,7 @@ class SpotifyManagerTest {
             features = emptyList()
         )
 
-        val manager = SpotifyManagerImpl(
-            repository,
-            service,
-            localDao,
-            dispatchers,
-            clock
-        )
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
         manager.sync()
 
         localDao.links.shouldBeEmpty()
@@ -158,28 +111,10 @@ class SpotifyManagerTest {
 
     @Test
     fun `Given no filter, when finding tracks by feature then only return linked tracks`() = test.run {
-        val repository = FakeMediaRepository(
-            sampleTrack(
-                481,
-                "Dirty Water",
-                "Foo Fighters",
-                "Concrete and Gold",
-                6
-            ),
-            sampleTrack(
-                125,
-                "Give It Up",
-                "AC/DC",
-                "Stiff Upper Lip",
-                12
-            ),
-            sampleTrack(
-                75,
-                "Nightmare",
-                "Avenged Sevenfold",
-                "Nightmare",
-                1
-            )
+        val repository = FakeMediaDao(
+            sampleTrack(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6),
+            sampleTrack(125, "Give It Up", "AC/DC", "Stiff Upper Lip", 12),
+            sampleTrack(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 1)
         )
 
         val localDao = FakeSpotifyDao(
@@ -188,46 +123,12 @@ class SpotifyManagerTest {
                 SpotifyLink(75, "vJy3wp8BworPoz6o30oDxy", 0)
             ),
             features = listOf(
-                TrackFeature(
-                    "EAzDgVCnoZnJZjIq1Bx4FW",
-                    Pitch.D,
-                    MusicalMode.MAJOR,
-                    100f,
-                    4,
-                    -13f,
-                    0.04f,
-                    0.2f,
-                    0.7f,
-                    0.1f,
-                    0.2f,
-                    0.08f,
-                    0.75f
-                ),
-                TrackFeature(
-                    "vJy3wp8BworPoz6o30oDxy",
-                    Pitch.A,
-                    MusicalMode.MINOR,
-                    82f,
-                    4,
-                    -8f,
-                    0f,
-                    0.4f,
-                    0.9f,
-                    0.1f,
-                    0.1f,
-                    0f,
-                    0.3f
-                )
+                TrackFeature("EAzDgVCnoZnJZjIq1Bx4FW", Pitch.D, MusicalMode.MAJOR, 100f, 4, -13f, 0.04f, 0.2f, 0.7f, 0.1f, 0.2f, 0.08f, 0.75f),
+                TrackFeature("vJy3wp8BworPoz6o30oDxy", Pitch.A, MusicalMode.MINOR, 82f, 4, -8f, 0f, 0.4f, 0.9f, 0.1f, 0.1f, 0f, 0.3f)
             )
         )
 
-        val manager = SpotifyManagerImpl(
-            repository,
-            OfflineSpotifyService,
-            localDao,
-            dispatchers,
-            clock
-        )
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
         val tracksIds = manager.findTracksHavingFeatures(emptyList()).map(Track::id)
         tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
@@ -239,7 +140,7 @@ class SpotifyManagerTest {
         val moderatoFilter = FeatureFilter.OnRange(TrackFeature::tempo,88f, 112f)
         val happyFilter = FeatureFilter.OnRange(TrackFeature::valence, 0.6f, 1.0f)
 
-        val repository = FakeMediaRepository(
+        val repository = FakeMediaDao(
             sampleTrack(1, "1", "A", "A", 1),
             sampleTrack(2, "2", "B", "B", 1),
             sampleTrack(3, "3", "B", "B", 2),
@@ -256,91 +157,15 @@ class SpotifyManagerTest {
                 SpotifyLink(5, "sF8v98pUor1SnL3s9Gaxev", 0)
             ),
             features = listOf(
-                TrackFeature(
-                    "wRYMoiM19LRkOJt9PmbTaG",
-                    Pitch.D,
-                    MusicalMode.MAJOR,
-                    133f,
-                    4,
-                    -4f,
-                    0.1f,
-                    0.8f,
-                    0.9f,
-                    0.1f,
-                    0.2f,
-                    0f,
-                    0.8f
-                ),
-                TrackFeature(
-                    "ZEIul98mdUL4rFtTj6u0m5",
-                    Pitch.G,
-                    MusicalMode.MAJOR,
-                    90f,
-                    4,
-                    -23f,
-                    0.8f,
-                    0.4f,
-                    0.5f,
-                    0.2f,
-                    0.3f,
-                    0f,
-                    0.6f
-                ),
-                TrackFeature(
-                    "oC6CfwQNurKxuDMAPFi4GC",
-                    Pitch.D,
-                    MusicalMode.MAJOR,
-                    101f,
-                    4,
-                    -12f,
-                    0f,
-                    0.5f,
-                    0.7f,
-                    0f,
-                    0f,
-                    0f,
-                    0.9f
-                ),
-                TrackFeature(
-                    "GMQwHtRCwNz1iljZIr8tIV",
-                    Pitch.A_SHARP,
-                    MusicalMode.MINOR,
-                    145f,
-                    4,
-                    -7f,
-                    0f,
-                    0.4f,
-                    0.9f,
-                    0.3f,
-                    0.1f,
-                    0.1f,
-                    0.2f
-                ),
-                TrackFeature(
-                    "sF8v98pUor1SnL3s9Gaxev",
-                    Pitch.D,
-                    MusicalMode.MAJOR,
-                    60f,
-                    4,
-                    -15f,
-                    0f,
-                    0.2f,
-                    0.76f,
-                    0f,
-                    0f,
-                    0f,
-                    0.4f
-                )
+                TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
+                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f),
+                TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f)
             )
         )
 
-        val manager = SpotifyManagerImpl(
-            repository,
-            OfflineSpotifyService,
-            localDao,
-            dispatchers,
-            clock
-        )
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
         val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map(Track::id)
         happyTrackIds.shouldContainExactlyInAnyOrder(1L, 2L, 3L)
