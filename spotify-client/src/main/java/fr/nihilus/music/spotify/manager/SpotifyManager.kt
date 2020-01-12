@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.spotify.manager
 
+import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.spotify.manager.FeatureFilter
 
 /**
  * Main entry point for tagging and classifying media stored on the device.
@@ -39,7 +39,7 @@ interface SpotifyManager {
      * Having no filters will return all tracks (except unlinked ones).
      * @return Tracks whose audio features match all provided filters.
      */
-    suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Track>
+    suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<FeaturedTrack>
 
     /**
      * Fetch media metadata from the Spotify API and store them locally for offline use.
@@ -52,3 +52,8 @@ interface SpotifyManager {
      */
     suspend fun sync()
 }
+
+class FeaturedTrack(
+    val track: Track,
+    val features: TrackFeature
+)

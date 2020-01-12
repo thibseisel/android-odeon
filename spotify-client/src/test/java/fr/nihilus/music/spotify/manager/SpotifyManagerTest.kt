@@ -56,13 +56,7 @@ class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(
-            repository,
-            service,
-            localDao,
-            dispatchers,
-            clock
-        )
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
         manager.sync()
 
         localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
@@ -130,7 +124,7 @@ class SpotifyManagerTest {
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
-        val tracksIds = manager.findTracksHavingFeatures(emptyList()).map(Track::id)
+        val tracksIds = manager.findTracksHavingFeatures(emptyList()).map { it.track.id }
         tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
     }
 
@@ -167,11 +161,11 @@ class SpotifyManagerTest {
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
-        val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map(Track::id)
+        val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map { it.track.id }
         happyTrackIds.shouldContainExactlyInAnyOrder(1L, 2L, 3L)
 
         val filters = listOf(dMajorFilter, moderatoFilter, happyFilter)
-        val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map(Track::id)
+        val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map { it.track.id }
         happyModeratoDMajorTrackIds.shouldContainExactlyInAnyOrder(3)
     }
 }
