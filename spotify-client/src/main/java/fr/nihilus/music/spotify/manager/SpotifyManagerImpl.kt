@@ -47,14 +47,17 @@ internal class SpotifyManagerImpl @Inject constructor(
     private val clock: Clock
 ) : SpotifyManager {
 
-    override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Track> {
+    override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<FeaturedTrack> {
         val tracksById = mediaDao.tracks.first().associateByLong { it.id }
         val features = localDao.getLocalizedFeatures()
 
         return features.asSequence()
             .filter { (_, feature) -> filters.all { it.matches(feature) } }
-            .mapNotNull { tracksById[it.trackId] }
-            .toList()
+            .mapNotNull { (trackId, feature) ->
+                tracksById[trackId]?.let { track ->
+                    FeaturedTrack(track, feature)
+                }
+            }.toList()
     }
 
     override suspend fun sync() {
