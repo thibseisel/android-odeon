@@ -20,6 +20,7 @@ import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.spotify.model.AudioFeature
@@ -28,6 +29,7 @@ import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
@@ -38,7 +40,7 @@ import javax.inject.Inject
  * and downloads track metadata from the [Spotify API][SpotifyService].
  */
 internal class SpotifyManagerImpl @Inject constructor(
-    private val repository: MediaRepository,
+    private val mediaDao: MediaDao,
     private val service: SpotifyService,
     private val localDao: SpotifyDao,
     private val dispatchers: AppDispatchers,
@@ -46,7 +48,7 @@ internal class SpotifyManagerImpl @Inject constructor(
 ) : SpotifyManager {
 
     override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Track> {
-        val tracksById = repository.getTracks().associateByLong { it.id }
+        val tracksById = mediaDao.tracks.first().associateByLong { it.id }
         val features = localDao.getLocalizedFeatures()
 
         return features.asSequence()
@@ -90,7 +92,7 @@ internal class SpotifyManagerImpl @Inject constructor(
 
     private suspend fun findUnSyncedTracks(): List<Track> =
         coroutineScope {
-            val asyncTracks = async { repository.getTracks() }
+            val asyncTracks = async { mediaDao.tracks.first() }
             val remoteLinks = localDao.getLinks().associateByLong(SpotifyLink::trackId)
 
             asyncTracks.await().filterNot { remoteLinks.containsKey(it.id) }
