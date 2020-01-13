@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.settings
+package fr.nihilus.music.core.ui.dagger
 
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.core.ui.dagger.PerActivity
+import javax.inject.Scope
 
-@Module
-internal abstract class SettingsModule {
-
-    @PerActivity
-    @ContributesAndroidInjector
-    abstract fun settingsActivity(): SettingsActivity
-
-    @ContributesAndroidInjector
-    abstract fun mainPreferenceFragment(): MainPreferenceFragment
-}
+/**
+ * Binds Dagger components and dependencies to the lifecycle of an Activity.
+ */
+@Scope
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class PerActivity

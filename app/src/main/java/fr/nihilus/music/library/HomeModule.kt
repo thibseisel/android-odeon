@@ -22,6 +22,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.HomeActivity
+import fr.nihilus.music.core.ui.dagger.PerActivity
 import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 import fr.nihilus.music.library.albums.AlbumsModule
 import fr.nihilus.music.library.artists.ArtistsModule
@@ -29,17 +30,6 @@ import fr.nihilus.music.library.nowplaying.NowPlayingModule
 import fr.nihilus.music.library.playlists.PlaylistsModule
 import fr.nihilus.music.library.search.SearchModule
 import fr.nihilus.music.library.songs.SongsModule
-import javax.inject.Scope
-
-/**
- * Define the scope of the client-side music library browser.
- * Dependencies annotated with this scope are alive
- * as long as the user is browsing the music library.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class MusicLibraryScope
 
 /**
  * Configure dependencies for the music library browsing feature.
@@ -47,7 +37,7 @@ annotation class MusicLibraryScope
 @Module
 abstract class HomeModule {
 
-    @MusicLibraryScope
+    @PerActivity
     @ContributesAndroidInjector(modules = [
         NowPlayingModule::class,
         MusicLibraryModule::class,
