@@ -18,13 +18,18 @@ package fr.nihilus.music.spotify.dagger
 
 import dagger.Binds
 import dagger.Module
+import fr.nihilus.music.media.provider.MediaStoreModule
+import fr.nihilus.music.spotify.SpotifyApiModule
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import fr.nihilus.music.spotify.manager.SpotifyManagerImpl
 
 /**
  * Provides the implementation of [SpotifyManager].
  */
-@Module
+@Module(includes = [
+    MediaStoreModule::class,
+    SpotifyApiModule::class
+])
 abstract class SpotifyManagerModule {
 
     @Binds

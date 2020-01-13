@@ -63,6 +63,9 @@ android {
         // Exclude the random properties files
         exclude '/*.properties'
         exclude 'META-INF/*.properties'
+
+        // Fix weird packaging bugs due to including Ktor
+        pickFirst 'META-INF/*.kotlin_module'
     }
 
     buildTypes {
@@ -125,6 +128,7 @@ dependencies {
     implementation project(':core')
     implementation project(':core-ui')
     implementation project(':service')
+    implementation project(':spotify-client')
     debugImplementation project(':devmenu')
 
     // Support library dependencies
