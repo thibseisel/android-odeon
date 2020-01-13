@@ -29,10 +29,13 @@ import fr.nihilus.music.media.os.PlatformMediaStore
  * retrieving media definitions from Android's [MediaStore][android.provider.MediaStore].
  */
 @Module
-internal abstract class MediaStoreModule {
+abstract class MediaStoreModule {
 
     @Binds
-    abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
+    internal abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
+
+    @Binds
+    internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
 
     @Module
     companion object {

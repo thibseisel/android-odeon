@@ -30,6 +30,16 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles('consumer-rules.pro', 'moshi.pro', 'okhttp3.pro', 'okio.pro')
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs += ['-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi']
+    }
 }
 
 dependencies {
@@ -37,12 +47,11 @@ dependencies {
     implementation project(':media')
 
     // Ktor Client - MultiPlatform HTTP Client
-    implementation "io.ktor:ktor-client-okhttp:${versions.ktor}"
-    implementation "io.ktor:ktor-client-logging-jvm:${versions.ktor}"
+    api "io.ktor:ktor-client-okhttp:${versions.ktor}"
     implementation "io.ktor:ktor-client-json:${versions.ktor}"
 
     // Moshi - Kotlin JSON serialization
-    implementation "com.squareup.moshi:moshi:${versions.moshi}"
+    api "com.squareup.moshi:moshi:${versions.moshi}"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 

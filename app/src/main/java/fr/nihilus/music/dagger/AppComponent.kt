@@ -25,6 +25,7 @@ import fr.nihilus.music.core.AppScope
 import fr.nihilus.music.core.CoreComponent
 import fr.nihilus.music.core.worker.WorkManagerModule
 import fr.nihilus.music.service.MusicServiceModule
+import fr.nihilus.music.spotify.dagger.SpotifyWorkerModule
 
 /**
  * The top-level component for this application.
@@ -38,7 +39,8 @@ import fr.nihilus.music.service.MusicServiceModule
         AppModule::class,
         MusicServiceModule::class,
         ClientModule::class,
-        WorkManagerModule::class
+        WorkManagerModule::class,
+        SpotifyWorkerModule::class
     ]
 )
 interface AppComponent : AndroidInjector<OdeonApplication> {
