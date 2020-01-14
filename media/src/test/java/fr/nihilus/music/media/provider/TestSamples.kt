@@ -46,11 +46,3 @@ internal val SAMPLE_ARTISTS = listOf(
     Artist(13, "Foo Fighters", 4, 3, null),
     Artist(18, "Muse", 2, 2, null)
 )
-
-internal val SAMPLE_MOST_RATED_TRACKS = listOf(
-    SAMPLE_TRACKS[7], // 75 - Nightmare
-    SAMPLE_TRACKS[8], // 464 - The Pretenders
-    SAMPLE_TRACKS[3], // 48 - Give It Up
-    SAMPLE_TRACKS[9], // 477 - Run
-    SAMPLE_TRACKS[5] // 294 - Knights of Cydonia
-)

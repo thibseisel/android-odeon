@@ -473,7 +473,7 @@ internal class MediaRepositoryTest {
             repository.getTracks()
 
             // and we are listening to media change notifications...
-            val subscriber = repository.changeNotifications.test {
+            repository.changeNotifications.test {
                 // when receiving a new track list
                 mediaDao.update(updated)
 

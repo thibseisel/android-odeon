@@ -208,17 +208,13 @@ private constructor(
         /**
          * The unique identifier of the root of the media browser.
          */
-        @JvmField val ROOT =
-            encode(TYPE_ROOT)
+        @JvmField val ROOT = encode(TYPE_ROOT)
 
         /**
          * The unique identifier of the parent of all available tracks.
          * @see CATEGORY_ALL
          */
-        @JvmField val ALL_TRACKS = encode(
-            TYPE_TRACKS,
-            CATEGORY_ALL
-        )
+        @JvmField val ALL_TRACKS = encode(TYPE_TRACKS, CATEGORY_ALL)
 
         /**
          * The unique identifier of the parent of all albums.
