@@ -29,6 +29,11 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles('consumer-rules.pro', 'moshi.pro', 'okhttp3.pro', 'okio.pro')
+
+        def clientId = propOrDefault('odeon.spotify.clientId', '')
+        def clientSecret = propOrDefault('odeon.spotify.clientSecret', '')
+        buildConfigField 'String', 'SPOTIFY_CLIENT_ID', "\"$clientId\""
+        buildConfigField 'String', 'SPOTIFY_CLIENT_SECRET', "\"$clientSecret\""
     }
 
     compileOptions {

@@ -29,7 +29,9 @@ import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotlintest.shouldNotThrowAny
 import org.junit.Rule
+import kotlin.random.Random
 import kotlin.test.Test
 
 class SpotifyManagerTest {
@@ -104,6 +106,56 @@ class SpotifyManagerTest {
     }
 
     @Test
+    fun `When syncing more than 100 tracks at once, then sync should not fail`() = test.run {
+        val sampleTracks = generateDummyTracks().take(200).toList()
+        val spotifyIds = randomSpotifyIds().take(200).toList()
+
+        val remoteTracks = spotifyIds.map { id ->
+            SpotifyTrack(id, "Title", 1, 1, 0, false)
+        }
+        val sampleFeatures = spotifyIds.map { id ->
+            AudioFeature(id, null, 1, 120f, 4, -10f, .5f, .5f, .5f, .5f, .5f, .5f, .5f)
+        }
+
+        val localDao = FakeSpotifyDao()
+        val repository = FakeMediaDao(*sampleTracks.toTypedArray())
+
+        val service = FakeSpotifyService(
+            tracks = remoteTracks,
+            features = sampleFeatures
+        )
+
+        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        shouldNotThrowAny {
+            manager.sync()
+        }
+    }
+
+    private fun generateDummyTracks() = sequence<Track> {
+        var trackId = 0L
+
+        while (true) {
+            yield(
+                Track(
+                    id = trackId++,
+                    title ="Title",
+                    artist ="Artist",
+                    album ="Album",
+                    duration = 0,
+                    discNumber = 0,
+                    trackNumber = 1,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    artistId = 0,
+                    albumId = 0,
+                    fileSize = 1_000_000
+                )
+            )
+        }
+    }
+
+    @Test
     fun `Given no filter, when finding tracks by feature then only return linked tracks`() = test.run {
         val repository = FakeMediaDao(
             sampleTrack(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6),
@@ -167,6 +219,21 @@ class SpotifyManagerTest {
         val filters = listOf(dMajorFilter, moderatoFilter, happyFilter)
         val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map { it.track.id }
         happyModeratoDMajorTrackIds.shouldContainExactlyInAnyOrder(3)
+    }
+}
+
+private fun randomSpotifyIds(): Sequence<String> = sequence {
+    val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    val buffer = StringBuilder()
+
+    while(true) {
+        buffer.setLength(0)
+        repeat(22) { index ->
+            val randomCharIndex = Random.nextInt(0, chars.length)
+            buffer.append(index, chars[randomCharIndex])
+        }
+
+        yield(buffer.toString())
     }
 }
 
