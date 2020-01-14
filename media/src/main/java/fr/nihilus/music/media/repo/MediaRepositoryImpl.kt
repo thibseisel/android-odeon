@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.selects.select
 import javax.inject.Inject
+import kotlinx.coroutines.channels.onReceiveOrNull as onReceiveOrNullExt
 
 @Reusable
 internal class MediaRepositoryImpl
@@ -211,7 +212,7 @@ internal class MediaRepositoryImpl
 
                     // When receiving an up to date media list...
                     if (!mediaUpdates.isClosedForReceive) {
-                        mediaUpdates.onReceiveOrNull { upToDateMediaList ->
+                        mediaUpdates.onReceiveOrNullExt().invoke { upToDateMediaList ->
                             if (upToDateMediaList != null) {
                                 // Replace the cached list and notify for the change.
                                 val oldMediaList = lastReceivedMediaList
