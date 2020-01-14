@@ -17,20 +17,54 @@
 package fr.nihilus.music.devmenu.features
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
+import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.devmenu.R
 import kotlinx.android.synthetic.main.fragment_mix_composer.*
 
-internal class MixComposerFragment : Fragment(R.layout.fragment_mix_composer) {
+internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer) {
+    private val viewModel by viewModels<ComposerViewModel> { viewModelFactory }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = FeatureSpecAdapter()
+        val adapter = FeatureSpecAdapter(viewModel)
         val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.HORIZONTAL)
         feature_criteria.adapter = adapter
         feature_criteria.addItemDecoration(dividers)
+
+        search_button.setOnClickListener {
+
+        }
+
+        viewModel.filters.observe(this) { filters ->
+            adapter.submitList(filters)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_composer, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_add_filter -> {
+            val dialog = AddFilterDialog()
+            dialog.show(requireFragmentManager(), null)
+            true
+        }
+
+        else -> super.onOptionsItemSelected(item)
     }
 }

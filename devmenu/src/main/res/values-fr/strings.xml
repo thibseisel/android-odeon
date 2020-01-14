@@ -20,8 +20,8 @@
     <string name="dev_category_title_tone">Tonalité</string>
     <string name="dev_label_energy">Energie</string>
     <string name="dev_label_loudness">Intensité</string>
-    <string name="dev_label_max">Max</string>
-    <string name="dev_label_min">Min</string>
+
+    <style name="dev_label_tone">Tonalité</style>
     <string name="dev_label_tempo">Tempo</string>
     <string name="dev_category_title_feature">Caractéristiques</string>
     <string name="dev_acousticness">Acoustique</string>
@@ -29,4 +29,8 @@
     <string name="dev_label_instrumentalness">Instrumental</string>
     <string name="dev_label_valence">Valence</string>
     <string name="dev_label_liveness">Live</string>
+    <string name="dev_label_tone">Tonalité</string>
+    <string name="hint_maximum">Max</string>
+    <string name="hint_minimum">Min</string>
+    <string name="dev_title_new_filter">Nouveau filtre</string>
 </resources>
