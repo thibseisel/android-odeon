@@ -22,6 +22,7 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import fr.nihilus.music.core.worker.SingleWorkerFactory
 import fr.nihilus.music.spotify.manager.SpotifyManager
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -36,8 +37,13 @@ class SpotifySyncWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        manager.sync()
-        return Result.success()
+        return try {
+            manager.sync()
+            Result.success()
+        } catch (syncFailure: Exception) {
+            Timber.e(syncFailure, "An error occurred while syncing with Spotify.")
+            Result.failure()
+        }
     }
 
     internal class Factory @Inject constructor(
