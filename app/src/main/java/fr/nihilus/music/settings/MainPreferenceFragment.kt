@@ -17,12 +17,30 @@
 package fr.nihilus.music.settings
 
 import android.os.Bundle
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.R
+import fr.nihilus.music.spotify.SpotifySyncWorker
+import java.util.*
+import kotlin.time.MonoClock
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.prefs_main, rootKey)
+
+        if (BuildConfig.DEBUG) {
+            findPreference<Preference>("start_sync")!!.setOnPreferenceClickListener {
+                val workManager = WorkManager.getInstance(requireContext())
+
+                val request = OneTimeWorkRequestBuilder<SpotifySyncWorker>().build()
+                workManager.beginUniqueWork("spotify-sync", ExistingWorkPolicy.KEEP, request).enqueue()
+                true
+            }
+        }
     }
 }

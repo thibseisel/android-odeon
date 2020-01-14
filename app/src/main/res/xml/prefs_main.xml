@@ -37,4 +37,9 @@
         <intent android:action="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
     </Preference>
 
+    <Preference
+        android:key="start_sync"
+        android:title="Start Spotify sync"
+        app:isPreferenceVisible="@bool/core_is_debug_enabled"/>
+
 </PreferenceScreen>
