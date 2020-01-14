@@ -46,8 +46,7 @@ internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
             val retryAfterSeconds = original.response.headers[HttpHeaders.RetryAfter]?.toIntOrNull()
 
             if (status != HttpStatusCode.TooManyRequests || retryAfterSeconds == null) original else {
-                // We received the 429 status code: close the original response, wait and re-issue the request.
-                original.close()
+                // We received the 429 status code: wait and re-issue the request.
                 delay(retryAfterSeconds * 1000L)
 
                 val reattemptedRequest = HttpRequestBuilder()

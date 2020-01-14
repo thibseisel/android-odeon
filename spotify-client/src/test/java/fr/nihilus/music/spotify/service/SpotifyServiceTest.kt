@@ -31,6 +31,7 @@ import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.matchers.withClue
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
@@ -59,7 +60,7 @@ class SpotifyServiceTest {
 
     private fun spotifyService(
         token: OAuthToken? = VALID_TOKEN,
-        handler: suspend (HttpRequestData) -> HttpResponseData
+        handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
     ): SpotifyService = SpotifyServiceImpl(
         MockEngine(handler),
         moshi,
@@ -850,10 +851,10 @@ class SpotifyServiceTest {
  * @param status The status code associated with the response. It should be a valid error code (>= 400).
  * @param message The message provided as the `error` property of the JSON response body.
  */
-private fun respondJsonError(status: HttpStatusCode, message: String = status.description) =
-    respondJson(
-        jsonApiError(status, message), status
-    )
+private fun MockRequestHandleScope.respondJsonError(
+    status: HttpStatusCode,
+    message: String = status.description
+) = respondJson(jsonApiError(status, message), status)
 
 /**
  * Asserts that this request is an HTTP GET Request on the Spotify Web API (api.spotify.com)
