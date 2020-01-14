@@ -36,7 +36,6 @@
     <string name="action_delete">Supprimer</string>
     <string name="add_to_playlist">Ajouter à une playlist</string>
     <string name="empty_playlist">Aucune playlist</string>
-    <string name="cancel">Annuler</string>
     <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
     <string name="delete_dialog_message">Ce morceau sera effacé de votre appareil.</string>
     <plurals name="deleted_songs_confirmation">
@@ -64,7 +63,6 @@
     </plurals>
 
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="ok">OK</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
     <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>

@@ -167,7 +167,7 @@ class HomeActivity : BaseActivity() {
                 ConfirmDialogFragment.newInstance(
                     null, 0,
                     message = getString(R.string.external_storage_permission_rationale),
-                    positiveButton = R.string.ok
+                    positiveButton = R.string.core_ok
                 ).show(supportFragmentManager, null)
             }
         }

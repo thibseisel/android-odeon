@@ -50,8 +50,8 @@ class NewPlaylistDialog : BaseDialogFragment() {
         return MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
             .setView(inputLayout)
-            .setNegativeButton(R.string.cancel, null)
-            .setPositiveButton(R.string.ok) { _, _ -> onRequestCreatePlaylist() }
+            .setNegativeButton(R.string.core_cancel, null)
+            .setPositiveButton(R.string.core_ok) { _, _ -> onRequestCreatePlaylist() }
             .create()
     }
 

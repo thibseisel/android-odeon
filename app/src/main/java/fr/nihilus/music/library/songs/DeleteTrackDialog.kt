@@ -38,7 +38,7 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
             .setTitle(R.string.delete_dialog_title)
             .setMessage(R.string.delete_dialog_message)
             .setPositiveButton(R.string.action_delete) { _, _ -> onDelete() }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.core_cancel, null)
             .create()
     }
 

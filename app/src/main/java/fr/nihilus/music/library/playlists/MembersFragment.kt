@@ -118,8 +118,8 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
                     this,
                     REQUEST_DELETE_PLAYLIST,
                     title = dialogTitle,
-                    positiveButton = R.string.ok,
-                    negativeButton = R.string.cancel
+                    positiveButton = R.string.core_ok,
+                    negativeButton = R.string.core_cancel
                 ).show(requireFragmentManager(), null)
                 return true
             }
