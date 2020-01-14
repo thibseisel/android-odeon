@@ -113,7 +113,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
             getString(R.string.cleanup_confirmation_message),
             R.string.action_delete,
-            R.string.cancel
+            R.string.core_cancel
         )
 
         dialog.show(requireFragmentManager(), null)

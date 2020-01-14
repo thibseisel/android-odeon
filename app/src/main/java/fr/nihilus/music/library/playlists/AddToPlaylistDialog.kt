@@ -55,7 +55,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
             .setTitle(R.string.add_to_playlist)
             .setAdapter(playlistAdapter, dialogEventHandler)
             .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.core_cancel, null)
             .create()
     }
 
