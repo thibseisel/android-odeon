@@ -39,7 +39,7 @@
 
     <Preference
         android:key="start_sync"
-        android:title="Start Spotify sync"
+        android:title="@string/pref_title_spotify_sync"
         app:isPreferenceVisible="@bool/core_is_debug_enabled"/>
 
 </PreferenceScreen>

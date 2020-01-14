@@ -17,16 +17,13 @@
 package fr.nihilus.music.settings
 
 import android.os.Bundle
+import androidx.lifecycle.observe
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.R
 import fr.nihilus.music.spotify.SpotifySyncWorker
-import java.util.*
-import kotlin.time.MonoClock
 
 class MainPreferenceFragment : PreferenceFragmentCompat() {
 
@@ -34,13 +31,38 @@ class MainPreferenceFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.prefs_main, rootKey)
 
         if (BuildConfig.DEBUG) {
-            findPreference<Preference>("start_sync")!!.setOnPreferenceClickListener {
-                val workManager = WorkManager.getInstance(requireContext())
+            val startSyncPreference = findPreference<Preference>("start_sync")!!
 
-                val request = OneTimeWorkRequestBuilder<SpotifySyncWorker>().build()
-                workManager.beginUniqueWork("spotify-sync", ExistingWorkPolicy.KEEP, request).enqueue()
+            val workManager = WorkManager.getInstance(requireContext())
+            workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { workInfos ->
+                val workState = workInfos[0].state
+                startSyncPreference.isEnabled = workState.isFinished
+
+                startSyncPreference.summary = when (workState) {
+                    WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
+                    WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
+                    WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
+                    WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
+                    else -> null
+                }
+            }
+
+            startSyncPreference.setOnPreferenceClickListener {
+                scheduleSpotifySync(workManager)
                 true
             }
         }
+    }
+
+    private fun scheduleSpotifySync(workManager: WorkManager) {
+        val connectedNetworkConstraint = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequestBuilder<SpotifySyncWorker>()
+            .setConstraints(connectedNetworkConstraint)
+            .build()
+
+        workManager.beginUniqueWork("spotify-sync", ExistingWorkPolicy.KEEP, request).enqueue()
     }
 }
