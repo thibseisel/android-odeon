@@ -27,15 +27,15 @@ import io.ktor.client.features.HttpSend
 import io.ktor.client.features.UserAgent
 import io.ktor.client.features.feature
 import io.ktor.client.request.*
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
+import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.io.errors.IOException
 import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Named
@@ -104,7 +104,6 @@ internal class SpotifyServiceImpl
                     request.takeFrom(origin.request)
                     request.headers[HttpHeaders.Authorization] = "Bearer ${newToken.token}"
 
-                    origin.close()
                     execute(request)
                 }
             }

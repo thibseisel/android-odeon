@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.spotify.service
 
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpResponse
 
 internal val HttpResponse.isSuccessful: Boolean
     get() = status.value in 200 until 300

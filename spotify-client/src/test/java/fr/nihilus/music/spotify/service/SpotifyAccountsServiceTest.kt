@@ -22,6 +22,7 @@ import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
 import io.ktor.client.request.forms.FormDataContent
@@ -57,7 +58,9 @@ class SpotifyAccountsServiceTest {
 
     private val moshi = Moshi.Builder().build()
 
-    private fun accountsService(handler: suspend (HttpRequestData) -> HttpResponseData): SpotifyAccountsService {
+    private fun accountsService(
+        handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
+    ): SpotifyAccountsService {
         val simulatedServer = MockEngine(handler)
         return SpotifyAccountsServiceImpl(
             simulatedServer,

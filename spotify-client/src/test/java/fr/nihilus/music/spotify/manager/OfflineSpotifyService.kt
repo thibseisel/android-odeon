@@ -23,9 +23,9 @@ import fr.nihilus.music.spotify.model.SpotifyTrack
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
+import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.io.errors.IOException
 
 /**
  * An implementation of [SpotifyService] that always fail due to having no network connectivity.
