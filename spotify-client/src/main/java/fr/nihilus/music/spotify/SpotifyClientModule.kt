@@ -50,7 +50,7 @@ internal abstract class SpotifyClientModule {
 
         @JvmStatic
         @Provides @Named("SPOTIFY_CLIENT_KEY")
-        fun providesClientKey() = "845647bc2d3147c1a2d48584fc6b978c"
+        fun providesClientKey() = BuildConfig.SPOTIFY_CLIENT_ID
 
         @JvmStatic
         @Provides @Named("APP_USER_AGENT")

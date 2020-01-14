@@ -91,14 +91,12 @@ internal class SpotifyAccountsServiceImpl
             })
         }
 
+        val jsonResponse = response.readText()
         return if (response.isSuccessful) {
-            tokenAdapter.fromJson(response.readText())!!
+            tokenAdapter.fromJson(jsonResponse)!!
         } else {
-            val errorPayload = errorAdapter.fromJson(response.readText())!!
-            throw AuthenticationException(
-                errorPayload.error,
-                errorPayload.description
-            )
+            val errorPayload = errorAdapter.fromJson(jsonResponse)!!
+            throw AuthenticationException(errorPayload.error, errorPayload.description)
         }
     }
 }

@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -62,6 +63,7 @@ internal class SpotifyManagerImpl @Inject constructor(
 
     override suspend fun sync() {
         val unSyncedTracks = findUnSyncedTracks()
+        Timber.tag("SpotifySync").d("%s track(s) need to be synced.", unSyncedTracks.size)
 
         if (unSyncedTracks.isNotEmpty()) {
             val newLinks = mutableListOf<SpotifyLink>()
@@ -69,26 +71,37 @@ internal class SpotifyManagerImpl @Inject constructor(
             for (track in unSyncedTracks) {
                 val spotifyTrack = withContext(dispatchers.IO) {
                     val query = buildSearchQueryFor(track)
+                    Timber.tag("SpotifySync").v("Searching %s", query)
                     val results = service.search(query).take(1).toList()
                     results.firstOrNull()
                 }
 
                 if (spotifyTrack != null) {
                     newLinks += SpotifyLink(track.id, spotifyTrack.id, clock.currentEpochTime)
+
+                } else {
+                    Timber.tag("SpotifySync").w("Found no result for track %s.", track.title)
                 }
             }
 
             withContext(dispatchers.IO) {
-                val trackIds = newLinks.map { it.spotifyId }
-                when (val resource = service.getSeveralTrackFeatures(trackIds)) {
-                    is HttpResource.Loaded -> {
-                        for (index in newLinks.indices) {
-                            val link = newLinks[index]
-                            val feature = resource.data[index] ?: continue
-                            localDao.saveTrackFeature(link, feature.asLocalFeature())
+                newLinks.asSequence()
+                    .chunked(100)
+                    .forEach { links ->
+                        val trackIds = links.map { it.spotifyId }
+                        when (val resource = service.getSeveralTrackFeatures(trackIds)) {
+                            is HttpResource.Loaded -> {
+                                for ((index, link) in links.withIndex()) {
+                                    val feature = resource.data[index] ?: continue
+                                    localDao.saveTrackFeature(link, feature.asLocalFeature())
+                                }
+                            }
+
+                            is HttpResource.Failed -> {
+                                Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP error %s (%s)", resource.status, resource.message)
+                            }
                         }
                     }
-                }
             }
         }
     }
