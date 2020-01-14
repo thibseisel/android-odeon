@@ -29,12 +29,10 @@
         <item>La</item>
         <item>La#</item>
         <item>Si</item>
-        <item>~Tous~</item>
     </string-array>
 
     <string-array name="dev_mode_entries">
         <item>Mineur</item>
         <item>Majeur</item>
-        <item />
     </string-array>
 </resources>

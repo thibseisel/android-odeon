@@ -18,9 +18,8 @@
     <string name="dev_activity_spotify_debug">Spotify Debugger</string>
     <string name="dev_category_title_tone">Tone</string>
     <string name="dev_category_title_feature">Audio features</string>
+    <string name="dev_label_tone">Tone</string>
     <string name="dev_label_tempo">Tempo</string>
-    <string name="dev_label_min">Min</string>
-    <string name="dev_label_max">Max</string>
     <string name="dev_label_loudness">Loudness</string>
     <string name="dev_acousticness">Acousticness</string>
     <string name="dev_label_danceability">Danceability</string>
@@ -28,4 +27,7 @@
     <string name="dev_label_instrumentalness">Instrumentalness</string>
     <string name="dev_label_valence">Valence</string>
     <string name="dev_label_liveness">Liveness</string>
+    <string name="hint_minimum">Min</string>
+    <string name="hint_maximum">Max</string>
+    <string name="dev_title_new_filter">New filter</string>
 </resources>
