@@ -16,6 +16,6 @@
   -->
 
 <resources>
-    <dimen name="horizontal_edge_margin">24dp</dimen>
-    <dimen name="larger_horizontal_edge_margin">48dp</dimen>
+    <dimen name="core_horizontal_edge_margin">24dp</dimen>
+    <dimen name="core_larger_horizontal_edge_margin">48dp</dimen>
 </resources>

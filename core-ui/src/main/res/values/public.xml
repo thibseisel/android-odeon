@@ -18,4 +18,21 @@
 <resources>
     <public name="core_ok" type="string"/>
     <public name="core_cancel" type="string"/>
+    <public name="core_horizontal_edge_margin" type="dimen"/>
+    <public name="core_larger_horizontal_edge_margin" type="dimen"/>
+    <public name="core_card_max_elevation" type="dimen"/>
+    <public name="core_shape_corner_radius" type="dimen"/>
+    <public name="TextAppearance.Odeon.Headline1" type="style"/>
+    <public name="TextAppearance.Odeon.Headline2" type="style"/>
+    <public name="TextAppearance.Odeon.Headline3" type="style"/>
+    <public name="TextAppearance.Odeon.Headline4" type="style"/>
+    <public name="TextAppearance.Odeon.Headline5" type="style"/>
+    <public name="TextAppearance.Odeon.Headline6" type="style"/>
+    <public name="TextAppearance.Odeon.Body1" type="style"/>
+    <public name="TextAppearance.Odeon.Body2" type="style"/>
+    <public name="TextAppearance.Odeon.Button" type="style"/>
+    <public name="TextAppearance.Odeon.Caption" type="style"/>
+    <public name="TextAppearance.Odeon.Overline" type="style"/>
+    <public name="TextAppearance.Odeon.Subtitle1" type="style"/>
+    <public name="TextAppearance.Odeon.Subtitle2" type="style"/>
 </resources>

@@ -69,8 +69,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:orientation="vertical"
-            android:paddingStart="@dimen/larger_horizontal_edge_margin"
-            android:paddingEnd="@dimen/larger_horizontal_edge_margin"
+            android:paddingStart="@dimen/core_larger_horizontal_edge_margin"
+            android:paddingEnd="@dimen/core_larger_horizontal_edge_margin"
             android:paddingTop="32dp"
             android:paddingBottom="32dp"
             android:theme="@style/ThemeOverlay.AppCompat.Light">
