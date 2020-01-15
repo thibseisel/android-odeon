@@ -58,6 +58,7 @@ internal sealed class SpotifyQuery<T : Any> {
     ) : SpotifyQuery<SpotifyTrack>() {
 
         override fun toString(): String = buildString {
+            append("track:")
             append('"')
             append(title.toLowerCase(Locale.ENGLISH))
             append('"')

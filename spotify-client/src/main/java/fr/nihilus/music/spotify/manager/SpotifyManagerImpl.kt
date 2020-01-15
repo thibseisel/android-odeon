@@ -77,6 +77,7 @@ internal class SpotifyManagerImpl @Inject constructor(
                 }
 
                 if (spotifyTrack != null) {
+                    Timber.tag("SpotifySync").v("Found track %s", spotifyTrack.name)
                     newLinks += SpotifyLink(track.id, spotifyTrack.id, clock.currentEpochTime)
 
                 } else {
