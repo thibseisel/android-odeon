@@ -35,15 +35,16 @@ class MainPreferenceFragment : PreferenceFragmentCompat() {
 
             val workManager = WorkManager.getInstance(requireContext())
             workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { workInfos ->
-                val workState = workInfos[0].state
-                startSyncPreference.isEnabled = workState.isFinished
+                workInfos.firstOrNull()?.state?.let { workState ->
+                    startSyncPreference.isEnabled = workState.isFinished
 
-                startSyncPreference.summary = when (workState) {
-                    WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
-                    WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
-                    WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
-                    WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
-                    else -> null
+                    startSyncPreference.summary = when (workState) {
+                        WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
+                        WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
+                        WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
+                        WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
+                        else -> null
+                    }
                 }
             }
 
