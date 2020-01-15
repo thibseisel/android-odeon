@@ -21,8 +21,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DividerItemDecoration
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -30,7 +29,7 @@ import fr.nihilus.music.devmenu.R
 import kotlinx.android.synthetic.main.fragment_mix_composer.*
 
 internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer) {
-    private val viewModel by viewModels<ComposerViewModel> { viewModelFactory }
+    private val viewModel by activityViewModels<ComposerViewModel> { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +45,10 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
         feature_criteria.addItemDecoration(dividers)
 
         search_button.setOnClickListener {
-
+            requireFragmentManager().beginTransaction()
+                .replace(R.id.container, FeaturedTracksFragment())
+                .addToBackStack(null)
+                .commit()
         }
 
         viewModel.filters.observe(this) { filters ->

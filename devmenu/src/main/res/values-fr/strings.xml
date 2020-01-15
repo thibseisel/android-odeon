@@ -27,10 +27,17 @@
     <string name="dev_acousticness">Acoustique</string>
     <string name="dev_label_danceability">Dansabilité</string>
     <string name="dev_label_instrumentalness">Instrumental</string>
-    <string name="dev_label_valence">Valence</string>
-    <string name="dev_label_liveness">Live</string>
+    <string name="dev_label_valence">Positivité</string>
+    <string name="dev_label_liveness">Joué live</string>
     <string name="dev_label_tone">Tonalité</string>
     <string name="hint_maximum">Max</string>
     <string name="hint_minimum">Min</string>
     <string name="dev_title_new_filter">Nouveau filtre</string>
+    <string name="dev_label_signature">Mesure</string>
+    <string name="dev_label_acousticness">Acoustique</string>
+    <string name="dev_label_speechiness">Paroles</string>
+    <string name="dev_descr_album_art">Pochette d\'album</string>
+    <string name="dev_format_decibels">%1$+f.2 dB</string>
+    <string name="dev_action_show_results">Afficher</string>
+    <string name="dev_matching_tracks_count">%1$d morceaux correspondent</string>
 </resources>

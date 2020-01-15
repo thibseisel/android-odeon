@@ -96,4 +96,6 @@
     <string name="dev_sync_summary_success">Synced successfully</string>
     <string name="dev_sync_summary_failure">Sync failed</string>
     <string name="pref_title_spotify_sync">Sync with Spotify</string>
+    <string name="pref_title_audio_analysis">Audio analysis</string>
+    <string name="pref_summary_audio_analysis">Select tracks based on their audio features</string>
 </resources>

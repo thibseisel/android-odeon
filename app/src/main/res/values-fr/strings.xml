@@ -89,4 +89,7 @@
     <string name="dev_sync_summary_success">Synchronisé avec succès</string>
     <string name="dev_sync_summary_waiting">En attente d\'une connexion internet…</string>
     <string name="pref_title_spotify_sync">Synchroniser avec Spotify</string>
+    <string name="pref_title_audio_analysis">Analyse audio</string>
+    <string name="pref_summary_audio_analysis">Selectionner des morceaux en fonction de leurs caractéristiques audio</string>
+
 </resources>

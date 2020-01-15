@@ -24,6 +24,7 @@ import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
@@ -39,29 +40,29 @@ internal class ComposerViewModel @Inject constructor(
     val filters: LiveData<List<FeatureFilterState>> = liveData {
         emit(emptyList())
 
-        _filters.asFlow()
-            .debounce(300L)
-            .collect { emit(it) }
+        _filters.consumeEach { emit(it) }
     }
 
     val tracks = liveData {
-        _filters.asFlow().collectLatest {
-            val filters = it.map { specs ->
-                val featureSelector = when (specs.feature) {
-                    Feature.TEMPO -> TrackFeature::tempo
-                    Feature.LOUDNESS -> TrackFeature::loudness
-                    Feature.ENERGY -> TrackFeature::energy
-                    Feature.DANCEABILITY -> TrackFeature::danceability
-                    Feature.INSTRUMENTALNESS -> TrackFeature::instrumentalness
-                    Feature.VALENCE -> TrackFeature::valence
+        _filters.asFlow()
+            .debounce(300)
+            .collectLatest {
+                val filters = it.map { specs ->
+                    val featureSelector = when (specs.feature) {
+                        Feature.TEMPO -> TrackFeature::tempo
+                        Feature.LOUDNESS -> TrackFeature::loudness
+                        Feature.ENERGY -> TrackFeature::energy
+                        Feature.DANCEABILITY -> TrackFeature::danceability
+                        Feature.INSTRUMENTALNESS -> TrackFeature::instrumentalness
+                        Feature.VALENCE -> TrackFeature::valence
+                    }
+
+                    FeatureFilter.OnRange(featureSelector, specs.minValue, specs.maxValue)
                 }
 
-                FeatureFilter.OnRange(featureSelector, specs.minValue, specs.maxValue)
+                val tracks = manager.findTracksHavingFeatures(filters)
+                emit(tracks)
             }
-
-            val tracks = manager.findTracksHavingFeatures(filters)
-            emit(tracks)
-        }
     }
 
     fun setFilter(specs: FeatureFilterState) {

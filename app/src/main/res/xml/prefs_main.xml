@@ -29,17 +29,22 @@
 
     </PreferenceCategory>
 
-    <Preference
-        android:key="debug_menu"
+    <PreferenceCategory
         android:title="@string/action_dev_options"
         app:isPreferenceVisible="@bool/core_is_debug_enabled">
 
-        <intent android:action="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
-    </Preference>
+        <Preference
+            android:key="audio_analysis"
+            android:title="@string/pref_title_audio_analysis"
+            android:summary="@string/pref_summary_audio_analysis">
 
-    <Preference
-        android:key="start_sync"
-        android:title="@string/pref_title_spotify_sync"
-        app:isPreferenceVisible="@bool/core_is_debug_enabled"/>
+            <intent android:action="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
+        </Preference>
+
+        <Preference
+            android:key="start_sync"
+            android:title="@string/pref_title_spotify_sync"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

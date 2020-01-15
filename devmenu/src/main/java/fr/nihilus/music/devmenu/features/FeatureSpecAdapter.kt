@@ -20,6 +20,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -52,6 +53,7 @@ internal class FeatureSpecAdapter(
         private val featureLabel: TextView = itemView.findViewById(R.id.label)
         private val lowerInput: EditText = itemView.findViewById(R.id.input_lower)
         private val upperInput: EditText = itemView.findViewById(R.id.input_upper)
+        private val removeButton: ImageView = itemView.findViewById(R.id.action_remove)
 
         init {
             val rangeChangedListener = object : TextWatcher {
@@ -68,6 +70,11 @@ internal class FeatureSpecAdapter(
 
             lowerInput.addTextChangedListener(rangeChangedListener)
             upperInput.addTextChangedListener(rangeChangedListener)
+
+            removeButton.setOnClickListener {
+                val featureFilter = getItem(adapterPosition)
+                viewModel.removeFilter(featureFilter)
+            }
         }
 
         fun bind(filter: FeatureFilterState) {
