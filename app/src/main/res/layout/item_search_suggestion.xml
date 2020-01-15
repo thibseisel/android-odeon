@@ -29,7 +29,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginStart="@dimen/horizontal_edge_margin"
+        android:layout_marginStart="@dimen/core_horizontal_edge_margin"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"

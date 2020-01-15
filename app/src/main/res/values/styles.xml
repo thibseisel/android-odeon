@@ -23,7 +23,7 @@
     </style>
 
     <style name="Widget.AppTheme.CardView" parent="Widget.MaterialComponents.CardView">
-        <item name="cardMaxElevation">@dimen/card_max_elevation</item>
+        <item name="cardMaxElevation">@dimen/core_card_max_elevation</item>
         <item name="cardUseCompatPadding">true</item>
     </style>
 
