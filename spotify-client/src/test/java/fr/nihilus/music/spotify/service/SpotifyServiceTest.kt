@@ -786,7 +786,7 @@ class SpotifyServiceTest {
     fun `When searching tracks, then return a flow of track results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
-            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "track:\"rammstein\""
             it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "track"
 
             when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
