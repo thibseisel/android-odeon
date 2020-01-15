@@ -27,6 +27,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.delay
+import timber.log.Timber
 
 /**
  * [HttpClient] feature that automatically re-sends requests if the server responded with
@@ -47,7 +48,15 @@ internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
 
             if (status != HttpStatusCode.TooManyRequests || retryAfterSeconds == null) original else {
                 // We received the 429 status code: wait and re-issue the request.
-                delay(retryAfterSeconds * 1000L)
+                Timber.tag("TooManyRequests").d(
+                    "Need to wait %s seconds before retrying request: %s",
+                    retryAfterSeconds,
+                    original.request.url
+                )
+
+                // Since the number of seconds to wait is rounded down,
+                // we need to wait one more second to make sure the delay is elapsed.
+                delay((retryAfterSeconds + 1) * 1000L)
 
                 val reattemptedRequest = HttpRequestBuilder()
                 reattemptedRequest.takeFrom(original.request)
