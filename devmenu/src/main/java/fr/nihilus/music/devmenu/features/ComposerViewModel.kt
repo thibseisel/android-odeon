@@ -19,14 +19,13 @@ package fr.nihilus.music.devmenu.features
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import androidx.recyclerview.widget.DiffUtil
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.spotify.manager.FeatureFilter
+import fr.nihilus.music.spotify.manager.FeaturedTrack
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import javax.inject.Inject
@@ -35,15 +34,16 @@ internal class ComposerViewModel @Inject constructor(
     private val manager: SpotifyManager
 ) : ViewModel() {
 
-    private val _filters = ConflatedBroadcastChannel<List<FeatureFilterState>>()
+    private val _filters = ConflatedBroadcastChannel<List<FeatureFilterState>>(emptyList())
 
     val filters: LiveData<List<FeatureFilterState>> = liveData {
-        emit(emptyList())
-
-        _filters.consumeEach { emit(it) }
+        _filters.asFlow().collectLatest {
+            delay(1000)
+            emit(it)
+        }
     }
 
-    val tracks = liveData {
+    val tracks: LiveData<List<FeaturedTrack>> = liveData {
         _filters.asFlow()
             .debounce(300)
             .collectLatest {

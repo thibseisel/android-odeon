@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.devmenu.features
 
-import android.text.Editable
-import android.text.TextWatcher
+import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -56,10 +56,9 @@ internal class FeatureSpecAdapter(
         private val removeButton: ImageView = itemView.findViewById(R.id.action_remove)
 
         init {
-            val rangeChangedListener = object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) {
+            val onFieldFocusLostListener = View.OnFocusChangeListener { _, isFocused ->
+                val position = adapterPosition
+                if (!isFocused && position >= 0) {
                     updateFilter(
                         getItem(adapterPosition).feature,
                         lowerInput.text?.toString(),
@@ -68,8 +67,17 @@ internal class FeatureSpecAdapter(
                 }
             }
 
-            lowerInput.addTextChangedListener(rangeChangedListener)
-            upperInput.addTextChangedListener(rangeChangedListener)
+            lowerInput.onFocusChangeListener = onFieldFocusLostListener
+            upperInput.onFocusChangeListener = onFieldFocusLostListener
+
+            upperInput.setOnEditorActionListener { v, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    v.clearFocus()
+                    return@setOnEditorActionListener true
+                }
+
+                return@setOnEditorActionListener false
+            }
 
             removeButton.setOnClickListener {
                 val featureFilter = getItem(adapterPosition)

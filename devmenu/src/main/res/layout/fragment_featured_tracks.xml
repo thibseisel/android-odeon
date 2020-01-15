@@ -24,5 +24,7 @@
     android:clipToPadding="false"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
+    android:scrollbars="vertical"
+    android:scrollbarStyle="insideOverlay"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
     tools:listitem="@layout/dev_featured_track_row" />

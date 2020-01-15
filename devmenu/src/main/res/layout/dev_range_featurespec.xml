@@ -38,6 +38,7 @@
         android:id="@+id/layout_lower"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/layout_upper"
         app:layout_constraintTop_toTopOf="parent">
@@ -48,15 +49,17 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="@string/hint_minimum"
-            android:inputType="numberDecimal"
+            android:imeOptions="actionNext"
+            android:inputType="numberDecimal|numberSigned"
             android:minEms="3"
-            tools:text="@sample/features.json/data/input_min"/>
+            tools:text="@sample/features.json/data/input_min" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_upper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/action_remove"
         app:layout_constraintTop_toTopOf="parent">
@@ -67,21 +70,22 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:hint="@string/hint_maximum"
-            android:inputType="numberDecimal"
-            android:layout_marginEnd="16dp"
+            android:imeOptions="actionDone"
+            android:inputType="numberDecimal|numberSigned"
             android:minEms="3"
-            tools:text="@sample/features.json/data/input_max"/>
+            tools:text="@sample/features.json/data/input_max" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
         android:id="@+id/action_remove"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:background="?selectableItemBackgroundBorderless"
         android:padding="12dp"
-        app:srcCompat="@drawable/dev_ic_close_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:srcCompat="@drawable/dev_ic_close_24dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

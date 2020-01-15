@@ -51,6 +51,10 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
                 .commit()
         }
 
+        viewModel.tracks.observe(this) { tracks ->
+            label_track_count.text = getString(R.string.dev_matching_tracks_count, tracks.size)
+        }
+
         viewModel.filters.observe(this) { filters ->
             adapter.submitList(filters)
         }

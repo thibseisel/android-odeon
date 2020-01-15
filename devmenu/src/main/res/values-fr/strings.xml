@@ -37,7 +37,7 @@
     <string name="dev_label_acousticness">Acoustique</string>
     <string name="dev_label_speechiness">Paroles</string>
     <string name="dev_descr_album_art">Pochette d\'album</string>
-    <string name="dev_format_decibels">%1$+f.2 dB</string>
+    <string name="dev_format_decibels">%1$+.2f dB</string>
     <string name="dev_action_show_results">Afficher</string>
     <string name="dev_matching_tracks_count">%1$d morceaux correspondent</string>
 </resources>
