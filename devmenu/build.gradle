@@ -46,7 +46,12 @@ android {
 dependencies {
     implementation project(':core')
     implementation project(':core-ui')
+    implementation project(':media')
     implementation project(':spotify-client')
+
+    // Dagger
+    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
     testImplementation project(':core-test')
 }

@@ -127,9 +127,10 @@ dependencies {
     // Sub-project containing the Media Service.
     implementation project(':core')
     implementation project(':core-ui')
+    implementation project(':media')
     implementation project(':service')
     implementation project(':spotify-client')
-    debugImplementation project(':devmenu')
+    implementation project(':devmenu')
 
     // Support library dependencies
     implementation "androidx.cardview:cardview:${versions.androidx.cardview}"

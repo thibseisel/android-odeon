@@ -24,9 +24,8 @@ import dagger.multibindings.IntoMap
 import fr.nihilus.music.core.ui.dagger.PerActivity
 import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 import fr.nihilus.music.devmenu.features.ComposerViewModel
+import fr.nihilus.music.devmenu.features.FeaturedTracksFragment
 import fr.nihilus.music.devmenu.features.MixComposerFragment
-import fr.nihilus.music.devmenu.sync.SyncFragment
-import fr.nihilus.music.devmenu.sync.SyncViewModel
 
 @Module
 abstract class DevMenuModule {
@@ -36,14 +35,10 @@ abstract class DevMenuModule {
     internal abstract fun debugActivity(): SpotifyDebugActivity
 
     @ContributesAndroidInjector
-    internal abstract fun syncFragment(): SyncFragment
-
-    @ContributesAndroidInjector
     internal abstract fun composerFragment(): MixComposerFragment
 
-    @Binds @IntoMap
-    @ViewModelKey(SyncViewModel::class)
-    internal abstract fun bindsSyncViewModel(vm: SyncViewModel): ViewModel
+    @ContributesAndroidInjector
+    internal abstract fun featuredTracksFragment(): FeaturedTracksFragment
 
     @Binds @IntoMap
     @ViewModelKey(ComposerViewModel::class)

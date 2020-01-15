@@ -30,4 +30,11 @@
     <string name="hint_minimum">Min</string>
     <string name="hint_maximum">Max</string>
     <string name="dev_title_new_filter">New filter</string>
+    <string name="dev_label_signature">Time signature</string>
+    <string name="dev_label_acousticness">Acousticness</string>
+    <string name="dev_label_speechiness">Speechiness</string>
+    <string name="dev_descr_album_art">Album artwork</string>
+    <string name="dev_format_decibels">%1$+f.2 dB</string>
+    <string name="dev_action_show_results">Show</string>
+    <string name="dev_matching_tracks_count">%1$d tracks matched</string>
 </resources>

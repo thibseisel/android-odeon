@@ -18,15 +18,16 @@ package fr.nihilus.music.devmenu
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.devmenu.features.MixComposerFragment
 
-class SpotifyDebugActivity : AppCompatActivity() {
+class SpotifyDebugActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify_debug)
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .add(R.id.container, MixComposerFragment())
                 .commitNow()
