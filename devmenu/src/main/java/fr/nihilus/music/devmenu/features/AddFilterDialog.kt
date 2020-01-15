@@ -20,14 +20,14 @@ import android.app.Dialog
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.viewModels
+import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
 import fr.nihilus.music.devmenu.R
 
-internal class AddFilterDialog : BaseDialogFragment() {
-    private val viewModel by viewModels<ComposerViewModel>()
+internal class AddFilterDialog : AppCompatDialogFragment() {
+    private val viewModel by activityViewModels<ComposerViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val adapter = FeatureAdapter()
@@ -53,8 +53,8 @@ internal class AddFilterDialog : BaseDialogFragment() {
             holder.label.setText(feature.labelResId)
         }
 
-        class Holder(parent: ViewGroup) : ViewHolder(parent, android.R.layout.simple_list_item_1) {
-            val label: TextView = itemView.findViewById(android.R.id.text1)
+        class Holder(parent: ViewGroup) : ViewHolder(parent, R.layout.dev_feature_row) {
+            val label: TextView = itemView as TextView
         }
     }
 }
