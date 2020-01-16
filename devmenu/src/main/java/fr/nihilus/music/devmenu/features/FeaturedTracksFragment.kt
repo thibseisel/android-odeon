@@ -32,6 +32,7 @@ import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.devmenu.R
 import fr.nihilus.music.spotify.manager.FeaturedTrack
 import kotlinx.android.synthetic.main.fragment_featured_tracks.*
+import java.text.NumberFormat
 
 internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_tracks) {
     private val viewModel by activityViewModels<ComposerViewModel>()
@@ -59,10 +60,12 @@ internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAd
 
     internal class Holder(parent: ViewGroup) : RecyclerView.ViewHolder(parent.inflate(R.layout.dev_featured_track_row)) {
         private val title: TextView = itemView.findViewById(R.id.track_title)
-        private val tone: TextView = itemView.findViewById(R.id.value_tone)
-        private val tempo: TextView = itemView.findViewById(R.id.value_tempo)
-        private val signature: TextView = itemView.findViewById(R.id.value_signature)
-        private val loudness: TextView = itemView.findViewById(R.id.value_loudness)
+        private val remoteId: TextView = itemView.findViewById(R.id.remote_track_id)
+        private val tone: TextView = itemView.findViewById(R.id.tone_indicator)
+
+        private val tempo: TextView = itemView.findViewById(R.id.tempo_cartridge)
+        private val signature: TextView = itemView.findViewById(R.id.signature_cartridge)
+        private val loudness: TextView = itemView.findViewById(R.id.loudness_cartridge)
         private val energy: TextView = itemView.findViewById(R.id.value_energy)
         private val valence: TextView = itemView.findViewById(R.id.value_valence)
         private val danceability: TextView = itemView.findViewById(R.id.value_danceability)
@@ -71,23 +74,30 @@ internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAd
         private val liveness: TextView = itemView.findViewById(R.id.value_liveness)
         private val speechiness: TextView = itemView.findViewById(R.id.value_speechiness)
 
+        private val percentFormatter = NumberFormat.getPercentInstance().apply {
+            minimumFractionDigits = 1
+            maximumFractionDigits = 2
+        }
+
         fun bind(track: FeaturedTrack) {
             val context = itemView.context
 
             title.text = track.track.title
 
             val features = track.features
+            remoteId.text = track.features.id
+
             tone.text = toneString(features.key, features.mode)
-            tempo.text = features.tempo.toString()
+            tempo.text = context.getString(R.string.dev_format_tempo, features.tempo)
             signature.text = features.signature.toString()
             loudness.text = context.getString(R.string.dev_format_decibels, features.loudness)
-            energy.text = features.energy.toString()
-            valence.text = features.valence.toString()
-            danceability.text = features.danceability.toString()
-            acousticness.text = features.acousticness.toString()
-            instrumentalness.text = features.instrumentalness.toString()
-            liveness.text = features.liveness.toString()
-            speechiness.text = features.speechiness.toString()
+            energy.text = percentFormatter.format(features.energy)
+            valence.text = percentFormatter.format(features.valence)
+            danceability.text = percentFormatter.format(features.danceability)
+            acousticness.text = percentFormatter.format(features.acousticness)
+            instrumentalness.text = percentFormatter.format(features.instrumentalness)
+            liveness.text = percentFormatter.format(features.liveness)
+            speechiness.text = percentFormatter.format(features.speechiness)
         }
 
         private fun toneString(key: Pitch?, mode: MusicalMode): String {
