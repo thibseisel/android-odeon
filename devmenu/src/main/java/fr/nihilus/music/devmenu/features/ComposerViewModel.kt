@@ -20,8 +20,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import fr.nihilus.music.core.database.spotify.TrackFeature
+import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.manager.FeatureFilter
-import fr.nihilus.music.spotify.manager.FeaturedTrack
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
@@ -43,7 +43,7 @@ internal class ComposerViewModel @Inject constructor(
         }
     }
 
-    val tracks: LiveData<List<FeaturedTrack>> = liveData {
+    val tracks: LiveData<List<Pair<Track, TrackFeature>>> = liveData {
         _filters.asFlow()
             .debounce(300)
             .collectLatest {
