@@ -27,10 +27,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.core.database.spotify.MusicalMode
 import fr.nihilus.music.core.database.spotify.Pitch
+import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.devmenu.R
-import fr.nihilus.music.spotify.manager.FeaturedTrack
+import fr.nihilus.music.media.provider.Track
 import kotlinx.android.synthetic.main.fragment_featured_tracks.*
 import java.text.NumberFormat
 
@@ -44,12 +45,12 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
         track_list.adapter = adapter
 
         viewModel.tracks.observe(this) { tracks ->
-            adapter.submitList(tracks.sortedBy { it.track.title })
+            adapter.submitList(tracks)
         }
     }
 }
 
-internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAdapter.Holder>(Differ()) {
+internal class FeaturedTrackAdapter : ListAdapter<Pair<Track, TrackFeature>, FeaturedTrackAdapter.Holder>(Differ()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent)
 
@@ -79,13 +80,13 @@ internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAd
             maximumFractionDigits = 2
         }
 
-        fun bind(track: FeaturedTrack) {
+        fun bind(featuredTrack: Pair<Track, TrackFeature>) {
             val context = itemView.context
+            val (track, features) = featuredTrack
 
-            title.text = track.track.title
+            title.text = track.title
 
-            val features = track.features
-            remoteId.text = track.features.id
+            remoteId.text = features.id
 
             tone.text = toneString(features.key, features.mode)
             tempo.text = context.getString(R.string.dev_format_tempo, features.tempo)
@@ -112,16 +113,16 @@ internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAd
         }
     }
 
-    private class Differ : DiffUtil.ItemCallback<FeaturedTrack>() {
+    private class Differ : DiffUtil.ItemCallback<Pair<Track, TrackFeature>>() {
 
         override fun areItemsTheSame(
-            oldItem: FeaturedTrack,
-            newItem: FeaturedTrack
-        ): Boolean = oldItem.track.id == newItem.track.id
+            oldItem: Pair<Track, TrackFeature>,
+            newItem: Pair<Track, TrackFeature>
+        ): Boolean = oldItem.first.id == newItem.first.id
 
         override fun areContentsTheSame(
-            oldItem: FeaturedTrack,
-            newItem: FeaturedTrack
-        ): Boolean = oldItem.features == newItem.features
+            oldItem: Pair<Track, TrackFeature>,
+            newItem: Pair<Track, TrackFeature>
+        ): Boolean = oldItem.second == newItem.second
     }
 }

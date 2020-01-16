@@ -39,7 +39,7 @@ interface SpotifyManager {
      * Having no filters will return all tracks (except unlinked ones).
      * @return Tracks whose audio features match all provided filters.
      */
-    suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<FeaturedTrack>
+    suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>>
 
     /**
      * Fetch media metadata from the Spotify API and store them locally for offline use.
@@ -52,8 +52,3 @@ interface SpotifyManager {
      */
     suspend fun sync()
 }
-
-class FeaturedTrack(
-    val track: Track,
-    val features: TrackFeature
-)

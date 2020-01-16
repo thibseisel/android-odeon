@@ -28,6 +28,7 @@ import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContain
+import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.shouldNotThrowAny
 import org.junit.Rule
@@ -176,7 +177,7 @@ class SpotifyManagerTest {
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
-        val tracksIds = manager.findTracksHavingFeatures(emptyList()).map { it.track.id }
+        val tracksIds = manager.findTracksHavingFeatures(emptyList()).map { (track, _) -> track.id }
         tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
     }
 
@@ -213,12 +214,45 @@ class SpotifyManagerTest {
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
 
-        val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map { it.track.id }
+        val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map { (track, _) -> track.id }
         happyTrackIds.shouldContainExactlyInAnyOrder(1L, 2L, 3L)
 
         val filters = listOf(dMajorFilter, moderatoFilter, happyFilter)
-        val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map { it.track.id }
+        val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map { (track, _) -> track.id }
         happyModeratoDMajorTrackIds.shouldContainExactlyInAnyOrder(3)
+    }
+
+    @Test
+    fun `When finding tracks by feature, then return tracks in the repository order`() = test.run {
+        val repository = FakeMediaDao(
+            sampleTrack(3, "A", "B", "B", 2),
+            sampleTrack(4, "B", "C", "C", 7),
+            sampleTrack(2, "J", "B", "B", 1),
+            sampleTrack(5, "U", "C", "D", 3),
+            sampleTrack(1, "Z", "A", "A", 1)
+        )
+
+        val localDao = FakeSpotifyDao(
+            links = listOf(
+                SpotifyLink(2, "ZEIul98mdUL4rFtTj6u0m5", 0),
+                SpotifyLink(4, "GMQwHtRCwNz1iljZIr8tIV", 0),
+                SpotifyLink(3, "oC6CfwQNurKxuDMAPFi4GC", 0),
+                SpotifyLink(5, "sF8v98pUor1SnL3s9Gaxev", 0),
+                SpotifyLink(1, "wRYMoiM19LRkOJt9PmbTaG", 0)
+            ),
+            features = listOf(
+                TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
+                TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f),
+                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
+            )
+        )
+
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        val tracks = manager.findTracksHavingFeatures(emptyList())
+
+        tracks.map { it.first.title }.shouldContainExactly("A", "B", "J", "U", "Z")
     }
 }
 
