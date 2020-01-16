@@ -55,6 +55,9 @@ internal class ComposerViewModel @Inject constructor(
                         Feature.DANCEABILITY -> TrackFeature::danceability
                         Feature.INSTRUMENTALNESS -> TrackFeature::instrumentalness
                         Feature.VALENCE -> TrackFeature::valence
+                        Feature.ACOUSTICNESS -> TrackFeature::acousticness
+                        Feature.LIVENESS -> TrackFeature::liveness
+                        Feature.SPEECHINESS -> TrackFeature::tempo
                     }
 
                     FeatureFilter.OnRange(featureSelector, specs.minValue, specs.maxValue)

@@ -23,10 +23,13 @@ internal enum class Feature(
     val minValue: Float,
     val maxValue: Float
 ) {
-    TEMPO(R.string.dev_label_tempo, 0f, 500f),
+    TEMPO(R.string.dev_label_tempo, 0f, 360f),
     LOUDNESS(R.string.dev_label_loudness, -60f, 0f),
     ENERGY(R.string.dev_label_energy, 0f, 1f),
     DANCEABILITY(R.string.dev_label_danceability, 0f, 1f),
     INSTRUMENTALNESS(R.string.dev_label_instrumentalness, 0f, 1f),
-    VALENCE(R.string.dev_label_valence, 0f, 1f)
+    VALENCE(R.string.dev_label_valence, 0f, 1f),
+    LIVENESS(R.string.dev_label_liveness, 0f, 1f),
+    ACOUSTICNESS(R.string.dev_label_acousticness, 0f, 1f),
+    SPEECHINESS(R.string.dev_label_speechiness, 0f, 1f),
 }
