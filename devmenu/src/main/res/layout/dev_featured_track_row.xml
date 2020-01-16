@@ -54,6 +54,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Odeon.Caption"
+            android:textIsSelectable="true"
             app:firstBaselineToTopHeight="16dp"
             app:layout_constraintEnd_toStartOf="@id/tone_indicator"
             app:layout_constraintStart_toStartOf="parent"
