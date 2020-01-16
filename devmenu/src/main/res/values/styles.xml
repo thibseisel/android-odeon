@@ -50,4 +50,12 @@
     <style name="Widget.RangeSlider.Discrete">
         <item name="tickMarkDrawable">@drawable/range_slider_tick_mark</item>
     </style>
+
+    <style name="Widget.Odeon.Cartridge" parent="">
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:background">@drawable/dev_cartridge_shape</item>
+        <item name="android:backgroundTint">?colorPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.Odeon.Subtitle2</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+    </style>
 </resources>
