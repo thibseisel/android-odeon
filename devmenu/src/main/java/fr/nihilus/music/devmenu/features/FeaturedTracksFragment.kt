@@ -43,8 +43,8 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
         val adapter = FeaturedTrackAdapter()
         track_list.adapter = adapter
 
-        viewModel.tracks.observe(this) {
-            adapter.submitList(it)
+        viewModel.tracks.observe(this) { tracks ->
+            adapter.submitList(tracks.sortedBy { it.track.title })
         }
     }
 }
@@ -89,7 +89,7 @@ internal class FeaturedTrackAdapter : ListAdapter<FeaturedTrack, FeaturedTrackAd
 
             tone.text = toneString(features.key, features.mode)
             tempo.text = context.getString(R.string.dev_format_tempo, features.tempo)
-            signature.text = features.signature.toString()
+            signature.text = context.getString(R.string.dev_format_signature, features.signature)
             loudness.text = context.getString(R.string.dev_format_decibels, features.loudness)
             energy.text = percentFormatter.format(features.energy)
             valence.text = percentFormatter.format(features.valence)
