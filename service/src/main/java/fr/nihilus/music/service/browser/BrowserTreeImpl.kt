@@ -22,6 +22,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
@@ -31,6 +32,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
@@ -43,6 +45,8 @@ import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.extensions.getResourceUri
+import fr.nihilus.music.spotify.manager.FeatureFilter
+import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -80,7 +84,8 @@ internal class BrowserTreeImpl
 @Inject constructor(
     private val context: Context,
     private val repository: MediaRepository,
-    private val usageManager: UsageManager
+    private val usageManager: UsageManager,
+    private val spotifyManager: SpotifyManager
 ) : BrowserTree {
 
     private val albumTrackOrdering = Comparator<Track> { a, b ->
@@ -154,6 +159,22 @@ internal class BrowserTreeImpl
 
             categories(provider = ::provideAllPlaylists)
             categoryChildren(provider = ::providePlaylistTracks)
+        }
+
+        type(TYPE_SMART) {
+            title = context.getString(R.string.svc_smart_type_title)
+
+            category(
+                "HAPPY",
+                context.getString(R.string.svc_happy_category_title),
+                children = ::provideHappyTracks
+            )
+
+            category(
+                "PARTY",
+                context.getString(R.string.svc_party_category_title),
+                children = ::provideDanceableTracks
+            )
         }
     }
 
@@ -568,5 +589,34 @@ internal class BrowserTreeImpl
                     trackItemFactory(playlistTrack, TYPE_PLAYLISTS, playlistCategory, builder)
                 }
         }
+    }
+
+    private suspend fun provideHappyTracks(startIndex: Int, count: Int): List<MediaItem> {
+        val happyFilters = listOf(
+            FeatureFilter.OnRange(TrackFeature::valence, 0.65f, 1.0f)
+        )
+
+        val builder = MediaDescriptionCompat.Builder()
+        return spotifyManager.findTracksHavingFeatures(happyFilters).asSequence()
+            .drop(startIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { (track, _) ->
+                trackItemFactory(track, TYPE_SMART, "HAPPY", builder)
+            }
+    }
+
+    private suspend fun provideDanceableTracks(fromIndex: Int, count: Int): List<MediaItem> {
+        val partyFilters = listOf(
+            FeatureFilter.OnRange(TrackFeature::danceability, 0.7f, 1.0f),
+            FeatureFilter.OnRange(TrackFeature::energy, 0.5f, 1.0f)
+        )
+
+        val builder = MediaDescriptionCompat.Builder()
+        return spotifyManager.findTracksHavingFeatures(partyFilters).asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .mapTo(mutableListOf()) { (track, _) ->
+                trackItemFactory(track, TYPE_SMART, "PARTY", builder)
+            }
     }
 }
