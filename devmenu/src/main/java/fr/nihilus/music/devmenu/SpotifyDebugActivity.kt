@@ -17,15 +17,26 @@
 package fr.nihilus.music.devmenu
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.observe
 import fr.nihilus.music.core.ui.base.BaseActivity
+import fr.nihilus.music.devmenu.features.ComposerViewModel
 import fr.nihilus.music.devmenu.features.MixComposerFragment
 
 class SpotifyDebugActivity : BaseActivity() {
+    private val viewModel by viewModels<ComposerViewModel> { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify_debug)
+
+        viewModel.events.observe(this) { event ->
+            event.handle { message ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
