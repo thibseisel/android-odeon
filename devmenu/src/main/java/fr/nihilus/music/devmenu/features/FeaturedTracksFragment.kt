@@ -17,8 +17,7 @@
 package fr.nihilus.music.devmenu.features
 
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
@@ -38,6 +37,11 @@ import java.text.NumberFormat
 internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_tracks) {
     private val viewModel by activityViewModels<ComposerViewModel>()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,6 +51,18 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
         viewModel.tracks.observe(this) { tracks ->
             adapter.submitList(tracks)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_featured_tracks, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_save_as_playlist -> {
+            NewPlaylistFromSelectionDialog().show(requireFragmentManager(), null)
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 }
 

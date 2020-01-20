@@ -39,4 +39,22 @@
     <string name="dev_matching_tracks_count">%1$d tracks matched</string>
     <string name="dev_format_tempo">%1$.0f BPM</string>
     <string name="dev_format_signature">%d beats</string>
+    <string name="dev_label_pitch_key">Pitch key</string>
+    <string name="dev_mode_minor">Minor</string>
+    <string name="dev_mode_major">Major</string>
+    <string name="dev_key_c">C</string>
+    <string name="dev_key_cs">C#</string>
+    <string name="dev_key_d">D</string>
+    <string name="dev_key_ds">D#</string>
+    <string name="dev_key_e">E</string>
+    <string name="dev_key_f">F</string>
+    <string name="dev_key_fs">F#</string>
+    <string name="dev_key_g">G</string>
+    <string name="dev_key_gs">G#</string>
+    <string name="dev_key_a">A</string>
+    <string name="dev_key_as">A#</string>
+    <string name="dev_key_b">B</string>
+    <string name="dev_action_save_as_playlist">Save as playlist</string>
+    <string name="dev_title_playlist_from_selection">New playlist from selection</string>
+    <string name="dev_hint_playlist_title">Playlist title</string>
 </resources>

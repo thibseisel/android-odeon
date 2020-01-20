@@ -16,10 +16,13 @@
 
 package fr.nihilus.music.devmenu.features
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import android.os.Bundle
+import androidx.lifecycle.*
 import fr.nihilus.music.core.database.spotify.TrackFeature
+import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.ui.Event
+import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
@@ -28,13 +31,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 internal class ComposerViewModel @Inject constructor(
-    private val manager: SpotifyManager
+    private val manager: SpotifyManager,
+    private val browser: BrowserClient
 ) : ViewModel() {
 
     private val _filters = ConflatedBroadcastChannel<List<FeatureFilterState>>(emptyList())
+
+    private val _events = MutableLiveData<Event<String>>()
+    val events: LiveData<Event<String>> get() = _events
 
     val filters: LiveData<List<FeatureFilterState>> = liveData {
         _filters.asFlow().collectLatest {
@@ -90,6 +98,27 @@ internal class ComposerViewModel @Inject constructor(
             val updatedFilters = currentFilters.toMutableList()
             updatedFilters.removeAt(removedFilterIndex)
             _filters.offer(updatedFilters)
+        }
+    }
+
+    fun saveSelectionAsPlaylist(title: String) {
+        val trackIds = tracks.value
+            ?.map { MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_ALL, it.first.id) }
+            ?.takeUnless { it.isEmpty() }
+            ?: return
+
+        viewModelScope.launch {
+            val params = Bundle(2).apply {
+                putString(CustomActions.EXTRA_TITLE, title)
+                putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackIds.toTypedArray())
+            }
+
+            try {
+                browser.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+                _events.value = Event("Created new playlist $title")
+            } catch (actionFailure: BrowserClient.CustomActionException) {
+                _events.value = Event("Failed to create a playlist from selection.")
+            }
         }
     }
 
