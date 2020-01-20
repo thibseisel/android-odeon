@@ -18,43 +18,26 @@ package fr.nihilus.music.devmenu.features
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import fr.nihilus.music.core.ui.base.ListAdapter
 import fr.nihilus.music.devmenu.R
 
 internal class AddFilterDialog : AppCompatDialogFragment() {
     private val viewModel by activityViewModels<ComposerViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val adapter = FeatureAdapter()
-        adapter.submitList(Feature.values().toList())
+        val allFeatures = Feature.values()
+        val featureEntries = Array(allFeatures.size) { allFeatures[it].name }
 
         return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(getString(R.string.dev_title_new_filter))
-            .setAdapter(adapter) { _, position ->
+            .setTitle(R.string.dev_title_new_filter)
+            .setItems(featureEntries) { _, position ->
                 val pickedFeature = Feature.values()[position]
                 val featureFilter = FeatureFilterState(pickedFeature, pickedFeature.minValue, pickedFeature.maxValue)
                 viewModel.setFilter(featureFilter)
             }
             .setNegativeButton(R.string.core_cancel, null)
             .create()
-    }
-
-    private class FeatureAdapter : ListAdapter<Feature, FeatureAdapter.Holder>() {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder = Holder(parent)
-
-        override fun onBindViewHolder(holder: Holder, position: Int) {
-            val feature = Feature.values()[position]
-            holder.label.setText(feature.labelResId)
-        }
-
-        class Holder(parent: ViewGroup) : ViewHolder(parent, R.layout.dev_feature_row) {
-            val label: TextView = itemView as TextView
-        }
     }
 }
