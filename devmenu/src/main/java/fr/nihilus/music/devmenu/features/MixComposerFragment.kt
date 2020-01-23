@@ -45,7 +45,7 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
         feature_criteria.addItemDecoration(dividers)
 
         search_button.setOnClickListener {
-            requireFragmentManager().beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .replace(R.id.container, FeaturedTracksFragment())
                 .addToBackStack(null)
                 .commit()
@@ -67,7 +67,7 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_add_filter -> {
             val dialog = AddFilterDialog()
-            dialog.show(requireFragmentManager(), null)
+            dialog.show(parentFragmentManager, null)
             true
         }
 

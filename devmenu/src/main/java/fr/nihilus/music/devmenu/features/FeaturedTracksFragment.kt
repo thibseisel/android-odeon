@@ -59,7 +59,7 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save_as_playlist -> {
-            NewPlaylistFromSelectionDialog().show(requireFragmentManager(), null)
+            NewPlaylistFromSelectionDialog().show(parentFragmentManager, null)
             true
         }
         else -> super.onOptionsItemSelected(item)

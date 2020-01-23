@@ -133,12 +133,12 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
             SearchResultsAdapter.ItemAction.ADD_TO_PLAYLIST -> {
                 val dialog = AddToPlaylistDialog.newInstance(this, listOf(item))
-                dialog.show(requireFragmentManager(), AddToPlaylistDialog.TAG)
+                dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)
             }
 
             SearchResultsAdapter.ItemAction.DELETE -> {
                 val dialog = DeleteTrackDialog.newInstance(item)
-                dialog.show(requireFragmentManager(), DeleteTrackDialog.TAG)
+                dialog.show(parentFragmentManager, DeleteTrackDialog.TAG)
             }
         }
     }
