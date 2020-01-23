@@ -54,9 +54,8 @@ dependencies {
     api "androidx.constraintlayout:constraintlayout:${versions.androidx.constraint_layout}"
 
     // Android Arch Components
-    api "androidx.lifecycle:lifecycle-common-java8:${versions.androidx.lifecycle}"
-    api "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.androidx.lifecycle}"
     api "androidx.lifecycle:lifecycle-livedata-ktx:${versions.androidx.lifecycle}"
+    api "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.androidx.lifecycle}"
     api "androidx.lifecycle:lifecycle-runtime-ktx:${versions.androidx.lifecycle}"
 
     // Navigation Components
