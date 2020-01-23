@@ -104,7 +104,7 @@ dependencies {
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
 
     // Android-specific test dependencies
-    androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
-    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "androidx.test:core:${versions.androidx.test}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test}"
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
 }
