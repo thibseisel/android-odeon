@@ -89,7 +89,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         NewPlaylistDialog.newInstance(
             requireCallerFragment(),
             getPlaylistMembersArgument()
-        ).show(requireFragmentManager(), NewPlaylistDialog.TAG)
+        ).show(parentFragmentManager, NewPlaylistDialog.TAG)
     }
 
     private fun getPlaylistMembersArgument(): Array<MediaItem> {

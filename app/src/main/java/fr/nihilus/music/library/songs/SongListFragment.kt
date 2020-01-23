@@ -120,12 +120,12 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
             SongAdapter.ItemAction.DELETE -> {
                 val dialog = DeleteTrackDialog.newInstance(track)
-                dialog.show(requireFragmentManager(), DeleteTrackDialog.TAG)
+                dialog.show(parentFragmentManager, DeleteTrackDialog.TAG)
             }
 
             SongAdapter.ItemAction.ADD_TO_PLAYLIST -> {
                 val dialog = AddToPlaylistDialog.newInstance(this, listOf(track))
-                dialog.show(requireFragmentManager(), AddToPlaylistDialog.TAG)
+                dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)
             }
         }
     }
