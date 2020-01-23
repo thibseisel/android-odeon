@@ -153,14 +153,14 @@ dependencies {
 
     // Test dependencies
     testImplementation project(':core-test')
-    testImplementation "androidx.test:rules:${versions.androidx.test_rules}"
+    testImplementation "androidx.test:rules:${versions.androidx.test}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
     testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
 
-    androidTestImplementation "androidx.test:core:${versions.androidx.test_core}"
-    androidTestImplementation "androidx.test:rules:${versions.androidx.test_rules}"
-    androidTestImplementation "androidx.test:runner:${versions.androidx.test_runner}"
+    androidTestImplementation "androidx.test:core:${versions.androidx.test}"
+    androidTestImplementation "androidx.test:rules:${versions.androidx.test}"
+    androidTestImplementation "androidx.test:runner:${versions.androidx.test}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${versions.androidx.espresso}"
 }
