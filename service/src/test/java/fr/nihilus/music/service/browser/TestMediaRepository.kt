@@ -17,6 +17,7 @@
 package fr.nihilus.music.service.browser
 
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
@@ -25,6 +26,8 @@ import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.spotify.manager.FeatureFilter
+import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import java.util.concurrent.TimeUnit
@@ -63,6 +66,16 @@ internal object StubUsageManager : UsageManager {
     override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
     override suspend fun getDisposableTracks(): List<DisposableTrack> = stub()
     override fun reportCompletion(trackId: Long) = stub()
+}
+
+internal object StubSpotifyManager : SpotifyManager {
+
+    override suspend fun findTracksHavingFeatures(
+        filters: List<FeatureFilter>
+    ): List<Pair<Track, TrackFeature>> = stub()
+
+    override suspend fun sync(): Unit = stub()
+
 }
 
 internal class StubMediaRepository : MediaRepository {
