@@ -225,8 +225,8 @@ class BrowserTreeSearchTest {
     private fun BrowserTree(
         repository: MediaRepository,
         usageManager: UsageManager = StubUsageManager
-    ): BrowserTree = BrowserTreeImpl(context, repository, usageManager)
+    ): BrowserTree = BrowserTreeImpl(context, repository, usageManager, StubSpotifyManager)
 
     private fun givenRealisticBrowserTree(): BrowserTreeImpl =
-        BrowserTreeImpl(context, TestMediaRepository(), TestUsageManager())
+        BrowserTreeImpl(context, TestMediaRepository(), TestUsageManager(), StubSpotifyManager)
 }

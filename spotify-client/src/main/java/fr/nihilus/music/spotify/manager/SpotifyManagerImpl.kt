@@ -27,12 +27,10 @@ import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
