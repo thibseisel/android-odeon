@@ -48,8 +48,10 @@ dependencies {
     api "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     api "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     api "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
-    api "org.robolectric:robolectric:${versions.robolectric}"
     api "io.mockk:mockk:${versions.mockk}"
+    api ("org.robolectric:robolectric:${versions.robolectric}") {
+        exclude group: "com.google.auto.service", module: "auto-service"
+    }
 
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 }
