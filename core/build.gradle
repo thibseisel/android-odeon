@@ -97,7 +97,9 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     testImplementation "io.mockk:mockk:${versions.mockk}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
-    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+    testImplementation ("org.robolectric:robolectric:${versions.robolectric}") {
+        exclude group: "com.google.auto.service", module: "auto-service"
+    }
 
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
     androidTestImplementation "com.google.truth:truth:${versions.truth}"

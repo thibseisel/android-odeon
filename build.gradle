@@ -65,7 +65,7 @@ buildscript {
                 'kotlintest'    : '3.3.3',
                 'mockito'       : '2.28.2',
                 'mockk'         : '1.9.3',
-                'robolectric'   : '4.2.1',
+                'robolectric'   : '4.3.1',
                 'truth'         : '0.44'
         ]
     }
