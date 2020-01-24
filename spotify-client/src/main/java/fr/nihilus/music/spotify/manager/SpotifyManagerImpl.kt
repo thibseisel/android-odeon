@@ -60,7 +60,22 @@ internal class SpotifyManagerImpl @Inject constructor(
     }
 
     override suspend fun sync() {
-        val unSyncedTracks = findUnSyncedTracks()
+        val unSyncedTracks = coroutineScope {
+            // Load tracks and remote links in parallel.
+            val allTracks = async { mediaDao.tracks.first() }
+            val allLinks = async { localDao.getLinks() }
+
+            // Delete links pointing to a track that does not exist anymore.
+            val tracksById = allTracks.await().associateByLong { it.id }
+            val (existingLinks, oldLinks) = allLinks.await().partition { tracksById.containsKey(it.trackId) }
+            val deletedTrackIds = LongArray(oldLinks.size) { oldLinks[it].trackId }
+            localDao.deleteLinks(deletedTrackIds)
+
+            // Compute tracks that have no links.
+            val linksPerTrack = existingLinks.associateByLong { it.trackId }
+            allTracks.await().filterNot { linksPerTrack.containsKey(it.id) }
+        }
+
         Timber.tag("SpotifySync").d("%s track(s) need to be synced.", unSyncedTracks.size)
 
         if (unSyncedTracks.isNotEmpty()) {
@@ -105,13 +120,15 @@ internal class SpotifyManagerImpl @Inject constructor(
         }
     }
 
-    private suspend fun findUnSyncedTracks(): List<Track> =
-        coroutineScope {
-            val asyncTracks = async { mediaDao.tracks.first() }
-            val remoteLinks = localDao.getLinks().associateByLong(SpotifyLink::trackId)
-
-            asyncTracks.await().filterNot { remoteLinks.containsKey(it.id) }
-        }
+    /**
+     * Delete links that reference local tracks that no longer exists.
+     */
+    private suspend fun deleteOldLinks(tracks: List<Track>, remoteLinks: List<SpotifyLink>) {
+        val tracksById = tracks.associateByLong { it.id }
+        val oldLinks = remoteLinks.filterNot { tracksById.containsKey(it.trackId) }
+        val deletedTrackIds = LongArray(oldLinks.size) { oldLinks[it].trackId }
+        localDao.deleteLinks(deletedTrackIds)
+    }
 
     private fun buildSearchQueryFor(track: Track) = SpotifyQuery.Track(
         title = track.title,

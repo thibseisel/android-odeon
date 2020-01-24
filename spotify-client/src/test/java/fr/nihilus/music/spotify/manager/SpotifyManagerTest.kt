@@ -35,7 +35,7 @@ import org.junit.Rule
 import kotlin.random.Random
 import kotlin.test.Test
 
-class SpotifyManagerTest {
+internal class SpotifyManagerTest {
 
     @get:Rule
     val test = CoroutineTestRule()
@@ -104,6 +104,32 @@ class SpotifyManagerTest {
 
         localDao.links.shouldBeEmpty()
         localDao.features.shouldBeEmpty()
+    }
+
+    @Test
+    fun `When syncing, then delete links for tracks that have been deleted`() = test.run {
+        val localDao = FakeSpotifyDao(
+            links = listOf(
+                SpotifyLink(289, "MH5U9eiW1fgFukImkVf9cq", 0L),
+                SpotifyLink(134, "NNcqs3H84QCpqpJXF5WCly", 0L),
+                SpotifyLink(879, "MRngff0u5EMK5kEOm62c6P", 0L)
+            ),
+            features = listOf(
+                TrackFeature("NNcqs3H84QCpqpJXF5WCly", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
+                TrackFeature("MH5U9eiW1fgFukImkVf9cq", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
+                TrackFeature("MRngff0u5EMK5kEOm62c6P", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
+            )
+        )
+
+        val repository = FakeMediaDao(
+            sampleTrack(134, "Track", "Artist", "Album", 1)
+        )
+
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        manager.sync()
+
+        localDao.links.map { it.trackId }.shouldContainExactly(134)
+        localDao.features.map { it.id }.shouldContainExactly("NNcqs3H84QCpqpJXF5WCly")
     }
 
     @Test
