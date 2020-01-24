@@ -66,4 +66,13 @@ internal class FakeSpotifyDao(
         _links.put(link.trackId, link)
         _features[feature.id] = feature
     }
+
+    override suspend fun deleteLinks(localTrackIds: LongArray) {
+        for (trackId in localTrackIds) {
+            _links[trackId]?.let { droppedLink ->
+                _features.remove(droppedLink.spotifyId)
+                _links.remove(trackId)
+            }
+        }
+    }
 }

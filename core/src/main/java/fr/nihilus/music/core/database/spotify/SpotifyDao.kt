@@ -56,4 +56,14 @@ interface SpotifyDao {
     """
     )
     suspend fun getLocalizedFeatures(): List<LocalizedTrackFeature>
+
+    /**
+     * Remove association between tracks locally stored on the device and their remote equivalent.
+     * This also deletes any metadata that has been downloaded for those tracks,
+     * such as [TrackFeature]s.
+     *
+     * @param localTrackIds The unique identifiers of local tracks whose association should be removed.
+     */
+    @Query("DELETE FROM remote_link WHERE local_id IN (:localTrackIds)")
+    suspend fun deleteLinks(localTrackIds: LongArray)
 }
