@@ -228,13 +228,13 @@ internal class MediaStoreProvider
     private fun queryAlbumArtPerArtist() = LongSparseArray<String?>().also { albumArtPerArtistId ->
         resolver.query(
             Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(Media.ARTIST_ID, Albums.ALBUM_ID, Albums.ALBUM_ART, Albums.LAST_YEAR),
+            arrayOf(Albums._ID, Media.ARTIST_ID, Albums.ALBUM_ART, Albums.LAST_YEAR),
             null,
             null,
             "${Media.ARTIST_ID} ASC, ${Albums.LAST_YEAR} DESC"
         )?.use { cursor ->
+            val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
             val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colAlbumId = cursor.getColumnIndexOrThrow(Albums.ALBUM_ID)
             val colArtPath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
             val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
 
