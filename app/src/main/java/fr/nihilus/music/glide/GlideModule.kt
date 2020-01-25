@@ -17,6 +17,8 @@
 package fr.nihilus.music.glide
 
 import android.content.Context
+import android.net.Uri
+import android.os.Build
 import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
@@ -66,5 +68,14 @@ class GlideModule : AppGlideModule() {
             AlbumArt::class.java,
             AlbumArtEncoder(bitmapEncoder, glide.bitmapPool, glide.arrayPool)
         )
+
+        // Load album artworks using MediaStore content uris on Android Q.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            registry.prepend(
+                Uri::class.java,
+                InputStream::class.java,
+                MediaStoreAlbumArtworkLoader.InputStreamFactory(context.contentResolver)
+            )
+        }
     }
 }
