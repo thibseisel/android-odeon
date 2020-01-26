@@ -20,7 +20,6 @@ import android.Manifest
 import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
-import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
@@ -50,6 +49,8 @@ internal class MediaStoreProvider
     private val dispatchers: AppDispatchers
 ) : MediaProvider {
 
+    private val albumArtworkUri = Uri.parse("content://media/external/audio/albumart")
+
     private val trackColumns = arrayOf(
         BaseColumns._ID,
         Media.TITLE,
@@ -69,7 +70,6 @@ internal class MediaStoreProvider
         Albums.ARTIST,
         Albums.LAST_YEAR,
         Albums.NUMBER_OF_SONGS,
-        Albums.ALBUM_ART,
         Media.ARTIST_ID
     )
 
@@ -93,8 +93,6 @@ internal class MediaStoreProvider
 
         return withContext(dispatchers.IO) {
             // Preload art Uris for each album to associate them with tracks.
-            val artUriPerAlbum = queryAlbumArtUris()
-
             resolver.query(
                 Media.EXTERNAL_CONTENT_URI,
                 trackColumns,
@@ -130,11 +128,7 @@ internal class MediaStoreProvider
                             discNumber = trackNo / 1000,
                             trackNumber = trackNo % 1000,
                             mediaUri = trackUri,
-                            albumArtUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                ContentUris.withAppendedId(Albums.EXTERNAL_CONTENT_URI, albumId).toString()
-                            } else {
-                                artUriPerAlbum[albumId]
-                            },
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                             availabilityDate = cursor.getLong(colDateAdded),
                             artistId = cursor.getLong(colArtistId),
                             albumId = albumId,
@@ -163,7 +157,6 @@ internal class MediaStoreProvider
                 val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
                 val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
                 val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
-                val colAlbumArt = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
 
                 ArrayList<Album>(cursor.count).also { albumList ->
                     while (cursor.moveToNext()) {
@@ -174,13 +167,7 @@ internal class MediaStoreProvider
                             title = cursor.getString(colTitle),
                             trackCount = cursor.getInt(colSongCount),
                             releaseYear = cursor.getInt(colYear),
-                            albumArtUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                ContentUris.withAppendedId(Albums.EXTERNAL_CONTENT_URI, albumId).toString()
-                            } else {
-                                cursor.getString(colAlbumArt)?.let { albumArtFilepath ->
-                                    fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
-                                }
-                            },
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                             artistId = cursor.getLong(colArtistId),
                             artist = cursor.getString(colArtist)
                         )
@@ -228,28 +215,22 @@ internal class MediaStoreProvider
     private fun queryAlbumArtPerArtist() = LongSparseArray<String?>().also { albumArtPerArtistId ->
         resolver.query(
             Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(Albums._ID, Media.ARTIST_ID, Albums.ALBUM_ART, Albums.LAST_YEAR),
+            arrayOf(Albums._ID, Media.ARTIST_ID, Albums.LAST_YEAR),
             null,
             null,
             "${Media.ARTIST_ID} ASC, ${Albums.LAST_YEAR} DESC"
         )?.use { cursor ->
             val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
             val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colArtPath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
             val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
 
             val albumInfo = ArrayList<AlbumArtInfo>(cursor.count)
             while (cursor.moveToNext()) {
+                val albumId = cursor.getLong(colAlbumId)
+
                 albumInfo += AlbumArtInfo(
                     artistId = cursor.getLong(colArtistId),
-                    albumArtPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        val albumId = cursor.getLong(colAlbumId)
-                        ContentUris.withAppendedId(Albums.EXTERNAL_CONTENT_URI, albumId).toString()
-                    } else {
-                        cursor.getString(colArtPath)?.let { albumArtFilepath ->
-                            fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
-                        }
-                    },
+                    albumArtPath = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                     releaseYear = cursor.getInt(colYear)
                 )
             }
@@ -357,28 +338,6 @@ internal class MediaStoreProvider
     private fun requireWritePermission() {
         if (!permissions.canWriteToExternalStorage) {
             throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-    }
-
-    private fun queryAlbumArtUris() = LongSparseArray<String>().also { artPathPerAlbumId ->
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            resolver.query(
-                Albums.EXTERNAL_CONTENT_URI, arrayOf(Albums._ID, Albums.ALBUM_ART),
-                null, null, Albums.DEFAULT_SORT_ORDER
-            )?.use { cursor ->
-                val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
-                val colFilepath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
-
-                while (cursor.moveToNext()) {
-                    cursor.getString(colFilepath)?.let { filepath ->
-                        val albumId = cursor.getLong(colAlbumId)
-                        artPathPerAlbumId.put(
-                            albumId,
-                            fileSystem.makeSharedContentUri(filepath)?.toString()
-                        )
-                    }
-                }
-            }
         }
     }
 

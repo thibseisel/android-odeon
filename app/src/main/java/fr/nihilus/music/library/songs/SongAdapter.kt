@@ -53,7 +53,7 @@ class SongAdapter(
 
         glideRequest = GlideApp.with(fragment).asBitmap()
             .roundedCorners(cornerRadius)
-            .fallback(R.drawable.ic_audiotrack_24dp)
+            .error(R.drawable.ic_audiotrack_24dp)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
