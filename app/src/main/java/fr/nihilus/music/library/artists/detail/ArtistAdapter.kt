@@ -29,7 +29,7 @@ internal class ArtistAdapter(
 ) : BaseAdapter<ArtistHolder>() {
 
     private val glide = GlideApp.with(fragment).asBitmap()
-        .fallback(R.drawable.ic_person_24dp)
+        .error(R.drawable.ic_person_24dp)
         .centerCrop()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {

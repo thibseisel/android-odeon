@@ -20,9 +20,4 @@
     <files-path
         name="icons"
         path="playlist_icons"/>
-
-    <!-- Share album arts from the MediaStore. -->
-    <external-path
-        name="albumthumbs"
-        path="Android/data/com.android.providers.media/albumthumbs"/>
 </paths>

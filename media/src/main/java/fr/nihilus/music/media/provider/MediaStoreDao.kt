@@ -55,6 +55,13 @@ internal class MediaStoreDao @Inject constructor(
     private val dispatchers: AppDispatchers
 ) : MediaDao {
 
+    /**
+     * An internal Content Uri for album artworks.
+     * It is not officially exposed as [MediaStore] constants, but has the advantage of
+     * being available on all Android versions and to external applications without permissions.
+     */
+    private val albumArtworkUri = Uri.parse("content://media/external/audio/albumart")
+
     override val tracks: Flow<List<Track>> =
         mediaUpdateFlow(Media.EXTERNAL_CONTENT_URI).mapLatest {
             queryTracks()
@@ -126,9 +133,6 @@ internal class MediaStoreDao @Inject constructor(
         requireReadPermission()
 
         return withContext(dispatchers.IO) {
-            // Preload art Uris for each album to associate them with tracks.
-            val artUriPerAlbum = queryAlbumArtUris()
-
             val trackColumns = arrayOf(
                 BaseColumns._ID,
                 Media.TITLE,
@@ -177,7 +181,7 @@ internal class MediaStoreDao @Inject constructor(
                             discNumber = trackNo / 1000,
                             trackNumber = trackNo % 1000,
                             mediaUri = trackUri,
-                            albumArtUri = artUriPerAlbum[albumId],
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                             availabilityDate = cursor.getLong(colDateAdded),
                             artistId = cursor.getLong(colArtistId),
                             albumId = albumId,
@@ -186,29 +190,6 @@ internal class MediaStoreDao @Inject constructor(
                     }
                 }
             } ?: emptyList<Track>()
-        }
-    }
-
-    private fun queryAlbumArtUris() = LongSparseArray<String>().also { artPathPerAlbumId ->
-        database.query(
-            Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(Albums._ID, Albums.ALBUM_ART),
-            null,
-            null,
-            Albums.DEFAULT_SORT_ORDER
-        )?.use { cursor ->
-            val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
-            val colFilepath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
-
-            while (cursor.moveToNext()) {
-                cursor.getString(colFilepath)?.let { filepath ->
-                    val albumId = cursor.getLong(colAlbumId)
-                    artPathPerAlbumId.put(
-                        albumId,
-                        fileSystem.makeSharedContentUri(filepath)?.toString()
-                    )
-                }
-            }
         }
     }
 
@@ -223,7 +204,6 @@ internal class MediaStoreDao @Inject constructor(
                 Albums.ARTIST,
                 Albums.LAST_YEAR,
                 Albums.NUMBER_OF_SONGS,
-                Albums.ALBUM_ART,
                 Media.ARTIST_ID
             )
 
@@ -240,18 +220,17 @@ internal class MediaStoreDao @Inject constructor(
                 val colArtist = cursor.getColumnIndexOrThrow(Albums.ARTIST)
                 val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
                 val colSongCount = cursor.getColumnIndexOrThrow(Albums.NUMBER_OF_SONGS)
-                val colAlbumArt = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
 
                 ArrayList<Album>(cursor.count).also { albumList ->
                     while (cursor.moveToNext()) {
+                        val albumId = cursor.getLong(colId)
+                        
                         albumList += Album(
-                            id = cursor.getLong(colId),
+                            id = albumId,
                             title = cursor.getString(colTitle),
                             trackCount = cursor.getInt(colSongCount),
                             releaseYear = cursor.getInt(colYear),
-                            albumArtUri = cursor.getString(colAlbumArt)?.let { albumArtFilepath ->
-                                fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
-                            },
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                             artistId = cursor.getLong(colArtistId),
                             artist = cursor.getString(colArtist)
                         )
@@ -306,22 +285,22 @@ internal class MediaStoreDao @Inject constructor(
     private fun queryAlbumArtPerArtist() = LongSparseArray<String?>().also { albumArtPerArtistId ->
         database.query(
             Albums.EXTERNAL_CONTENT_URI,
-            arrayOf(Media.ARTIST_ID, Albums.ALBUM_ART, Albums.LAST_YEAR),
+            arrayOf(Albums._ID, Media.ARTIST_ID, Albums.LAST_YEAR),
             null,
             null,
             "${Media.ARTIST_ID} ASC, ${Albums.LAST_YEAR} DESC"
         )?.use { cursor ->
+            val colAlbumId = cursor.getColumnIndexOrThrow(Albums._ID)
             val colArtistId = cursor.getColumnIndexOrThrow(Media.ARTIST_ID)
-            val colArtPath = cursor.getColumnIndexOrThrow(Albums.ALBUM_ART)
             val colYear = cursor.getColumnIndexOrThrow(Albums.LAST_YEAR)
 
             val albumInfo = ArrayList<AlbumArtInfo>(cursor.count)
             while (cursor.moveToNext()) {
+                val albumId = cursor.getLong(colAlbumId)
+
                 albumInfo += AlbumArtInfo(
                     artistId = cursor.getLong(colArtistId),
-                    albumArtPath = cursor.getString(colArtPath)?.let { albumArtFilepath ->
-                        fileSystem.makeSharedContentUri(albumArtFilepath)?.toString()
-                    },
+                    albumArtPath = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
                     releaseYear = cursor.getInt(colYear)
                 )
             }

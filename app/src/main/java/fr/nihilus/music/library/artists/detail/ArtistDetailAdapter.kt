@@ -42,10 +42,10 @@ internal class ArtistDetailAdapter(
         val defaultTrackIcon = context.getDrawable(R.drawable.ic_audiotrack_24dp)
         paletteLoader = GlideApp.with(fragment).asAlbumArt()
             .fallbackColors(defaultPalette)
-            .fallback(defaultAlbumIcon)
+            .error(defaultAlbumIcon)
             .centerCrop()
         bitmapLoader = GlideApp.with(fragment).asBitmap()
-            .fallback(defaultTrackIcon)
+            .error(defaultTrackIcon)
             .centerCrop()
     }
 

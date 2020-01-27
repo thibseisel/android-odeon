@@ -90,7 +90,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
         GlideApp.with(this).asAlbumArt()
             .load(album.artworkUri)
-            .fallback(R.drawable.ic_album_24dp)
+            .error(R.drawable.ic_album_24dp)
             .dontTransform()
             .doOnEnd(this::startPostponedEnterTransition)
             .into(object : ImageViewTarget<AlbumArt>(album_art_view) {

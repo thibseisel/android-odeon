@@ -148,13 +148,13 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying tracks, then resolve content uri from album art path of corresponding album`() = test.run {
+    fun `When querying tracks, then its album art uri is that of its album`() = test.run {
         val dao = MediaDao()
         val tracks = dao.tracks.first().takeIf { it.isNotEmpty() }
             ?: failAssumption("Expected to have tracks but was empty.")
 
         val firstTrack = tracks.first()
-        firstTrack.albumArtUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548"
+        firstTrack.albumArtUri shouldBe "content://media/external/audio/albumart/65"
     }
 
     @Test
@@ -179,7 +179,7 @@ class MediaStoreDaoTest {
             secondLaw.artist shouldBe "Muse"
             secondLaw.releaseYear shouldBe 2012
             secondLaw.trackCount shouldBe 1
-            secondLaw.albumArtUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509627051019"
+            secondLaw.albumArtUri shouldBe "content://media/external/audio/albumart/40"
         } ?: failAssumption("Expected the album \"The 2nd Law\".")
     }
     
@@ -213,18 +213,11 @@ class MediaStoreDaoTest {
 
         // Alestorm only have one album here ; its icon should be that of that album
         val alestorm = artists.find { it.id == 26L } ?: failAssumption("Alestorm is missing (id = 26)")
-        alestorm.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509626970548"
+        alestorm.iconUri shouldBe "content://media/external/audio/albumart/65"
 
         // Foo Fighters have 3 albums, use the icon of "Concrete and Gold"
         val fooFighters = artists.find { it.id == 13L } ?: failAssumption("Foo Fighters is missing (id = 13)")
-        fooFighters.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509627413029"
-
-        // Muse have 3 albums but the latest one does not have an artwork.
-        // Use that of "The 2nd Law" instead.
-        withClue("If the latest album does not have an artwork, then the artist icon should be that of the latest album that have one.") {
-            val muse = artists.find { it.id == 18L } ?: failAssumption("Muse is missing (id = 18)")
-            muse.iconUri shouldBe "content://fr.nihilus.music.media.test.provider/albumthumbs/1509627051019"
-        }
+        fooFighters.iconUri shouldBe "content://media/external/audio/albumart/102"
     }
 
     @Test
