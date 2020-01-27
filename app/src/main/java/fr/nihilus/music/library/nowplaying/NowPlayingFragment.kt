@@ -95,7 +95,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         super.onActivityCreated(savedInstanceState)
 
         glideRequest = GlideApp.with(this).asDrawable()
-            .fallback(R.drawable.ic_audiotrack_24dp)
+            .error(R.drawable.ic_audiotrack_24dp)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
