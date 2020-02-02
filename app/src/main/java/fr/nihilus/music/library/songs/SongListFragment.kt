@@ -35,7 +35,7 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import fr.nihilus.music.ui.Stagger
+import fr.nihilus.music.core.ui.motion.Stagger
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {

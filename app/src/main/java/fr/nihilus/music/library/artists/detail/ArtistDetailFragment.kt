@@ -38,7 +38,7 @@ import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.Stagger
+import fr.nihilus.music.core.ui.motion.Stagger
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
