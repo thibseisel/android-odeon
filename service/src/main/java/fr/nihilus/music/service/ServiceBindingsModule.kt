@@ -39,10 +39,8 @@ internal abstract class ServiceBindingsModule {
     @Binds
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
 
-    @Module
     companion object {
 
-        @JvmStatic
         @Provides @ServiceScoped
         fun providesServiceScope(service: MusicService): CoroutineScope = service
     }

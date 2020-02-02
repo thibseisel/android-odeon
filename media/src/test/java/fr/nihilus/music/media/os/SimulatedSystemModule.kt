@@ -37,13 +37,8 @@ import javax.inject.Named
     CommonTestModule::class,
     SQLiteMediaStoreModule::class
 ])
-internal abstract class SimulatedSystemModule {
+internal object SimulatedSystemModule {
 
-    @Module
-    companion object {
-
-        @JvmStatic
-        @Provides @Reusable
-        fun providesSimulatedFileSystem(): FileSystem = SimulatedFileSystem()
-    }
+    @Provides @Reusable
+    fun providesSimulatedFileSystem(): FileSystem = SimulatedFileSystem()
 }

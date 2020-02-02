@@ -40,15 +40,12 @@ internal abstract class CommonModule {
     @Binds
     abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
 
-    @Module
     companion object {
 
-        @JvmStatic
         @Provides @Singleton
         fun providesSharedPreferences(context: Context): SharedPreferences =
             PreferenceManager.getDefaultSharedPreferences(context)
 
-        @JvmStatic
         @Provides @Named("internal")
         fun providesInternalStorageRoot(context: Context): File = context.filesDir
     }

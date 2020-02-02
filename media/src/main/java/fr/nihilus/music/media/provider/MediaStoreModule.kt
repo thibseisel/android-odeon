@@ -40,10 +40,8 @@ abstract class MediaStoreModule {
     @Binds
     internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
 
-    @Module
     internal companion object {
 
-        @JvmStatic
         @Provides
         fun providesContentResolver(context: Context): ContentResolver = context.contentResolver
     }
