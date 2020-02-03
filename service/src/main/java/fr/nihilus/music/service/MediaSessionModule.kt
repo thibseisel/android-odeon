@@ -49,13 +49,11 @@ internal abstract class MediaSessionModule {
     @Binds
     abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
 
-    @Module
     companion object {
 
         /**
          * Creates a media session associated with the given [service].
          */
-        @JvmStatic
         @Provides @ServiceScoped
         fun providesMediaSession(service: MusicService): MediaSessionCompat {
             val sessionActivityPendingIntent =
@@ -70,7 +68,6 @@ internal abstract class MediaSessionModule {
             }
         }
 
-        @JvmStatic
         @Provides @ServiceScoped
         fun providesSessionConnector(
             player: ExoPlayer,

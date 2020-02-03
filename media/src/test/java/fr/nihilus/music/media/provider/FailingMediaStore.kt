@@ -20,13 +20,13 @@ import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
 import fr.nihilus.music.media.os.MediaStoreDatabase
+import fr.nihilus.music.media.provider.FailingMediaStore.query
 
 /**
  * A test fixture for a media provider whose query always fail
  * (i.e. [query] always return a `null` cursor).
  */
-internal object FailingMediaStore :
-    MediaStoreDatabase {
+internal object FailingMediaStore : MediaStoreDatabase {
 
     override fun query(
         uri: Uri,
