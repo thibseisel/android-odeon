@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.spotify.service
 
+import io.kotlintest.data.forall
 import io.kotlintest.shouldBe
+import io.kotlintest.tables.row
 import kotlin.test.Test
 
 class SpotifyQueryTest {
@@ -70,5 +72,18 @@ class SpotifyQueryTest {
     fun `Given an album query with artist, then encode as quoted with artist fragment`() {
         val query = SpotifyQuery.Album(title = "Simulation Theory", artist = "Muse")
         query.toString() shouldBe """"simulation theory" artist:"muse""""
+    }
+
+    @Test
+    fun `Given a track title with quotes, then omit quote marks`() {
+        forall(
+            row("Don't Stop Me Now", "track:\"dont stop me now\""),
+            row("I'm a Lady", "track:\"im a lady\""),
+            row("You've Got Another Thing Comin'", "track:\"youve got another thing comin\""),
+            row("It's A Long Way To The Top (If You Wanna Rock'N'Roll)", "track:\"its a long way to the top (if you wanna rocknroll)\"")
+        ) { title, expectedQuery ->
+            val query = SpotifyQuery.Track(title)
+            query.toString() shouldBe expectedQuery
+        }
     }
 }
