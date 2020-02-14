@@ -45,6 +45,28 @@ internal sealed class SpotifyQuery<T : Any> {
     abstract override fun toString(): String
 
     /**
+     * Transforms user input to make it easier for Spotify to find matching results.
+     *
+     * It seems that Spotify cannot find results if the query contains single quotes
+     * in a quoted field filter:
+     * ```
+     * track:"don't stop me now"
+     * ```
+     * does not work, so we remove single quotes from the query.
+     *
+     * @param text The input to sanitize.
+     * @return The same text in lowercase and without single quotes.
+     */
+    protected fun sanitize(text: String): String {
+        var result: String = text
+        if (text.contains('\'')) {
+            result = text.replace("'", "")
+        }
+
+        return result.toLowerCase(Locale.ENGLISH)
+    }
+
+    /**
      * Query parameters to find a track.
      *
      * @param title Keywords contained in the title of the searched track.
@@ -60,14 +82,14 @@ internal sealed class SpotifyQuery<T : Any> {
         override fun toString(): String = buildString {
             append("track:")
             append('"')
-            append(title.toLowerCase(Locale.ENGLISH))
+            append(sanitize(title))
             append('"')
 
             if (artist != null) {
                 append(' ')
                 append("artist:")
                 append('"')
-                append(artist.toLowerCase(Locale.ENGLISH))
+                append(sanitize(artist))
                 append('"')
             }
 
@@ -75,7 +97,7 @@ internal sealed class SpotifyQuery<T : Any> {
                 append(' ')
                 append("album:")
                 append('"')
-                append(album.toLowerCase(Locale.ENGLISH))
+                append(sanitize(album))
                 append('"')
             }
         }
@@ -94,14 +116,14 @@ internal sealed class SpotifyQuery<T : Any> {
 
         override fun toString(): String = buildString {
             append('"')
-            append(title.toLowerCase(Locale.ENGLISH))
+            append(sanitize(title))
             append('"')
 
             if (artist != null) {
                 append(' ')
                 append("artist:")
                 append('"')
-                append(artist.toLowerCase(Locale.ENGLISH))
+                append(sanitize(artist))
                 append('"')
             }
         }
@@ -116,7 +138,7 @@ internal sealed class SpotifyQuery<T : Any> {
 
         override fun toString(): String = buildString {
             append('"')
-            append(name.toLowerCase(Locale.ENGLISH))
+            append(sanitize(name))
             append('"')
         }
     }

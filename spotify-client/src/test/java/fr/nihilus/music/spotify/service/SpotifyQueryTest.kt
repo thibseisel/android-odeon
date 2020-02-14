@@ -29,25 +29,25 @@ class SpotifyQueryTest {
         singleWordQuery.toString() shouldBe "track:\"algorithm\""
 
         val multiWordQuery = SpotifyQuery.Track(title = "Knights of Cydonia")
-        multiWordQuery.toString() shouldBe """track:"knights of cydonia""""
+        multiWordQuery.toString() shouldBe "track:\"knights of cydonia\""
     }
 
     @Test
     fun `Given a track query with artist, then encode with artist fragment`() {
         val query = SpotifyQuery.Track(title = "Algorithm", artist = "Muse")
-        query.toString() shouldBe """track:"algorithm" artist:"muse""""
+        query.toString() shouldBe "track:\"algorithm\" artist:\"muse\""
     }
 
     @Test
     fun `Given a track query with album, then encode with album fragment`() {
         val query = SpotifyQuery.Track(title = "Algorithm", album = "Simulation Theory")
-        query.toString() shouldBe """track:"algorithm" album:"simulation theory""""
+        query.toString() shouldBe "track:\"algorithm\" album:\"simulation theory\""
     }
 
     @Test
     fun `Given a complete track query, then encode both artist and album`() {
         val query = SpotifyQuery.Track("Algorithm", "Muse", "Simulation Theory")
-        query.toString() shouldBe """track:"algorithm" artist:"muse" album:"simulation theory""""
+        query.toString() shouldBe "track:\"algorithm\" artist:\"muse\" album:\"simulation theory\""
     }
 
     @Test
@@ -55,8 +55,8 @@ class SpotifyQueryTest {
         val singleWordQuery = SpotifyQuery.Artist(name = "Muse")
         singleWordQuery.toString() shouldBe "\"muse\""
 
-        val multiWordQuery = SpotifyQuery.Artist(name = "Guns N' Roses")
-        multiWordQuery.toString() shouldBe """"guns n' roses""""
+        val multiWordQuery = SpotifyQuery.Artist(name = "The Pretty Reckless")
+        multiWordQuery.toString() shouldBe "\"the pretty reckless\""
     }
 
     @Test
@@ -71,7 +71,7 @@ class SpotifyQueryTest {
     @Test
     fun `Given an album query with artist, then encode as quoted with artist fragment`() {
         val query = SpotifyQuery.Album(title = "Simulation Theory", artist = "Muse")
-        query.toString() shouldBe """"simulation theory" artist:"muse""""
+        query.toString() shouldBe "\"simulation theory\" artist:\"muse\""
     }
 
     @Test
