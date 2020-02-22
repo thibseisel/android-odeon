@@ -29,9 +29,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.extensions.*
 import javax.inject.Inject
 
@@ -97,9 +97,7 @@ internal class MediaNotificationBuilder
         val isPlaying = playbackState.isPlaying
 
         // Display notification actions depending on playback state and actions availability
-        val builder = NotificationCompat.Builder(context,
-            NOW_PLAYING_CHANNEL
-        )
+        val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
         builder.addAction(if (playbackState.isSkipToPreviousEnabled) previousAction else noOpAction)
         if (isPlaying) {
             builder.addAction(pauseAction)
@@ -108,15 +106,18 @@ internal class MediaNotificationBuilder
         }
         builder.addAction(if (playbackState.isSkipToNextEnabled) nextAction else noOpAction)
 
-        // Display current playback position as a chronometer
-        if (isPlaying && playbackState.position >= 0) {
-            builder.setWhen(System.currentTimeMillis() - playbackState.position)
-                .setUsesChronometer(true)
-                .setShowWhen(true)
-        } else {
-            builder.setWhen(0)
-                .setUsesChronometer(false)
-                .setShowWhen(false)
+        // Display current playback position as a chronometer on Android 9 and older.
+        // On Android 10 and onwards a progress bar is already displayed in the notification.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (isPlaying && playbackState.position >= 0) {
+                builder.setWhen(System.currentTimeMillis() - playbackState.position)
+                    .setUsesChronometer(true)
+                    .setShowWhen(true)
+            } else {
+                builder.setWhen(0)
+                    .setUsesChronometer(false)
+                    .setShowWhen(false)
+            }
         }
 
         // Specific style for media playback notifications
