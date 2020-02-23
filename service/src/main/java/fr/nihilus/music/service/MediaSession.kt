@@ -24,26 +24,77 @@ import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.playback.RepeatMode
+import fr.nihilus.music.service.browser.SearchQuery
 
+/**
+ * A Media Session is responsive for the communication with the player.
+ * The session maintains a representation of the player's state and information
+ * about what is playing.
+ *
+ * A session can receive callbacks from one or more media controllers.
+ * This makes it possible for the player to be controller by the app's UI
+ * as well as companion devices running Android Wear or Android Auto.
+ *
+ * You should [release] the session when done performing playback.
+ */
 internal interface MediaSession {
+
+    /**
+     * The current active state of this session.
+     * An active session receives events sent by the Android system when hardware buttons
+     * (such as the play/pause button on wired and bluetooth headsets) are pressed.
+     *
+     * The Android system may send incoming key events to an inactive media session
+     * in an attempt to restart it. This only happens if:
+     * - no other media session is active,
+     * - the event has not been handled by the current foreground activity,
+     * - that media session has been the last active session.
+     */
     val isActive: Boolean
-    fun setMetadata(metadata: MediaMetadataCompat?)
+
+    /**
+     * Sets the currently selected track for this session.
+     * When specified, that track album artwork will be displayed on the lock screen.
+     *
+     * @param track The currently selected media or `null` if no media is set to play.
+     */
+    fun setCurrentMedia(track: AudioTrack?)
     fun setPlaybackState(state: PlaybackStateCompat)
-    fun setQueue(tracks: List<MediaDescriptionCompat>?)
+    fun setQueue(tracks: List<AudioTrack>?)
     fun setQueueTitle(title: CharSequence?)
+
+    /**
+     * Sets the repeat mode for this session.
+     * This defaults to [RepeatMode.DISABLED] if not set.
+     *
+     * @param mode The current repeat mode.
+     */
     fun setRepeatMode(mode: RepeatMode)
+
+    /**
+     * Sets whether tracks are played in shuffle order for this session.
+     * This defaults to `false` if not set.
+     *
+     * @param shouldShuffle Whether shuffle mode is enabled.
+     */
     fun setShuffleModeEnabled(shouldShuffle: Boolean)
-    fun release()
     fun setCallback(callback: Callback)
+
+    /**
+     * Terminates the media session, disconnecting all its clients.
+     * This must be called when the app is no longer expected to play media,
+     * for example when its containing service is destroyed.
+     */
+    fun release()
 
     interface Callback {
         fun onPlay()
         fun onPause()
-        fun onPlayFromMediaId(mediaId: String?, extras: Bundle?)
-        fun onPlayFromSearch(query: String?, extras: Bundle?)
+        fun onPlayFromMediaId(mediaId: String?)
+        fun onPlayFromSearch(query: SearchQuery)
         fun onPrepare()
-        fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?)
-        fun onPrepareFromSearch(query: String?, extras: Bundle?)
+        fun onPrepareFromMediaId(mediaId: String?)
+        fun onPrepareFromSearch(query: SearchQuery)
         fun onSeekTo(position: Long)
         fun onSetRepeatMode(mode: RepeatMode)
         fun onSetShuffleMode(enabled: Boolean)
@@ -54,6 +105,11 @@ internal interface MediaSession {
     }
 }
 
+/**
+ * A [MediaSession] implementation that delegates to [MediaSessionCompat].
+ * It abstracts implementation details such as [MediaMetadataCompat] and [MediaDescriptionCompat]
+ * away so that the whole app gains in flexibility and testability.
+ */
 internal class MediaSessionCompatWrapper(
     context: Context
 ) : MediaSession {
@@ -61,6 +117,9 @@ internal class MediaSessionCompatWrapper(
     private val session = MediaSessionCompat(context, "MusicService").also {
         it.setRatingType(RatingCompat.RATING_NONE)
     }
+
+    private val metadataBuilder = MediaMetadataCompat.Builder()
+    private val itemBuilder = MediaDescriptionCompat.Builder()
 
     override var isActive: Boolean
         get() = session.isActive
@@ -70,7 +129,30 @@ internal class MediaSessionCompatWrapper(
             }
         }
 
-    override fun setMetadata(metadata: MediaMetadataCompat?) {
+    override fun setCurrentMedia(track: AudioTrack?) {
+        val metadata = track?.let {
+            metadataBuilder.apply {
+                putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, it.id.toString())
+                putString(MediaMetadataCompat.METADATA_KEY_TITLE, it.title)
+                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, it.title)
+                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, it.subtitle)
+                putString(MediaMetadataCompat.METADATA_KEY_ARTIST, it.artist)
+                putString(MediaMetadataCompat.METADATA_KEY_ALBUM, it.album)
+                putLong(MediaMetadataCompat.METADATA_KEY_DURATION, it.duration)
+                putLong(MediaMetadataCompat.METADATA_KEY_DISC_NUMBER, it.discNumber.toLong())
+                putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, it.trackNumber.toLong())
+
+                val iconUriString = it.iconUri?.toString()
+                putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUriString)
+                putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, iconUriString)
+
+                // TODO Set the album artwork as Bitmap for it to be displayed on the lock screen
+                putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, null)
+                putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, null)
+
+            }.build()
+        }
+
         session.setMetadata(metadata)
     }
 
@@ -85,10 +167,17 @@ internal class MediaSessionCompatWrapper(
         }
     }
 
-    override fun setQueue(tracks: List<MediaDescriptionCompat>?) {
+    override fun setQueue(tracks: List<AudioTrack>?) {
         val queueItems = tracks?.mapIndexed { index, it ->
-            MediaSessionCompat.QueueItem(it, index.toLong())
+            val mediaDescription = itemBuilder.setMediaId(it.id.toString())
+                .setTitle(it.title)
+                .setSubtitle(it.subtitle)
+                .setMediaUri(it.mediaUri)
+                .setIconUri(it.iconUri)
+                .build()
+            MediaSessionCompat.QueueItem(mediaDescription, index.toLong())
         }
+
         session.setQueue(queueItems)
     }
 
@@ -115,12 +204,12 @@ internal class MediaSessionCompatWrapper(
         )
     }
 
-    override fun release() {
-        session.release()
-    }
-
     override fun setCallback(callback: MediaSession.Callback) {
         session.setCallback(SessionCompatCallbackAdapter(callback))
+    }
+
+    override fun release() {
+        session.release()
     }
 
     private class SessionCompatCallbackAdapter(
@@ -136,11 +225,12 @@ internal class MediaSessionCompatWrapper(
         }
 
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-            callback.onPlayFromMediaId(mediaId, extras)
+            callback.onPlayFromMediaId(mediaId)
         }
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
-            callback.onPlayFromSearch(query, extras)
+            val focusedQuery = SearchQuery.from(query, extras)
+            callback.onPlayFromSearch(focusedQuery)
         }
 
         override fun onPrepare() {
@@ -148,11 +238,12 @@ internal class MediaSessionCompatWrapper(
         }
 
         override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-            callback.onPrepareFromMediaId(mediaId, extras)
+            callback.onPrepareFromMediaId(mediaId)
         }
 
         override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
-            callback.onPrepareFromSearch(query, extras)
+            val focusedQuery = SearchQuery.from(query, extras)
+            callback.onPrepareFromSearch(focusedQuery)
         }
 
         override fun onSeekTo(pos: Long) {

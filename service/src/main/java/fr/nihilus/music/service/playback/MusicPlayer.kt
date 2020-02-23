@@ -17,7 +17,6 @@
 package fr.nihilus.music.service.playback
 
 import android.content.Context
-import android.support.v4.media.MediaDescriptionCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
@@ -27,6 +26,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.core.playback.RepeatMode
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlin.random.Random
 import fr.nihilus.music.core.R as CoreR
@@ -39,12 +39,12 @@ internal interface MusicPlayer {
     val duration: Long
     val playbackSpeed: Float
 
-    val playlist: List<MediaDescriptionCompat>
+    val playlist: List<AudioTrack>
     val currentPlaylistIndex: Int
 
     var playWhenReady: Boolean
 
-    fun prepare(queueId: Long, playlist: List<MediaDescriptionCompat>, startAtIndex: Int)
+    fun prepare(queueId: Long, playlist: List<AudioTrack>, startAtIndex: Int)
     fun stop()
     fun seekTo(position: Long)
     fun setShuffleModeEnabled(enabled: Boolean)
@@ -65,12 +65,12 @@ internal interface MusicPlayer {
     }
 
     interface EventListener {
-        fun onQueueChanged(queue: List<MediaDescriptionCompat>)
+        fun onQueueChanged(queue: List<AudioTrack>)
         fun onPlayerStateChanged(newState: State)
-        fun onCurrentMediaChanged(currentTrack: MediaDescriptionCompat)
+        fun onCurrentMediaChanged(currentTrack: AudioTrack)
         fun onShuffleModeChanged(isEnabled: Boolean)
         fun onRepeatModeChanged(newMode: RepeatMode)
-        fun onTrackCompleted(track: MediaDescriptionCompat)
+        fun onTrackCompleted(track: AudioTrack)
     }
 }
 
@@ -82,7 +82,8 @@ internal class ExoMusicPlayer(
     private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
     private val appDataSourceFactory = DefaultDataSourceFactory(
         context,
-        Util.getUserAgent(context, context.getString(CoreR.string.core_app_name)))
+        Util.getUserAgent(context, context.getString(CoreR.string.core_app_name))
+    )
 
     private val bufferWindow = Timeline.Window()
 
@@ -121,33 +122,29 @@ internal class ExoMusicPlayer(
             player.playWhenReady = shouldPlay
         }
 
-    override val playlist: List<MediaDescriptionCompat>
+    override val playlist: List<AudioTrack>
         get() {
             val timeline = player.currentTimeline
             return List(timeline.windowCount) { windowIndex ->
                 timeline.getWindow(windowIndex, bufferWindow, true)
-                bufferWindow.tag as MediaDescriptionCompat
+                bufferWindow.tag as AudioTrack
             }
         }
 
     override val currentPlaylistIndex: Int
         get() = player.currentWindowIndex
 
-    override fun prepare(queueId: Long, playlist: List<MediaDescriptionCompat>, startAtIndex: Int) {
+    override fun prepare(queueId: Long, playlist: List<AudioTrack>, startAtIndex: Int) {
         if (playlist.isEmpty()) {
             return
         }
 
         val mediaSources = Array(playlist.size) {
             val playableItem = playlist[it]
-            val sourceUri = checkNotNull(playableItem.mediaUri) {
-                "Track ${playableItem.mediaId} should have a media uri"
-            }
-
             ExtractorMediaSource.Factory(appDataSourceFactory)
                 .setExtractorsFactory(audioOnlyExtractors)
                 .setTag(playableItem)
-                .createMediaSource(sourceUri)
+                .createMediaSource(playableItem.mediaUri)
         }
 
         val predictableShuffleOrder = if (startAtIndex in playlist.indices) {
