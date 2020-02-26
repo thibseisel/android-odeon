@@ -44,6 +44,7 @@ internal sealed class MediaContent(
  * or have similar acoustic properties.
  *
  * Media categories are browsable and their children are either playable tracks or other categories.
+ * @property trackCount The number of tracks in this category.
  * @property isPlayable Whether children of this category should be played when requesting
  * to play this category.
  */
@@ -52,6 +53,7 @@ internal class MediaCategory(
     title: String,
     subtitle: String?,
     iconUri: Uri?,
+    val trackCount: Int,
     val isPlayable: Boolean
 ) : MediaContent(id, title, subtitle, iconUri)
 
