@@ -96,7 +96,7 @@ internal class BrowserTreeImpl
     /**
      * The tree structure of the media browser.
      */
-    private val tree = mediaTree(MediaId.ROOT) {
+    private val tree = MediaTree(MediaId.ROOT) {
         rootName = context.getString(R.string.svc_browser_root_title)
 
         val res = context.resources

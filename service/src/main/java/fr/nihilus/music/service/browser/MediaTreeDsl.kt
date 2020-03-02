@@ -31,19 +31,6 @@ import fr.nihilus.music.core.media.MediaId
 internal annotation class MediaTreeDsl
 
 /**
- * Build an async tree-like structure for browsing media available on the device.
- *
- * @param rootId The media of the root element.
- * This should match the [rootId of the BrowserRoot][BrowserRoot.getRootId] supplied to clients.
- * @param builder Block for defining the available types.
- * @return An immutable tree-like structure for browsing media.
- */
-internal fun mediaTree(
-    rootId: String,
-    builder: MediaTree.Builder.() -> Unit
-): MediaTree = MediaTree.Builder(rootId).apply(builder).build()
-
-/**
  * An async tree-like structure for retrieving available media.
  * Media information can be retrieved in 2 different ways:
  * 1. individually by their media id,
@@ -62,6 +49,22 @@ private constructor(
     private val rootName: String?,
     private val types: Map<String, Type>
 ) {
+
+    companion object {
+        /**
+         * Build an async tree-like structure for browsing media available on the device.
+         *
+         * @param rootId The media of the root element. This should match
+         * the [rootId of the BrowserRoot][BrowserRoot.getRootId] supplied to clients.
+         * @param block Block for defining the available types.
+         * @return An immutable tree-like structure for browsing media.
+         */
+        operator fun invoke(
+            rootId: String,
+            block: Builder.() -> Unit
+        ): MediaTree = Builder(rootId).apply(block).build()
+    }
+
     /**
      * The media item representing the root of this media tree.
      */
