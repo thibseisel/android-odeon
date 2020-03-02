@@ -98,10 +98,12 @@ internal class BrowserTreeImpl
      */
     private val tree = MediaTree(MediaId.ROOT) {
         rootName = context.getString(R.string.svc_browser_root_title)
-
         val res = context.resources
-        type(TYPE_TRACKS) {
+
+        type(
+            TYPE_TRACKS,
             title = context.getString(R.string.svc_tracks_type_title)
+        ) {
 
             category(
                 CATEGORY_ALL,
@@ -140,30 +142,34 @@ internal class BrowserTreeImpl
             )
         }
 
-        type(TYPE_ALBUMS) {
+        type(
+            TYPE_ALBUMS,
             title = context.getString(R.string.svc_albums_type_title)
-
+        ) {
             categories(provider = ::provideAllAlbums)
             categoryChildren(provider = ::provideAlbumTracks)
         }
 
-        type(TYPE_ARTISTS) {
+        type(
+            TYPE_ARTISTS,
             title = context.getString(R.string.svc_artists_type_title)
-
+        ) {
             categories(provider = ::provideAllArtists)
             categoryChildren(provider = ::provideArtistChildren)
         }
 
-        type(TYPE_PLAYLISTS) {
+        type(
+            TYPE_PLAYLISTS,
             title = context.getString(R.string.svc_playlists_type_title)
-
+        ) {
             categories(provider = ::provideAllPlaylists)
             categoryChildren(provider = ::providePlaylistTracks)
         }
 
-        type(TYPE_SMART) {
+        type(
+            TYPE_SMART,
             title = context.getString(R.string.svc_smart_type_title)
-
+        ) {
             category(
                 "HAPPY",
                 context.getString(R.string.svc_happy_category_title),

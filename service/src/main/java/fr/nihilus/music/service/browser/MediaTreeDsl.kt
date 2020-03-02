@@ -143,11 +143,19 @@ private constructor(
          * Define a _type_ node as a children of the root.
          *
          * @param typeId The unique identifier of the type to be created.
+         * @param title The display title for the media item representing this type.
+         * @param subtitle The display subtitle for the media item representing this type.
+         * This is `null` by default.
          * @param builder Block for defining properties of the newly created type.
          */
-        fun type(typeId: String, builder: Type.Builder.() -> Unit) {
+        fun type(
+            typeId: String,
+            title: String,
+            subtitle: String? = null,
+            builder: Type.Builder.() -> Unit
+        ) {
             check(typeId !in typeRegistry) { "Duplicate type: $typeId" }
-            typeRegistry[typeId] = Type.Builder(typeId).apply(builder).build()
+            typeRegistry[typeId] = Type.Builder(typeId, title, subtitle).apply(builder).build()
         }
 
         /**
@@ -243,26 +251,19 @@ private constructor(
      * You should not instantiate this class directly ; use the [MediaTree.Builder.type] function instead.
      *
      * @param typeId The unique identifier of the newly created type. This is used as its media id.
+     * @param title The display title for the media item representing this type.
+     * @param subtitle The display subtitle for the media item representing this type.
+     * This is `null` by default.
      */
     @MediaTreeDsl
     class Builder(
-        private val typeId: String
+        private val typeId: String,
+        private val title: String,
+        private val subtitle: String?
     ) {
         private val staticCategories = mutableMapOf<String, Category>()
         private var categoriesProvider: (suspend () -> List<MediaItem>?)? = null
         private var dynamicCategoriesChildrenProvider: (suspend (String, Int, Int) -> List<MediaItem>?)? = null
-
-        /**
-         * The display title for the media item representing this type.
-         * This is `null` by default.
-         */
-        var title: CharSequence? = null
-
-        /**
-         * The display subtitle for the media item representing this type.
-         * This is `null` by default.
-         */
-        var subtitle: CharSequence? = null
 
         /**
          * Define how children categories of the newly created type should be retrieved.
@@ -290,8 +291,8 @@ private constructor(
          */
         fun category(
             categoryId: String,
-            title: CharSequence? = null,
-            subtitle: CharSequence? = null,
+            title: String,
+            subtitle: String? = null,
             iconUri: Uri? = null,
             children: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
         ) {
@@ -355,8 +356,8 @@ private constructor(
      */
     class Category(
         val mediaId: String,
-        val title: CharSequence?,
-        val subtitle: CharSequence?,
+        val title: String,
+        val subtitle: String?,
         val iconUri: Uri?,
         val provider: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
     ) {
