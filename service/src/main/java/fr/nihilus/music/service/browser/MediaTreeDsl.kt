@@ -171,7 +171,6 @@ private constructor(
  * @param type The name of the type this node represents, which is used as its media id.
  * @param title The display title of the media item associated with this type.
  * @param subtitle The display subtitle of the media item associated with this type.
- * @param description The display description of the media item associated with this type.
  * @param staticCategories Set of categories that are always listed as children of this type.
  * @param categoriesProvider An async function for querying dynamic categories of this type.
  * @param categoriesChildrenProvider An async function for querying children of a dynamic category
@@ -182,7 +181,6 @@ private constructor(
     private val type: String,
     private val title: CharSequence?,
     private val subtitle: CharSequence?,
-    private val description: CharSequence?,
     private val staticCategories: Map<String, Category>,
     private val categoriesProvider: (suspend () -> List<MediaItem>?)?,
     private val categoriesChildrenProvider: (suspend (categoryId: String, firstIndex: Int, count: Int) -> List<MediaItem>?)?
@@ -196,7 +194,6 @@ private constructor(
                 .setMediaId(type)
                 .setTitle(title)
                 .setSubtitle(subtitle)
-                .setDescription(description)
                 .build()
             return MediaItem(description, MediaItem.FLAG_BROWSABLE)
         }
@@ -268,11 +265,6 @@ private constructor(
         var subtitle: CharSequence? = null
 
         /**
-         * The display description for the media item representing this type.
-         */
-        var description: CharSequence? = null
-
-        /**
          * Define how children categories of the newly created type should be retrieved.
          *
          * @param provider An async function called to load children categories.
@@ -291,7 +283,6 @@ private constructor(
          * This contributes to the media id of the category.
          * @param title The display title of the media item representing this category.
          * @param subtitle The display subtitle of the media item representing this category.
-         * @param description The display description of the media item representing this category.
          * @param iconUri An uri pointing to an icon representing this category.
          * @param children An async function called to load children of that category.
          * It should return the items between the specified indices,
@@ -301,7 +292,6 @@ private constructor(
             categoryId: String,
             title: CharSequence? = null,
             subtitle: CharSequence? = null,
-            description: CharSequence? = null,
             iconUri: Uri? = null,
             children: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
         ) {
@@ -310,7 +300,6 @@ private constructor(
                 mediaId = MediaId.encode(typeId, categoryId),
                 title = title,
                 subtitle = subtitle,
-                description = description,
                 iconUri = iconUri,
                 provider = children
             )
@@ -339,7 +328,6 @@ private constructor(
             typeId,
             title,
             subtitle,
-            description,
             staticCategories,
             categoriesProvider,
             dynamicCategoriesChildrenProvider
@@ -362,7 +350,6 @@ private constructor(
      * @param mediaId The media id of this category.
      * @param title The display title of the media item representing this category.
      * @param subtitle The display subtitle of the media item representing this category.
-     * @param description The display description of the media item representing this category.
      * @param iconUri An uri pointing to an icon representing this category.
      * @param provider An async function for querying the children of this category.
      */
@@ -370,7 +357,6 @@ private constructor(
         val mediaId: String,
         val title: CharSequence?,
         val subtitle: CharSequence?,
-        val description: CharSequence?,
         val iconUri: Uri?,
         val provider: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
     ) {
@@ -383,7 +369,6 @@ private constructor(
                     .setMediaId(mediaId)
                     .setTitle(title)
                     .setSubtitle(subtitle)
-                    .setDescription(description)
                     .setIconUri(iconUri)
                     .build()
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
