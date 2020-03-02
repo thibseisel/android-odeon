@@ -59,6 +59,7 @@ private constructor(
          * @param block Block for defining the available types.
          * @return An immutable tree-like structure for browsing media.
          */
+        @MediaTreeDsl
         operator fun invoke(
             rootId: String,
             block: Builder.() -> Unit
@@ -123,7 +124,7 @@ private constructor(
      * Define a DSL for creating the nodes of a [MediaTree].
      *
      * @constructor Create the media tree builder with the media id of its the topmost element.
-     * You should not instantiate this class directly ; use the [mediaTree] function instead.
+     * You should not instantiate this class directly ; use the [MediaTree] function instead.
      *
      * @param rootId The media id of the root element.
      * This should match the [rootId of the BrowserRoot][BrowserRoot.getRootId] supplied to clients.
@@ -278,7 +279,7 @@ private constructor(
          * Categories loaded by this function should have a media id whose _type_ part matches
          * their parent's [typeId].
          */
-        fun categories(@MediaTreeDsl provider: suspend () -> List<MediaItem>) {
+        fun categories(provider: suspend () -> List<MediaItem>) {
             categoriesProvider = provider
         }
 
