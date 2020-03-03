@@ -184,7 +184,7 @@ internal class BrowserTreeStructureTest {
     @Test
     fun `Given any browsable parent, when loading its children then never return null`() = runBlockingTest {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), StubSpotifyManager)
+        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), TestSpotifyManager())
 
         browserTree.walk(MediaId(TYPE_ROOT)) { child, parentId ->
             if(child.isBrowsable) {
@@ -201,7 +201,7 @@ internal class BrowserTreeStructureTest {
     @Test
     fun `Given any non browsable item, when loading its children then return null`() = runBlockingTest {
         val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), StubSpotifyManager)
+        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), TestSpotifyManager())
 
         browserTree.walk(MediaId(TYPE_ROOT)) { child, parentId ->
             if (!child.isBrowsable) {

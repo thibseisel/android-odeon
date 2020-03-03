@@ -61,6 +61,20 @@ internal class TestUsageManager(
     override fun reportCompletion(trackId: Long) = stub()
 }
 
+internal class TestSpotifyManager(
+    private val trackFeatures: List<Pair<Track, TrackFeature>> = emptyList()
+) : SpotifyManager {
+
+    override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>> {
+        return trackFeatures.filter { (_, features) ->
+            filters.all { filter -> filter.matches(features) }
+        }
+    }
+
+    override suspend fun sync() = stub()
+
+}
+
 internal object StubUsageManager : UsageManager {
     override suspend fun getMostRatedTracks(): List<Track> = stub()
     override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
