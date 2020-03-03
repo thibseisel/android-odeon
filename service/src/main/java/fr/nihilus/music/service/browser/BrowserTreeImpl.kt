@@ -21,8 +21,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
-import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
@@ -36,7 +34,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.Track
@@ -44,17 +41,16 @@ import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
+import fr.nihilus.music.service.browser.provider.*
 import fr.nihilus.music.service.extensions.getResourceUri
-import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.Comparator
 
 /**
  * The arbitrary maximum correspondence score for a fuzzy match.
@@ -88,27 +84,23 @@ internal class BrowserTreeImpl
     private val spotifyManager: SpotifyManager
 ) : BrowserTree {
 
-    private val albumTrackOrdering = Comparator<Track> { a, b ->
-        val discNumberDiff = a.discNumber - b.discNumber
-        if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
-    }
-
     /**
      * The tree structure of the media browser.
      */
     private val tree = MediaTree(MediaId.ROOT) {
         rootName = context.getString(R.string.svc_browser_root_title)
-        val res = context.resources
 
         type(
             TYPE_TRACKS,
             title = context.getString(R.string.svc_tracks_type_title)
         ) {
+            val res = context.resources
+            val trackProvider = TrackChildrenProvider(repository, usageManager)
 
             category(
                 CATEGORY_ALL,
                 title = res.getString(R.string.svc_all_music),
-                children = ::provideAllTracks
+                provider = trackProvider
             )
 
             category(
@@ -116,7 +108,7 @@ internal class BrowserTreeImpl
                 title = res.getString(R.string.svc_most_rated),
                 subtitle = res.getString(R.string.svc_most_rated_description),
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_rated_128dp),
-                children = ::provideMostRatedTracks
+                provider = trackProvider
             )
 
             category(
@@ -124,7 +116,7 @@ internal class BrowserTreeImpl
                 title = context.getString(R.string.svc_category_popular),
                 subtitle = context.getString(R.string.svc_category_popular_description),
                 iconUri = null,
-                children = ::provideMonthPopularTracks
+                provider = trackProvider
             )
 
             category(
@@ -132,54 +124,50 @@ internal class BrowserTreeImpl
                 context.getString(R.string.svc_last_added),
                 subtitle = res.getString(R.string.svc_recently_added_description),
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
-                children = ::provideRecentlyAddedTracks
+                provider = trackProvider
             )
 
             category(
                 CATEGORY_DISPOSABLE,
                 context.getString(R.string.svc_category_disposable),
-                children = ::provideDisposableTracks
+                provider = trackProvider
             )
         }
 
         type(
             TYPE_ALBUMS,
-            title = context.getString(R.string.svc_albums_type_title)
-        ) {
-            categories(provider = ::provideAllAlbums)
-            categoryChildren(provider = ::provideAlbumTracks)
-        }
+            title = context.getString(R.string.svc_albums_type_title),
+            provider = AlbumChildrenProvider(repository)
+        )
 
         type(
             TYPE_ARTISTS,
-            title = context.getString(R.string.svc_artists_type_title)
-        ) {
-            categories(provider = ::provideAllArtists)
-            categoryChildren(provider = ::provideArtistChildren)
-        }
+            title = context.getString(R.string.svc_artists_type_title),
+            provider = ArtistChildrenProvider(context, repository)
+        )
 
         type(
             TYPE_PLAYLISTS,
-            title = context.getString(R.string.svc_playlists_type_title)
-        ) {
-            categories(provider = ::provideAllPlaylists)
-            categoryChildren(provider = ::providePlaylistTracks)
-        }
+            title = context.getString(R.string.svc_playlists_type_title),
+            provider = PlaylistChildrenProvider(repository)
+        )
 
         type(
             TYPE_SMART,
             title = context.getString(R.string.svc_smart_type_title)
         ) {
+            val smartPlaylists = SmartCategoryProvider(spotifyManager)
+
             category(
                 "HAPPY",
                 context.getString(R.string.svc_happy_category_title),
-                children = ::provideHappyTracks
+                provider = smartPlaylists
             )
 
             category(
                 "PARTY",
                 context.getString(R.string.svc_party_category_title),
-                children = ::provideDanceableTracks
+                provider = smartPlaylists
             )
         }
     }
@@ -218,21 +206,6 @@ internal class BrowserTreeImpl
             }).build()
 
         MediaItem(albumDescription, MediaItem.FLAG_BROWSABLE)
-    }
-
-    /**
-     * Factory function that creates [MediaItem] from playlists.
-     */
-    private val playlistItemFactory: Playlist.(
-        MediaDescriptionCompat.Builder
-    ) -> MediaItem = { builder ->
-        val mediaId = encode(TYPE_PLAYLISTS, id.toString())
-        val playlistDescription = builder.setMediaId(mediaId)
-            .setTitle(title)
-            .setIconUri(iconUri)
-            .build()
-
-        MediaItem(playlistDescription, MediaItem.FLAG_BROWSABLE)
     }
 
     /**
@@ -432,197 +405,4 @@ internal class BrowserTreeImpl
                 else -> emit(it.mediaId)
             }
         }
-
-    private suspend fun provideAllTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { track ->
-                trackItemFactory(track, TYPE_TRACKS, CATEGORY_ALL, builder)
-            }
-    }
-
-    private suspend fun provideMostRatedTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return usageManager.getMostRatedTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { track ->
-                trackItemFactory(track, TYPE_TRACKS, CATEGORY_MOST_RATED, builder)
-            }
-    }
-    
-    private suspend fun provideMonthPopularTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-        
-        return usageManager.getPopularTracksSince(30, TimeUnit.DAYS).asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { track ->
-                trackItemFactory(track, TYPE_TRACKS, CATEGORY_POPULAR, builder)
-            }
-    }
-
-    private suspend fun provideRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getTracks().asSequence()
-            .sortedByDescending { it.availabilityDate }
-            .take(25)
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { track ->
-                trackItemFactory(track, TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, builder)
-            }
-    }
-
-    private suspend fun provideDisposableTracks(fromIndex: Int, count: Int): List<MediaItem>? {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return usageManager.getDisposableTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { track ->
-                val mediaId = MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE, track.trackId)
-                val description = builder.setMediaId(mediaId.encoded)
-                    .setTitle(track.title)
-                    .setExtras(Bundle().apply {
-                        putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                        track.lastPlayedTime?.let { lastPlayedTime ->
-                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
-                        }
-                    })
-                    .build()
-                MediaItem(description, MediaItem.FLAG_PLAYABLE)
-            }
-            .toList()
-    }
-
-    private suspend fun provideAllAlbums(): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getAlbums().map { album ->
-            albumItemFactory(album, builder)
-        }
-    }
-
-    private suspend fun provideAlbumTracks(
-        albumCategory: String,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
-        return albumCategory.toLongOrNull()?.let { albumId ->
-            val builder = MediaDescriptionCompat.Builder()
-
-            repository.getTracks().asSequence()
-                .filter { it.albumId == albumId }
-                .sortedWith(albumTrackOrdering)
-                .drop(fromIndex)
-                .take(count)
-                .mapTo(mutableListOf()) { albumTrack ->
-                    trackItemFactory(albumTrack, TYPE_ALBUMS, albumCategory, builder)
-                }
-                .takeUnless { it.isEmpty() }
-        }
-    }
-
-    private suspend fun provideAllArtists(): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getArtists().map { artist ->
-            artistItemFactory(artist, builder)
-        }
-    }
-
-    private suspend fun provideArtistChildren(
-        artistCategory: String,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
-        return artistCategory.toLongOrNull()?.let { artistId ->
-            coroutineScope {
-                val builder = MediaDescriptionCompat.Builder()
-
-                val asyncAllAlbums = async { repository.getAlbums() }
-                val asyncAllTracks = async { repository.getTracks() }
-
-                val artistAlbums = asyncAllAlbums.await().asSequence()
-                    .filter { it.artistId == artistId }
-                    .sortedByDescending { it.releaseYear }
-                    .map { album ->
-                        albumItemFactory(album, builder)
-                    }
-
-                val artistTracks = asyncAllTracks.await().asSequence()
-                    .filter { it.artistId == artistId }
-                    .map { track ->
-                        trackItemFactory(track, TYPE_ARTISTS, artistCategory, builder)
-                    }
-
-                (artistAlbums + artistTracks)
-                    .drop(fromIndex)
-                    .take(count)
-                    .toList()
-                    .takeUnless { it.isEmpty() }
-            }
-        }
-    }
-
-    private suspend fun provideAllPlaylists(): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-        val allPlaylists = repository.getPlaylists()
-
-        return allPlaylists.map { playlist ->
-            playlistItemFactory(playlist, builder)
-        }
-    }
-
-    private suspend fun providePlaylistTracks(
-        playlistCategory: String,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
-        return playlistCategory.toLongOrNull()?.let { playlistId ->
-            val builder = MediaDescriptionCompat.Builder()
-
-            repository.getPlaylistTracks(playlistId)?.asSequence()
-                ?.drop(fromIndex)
-                ?.take(count)
-                ?.mapTo(mutableListOf()) { playlistTrack ->
-                    trackItemFactory(playlistTrack, TYPE_PLAYLISTS, playlistCategory, builder)
-                }
-        }
-    }
-
-    private suspend fun provideHappyTracks(startIndex: Int, count: Int): List<MediaItem> {
-        val happyFilters = listOf(
-            FeatureFilter.OnRange(TrackFeature::valence, 0.65f, 1.0f)
-        )
-
-        val builder = MediaDescriptionCompat.Builder()
-        return spotifyManager.findTracksHavingFeatures(happyFilters).asSequence()
-            .drop(startIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { (track, _) ->
-                trackItemFactory(track, TYPE_SMART, "HAPPY", builder)
-            }
-    }
-
-    private suspend fun provideDanceableTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val partyFilters = listOf(
-            FeatureFilter.OnRange(TrackFeature::danceability, 0.7f, 1.0f),
-            FeatureFilter.OnRange(TrackFeature::energy, 0.5f, 1.0f)
-        )
-
-        val builder = MediaDescriptionCompat.Builder()
-        return spotifyManager.findTracksHavingFeatures(partyFilters).asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { (track, _) ->
-                trackItemFactory(track, TYPE_SMART, "PARTY", builder)
-            }
-    }
 }

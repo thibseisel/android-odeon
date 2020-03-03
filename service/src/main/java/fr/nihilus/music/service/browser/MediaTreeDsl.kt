@@ -21,6 +21,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.browser.provider.ChildrenProvider
+import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
 
 /**
  * Mark declarations that are used to define the structure of a media browser tree.
@@ -98,14 +100,23 @@ private constructor(
      */
     suspend fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): List<MediaItem>? {
         val fromIndex = pageSize * pageNumber
+        val (typeId, categoryId, trackId) = parentId
 
         return when {
-            parentId.encoded == rootId -> types.map { (_, type) -> type.item }
-            parentId.category == null -> types[parentId.type]?.categories()
-            parentId.track != null -> null
-            else -> types[parentId.type]?.categoryChildren(parentId.category!!, fromIndex, pageSize)
+            parentId.encoded == rootId -> rootChildren()
+            categoryId == null -> typeChildren(typeId, fromIndex, pageSize)
+            trackId != null -> null
+            else -> types[typeId]?.categoryChildren(categoryId, fromIndex, pageSize)
         }
     }
+
+    private fun rootChildren(): List<MediaItem> = types.map { (_, type) -> type.item }
+
+    private suspend fun typeChildren(
+        typeId: String,
+        fromIndex: Int,
+        count: Int
+    ): List<MediaItem>? = types[typeId]?.categories(fromIndex, count)
 
     /**
      * Retrieve the information of an rootItem in the media tree given its media id.
@@ -113,11 +124,14 @@ private constructor(
      * @param itemId The media id of the rootItem to retrieve.
      * @return A media rootItem having the specified [itemId], or `null` if no such rootItem exists.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem? = when {
-        itemId.encoded == rootId -> rootItem
-        itemId.category == null -> types[itemId.type]?.item
-        itemId.track == null -> types[itemId.type]?.categories()?.find { it.mediaId == itemId.encoded }
-        else -> types[itemId.type]?.categoryChildren(itemId.category!!)?.find { it.mediaId == itemId.encoded }
+    suspend fun getItem(itemId: MediaId): MediaItem? {
+        val (typeId, categoryId, trackId) = itemId
+        return when {
+            itemId.encoded == rootId -> rootItem
+            categoryId == null -> types[typeId]?.item
+            trackId == null -> types[typeId]?.categories()?.find { it.mediaId == itemId.encoded }
+            else -> types[typeId]?.categoryChildren(categoryId)?.find { it.mediaId == itemId.encoded }
+        }
     }
 
     /**
@@ -146,16 +160,29 @@ private constructor(
          * @param title The display title for the media item representing this type.
          * @param subtitle The display subtitle for the media item representing this type.
          * This is `null` by default.
-         * @param builder Block for defining properties of the newly created type.
+         * @param categoryBuilder Block for defining properties of the newly created type.
          */
         fun type(
             typeId: String,
             title: String,
             subtitle: String? = null,
-            builder: Type.Builder.() -> Unit
+            categoryBuilder: Type.Builder.() -> Unit
         ) {
             check(typeId !in typeRegistry) { "Duplicate type: $typeId" }
-            typeRegistry[typeId] = Type.Builder(typeId, title, subtitle).apply(builder).build()
+            typeRegistry[typeId] = Type.Builder(typeId, title, subtitle)
+                .apply(categoryBuilder)
+                .build()
+        }
+
+        fun type(
+            typeId: String,
+            title: String,
+            subtitle: String? = null,
+            provider: ChildrenProvider
+        ) {
+            val typeMediaId = MediaId(typeId)
+            check(typeId !in typeRegistry) { "Duplicate type: $typeMediaId" }
+            typeRegistry[typeId] = Type(typeMediaId, title, subtitle, provider)
         }
 
         /**
@@ -175,23 +202,20 @@ private constructor(
  * Also, each category may have its own children, and if it does,
  * all its children should not be browsable.
  *
- * @constructor
- * @param type The name of the type this node represents, which is used as its media id.
+ * @constructor Create a new type under the root of the media tree.
+ * Do not call this constructor directly ; use [MediaTree.Builder.type] function instead.
+ *
+ * @param mediaId The name of the type this node represents, which is used as its media id.
  * @param title The display title of the media item associated with this type.
  * @param subtitle The display subtitle of the media item associated with this type.
- * @param staticCategories Set of categories that are always listed as children of this type.
- * @param categoriesProvider An async function for querying dynamic categories of this type.
- * @param categoriesChildrenProvider An async function for querying children of a dynamic category
- * given the category's media id.
+ * @param childrenProvider Describe how children of this type should be retrieved.
  */
 internal class Type
-private constructor(
-    private val type: String,
+constructor(
+    private val mediaId: MediaId,
     private val title: CharSequence?,
     private val subtitle: CharSequence?,
-    private val staticCategories: Map<String, Category>,
-    private val categoriesProvider: (suspend () -> List<MediaItem>?)?,
-    private val categoriesChildrenProvider: (suspend (categoryId: String, firstIndex: Int, count: Int) -> List<MediaItem>?)?
+    private val childrenProvider: ChildrenProvider
 ) {
     /**
      * The media item representing this type in the media tree.
@@ -199,7 +223,7 @@ private constructor(
     val item: MediaItem
         get() {
             val description = MediaDescriptionCompat.Builder()
-                .setMediaId(type)
+                .setMediaId(mediaId.toString())
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .build()
@@ -211,14 +235,10 @@ private constructor(
      *
      * @return A list of all direct children of this type.
      */
-    suspend fun categories(): List<MediaItem> {
-        val dynamicCategories = categoriesProvider?.invoke() ?: emptyList()
-
-        return ArrayList<MediaItem>(staticCategories.size + dynamicCategories.size).also {
-            staticCategories.mapTo(it) { (_, category) -> category.item }
-            it.addAll(dynamicCategories)
-        }
-    }
+    suspend fun categories(
+        fromIndex: Int = 0,
+        count: Int = Int.MAX_VALUE
+    ): List<MediaItem>? = childrenProvider.getChildren(mediaId, fromIndex, count)
 
     /**
      * Load children of a category with the specified [categoryId].
@@ -235,14 +255,13 @@ private constructor(
         fromIndex: Int = 0,
         count: Int = Int.MAX_VALUE
     ): List<MediaItem>? {
-        val staticCategory = staticCategories[categoryId]
-        return if (staticCategory != null) staticCategory.provider(fromIndex, count)
-        else categoriesChildrenProvider?.invoke(categoryId, fromIndex, count)
+        val parentId = MediaId(mediaId.type, categoryId)
+        return childrenProvider.getChildren(parentId, fromIndex, count)
     }
 
-    override fun toString(): String = "[$type] {title=$title, subtitle=$subtitle}"
-    override fun equals(other: Any?): Boolean = other === this || (other is Type && type == other.type)
-    override fun hashCode(): Int = type.hashCode()
+    override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
+    override fun equals(other: Any?): Boolean = other === this || (other is Type && mediaId == other.mediaId)
+    override fun hashCode(): Int = mediaId.hashCode()
 
     /**
      * Define a DSL for adding _type nodes_ to the media tree.
@@ -261,64 +280,36 @@ private constructor(
         private val title: String,
         private val subtitle: String?
     ) {
-        private val staticCategories = mutableMapOf<String, Category>()
-        private var categoriesProvider: (suspend () -> List<MediaItem>?)? = null
-        private var dynamicCategoriesChildrenProvider: (suspend (String, Int, Int) -> List<MediaItem>?)? = null
-
-        /**
-         * Define how children categories of the newly created type should be retrieved.
-         *
-         * @param provider An async function called to load children categories.
-         * Categories loaded by this function should have a media id whose _type_ part matches
-         * their parent's [typeId].
-         */
-        fun categories(provider: suspend () -> List<MediaItem>) {
-            categoriesProvider = provider
-        }
+        private val categoryRegistry = mutableMapOf<String, Category>()
 
         /**
          * Define a static category, direct child of this type.
-         * Unlike [dynamic categories][categories], static categories are always part of the tree.
+         * Unlike dynamic categories, static categories are always part of the tree.
          *
          * @param categoryId Unique identifier of the category.
          * This contributes to the media id of the category.
          * @param title The display title of the media item representing this category.
          * @param subtitle The display subtitle of the media item representing this category.
          * @param iconUri An uri pointing to an icon representing this category.
-         * @param children An async function called to load children of that category.
-         * It should return the items between the specified indices,
-         * or `null` if the category has no children.
+         * @param provider Defines how children of this category should be retrieved.
          */
         fun category(
             categoryId: String,
             title: String,
             subtitle: String? = null,
             iconUri: Uri? = null,
-            children: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
+            provider: ChildrenProvider
         ) {
-            check(categoryId !in staticCategories) { "Duplicate category: $categoryId" }
-            staticCategories[categoryId] = Category(
-                mediaId = MediaId.encode(typeId, categoryId),
+            val categoryMediaId = MediaId(typeId, categoryId)
+            check(categoryId !in categoryRegistry) { "Duplicate category: $categoryMediaId" }
+
+            categoryRegistry[categoryId] = Category(
+                mediaId = categoryMediaId,
                 title = title,
                 subtitle = subtitle,
                 iconUri = iconUri,
-                provider = children
+                provider = provider
             )
-        }
-
-        /**
-         * Define how children of [dynamic categories][categories] should be retrieved.
-         *
-         * @param provider An async function called to load children of a category given its id.
-         * Items loaded by this function should:
-         * - be playable and not browsable
-         * - have a full media id whose type part matches [typeId],
-         * a category part matching the given category id and an unique track part.
-         * Also, if the specified category id does not match an existing category
-         * then this function should return `null`.
-         */
-        fun categoryChildren(provider: suspend (categoryId: String, firstIndex: Int, count: Int) -> List<MediaItem>?) {
-            dynamicCategoriesChildrenProvider = provider
         }
 
         /**
@@ -326,12 +317,10 @@ private constructor(
          * This should not be used from the DSL.
          */
         fun build(): Type = Type(
-            typeId,
+            MediaId(typeId),
             title,
             subtitle,
-            staticCategories,
-            categoriesProvider,
-            dynamicCategoriesChildrenProvider
+            CategoryChildrenProvider(categoryRegistry)
         )
     }
 
@@ -355,11 +344,11 @@ private constructor(
      * @param provider An async function for querying the children of this category.
      */
     class Category(
-        val mediaId: String,
+        val mediaId: MediaId,
         val title: String,
         val subtitle: String?,
         val iconUri: Uri?,
-        val provider: suspend (fromIndex: Int, count: Int) -> List<MediaItem>?
+        val provider: ChildrenProvider
     ) {
         /**
          * The media item representing this static category.
@@ -367,13 +356,18 @@ private constructor(
         val item: MediaItem
             get() {
                 val description = MediaDescriptionCompat.Builder()
-                    .setMediaId(mediaId)
+                    .setMediaId(mediaId.toString())
                     .setTitle(title)
                     .setSubtitle(subtitle)
                     .setIconUri(iconUri)
                     .build()
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
             }
+
+        suspend fun children(
+            fromIndex: Int,
+            count: Int
+        ): List<MediaItem>? = provider.getChildren(mediaId, fromIndex, count)
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
         override fun equals(other: Any?): Boolean = this === other || (other is Category && mediaId == other.mediaId)
