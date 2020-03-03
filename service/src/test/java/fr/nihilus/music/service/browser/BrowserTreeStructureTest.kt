@@ -30,6 +30,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
@@ -75,7 +76,8 @@ internal class BrowserTreeStructureTest {
             TYPE_TRACKS,
             TYPE_ARTISTS,
             TYPE_ALBUMS,
-            TYPE_PLAYLISTS
+            TYPE_PLAYLISTS,
+            TYPE_SMART
         )
 
         assertThatAllAreBrowsableAmong(rootChildren)
