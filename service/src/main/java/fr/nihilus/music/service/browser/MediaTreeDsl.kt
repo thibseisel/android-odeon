@@ -191,137 +191,136 @@ private constructor(
          */
         fun build(): MediaTree = MediaTree(rootId, rootName, typeRegistry)
     }
-}
-
-/**
- * A node from a [MediaTree] that groups media by type.
- * The media id of a type node should be _type-only_,
- * which means it has neither a category nor a track part, as explained in [MediaId].
- *
- * A type node may only have browsable categories.
- * Also, each category may have its own children, and if it does,
- * all its children should not be browsable.
- *
- * @constructor Create a new type under the root of the media tree.
- * Do not call this constructor directly ; use [MediaTree.Builder.type] function instead.
- *
- * @param mediaId The name of the type this node represents, which is used as its media id.
- * @param title The display title of the media item associated with this type.
- * @param subtitle The display subtitle of the media item associated with this type.
- * @param childrenProvider Describe how children of this type should be retrieved.
- */
-internal class Type
-constructor(
-    private val mediaId: MediaId,
-    private val title: CharSequence?,
-    private val subtitle: CharSequence?,
-    private val childrenProvider: ChildrenProvider
-) {
-    /**
-     * The media item representing this type in the media tree.
-     */
-    val item: MediaItem
-        get() {
-            val description = MediaDescriptionCompat.Builder()
-                .setMediaId(mediaId.toString())
-                .setTitle(title)
-                .setSubtitle(subtitle)
-                .build()
-            return MediaItem(description, MediaItem.FLAG_BROWSABLE)
-        }
 
     /**
-     * Load children categories of this type.
+     * A node from a [MediaTree] that groups media by type.
+     * The media id of a type node should be _type-only_,
+     * which means it has neither a category nor a track part, as explained in [MediaId].
      *
-     * @return A list of all direct children of this type.
+     * A type node may only have browsable categories.
+     * Also, each category may have its own children, and if it does,
+     * all its children should not be browsable.
+     *
+     * @constructor Create a new type under the root of the media tree.
+     * Do not call this constructor directly ; use [MediaTree.Builder.type] function instead.
+     *
+     * @param mediaId The name of the type this node represents, which is used as its media id.
+     * @param title The display title of the media item associated with this type.
+     * @param subtitle The display subtitle of the media item associated with this type.
+     * @param childrenProvider Describe how children of this type should be retrieved.
      */
-    suspend fun categories(
-        fromIndex: Int = 0,
-        count: Int = Int.MAX_VALUE
-    ): List<MediaItem>? = childrenProvider.getChildren(mediaId, fromIndex, count)
-
-    /**
-     * Load children of a category with the specified [categoryId].
-     * This function supports pagination: among all available media items in that category,
-     * only those between [fromIndex] and [count] (exclusive).
-     *
-     * @param categoryId The identifier of the parent category.
-     * @param fromIndex The index of the first element included in the page results, `0` by default.
-     * @param count The maximum number of items in the returned page. No maximum by default.
-     * @return The children of the specified category, or `null` if this type has not such category.
-     */
-    suspend fun categoryChildren(
-        categoryId: String,
-        fromIndex: Int = 0,
-        count: Int = Int.MAX_VALUE
-    ): List<MediaItem>? {
-        val parentId = MediaId(mediaId.type, categoryId)
-        return childrenProvider.getChildren(parentId, fromIndex, count)
-    }
-
-    override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
-    override fun equals(other: Any?): Boolean = other === this || (other is Type && mediaId == other.mediaId)
-    override fun hashCode(): Int = mediaId.hashCode()
-
-    /**
-     * Define a DSL for adding _type nodes_ to the media tree.
-     *
-     * @constructor Create a type builder by specifying its identifier.
-     * You should not instantiate this class directly ; use the [MediaTree.Builder.type] function instead.
-     *
-     * @param typeId The unique identifier of the newly created type. This is used as its media id.
-     * @param title The display title for the media item representing this type.
-     * @param subtitle The display subtitle for the media item representing this type.
-     * This is `null` by default.
-     */
-    @MediaTreeDsl
-    class Builder(
-        private val typeId: String,
-        private val title: String,
-        private val subtitle: String?
+    class Type(
+        private val mediaId: MediaId,
+        private val title: CharSequence?,
+        private val subtitle: CharSequence?,
+        private val childrenProvider: ChildrenProvider
     ) {
-        private val categoryRegistry = mutableMapOf<String, Category>()
+        /**
+         * The media item representing this type in the media tree.
+         */
+        val item: MediaItem
+            get() {
+                val description = MediaDescriptionCompat.Builder()
+                    .setMediaId(mediaId.toString())
+                    .setTitle(title)
+                    .setSubtitle(subtitle)
+                    .build()
+                return MediaItem(description, MediaItem.FLAG_BROWSABLE)
+            }
 
         /**
-         * Define a static category, direct child of this type.
-         * Unlike dynamic categories, static categories are always part of the tree.
+         * Load children categories of this type.
          *
-         * @param categoryId Unique identifier of the category.
-         * This contributes to the media id of the category.
-         * @param title The display title of the media item representing this category.
-         * @param subtitle The display subtitle of the media item representing this category.
-         * @param iconUri An uri pointing to an icon representing this category.
-         * @param provider Defines how children of this category should be retrieved.
+         * @return A list of all direct children of this type.
          */
-        fun category(
-            categoryId: String,
-            title: String,
-            subtitle: String? = null,
-            iconUri: Uri? = null,
-            provider: ChildrenProvider
-        ) {
-            val categoryMediaId = MediaId(typeId, categoryId)
-            check(categoryId !in categoryRegistry) { "Duplicate category: $categoryMediaId" }
+        suspend fun categories(
+            fromIndex: Int = 0,
+            count: Int = Int.MAX_VALUE
+        ): List<MediaItem>? = childrenProvider.getChildren(mediaId, fromIndex, count)
 
-            categoryRegistry[categoryId] = Category(
-                mediaId = categoryMediaId,
-                title = title,
-                subtitle = subtitle,
-                iconUri = iconUri,
-                provider = provider
+        /**
+         * Load children of a category with the specified [categoryId].
+         * This function supports pagination: among all available media items in that category,
+         * only those between [fromIndex] and [count] (exclusive).
+         *
+         * @param categoryId The identifier of the parent category.
+         * @param fromIndex The index of the first element included in the page results, `0` by default.
+         * @param count The maximum number of items in the returned page. No maximum by default.
+         * @return The children of the specified category, or `null` if this type has not such category.
+         */
+        suspend fun categoryChildren(
+            categoryId: String,
+            fromIndex: Int = 0,
+            count: Int = Int.MAX_VALUE
+        ): List<MediaItem>? {
+            val parentId = MediaId(mediaId.type, categoryId)
+            return childrenProvider.getChildren(parentId, fromIndex, count)
+        }
+
+        override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
+        override fun equals(other: Any?): Boolean = other === this || (other is Type && mediaId == other.mediaId)
+        override fun hashCode(): Int = mediaId.hashCode()
+
+        /**
+         * Define a DSL for adding _type nodes_ to the media tree.
+         *
+         * @constructor Create a type builder by specifying its identifier.
+         * You should not instantiate this class directly ; use the [MediaTree.Builder.type] function instead.
+         *
+         * @param typeId The unique identifier of the newly created type. This is used as its media id.
+         * @param title The display title for the media item representing this type.
+         * @param subtitle The display subtitle for the media item representing this type.
+         * This is `null` by default.
+         */
+        @MediaTreeDsl
+        class Builder(
+            private val typeId: String,
+            private val title: String,
+            private val subtitle: String?
+        ) {
+            private val categoryRegistry = mutableMapOf<String, Category>()
+
+            /**
+             * Define a static category, direct child of this type.
+             * Unlike dynamic categories, static categories are always part of the tree.
+             *
+             * @param categoryId Unique identifier of the category.
+             * This contributes to the media id of the category.
+             * @param title The display title of the media item representing this category.
+             * @param subtitle The display subtitle of the media item representing this category.
+             * @param iconUri An uri pointing to an icon representing this category.
+             * @param provider Defines how children of this category should be retrieved.
+             */
+            fun category(
+                categoryId: String,
+                title: String,
+                subtitle: String? = null,
+                iconUri: Uri? = null,
+                provider: ChildrenProvider
+            ) {
+                val categoryMediaId = MediaId(typeId, categoryId)
+                check(categoryId !in categoryRegistry) { "Duplicate category: $categoryMediaId" }
+
+                categoryRegistry[categoryId] = Category(
+                    mediaId = categoryMediaId,
+                    title = title,
+                    subtitle = subtitle,
+                    iconUri = iconUri,
+                    provider = provider
+                )
+            }
+
+            /**
+             * Instantiate the type definition.
+             * This should not be used from the DSL.
+             */
+            fun build(): Type = Type(
+                MediaId(typeId),
+                title,
+                subtitle,
+                CategoryChildrenProvider(categoryRegistry)
             )
         }
-
-        /**
-         * Instantiate the type definition.
-         * This should not be used from the DSL.
-         */
-        fun build(): Type = Type(
-            MediaId(typeId),
-            title,
-            subtitle,
-            CategoryChildrenProvider(categoryRegistry)
-        )
     }
 
     /**

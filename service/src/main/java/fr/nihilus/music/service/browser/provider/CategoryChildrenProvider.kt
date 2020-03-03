@@ -19,7 +19,7 @@ package fr.nihilus.music.service.browser.provider
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.browser.Type
+import fr.nihilus.music.service.browser.MediaTree
 
 /**
  * Provides children from a pre-configured set of categories.
@@ -27,7 +27,7 @@ import fr.nihilus.music.service.browser.Type
  * or the children of a specific category.
  */
 internal class CategoryChildrenProvider(
-    private val categories: Map<String, Type.Category>
+    private val categories: Map<String, MediaTree.Category>
 ) : ChildrenProvider() {
 
     override suspend fun findChildren(
