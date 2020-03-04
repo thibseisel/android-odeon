@@ -19,9 +19,10 @@ package fr.nihilus.music.media.usage
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.inspectors.forNone
 import io.kotlintest.matchers.collections.containExactly
 import io.kotlintest.matchers.collections.shouldContainExactly
@@ -49,11 +50,11 @@ private const val THREE_DAYS = ONE_DAY * 3
 class UsageManagerTest {
     private val clock = TestClock(TIME_NOW)
 
-    @MockK(name = "UsageDao")
+    @MockK
     private lateinit var usageDao: UsageDao
 
-    @MockK(name = "MediaRepository")
-    private lateinit var repository: MediaRepository
+    @MockK
+    private lateinit var mediaDao: MediaDao
 
     @BeforeTest
     fun setupMocks() = MockKAnnotations.init(this)
@@ -61,7 +62,7 @@ class UsageManagerTest {
     @Test
     fun `When reporting playback completion of a track, then record a new event at current time`() = runBlockingTest {
         coEvery { usageDao.recordEvent(any()) } just Runs
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
 
         manager.reportCompletion(42L)
 
@@ -77,12 +78,10 @@ class UsageManagerTest {
 
     @Test
     fun `When loading most rated tracks, then return them ordered by descending score`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            DIRTY_WATER,
-            GIVE_IT_UP,
-            CYDONIA,
-            NIGHTMARE
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(DIRTY_WATER, GIVE_IT_UP, CYDONIA, NIGHTMARE)
         )
+
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(NIGHTMARE.id, 82, TIME_NOW),
             TrackUsage(CYDONIA.id, 43, TIME_NOW),
@@ -90,7 +89,7 @@ class UsageManagerTest {
             TrackUsage(GIVE_IT_UP.id, 12, TIME_NOW)
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val mostRatedTracks = manager.getMostRatedTracks()
 
         mostRatedTracks should containExactly(NIGHTMARE, CYDONIA, DIRTY_WATER, GIVE_IT_UP)
@@ -98,13 +97,15 @@ class UsageManagerTest {
 
     @Test
     fun `When loading most rated tracks, then omit tracks without usage`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(NIGHTMARE, GIVE_IT_UP, CYDONIA, NIGHTMARE)
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(NIGHTMARE, GIVE_IT_UP, CYDONIA, NIGHTMARE)
+        )
         coEvery { usageDao.getTracksUsage(0L) } returns  listOf(
             TrackUsage(NIGHTMARE.id, 82, TIME_NOW),
             TrackUsage(CYDONIA.id, 43, TIME_NOW)
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val mostRatedTracks = manager.getMostRatedTracks()
 
         mostRatedTracks.shouldNotContain(DIRTY_WATER)
@@ -113,14 +114,16 @@ class UsageManagerTest {
 
     @Test
     fun `When loading most rated tracks, then ignore scores of unknown tracks`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(DIRTY_WATER)
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(DIRTY_WATER)
+        )
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
             TrackUsage(42L, 120, TIME_NOW), // Unknown
             TrackUsage(DIRTY_WATER.id, 20, TIME_NOW), // Dirty Water
             TrackUsage(100L, 56, TIME_NOW)  // Unknown
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val mostRatedTracks = manager.getMostRatedTracks()
 
         mostRatedTracks.forNone { it.id shouldBe 42L }
@@ -129,11 +132,13 @@ class UsageManagerTest {
 
     @Test
     fun `When loading disposable, then list tracks that have never been played first`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            sampleTrack(1, "Highway To Hell"),
-            sampleTrack(2, "Nothing Else Matters"),
-            sampleTrack(3, "Time"),
-            sampleTrack(4, "The Stage")
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(
+                sampleTrack(1, "Highway To Hell"),
+                sampleTrack(2, "Nothing Else Matters"),
+                sampleTrack(3, "Time"),
+                sampleTrack(4, "The Stage")
+            )
         )
 
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
@@ -141,7 +146,7 @@ class UsageManagerTest {
             TrackUsage(3, 7, TIME_NOW)
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val tracks = manager.getDisposableTracks().map { it.title }
 
         tracks.shouldStartWith(listOf(
@@ -152,10 +157,12 @@ class UsageManagerTest {
 
     @Test
     fun `When loading disposable, then list tracks that have not been played for the longest time first`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            sampleTrack(1, "Another One Bites the Dust"),
-            sampleTrack(2, "Ready To Rock"),
-            sampleTrack(3, "Wish You Were Here")
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(
+                sampleTrack(1, "Another One Bites the Dust"),
+                sampleTrack(2, "Ready To Rock"),
+                sampleTrack(3, "Wish You Were Here")
+            )
         )
 
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
@@ -164,7 +171,7 @@ class UsageManagerTest {
             TrackUsage(3, 1, TIME_NOW - ONE_HOUR)
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
 
         val tracks = manager.getDisposableTracks().map { it.title }
         tracks.shouldContainExactly(
@@ -176,16 +183,18 @@ class UsageManagerTest {
 
     @Test
     fun `Given tracks that have never been played, when loading disposable then list them in descending file size`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            sampleTrack(1, "Knights Of Cydonia", fileSize = 11_746_572),
-            sampleTrack(2, "Murderer", fileSize = 12_211_377),
-            sampleTrack(3, "Nothing Else Matters", fileSize = 15_629_765),
-            sampleTrack(4, "The Stage", fileSize = 20_655_114),
-            sampleTrack(5, "Torn Apart", fileSize = 15_654_501)
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(
+                sampleTrack(1, "Knights Of Cydonia", fileSize = 11_746_572),
+                sampleTrack(2, "Murderer", fileSize = 12_211_377),
+                sampleTrack(3, "Nothing Else Matters", fileSize = 15_629_765),
+                sampleTrack(4, "The Stage", fileSize = 20_655_114),
+                sampleTrack(5, "Torn Apart", fileSize = 15_654_501)
+            )
         )
 
         coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
 
         val tracks = manager.getDisposableTracks().map { it.title }
         tracks.shouldContainExactly(
@@ -199,11 +208,13 @@ class UsageManagerTest {
 
     @Test
     fun `When loading disposable, then list tracks that have been played the least first`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            sampleTrack(1, "Antisocial"),
-            sampleTrack(2, "Come As You Are"),
-            sampleTrack(3, "Hysteria"),
-            sampleTrack(4, "Under The Bridge")
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(
+                sampleTrack(1, "Antisocial"),
+                sampleTrack(2, "Come As You Are"),
+                sampleTrack(3, "Hysteria"),
+                sampleTrack(4, "Under The Bridge")
+            )
         )
 
         coEvery { usageDao.getTracksUsage(0L) } returns listOf(
@@ -213,7 +224,7 @@ class UsageManagerTest {
             TrackUsage(3, 32, TIME_NOW)
         )
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val tracks = manager.getDisposableTracks().map { it.title }
 
         tracks.shouldContainExactly(
@@ -226,16 +237,18 @@ class UsageManagerTest {
 
     @Test
     fun `When loading disposable, then list largest files first`() = runBlockingTest {
-        coEvery { repository.getTracks() } returns listOf(
-            sampleTrack(1, "American Idiot", fileSize = 5_643_502),
-            sampleTrack(2, "Crazy Train", fileSize = 6_549_949),
-            sampleTrack(3, "Master of Puppets", fileSize = 20_999_159),
-            sampleTrack(4, "Welcome to the Jungle", fileSize = 4_420_827)
+        every { mediaDao.tracks } returns infiniteFlowOf(
+            listOf(
+                sampleTrack(1, "American Idiot", fileSize = 5_643_502),
+                sampleTrack(2, "Crazy Train", fileSize = 6_549_949),
+                sampleTrack(3, "Master of Puppets", fileSize = 20_999_159),
+                sampleTrack(4, "Welcome to the Jungle", fileSize = 4_420_827)
+            )
         )
 
         coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
 
-        val manager = UsageManager(repository, usageDao)
+        val manager = UsageManager(mediaDao, usageDao)
         val tracks = manager.getDisposableTracks().map { it.title }
 
         tracks.shouldContainExactly(
@@ -250,8 +263,8 @@ class UsageManagerTest {
      * Convenience function to create the [UsageManager] under test with some of its dependencies
      * set with test fixtures.
      */
-    private fun CoroutineScope.UsageManager(repository: MediaRepository, usageDao: UsageDao): UsageManager =
-        UsageManagerImpl(this, repository, usageDao, clock)
+    private fun CoroutineScope.UsageManager(mediaDao: MediaDao, usageDao: UsageDao): UsageManager =
+        UsageManagerImpl(this, mediaDao, usageDao, clock)
 
     /**
      * Convenience function for defining a track with only parameters

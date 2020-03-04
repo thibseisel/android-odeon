@@ -20,11 +20,12 @@ import dagger.Reusable
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -78,14 +79,14 @@ interface UsageManager {
  * Default implementation of the lastPlayedTime manager.
  *
  * @param scope The scope coroutines should be executed into.
- * @param repository The repository for media files.
+ * @param mediaDao The source for media files metadata.
  * @param usageDao The DAO that controls storage of lastPlayedTime statistics.
  */
 @Reusable
 internal class UsageManagerImpl
 @Inject constructor(
     private val scope: CoroutineScope,
-    private val repository: MediaRepository,
+    private val mediaDao: MediaDao,
     private val usageDao: UsageDao,
     private val clock: Clock
 ) : UsageManager {
@@ -98,7 +99,7 @@ internal class UsageManagerImpl
     }
 
     override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = repository.getTracks().associateBy { it.id }
+        val tracksById = mediaDao.tracks.first().associateBy { it.id }
         val trackScores = usageDao.getTracksUsage(0L)
 
         return trackScores.asSequence()
@@ -110,7 +111,7 @@ internal class UsageManagerImpl
     override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit): List<Track> {
         require(period >= 0)
 
-        val tracksById = repository.getTracks().associateBy { it.id }
+        val tracksById = mediaDao.tracks.first().associateBy { it.id }
         val tracksUsage = usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
 
         return if (tracksUsage.isEmpty()) emptyList() else {
@@ -127,7 +128,7 @@ internal class UsageManagerImpl
     }
 
     override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
-        val allTracksAsync = async { repository.getTracks() }
+        val allTracksAsync = async { mediaDao.tracks.first() }
         val usageByTrack = usageDao.getTracksUsage(0L).associateBy { it.trackId }
 
         val currentEpochTime = clock.currentEpochTime
