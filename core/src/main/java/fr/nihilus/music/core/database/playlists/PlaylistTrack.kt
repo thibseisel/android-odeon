@@ -38,7 +38,7 @@ import androidx.room.ForeignKey
     entity = Playlist::class, onDelete = ForeignKey.CASCADE,
     childColumns = ["playlist_id"], parentColumns = ["id"]
 )
-class PlaylistTrack(
+data class PlaylistTrack(
 
     /**
      * Id of the playlist this track belongs to.
@@ -58,7 +58,4 @@ class PlaylistTrack(
      */
     @ColumnInfo(name = "position")
     var position: Int = 0
-
-    operator fun component1(): Long = playlistId
-    operator fun component2(): Long = trackId
 }

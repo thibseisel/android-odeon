@@ -22,6 +22,8 @@ import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
@@ -29,7 +31,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.media.repo.MediaRepository
 import io.kotlintest.shouldThrow
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -49,20 +50,20 @@ internal class ManagePlaylistActionTest {
     private val dispatchers = AppDispatchers(test.dispatcher)
 
     @MockK
-    private lateinit var repository: MediaRepository
+    private lateinit var playlistDao: PlaylistDao
 
     @Before
     fun setupMocks() = MockKAnnotations.init(this)
 
     @Test
     fun `Action name should be the constant ActionManagePlaylist`() {
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         assertThat(action.name).isEqualTo(CustomActions.ACTION_MANAGE_PLAYLIST)
     }
 
     @Test
     fun `Given no params, when executing then fail with missing parameters`() = test.run {
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle.EMPTY)
         }
@@ -72,15 +73,15 @@ internal class ManagePlaylistActionTest {
 
     @Test
     fun `Given no playlist id but a title, when executing then create a new empty playlist`() = test.run {
-        coEvery { repository.createPlaylist(any(), any()) } just Runs
+        coEvery { playlistDao.createPlaylist(any(), any()) } just Runs
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         action.execute(Bundle(1).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
         })
 
         coVerify(exactly = 1) {
-            repository.createPlaylist(
+            playlistDao.createPlaylist(
                 newPlaylist = match { it.title == NEW_PLAYLIST_TITLE },
                 trackIds = LongArray(0)
             )
@@ -93,7 +94,7 @@ internal class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -108,7 +109,7 @@ internal class ManagePlaylistActionTest {
     fun `Given title and non track media ids, when executing then fail with invalid media id`() = test.run {
         val mediaIds = arrayOf(encode(TYPE_TRACKS, CATEGORY_ALL))
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
@@ -126,9 +127,9 @@ internal class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        coEvery { repository.createPlaylist(any(), any()) } just Runs
+        coEvery { playlistDao.createPlaylist(any(), any()) } just Runs
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_TITLE, NEW_PLAYLIST_TITLE)
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -136,7 +137,7 @@ internal class ManagePlaylistActionTest {
 
         // Then a new playlist has been created with those tracks.
         coVerify {
-            repository.createPlaylist(
+            playlistDao.createPlaylist(
                 newPlaylist = match { it.title == NEW_PLAYLIST_TITLE },
                 trackIds = longArrayOf(16L, 42L)
             )
@@ -145,7 +146,7 @@ internal class ManagePlaylistActionTest {
 
     @Test
     fun `Given playlist id, when executing without track media ids then fail with missing parameter`() = test.run {
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(1).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
@@ -163,7 +164,7 @@ internal class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         val failure = shouldThrow<ActionFailure> {
             action.execute(Bundle(2).apply {
                 putString(CustomActions.EXTRA_PLAYLIST_ID, nonPlaylistMediaId)
@@ -181,9 +182,9 @@ internal class ManagePlaylistActionTest {
             encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
         )
 
-        coEvery { repository.addTracksToPlaylist(any(), any()) } just Runs
+        coEvery { playlistDao.addTracks(any()) } just Runs
 
-        val action = ManagePlaylistAction(repository, NoopFileSystem, dispatchers)
+        val action = ManagePlaylistAction(playlistDao, NoopFileSystem, dispatchers)
         action.execute(Bundle(2).apply {
             putString(CustomActions.EXTRA_PLAYLIST_ID, encode(TYPE_PLAYLISTS, "2"))
             putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
@@ -191,9 +192,11 @@ internal class ManagePlaylistActionTest {
 
         // Then add those 2 tracks to the playlist.
         coVerify {
-            repository.addTracksToPlaylist(
-                playlistId = 2L,
-                trackIds = longArrayOf(16L, 42L)
+            playlistDao.addTracks(
+                listOf(
+                    PlaylistTrack(2L, 16L),
+                    PlaylistTrack(2L, 42L)
+                )
             )
         }
     }

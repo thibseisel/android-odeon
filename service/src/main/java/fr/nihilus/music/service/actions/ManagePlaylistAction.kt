@@ -25,12 +25,13 @@ import com.github.thibseisel.kdenticon.IdenticonStyle
 import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.service.ServiceScoped
-import fr.nihilus.music.media.repo.MediaRepository
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -51,14 +52,14 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  * This mode is triggered when the [CustomActions.EXTRA_PLAYLIST_ID] is specified.
  *
  * @constructor
- * @param repository Main interface for reading/writing user-defined playlists.
+ * @param playlistDao Main interface for reading/writing user-defined playlists.
  * @param files Main interface for reading/writing from/to the device's filesystem.
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
 @ServiceScoped
 internal class ManagePlaylistAction
 @Inject constructor(
-    private val repository: MediaRepository,
+    private val playlistDao: PlaylistDao,
     private val files: FileSystem,
     private val dispatchers: AppDispatchers
 ) : BrowserAction {
@@ -114,7 +115,7 @@ internal class ManagePlaylistAction
             files.writeBitmapToInternalStorage("$PLAYLIST_ICON_FOLDER/$fileName.png", iconBitmap)
         }
 
-        repository.createPlaylist(Playlist(title, playlistIconUri), trackIds)
+        playlistDao.createPlaylist(Playlist(title, playlistIconUri), trackIds)
         return null
     }
 
@@ -136,7 +137,8 @@ internal class ManagePlaylistAction
                 extractTrackIdFrom(trackMediaId)
             }
 
-            repository.addTracksToPlaylist(playlistId, playlistTrackIds)
+            val tracks = playlistTrackIds.map { trackId -> PlaylistTrack(playlistId, trackId) }
+            playlistDao.addTracks(tracks)
 
         } else throw ActionFailure(
             CustomActions.ERROR_CODE_PARAMETER,
