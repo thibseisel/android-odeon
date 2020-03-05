@@ -49,9 +49,6 @@ import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -115,10 +112,6 @@ class MusicService : BaseBrowserService() {
         notificationManager = NotificationManagerCompat.from(this)
         becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.svc_allowed_media_browser_callers)
-
-        // Listen for changes in the repository to notify media browsers.
-        // If the changed media ID is a track, notify for its parent category.
-        observeMediaChanges()
 
         /**
          * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
@@ -366,12 +359,6 @@ class MusicService : BaseBrowserService() {
                 release()
             }
         }
-    }
-
-    private fun CoroutineScope.observeMediaChanges() {
-        browserTree.updatedParentIds.onEach { parentId ->
-            notifyChildrenChanged(parentId.encoded)
-        }.launchIn(this)
     }
 
     private inner class TrackCompletionListener : Player.EventListener {

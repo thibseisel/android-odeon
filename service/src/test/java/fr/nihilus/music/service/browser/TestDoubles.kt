@@ -17,10 +17,15 @@
 package fr.nihilus.music.service.browser
 
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.spotify.TrackFeature
+import fr.nihilus.music.core.test.coroutines.NeverFlow
+import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.repo.MediaRepository
@@ -30,25 +35,42 @@ import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.TimeUnit
 
-internal class TestMediaRepository(
-    private val tracks: List<Track> = SAMPLE_TRACKS,
-    private val albums: List<Album> = SAMPLE_ALBUMS,
-    private val artists: List<Artist> = SAMPLE_ARTISTS,
-    private val playlists: List<Playlist> = SAMPLE_PLAYLISTS,
-    private val tracksPerPlaylist: Map<Long, List<Track>> = SAMPLE_TRACKS_FOR_PLAYLIST,
-    override val changeNotifications: Flow<ChangeNotification> = emptyFlow()
-) : MediaRepository {
-    override suspend fun getTracks(): List<Track> = tracks
-    override suspend fun getAlbums(): List<Album> = albums
-    override suspend fun getArtists(): List<Artist> = artists
-    override suspend fun getPlaylists(): List<Playlist> = playlists
-    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = tracksPerPlaylist[playlistId]
-    override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
-    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
-    override suspend fun deletePlaylist(playlistId: Long) = stub()
+internal class TestMediaDao(
+    artists: List<Artist> = SAMPLE_ARTISTS,
+    albums: List<Album> = SAMPLE_ALBUMS,
+    tracks: List<Track> = SAMPLE_TRACKS
+) : MediaDao {
+
+    override val artists: Flow<List<Artist>> = initialEventFlow(artists)
+    override val albums: Flow<List<Album>> = initialEventFlow(albums)
+    override val tracks: Flow<List<Track>> = initialEventFlow(tracks)
+
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
+
+    private fun <T> initialEventFlow(initialValue: T) = flow {
+        emit(initialValue)
+        suspendCancellableCoroutine<Nothing> {}
+    }
+}
+
+internal class TestPlaylistDao(
+    override val playlists: Flow<List<Playlist>> = infiniteFlowOf(SAMPLE_PLAYLISTS),
+    private val playlistMembers: List<PlaylistTrack> = SAMPLE_MEMBERS
+) : PlaylistDao() {
+
+    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> {
+        return playlistMembers.filter { it.playlistId == playlistId }
+    }
+
+    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
+    override suspend fun savePlaylist(playlist: Playlist): Long = stub()
+    override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
+    override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
+    override suspend fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
 }
 
 internal class TestUsageManager(
@@ -92,15 +114,19 @@ internal object StubSpotifyManager : SpotifyManager {
 
 }
 
-internal class StubMediaRepository : MediaRepository {
-    override val changeNotifications: Flow<ChangeNotification> get() = stub()
-    override suspend fun getTracks(): List<Track> = stub()
-    override suspend fun getAlbums(): List<Album> = stub()
-    override suspend fun getArtists(): List<Artist> = stub()
-    override suspend fun getPlaylists(): List<Playlist> = stub()
-    override suspend fun getPlaylistTracks(playlistId: Long): List<Track>? = stub()
-    override suspend fun createPlaylist(newPlaylist: Playlist, trackIds: LongArray) = stub()
-    override suspend fun addTracksToPlaylist(playlistId: Long, trackIds: LongArray) = stub()
-    override suspend fun deletePlaylist(playlistId: Long) = stub()
+internal object StubMediaDao : MediaDao {
+    override val artists: Flow<List<Artist>> get() = stub()
+    override val albums: Flow<List<Album>> get() = stub()
+    override val tracks: Flow<List<Track>> get() = stub()
     override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
+}
+
+internal object StubPlaylistDao : PlaylistDao() {
+    override val playlists: Flow<List<Playlist>> get() = stub()
+    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
+    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
+    override suspend fun savePlaylist(playlist: Playlist): Long = stub()
+    override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
+    override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
+    override suspend fun deletePlaylistTracks(trackIds: LongArray): Unit = stub()
 }

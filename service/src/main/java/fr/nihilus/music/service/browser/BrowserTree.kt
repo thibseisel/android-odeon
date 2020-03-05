@@ -28,8 +28,6 @@ import kotlinx.coroutines.flow.Flow
  */
 internal interface BrowserTree {
 
-    val updatedParentIds: Flow<MediaId>
-
     /**
      * Retrieve children media of an item with the given [parentId] in the browser tree.
      * The nature of those children depends on the media id of its parent and the internal structure of the media tree.

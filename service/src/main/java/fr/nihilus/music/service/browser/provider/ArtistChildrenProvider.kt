@@ -25,15 +25,16 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.service.R
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 
 internal class ArtistChildrenProvider(
     private val context: Context,
-    private val repository: MediaRepository
+    private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
     override suspend fun findChildren(
@@ -53,7 +54,7 @@ internal class ArtistChildrenProvider(
     private suspend fun getArtists(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getArtists().asSequence()
+        return mediaDao.artists.first().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
@@ -67,8 +68,8 @@ internal class ArtistChildrenProvider(
     ): List<MediaItem>? = coroutineScope {
         val builder = MediaDescriptionCompat.Builder()
 
-        val asyncAllAlbums = async { repository.getAlbums() }
-        val asyncAllTracks = async { repository.getTracks() }
+        val asyncAllAlbums = async { mediaDao.albums.first() }
+        val asyncAllTracks = async { mediaDao.tracks.first() }
 
         val artistAlbums = asyncAllAlbums.await().asSequence()
             .filter { it.artistId == artistId }

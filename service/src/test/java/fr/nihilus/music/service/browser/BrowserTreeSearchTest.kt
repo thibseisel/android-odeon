@@ -26,8 +26,8 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.THEIR_MEDIA_ID
 import io.kotlintest.matchers.collections.shouldContainAll
@@ -160,7 +160,7 @@ class BrowserTreeSearchTest {
             Track(98, "You've Got Another Thing Comin", "Judas Priest", "Screaming for Vengeance", 0, 1, 8, "", null, 0, 7, 7, 0)
         )
 
-        val tree = BrowserTree(TestMediaRepository(tracks, emptyList(), emptyList()))
+        val tree = BrowserTree(TestMediaDao(emptyList(), emptyList(), tracks))
 
         // "OTHERside" is listed first (it starts with the pattern),
         // then "AnOTHER Brick In the Wall" (same pattern at same position),
@@ -184,7 +184,7 @@ class BrowserTreeSearchTest {
             Track(63, "Are You Gonna Go My Way", "Lenny Kravitz", "Are You Gonna Go My Way", 0, 1, 1, "", null, 0, 57, 23, 0)
         )
 
-        val tree = BrowserTree(repository = TestMediaRepository(tracks, emptyList(), emptyList()))
+        val tree = BrowserTree(TestMediaDao(emptyList(), emptyList(), tracks))
 
         // When the pattern matches multiple items equally,
         // shorter items should be displayed first.
@@ -210,7 +210,7 @@ class BrowserTreeSearchTest {
             Artist(98, "Avenged Sevenfold", 0, 0, null)
         )
 
-        val tree = BrowserTree(repository = TestMediaRepository(tracks, emptyList(), artist))
+        val tree = BrowserTree(TestMediaDao(artist, emptyList(), tracks))
         val results = tree.search(SearchQuery.Unspecified("av")).map { it.mediaId }
 
         results.shouldContainExactly(
@@ -223,10 +223,10 @@ class BrowserTreeSearchTest {
     }
 
     private fun BrowserTree(
-        repository: MediaRepository,
+        mediaDao: MediaDao,
         usageManager: UsageManager = StubUsageManager
-    ): BrowserTree = BrowserTreeImpl(context, repository, usageManager, StubSpotifyManager)
+    ): BrowserTree = BrowserTreeImpl(context, mediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
 
     private fun givenRealisticBrowserTree(): BrowserTreeImpl =
-        BrowserTreeImpl(context, TestMediaRepository(), TestUsageManager(), StubSpotifyManager)
+        BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), StubSpotifyManager)
 }

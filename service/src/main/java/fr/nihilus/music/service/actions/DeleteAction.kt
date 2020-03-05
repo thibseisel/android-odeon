@@ -25,7 +25,6 @@ import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.service.ServiceScoped
-import fr.nihilus.music.media.repo.MediaRepository
 import javax.inject.Inject
 
 /**

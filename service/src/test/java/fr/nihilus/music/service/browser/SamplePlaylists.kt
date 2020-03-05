@@ -17,6 +17,7 @@
 package fr.nihilus.music.service.browser
 
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistTrack
 
 internal val SAMPLE_PLAYLISTS = listOf(
     Playlist(1, "Zen", 1551434321, null),
@@ -24,8 +25,11 @@ internal val SAMPLE_PLAYLISTS = listOf(
     Playlist(3, "Metal", 1551436125, null)
 )
 
-internal val SAMPLE_TRACKS_FOR_PLAYLIST = mapOf(
-    1L to listOf(SAMPLE_TRACKS[1]),
-    2L to listOf(SAMPLE_TRACKS[9], SAMPLE_TRACKS[3], SAMPLE_TRACKS[4]),
-    3L to listOf(SAMPLE_TRACKS[7], SAMPLE_TRACKS[0])
+internal val SAMPLE_MEMBERS = listOf(
+    PlaylistTrack(1L, 309L),
+    PlaylistTrack(2L, 477L),
+    PlaylistTrack(2L, 48L),
+    PlaylistTrack(2L, 125L),
+    PlaylistTrack(3L, 75L),
+    PlaylistTrack(3L, 161L)
 )

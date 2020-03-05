@@ -19,14 +19,20 @@ package fr.nihilus.music.service.browser.provider
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
+import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.database.playlists.Playlist
+import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 
 internal class PlaylistChildrenProvider(
-    private val repository: MediaRepository
+    private val mediaDao: MediaDao,
+    private val playlistDao: PlaylistDao
 ) : ChildrenProvider() {
 
     override suspend fun findChildren(
@@ -46,7 +52,7 @@ internal class PlaylistChildrenProvider(
     private suspend fun getPlaylists(fromIndex: Int, count: Int): List<MediaItem>? {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getPlaylists().asSequence()
+        return playlistDao.playlists.first().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
@@ -57,14 +63,19 @@ internal class PlaylistChildrenProvider(
         playlistId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem>? = coroutineScope {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getPlaylistTracks(playlistId)?.asSequence()
-            ?.drop(fromIndex)
-            ?.take(count)
-            ?.mapTo(mutableListOf()) { it.toMediaItem(playlistId, builder) }
-            ?.toList()
+        val asyncAllTracks = async { mediaDao.tracks.first() }
+        val asyncMembers = async { playlistDao.getPlaylistTracks(playlistId) }
+        val tracksById = asyncAllTracks.await().associateByLong(Track::id)
+
+        asyncMembers.await().asSequence()
+            .drop(fromIndex)
+            .take(count)
+            .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
+            .toList()
+            .takeUnless { it.isEmpty() }
     }
 
     private fun Playlist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(

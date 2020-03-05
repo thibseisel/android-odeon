@@ -23,13 +23,14 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 internal class TrackChildrenProvider(
-    private val repository: MediaRepository,
+    private val mediaDao: MediaDao,
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
@@ -56,7 +57,7 @@ internal class TrackChildrenProvider(
     ): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getTracks().asSequence()
+        return mediaDao.tracks.first().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
@@ -76,7 +77,7 @@ internal class TrackChildrenProvider(
     private suspend fun getRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getTracks().asSequence()
+        return mediaDao.tracks.first().asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
             .drop(fromIndex)

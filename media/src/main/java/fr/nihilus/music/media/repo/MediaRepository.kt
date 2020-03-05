@@ -30,6 +30,8 @@ import kotlinx.coroutines.flow.Flow
  * Due to media being read from the device's storage, most operations requires permission
  * to read from the external storage.
  */
+@Deprecated("It is dangerous for MediaRepository to keep active subscriptions to media collections. " +
+        "MediaDao and PlaylistDao should be used directly and BrowserTree should expose Flows instead of suspend functions.")
 interface MediaRepository {
 
     /**

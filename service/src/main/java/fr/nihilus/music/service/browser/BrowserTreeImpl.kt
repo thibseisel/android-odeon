@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
+import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
@@ -36,9 +37,9 @@ import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.repo.ChangeNotification
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.ServiceScoped
@@ -47,8 +48,7 @@ import fr.nihilus.music.service.extensions.getResourceUri
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.first
 import java.util.*
 import javax.inject.Inject
 
@@ -79,7 +79,8 @@ private val ChangeNotification.mediaId: MediaId
 internal class BrowserTreeImpl
 @Inject constructor(
     private val context: Context,
-    private val repository: MediaRepository,
+    private val mediaDao: MediaDao,
+    private val playlistDao: PlaylistDao,
     private val usageManager: UsageManager,
     private val spotifyManager: SpotifyManager
 ) : BrowserTree {
@@ -95,7 +96,7 @@ internal class BrowserTreeImpl
             title = context.getString(R.string.svc_tracks_type_title)
         ) {
             val res = context.resources
-            val trackProvider = TrackChildrenProvider(repository, usageManager)
+            val trackProvider = TrackChildrenProvider(mediaDao, usageManager)
 
             category(
                 CATEGORY_ALL,
@@ -137,19 +138,19 @@ internal class BrowserTreeImpl
         type(
             TYPE_ALBUMS,
             title = context.getString(R.string.svc_albums_type_title),
-            provider = AlbumChildrenProvider(repository)
+            provider = AlbumChildrenProvider(mediaDao)
         )
 
         type(
             TYPE_ARTISTS,
             title = context.getString(R.string.svc_artists_type_title),
-            provider = ArtistChildrenProvider(context, repository)
+            provider = ArtistChildrenProvider(context, mediaDao)
         )
 
         type(
             TYPE_PLAYLISTS,
             title = context.getString(R.string.svc_playlists_type_title),
-            provider = PlaylistChildrenProvider(repository)
+            provider = PlaylistChildrenProvider(mediaDao, playlistDao)
         )
 
         type(
@@ -259,21 +260,21 @@ internal class BrowserTreeImpl
 
             is SearchQuery.Artist -> {
                 query.name?.toLowerCase(searchLocale)?.let { artistName ->
-                    val artists = repository.getArtists()
+                    val artists = mediaDao.artists.first()
                     singleTypeSearch(artistName, artists, Artist::name, artistItemFactory)
                 }
             }
 
             is SearchQuery.Album -> {
                 query.title?.toLowerCase(searchLocale)?.let { albumTitle ->
-                    val albums = repository.getAlbums()
+                    val albums = mediaDao.albums.first()
                     singleTypeSearch(albumTitle, albums, Album::title, albumItemFactory)
                 }
             }
 
             is SearchQuery.Song -> {
                 query.title?.toLowerCase(searchLocale)?.let { trackTitle ->
-                    val tracks = repository.getTracks()
+                    val tracks = mediaDao.tracks.first()
                     singleTypeSearch(trackTitle, tracks, Track::title) { builder ->
                         trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL, builder)
                     }
@@ -282,9 +283,9 @@ internal class BrowserTreeImpl
 
             is SearchQuery.Unspecified -> coroutineScope {
                 val userQuery = query.userQuery.toLowerCase(searchLocale)
-                val artists = async { repository.getArtists() }
-                val albums = async { repository.getAlbums() }
-                val tracks = async { repository.getTracks() }
+                val artists = async { mediaDao.artists.first() }
+                val albums = async { mediaDao.albums.first() }
+                val tracks = async { mediaDao.tracks.first() }
 
                 val searchResults = mutableListOf<ItemScore>()
                 fuzzySearchTo(searchResults, userQuery, artists.await(), Artist::name, artistItemFactory)
@@ -391,18 +392,4 @@ internal class BrowserTreeImpl
             }
         }
     }
-
-    override val updatedParentIds: Flow<MediaId>
-        get() = repository.changeNotifications.transform {
-            when (it) {
-                is ChangeNotification.AllTracks -> {
-                    emit(MediaId(TYPE_TRACKS, CATEGORY_ALL))
-                    emit(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
-                    emit(MediaId(TYPE_TRACKS, CATEGORY_POPULAR))
-                    emit(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
-                    emit(MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE))
-                }
-                else -> emit(it.mediaId)
-            }
-        }
 }

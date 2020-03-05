@@ -22,11 +22,12 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
+import kotlinx.coroutines.flow.first
 
 internal class AlbumChildrenProvider(
-    private val repository: MediaRepository
+    private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
     private val albumTrackOrdering = Comparator<Track> { a, b ->
@@ -51,7 +52,7 @@ internal class AlbumChildrenProvider(
     private suspend fun getAlbums(fromIndex: Int, count: Int): List<MediaItem>? {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getAlbums().asSequence()
+        return mediaDao.albums.first().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
@@ -65,7 +66,7 @@ internal class AlbumChildrenProvider(
     ): List<MediaItem>? {
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getTracks().asSequence()
+        return mediaDao.tracks.first().asSequence()
             .filter { it.albumId == albumId }
             .sortedWith(albumTrackOrdering)
             .drop(fromIndex)

@@ -22,7 +22,6 @@ import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
@@ -35,7 +34,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 /**
- * Implementation of the [SpotifyManager] that retrieve tracks from [MediaRepository]
+ * Implementation of the [SpotifyManager] that retrieve tracks from [MediaDao]
  * and downloads track metadata from the [Spotify API][SpotifyService].
  */
 internal class SpotifyManagerImpl @Inject constructor(
