@@ -39,7 +39,6 @@ import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.ServiceScoped
@@ -63,17 +62,6 @@ private const val BASE_SCORE = 100
  * the start of the first word.
  */
 private const val FIRST_WORD_BONUS = 30
-
-private val ChangeNotification.mediaId: MediaId
-    get() = when(this) {
-        is ChangeNotification.AllTracks -> MediaId(TYPE_TRACKS, CATEGORY_ALL)
-        is ChangeNotification.AllAlbums -> MediaId(TYPE_ALBUMS)
-        is ChangeNotification.AllArtists -> MediaId(TYPE_ARTISTS)
-        is ChangeNotification.AllPlaylists -> MediaId(TYPE_PLAYLISTS)
-        is ChangeNotification.Album -> MediaId(TYPE_ALBUMS, albumId.toString())
-        is ChangeNotification.Artist -> MediaId(TYPE_ARTISTS, artistId.toString())
-        is ChangeNotification.Playlist -> MediaId(TYPE_PLAYLISTS, playlistId.toString())
-    }
 
 @ServiceScoped
 internal class BrowserTreeImpl
