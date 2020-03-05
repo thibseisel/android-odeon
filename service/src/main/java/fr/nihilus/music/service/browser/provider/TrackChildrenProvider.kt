@@ -38,7 +38,7 @@ internal class TrackChildrenProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
@@ -47,7 +47,7 @@ internal class TrackChildrenProvider(
             MediaId.CATEGORY_POPULAR -> getMonthPopularTracks(fromIndex, count)
             MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks(fromIndex, count)
             MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks(fromIndex, count)
-            else -> null
+            else -> throw NoSuchElementException("No such parent: $parentId")
         }
     }
 

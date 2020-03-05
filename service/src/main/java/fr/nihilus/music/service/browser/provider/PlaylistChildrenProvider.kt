@@ -39,7 +39,7 @@ internal class PlaylistChildrenProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         check(parentId.type == TYPE_PLAYLISTS)
 
         val playlistId = parentId.category?.toLongOrNull()
@@ -49,7 +49,7 @@ internal class PlaylistChildrenProvider(
         }
     }
 
-    private suspend fun getPlaylists(fromIndex: Int, count: Int): List<MediaItem>? {
+    private suspend fun getPlaylists(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
         return playlistDao.playlists.first().asSequence()
@@ -63,7 +63,7 @@ internal class PlaylistChildrenProvider(
         playlistId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? = coroutineScope {
+    ): List<MediaItem> = coroutineScope {
         val builder = MediaDescriptionCompat.Builder()
 
         val asyncAllTracks = async { mediaDao.tracks.first() }
@@ -76,6 +76,7 @@ internal class PlaylistChildrenProvider(
             .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
             .toList()
             .takeUnless { it.isEmpty() }
+            ?: throw NoSuchElementException("No playlist with id = $playlistId")
     }
 
     private fun Playlist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(

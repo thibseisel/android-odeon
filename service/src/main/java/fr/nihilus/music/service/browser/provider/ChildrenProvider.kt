@@ -45,9 +45,9 @@ internal abstract class ChildrenProvider {
         parentId: MediaId,
         fromIndex: Int = 0,
         count: Int = Int.MAX_VALUE
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         return when {
-            parentId.track != null -> null
+            parentId.track != null -> throw NoSuchElementException("$parentId is not browsable")
             else -> findChildren(parentId, fromIndex, count)
         }
     }
@@ -68,7 +68,7 @@ internal abstract class ChildrenProvider {
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>?
+    ): List<MediaItem>
 
     /**
      * Helper function to create a browsable [MediaItem].

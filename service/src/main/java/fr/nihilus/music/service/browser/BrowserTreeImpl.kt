@@ -236,7 +236,7 @@ internal class BrowserTreeImpl
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>? {
+    override suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem> {
         // Take pagination into account when specified.
         val pageNumber = options?.page
             ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_NUMBER)

@@ -95,18 +95,21 @@ private constructor(
      * If the page size is greater than the number of children, all children are returned.
      * You may pass [Int.MAX_VALUE] to get all children.
      *
-     * @return The children of the specified parent node, or `null` if no such parent exists.
+     * @return The children of the specified parent node.
      * The returned list contains at most [pageSize] items.
+     * @throws NoSuchElementException If no such parent exist.
      */
-    suspend fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): List<MediaItem>? {
+    suspend fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): List<MediaItem> {
         val fromIndex = pageSize * pageNumber
         val (typeId, categoryId, trackId) = parentId
 
         return when {
             parentId.encoded == rootId -> rootChildren()
             categoryId == null -> typeChildren(typeId, fromIndex, pageSize)
-            trackId != null -> null
-            else -> types[typeId]?.categoryChildren(categoryId, fromIndex, pageSize)
+            trackId != null -> throw NoSuchElementException("$parentId is not browsable")
+            else -> types[typeId]
+                ?.categoryChildren(categoryId, fromIndex, pageSize)
+                ?: throw NoSuchElementException("No such media type: $typeId")
         }
     }
 
@@ -116,7 +119,9 @@ private constructor(
         typeId: String,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? = types[typeId]?.categories(fromIndex, count)
+    ): List<MediaItem> = types[typeId]
+        ?.categories(fromIndex, count)
+        ?: throw NoSuchElementException("No such media type: $typeId")
 
     /**
      * Retrieve the information of an rootItem in the media tree given its media id.
@@ -236,7 +241,7 @@ private constructor(
         suspend fun categories(
             fromIndex: Int = 0,
             count: Int = Int.MAX_VALUE
-        ): List<MediaItem>? = childrenProvider.getChildren(mediaId, fromIndex, count)
+        ): List<MediaItem> = childrenProvider.getChildren(mediaId, fromIndex, count)
 
         /**
          * Load children of a category with the specified [categoryId].

@@ -169,7 +169,11 @@ class MusicService : BaseBrowserService() {
                     result.sendResult(children)
 
                 } catch (pde: PermissionDeniedException) {
-                    Timber.i("Loading children of %s failed due to missing permission: %s", parentId, pde.permission)
+                    Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+                    result.sendResult(null)
+
+                } catch (invalidParent: NoSuchElementException) {
+                    Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
                     result.sendResult(null)
                 }
 

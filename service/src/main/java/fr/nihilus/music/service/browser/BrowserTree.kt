@@ -34,17 +34,17 @@ internal interface BrowserTree {
      * See [MediaId] for more information.
      *
      * If the specified parent is browsable, this returns a list of items that may have children themselves ;
-     * otherwise, if the parent is not browsable, `null` is returned to indicate the absence of children.
-     * Likewise, if the specified media id does not match an existing media in the tree, this also returns `null`.
+     * otherwise if the parent is not browsable or does not exist,
+     * a [NoSuchElementException] is thrown to indicate the absence of children.
      *
      * @param parentId The media id of an item whose children should be loaded.
      * @param options Optional parameters specifying how results should be paginated,
      * or `null` to return all results at once (no pagination).
      *
-     * @return The list of children of the media with the id [parentId],
-     * or `null` if that media is not browsable or doesn't exist.
+     * @return The list of children of the media with the id [parentId].
+     * @throws NoSuchElementException If the requested parent is not browsable or does not exist.
      */
-    suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>?
+    suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.

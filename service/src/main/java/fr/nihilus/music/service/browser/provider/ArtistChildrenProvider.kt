@@ -41,7 +41,7 @@ internal class ArtistChildrenProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         check(parentId.type == TYPE_ARTISTS)
 
         val artistId = parentId.category?.toLongOrNull()
@@ -65,7 +65,7 @@ internal class ArtistChildrenProvider(
         artistId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? = coroutineScope {
+    ): List<MediaItem> = coroutineScope {
         val builder = MediaDescriptionCompat.Builder()
 
         val asyncAllAlbums = async { mediaDao.albums.first() }
@@ -85,6 +85,7 @@ internal class ArtistChildrenProvider(
             .take(count)
             .toList()
             .takeUnless { it.isEmpty() }
+            ?: throw NoSuchElementException("No artist with id = $artistId")
     }
 
     private fun Artist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(

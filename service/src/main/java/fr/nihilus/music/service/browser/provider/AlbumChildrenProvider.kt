@@ -39,7 +39,7 @@ internal class AlbumChildrenProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         check(parentId.type == TYPE_ALBUMS)
 
         val albumId = parentId.category?.toLongOrNull()
@@ -49,7 +49,7 @@ internal class AlbumChildrenProvider(
         }
     }
 
-    private suspend fun getAlbums(fromIndex: Int, count: Int): List<MediaItem>? {
+    private suspend fun getAlbums(fromIndex: Int, count: Int): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
         return mediaDao.albums.first().asSequence()
@@ -63,7 +63,7 @@ internal class AlbumChildrenProvider(
         albumId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         val builder = MediaDescriptionCompat.Builder()
 
         return mediaDao.tracks.first().asSequence()
@@ -74,6 +74,7 @@ internal class AlbumChildrenProvider(
             .map { it.toMediaItem(builder) }
             .toList()
             .takeUnless { it.isEmpty() }
+            ?: throw NoSuchElementException("No album with id = $albumId")
     }
 
     private fun Album.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {

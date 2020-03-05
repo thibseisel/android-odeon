@@ -34,13 +34,10 @@ internal class CategoryChildrenProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
-        val categoryId = parentId.category
-
-        return when {
-            categoryId != null -> categories[categoryId]?.children(fromIndex, count)
-            else -> getCategories(fromIndex, count)
-        }
+    ): List<MediaItem> = when (val categoryId = parentId.category) {
+        null -> getCategories(fromIndex, count)
+        else -> categories[categoryId]?.children(fromIndex, count)
+            ?: throw NoSuchElementException("No such parent: $parentId")
     }
 
     private fun getCategories(fromIndex: Int, count: Int): List<MediaItem> {

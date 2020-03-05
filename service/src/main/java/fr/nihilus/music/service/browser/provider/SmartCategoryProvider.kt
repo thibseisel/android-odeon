@@ -35,13 +35,13 @@ internal class SmartCategoryProvider(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>? {
+    ): List<MediaItem> {
         check(parentId.type == TYPE_SMART && parentId.category != null)
 
         return when (parentId.category) {
             "HAPPY" -> getHappyTracks(fromIndex, count)
             "PARTY" -> getDanceableTracks(fromIndex, count)
-            else -> null
+            else -> throw NoSuchElementException("No such parent: $parentId")
         }
     }
 
