@@ -49,6 +49,7 @@ import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -165,7 +166,7 @@ class MusicService : BaseBrowserService() {
             if (parentMediaId != null) {
                 try {
                     val paginationOptions = getPaginationOptions(options)
-                    val children = browserTree.getChildren(parentMediaId, paginationOptions)
+                    val children = browserTree.getChildren(parentMediaId, paginationOptions).first()
                     result.sendResult(children)
 
                 } catch (pde: PermissionDeniedException) {

@@ -47,6 +47,7 @@ import fr.nihilus.music.service.extensions.getResourceUri
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.util.*
 import javax.inject.Inject
@@ -224,7 +225,7 @@ internal class BrowserTreeImpl
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem> {
+    override fun getChildren(parentId: MediaId, options: PaginationOptions?): Flow<List<MediaItem>> {
         // Take pagination into account when specified.
         val pageNumber = options?.page
             ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_NUMBER)

@@ -21,9 +21,12 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.browser.provider.ChildrenProvider
 import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
+import fr.nihilus.music.service.browser.provider.ChildrenProvider
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Mark declarations that are used to define the structure of a media browser tree.
@@ -96,32 +99,30 @@ private constructor(
      * If the page size is greater than the number of children, all children are returned.
      * You may pass [Int.MAX_VALUE] to get all children.
      *
-     * @return The children of the specified parent node.
-     * The returned list contains at most [pageSize] items.
-     * @throws NoSuchElementException If no such parent exist.
+     * @return An asynchronous stream whose latest emitted value is the current list of children
+     * of the specified parent node (whose media id is [parentId]) in the media tree.
+     * A new list of children is emitted whenever it has changed.
+     * The returned flow will throw [NoSuchElementException] if the requested parent node
+     * is not browsable or not part of the media tree.
      */
-    suspend fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): List<MediaItem> {
+    fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): Flow<List<MediaItem>> {
         val fromIndex = pageSize * pageNumber
         val (typeId, categoryId, trackId) = parentId
 
         return when {
             parentId.encoded == rootId -> rootChildren()
-            categoryId == null -> typeChildren(typeId, fromIndex, pageSize)
+            categoryId == null -> requireType(typeId).categories(fromIndex, pageSize)
             trackId != null -> throw NoSuchElementException("$parentId is not browsable")
-            else -> types[typeId]
-                ?.categoryChildren(categoryId, fromIndex, pageSize)
-                ?: throw NoSuchElementException("No such media type: $typeId")
+            else -> requireType(typeId).categoryChildren(categoryId, fromIndex, pageSize)
         }
     }
 
-    private fun rootChildren(): List<MediaItem> = types.map { (_, type) -> type.item }
+    private fun rootChildren() = flow {
+        emit(types.map { (_, type) -> type.item })
+        suspendCancellableCoroutine<Nothing> {}
+    }
 
-    private suspend fun typeChildren(
-        typeId: String,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem> = types[typeId]
-        ?.categories(fromIndex, count)
+    private fun requireType(typeId: String) = types[typeId]
         ?: throw NoSuchElementException("No such media type: $typeId")
 
     /**
@@ -135,8 +136,8 @@ private constructor(
         return when {
             itemId.encoded == rootId -> rootItem
             categoryId == null -> types[typeId]?.item
-            trackId == null -> types[typeId]?.categories()?.find { it.mediaId == itemId.encoded }
-            else -> types[typeId]?.categoryChildren(categoryId)?.find { it.mediaId == itemId.encoded }
+            trackId == null -> types[typeId]?.categories()?.first()?.find { it.mediaId == itemId.encoded }
+            else -> types[typeId]?.categoryChildren(categoryId)?.first()?.find { it.mediaId == itemId.encoded }
         }
     }
 
@@ -239,10 +240,8 @@ private constructor(
          *
          * @return A list of all direct children of this type.
          */
-        suspend fun categories(
-            fromIndex: Int = 0,
-            count: Int = Int.MAX_VALUE
-        ): List<MediaItem> = childrenProvider.getChildren(mediaId, fromIndex, count).first()
+        fun categories(fromIndex: Int = 0, count: Int = Int.MAX_VALUE): Flow<List<MediaItem>> =
+            childrenProvider.getChildren(mediaId, fromIndex, count)
 
         /**
          * Load children of a category with the specified [categoryId].
@@ -254,13 +253,13 @@ private constructor(
          * @param count The maximum number of items in the returned page. No maximum by default.
          * @return The children of the specified category, or `null` if this type has not such category.
          */
-        suspend fun categoryChildren(
+        fun categoryChildren(
             categoryId: String,
             fromIndex: Int = 0,
             count: Int = Int.MAX_VALUE
-        ): List<MediaItem>? {
+        ): Flow<List<MediaItem>> {
             val parentId = MediaId(mediaId.type, categoryId)
-            return childrenProvider.getChildren(parentId, fromIndex, count).first()
+            return childrenProvider.getChildren(parentId, fromIndex, count)
         }
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
