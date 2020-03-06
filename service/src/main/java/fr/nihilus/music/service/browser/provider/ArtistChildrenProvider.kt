@@ -28,20 +28,20 @@ import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.service.R
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 internal class ArtistChildrenProvider(
     private val context: Context,
     private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
+    override fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ARTISTS)
 
         val artistId = parentId.category?.toLongOrNull()
@@ -51,32 +51,32 @@ internal class ArtistChildrenProvider(
         }
     }
 
-    private suspend fun getArtists(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getArtists(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = mediaDao.artists.map { artists ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return mediaDao.artists.first().asSequence()
+        artists.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
             .toList()
     }
 
-    private suspend fun getArtistChildren(
+    private fun getArtistChildren(
         artistId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> = coroutineScope {
+    ): Flow<List<MediaItem>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        val asyncAllAlbums = async { mediaDao.albums.first() }
-        val asyncAllTracks = async { mediaDao.tracks.first() }
-
-        val artistAlbums = asyncAllAlbums.await().asSequence()
+        val artistAlbums = albums.asSequence()
             .filter { it.artistId == artistId }
             .sortedByDescending { it.releaseYear }
             .map { album -> album.toMediaItem(builder) }
 
-        val artistTracks = asyncAllTracks.await().asSequence()
+        val artistTracks = tracks.asSequence()
             .filter { it.artistId == artistId }
             .map { track -> track.toMediaItem(builder) }
 

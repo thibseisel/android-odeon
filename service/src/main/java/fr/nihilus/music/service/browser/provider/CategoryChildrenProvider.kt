@@ -20,6 +20,9 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.MediaTree
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Provides children from a pre-configured set of categories.
@@ -30,20 +33,31 @@ internal class CategoryChildrenProvider(
     private val categories: Map<String, MediaTree.Category>
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
+    override fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> = when (val categoryId = parentId.category) {
+    ): Flow<List<MediaItem>> = when (val categoryId = parentId.category) {
         null -> getCategories(fromIndex, count)
-        else -> categories[categoryId]?.children(fromIndex, count)
-            ?: throw NoSuchElementException("No such parent: $parentId")
+        else -> getCategoryChildren(categoryId, fromIndex, count)
     }
 
-    private fun getCategories(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getCategoryChildren(
+        categoryId: String?,
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = flow {
+        val categoryChildren = categories[categoryId]?.children(fromIndex, count)
+            ?: throw NoSuchElementException("No such category: $categoryId")
+
+        emit(categoryChildren)
+        suspendCancellableCoroutine<Nothing> {}
+    }
+
+    private fun getCategories(fromIndex: Int, count: Int): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        return categories.asSequence()
+        val categoryItems = categories.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { (_, category) ->
@@ -55,5 +69,8 @@ internal class CategoryChildrenProvider(
                     .build()
                 MediaItem(categoryDescription, MediaItem.FLAG_BROWSABLE)
             }.toList()
+
+        emit(categoryItems)
+        suspendCancellableCoroutine<Nothing> {}
     }
 }

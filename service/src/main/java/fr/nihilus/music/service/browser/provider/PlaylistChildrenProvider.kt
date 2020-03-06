@@ -26,20 +26,19 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 internal class PlaylistChildrenProvider(
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
+    override fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_PLAYLISTS)
 
         val playlistId = parentId.category?.toLongOrNull()
@@ -49,28 +48,28 @@ internal class PlaylistChildrenProvider(
         }
     }
 
-    private suspend fun getPlaylists(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getPlaylists(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = playlistDao.playlists.map { playlists ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return playlistDao.playlists.first().asSequence()
+        playlists.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
             .toList()
     }
 
-    private suspend fun getPlaylistMembers(
+    private fun getPlaylistMembers(
         playlistId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> = coroutineScope {
+    ): Flow<List<MediaItem>> = mediaDao.tracks.map { allTracks ->
         val builder = MediaDescriptionCompat.Builder()
+        val tracksById = allTracks.associateByLong(Track::id)
 
-        val asyncAllTracks = async { mediaDao.tracks.first() }
-        val asyncMembers = async { playlistDao.getPlaylistTracks(playlistId) }
-        val tracksById = asyncAllTracks.await().associateByLong(Track::id)
-
-        asyncMembers.await().asSequence()
+        playlistDao.getPlaylistTracks(playlistId).asSequence()
             .drop(fromIndex)
             .take(count)
             .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }

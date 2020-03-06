@@ -24,7 +24,8 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 internal class AlbumChildrenProvider(
     private val mediaDao: MediaDao
@@ -35,11 +36,11 @@ internal class AlbumChildrenProvider(
         if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
     }
 
-    override suspend fun findChildren(
+    override fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ALBUMS)
 
         val albumId = parentId.category?.toLongOrNull()
@@ -49,24 +50,27 @@ internal class AlbumChildrenProvider(
         }
     }
 
-    private suspend fun getAlbums(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getAlbums(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = mediaDao.albums.map { albums ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return mediaDao.albums.first().asSequence()
+        albums.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(builder) }
             .toList()
     }
 
-    private suspend fun getAlbumTracks(
+    private fun getAlbumTracks(
         albumId: Long,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return mediaDao.tracks.first().asSequence()
+        tracks.asSequence()
             .filter { it.albumId == albumId }
             .sortedWith(albumTrackOrdering)
             .drop(fromIndex)

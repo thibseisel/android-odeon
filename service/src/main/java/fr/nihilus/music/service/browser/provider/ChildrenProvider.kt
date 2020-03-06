@@ -22,6 +22,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaItems
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * Provides children of media categories.
@@ -29,7 +31,7 @@ import fr.nihilus.music.core.media.MediaItems
 internal abstract class ChildrenProvider {
 
     /**
-     * Returns children of a given media.
+     * Returns children of a given media as an asynchronous stream of events.
      *
      * @param parentId The media id of the parent in the media tree.
      * This parent should be browsable.
@@ -38,17 +40,19 @@ internal abstract class ChildrenProvider {
      * @param count The number of items in the returned page.
      * Should be strictly positive. A count of [Int.MAX_VALUE] returns all items.
      *
-     * @return The up-to-date list of children of the given media,
-     * or `null` if that media is not browsable.
+     * @return An asynchronous stream whose latest emitted value is the current list of children
+     * of the given parent. A new list of children is emitted whenever it changes.
+     * The returned flow throws [NoSuchElementException] if the requested parent
+     * is not browsable or is not part of the media tree.
      */
-    suspend fun getChildren(
+    fun getChildren(
         parentId: MediaId,
         fromIndex: Int = 0,
         count: Int = Int.MAX_VALUE
-    ): List<MediaItem> {
-        return when {
-            parentId.track != null -> throw NoSuchElementException("$parentId is not browsable")
-            else -> findChildren(parentId, fromIndex, count)
+    ): Flow<List<MediaItem>> = when (parentId.track) {
+        null -> findChildren(parentId, fromIndex, count)
+        else -> flow<Nothing> {
+            throw NoSuchElementException("$parentId is not browsable")
         }
     }
 
@@ -61,14 +65,16 @@ internal abstract class ChildrenProvider {
      * @param count The number of items in the returned page.
      * Passing [Int.MAX_VALUE] should return all items starting at [fromIndex].
      *
-     * @return up-to-date list of children of the given media restricted by the provided
-     * pagination parameters, or `null` if that media does not exist.
+     * @return asynchronous stream whose last emitted value is the current list of children
+     * of the given media restricted by the provided pagination parameters.
+     * The returned flow should throw [NoSuchElementException] if the requested parent
+     * is not browsable or is not part of the media tree.
      */
-    protected abstract suspend fun findChildren(
+    protected abstract fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem>
+    ): Flow<List<MediaItem>>
 
     /**
      * Helper function to create a browsable [MediaItem].

@@ -23,6 +23,7 @@ import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.provider.ChildrenProvider
 import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
+import kotlinx.coroutines.flow.first
 
 /**
  * Mark declarations that are used to define the structure of a media browser tree.
@@ -241,7 +242,7 @@ private constructor(
         suspend fun categories(
             fromIndex: Int = 0,
             count: Int = Int.MAX_VALUE
-        ): List<MediaItem> = childrenProvider.getChildren(mediaId, fromIndex, count)
+        ): List<MediaItem> = childrenProvider.getChildren(mediaId, fromIndex, count).first()
 
         /**
          * Load children of a category with the specified [categoryId].
@@ -259,7 +260,7 @@ private constructor(
             count: Int = Int.MAX_VALUE
         ): List<MediaItem>? {
             val parentId = MediaId(mediaId.type, categoryId)
-            return childrenProvider.getChildren(parentId, fromIndex, count)
+            return childrenProvider.getChildren(parentId, fromIndex, count).first()
         }
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
@@ -371,7 +372,7 @@ private constructor(
         suspend fun children(
             fromIndex: Int,
             count: Int
-        ): List<MediaItem>? = provider.getChildren(mediaId, fromIndex, count)
+        ): List<MediaItem>? = provider.getChildren(mediaId, fromIndex, count).first()
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
         override fun equals(other: Any?): Boolean = this === other || (other is Category && mediaId == other.mediaId)

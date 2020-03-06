@@ -26,7 +26,11 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.TimeUnit
 
 internal class TrackChildrenProvider(
@@ -34,11 +38,11 @@ internal class TrackChildrenProvider(
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
+    override fun findChildren(
         parentId: MediaId,
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
@@ -51,33 +55,42 @@ internal class TrackChildrenProvider(
         }
     }
 
-    private suspend fun getAllTracks(
+    private fun getAllTracks(
         fromIndex: Int,
         count: Int
-    ): List<MediaItem> {
+    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return mediaDao.tracks.first().asSequence()
+        tracks.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
             .toList()
     }
 
-    private suspend fun getMostRatedTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getMostRatedTracks(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        return usageManager.getMostRatedTracks().asSequence()
+        val mostRatedTracks = usageManager.getMostRatedTracks().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
             .toList()
+
+        emit(mostRatedTracks)
+        suspendCancellableCoroutine<Nothing> {}
     }
 
-    private suspend fun getRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getRecentlyAddedTracks(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return mediaDao.tracks.first().asSequence()
+        mediaDao.tracks.first().asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
             .drop(fromIndex)
@@ -86,21 +99,27 @@ internal class TrackChildrenProvider(
             .toList()
     }
 
-    private suspend fun getMonthPopularTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getMonthPopularTracks(
+        fromIndex: Int,
+        count: Int
+    ): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        return usageManager.getPopularTracksSince(30, TimeUnit.DAYS)
+        val monthPopularTracks = usageManager.getPopularTracksSince(30, TimeUnit.DAYS)
             .asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
             .toList()
+
+        emit(monthPopularTracks)
+        suspendCancellableCoroutine<Nothing> {}
     }
 
-    private suspend fun getDisposableTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getDisposableTracks(fromIndex: Int, count: Int): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        return usageManager.getDisposableTracks().asSequence()
+        val disposableTracks = usageManager.getDisposableTracks().asSequence()
             .drop(fromIndex)
             .take(count)
             .map { track ->
@@ -114,8 +133,10 @@ internal class TrackChildrenProvider(
                         }
                     }).build()
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
-            }
-            .toList()
+            }.toList()
+
+        emit(disposableTracks)
+        suspendCancellableCoroutine<Nothing> {}
     }
 
     private fun Track.toMediaItem(
