@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.TimeUnit
 
 internal class TrackChildrenProvider(
@@ -51,7 +50,7 @@ internal class TrackChildrenProvider(
             MediaId.CATEGORY_POPULAR -> getMonthPopularTracks(fromIndex, count)
             MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks(fromIndex, count)
             MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks(fromIndex, count)
-            else -> throw NoSuchElementException("No such parent: $parentId")
+            else -> flow { throw NoSuchElementException("No such parent: $parentId") }
         }
     }
 
@@ -71,17 +70,14 @@ internal class TrackChildrenProvider(
     private fun getMostRatedTracks(
         fromIndex: Int,
         count: Int
-    ): Flow<List<MediaItem>> = flow {
+    ): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
         val builder = MediaDescriptionCompat.Builder()
 
-        val mostRatedTracks = usageManager.getMostRatedTracks().asSequence()
+        mostRated.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
             .toList()
-
-        emit(mostRatedTracks)
-        suspendCancellableCoroutine<Nothing> {}
     }
 
     private fun getRecentlyAddedTracks(
@@ -99,27 +95,24 @@ internal class TrackChildrenProvider(
             .toList()
     }
 
-    private fun getMonthPopularTracks(
+    private fun getMonthPopularTracks(fromIndex: Int, count: Int): Flow<List<MediaItem>> =
+        usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
+            val builder = MediaDescriptionCompat.Builder()
+
+            popularTracks.asSequence()
+                .drop(fromIndex)
+                .take(count)
+                .map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
+                .toList()
+        }
+
+    private fun getDisposableTracks(
         fromIndex: Int,
         count: Int
-    ): Flow<List<MediaItem>> = flow {
+    ): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        val monthPopularTracks = usageManager.getPopularTracksSince(30, TimeUnit.DAYS)
-            .asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
-            .toList()
-
-        emit(monthPopularTracks)
-        suspendCancellableCoroutine<Nothing> {}
-    }
-
-    private fun getDisposableTracks(fromIndex: Int, count: Int): Flow<List<MediaItem>> = flow {
-        val builder = MediaDescriptionCompat.Builder()
-
-        val disposableTracks = usageManager.getDisposableTracks().asSequence()
+        disposableTracks.asSequence()
             .drop(fromIndex)
             .take(count)
             .map { track ->
@@ -134,9 +127,6 @@ internal class TrackChildrenProvider(
                     }).build()
                 MediaItem(description, MediaItem.FLAG_PLAYABLE)
             }.toList()
-
-        emit(disposableTracks)
-        suspendCancellableCoroutine<Nothing> {}
     }
 
     private fun Track.toMediaItem(

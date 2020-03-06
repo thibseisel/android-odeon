@@ -58,11 +58,11 @@ internal class TestPlaylistDao(
     private val playlistMembers: List<PlaylistTrack> = SAMPLE_MEMBERS
 ) : PlaylistDao() {
 
-    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> {
-        return playlistMembers.filter { it.playlistId == playlistId }
+    override fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>> = flow {
+        emit(playlistMembers.filter { it.playlistId == playlistId })
+        suspendCancellableCoroutine<Nothing> {}
     }
 
-    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
     override suspend fun savePlaylist(playlist: Playlist): Long = stub()
     override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
     override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
@@ -73,9 +73,9 @@ internal class TestUsageManager(
     private val mostRatedTracks: List<Track> = SAMPLE_MOST_RATED_TRACKS,
     private val disposableTracks: List<DisposableTrack> = emptyList()
 ) : UsageManager {
-    override suspend fun getMostRatedTracks(): List<Track> = mostRatedTracks
-    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = mostRatedTracks
-    override suspend fun getDisposableTracks(): List<DisposableTrack> = disposableTracks
+    override fun getMostRatedTracks() = infiniteFlowOf(mostRatedTracks)
+    override fun getPopularTracksSince(period: Long, unit: TimeUnit) = infiniteFlowOf(mostRatedTracks)
+    override fun getDisposableTracks() = infiniteFlowOf(disposableTracks)
     override fun reportCompletion(trackId: Long) = stub()
 }
 
@@ -94,9 +94,9 @@ internal class TestSpotifyManager(
 }
 
 internal object StubUsageManager : UsageManager {
-    override suspend fun getMostRatedTracks(): List<Track> = stub()
-    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
-    override suspend fun getDisposableTracks(): List<DisposableTrack> = stub()
+    override fun getMostRatedTracks(): Flow<List<Track>> = stub()
+    override fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
+    override fun getDisposableTracks(): Flow<List<DisposableTrack>> = stub()
     override fun reportCompletion(trackId: Long) = stub()
 }
 
@@ -119,8 +119,7 @@ internal object StubMediaDao : MediaDao {
 
 internal object StubPlaylistDao : PlaylistDao() {
     override val playlists: Flow<List<Playlist>> get() = stub()
-    override suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack> = stub()
-    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray = stub()
+    override fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>> = stub()
     override suspend fun savePlaylist(playlist: Playlist): Long = stub()
     override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
     override suspend fun deletePlaylist(playlistId: Long): Unit = stub()

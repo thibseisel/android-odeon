@@ -33,18 +33,13 @@ abstract class PlaylistDao {
     abstract val playlists: Flow<List<Playlist>>
 
     /**
-     * Find all tracks that are part of a specified playlist.
+     * Observe tracks that are part of the specified playlist.
+     * A new list is emitted whenever tracks are added, moved or removed from that playlist.
+     *
      * @param playlistId The [unique identifier][Playlist.id] of the requested playlist.
      */
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
-    abstract suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
-
-    /**
-     * Find all playlists that contain tracks with the specified [ids][trackIds].
-     * @param trackIds The unique identifiers of tracks that might be part of playlists.
-     */
-    @Query("SELECT * FROM playlist_track WHERE music_id IN (:trackIds)")
-    abstract suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
+    abstract fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>>
 
     /**
      * Insert a new playlist record into the database.

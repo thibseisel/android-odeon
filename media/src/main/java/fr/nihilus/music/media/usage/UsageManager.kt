@@ -23,9 +23,8 @@ import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -40,7 +39,7 @@ interface UsageManager {
      * Retrieve the most rated tracks from the music library.
      * Tracks are sorted by descending score.
      */
-    suspend fun getMostRatedTracks(): List<Track>
+    fun getMostRatedTracks(): Flow<List<Track>>
 
     /**
      * Retrieve tracks that have been played the most in the last specified time period.
@@ -51,7 +50,7 @@ interface UsageManager {
      * you should call `getPopularTracksSince(14, TimeUnit.DAYS)`.
      * @param unit The unit of the [period].
      */
-    suspend fun getPopularTracksSince(period: Long, unit: TimeUnit): List<Track>
+    fun getPopularTracksSince(period: Long, unit: TimeUnit): Flow<List<Track>>
 
     /**
      * Load tracks that could be deleted by the user to free-up the device's storage.
@@ -65,7 +64,7 @@ interface UsageManager {
      *
      * @return A list of tracks that could be deleted.
      */
-    suspend fun getDisposableTracks(): List<DisposableTrack>
+    fun getDisposableTracks(): Flow<List<DisposableTrack>>
 
     /**
      * Report that the track with the given [trackId] has been played until the end.
@@ -98,43 +97,42 @@ internal class UsageManagerImpl
         }
     }
 
-    override suspend fun getMostRatedTracks(): List<Track> {
-        val tracksById = mediaDao.tracks.first().associateBy { it.id }
+    override fun getMostRatedTracks(): Flow<List<Track>> = mediaDao.tracks.map { tracks ->
+        val tracksById = tracks.associateBy { it.id }
         val trackScores = usageDao.getTracksUsage(0L)
 
-        return trackScores.asSequence()
+        trackScores.asSequence()
             .mapNotNull { tracksById[it.trackId] }
             .take(25)
             .toCollection(ArrayList(25))
     }
 
-    override suspend fun getPopularTracksSince(period: Long, unit: TimeUnit): List<Track> {
+    override fun getPopularTracksSince(period: Long, unit: TimeUnit): Flow<List<Track>> {
         require(period >= 0)
 
-        val tracksById = mediaDao.tracks.first().associateBy { it.id }
-        val tracksUsage = usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
+        return mediaDao.tracks.map { tracks ->
+            val tracksById = tracks.associateBy { it.id }
+            val tracksUsage = usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
 
-        return if (tracksUsage.isEmpty()) emptyList() else {
-            val bestScore = tracksUsage.first().score
+            if (tracksUsage.isEmpty()) emptyList() else {
+                val bestScore = tracksUsage.first().score
 
-            // We only consider the top 3 quartiles to ignore tracks that were only played punctually.
-            val threshold = bestScore / 4
+                // We only consider the top 3 quartiles to ignore tracks that were only played punctually.
+                val threshold = bestScore / 4
 
-            tracksUsage.asSequence()
-                .filter { it.score > threshold }
-                .mapNotNull { tracksById[it.trackId] }
-                .toList()
+                tracksUsage.asSequence()
+                    .filter { it.score > threshold }
+                    .mapNotNull { tracksById[it.trackId] }
+                    .toList()
+            }
         }
     }
 
-    override suspend fun getDisposableTracks(): List<DisposableTrack> = coroutineScope {
-        val allTracksAsync = async { mediaDao.tracks.first() }
+    override fun getDisposableTracks(): Flow<List<DisposableTrack>> = mediaDao.tracks.map { tracks ->
         val usageByTrack = usageDao.getTracksUsage(0L).associateBy { it.trackId }
 
         val currentEpochTime = clock.currentEpochTime
-        val allTracks = allTracksAsync.await()
-
-        allTracks.mapTo(ArrayList(allTracks.size)) { track ->
+        tracks.mapTo(ArrayList(tracks.size)) { track ->
                 val usage = usageByTrack[track.id]
                 val playCount = usage?.score ?: 0
                 val lastPlayedTime = usage?.lastEventTime ?: 0L

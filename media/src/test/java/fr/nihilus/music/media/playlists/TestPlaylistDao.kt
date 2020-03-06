@@ -24,15 +24,18 @@ import fr.nihilus.music.media.provider.TestDao
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 internal class TestPlaylistDao(
     initialPlaylists: List<Playlist>? = null,
     initialPlaylistTracks: List<PlaylistTrack> = emptyList()
 ) : PlaylistDao(), TestDao<Playlist> {
 
-    private val _playlists = if (initialPlaylists != null) {
-        ConflatedBroadcastChannel(initialPlaylists)
-    } else ConflatedBroadcastChannel()
+    private val _playlists = when {
+        initialPlaylists != null -> ConflatedBroadcastChannel(initialPlaylists)
+        else -> ConflatedBroadcastChannel()
+    }
 
     private val _playlistTracks = initialPlaylistTracks.toMutableList()
 
@@ -42,6 +45,11 @@ internal class TestPlaylistDao(
 
     override val playlists: Flow<List<Playlist>>
         get() = _playlists.asFlow()
+
+    override fun getPlaylistTracks(playlistId: Long) = flow {
+        emit(playlistTracks)
+        suspendCancellableCoroutine<Nothing> {}
+    }
 
     override suspend fun savePlaylist(playlist: Playlist): Long {
         val currentPlaylists = _playlists.valueOrNull.orEmpty()
@@ -76,18 +84,6 @@ internal class TestPlaylistDao(
             // Apply on-delete cascade
             _playlistTracks.removeAll { it.playlistId == playlistId }
         }
-    }
-
-    override suspend fun getPlaylistTracks(playlistId: Long) =
-        _playlistTracks.filter { it.playlistId == playlistId }
-
-    override suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray {
-        val playlistIds = _playlistTracks.asSequence()
-            .filter { it.trackId in trackIds }
-            .map { it.playlistId }
-            .distinct()
-            .toList()
-        return LongArray(playlistIds.size) { playlistIds[it] }
     }
 
     override suspend fun deletePlaylistTracks(trackIds: LongArray) {

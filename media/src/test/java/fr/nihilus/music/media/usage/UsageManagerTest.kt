@@ -33,6 +33,7 @@ import io.kotlintest.shouldBe
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -90,7 +91,7 @@ class UsageManagerTest {
         )
 
         val manager = UsageManager(mediaDao, usageDao)
-        val mostRatedTracks = manager.getMostRatedTracks()
+        val mostRatedTracks = manager.getMostRatedTracks().first()
 
         mostRatedTracks should containExactly(NIGHTMARE, CYDONIA, DIRTY_WATER, GIVE_IT_UP)
     }
@@ -106,7 +107,7 @@ class UsageManagerTest {
         )
 
         val manager = UsageManager(mediaDao, usageDao)
-        val mostRatedTracks = manager.getMostRatedTracks()
+        val mostRatedTracks = manager.getMostRatedTracks().first()
 
         mostRatedTracks.shouldNotContain(DIRTY_WATER)
         mostRatedTracks.shouldNotContain(GIVE_IT_UP)
@@ -124,7 +125,7 @@ class UsageManagerTest {
         )
 
         val manager = UsageManager(mediaDao, usageDao)
-        val mostRatedTracks = manager.getMostRatedTracks()
+        val mostRatedTracks = manager.getMostRatedTracks().first()
 
         mostRatedTracks.forNone { it.id shouldBe 42L }
         mostRatedTracks.forNone { it.id shouldBe 100L }
@@ -147,9 +148,9 @@ class UsageManagerTest {
         )
 
         val manager = UsageManager(mediaDao, usageDao)
-        val tracks = manager.getDisposableTracks().map { it.title }
+        val tracks = manager.getDisposableTracks().first()
 
-        tracks.shouldStartWith(listOf(
+        tracks.map { it.title }.shouldStartWith(listOf(
             "Highway To Hell",
             "The Stage"
         ))
@@ -173,8 +174,8 @@ class UsageManagerTest {
 
         val manager = UsageManager(mediaDao, usageDao)
 
-        val tracks = manager.getDisposableTracks().map { it.title }
-        tracks.shouldContainExactly(
+        val tracks = manager.getDisposableTracks().first()
+        tracks.map { it.title }.shouldContainExactly(
             "Ready To Rock",
             "Another One Bites the Dust",
             "Wish You Were Here"
@@ -196,8 +197,8 @@ class UsageManagerTest {
         coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
         val manager = UsageManager(mediaDao, usageDao)
 
-        val tracks = manager.getDisposableTracks().map { it.title }
-        tracks.shouldContainExactly(
+        val tracks = manager.getDisposableTracks().first()
+        tracks.map { it.title }.shouldContainExactly(
             "The Stage",
             "Torn Apart",
             "Nothing Else Matters",
@@ -225,9 +226,9 @@ class UsageManagerTest {
         )
 
         val manager = UsageManager(mediaDao, usageDao)
-        val tracks = manager.getDisposableTracks().map { it.title }
+        val tracks = manager.getDisposableTracks().first()
 
-        tracks.shouldContainExactly(
+        tracks.map { it.title }.shouldContainExactly(
             "Under The Bridge",
             "Hysteria",
             "Come As You Are",
@@ -249,9 +250,9 @@ class UsageManagerTest {
         coEvery { usageDao.getTracksUsage(0L) } returns emptyList()
 
         val manager = UsageManager(mediaDao, usageDao)
-        val tracks = manager.getDisposableTracks().map { it.title }
+        val tracks = manager.getDisposableTracks().first()
 
-        tracks.shouldContainExactly(
+        tracks.map { it.title }.shouldContainExactly(
             "Master of Puppets",
             "Crazy Train",
             "American Idiot",

@@ -27,6 +27,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 internal class PlaylistChildrenProvider(
@@ -65,17 +66,20 @@ internal class PlaylistChildrenProvider(
         playlistId: Long,
         fromIndex: Int,
         count: Int
-    ): Flow<List<MediaItem>> = mediaDao.tracks.map { allTracks ->
-        val builder = MediaDescriptionCompat.Builder()
-        val tracksById = allTracks.associateByLong(Track::id)
+    ): Flow<List<MediaItem>> {
+        val playlistMembersFlow = playlistDao.getPlaylistTracks(playlistId)
+        return combine(mediaDao.tracks, playlistMembersFlow) { allTracks, members ->
+            val builder = MediaDescriptionCompat.Builder()
+            val tracksById = allTracks.associateByLong(Track::id)
 
-        playlistDao.getPlaylistTracks(playlistId).asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
-            .toList()
-            .takeUnless { it.isEmpty() }
-            ?: throw NoSuchElementException("No playlist with id = $playlistId")
+            members.asSequence()
+                .drop(fromIndex)
+                .take(count)
+                .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
+                .toList()
+                .takeUnless { it.isEmpty() }
+                ?: throw NoSuchElementException("No playlist with id = $playlistId")
+        }
     }
 
     private fun Playlist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(
