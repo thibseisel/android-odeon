@@ -1,0 +1,11 @@
+<i>Odeon</i> has all features you'd expect from a music player in a clean and simple interface:
+<ul>
+    <li>Browse your music by title, artists and albums.</li>
+    <li>Control playback via the interface, the lock screen or headset buttons.</li>
+    <li>Create and edit playlists.</li>
+    <li>Play tracks that have been added recently or the ones you like the most.</li>
+    <li>Delete tracks you like to free-up the device's storage.</li>
+    <li>Control your music safely while driving with Android Auto.</li>
+    <li>Tell the Google Assistant what to play.</li>
+    <li>Enable Night Mode to reduce eye-strain and save your battery life.</li>
+</ul>

@@ -1,0 +1,4 @@
+What's new:
+* Better user experience with tabs instead of Navigation Drawer menu.
+* It's now easier to find media with the new search bar. You could also ask the Google Assistant with voice commands such as "Play Daft Punk on Odeon".
+* Free some device space by listing and deleting songs that you may have not listened for some time.
