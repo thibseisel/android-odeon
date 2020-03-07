@@ -40,7 +40,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test
@@ -51,7 +50,6 @@ private const val TEST_CLIENT_SECRET = "client_secret"
 
 private val VALID_TOKEN = OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
 
-@ExperimentalCoroutinesApi
 class SpotifyServiceTest {
 
     private val moshi = Moshi.Builder().build()

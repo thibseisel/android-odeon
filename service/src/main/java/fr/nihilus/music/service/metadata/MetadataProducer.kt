@@ -48,7 +48,7 @@ private const val DURATION_UNKNOWN = -1L
  * @param downloader The downloader used to load icons associated with each metadata.
  * @param metadata Channel to which metadata should be sent when ready.
  */
-@ObsoleteCoroutinesApi
+@OptIn(ObsoleteCoroutinesApi::class)
 internal fun CoroutineScope.metadataProducer(
     downloader: IconDownloader,
     metadata: SendChannel<MediaMetadataCompat>

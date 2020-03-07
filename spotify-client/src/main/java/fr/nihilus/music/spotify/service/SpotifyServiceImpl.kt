@@ -33,6 +33,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
+import io.ktor.util.KtorExperimentalAPI
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -40,6 +41,7 @@ import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Named
 
+@OptIn(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl
 @TestOnly constructor(
     engine: HttpClientEngine,

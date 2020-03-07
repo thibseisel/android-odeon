@@ -29,7 +29,6 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.intellij.lang.annotations.Language
 import org.junit.runner.RunWith
@@ -51,7 +50,6 @@ private val AUTH_TOKEN = """{
 /**
  * Checks the behavior of the Spotify Accounts API client.
  */
-@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
 class SpotifyAccountsServiceTest {

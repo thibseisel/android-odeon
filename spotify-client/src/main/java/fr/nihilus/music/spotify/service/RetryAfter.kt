@@ -34,7 +34,7 @@ import timber.log.Timber
  * [the HTTP 429 status code][HttpStatusCode.TooManyRequests]. Requests are retried after
  * a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
  */
-@KtorExperimentalAPI
+@OptIn(KtorExperimentalAPI::class)
 internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
     override val key: AttributeKey<RetryAfter> = AttributeKey("RetryAfter")
 

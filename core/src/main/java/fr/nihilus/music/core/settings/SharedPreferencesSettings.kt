@@ -21,7 +21,6 @@ import android.content.SharedPreferences
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.playback.RepeatMode
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -104,7 +103,6 @@ internal class SharedPreferencesSettings
     val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)
         .map { it.getBoolean(PREF_KEY_SKIP_SILENCE, false) }
 
-    @ExperimentalCoroutinesApi
     private fun preferenceFlow(watchedKey: String) = callbackFlow<SharedPreferences> {
         val valueListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (watchedKey == key) {

@@ -15,6 +15,7 @@
  */
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+import com.android.build.gradle.BaseExtension
 
 buildscript {
     ext {
@@ -102,6 +103,31 @@ allprojects {
 
 subprojects {
     afterEvaluate {
+        // Common configuration for all modules.
+        def android = extensions.findByName('android') as BaseExtension
+        if (android != null) {
+
+            android.compileOptions {
+                sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+            }
+
+            android.kotlinOptions {
+                jvmTarget = JavaVersion.VERSION_1_8
+                freeCompilerArgs += [
+                        '-Xopt-in=kotlin.RequiresOptIn',
+                        '-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi',
+                        '-Xopt-in=kotlinx.coroutines.FlowPreview'
+                ]
+            }
+
+            android.testOptions {
+                // Include Android resources in unit tests to be resolved by Robolectric.
+                unitTests.includeAndroidResources = true
+            }
+        }
+
+        // Configure Dagger code generation for all modules.
         extensions.findByName('kapt')?.arguments {
             arg('dagger.formatGeneratedSource', 'disabled')
             arg('dagger.fastInit', 'enabled')

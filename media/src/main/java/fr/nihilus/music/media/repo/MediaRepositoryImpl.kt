@@ -39,6 +39,7 @@ import kotlinx.coroutines.selects.select
 import javax.inject.Inject
 import kotlinx.coroutines.channels.onReceiveOrNull as onReceiveOrNullExt
 
+@OptIn(ObsoleteCoroutinesApi::class)
 @Reusable
 internal class MediaRepositoryImpl
 @Inject constructor(

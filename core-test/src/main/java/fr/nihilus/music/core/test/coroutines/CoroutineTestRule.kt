@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -41,7 +40,6 @@ import org.junit.runners.model.Statement
  * }
  * ```
  */
-@ExperimentalCoroutinesApi
 class CoroutineTestRule : TestRule {
 
     /**

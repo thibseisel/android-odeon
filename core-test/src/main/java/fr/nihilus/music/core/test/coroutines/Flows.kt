@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -25,7 +24,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * A flow that does not emit any item and never terminates.
  * This could be used to simulate a an infinite flow sequence.
  */
-@UseExperimental(FlowPreview::class)
 object NeverFlow : AbstractFlow<Nothing>() {
     override suspend fun collectSafely(collector: FlowCollector<Nothing>) {
         suspendCancellableCoroutine<Nothing> {}
