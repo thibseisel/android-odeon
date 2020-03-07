@@ -34,6 +34,9 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
+    abstract fun bindsSubscriptionManager(impl: SubscriptionManagerImpl): SubscriptionManager
+
+    @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player
 
     @Binds

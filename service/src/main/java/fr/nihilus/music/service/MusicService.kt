@@ -49,7 +49,8 @@ import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -66,6 +67,7 @@ class MusicService : BaseBrowserService() {
 
     @Inject internal lateinit var dispatchers: AppDispatchers
     @Inject internal lateinit var browserTree: BrowserTree
+    @Inject internal lateinit var subscriptions: SubscriptionManager
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: UsageManager
 
@@ -105,6 +107,10 @@ class MusicService : BaseBrowserService() {
 
         // Because ExoPlayer will manage the MediaSession, add the service as a callback for state changes.
         mediaController.registerCallback(controllerCallback)
+
+        subscriptions.updatedParentIds
+            .onEach { updatedParentId -> notifyChildrenChanged(updatedParentId.toString()) }
+            .launchIn(this)
 
         // Listen to track completion events
         val completionListener = TrackCompletionListener()
@@ -166,7 +172,7 @@ class MusicService : BaseBrowserService() {
             if (parentMediaId != null) {
                 try {
                     val paginationOptions = getPaginationOptions(options)
-                    val children = browserTree.getChildren(parentMediaId, paginationOptions).first()
+                    val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
                     result.sendResult(children)
 
                 } catch (pde: PermissionDeniedException) {
