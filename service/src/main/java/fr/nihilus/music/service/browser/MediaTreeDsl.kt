@@ -368,10 +368,8 @@ private constructor(
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
             }
 
-        suspend fun children(
-            fromIndex: Int,
-            count: Int
-        ): List<MediaItem>? = provider.getChildren(mediaId, fromIndex, count).first()
+        fun children(fromIndex: Int, count: Int): Flow<List<MediaItem>> =
+            provider.getChildren(mediaId, fromIndex, count)
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
         override fun equals(other: Any?): Boolean = this === other || (other is Category && mediaId == other.mediaId)

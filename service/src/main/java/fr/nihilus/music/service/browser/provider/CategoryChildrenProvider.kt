@@ -46,13 +46,8 @@ internal class CategoryChildrenProvider(
         categoryId: String?,
         fromIndex: Int,
         count: Int
-    ): Flow<List<MediaItem>> = flow {
-        val categoryChildren = categories[categoryId]?.children(fromIndex, count)
-            ?: throw NoSuchElementException("No such category: $categoryId")
-
-        emit(categoryChildren)
-        suspendCancellableCoroutine<Nothing> {}
-    }
+    ): Flow<List<MediaItem>> = categories[categoryId]?.children(fromIndex, count)
+        ?: flow { throw NoSuchElementException("No such category: $categoryId") }
 
     private fun getCategories(fromIndex: Int, count: Int): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
