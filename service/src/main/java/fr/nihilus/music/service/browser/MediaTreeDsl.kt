@@ -86,34 +86,22 @@ private constructor(
 
     /**
      * Retrieve children of a browsable node with the specified [media id][parentId].
-     * Results returned by this function are paginated:
-     * given a parent with 100 children, a [pageSize] of 20, when requesting the 3rd page
-     * this will return children from index `40` to `59` (inclusive).
      *
      * @param parentId The media id of the parent node.
-     * @param pageNumber The index of the page to be returned.
-     * This should be greater than or equal to `0`.
-     * If the page number goes beyond the actual number of children, then no children are returned.
-     * @param pageSize The number of children per page.
-     * This should be greater than or equal to `1`.
-     * If the page size is greater than the number of children, all children are returned.
-     * You may pass [Int.MAX_VALUE] to get all children.
-     *
      * @return An asynchronous stream whose latest emitted value is the current list of children
      * of the specified parent node (whose media id is [parentId]) in the media tree.
      * A new list of children is emitted whenever it has changed.
      * The returned flow will throw [NoSuchElementException] if the requested parent node
      * is not browsable or not part of the media tree.
      */
-    fun getChildren(parentId: MediaId, pageNumber: Int, pageSize: Int): Flow<List<MediaItem>> {
-        val fromIndex = pageSize * pageNumber
+    fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
         val (typeId, categoryId, trackId) = parentId
 
         return when {
             parentId.encoded == rootId -> rootChildren()
-            categoryId == null -> requireType(typeId).categories(fromIndex, pageSize)
+            categoryId == null -> requireType(typeId).categories()
             trackId != null -> throw NoSuchElementException("$parentId is not browsable")
-            else -> requireType(typeId).categoryChildren(categoryId, fromIndex, pageSize)
+            else -> requireType(typeId).categoryChildren(categoryId)
         }
     }
 
@@ -240,26 +228,19 @@ private constructor(
          *
          * @return A list of all direct children of this type.
          */
-        fun categories(fromIndex: Int = 0, count: Int = Int.MAX_VALUE): Flow<List<MediaItem>> =
-            childrenProvider.getChildren(mediaId, fromIndex, count)
+        fun categories(): Flow<List<MediaItem>> = childrenProvider.getChildren(mediaId)
 
         /**
          * Load children of a category with the specified [categoryId].
-         * This function supports pagination: among all available media items in that category,
-         * only those between [fromIndex] and [count] (exclusive).
          *
          * @param categoryId The identifier of the parent category.
-         * @param fromIndex The index of the first element included in the page results, `0` by default.
-         * @param count The maximum number of items in the returned page. No maximum by default.
-         * @return The children of the specified category, or `null` if this type has not such category.
+         * @return The children of the specified category as an asynchronous stream.
          */
         fun categoryChildren(
-            categoryId: String,
-            fromIndex: Int = 0,
-            count: Int = Int.MAX_VALUE
+            categoryId: String
         ): Flow<List<MediaItem>> {
             val parentId = MediaId(mediaId.type, categoryId)
-            return childrenProvider.getChildren(parentId, fromIndex, count)
+            return childrenProvider.getChildren(parentId)
         }
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
@@ -368,8 +349,7 @@ private constructor(
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
             }
 
-        fun children(fromIndex: Int, count: Int): Flow<List<MediaItem>> =
-            provider.getChildren(mediaId, fromIndex, count)
+        fun children(): Flow<List<MediaItem>> = provider.getChildren(mediaId)
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
         override fun equals(other: Any?): Boolean = this === other || (other is Category && mediaId == other.mediaId)

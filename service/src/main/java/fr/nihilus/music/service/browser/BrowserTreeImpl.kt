@@ -225,17 +225,8 @@ internal class BrowserTreeImpl
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override fun getChildren(parentId: MediaId, options: PaginationOptions?): Flow<List<MediaItem>> {
-        // Take pagination into account when specified.
-        val pageNumber = options?.page
-            ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_NUMBER)
-            ?: PaginationOptions.DEFAULT_PAGE_NUMBER
-
-        val pageSize = options?.size
-            ?.coerceAtLeast(PaginationOptions.MINIMUM_PAGE_SIZE)
-            ?: PaginationOptions.DEFAULT_PAGE_SIZE
-
-        return tree.getChildren(parentId, pageNumber, pageSize)
+    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
+        return tree.getChildren(parentId)
     }
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)

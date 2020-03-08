@@ -37,37 +37,23 @@ internal class ArtistChildrenProvider(
     private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
-    override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ARTISTS)
 
         val artistId = parentId.category?.toLongOrNull()
         return when {
-            artistId != null -> getArtistChildren(artistId, fromIndex, count)
-            else -> getArtists(fromIndex, count)
+            artistId != null -> getArtistChildren(artistId)
+            else -> getArtists()
         }
     }
 
-    private fun getArtists(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = mediaDao.artists.map { artists ->
+    private fun getArtists(): Flow<List<MediaItem>> = mediaDao.artists.map { artists ->
         val builder = MediaDescriptionCompat.Builder()
-
-        artists.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(builder) }
-            .toList()
+        artists.map { it.toMediaItem(builder) }
     }
 
     private fun getArtistChildren(
-        artistId: Long,
-        fromIndex: Int,
-        count: Int
+        artistId: Long
     ): Flow<List<MediaItem>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
@@ -81,8 +67,6 @@ internal class ArtistChildrenProvider(
             .map { track -> track.toMediaItem(builder) }
 
         (artistAlbums + artistTracks)
-            .drop(fromIndex)
-            .take(count)
             .toList()
             .takeUnless { it.isEmpty() }
             ?: throw NoSuchElementException("No artist with id = $artistId")

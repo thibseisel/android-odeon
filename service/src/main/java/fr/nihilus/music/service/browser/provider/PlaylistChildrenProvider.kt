@@ -36,47 +36,31 @@ internal class PlaylistChildrenProvider(
 ) : ChildrenProvider() {
 
     override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
+        parentId: MediaId
     ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_PLAYLISTS)
 
         val playlistId = parentId.category?.toLongOrNull()
         return when {
-            playlistId != null -> getPlaylistMembers(playlistId, fromIndex, count)
-            else -> getPlaylists(fromIndex, count)
+            playlistId != null -> getPlaylistMembers(playlistId)
+            else -> getPlaylists()
         }
     }
 
-    private fun getPlaylists(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = playlistDao.playlists.map { playlists ->
+    private fun getPlaylists(): Flow<List<MediaItem>> = playlistDao.playlists.map { playlists ->
         val builder = MediaDescriptionCompat.Builder()
-
-        playlists.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(builder) }
-            .toList()
+        playlists.map { it.toMediaItem(builder) }
     }
 
     private fun getPlaylistMembers(
-        playlistId: Long,
-        fromIndex: Int,
-        count: Int
+        playlistId: Long
     ): Flow<List<MediaItem>> {
         val playlistMembersFlow = playlistDao.getPlaylistTracks(playlistId)
         return combine(mediaDao.tracks, playlistMembersFlow) { allTracks, members ->
             val builder = MediaDescriptionCompat.Builder()
             val tracksById = allTracks.associateByLong(Track::id)
 
-            members.asSequence()
-                .drop(fromIndex)
-                .take(count)
-                .mapNotNullTo(mutableListOf()) { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
-                .toList()
+            members.mapNotNull { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
                 .takeUnless { it.isEmpty() }
                 ?: throw NoSuchElementException("No playlist with id = $playlistId")
         }

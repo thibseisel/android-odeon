@@ -35,51 +35,39 @@ internal class SmartCategoryProvider(
 ) : ChildrenProvider() {
 
     override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
+        parentId: MediaId
     ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_SMART && parentId.category != null)
 
         return when (parentId.category) {
-            "HAPPY" -> getHappyTracks(fromIndex, count)
-            "PARTY" -> getDanceableTracks(fromIndex, count)
+            "HAPPY" -> getHappyTracks()
+            "PARTY" -> getDanceableTracks()
             else -> throw NoSuchElementException("No such parent: $parentId")
         }
     }
 
-    private fun getHappyTracks(
-        startIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = flow {
+    private fun getHappyTracks(): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
         val happyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::valence, 0.65f, 1.0f)
         )
 
-        val happyTracks = spotifyManager.findTracksHavingFeatures(happyFilters).asSequence()
-            .drop(startIndex)
-            .take(count)
-            .mapTo(mutableListOf<MediaItem>()) { (track, _) -> track.toMediaItem(builder) }
+        val happyTracks = spotifyManager.findTracksHavingFeatures(happyFilters)
+            .map { (track, _) -> track.toMediaItem(builder) }
 
         emit(happyTracks)
         suspendCancellableCoroutine<Nothing> {}
     }
 
-    private fun getDanceableTracks(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = flow {
+    private fun getDanceableTracks(): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
         val partyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::danceability, 0.7f, 1.0f),
             FeatureFilter.OnRange(TrackFeature::energy, 0.5f, 1.0f)
         )
 
-        val partyTracks = spotifyManager.findTracksHavingFeatures(partyFilters).asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf<MediaItem>()) { (track, _) -> track.toMediaItem(builder) }
+        val partyTracks = spotifyManager.findTracksHavingFeatures(partyFilters)
+            .map { (track, _) -> track.toMediaItem(builder) }
 
         emit(partyTracks)
         suspendCancellableCoroutine<Nothing> {}

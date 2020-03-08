@@ -46,6 +46,11 @@ internal interface SubscriptionManager {
     /**
      * Load the current children node of the given parent node in the media tree.
      *
+     * Results returned by this function are paginated:
+     * given a parent with 100 children and a [PaginationOptions.size] of 20,
+     * when requesting the 3rd page ([PaginationOptions.page] = `3`)
+     * this will return children from index `40` to `59` (inclusive).
+     *
      * @param parentId The browsable parent of the children to load.
      * @param options Optional pagination parameters to restrict the number of returned children.
      * @return Current children of the requested parent.
@@ -95,14 +100,22 @@ internal class SubscriptionManagerImpl @Inject constructor(
     ): List<MediaItem> {
         var subscription = mutex.withLock { cachedSubscriptions[parentId] }
         if (subscription == null) {
-            subscription = tree.getChildren(parentId, options).cacheLatestIn(scope)
+            subscription = tree.getChildren(parentId).cacheLatestIn(scope)
             mutex.withLock { cachedSubscriptions[parentId] = subscription }
 
             val childrenUpdateFlow = subscription.asFlow().map { parentId }
             activeSubscriptions.send(childrenUpdateFlow)
         }
 
-        return subscription.consume { receive() }
+        val children = subscription.consume { receive() }
+        return if (options == null) children else {
+            val fromIndex = options.page * options.size
+            val toIndexExclusive = (fromIndex + options.size)
+
+            return if (fromIndex < children.size && toIndexExclusive <= children.size) {
+                children.subList(fromIndex, toIndexExclusive)
+            } else emptyList()
+        }
     }
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)

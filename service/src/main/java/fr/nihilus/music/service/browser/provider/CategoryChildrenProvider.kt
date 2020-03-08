@@ -34,36 +34,28 @@ internal class CategoryChildrenProvider(
 ) : ChildrenProvider() {
 
     override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
+        parentId: MediaId
     ): Flow<List<MediaItem>> = when (val categoryId = parentId.category) {
-        null -> getCategories(fromIndex, count)
-        else -> getCategoryChildren(categoryId, fromIndex, count)
+        null -> getCategories()
+        else -> getCategoryChildren(categoryId)
     }
 
-    private fun getCategoryChildren(
-        categoryId: String?,
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = categories[categoryId]?.children(fromIndex, count)
-        ?: flow { throw NoSuchElementException("No such category: $categoryId") }
+    private fun getCategoryChildren(categoryId: String?): Flow<List<MediaItem>> =
+        categories[categoryId]?.children()
+            ?: flow { throw NoSuchElementException("No such category: $categoryId") }
 
-    private fun getCategories(fromIndex: Int, count: Int): Flow<List<MediaItem>> = flow {
+    private fun getCategories(): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        val categoryItems = categories.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { (_, category) ->
-                val categoryDescription = builder
-                    .setMediaId(category.mediaId.toString())
-                    .setTitle(category.title)
-                    .setSubtitle(category.subtitle)
-                    .setIconUri(category.iconUri)
-                    .build()
-                MediaItem(categoryDescription, MediaItem.FLAG_BROWSABLE)
-            }.toList()
+        val categoryItems = categories.map { (_, category) ->
+            browsable(
+                builder,
+                category.mediaId.toString(),
+                title = category.title,
+                subtitle = category.subtitle,
+                iconUri = category.iconUri
+            )
+        }
 
         emit(categoryItems)
         suspendCancellableCoroutine<Nothing> {}

@@ -35,22 +35,13 @@ internal abstract class ChildrenProvider {
      *
      * @param parentId The media id of the parent in the media tree.
      * This parent should be browsable.
-     * @param fromIndex The index of the first item of the returned page.
-     * Should be positive or zero.
-     * @param count The number of items in the returned page.
-     * Should be strictly positive. A count of [Int.MAX_VALUE] returns all items.
-     *
      * @return An asynchronous stream whose latest emitted value is the current list of children
      * of the given parent. A new list of children is emitted whenever it changes.
      * The returned flow throws [NoSuchElementException] if the requested parent
      * is not browsable or is not part of the media tree.
      */
-    fun getChildren(
-        parentId: MediaId,
-        fromIndex: Int = 0,
-        count: Int = Int.MAX_VALUE
-    ): Flow<List<MediaItem>> = when (parentId.track) {
-        null -> findChildren(parentId, fromIndex, count)
+    fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = when (parentId.track) {
+        null -> findChildren(parentId)
         else -> flow<Nothing> {
             throw NoSuchElementException("$parentId is not browsable")
         }
@@ -58,23 +49,14 @@ internal abstract class ChildrenProvider {
 
     /**
      * Override this function to provide children of a given browsable media.
-     * Each emitted list of children should be restricted by the provided pagination parameters.
      *
      * @param parentId The media id of the browsable parent in the media tree.
-     * @param fromIndex The index of the first item in the returned page.
-     * @param count The number of items in the returned page.
-     * Passing [Int.MAX_VALUE] should return all items starting at [fromIndex].
-     *
      * @return asynchronous stream whose last emitted value is the current list of children
      * of the given media restricted by the provided pagination parameters.
      * The returned flow should throw [NoSuchElementException] if the requested parent
      * is not browsable or is not part of the media tree.
      */
-    protected abstract fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>>
+    protected abstract fun findChildren(parentId: MediaId): Flow<List<MediaItem>>
 
     /**
      * Helper function to create a browsable [MediaItem].

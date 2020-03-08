@@ -34,8 +34,6 @@ internal interface BrowserTree {
      * See [MediaId] for more information.
      *
      * @param parentId The media id of an item whose children should be loaded.
-     * @param options Optional parameters specifying how results should be paginated,
-     * or `null` to return all results at once (no pagination).
      *
      * @return An asynchronous stream whose latest emitted value is the current list of children
      * of the specified parent node (whose media id is [parentId]) in the media tree.
@@ -43,7 +41,7 @@ internal interface BrowserTree {
      * The returned flow will throw [NoSuchElementException] if the requested parent node
      * is not browsable or not part of the media tree.
      */
-    fun getChildren(parentId: MediaId, options: PaginationOptions?): Flow<List<MediaItem>>
+    fun getChildren(parentId: MediaId): Flow<List<MediaItem>>
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
@@ -67,10 +65,12 @@ internal interface BrowserTree {
 /**
  * Define the parameters for paginating media items returned by [BrowserTree.getChildren].
  *
- * @param page The index of the page of results to return, `being` the first page.
+ * @param page The index of the page of results to return, `0` being the first page.
  * @param size The number of items returned per page.
  */
-class PaginationOptions(val page: Int, val size: Int) {
+class PaginationOptions(page: Int, size: Int) {
+    val page = page.coerceAtLeast(MINIMUM_PAGE_NUMBER)
+    val size = size.coerceAtLeast(MINIMUM_PAGE_SIZE)
 
     companion object {
 
@@ -90,12 +90,12 @@ class PaginationOptions(val page: Int, val size: Int) {
          * The minimum accepted value for [PaginationOptions.page].
          * This is the index of the first page.
          */
-        internal const val MINIMUM_PAGE_NUMBER = 0
+        private const val MINIMUM_PAGE_NUMBER = 0
 
         /**
          * The minimum accepted value for [PaginationOptions.size].
          * This is the minimum of items that can be displayed in a page.
          */
-        internal const val MINIMUM_PAGE_SIZE = 1
+        private const val MINIMUM_PAGE_SIZE = 1
     }
 }

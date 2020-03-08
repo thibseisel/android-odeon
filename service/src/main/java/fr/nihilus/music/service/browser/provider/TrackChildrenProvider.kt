@@ -36,96 +36,60 @@ internal class TrackChildrenProvider(
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
-    override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
-            MediaId.CATEGORY_ALL -> getAllTracks(fromIndex, count)
-            MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks(fromIndex, count)
-            MediaId.CATEGORY_POPULAR -> getMonthPopularTracks(fromIndex, count)
-            MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks(fromIndex, count)
-            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks(fromIndex, count)
+            MediaId.CATEGORY_ALL -> getAllTracks()
+            MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks()
+            MediaId.CATEGORY_POPULAR -> getMonthPopularTracks()
+            MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks()
+            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks()
             else -> flow { throw NoSuchElementException("No such parent: $parentId") }
         }
     }
 
-    private fun getAllTracks(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
+    private fun getAllTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
-
-        tracks.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
-            .toList()
+        tracks.map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
     }
 
-    private fun getMostRatedTracks(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
+    private fun getMostRatedTracks(): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
         val builder = MediaDescriptionCompat.Builder()
-
-        mostRated.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
-            .toList()
+        mostRated.map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
     }
 
-    private fun getRecentlyAddedTracks(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
+    private fun getRecentlyAddedTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
         tracks.asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
-            .drop(fromIndex)
-            .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_RECENTLY_ADDED, builder) }
             .toList()
     }
 
-    private fun getMonthPopularTracks(fromIndex: Int, count: Int): Flow<List<MediaItem>> =
+    private fun getMonthPopularTracks(): Flow<List<MediaItem>> =
         usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
             val builder = MediaDescriptionCompat.Builder()
-
-            popularTracks.asSequence()
-                .drop(fromIndex)
-                .take(count)
-                .map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
-                .toList()
+            popularTracks.map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
         }
 
-    private fun getDisposableTracks(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
+    private fun getDisposableTracks(): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        disposableTracks.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { track ->
-                val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
-                val description = builder.setMediaId(mediaId.encoded)
-                    .setTitle(track.title)
-                    .setExtras(Bundle().apply {
-                        putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                        track.lastPlayedTime?.let { lastPlayedTime ->
-                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
-                        }
-                    }).build()
-                MediaItem(description, MediaItem.FLAG_PLAYABLE)
-            }.toList()
+        disposableTracks.map { track ->
+            val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
+            val description = builder.setMediaId(mediaId.encoded)
+                .setTitle(track.title)
+                .setExtras(Bundle().apply {
+                    putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
+                    track.lastPlayedTime?.let { lastPlayedTime ->
+                        putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
+                    }
+                }).build()
+            MediaItem(description, MediaItem.FLAG_PLAYABLE)
+        }
     }
 
     private fun Track.toMediaItem(

@@ -37,44 +37,30 @@ internal class AlbumChildrenProvider(
     }
 
     override fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
+        parentId: MediaId
     ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ALBUMS)
 
         val albumId = parentId.category?.toLongOrNull()
         return when {
-            albumId != null -> getAlbumTracks(albumId, fromIndex, count)
-            else -> getAlbums(fromIndex, count)
+            albumId != null -> getAlbumTracks(albumId)
+            else -> getAlbums()
         }
     }
 
-    private fun getAlbums(
-        fromIndex: Int,
-        count: Int
-    ): Flow<List<MediaItem>> = mediaDao.albums.map { albums ->
+    private fun getAlbums(): Flow<List<MediaItem>> = mediaDao.albums.map { albums ->
         val builder = MediaDescriptionCompat.Builder()
-
-        albums.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(builder) }
-            .toList()
+        albums.map { it.toMediaItem(builder) }
     }
 
     private fun getAlbumTracks(
-        albumId: Long,
-        fromIndex: Int,
-        count: Int
+        albumId: Long
     ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
         tracks.asSequence()
             .filter { it.albumId == albumId }
             .sortedWith(albumTrackOrdering)
-            .drop(fromIndex)
-            .take(count)
             .map { it.toMediaItem(builder) }
             .toList()
             .takeUnless { it.isEmpty() }

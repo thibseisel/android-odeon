@@ -32,7 +32,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.test.fail
@@ -187,7 +186,7 @@ internal class BrowserTreeStructureTest {
                 val childId = child.mediaId.toMediaId()
 
                 shouldNotThrowAny {
-                    browserTree.getChildren(childId, null).first()
+                    browserTree.getChildren(childId).first()
                 }
             }
         }
@@ -202,7 +201,7 @@ internal class BrowserTreeStructureTest {
                 val childId = child.mediaId.toMediaId()
 
                 shouldThrow<NoSuchElementException> {
-                    browserTree.getChildren(childId, null).first()
+                    browserTree.getChildren(childId).first()
                 }
             }
         }
@@ -312,8 +311,7 @@ internal class BrowserTreeStructureTest {
         val browserTree = BrowserTreeImpl(context, media, TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         val mostRecentTracks = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED),
-            options = null
+            MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
         ).first()
 
         mostRecentTracks shouldHaveAtMostSize 25
@@ -345,8 +343,7 @@ internal class BrowserTreeStructureTest {
 
         val browserTree = BrowserTreeImpl(context, StubMediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
         val children = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE),
-            options = null
+            MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
         ).first()
 
         children.shouldHaveSize(2)
@@ -527,55 +524,12 @@ internal class BrowserTreeStructureTest {
         assertItemIsPartOfItsParentsChildren(MediaId(TYPE_PLAYLISTS, "2"), MediaId(TYPE_PLAYLISTS, "2", 477L))
     }
 
-    @Test
-    fun `Given pages of size N, when loading children then return the N first items`() = runBlockingTest {
-        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
-
-        val paginatedChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(0, 3)
-        ).first()
-
-        paginatedChildren.ids.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 161),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 309),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481)
-        )
-    }
-
-    @Test
-    fun `Given the page X of size N, when loading children then return N items from position NX`() = runBlockingTest {
-        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
-
-        val paginatedChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(3, 2)
-        ).first()
-
-        paginatedChildren.ids.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 219),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75)
-        )
-    }
-
-    @Test
-    fun `Given a page after the last page, when loading children then return no children`() = runBlockingTest {
-        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
-
-        val pagePastChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(2, 5)
-        ).first()
-
-        pagePastChildren.shouldBeEmpty()
-    }
-
     private suspend fun assertItemIsPartOfItsParentsChildren(parentId: MediaId, itemId: MediaId) {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         val item = browserTree.getItem(itemId)
             ?: failAssumption("Expected $itemId to be an existing item")
-        val parentChildren = browserTree.getChildren(parentId, null).first()
+        val parentChildren = browserTree.getChildren(parentId).first()
 
         parentChildren.forOne {
             it.mediaId shouldBe item.mediaId
@@ -595,7 +549,7 @@ internal class BrowserTreeStructureTest {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         shouldThrow<NoSuchElementException> {
-            browserTree.getChildren(parentId, null).first()
+            browserTree.getChildren(parentId).first()
         }
     }
 
@@ -633,7 +587,7 @@ internal class BrowserTreeStructureTest {
 
     private suspend fun loadChildrenOf(parentId: MediaId): List<MediaItem> {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), StubSpotifyManager)
-        return browserTree.getChildren(parentId, null).first()
+        return browserTree.getChildren(parentId).first()
     }
 
     private fun assertThatAllAreBrowsableAmong(children: List<MediaItem>) {
@@ -696,7 +650,7 @@ private suspend fun BrowserTree.walk(
     action: suspend (child: MediaItem, parentId: MediaId) -> Unit
 ) {
     try {
-        val children = getChildren(parentId, null).first()
+        val children = getChildren(parentId).first()
         for (child in children) {
             action(child, parentId)
             walk(child.mediaId.toMediaId(), action)

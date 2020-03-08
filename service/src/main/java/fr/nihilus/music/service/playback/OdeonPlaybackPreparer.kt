@@ -162,7 +162,7 @@ internal class OdeonPlaybackPreparer
     ) = Unit
 
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
-        val children = browserTree.getChildren(parentId, null).first()
+        val children = browserTree.getChildren(parentId).first()
         children.filter { it.isPlayable && !it.isBrowsable }
 
     } catch (pde: PermissionDeniedException) {
