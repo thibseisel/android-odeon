@@ -27,7 +27,6 @@ import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
@@ -86,7 +85,7 @@ internal class TrackChildrenProvider(
     ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        mediaDao.tracks.first().asSequence()
+        tracks.asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
             .drop(fromIndex)
