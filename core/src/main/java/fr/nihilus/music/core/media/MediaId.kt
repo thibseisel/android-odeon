@@ -98,6 +98,23 @@ private constructor(
 
 ) {
 
+    /**
+     * Creates a copy of this media id, optionally overriding its component parts.
+     *
+     * @param type The type of media, indicating the kind of media to be browsed.
+     * @param category The browse category.
+     * When specified, this defines a subset of media of the given type.
+     * @param track The track identifier. When specified, this indicates that the media is playable.
+     * This part uniquely identifies the playable content on a given storage.
+     * @return A copy of this media id.
+     * @throws InvalidMediaException If some of the overridden parts are invalid.
+     */
+    fun copy(
+        type: String = this.type,
+        category: String? = this.category,
+        track: Long? = this.track
+    ): MediaId = MediaId(type, category, track)
+
     override fun equals(other: Any?): Boolean = when {
         other === this -> true
         other !is MediaId -> false
@@ -307,22 +324,23 @@ private constructor(
         fun encode(type: String, category: String? = null, track: Long? = null): String {
             checkMediaType(type)
 
-            return if (category == null && track == null)
-                type
-            else if (category != null) buildString {
-                append(type)
+            return when {
+                category == null && track == null -> type
+                category != null -> buildString {
+                    append(type)
 
-                checkCategory(category)
-                append(CATEGORY_SEPARATOR)
-                append(category)
+                    checkCategory(category)
+                    append(CATEGORY_SEPARATOR)
+                    append(category)
 
-                if (track != null) {
-                    checkTrackIdentifier(track)
-                    append(TRACK_SEPARATOR)
-                    append(track)
+                    if (track != null) {
+                        checkTrackIdentifier(track)
+                        append(TRACK_SEPARATOR)
+                        append(track)
+                    }
                 }
-            } else {
-                throw InvalidMediaException("Media ids for tracks require a category.")
+
+                else -> throw InvalidMediaException("Media ids for tracks require a category.")
             }
         }
 
