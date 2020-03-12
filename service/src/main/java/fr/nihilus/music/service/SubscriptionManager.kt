@@ -20,15 +20,12 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
@@ -76,7 +73,7 @@ internal class SubscriptionManagerImpl @Inject constructor(
     private val tree: BrowserTree
 ) : SubscriptionManager {
 
-    private val scope = serviceScope + SupervisorJob()
+    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext[Job])
 
     private val mutex = Mutex()
     private val cachedSubscriptions = mutableMapOf<MediaId, BroadcastChannel<List<MediaItem>>>()
