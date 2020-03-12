@@ -115,7 +115,17 @@ internal class SubscriptionManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
+    override suspend fun getItem(itemId: MediaId): MediaItem? {
+        val parentId = itemId.copy(track = null)
+        val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
+
+        return if (parentSubscription != null) {
+            val children = parentSubscription.consume { receive() }
+            children.find { it.mediaId == itemId.encoded }
+        } else {
+            tree.getItem(itemId)
+        }
+    }
 
     private fun <T> Flow<T>.cacheLatestIn(scope: CoroutineScope): BroadcastChannel<T> {
         return scope.broadcast(capacity = Channel.CONFLATED, start = CoroutineStart.LAZY) {
