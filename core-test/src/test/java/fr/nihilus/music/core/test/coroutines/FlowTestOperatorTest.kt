@@ -313,6 +313,19 @@ internal class FlowTestOperatorTest {
     }
 
     @Test
+    fun `Given failed flow, when expecting no element then fail assertion`() = runBlockingTest {
+        val source = flow<Nothing> {
+            throw Exception("Unexpected flow failure")
+        }
+
+        source.test {
+            val failedAssertion = shouldThrow<AssertionError> { expectNone() }
+            failedAssertion.message shouldBe "Expected the source flow to have emitted no elements, but unexpectedly failed with Exception."
+            failedAssertion.cause?.message shouldBe "Unexpected flow failure"
+        }
+    }
+
+    @Test
     fun `Given empty flow, when expecting at least 1 element then fail assertion`() = runBlockingTest {
         val source = emptyFlow<Nothing>()
 

@@ -241,11 +241,22 @@ class TestCollector<T> internal constructor(
 
     /**
      * Assert that there is currently no elements to be collected from the source flow.
-     * This assertion will fail if one or more elements are immediately available.
+     * This assertion will fail if one or more elements are immediately available
+     * or if the source flow has thrown an exception.
      */
     fun expectNone() {
-        if (!channel.isEmpty) {
-            throw AssertionError("Expected the source flow to have emitted no elements.")
+        try {
+            val element = channel.poll()
+            if (element != null) {
+                throw AssertionError("Expected the source flow to have emitted no elements.")
+            }
+        } catch (flowFailure: Exception) {
+            throw AssertionError(buildString {
+                append("Expected the source flow to have emitted no elements, ")
+                append("but unexpectedly failed with ")
+                append(flowFailure::class.simpleName)
+                append('.')
+            }, flowFailure)
         }
     }
 
