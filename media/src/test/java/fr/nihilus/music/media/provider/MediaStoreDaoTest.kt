@@ -26,7 +26,7 @@ import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.coroutines.test
+import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission

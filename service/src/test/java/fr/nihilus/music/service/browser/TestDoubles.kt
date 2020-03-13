@@ -20,7 +20,7 @@ import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.spotify.TrackFeature
-import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
+import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist

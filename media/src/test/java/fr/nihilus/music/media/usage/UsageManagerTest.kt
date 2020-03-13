@@ -19,7 +19,7 @@ package fr.nihilus.music.media.usage
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
-import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
+import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track

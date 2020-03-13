@@ -25,8 +25,8 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
-import fr.nihilus.music.core.test.coroutines.test
+import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
+import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.stub

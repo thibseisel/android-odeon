@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.spotify.manager
 
-import fr.nihilus.music.core.test.coroutines.NeverFlow
+import fr.nihilus.music.core.test.coroutines.flow.NeverFlow
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
