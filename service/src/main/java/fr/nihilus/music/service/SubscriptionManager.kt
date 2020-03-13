@@ -35,7 +35,12 @@ import javax.inject.Inject
 internal interface SubscriptionManager {
 
     /**
-     * An asynchronous stream of events that notifies observers of changes to the structure of the media tree.
+     * An asynchronous stream of events that notifies observers of changes
+     * to the structure of the media tree. The value associated with each event is the [MediaId]
+     * of the parent whose children has changed.
+     *
+     * Changes to a parent's children are only notified if its children have already been loaded
+     * via [loadChildren]. At most [MAX_ACTIVE_SUBSCRIPTIONS] are observed at the same time.
      */
     val updatedParentIds: Flow<MediaId>
 
@@ -46,6 +51,14 @@ internal interface SubscriptionManager {
      * given a parent with 100 children and a [PaginationOptions.size] of 20,
      * when requesting the 3rd page ([PaginationOptions.page] = `3`)
      * this will return children from index `40` to `59` (inclusive).
+     *
+     * Loading children of a given parent makes it possible to be notified when children of
+     * that parent have changed in some way via [updatedParentIds].
+     * A most [MAX_ACTIVE_SUBSCRIPTIONS] parents can be observed at the same time.
+     * Once that limit has been reached, the oldest parent subscription is disposed,
+     * i.e. changes to its children will no longer be notified until loaded again.
+     * If children of a parent that is currently being observed are reloaded,
+     * then its subscription is kept active longer.
      *
      * @param parentId The browsable parent of the children to load.
      * @param options Optional pagination parameters to restrict the number of returned children.
@@ -64,7 +77,10 @@ internal interface SubscriptionManager {
     suspend fun getItem(itemId: MediaId): MediaItem?
 }
 
-private const val MAX_ACTIVE_SUBSCRIPTIONS = 5
+/**
+ * The maximum number of subscriptions that can be maintained by [SubscriptionManager].
+ */
+internal const val MAX_ACTIVE_SUBSCRIPTIONS = 5
 
 @ServiceScoped
 internal class SubscriptionManagerImpl @Inject constructor(

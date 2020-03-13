@@ -28,15 +28,13 @@ import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.service.browser.PaginationOptions
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotlintest.matchers.collections.shouldNotContain
+import io.kotlintest.matchers.collections.*
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldThrow
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.yield
 import org.junit.Rule
@@ -93,6 +91,56 @@ class SubscriptionManagerTest {
             val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
             manager.loadChildren(invalidMediaId, null)
         }
+    }
+
+    @Test
+    fun `Given max subscriptions, when loading children then dispose oldest subscriptions`() = test {
+        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+
+        // Trigger subscription of albums 0 to MAX included.
+        val childrenPerAlbumId = (0..MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
+            val parentId = MediaId(TYPE_ALBUMS, albumId.toString())
+            manager.loadChildren(parentId, null)
+        }
+
+        // Subscription to album 0 should have been disposed when subscribing to album MAX.
+        // Its children should not be loaded from cache.
+        val albumZeroChildren = manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
+        albumZeroChildren shouldNotBeSameInstanceAs childrenPerAlbumId[0]
+
+        // Previous re-subscription to album 0 should clear subscription to album 1,
+        // and therefore it should not load its children from cache.
+        val albumOneChildren = manager.loadChildren(MediaId(TYPE_ALBUMS, "1"), null)
+        albumOneChildren shouldNotBeSameInstanceAs childrenPerAlbumId[1]
+
+        // Subscription to album MAX should still be active,
+        // hence children are loaded from cache.
+        val lastAlbumId = MediaId(TYPE_ALBUMS, MAX_ACTIVE_SUBSCRIPTIONS.toString())
+        val albumMaxChildren = manager.loadChildren(lastAlbumId, null)
+        albumMaxChildren shouldBeSameInstanceAs childrenPerAlbumId[MAX_ACTIVE_SUBSCRIPTIONS]
+    }
+
+    @Test
+    fun `Given max subscriptions, when reloading children then keep its subscription longer`() = test {
+        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+
+        // Trigger subscriptions to reach the max allowed count.
+        val childrenPerAlbumId = (0 until MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
+            val parentId = MediaId(TYPE_ALBUMS, albumId.toString())
+            manager.loadChildren(parentId, null)
+        }
+
+        // Reload children of album 0, then create a new subscription.
+        manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
+        manager.loadChildren(MediaId(TYPE_ALBUMS, MAX_ACTIVE_SUBSCRIPTIONS.toString()), null)
+
+        // If album 0 had not been reloaded, its subscription should have been disposed.
+        // The oldest subscription now being that of album 1, it has been disposed instead.
+        val albumZeroChildren = manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
+        val albumOneChildren = manager.loadChildren(MediaId(TYPE_ALBUMS, "1"), null)
+
+        albumZeroChildren shouldBeSameInstanceAs childrenPerAlbumId[0]
+        albumOneChildren shouldNotBeSameInstanceAs childrenPerAlbumId[1]
     }
 
     @Test
@@ -188,6 +236,49 @@ class SubscriptionManagerTest {
 
             // No exceptions should be thrown.
             expectNone()
+        }
+    }
+
+    @Test
+    fun `Given max subscriptions, when observing parent changes then dont notify for disposed subscriptions`() = test {
+        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+
+        manager.updatedParentIds.test {
+            (0..MAX_ACTIVE_SUBSCRIPTIONS).forEach { albumId ->
+                val albumMediaId = MediaId(TYPE_ALBUMS, albumId.toString())
+                manager.loadChildren(albumMediaId, null)
+            }
+
+            delay(1000)
+            expectAtLeast(5)
+            val albumZeroId = MediaId(TYPE_ALBUMS, "0")
+            values shouldNotContain albumZeroId
+        }
+    }
+
+    @Test
+    fun `Given max subscriptions, when reloading parent then observe its changes longer`() = test {
+        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+
+        manager.updatedParentIds.test {
+
+            // Trigger subscriptions to reach the max allowed count.
+            repeat(MAX_ACTIVE_SUBSCRIPTIONS) { albumId ->
+                val parentId = MediaId(TYPE_ALBUMS, albumId.toString())
+                manager.loadChildren(parentId, null)
+            }
+
+            // Reload children of album 0, then create a new subscription.
+            manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
+            manager.loadChildren(MediaId(TYPE_ALBUMS, MAX_ACTIVE_SUBSCRIPTIONS.toString()), null)
+
+            // If album 0 had not been reloaded, its subscription should have been disposed.
+            // The oldest subscription now being that of album 1, it has been disposed instead,
+            // therefore we should no longer receive updates for it.
+            delay(1000)
+            expectAtLeast(5)
+            values shouldContain MediaId(TYPE_ALBUMS, "0")
+            values shouldNotContain MediaId(TYPE_ALBUMS, "1")
         }
     }
 
