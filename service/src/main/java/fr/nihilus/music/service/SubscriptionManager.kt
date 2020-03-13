@@ -23,7 +23,6 @@ import fr.nihilus.music.service.browser.PaginationOptions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
@@ -80,7 +79,7 @@ internal class SubscriptionManagerImpl @Inject constructor(
     private val activeSubscriptions = BroadcastChannel<Flow<MediaId>>(Channel.BUFFERED)
 
     override val updatedParentIds: Flow<MediaId> = activeSubscriptions.asFlow()
-        .map { it.drop(1) }
+        .map { it.toEventFlow() }
         .scan(emptyList()) { observed: List<Flow<MediaId>>, new: Flow<MediaId> ->
             when {
                 observed.size < MAX_ACTIVE_SUBSCRIPTIONS -> observed + new
@@ -127,9 +126,10 @@ internal class SubscriptionManagerImpl @Inject constructor(
         }
     }
 
-    private fun <T> Flow<T>.cacheLatestIn(scope: CoroutineScope): BroadcastChannel<T> {
-        return scope.broadcast(capacity = Channel.CONFLATED, start = CoroutineStart.LAZY) {
-            this@cacheLatestIn.collect { send(it) }
-        }
+    private fun <T> Flow<T>.cacheLatestIn(scope: CoroutineScope): BroadcastChannel<T> =
+        buffer(Channel.CONFLATED).broadcastIn(scope)
+
+    private fun Flow<MediaId>.toEventFlow(): Flow<MediaId> = drop(1).catch { failure ->
+        if (failure !is NoSuchElementException) throw failure
     }
 }
