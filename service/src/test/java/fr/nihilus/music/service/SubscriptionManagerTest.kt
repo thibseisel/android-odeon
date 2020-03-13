@@ -27,6 +27,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.infiniteFlowOf
 import fr.nihilus.music.core.test.coroutines.test
+import fr.nihilus.music.core.test.coroutines.withinScope
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.service.browser.BrowserTree
@@ -58,7 +59,7 @@ class SubscriptionManagerTest {
     val timeout = CoroutinesTimeout.seconds(5)
 
     @Test
-    fun `When loading children, then subscribe to their parent in the tree`() = withinScope {
+    fun `When loading children, then subscribe to their parent in the tree`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
         val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
@@ -77,7 +78,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given active subscription, when reloading then return cached children`() = withinScope {
+    fun `Given active subscription, when reloading then return cached children`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
         val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
 
@@ -90,7 +91,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `When loading children of invalid parent, then fail with NoSuchElementException`() = withinScope {
+    fun `When loading children of invalid parent, then fail with NoSuchElementException`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
         shouldThrow<NoSuchElementException> {
@@ -99,7 +100,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given pages of size N, when loading children then return the N first items`() = withinScope {
+    fun `Given pages of size N, when loading children then return the N first items`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
         val paginatedChildren = manager.loadChildren(
@@ -115,7 +116,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given the page X of size N, when loading children then return N items from position NX`() = withinScope {
+    fun `Given the page X of size N, when loading children then return N items from position NX`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
         val paginatedChildren = manager.loadChildren(
@@ -130,7 +131,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given a page after the last page, when loading children then return no children`() = withinScope {
+    fun `Given a page after the last page, when loading children then return no children`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
         val pagePastChildren = manager.loadChildren(
@@ -142,7 +143,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `When observing children and children changed, then notify for its parent`() = withinScope {
+    fun `When observing children and children changed, then notify for its parent`() = test {
         val manager = SubscriptionManagerImpl(this, EventBrowserTree)
 
         manager.updatedParentIds.test {
@@ -157,7 +158,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `When observing multiple children, then notify for each parent`() = withinScope {
+    fun `When observing multiple children, then notify for each parent`() = test {
         val manager = SubscriptionManagerImpl(this, EventBrowserTree)
 
         manager.updatedParentIds.test {
@@ -178,7 +179,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given invalid parent, when observing parent changes then dont throw`() = withinScope {
+    fun `Given invalid parent, when observing parent changes then dont throw`() = test {
         val manager = SubscriptionManagerImpl(this, EventBrowserTree)
 
         manager.updatedParentIds.test {
@@ -194,7 +195,7 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given active subscription, when getting a single item then use cached children`() = withinScope {
+    fun `Given active subscription, when getting a single item then use cached children`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
         // Trigger subscription to all tracks.
@@ -210,22 +211,9 @@ class SubscriptionManagerTest {
         item shouldBeSameInstanceAs child
     }
 
-    /**
-     * Runs a test within a child [CoroutineScope].
-     * That scope is cancelled after [testBody] is run.
-     *
-     * This is necessary to test cases where the test subject has a dependency
-     * on a [CoroutineScope]. Since the test subject may launch coroutines tied to that scope,
-     * we want those coroutines to be cancelled after executing the test.
-     *
-     * @param testBody The body of the test to be executed.
-     */
-    private inline fun withinScope(crossinline testBody: suspend TestCoroutineScope.() -> Unit) = test.run {
-        val scope = TestCoroutineScope(coroutineContext + Job(coroutineContext[Job]))
-        try {
-            scope.testBody()
-        } finally {
-            scope.cancel()
+    private fun test(testBody: suspend TestCoroutineScope.() -> Unit) = test.run {
+        withinScope {
+            testBody()
         }
     }
 
