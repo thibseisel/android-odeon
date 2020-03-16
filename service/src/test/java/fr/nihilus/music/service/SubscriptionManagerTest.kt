@@ -57,16 +57,16 @@ class SubscriptionManagerTest {
         val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
         children.map { it.mediaId }.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL,161),
-            encode(TYPE_TRACKS, CATEGORY_ALL,309),
-            encode(TYPE_TRACKS, CATEGORY_ALL,481),
-            encode(TYPE_TRACKS, CATEGORY_ALL,48),
-            encode(TYPE_TRACKS, CATEGORY_ALL,125),
-            encode(TYPE_TRACKS, CATEGORY_ALL,294),
-            encode(TYPE_TRACKS, CATEGORY_ALL,219),
-            encode(TYPE_TRACKS, CATEGORY_ALL,75),
-            encode(TYPE_TRACKS, CATEGORY_ALL,464),
-            encode(TYPE_TRACKS, CATEGORY_ALL,477)
+            encode(TYPE_TRACKS, CATEGORY_ALL, 161),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 309),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 481),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 48),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 125),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 294),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 219),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 75),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 464),
+            encode(TYPE_TRACKS, CATEGORY_ALL, 477)
         )
     }
 
