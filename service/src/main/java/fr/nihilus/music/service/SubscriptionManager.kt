@@ -17,21 +17,14 @@
 package fr.nihilus.music.service
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.collection.LruCache
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consume
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.plus
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * The maximum number of subscriptions that can be maintained by [SubscriptionManager].
+ */
+internal const val MAX_ACTIVE_SUBSCRIPTIONS = 5
 
 /**
  * Manage active media subscriptions, observing changes to the media tree.
@@ -79,82 +72,4 @@ internal interface SubscriptionManager {
      * @return The requested item, or `null` if that item is not part of the media tree.
      */
     suspend fun getItem(itemId: MediaId): MediaItem?
-}
-
-/**
- * The maximum number of subscriptions that can be maintained by [SubscriptionManager].
- */
-internal const val MAX_ACTIVE_SUBSCRIPTIONS = 5
-
-@ServiceScoped
-internal class SubscriptionManagerImpl @Inject constructor(
-    serviceScope: CoroutineScope,
-    private val tree: BrowserTree
-) : SubscriptionManager {
-
-    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext[Job])
-
-    private val mutex = Mutex()
-    private val cachedSubscriptions = LruSubscriptionCache(MAX_ACTIVE_SUBSCRIPTIONS)
-    private val activeSubscriptions = BroadcastChannel<MediaId>(Channel.BUFFERED)
-
-    override val updatedParentIds: Flow<MediaId> = activeSubscriptions.asFlow()
-
-    override suspend fun loadChildren(
-        parentId: MediaId,
-        options: PaginationOptions?
-    ): List<MediaItem> {
-        var subscription = mutex.withLock { cachedSubscriptions[parentId] }
-        if (subscription == null) {
-            subscription = tree.getChildren(parentId).cacheLatestIn(scope)
-            mutex.withLock { cachedSubscriptions.put(parentId, subscription) }
-
-            subscription.asFlow()
-                .drop(1)
-                .map { parentId }
-                .catch { if (it !is NoSuchElementException) throw it }
-                .onEach { activeSubscriptions.send(it) }
-                .launchIn(scope)
-        }
-
-        val children = subscription.consume { receive() }
-        return if (options == null) children else {
-            val fromIndex = options.page * options.size
-            val toIndexExclusive = (fromIndex + options.size)
-
-            return if (fromIndex < children.size && toIndexExclusive <= children.size) {
-                children.subList(fromIndex, toIndexExclusive)
-            } else emptyList()
-        }
-    }
-
-    override suspend fun getItem(itemId: MediaId): MediaItem? {
-        val parentId = itemId.copy(track = null)
-        val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
-
-        return if (parentSubscription != null) {
-            val children = parentSubscription.consume { receive() }
-            children.find { it.mediaId == itemId.encoded }
-        } else {
-            tree.getItem(itemId)
-        }
-    }
-
-    private fun <T> Flow<T>.cacheLatestIn(scope: CoroutineScope): BroadcastChannel<T> =
-        buffer(Channel.CONFLATED).broadcastIn(scope)
-
-    private class LruSubscriptionCache(maxSize: Int) :
-        LruCache<MediaId, BroadcastChannel<List<MediaItem>>>(maxSize) {
-
-        override fun entryRemoved(
-            evicted: Boolean,
-            key: MediaId,
-            oldValue: BroadcastChannel<List<MediaItem>>,
-            newValue: BroadcastChannel<List<MediaItem>>?
-        ) {
-            if (evicted) {
-                oldValue.cancel()
-            }
-        }
-    }
 }
