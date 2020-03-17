@@ -38,7 +38,7 @@ import javax.inject.Inject
  */
 @OptIn(FlowPreview::class)
 @ServiceScoped
-internal class SubscriptionManagerImpl @Inject constructor(
+internal class CachingSubscriptionManager @Inject constructor(
     serviceScope: CoroutineScope,
     private val tree: BrowserTree
 ) : SubscriptionManager {
@@ -47,9 +47,9 @@ internal class SubscriptionManagerImpl @Inject constructor(
 
     private val mutex = Mutex()
     private val cachedSubscriptions = LruSubscriptionCache()
-    private val activeSubscriptions = BroadcastChannel<MediaId>(Channel.BUFFERED)
+    private val _updatedParentIds = BroadcastChannel<MediaId>(Channel.BUFFERED)
 
-    override val updatedParentIds: Flow<MediaId> = activeSubscriptions.asFlow()
+    override val updatedParentIds: Flow<MediaId> = _updatedParentIds.asFlow()
 
     override suspend fun loadChildren(
         parentId: MediaId,
@@ -95,7 +95,7 @@ internal class SubscriptionManagerImpl @Inject constructor(
                 subscription.asFlow()
                     .drop(1)
                     .catch { if (it !is Exception) throw it }
-                    .onEach { activeSubscriptions.send(parentId) }
+                    .onEach { _updatedParentIds.send(parentId) }
                     .launchIn(scope)
             }
     }

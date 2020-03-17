@@ -57,7 +57,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `When loading children, then subscribe to their parent in the tree`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
         val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
         children.map { it.mediaId }.shouldContainExactly(
@@ -76,7 +76,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given active subscription, when reloading then return cached children`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
         val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
 
         // Trigger initial subscription
@@ -89,7 +89,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `When loading children of invalid parent, then fail with NoSuchElementException`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         shouldThrow<NoSuchElementException> {
             val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
@@ -99,7 +99,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given denied permission, when loading children then fail with PermissionDeniedException`() = test {
-        val manager = SubscriptionManagerImpl(this, PermissionBrowserTree(granted = false))
+        val manager = CachingSubscriptionManager(this, PermissionBrowserTree(granted = false))
 
         val permissionFailure = shouldThrow<PermissionDeniedException> {
             val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
@@ -112,7 +112,7 @@ class SubscriptionManagerTest {
     @Test
     fun `After permission grant, when loading children then proceed without error`() = test {
         val permissionTree = PermissionBrowserTree(granted = false)
-        val manager = SubscriptionManagerImpl(this, permissionTree)
+        val manager = CachingSubscriptionManager(this, permissionTree)
 
         val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
         shouldThrow<PermissionDeniedException> {
@@ -128,7 +128,7 @@ class SubscriptionManagerTest {
     @Test
     fun `After permission denial, when loading children then recover`() = test {
         val permissionTree = PermissionBrowserTree(granted = true)
-        val manager = SubscriptionManagerImpl(this, permissionTree)
+        val manager = CachingSubscriptionManager(this, permissionTree)
 
         // Start initial subscription.
         val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
@@ -152,7 +152,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given max subscriptions, when loading children then dispose oldest subscriptions`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         // Trigger subscription of albums 0 to MAX included.
         val childrenPerAlbumId = (0..MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
@@ -179,7 +179,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given max subscriptions, when reloading children then keep its subscription longer`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         // Trigger subscriptions to reach the max allowed count.
         val childrenPerAlbumId = (0 until MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
@@ -202,7 +202,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given pages of size N, when loading children then return the N first items`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         val paginatedChildren = manager.loadChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
@@ -218,7 +218,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given the page X of size N, when loading children then return N items from position NX`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         val paginatedChildren = manager.loadChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
@@ -233,7 +233,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given a page after the last page, when loading children then return no children`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         val pagePastChildren = manager.loadChildren(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
@@ -245,7 +245,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `When observing children and children changed, then notify for its parent`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         manager.updatedParentIds.test {
             val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
@@ -260,7 +260,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `When observing multiple children, then notify for each parent`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         manager.updatedParentIds.test {
             // Subscribe to the first parent.
@@ -282,7 +282,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `When observing parent changes, then all subscribers should be notified`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
         val albumId = MediaId(TYPE_ALBUMS, "42")
 
         manager.updatedParentIds.test {
@@ -301,7 +301,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given invalid parent, when observing parent changes then dont throw`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         manager.updatedParentIds.test {
             // Trigger initial subscription
@@ -317,7 +317,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given no permissions, when observing parent changes then dont throw`() = test {
-        val manager = SubscriptionManagerImpl(this, PermissionBrowserTree(granted = false))
+        val manager = CachingSubscriptionManager(this, PermissionBrowserTree(granted = false))
 
         manager.updatedParentIds.test {
             // Trigger initial subscription
@@ -333,7 +333,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given max subscriptions, when observing parent changes then dont notify for disposed subscriptions`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         manager.updatedParentIds.test {
             (0..MAX_ACTIVE_SUBSCRIPTIONS).forEach { albumId ->
@@ -350,7 +350,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given max subscriptions, when reloading parent then observe its changes longer`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         manager.updatedParentIds.test {
 
@@ -376,7 +376,7 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given active subscription, when getting a single item then use cached children`() = test {
-        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val manager = CachingSubscriptionManager(this, TestBrowserTree)
 
         // Trigger subscription to all tracks.
         val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
