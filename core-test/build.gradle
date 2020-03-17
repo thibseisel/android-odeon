@@ -33,6 +33,7 @@ dependencies {
     api project(':core')
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${versions.koroutines}"
     api "androidx.test:core:${versions.androidx.test}"
     api "androidx.test:runner:${versions.androidx.test}"
     api "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"

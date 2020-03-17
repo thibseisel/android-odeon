@@ -32,26 +32,20 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
-import fr.nihilus.music.core.test.coroutines.test
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
-import fr.nihilus.music.media.repo.ChangeNotification
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.service.assertOn
 import fr.nihilus.music.service.generateRandomTrackSequence
 import io.kotlintest.inspectors.forOne
 import io.kotlintest.matchers.collections.*
-import io.kotlintest.matchers.types.shouldBeNull
-import io.kotlintest.matchers.types.shouldNotBeNull
-import io.kotlintest.matchers.withClue
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.asFlow
+import io.kotlintest.shouldNotThrowAny
+import io.kotlintest.shouldThrow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -184,34 +178,30 @@ internal class BrowserTreeStructureTest {
     }
 
     @Test
-    fun `Given any browsable parent, when loading its children then never return null`() = runBlockingTest {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), TestSpotifyManager())
+    fun `Given any browsable parent, when loading its children then never throw`() = runBlockingTest {
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), TestSpotifyManager())
 
-        browserTree.walk(MediaId(TYPE_ROOT)) { child, parentId ->
+        browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
             if(child.isBrowsable) {
                 val childId = child.mediaId.toMediaId()
-                val children = browserTree.getChildren(childId, null)
 
-                withClue("Browsable item $childId (child of $parentId) should have children.") {
-                    children.shouldNotBeNull()
+                shouldNotThrowAny {
+                    browserTree.getChildren(childId).first()
                 }
             }
         }
     }
 
     @Test
-    fun `Given any non browsable item, when loading its children then return null`() = runBlockingTest {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, TestUsageManager(), TestSpotifyManager())
+    fun `Given any non browsable item, when loading its children then throw NoSuchElementException`() = runBlockingTest {
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), TestSpotifyManager())
 
-        browserTree.walk(MediaId(TYPE_ROOT)) { child, parentId ->
+        browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
             if (!child.isBrowsable) {
                 val childId = child.mediaId.toMediaId()
-                val children = browserTree.getChildren(childId, null)
 
-                withClue("Non-browsable item $childId (child of $parentId) should not have children.") {
-                    children.shouldBeNull()
+                shouldThrow<NoSuchElementException> {
+                    browserTree.getChildren(childId).first()
                 }
             }
         }
@@ -317,13 +307,12 @@ internal class BrowserTreeStructureTest {
     @Test
     fun `When loading children of Recently Added, then return no more than 25 tracks`() = runBlockingTest {
         val testTracks = generateRandomTrackSequence().take(50).toList()
-        val repository = TestMediaRepository(tracks = testTracks)
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
+        val media = TestMediaDao(tracks = testTracks)
+        val browserTree = BrowserTreeImpl(context, media, TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         val mostRecentTracks = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED),
-            options = null
-        ) ?: failAssumption("Expected $TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED to have children")
+            MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
+        ).first()
 
         mostRecentTracks shouldHaveAtMostSize 25
     }
@@ -352,10 +341,11 @@ internal class BrowserTreeStructureTest {
             DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
         ))
 
-        val browserTree = BrowserTreeImpl(context, StubMediaRepository(), usageManager, StubSpotifyManager)
-        val children = browserTree.getChildren(MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE), null)
+        val browserTree = BrowserTreeImpl(context, StubMediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
+        val children = browserTree.getChildren(
+            MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
+        ).first()
 
-        children.shouldNotBeNull()
         children.shouldHaveSize(2)
 
         children[0] should {
@@ -514,8 +504,7 @@ internal class BrowserTreeStructureTest {
     }
 
     private suspend fun assertLoadedItemHasSameMediaId(itemId: MediaId) {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         val requestedItem = browserTree.getItem(itemId)
             ?: failAssumption("Expected an item with id $itemId")
@@ -535,90 +524,12 @@ internal class BrowserTreeStructureTest {
         assertItemIsPartOfItsParentsChildren(MediaId(TYPE_PLAYLISTS, "2"), MediaId(TYPE_PLAYLISTS, "2", 477L))
     }
 
-    @Test
-    fun `Given pages of size N, when loading children then return the N first items`() = runBlockingTest {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
-
-        val paginatedChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(0, 3)
-        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
-
-        paginatedChildren.ids.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 161),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 309),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481)
-        )
-    }
-
-    @Test
-    fun `Given the page X of size N, when loading children then return N items from position NX`() = runBlockingTest {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
-
-        val paginatedChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(3, 2)
-        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
-
-        paginatedChildren.ids.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 219),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75)
-        )
-    }
-
-    @Test
-    fun `Given a page after the last page, when loading children then return no children`() = runBlockingTest {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
-
-        val pagePastChildren = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL),
-            PaginationOptions(2, 5)
-        ) ?: failAssumption("Assumed item with id $TYPE_TRACKS/$CATEGORY_ALL to have children.")
-
-        pagePastChildren.shouldBeEmpty()
-    }
-
-    @Test
-    fun `When receiving change notification, then map to the corresponding media id`() = runBlockingTest {
-        assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_ALL))
-        assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
-        assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
-        assertNotifyParentChanged(ChangeNotification.AllTracks, MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE))
-
-        assertNotifyParentChanged(ChangeNotification.AllAlbums, MediaId(TYPE_ALBUMS))
-        assertNotifyParentChanged(ChangeNotification.Album(40L), MediaId(TYPE_ALBUMS, "40"))
-
-        assertNotifyParentChanged(ChangeNotification.AllArtists, MediaId(TYPE_ARTISTS))
-        assertNotifyParentChanged(ChangeNotification.Artist(5L), MediaId(TYPE_ARTISTS, "5"))
-
-        assertNotifyParentChanged(ChangeNotification.AllPlaylists, MediaId(TYPE_PLAYLISTS))
-        assertNotifyParentChanged(ChangeNotification.Playlist(1L), MediaId(TYPE_PLAYLISTS, "1"))
-    }
-
-    private suspend fun assertNotifyParentChanged(notification: ChangeNotification, changedParentId: MediaId) {
-        val changeNotifier = BroadcastChannel<ChangeNotification>(Channel.BUFFERED)
-        val repository = TestMediaRepository(changeNotifications = changeNotifier.asFlow())
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
-
-        browserTree.updatedParentIds.test {
-            changeNotifier.offer(notification)
-
-            expectAtLeast(1)
-            values shouldContain changedParentId
-        }
-    }
-
     private suspend fun assertItemIsPartOfItsParentsChildren(parentId: MediaId, itemId: MediaId) {
-        val repository = TestMediaRepository()
-        val browserTree = BrowserTreeImpl(context, repository, StubUsageManager, StubSpotifyManager)
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
 
         val item = browserTree.getItem(itemId)
             ?: failAssumption("Expected $itemId to be an existing item")
-        val parentChildren = browserTree.getChildren(parentId, null)
-            ?: failAssumption("Expected $parentId to have children")
+        val parentChildren = browserTree.getChildren(parentId).first()
 
         parentChildren.forOne {
             it.mediaId shouldBe item.mediaId
@@ -635,9 +546,11 @@ internal class BrowserTreeStructureTest {
     }
 
     private suspend fun assertHasNoChildren(parentId: MediaId) {
-        val browserTree = BrowserTreeImpl(context, TestMediaRepository(), StubUsageManager, StubSpotifyManager)
-        val children = browserTree.getChildren(parentId, null)
-        children.shouldBeNull()
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
+
+        shouldThrow<NoSuchElementException> {
+            browserTree.getChildren(parentId).first()
+        }
     }
 
     private suspend fun assertPlaylistHasTracks(playlistId: Long, expectedTrackIds: List<String>) {
@@ -673,12 +586,8 @@ internal class BrowserTreeStructureTest {
     }
 
     private suspend fun loadChildrenOf(parentId: MediaId): List<MediaItem> {
-        val repository = TestMediaRepository()
-        val usageManager = TestUsageManager()
-        val browserTree = BrowserTreeImpl(context, repository, usageManager, StubSpotifyManager)
-
-        val children = browserTree.getChildren(parentId, null)
-        return children ?: fail("Expected $parentId to have children.")
+        val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), StubSpotifyManager)
+        return browserTree.getChildren(parentId).first()
     }
 
     private fun assertThatAllAreBrowsableAmong(children: List<MediaItem>) {
@@ -740,9 +649,14 @@ private suspend fun BrowserTree.walk(
     parentId: MediaId,
     action: suspend (child: MediaItem, parentId: MediaId) -> Unit
 ) {
-    getChildren(parentId, null)?.forEach { child ->
-        action(child, parentId)
-        walk(child.mediaId.toMediaId(), action)
+    try {
+        val children = getChildren(parentId).first()
+        for (child in children) {
+            action(child, parentId)
+            walk(child.mediaId.toMediaId(), action)
+        }
+    } catch (nonBrowsableParent: NoSuchElementException) {
+        // Stop walking down the media tree when an item is not browsable.
     }
 }
 

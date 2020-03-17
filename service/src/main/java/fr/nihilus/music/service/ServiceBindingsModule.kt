@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,9 @@ internal abstract class ServiceBindingsModule {
 
     @Binds
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
+
+    @Binds
+    abstract fun bindsSubscriptionManager(impl: CachingSubscriptionManager): SubscriptionManager
 
     @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player

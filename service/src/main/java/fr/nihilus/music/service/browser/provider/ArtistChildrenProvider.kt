@@ -25,65 +25,51 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.service.R
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 internal class ArtistChildrenProvider(
     private val context: Context,
-    private val repository: MediaRepository
+    private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ARTISTS)
 
         val artistId = parentId.category?.toLongOrNull()
         return when {
-            artistId != null -> getArtistChildren(artistId, fromIndex, count)
-            else -> getArtists(fromIndex, count)
+            artistId != null -> getArtistChildren(artistId)
+            else -> getArtists()
         }
     }
 
-    private suspend fun getArtists(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getArtists(): Flow<List<MediaItem>> = mediaDao.artists.map { artists ->
         val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getArtists().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(builder) }
-            .toList()
+        artists.map { it.toMediaItem(builder) }
     }
 
-    private suspend fun getArtistChildren(
-        artistId: Long,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? = coroutineScope {
+    private fun getArtistChildren(
+        artistId: Long
+    ): Flow<List<MediaItem>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        val asyncAllAlbums = async { repository.getAlbums() }
-        val asyncAllTracks = async { repository.getTracks() }
-
-        val artistAlbums = asyncAllAlbums.await().asSequence()
+        val artistAlbums = albums.asSequence()
             .filter { it.artistId == artistId }
             .sortedByDescending { it.releaseYear }
             .map { album -> album.toMediaItem(builder) }
 
-        val artistTracks = asyncAllTracks.await().asSequence()
+        val artistTracks = tracks.asSequence()
             .filter { it.artistId == artistId }
             .map { track -> track.toMediaItem(builder) }
 
         (artistAlbums + artistTracks)
-            .drop(fromIndex)
-            .take(count)
             .toList()
             .takeUnless { it.isEmpty() }
+            ?: throw NoSuchElementException("No artist with id = $artistId")
     }
 
     private fun Artist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(

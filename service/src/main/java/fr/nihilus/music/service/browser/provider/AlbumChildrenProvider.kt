@@ -22,11 +22,13 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 internal class AlbumChildrenProvider(
-    private val repository: MediaRepository
+    private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
     private val albumTrackOrdering = Comparator<Track> { a, b ->
@@ -34,45 +36,35 @@ internal class AlbumChildrenProvider(
         if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
     }
 
-    override suspend fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
+    override fun findChildren(
+        parentId: MediaId
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_ALBUMS)
 
         val albumId = parentId.category?.toLongOrNull()
         return when {
-            albumId != null -> getAlbumTracks(albumId, fromIndex, count)
-            else -> getAlbums(fromIndex, count)
+            albumId != null -> getAlbumTracks(albumId)
+            else -> getAlbums()
         }
     }
 
-    private suspend fun getAlbums(fromIndex: Int, count: Int): List<MediaItem>? {
+    private fun getAlbums(): Flow<List<MediaItem>> = mediaDao.albums.map { albums ->
         val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getAlbums().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(builder) }
-            .toList()
+        albums.map { it.toMediaItem(builder) }
     }
 
-    private suspend fun getAlbumTracks(
-        albumId: Long,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
+    private fun getAlbumTracks(
+        albumId: Long
+    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getTracks().asSequence()
+        tracks.asSequence()
             .filter { it.albumId == albumId }
             .sortedWith(albumTrackOrdering)
-            .drop(fromIndex)
-            .take(count)
             .map { it.toMediaItem(builder) }
             .toList()
             .takeUnless { it.isEmpty() }
+            ?: throw NoSuchElementException("No album with id = $albumId")
     }
 
     private fun Album.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {

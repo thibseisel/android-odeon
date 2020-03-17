@@ -20,6 +20,9 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.MediaTree
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Provides children from a pre-configured set of categories.
@@ -30,33 +33,31 @@ internal class CategoryChildrenProvider(
     private val categories: Map<String, MediaTree.Category>
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
-        val categoryId = parentId.category
-
-        return when {
-            categoryId != null -> categories[categoryId]?.children(fromIndex, count)
-            else -> getCategories(fromIndex, count)
-        }
+    override fun findChildren(
+        parentId: MediaId
+    ): Flow<List<MediaItem>> = when (val categoryId = parentId.category) {
+        null -> getCategories()
+        else -> getCategoryChildren(categoryId)
     }
 
-    private fun getCategories(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getCategoryChildren(categoryId: String?): Flow<List<MediaItem>> =
+        categories[categoryId]?.children()
+            ?: flow { throw NoSuchElementException("No such category: $categoryId") }
+
+    private fun getCategories(): Flow<List<MediaItem>> = flow {
         val builder = MediaDescriptionCompat.Builder()
 
-        return categories.asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { (_, category) ->
-                val categoryDescription = builder
-                    .setMediaId(category.mediaId.toString())
-                    .setTitle(category.title)
-                    .setSubtitle(category.subtitle)
-                    .setIconUri(category.iconUri)
-                    .build()
-                MediaItem(categoryDescription, MediaItem.FLAG_BROWSABLE)
-            }.toList()
+        val categoryItems = categories.map { (_, category) ->
+            browsable(
+                builder,
+                category.mediaId.toString(),
+                title = category.title,
+                subtitle = category.subtitle,
+                iconUri = category.iconUri
+            )
+        }
+
+        emit(categoryItems)
+        suspendCancellableCoroutine<Nothing> {}
     }
 }

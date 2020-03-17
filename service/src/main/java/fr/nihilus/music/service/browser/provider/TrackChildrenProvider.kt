@@ -23,98 +23,73 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.repo.MediaRepository
 import fr.nihilus.music.media.usage.UsageManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
 internal class TrackChildrenProvider(
-    private val repository: MediaRepository,
+    private val mediaDao: MediaDao,
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
-            MediaId.CATEGORY_ALL -> getAllTracks(fromIndex, count)
-            MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks(fromIndex, count)
-            MediaId.CATEGORY_POPULAR -> getMonthPopularTracks(fromIndex, count)
-            MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks(fromIndex, count)
-            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks(fromIndex, count)
-            else -> null
+            MediaId.CATEGORY_ALL -> getAllTracks()
+            MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks()
+            MediaId.CATEGORY_POPULAR -> getMonthPopularTracks()
+            MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks()
+            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks()
+            else -> flow { throw NoSuchElementException("No such parent: $parentId") }
         }
     }
 
-    private suspend fun getAllTracks(
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem> {
+    private fun getAllTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
-
-        return repository.getTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
-            .toList()
+        tracks.map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
     }
 
-    private suspend fun getMostRatedTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getMostRatedTracks(): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
         val builder = MediaDescriptionCompat.Builder()
-
-        return usageManager.getMostRatedTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
-            .toList()
+        mostRated.map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
     }
 
-    private suspend fun getRecentlyAddedTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getRecentlyAddedTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return repository.getTracks().asSequence()
+        tracks.asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
-            .drop(fromIndex)
-            .take(count)
             .map { it.toMediaItem(MediaId.CATEGORY_RECENTLY_ADDED, builder) }
             .toList()
     }
 
-    private suspend fun getMonthPopularTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getMonthPopularTracks(): Flow<List<MediaItem>> =
+        usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
+            val builder = MediaDescriptionCompat.Builder()
+            popularTracks.map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
+        }
+
+    private fun getDisposableTracks(): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
         val builder = MediaDescriptionCompat.Builder()
 
-        return usageManager.getPopularTracksSince(30, TimeUnit.DAYS)
-            .asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
-            .toList()
-    }
-
-    private suspend fun getDisposableTracks(fromIndex: Int, count: Int): List<MediaItem> {
-        val builder = MediaDescriptionCompat.Builder()
-
-        return usageManager.getDisposableTracks().asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .map { track ->
-                val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
-                val description = builder.setMediaId(mediaId.encoded)
-                    .setTitle(track.title)
-                    .setExtras(Bundle().apply {
-                        putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                        track.lastPlayedTime?.let { lastPlayedTime ->
-                            putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
-                        }
-                    }).build()
-                MediaItem(description, MediaItem.FLAG_PLAYABLE)
-            }
-            .toList()
+        disposableTracks.map { track ->
+            val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
+            val description = builder.setMediaId(mediaId.encoded)
+                .setTitle(track.title)
+                .setExtras(Bundle().apply {
+                    putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
+                    track.lastPlayedTime?.let { lastPlayedTime ->
+                        putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
+                    }
+                }).build()
+            MediaItem(description, MediaItem.FLAG_PLAYABLE)
+        }
     }
 
     private fun Track.toMediaItem(

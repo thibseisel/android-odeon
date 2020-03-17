@@ -26,50 +26,51 @@ import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 internal class SmartCategoryProvider(
     private val spotifyManager: SpotifyManager
 ) : ChildrenProvider() {
 
-    override suspend fun findChildren(
-        parentId: MediaId,
-        fromIndex: Int,
-        count: Int
-    ): List<MediaItem>? {
+    override fun findChildren(
+        parentId: MediaId
+    ): Flow<List<MediaItem>> {
         check(parentId.type == TYPE_SMART && parentId.category != null)
 
         return when (parentId.category) {
-            "HAPPY" -> getHappyTracks(fromIndex, count)
-            "PARTY" -> getDanceableTracks(fromIndex, count)
-            else -> null
+            "HAPPY" -> getHappyTracks()
+            "PARTY" -> getDanceableTracks()
+            else -> throw NoSuchElementException("No such parent: $parentId")
         }
     }
 
-    private suspend fun getHappyTracks(startIndex: Int, count: Int): List<MediaItem> {
+    private fun getHappyTracks(): Flow<List<MediaItem>> = flow {
+        val builder = MediaDescriptionCompat.Builder()
         val happyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::valence, 0.65f, 1.0f)
         )
 
-        val builder = MediaDescriptionCompat.Builder()
-        return spotifyManager.findTracksHavingFeatures(happyFilters).asSequence()
-            .drop(startIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { (track, _) -> track.toMediaItem(builder) }
-            .toList()
+        val happyTracks = spotifyManager.findTracksHavingFeatures(happyFilters)
+            .map { (track, _) -> track.toMediaItem(builder) }
+
+        emit(happyTracks)
+        suspendCancellableCoroutine<Nothing> {}
     }
 
-    private suspend fun getDanceableTracks(fromIndex: Int, count: Int): List<MediaItem> {
+    private fun getDanceableTracks(): Flow<List<MediaItem>> = flow {
+        val builder = MediaDescriptionCompat.Builder()
         val partyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::danceability, 0.7f, 1.0f),
             FeatureFilter.OnRange(TrackFeature::energy, 0.5f, 1.0f)
         )
 
-        val builder = MediaDescriptionCompat.Builder()
-        return spotifyManager.findTracksHavingFeatures(partyFilters).asSequence()
-            .drop(fromIndex)
-            .take(count)
-            .mapTo(mutableListOf()) { (track, _) -> track.toMediaItem(builder) }
-            .toList()
+        val partyTracks = spotifyManager.findTracksHavingFeatures(partyFilters)
+            .map { (track, _) -> track.toMediaItem(builder) }
+
+        emit(partyTracks)
+        suspendCancellableCoroutine<Nothing> {}
     }
 
     private fun Track.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {

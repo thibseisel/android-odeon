@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.test.coroutines
+package fr.nihilus.music.core.test.coroutines.flow
 
 import kotlinx.coroutines.flow.AbstractFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
+
+private suspend fun awaitCancellation() {
+    suspendCancellableCoroutine<Nothing> {}
+}
 
 /**
  * A flow that does not emit any item and never terminates.
@@ -26,6 +32,23 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 object NeverFlow : AbstractFlow<Nothing>() {
     override suspend fun collectSafely(collector: FlowCollector<Nothing>) {
-        suspendCancellableCoroutine<Nothing> {}
+        awaitCancellation()
     }
+}
+
+/**
+ * Creates a flow that produces values from the specified vararg-arguments,
+ * then suspends indefinitely after emitting all elements.
+ *
+ * This is useful when simulating flows that occasionally emit elements but never terminates
+ * such as a hot stream of events.
+ *
+ * @param elements The elements that are immediately emitted by the resulting flow.
+ */
+fun <T> infiniteFlowOf(vararg elements: T): Flow<T> = flow {
+    for (element in elements) {
+        emit(element)
+    }
+
+    awaitCancellation()
 }

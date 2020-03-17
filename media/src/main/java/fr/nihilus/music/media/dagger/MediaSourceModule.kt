@@ -18,9 +18,7 @@ package fr.nihilus.music.media.dagger
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.provider.*
-import fr.nihilus.music.media.repo.MediaRepository
-import fr.nihilus.music.media.repo.MediaRepositoryImpl
+import fr.nihilus.music.media.provider.MediaStoreModule
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
 
@@ -34,7 +32,4 @@ abstract class MediaSourceModule {
 
     @Binds
     internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
-
-    @Binds
-    internal abstract fun bindsMediaRepository(impl: MediaRepositoryImpl): MediaRepository
 }

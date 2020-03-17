@@ -44,6 +44,7 @@ import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -161,17 +162,15 @@ internal class OdeonPlaybackPreparer
     ) = Unit
 
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
-        val children = browserTree.getChildren(parentId, null)
-
-        if (children != null) {
-            children.filter { it.isPlayable && !it.isBrowsable }
-        } else {
-            Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
-            emptyList()
-        }
+        val children = browserTree.getChildren(parentId).first()
+        children.filter { it.isPlayable && !it.isBrowsable }
 
     } catch (pde: PermissionDeniedException) {
         Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+        emptyList()
+
+    } catch (invalidParent: NoSuchElementException) {
+        Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
         emptyList()
     }
 
