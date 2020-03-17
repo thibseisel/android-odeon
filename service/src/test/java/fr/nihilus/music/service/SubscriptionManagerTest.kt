@@ -126,6 +126,31 @@ class SubscriptionManagerTest {
     }
 
     @Test
+    fun `After permission denial, when loading children then recover`() = test {
+        val permissionTree = PermissionBrowserTree(granted = true)
+        val manager = SubscriptionManagerImpl(this, permissionTree)
+
+        // Start initial subscription.
+        val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+        shouldNotThrow<PermissionDeniedException> {
+            manager.loadChildren(parentId, null)
+        }
+
+        // Then the permission is denied. When trying to update children, it should fail.
+        permissionTree.granted = false
+        delay(1001)
+        shouldThrow<PermissionDeniedException> {
+            manager.loadChildren(parentId, null)
+        }
+
+        // It should create a new subscription and succeed.
+        permissionTree.granted = true
+        shouldNotThrow<PermissionDeniedException> {
+            manager.loadChildren(parentId, null)
+        }
+    }
+
+    @Test
     fun `Given max subscriptions, when loading children then dispose oldest subscriptions`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
