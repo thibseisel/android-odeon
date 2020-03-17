@@ -256,6 +256,25 @@ class SubscriptionManagerTest {
     }
 
     @Test
+    fun `When observing parent changes, then all subscribers should be notified`() = test {
+        val manager = SubscriptionManagerImpl(this, TestBrowserTree)
+        val albumId = MediaId(TYPE_ALBUMS, "42")
+
+        manager.updatedParentIds.test {
+            manager.updatedParentIds.test {
+                // trigger initial subscription
+                manager.loadChildren(albumId, null)
+
+                expect(1, 500, TimeUnit.MILLISECONDS)
+                values.shouldContainExactly(albumId)
+            }
+
+            expect(1)
+            values.shouldContainExactly(albumId)
+        }
+    }
+
+    @Test
     fun `Given invalid parent, when observing parent changes then dont throw`() = test {
         val manager = SubscriptionManagerImpl(this, TestBrowserTree)
 
