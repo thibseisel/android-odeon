@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service
 
+import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -23,6 +24,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
+import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
@@ -32,6 +34,8 @@ import io.kotlintest.matchers.collections.*
 import io.kotlintest.matchers.types.shouldBeSameInstanceAs
 import io.kotlintest.matchers.types.shouldNotBeNull
 import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldNotThrow
 import io.kotlintest.shouldThrow
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
@@ -90,6 +94,34 @@ class SubscriptionManagerTest {
         shouldThrow<NoSuchElementException> {
             val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
             manager.loadChildren(invalidMediaId, null)
+        }
+    }
+
+    @Test
+    fun `Given denied permission, when loading children then fail with PermissionDeniedException`() = test {
+        val manager = SubscriptionManagerImpl(this, PermissionBrowserTree(granted = false))
+
+        val permissionFailure = shouldThrow<PermissionDeniedException> {
+            val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+            manager.loadChildren(parentId, null)
+        }
+
+        permissionFailure.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+
+    @Test
+    fun `After permission grant, when loading children then proceed without error`() = test {
+        val permissionTree = PermissionBrowserTree(granted = false)
+        val manager = SubscriptionManagerImpl(this, permissionTree)
+
+        val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+        shouldThrow<PermissionDeniedException> {
+            manager.loadChildren(parentId, null)
+        }
+
+        permissionTree.granted = true
+        shouldNotThrow<PermissionDeniedException> {
+            manager.loadChildren(parentId, null)
         }
     }
 
@@ -232,6 +264,22 @@ class SubscriptionManagerTest {
             shouldThrow<NoSuchElementException> {
                 val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
                 manager.loadChildren(invalidMediaId, null)
+            }
+
+            // No exceptions should be thrown.
+            expectNone()
+        }
+    }
+
+    @Test
+    fun `Given no permissions, when observing parent changes then dont throw`() = test {
+        val manager = SubscriptionManagerImpl(this, PermissionBrowserTree(granted = false))
+
+        manager.updatedParentIds.test {
+            // Trigger initial subscription
+            shouldThrow<PermissionDeniedException> {
+                val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+                manager.loadChildren(parentId, null)
             }
 
             // No exceptions should be thrown.

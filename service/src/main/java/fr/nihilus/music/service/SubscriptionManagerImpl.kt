@@ -59,14 +59,29 @@ internal class SubscriptionManagerImpl @Inject constructor(
             cachedSubscriptions.get(parentId) ?: createSubscription(parentId)
         }
 
-        val children = subscription.consume { receive() }
-        return if (options == null) children else {
+        try {
+            val children = subscription.consume { receive() }
+            return applyPagination(children, options)
+        } catch (failure: Exception) {
+            cachedSubscriptions.remove(parentId)
+            throw failure
+        }
+    }
+
+    private fun applyPagination(
+        children: List<MediaItem>,
+        options: PaginationOptions?
+    ): List<MediaItem> = when (options) {
+        null -> children
+        else -> {
             val fromIndex = options.page * options.size
             val toIndexExclusive = (fromIndex + options.size)
 
-            return if (fromIndex < children.size && toIndexExclusive <= children.size) {
+            if (fromIndex < children.size && toIndexExclusive <= children.size) {
                 children.subList(fromIndex, toIndexExclusive)
-            } else emptyList()
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -79,9 +94,8 @@ internal class SubscriptionManagerImpl @Inject constructor(
 
                 subscription.asFlow()
                     .drop(1)
-                    .map { parentId }
-                    .catch { if (it !is NoSuchElementException) throw it }
-                    .onEach { activeSubscriptions.send(it) }
+                    .catch { if (it !is Exception) throw it }
+                    .onEach { activeSubscriptions.send(parentId) }
                     .launchIn(scope)
             }
     }
@@ -106,10 +120,6 @@ internal class SubscriptionManagerImpl @Inject constructor(
             key: MediaId,
             oldValue: BroadcastChannel<List<MediaItem>>,
             newValue: BroadcastChannel<List<MediaItem>>?
-        ) {
-            if (evicted) {
-                oldValue.cancel()
-            }
-        }
+        ) = oldValue.cancel()
     }
 }
