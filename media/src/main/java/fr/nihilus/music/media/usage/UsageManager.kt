@@ -61,7 +61,7 @@ interface UsageManager {
      *
      * @param trackId The unique identifier of the track that has been played.
      */
-    fun reportCompletion(trackId: Long)
+    suspend fun reportCompletion(trackId: Long)
 }
 
 
