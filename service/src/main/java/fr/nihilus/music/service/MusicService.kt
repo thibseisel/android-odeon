@@ -444,7 +444,9 @@ class MusicService : BaseBrowserService() {
             val completedTrackId = completedMedia.id.track
 
             if (completedTrackId != null) {
-                usageManager.reportCompletion(completedTrackId)
+                launch {
+                    usageManager.reportCompletion(completedTrackId)
+                }
             }
         }
     }

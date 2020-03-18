@@ -22,10 +22,8 @@ import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.sqrt
@@ -36,14 +34,12 @@ import kotlin.math.sqrt
  * Depending on the requesting collection of tracks, each track is given a compliance score.
  * Tracks with the highest score are listed first, while tracks that score too loo are ignored.
  *
- * @param scope The scope coroutines should be executed into.
  * @param mediaDao The source for media files metadata.
  * @param usageDao The DAO that controls storage of playback statistics.
  */
 @Reusable
 internal class UsageManagerImpl
 @Inject constructor(
-    private val scope: CoroutineScope,
     private val mediaDao: MediaDao,
     private val usageDao: UsageDao,
     private val clock: Clock
@@ -111,11 +107,9 @@ internal class UsageManagerImpl
             }
     }
 
-    override fun reportCompletion(trackId: Long) {
-        scope.launch {
-            val newEvent = MediaUsageEvent(0, trackId, clock.currentEpochTime)
-            usageDao.recordEvent(newEvent)
-        }
+    override suspend fun reportCompletion(trackId: Long) {
+        val newEvent = MediaUsageEvent(0, trackId, clock.currentEpochTime)
+        usageDao.recordEvent(newEvent)
     }
 
     /**
