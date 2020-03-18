@@ -54,8 +54,8 @@ internal class AlbumChildrenProvider(
                 id = MediaId(TYPE_ALBUMS, it.id.toString()),
                 title = it.title,
                 subtitle = it.artist,
-                trackCount = it.trackCount,
-                iconUri = it.albumArtUri?.toUri()
+                iconUri = it.albumArtUri?.toUri(),
+                trackCount = it.trackCount
             )
         }
     }

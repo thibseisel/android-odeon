@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ interface UsageManager {
  *
  * @param scope The scope coroutines should be executed into.
  * @param mediaDao The source for media files metadata.
- * @param usageDao The DAO that controls storage of lastPlayedTime statistics.
+ * @param usageDao The DAO that controls storage of playback statistics.
  */
 @Reusable
 internal class UsageManagerImpl

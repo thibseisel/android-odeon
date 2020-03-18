@@ -299,12 +299,7 @@ class MusicService : BaseBrowserService() {
                 putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
             }).build()
 
-        val flags = when (isPlayable) {
-            true -> MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE
-            else -> MediaItem.FLAG_BROWSABLE
-        }
-
-        return MediaItem(description, flags)
+        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
     }
 
     private fun AudioTrack.asPlayableItem(builder: MediaDescriptionCompat.Builder): MediaItem {

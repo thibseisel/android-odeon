@@ -45,16 +45,13 @@ internal sealed class MediaContent(
  *
  * Media categories are browsable and their children are either playable tracks or other categories.
  * @property trackCount The number of tracks in this category.
- * @property isPlayable Whether children of this category should be played when requesting
- * to play this category.
  */
 internal class MediaCategory(
     id: MediaId,
     title: String,
     subtitle: String? = null,
     iconUri: Uri? = null,
-    val trackCount: Int = -1,
-    val isPlayable: Boolean = false
+    val trackCount: Int = -1
 ) : MediaContent(id, title, subtitle, iconUri)
 
 /**

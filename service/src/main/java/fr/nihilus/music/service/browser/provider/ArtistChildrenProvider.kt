@@ -57,8 +57,7 @@ internal class ArtistChildrenProvider(
                     it.trackCount
                 ),
                 iconUri = it.iconUri?.toUri(),
-                trackCount = it.trackCount,
-                isPlayable = false
+                trackCount = it.trackCount
             )
         }
     }
@@ -86,8 +85,7 @@ internal class ArtistChildrenProvider(
         title = title,
         subtitle = artist,
         iconUri = albumArtUri?.toUri(),
-        trackCount = trackCount,
-        isPlayable = false
+        trackCount = trackCount
     )
 
     private fun Track.asContent() = AudioTrack(

@@ -53,8 +53,7 @@ internal class PlaylistChildrenProvider(
                 id = MediaId(TYPE_PLAYLISTS, it.id.toString()),
                 title = it.title,
                 iconUri = it.iconUri,
-                trackCount = 0,
-                isPlayable = false
+                trackCount = 0
             )
         }
     }

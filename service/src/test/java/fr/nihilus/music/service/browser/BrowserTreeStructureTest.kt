@@ -502,7 +502,6 @@ internal class BrowserTreeStructureTest {
             if (item is MediaCategory) {
                 it as? MediaCategory ?: fail("Expected $it to be a MediaCategory")
                 it.trackCount shouldBe item.trackCount
-                it.isPlayable shouldBe item.isPlayable
             }
         }
     }

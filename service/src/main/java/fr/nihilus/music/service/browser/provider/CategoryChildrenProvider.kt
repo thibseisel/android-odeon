@@ -51,8 +51,7 @@ internal class CategoryChildrenProvider(
                 title = category.title,
                 subtitle = category.subtitle,
                 iconUri = category.iconUri,
-                trackCount = 0,
-                isPlayable = false
+                trackCount = 0
             )
         }
 
