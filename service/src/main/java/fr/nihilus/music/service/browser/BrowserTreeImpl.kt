@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,10 @@
 package fr.nihilus.music.service.browser
 
 import android.content.Context
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -33,21 +29,17 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.R
-import fr.nihilus.music.service.ServiceScoped
+import fr.nihilus.music.service.*
 import fr.nihilus.music.service.browser.provider.*
 import fr.nihilus.music.service.extensions.getResourceUri
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.util.*
 import javax.inject.Inject
@@ -116,12 +108,6 @@ internal class BrowserTreeImpl
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
                 provider = trackProvider
             )
-
-            category(
-                CATEGORY_DISPOSABLE,
-                context.getString(R.string.svc_category_disposable),
-                provider = trackProvider
-            )
         }
 
         type(
@@ -163,75 +149,61 @@ internal class BrowserTreeImpl
     }
 
     /**
-     * Factory function that creates [MediaItem]s from artists.
+     * Factory function that creates [MediaContent]s from artists.
      */
-    private val artistItemFactory: Artist.(
-        MediaDescriptionCompat.Builder
-    ) -> MediaItem = { builder ->
-        val mediaId = encode(TYPE_ARTISTS, id.toString())
-        val artistDescription = builder.setMediaId(mediaId)
-            .setTitle(name)
-            .setSubtitle(context.getString(R.string.svc_artist_subtitle, albumCount, trackCount))
-            .setIconUri(iconUri?.toUri())
-            .setExtras(Bundle().apply {
-                putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
-            }).build()
-
-        MediaItem(artistDescription, MediaItem.FLAG_BROWSABLE)
+    private val artistItemFactory: Artist.() -> MediaContent = {
+        MediaCategory(
+            id = MediaId(TYPE_ARTISTS, id.toString()),
+            title = name,
+            subtitle = context.getString(R.string.svc_artist_subtitle, albumCount, trackCount),
+            iconUri = iconUri?.toUri(),
+            trackCount = trackCount
+        )
     }
 
     /**
-     * Factory function that creates [MediaItem]s from albums.
+     * Factory function that creates [MediaContent]s from albums.
      */
-    private val albumItemFactory: Album.(
-        MediaDescriptionCompat.Builder
-    ) -> MediaItem = { builder ->
-        val albumMediaId = encode(TYPE_ALBUMS, id.toString())
-        val albumDescription = builder.setMediaId(albumMediaId)
-            .setTitle(title)
-            .setSubtitle(artist)
-            .setIconUri(albumArtUri?.toUri())
-            .setExtras(Bundle().apply {
-                putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
-            }).build()
-
-        MediaItem(albumDescription, MediaItem.FLAG_BROWSABLE)
+    private val albumItemFactory: Album.() -> MediaContent = {
+        MediaCategory(
+            id = MediaId(TYPE_ALBUMS, id.toString()),
+            title = title,
+            subtitle = artist,
+            iconUri = albumArtUri?.toUri(),
+            trackCount = trackCount
+        )
     }
 
     /**
-     * Factory function that creates [MediaItem] from tracks.
+     * Factory function that creates [MediaContent] from tracks.
      * Unlike other items, playable tracks may have different media ids for a same media file.
      *
-     * Therefore, creating a track [MediaItem] requires to specify the type and category
+     * Therefore, creating a track [MediaContent] requires to specify the type and category
      * of its parent in the browser tree so that the correct media item is assigned.
      */
     private val trackItemFactory: Track.(
         type: String,
-        category: String,
-        MediaDescriptionCompat.Builder
-    ) -> MediaItem = { type, category, builder ->
-        val mediaId = encode(type, category, id)
-        val description = builder.setMediaId(mediaId)
-            .setTitle(title)
-            .setSubtitle(artist)
-            .setMediaUri(mediaUri.toUri())
-            .setIconUri(albumArtUri?.toUri())
-            .setExtras(Bundle().apply {
-                putLong(MediaItems.EXTRA_DURATION, duration)
-                putInt(MediaItems.EXTRA_DISC_NUMBER, discNumber)
-                putInt(MediaItems.EXTRA_TRACK_NUMBER, trackNumber)
-            }).build()
-
-        MediaItem(description, MediaItem.FLAG_PLAYABLE)
+        category: String
+    ) -> MediaContent = { type, category ->
+        AudioTrack(
+            id = MediaId(type, category, id),
+            title = title,
+            subtitle = artist,
+            discNumber = discNumber,
+            trackNumber = trackNumber,
+            album = album,
+            artist = artist,
+            duration = duration,
+            mediaUri = mediaUri.toUri(),
+            iconUri = albumArtUri?.toUri()
+        )
     }
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
-        return tree.getChildren(parentId)
-    }
+    override fun getChildren(parentId: MediaId) = tree.getChildren(parentId)
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
+    override suspend fun getItem(itemId: MediaId): MediaContent? = tree.getItem(itemId)
 
-    override suspend fun search(query: SearchQuery): List<MediaItem> {
+    override suspend fun search(query: SearchQuery): List<MediaContent> {
         // Most songs and albums have an english title.
         // For the time being, we'll use english rules for matching text.
         val searchLocale = Locale.ENGLISH
@@ -255,8 +227,8 @@ internal class BrowserTreeImpl
             is SearchQuery.Song -> {
                 query.title?.toLowerCase(searchLocale)?.let { trackTitle ->
                     val tracks = mediaDao.tracks.first()
-                    singleTypeSearch(trackTitle, tracks, Track::title) { builder ->
-                        trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL, builder)
+                    singleTypeSearch(trackTitle, tracks, Track::title) {
+                        trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL)
                     }
                 }
             }
@@ -270,8 +242,8 @@ internal class BrowserTreeImpl
                 val searchResults = mutableListOf<ItemScore>()
                 fuzzySearchTo(searchResults, userQuery, artists.await(), Artist::name, artistItemFactory)
                 fuzzySearchTo(searchResults, userQuery, albums.await(), Album::title, albumItemFactory)
-                fuzzySearchTo(searchResults, userQuery, tracks.await(), Track::title) { track, builder ->
-                    trackItemFactory(track, TYPE_TRACKS, CATEGORY_ALL, builder)
+                fuzzySearchTo(searchResults, userQuery, tracks.await(), Track::title) { track ->
+                    trackItemFactory(track, TYPE_TRACKS, CATEGORY_ALL)
                 }
 
                 searchResults.sortByDescending(ItemScore::score)
@@ -287,7 +259,7 @@ internal class BrowserTreeImpl
     /**
      * Groups a media item with its correspondence score.
      */
-    private class ItemScore(val media: MediaItem, val score: Int)
+    private class ItemScore(val media: MediaContent, val score: Int)
 
     /**
      * Perform a fuzzy search for the given [pattern] in [medias][availableMedias] of a single type.
@@ -304,8 +276,8 @@ internal class BrowserTreeImpl
         pattern: String,
         availableMedias: List<T>,
         textProvider: (T) -> String,
-        itemFactory: T.(MediaDescriptionCompat.Builder) -> MediaItem
-    ): List<MediaItem> {
+        itemFactory: T.() -> MediaContent
+    ): List<MediaContent> {
         val searchResults = mutableListOf<ItemScore>().also {
             fuzzySearchTo(it, pattern, availableMedias, textProvider, itemFactory)
             it.sortByDescending(ItemScore::score)
@@ -357,15 +329,13 @@ internal class BrowserTreeImpl
         pattern: String,
         availableMedias: List<T>,
         textProvider: (T) -> String,
-        itemFactory: (T, MediaDescriptionCompat.Builder) -> MediaItem
+        itemFactory: (T) -> MediaContent
     ) {
-        val builder = MediaDescriptionCompat.Builder()
         availableMedias.fold(outResults) { results, media ->
-
             when(val score = fuzzyMatch(pattern, textProvider(media).toLowerCase(Locale.ENGLISH))) {
                 Int.MIN_VALUE -> results
                 else -> {
-                    val item = itemFactory(media, builder)
+                    val item = itemFactory(media)
                     results += ItemScore(item, score)
                     results
                 }

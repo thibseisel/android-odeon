@@ -16,14 +16,14 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
-import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -38,7 +38,7 @@ internal class AlbumChildrenProvider(
 
     override fun findChildren(
         parentId: MediaId
-    ): Flow<List<MediaItem>> {
+    ): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_ALBUMS)
 
         val albumId = parentId.category?.toLongOrNull()
@@ -48,47 +48,41 @@ internal class AlbumChildrenProvider(
         }
     }
 
-    private fun getAlbums(): Flow<List<MediaItem>> = mediaDao.albums.map { albums ->
-        val builder = MediaDescriptionCompat.Builder()
-        albums.map { it.toMediaItem(builder) }
+    private fun getAlbums(): Flow<List<MediaCategory>> = mediaDao.albums.map { albums ->
+        albums.map {
+            MediaCategory(
+                id = MediaId(TYPE_ALBUMS, it.id.toString()),
+                title = it.title,
+                subtitle = it.artist,
+                trackCount = it.trackCount,
+                iconUri = it.albumArtUri?.toUri()
+            )
+        }
     }
 
-    private fun getAlbumTracks(
-        albumId: Long
-    ): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
-        val builder = MediaDescriptionCompat.Builder()
+    private fun getAlbumTracks(albumId: Long): Flow<List<AudioTrack>> =
+        mediaDao.tracks.map { tracks ->
+            tracks.asSequence()
+                .filter { it.albumId == albumId }
+                .sortedWith(albumTrackOrdering)
+                .map { it.asContent() }
+                .toList()
+                .takeUnless { it.isEmpty() }
+                ?: throw NoSuchElementException("No album with id = $albumId")
+        }
 
-        tracks.asSequence()
-            .filter { it.albumId == albumId }
-            .sortedWith(albumTrackOrdering)
-            .map { it.toMediaItem(builder) }
-            .toList()
-            .takeUnless { it.isEmpty() }
-            ?: throw NoSuchElementException("No album with id = $albumId")
-    }
-
-    private fun Album.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {
-        return browsable(
-            builder,
-            id = MediaId.encode(TYPE_ALBUMS, id.toString()),
+    private fun Track.asContent(): AudioTrack {
+        return AudioTrack(
+            id = MediaId(TYPE_ALBUMS, albumId.toString(), id),
             title = title,
             subtitle = artist,
-            trackCount = trackCount,
-            iconUri = albumArtUri?.toUri()
-        )
-    }
-
-    private fun Track.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {
-        return playable(
-            builder,
-            id = MediaId.encode(TYPE_ALBUMS, albumId.toString(), id),
-            title = title,
-            subtitle = artist,
-            mediaUri = mediaUri.toUri(),
-            iconUri = albumArtUri?.toUri(),
+            album = album,
+            artist = artist,
             duration = duration,
-            disc = discNumber,
-            number = trackNumber
+            discNumber = discNumber,
+            trackNumber = trackNumber,
+            mediaUri = mediaUri.toUri(),
+            iconUri = albumArtUri?.toUri()
         )
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
 import fr.nihilus.music.service.browser.provider.ChildrenProvider
 import kotlinx.coroutines.flow.Flow
@@ -75,14 +77,11 @@ private constructor(
     /**
      * The media item representing the root of this media tree.
      */
-    private val rootItem: MediaItem
-        get() {
-            val description = MediaDescriptionCompat.Builder()
-                .setMediaId(rootId)
-                .setTitle(rootName)
-                .build()
-            return MediaItem(description, MediaItem.FLAG_BROWSABLE)
-        }
+    private val rootItem: MediaContent
+        get() = MediaCategory(
+            id = MediaId(rootId),
+            title = rootName.orEmpty()
+        )
 
     /**
      * Retrieve children of a browsable node with the specified [media id][parentId].
@@ -94,7 +93,7 @@ private constructor(
      * The returned flow will throw [NoSuchElementException] if the requested parent node
      * is not browsable or not part of the media tree.
      */
-    fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
+    fun getChildren(parentId: MediaId): Flow<List<MediaContent>> {
         val (typeId, categoryId, trackId) = parentId
 
         return when {
@@ -119,13 +118,13 @@ private constructor(
      * @param itemId The media id of the rootItem to retrieve.
      * @return A media rootItem having the specified [itemId], or `null` if no such rootItem exists.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem? {
+    suspend fun getItem(itemId: MediaId): MediaContent? {
         val (typeId, categoryId, trackId) = itemId
         return when {
             itemId.encoded == rootId -> rootItem
             categoryId == null -> types[typeId]?.item
-            trackId == null -> types[typeId]?.categories()?.first()?.find { it.mediaId == itemId.encoded }
-            else -> types[typeId]?.categoryChildren(categoryId)?.first()?.find { it.mediaId == itemId.encoded }
+            trackId == null -> types[typeId]?.categories()?.first()?.find { it.id == itemId }
+            else -> types[typeId]?.categoryChildren(categoryId)?.first()?.find { it.id == itemId }
         }
     }
 
@@ -206,29 +205,26 @@ private constructor(
      */
     class Type(
         private val mediaId: MediaId,
-        private val title: CharSequence?,
-        private val subtitle: CharSequence?,
+        private val title: String,
+        private val subtitle: String?,
         private val childrenProvider: ChildrenProvider
     ) {
         /**
          * The media item representing this type in the media tree.
          */
-        val item: MediaItem
-            get() {
-                val description = MediaDescriptionCompat.Builder()
-                    .setMediaId(mediaId.toString())
-                    .setTitle(title)
-                    .setSubtitle(subtitle)
-                    .build()
-                return MediaItem(description, MediaItem.FLAG_BROWSABLE)
-            }
+        val item: MediaCategory
+            get() = MediaCategory(
+                id = mediaId,
+                title = title,
+                subtitle = subtitle
+            )
 
         /**
          * Load children categories of this type.
          *
          * @return A list of all direct children of this type.
          */
-        fun categories(): Flow<List<MediaItem>> = childrenProvider.getChildren(mediaId)
+        fun categories(): Flow<List<MediaContent>> = childrenProvider.getChildren(mediaId)
 
         /**
          * Load children of a category with the specified [categoryId].
@@ -238,7 +234,7 @@ private constructor(
          */
         fun categoryChildren(
             categoryId: String
-        ): Flow<List<MediaItem>> {
+        ): Flow<List<MediaContent>> {
             val parentId = MediaId(mediaId.type, categoryId)
             return childrenProvider.getChildren(parentId)
         }
@@ -349,7 +345,7 @@ private constructor(
                 return MediaItem(description, MediaItem.FLAG_BROWSABLE)
             }
 
-        fun children(): Flow<List<MediaItem>> = provider.getChildren(mediaId)
+        fun children(): Flow<List<MediaContent>> = provider.getChildren(mediaId)
 
         override fun toString(): String = "[$mediaId] {title=$title, subtitle=$subtitle}"
         override fun equals(other: Any?): Boolean = this === other || (other is Category && mediaId == other.mediaId)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@
 package fr.nihilus.music.service.browser
 
 import android.content.Context
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -32,15 +30,21 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
-import fr.nihilus.music.media.usage.DisposableTrack
-import fr.nihilus.music.service.assertOn
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.generateRandomTrackSequence
+import io.kotlintest.inspectors.forAll
+import io.kotlintest.inspectors.forNone
 import io.kotlintest.inspectors.forOne
-import io.kotlintest.matchers.collections.*
+import io.kotlintest.matchers.beOfType
+import io.kotlintest.matchers.collections.shouldBeEmpty
+import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotlintest.matchers.collections.shouldHaveAtMostSize
+import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotThrowAny
@@ -49,12 +53,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.truth.os.BundleSubject.assertThat as assertThatBundle
 
 /**
  * Validate the structure of the [BrowserTree]:
  * - tree can be browsed from the root to the topmost leafs,
- * - children of those nodes are correctly fetched and mapped to [MediaItem]s.
+ * - children of those nodes are correctly fetched and mapped to [MediaContent]s.
  */
 @RunWith(AndroidJUnit4::class)
 internal class BrowserTreeStructureTest {
@@ -86,7 +89,6 @@ internal class BrowserTreeStructureTest {
             "$TYPE_TRACKS/$CATEGORY_ALL",
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED",
-            "$TYPE_TRACKS/$CATEGORY_DISPOSABLE",
             "$TYPE_TRACKS/$CATEGORY_POPULAR"
         )
 
@@ -117,12 +119,11 @@ internal class BrowserTreeStructureTest {
         val allAlbums = loadChildrenOf(MediaId(TYPE_ALBUMS))
         val anAlbum = allAlbums.requireItemWith(MediaId(TYPE_ALBUMS, "40"))
 
-        with(anAlbum.description) {
-            title shouldBe "The 2nd Law"
-            subtitle shouldBe "Muse"
+        anAlbum.shouldBeTypeOf<MediaCategory> {
+            it.title shouldBe "The 2nd Law"
+            it.subtitle shouldBe "Muse"
+            it.trackCount shouldBe 1
         }
-
-        assertThatBundle(anAlbum.description.extras).integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
     }
 
     @Test
@@ -145,14 +146,11 @@ internal class BrowserTreeStructureTest {
         val allArtists = loadChildrenOf(MediaId(TYPE_ARTISTS))
         val anArtist = allArtists.requireItemWith(MediaId(TYPE_ARTISTS, "5"))
 
-        with(anArtist.description) {
-            title shouldBe "AC/DC"
+        anArtist.shouldBeTypeOf<MediaCategory> {
+            it.title shouldBe "AC/DC"
             // TODO Use a plural string resource instead.
-            subtitle shouldBe "1 albums, 2 tracks"
-
-            assertOn(extras) {
-                integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(2)
-            }
+            it.subtitle shouldBe "1 albums, 2 tracks"
+            it.trackCount shouldBe 2
         }
     }
 
@@ -174,7 +172,9 @@ internal class BrowserTreeStructureTest {
         val allPlaylists = loadChildrenOf(MediaId(TYPE_PLAYLISTS))
 
         val aPlaylist = allPlaylists.requireItemWith(MediaId(TYPE_PLAYLISTS, "1"))
-        aPlaylist.description.title shouldBe "Zen"
+        aPlaylist.shouldBeTypeOf<MediaCategory> {
+            it.title shouldBe "Zen"
+        }
     }
 
     @Test
@@ -182,11 +182,10 @@ internal class BrowserTreeStructureTest {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), TestSpotifyManager())
 
         browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
-            if(child.isBrowsable) {
-                val childId = child.mediaId.toMediaId()
-
+            if (child is MediaCategory) {
+                println(child.id)
                 shouldNotThrowAny {
-                    browserTree.getChildren(childId).first()
+                    browserTree.getChildren(child.id).first()
                 }
             }
         }
@@ -197,11 +196,9 @@ internal class BrowserTreeStructureTest {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), TestSpotifyManager())
 
         browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
-            if (!child.isBrowsable) {
-                val childId = child.mediaId.toMediaId()
-
+            if (child is AudioTrack) {
                 shouldThrow<NoSuchElementException> {
-                    browserTree.getChildren(childId).first()
+                    browserTree.getChildren(child.id).first()
                 }
             }
         }
@@ -233,15 +230,14 @@ internal class BrowserTreeStructureTest {
         val allTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_ALL))
         val aTrack = allTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_ALL, 125L))
 
-        with(aTrack.description) {
-            title shouldBe "Jailbreak"
-            subtitle shouldBe "AC/DC"
-
-            assertOn(extras) {
-                containsKey(MediaItems.EXTRA_DURATION)
-                integer(MediaItems.EXTRA_DISC_NUMBER).isEqualTo(2)
-                integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(14)
-            }
+        aTrack.shouldBeTypeOf<AudioTrack> {
+            it.title shouldBe "Jailbreak"
+            it.subtitle shouldBe "AC/DC"
+            it.album shouldBe "Greatest Hits 30 Anniversary Edition"
+            it.artist shouldBe "AC/DC"
+            it.duration shouldBe 276668L
+            it.discNumber shouldBe 2
+            it.trackNumber shouldBe 14
         }
     }
 
@@ -266,15 +262,14 @@ internal class BrowserTreeStructureTest {
         val mostRecentTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED))
         val aTrack = mostRecentTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_MOST_RATED, 75L))
 
-        with(aTrack.description) {
-            title shouldBe "Nightmare"
-            subtitle shouldBe "Avenged Sevenfold"
-
-            assertOn(extras) {
-                containsKey(MediaItems.EXTRA_DURATION)
-                integer(MediaItems.EXTRA_DISC_NUMBER).isEqualTo(1)
-                integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(1)
-            }
+        aTrack.shouldBeTypeOf<AudioTrack> {
+            it.title shouldBe "Nightmare"
+            it.subtitle shouldBe "Avenged Sevenfold"
+            it.album shouldBe "Nightmare"
+            it.artist shouldBe "Avenged Sevenfold"
+            it.duration shouldBe 374648L
+            it.discNumber shouldBe 1
+            it.trackNumber shouldBe 1
         }
     }
 
@@ -322,50 +317,14 @@ internal class BrowserTreeStructureTest {
         val mostRecentTracks = loadChildrenOf(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED))
         val aTrack = mostRecentTracks.requireItemWith(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED, 481L))
 
-        with(aTrack.description) {
-            title shouldBe "Dirty Water"
-            subtitle shouldBe "Foo Fighters"
-
-            assertOn(extras) {
-                containsKey(MediaItems.EXTRA_DURATION)
-                integer(MediaItems.EXTRA_DISC_NUMBER).isEqualTo(1)
-                integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(6)
-            }
-        }
-    }
-
-    @Test
-    fun `When loading children of Disposable, then return disposable items from usage manager`() = runBlockingTest {
-        val usageManager = TestUsageManager(emptyList(), disposableTracks = listOf(
-            DisposableTrack(48L, "Give It Up", 5_716_578, null),
-            DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
-        ))
-
-        val browserTree = BrowserTreeImpl(context, StubMediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
-        val children = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
-        ).first()
-
-        children.shouldHaveSize(2)
-
-        children[0] should {
-            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|48"
-            it.description.title shouldBe "Give It Up"
-
-            assertOn(it.description.extras) {
-                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(5_716_578)
-                doesNotContainKey(MediaItems.EXTRA_LAST_PLAYED_TIME)
-            }
-        }
-
-        children[1] should {
-            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|161"
-            it.description.title shouldBe "1741 (The Battle of Cartagena)"
-
-            assertOn(it.description.extras) {
-                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(17_506_481)
-                longInt(MediaItems.EXTRA_LAST_PLAYED_TIME).isEqualTo(1565272800)
-            }
+        aTrack.shouldBeTypeOf<AudioTrack> {
+            it.title shouldBe "Dirty Water"
+            it.subtitle shouldBe "Foo Fighters"
+            it.album shouldBe "Concrete and Gold"
+            it.artist shouldBe "Foo Fighters"
+            it.duration shouldBe 320914L
+            it.discNumber shouldBe 1
+            it.trackNumber shouldBe 6
         }
     }
 
@@ -393,10 +352,10 @@ internal class BrowserTreeStructureTest {
     @Test
     fun `When loading children of an artist, then return its albums followed by its tracks`() = runBlockingTest {
         val artistChildren = loadChildrenOf(MediaId(TYPE_ARTISTS, "18"))
-        val indexOfFirstTrack = artistChildren.indexOfFirst { it.mediaId.toMediaId().track != null }
+        val indexOfFirstTrack = artistChildren.indexOfFirst { it.id.track != null }
         val childrenAfterAlbums = artistChildren.subList(indexOfFirstTrack, artistChildren.size)
 
-        val nonTracksAfterAlbums = childrenAfterAlbums.filter { it.mediaId.toMediaId().track == null }
+        val nonTracksAfterAlbums = childrenAfterAlbums.filter { it.id.track == null }
         nonTracksAfterAlbums.shouldBeEmpty()
     }
 
@@ -409,7 +368,7 @@ internal class BrowserTreeStructureTest {
 
     private suspend fun assertArtistHasAlbumsChildren(artistId: Long, expectedAlbumIds: List<String>) {
         val artistChildren = loadChildrenOf(MediaId(TYPE_ARTISTS, artistId.toString()))
-        val artistAlbums = artistChildren.filter { it.mediaId.toMediaId().track == null }
+        val artistAlbums = artistChildren.filter { it.id.track == null }
 
         assertThatAllAreBrowsableAmong(artistAlbums)
         artistAlbums.ids.shouldContainExactly(expectedAlbumIds)
@@ -435,11 +394,9 @@ internal class BrowserTreeStructureTest {
         val artistChildren = loadChildrenOf(MediaId(TYPE_ARTISTS, "26"))
         val anAlbum = artistChildren.requireItemWith(MediaId(TYPE_ALBUMS, "65"))
 
-        with(anAlbum.description) {
-            title shouldBe "Sunset on the Golden Age"
-            assertOn(extras) {
-                integer(MediaItems.EXTRA_NUMBER_OF_TRACKS).isEqualTo(1)
-            }
+        anAlbum.shouldBeTypeOf<MediaCategory> {
+            it.title shouldBe "Sunset on the Golden Age"
+            it.trackCount shouldBe 1
         }
     }
 
@@ -448,12 +405,9 @@ internal class BrowserTreeStructureTest {
         val artistChildren = loadChildrenOf(MediaId(TYPE_ARTISTS, "26"))
         val aTrack = artistChildren.requireItemWith(MediaId(TYPE_ARTISTS, "26", 161L))
 
-        with(aTrack.description) {
-            title shouldBe "1741 (The Battle of Cartagena)"
-
-            assertOn(extras) {
-                containsKey(MediaItems.EXTRA_DURATION)
-            }
+        aTrack.shouldBeTypeOf<AudioTrack> {
+            it.title shouldBe "1741 (The Battle of Cartagena)"
+            it.duration shouldBe 437603L
         }
     }
 
@@ -472,11 +426,9 @@ internal class BrowserTreeStructureTest {
         val playlistChildren = loadChildrenOf(MediaId(TYPE_PLAYLISTS, "1"))
         val aPlaylistTrack = playlistChildren.requireItemWith(MediaId(TYPE_PLAYLISTS, "1", 309L))
 
-        with(aPlaylistTrack.description) {
-            title shouldBe "The 2nd Law: Isolated System"
-            assertOn(extras) {
-                containsKey(MediaItems.EXTRA_DURATION)
-            }
+        aPlaylistTrack.shouldBeTypeOf<AudioTrack> {
+            it.title shouldBe "The 2nd Law: Isolated System"
+            it.duration shouldBe 300042L
         }
     }
 
@@ -508,7 +460,7 @@ internal class BrowserTreeStructureTest {
 
         val requestedItem = browserTree.getItem(itemId)
             ?: failAssumption("Expected an item with id $itemId")
-        requestedItem.mediaId shouldBe itemId.encoded
+        requestedItem.id shouldBe itemId
     }
 
     @Test
@@ -532,15 +484,25 @@ internal class BrowserTreeStructureTest {
         val parentChildren = browserTree.getChildren(parentId).first()
 
         parentChildren.forOne {
-            it.mediaId shouldBe item.mediaId
-            it.isBrowsable shouldBe item.isBrowsable
-            it.isPlayable shouldBe item.isPlayable
+            it.id shouldBe item.id
+            it.title shouldBe item.title
+            it.subtitle shouldBe item.subtitle
+            it.iconUri shouldBe item.iconUri
 
-            with (it.description) {
-                title shouldBe item.description.title
-                subtitle shouldBe item.description.subtitle
-                iconUri shouldBe item.description.iconUri
-                mediaUri shouldBe item.description.mediaUri
+            if (item is AudioTrack) {
+                it as? AudioTrack ?: fail("Expected $it to be an AudioTrack")
+                it.album shouldBe item.album
+                it.artist shouldBe item.artist
+                it.duration shouldBe item.duration
+                it.discNumber shouldBe item.discNumber
+                it.trackNumber shouldBe item.trackNumber
+                it.mediaUri shouldBe item.mediaUri
+            }
+
+            if (item is MediaCategory) {
+                it as? MediaCategory ?: fail("Expected $it to be a MediaCategory")
+                it.trackCount shouldBe item.trackCount
+                it.isPlayable shouldBe item.isPlayable
             }
         }
     }
@@ -563,21 +525,21 @@ internal class BrowserTreeStructureTest {
     }
 
     /**
-     * Assume that the given collection of media items contains a media with the specified [media id][itemId],
+     * Assume that the given collection of media contains a media with the specified [media id][itemId],
      * and if it does, return it ; otherwise the test execution is stopped due to assumption failure.
      */
-    private fun List<MediaItem>.requireItemWith(itemId: MediaId): MediaItem {
-        return find { it.mediaId == itemId.encoded } ?: failAssumption(buildString {
+    private fun List<MediaContent>.requireItemWith(itemId: MediaId): MediaContent {
+        return find { it.id == itemId } ?: failAssumption(buildString {
             append("Missing an item with id = $itemId in ")
             this@requireItemWith.joinTo(this, ", ", "[", "]", 10) {
-                it.mediaId.orEmpty()
+                it.id.encoded
             }
         })
     }
 
     private suspend fun assertArtistHasTracksChildren(artistId: Long, expectedTrackIds: List<String>) {
         val artistChildren = loadChildrenOf(MediaId(TYPE_ARTISTS, artistId.toString()))
-        val artistTracks = artistChildren.filter { it.mediaId.toMediaId().track != null }
+        val artistTracks = artistChildren.filter { it.id.track != null }
 
         assertThatAllArePlayableAmong(artistTracks)
         assertThatNoneAreBrowsableAmong(artistTracks)
@@ -585,57 +547,25 @@ internal class BrowserTreeStructureTest {
         artistTracks.ids.shouldContainExactly(expectedTrackIds)
     }
 
-    private suspend fun loadChildrenOf(parentId: MediaId): List<MediaItem> {
+    private suspend fun loadChildrenOf(parentId: MediaId): List<MediaContent> {
         val browserTree = BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), StubSpotifyManager)
         return browserTree.getChildren(parentId).first()
     }
 
-    private fun assertThatAllAreBrowsableAmong(children: List<MediaItem>) {
-        val nonBrowsableItems = children.filterNot { it.isBrowsable }
-
-        if (nonBrowsableItems.isNotEmpty()) {
-            fail(buildString {
-                append("Expected all items to be browsable, but ")
-                nonBrowsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
-                append(" were not.")
-            })
-        }
+    private fun assertThatAllAreBrowsableAmong(children: List<MediaContent>) {
+        children.forAll { it should beOfType<MediaCategory>() }
     }
 
-    private fun assertThatAllArePlayableAmong(children: List<MediaItem>) {
-        val nonPlayableItems = children.filterNot(MediaItem::isPlayable)
-
-        if (nonPlayableItems.isNotEmpty()) {
-            fail(buildString {
-                append("Expected all items to be playable, but ")
-                nonPlayableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
-                append(" weren't.")
-            })
-        }
+    private fun assertThatAllArePlayableAmong(children: List<MediaContent>) {
+        children.forAll { it should beOfType<AudioTrack>() }
     }
 
-    private fun assertThatNoneArePlayableAmong(children: List<MediaItem>) {
-        val playableItems = children.filter { it.isPlayable }
-
-        if (playableItems.isNotEmpty()) {
-            fail(buildString {
-                append("Expected all items not to be playable, but ")
-                playableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
-                append(" were.")
-            })
-        }
+    private fun assertThatNoneArePlayableAmong(children: List<MediaContent>) {
+        children.forNone { it should beOfType<AudioTrack>() }
     }
 
-    private fun assertThatNoneAreBrowsableAmong(children: List<MediaItem>) {
-        val browsableItems = children.filter(MediaItem::isBrowsable)
-
-        if (browsableItems.isNotEmpty()) {
-            fail(buildString {
-                append("Expected all items not to be browsable, but ")
-                browsableItems.joinTo(this, ", ", "[", "]", 10) { it.mediaId.orEmpty() }
-                append(" were.")
-            })
-        }
+    private fun assertThatNoneAreBrowsableAmong(children: List<MediaContent>) {
+        children.forNone { it should beOfType<MediaCategory>() }
     }
 }
 
@@ -647,18 +577,18 @@ internal class BrowserTreeStructureTest {
  */
 private suspend fun BrowserTree.walk(
     parentId: MediaId,
-    action: suspend (child: MediaItem, parentId: MediaId) -> Unit
+    action: suspend (child: MediaContent, parentId: MediaId) -> Unit
 ) {
     try {
         val children = getChildren(parentId).first()
         for (child in children) {
             action(child, parentId)
-            walk(child.mediaId.toMediaId(), action)
+            walk(child.id, action)
         }
     } catch (nonBrowsableParent: NoSuchElementException) {
         // Stop walking down the media tree when an item is not browsable.
     }
 }
 
-private val List<MediaItem>.ids: List<String?>
-    get() = map { it.mediaId }
+private val List<MediaContent>.ids: List<String>
+    get() = map { it.id.encoded }

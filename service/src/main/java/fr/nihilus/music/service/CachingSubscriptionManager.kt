@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.service
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.collection.LruCache
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
@@ -54,7 +53,7 @@ internal class CachingSubscriptionManager @Inject constructor(
     override suspend fun loadChildren(
         parentId: MediaId,
         options: PaginationOptions?
-    ): List<MediaItem> {
+    ): List<MediaContent> {
         val subscription = mutex.withLock {
             cachedSubscriptions.get(parentId) ?: createSubscription(parentId)
         }
@@ -69,9 +68,9 @@ internal class CachingSubscriptionManager @Inject constructor(
     }
 
     private fun applyPagination(
-        children: List<MediaItem>,
+        children: List<MediaContent>,
         options: PaginationOptions?
-    ): List<MediaItem> = when (options) {
+    ): List<MediaContent> = when (options) {
         null -> children
         else -> {
             val fromIndex = options.page * options.size
@@ -85,7 +84,7 @@ internal class CachingSubscriptionManager @Inject constructor(
         }
     }
 
-    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaItem>> {
+    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaContent>> {
         return tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
             .broadcastIn(scope)
@@ -100,26 +99,26 @@ internal class CachingSubscriptionManager @Inject constructor(
             }
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? {
+    override suspend fun getItem(itemId: MediaId): MediaContent? {
         val parentId = itemId.copy(track = null)
         val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
 
         return if (parentSubscription != null) {
             val children = parentSubscription.consume { receive() }
-            children.find { it.mediaId == itemId.encoded }
+            children.find { it.id == itemId }
         } else {
             tree.getItem(itemId)
         }
     }
 
     private class LruSubscriptionCache :
-        LruCache<MediaId, BroadcastChannel<List<MediaItem>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
+        LruCache<MediaId, BroadcastChannel<List<MediaContent>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
 
         override fun entryRemoved(
             evicted: Boolean,
             key: MediaId,
-            oldValue: BroadcastChannel<List<MediaItem>>,
-            newValue: BroadcastChannel<List<MediaItem>>?
+            oldValue: BroadcastChannel<List<MediaContent>>,
+            newValue: BroadcastChannel<List<MediaContent>>?
         ) = oldValue.cancel()
     }
 }

@@ -17,16 +17,16 @@
 package fr.nihilus.music.service.browser.provider
 
 import android.content.Context
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -37,7 +37,7 @@ internal class ArtistChildrenProvider(
     private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 
-    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_ARTISTS)
 
         val artistId = parentId.category?.toLongOrNull()
@@ -47,24 +47,33 @@ internal class ArtistChildrenProvider(
         }
     }
 
-    private fun getArtists(): Flow<List<MediaItem>> = mediaDao.artists.map { artists ->
-        val builder = MediaDescriptionCompat.Builder()
-        artists.map { it.toMediaItem(builder) }
+    private fun getArtists(): Flow<List<MediaCategory>> = mediaDao.artists.map { artists ->
+        artists.map {
+            MediaCategory(
+                id = MediaId(TYPE_ARTISTS, it.id.toString()),
+                title = it.name,
+                subtitle = context.getString(R.string.svc_artist_subtitle,
+                    it.albumCount,
+                    it.trackCount
+                ),
+                iconUri = it.iconUri?.toUri(),
+                trackCount = it.trackCount,
+                isPlayable = false
+            )
+        }
     }
 
     private fun getArtistChildren(
         artistId: Long
-    ): Flow<List<MediaItem>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
-        val builder = MediaDescriptionCompat.Builder()
-
+    ): Flow<List<MediaContent>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
         val artistAlbums = albums.asSequence()
             .filter { it.artistId == artistId }
             .sortedByDescending { it.releaseYear }
-            .map { album -> album.toMediaItem(builder) }
+            .map { album -> album.asCategory() }
 
         val artistTracks = tracks.asSequence()
             .filter { it.artistId == artistId }
-            .map { track -> track.toMediaItem(builder) }
+            .map { track -> track.asContent() }
 
         (artistAlbums + artistTracks)
             .toList()
@@ -72,33 +81,25 @@ internal class ArtistChildrenProvider(
             ?: throw NoSuchElementException("No artist with id = $artistId")
     }
 
-    private fun Artist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(
-        builder,
-        id = encode(TYPE_ARTISTS, id.toString()),
-        title = name,
-        subtitle = context.getString(R.string.svc_artist_subtitle, albumCount, trackCount),
-        trackCount = trackCount,
-        iconUri = iconUri?.toUri()
-    )
-
-    private fun Album.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(
-        builder,
-        id = encode(MediaId.TYPE_ALBUMS, id.toString()),
+    private fun Album.asCategory() = MediaCategory(
+        id = MediaId(TYPE_ALBUMS, id.toString()),
         title = title,
         subtitle = artist,
-        trackCount = trackCount,
-        iconUri = albumArtUri?.toUri()
-    )
-
-    private fun Track.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = playable(
-        builder,
-        id = encode(TYPE_ARTISTS, artistId.toString(), id),
-        title = title,
-        subtitle = artist,
-        mediaUri = mediaUri.toUri(),
         iconUri = albumArtUri?.toUri(),
+        trackCount = trackCount,
+        isPlayable = false
+    )
+
+    private fun Track.asContent() = AudioTrack(
+        id = MediaId(TYPE_ARTISTS, artistId.toString(), id),
+        title = title,
+        subtitle = artist,
+        album = album,
+        artist = artist,
         duration = duration,
-        disc = discNumber,
-        number = trackNumber
+        discNumber = discNumber,
+        trackNumber = trackNumber,
+        mediaUri = mediaUri.toUri(),
+        iconUri = albumArtUri?.toUri()
     )
 }

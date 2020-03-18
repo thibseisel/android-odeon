@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.browser.MediaTree
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -35,25 +35,24 @@ internal class CategoryChildrenProvider(
 
     override fun findChildren(
         parentId: MediaId
-    ): Flow<List<MediaItem>> = when (val categoryId = parentId.category) {
+    ): Flow<List<MediaContent>> = when (val categoryId = parentId.category) {
         null -> getCategories()
         else -> getCategoryChildren(categoryId)
     }
 
-    private fun getCategoryChildren(categoryId: String?): Flow<List<MediaItem>> =
+    private fun getCategoryChildren(categoryId: String?): Flow<List<MediaContent>> =
         categories[categoryId]?.children()
             ?: flow { throw NoSuchElementException("No such category: $categoryId") }
 
-    private fun getCategories(): Flow<List<MediaItem>> = flow {
-        val builder = MediaDescriptionCompat.Builder()
-
+    private fun getCategories(): Flow<List<MediaCategory>> = flow {
         val categoryItems = categories.map { (_, category) ->
-            browsable(
-                builder,
-                category.mediaId.toString(),
+            MediaCategory(
+                id = category.mediaId,
                 title = category.title,
                 subtitle = category.subtitle,
-                iconUri = category.iconUri
+                iconUri = category.iconUri,
+                trackCount = 0,
+                isPlayable = false
             )
         }
 

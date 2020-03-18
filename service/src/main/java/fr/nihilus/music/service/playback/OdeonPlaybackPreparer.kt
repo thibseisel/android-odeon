@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -40,6 +39,8 @@ import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.R
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.extensions.doOnPrepared
@@ -90,7 +91,7 @@ internal class OdeonPlaybackPreparer
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
-        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
+        prepareFromMediaId(lastPlayedMediaId.toMediaId(), settings.lastQueueIndex)
     }
 
     /**
@@ -110,7 +111,7 @@ internal class OdeonPlaybackPreparer
         val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
         settings.lastQueueMediaId = queueMediaId
 
-        prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
+        prepareFromMediaId(queueMediaId.toMediaId(), C.POSITION_UNSET)
     }
 
     override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
@@ -140,11 +141,11 @@ internal class OdeonPlaybackPreparer
             val results = browserTree.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
-            if (firstResult?.isBrowsable == true) {
-                prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
+            if (firstResult is MediaCategory) {
+                prepareFromMediaId(firstResult.id, C.POSITION_UNSET)
             } else {
                 preparePlayer(
-                    results.filter { it.isPlayable && !it.isBrowsable },
+                    results.filterIsInstance<AudioTrack>(),
                     firstShuffledIndex = 0,
                     startPosition = 0
                 )
@@ -161,9 +162,9 @@ internal class OdeonPlaybackPreparer
         cb: ResultReceiver?
     ) = Unit
 
-    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
+    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<AudioTrack> = try {
         val children = browserTree.getChildren(parentId).first()
-        children.filter { it.isPlayable && !it.isBrowsable }
+        children.filterIsInstance<AudioTrack>()
 
     } catch (pde: PermissionDeniedException) {
         Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
@@ -175,15 +176,15 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun prepareFromMediaId(
-        mediaId: String?,
+        mediaId: MediaId,
         startPlaybackPosition: Int
     ) = scope.launch(dispatchers.Default) {
-        val (type, category, track) = mediaId.toMediaId()
+        val (type, category, track) = mediaId
         val parentId = MediaId.fromParts(type, category, track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
         val firstIndex = if (track != null) {
-            playQueue.indexOfFirst { it.mediaId == mediaId }
+            playQueue.indexOfFirst { it.id == mediaId }
         } else C.POSITION_UNSET
         preparePlayer(playQueue, firstIndex, startPlaybackPosition)
     }
@@ -200,21 +201,18 @@ internal class OdeonPlaybackPreparer
      * otherwise playback will be set to start at the first index in the queue (shuffled or not).
      */
     private suspend fun preparePlayer(
-        playQueue: List<MediaItem>,
+        playQueue: List<AudioTrack>,
         firstShuffledIndex: Int,
         startPosition: Int
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
             val mediaSources = Array(playQueue.size) {
-                val playableItem = playQueue[it].description
-                val sourceUri = checkNotNull(playableItem.mediaUri) {
-                    "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
-                }
+                val playableItem = playQueue[it]
 
                 ExtractorMediaSource.Factory(appDataSourceFactory)
                     .setExtractorsFactory(audioOnlyExtractors)
                     .setTag(playableItem)
-                    .createMediaSource(sourceUri)
+                    .createMediaSource(playableItem.mediaUri)
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer
@@ -48,7 +49,7 @@ internal class MediaQueueManager
     downloader: IconDownloader
 ) : MediaSessionConnector.QueueNavigator {
 
-    private val producer: SendChannel<MediaDescriptionCompat>
+    private val producer: SendChannel<AudioTrack>
     init {
         val metadata = Channel<MediaMetadataCompat>()
         producer = scope.metadataProducer(downloader, metadata)
@@ -69,7 +70,7 @@ internal class MediaQueueManager
 
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
             player.currentTimeline.getWindow(windowIndex, windowBuffer, true)
-            return windowBuffer.tag as MediaDescriptionCompat
+            TODO("This fails due to changing the tag to AudioTrack.")
         }
     }
 
@@ -117,7 +118,7 @@ internal class MediaQueueManager
     ) = Unit
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
-        val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
+        val activeMedia = (player.currentTag as? AudioTrack) ?: return
         producer.offer(activeMedia)
     }
 }

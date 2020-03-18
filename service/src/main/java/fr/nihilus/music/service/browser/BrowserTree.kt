@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package fr.nihilus.music.service.browser
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Define the hierarchy of media that can be browsed by remote clients connected to the service.
  * Media are organized in a tree-like structure, with 2 type of nodes:
- * - [Browsable items][MediaItem.isBrowsable] that have children themselves that can be retrieved using [getChildren],
- * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
+ * - [Browsable items][MediaCategory] that have children themselves that can be retrieved using [getChildren],
+ * - [Playable leafs][AudioTrack] that do not have children but can be played.
  */
 internal interface BrowserTree {
 
@@ -41,7 +43,7 @@ internal interface BrowserTree {
      * The returned flow will throw [NoSuchElementException] if the requested parent node
      * is not browsable or not part of the media tree.
      */
-    fun getChildren(parentId: MediaId): Flow<List<MediaItem>>
+    fun getChildren(parentId: MediaId): Flow<List<MediaContent>>
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
@@ -50,7 +52,7 @@ internal interface BrowserTree {
      * @param itemId The media id of the item to retrieve.
      * @return An item with the same media id as the requested one, or `null` if no item matches.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaContent?
 
     /**
      * Search the browser tree for media items whose title matches the supplied [query].
@@ -59,7 +61,7 @@ internal interface BrowserTree {
      * @param query The client-provided search query.
      * @return A list of media items matching the search criteria.
      */
-    suspend fun search(query: SearchQuery): List<MediaItem>
+    suspend fun search(query: SearchQuery): List<MediaContent>
 }
 
 /**

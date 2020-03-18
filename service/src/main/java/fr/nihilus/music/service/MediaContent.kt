@@ -51,10 +51,10 @@ internal sealed class MediaContent(
 internal class MediaCategory(
     id: MediaId,
     title: String,
-    subtitle: String?,
-    iconUri: Uri?,
-    val trackCount: Int,
-    val isPlayable: Boolean
+    subtitle: String? = null,
+    iconUri: Uri? = null,
+    val trackCount: Int = -1,
+    val isPlayable: Boolean = false
 ) : MediaContent(id, title, subtitle, iconUri)
 
 /**

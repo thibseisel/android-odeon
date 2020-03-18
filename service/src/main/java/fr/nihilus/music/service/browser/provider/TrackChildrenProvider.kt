@@ -16,16 +16,14 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -36,7 +34,7 @@ internal class TrackChildrenProvider(
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
-    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
@@ -44,66 +42,41 @@ internal class TrackChildrenProvider(
             MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks()
             MediaId.CATEGORY_POPULAR -> getMonthPopularTracks()
             MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks()
-            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks()
             else -> flow { throw NoSuchElementException("No such parent: $parentId") }
         }
     }
 
-    private fun getAllTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
-        val builder = MediaDescriptionCompat.Builder()
-        tracks.map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
+    private fun getAllTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
+        tracks.map { it.asContent(MediaId.CATEGORY_ALL) }
     }
 
-    private fun getMostRatedTracks(): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
-        val builder = MediaDescriptionCompat.Builder()
-        mostRated.map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
+    private fun getMostRatedTracks(): Flow<List<AudioTrack>> = usageManager.getMostRatedTracks().map { mostRated ->
+        mostRated.map { it.asContent(MediaId.CATEGORY_MOST_RATED) }
     }
 
-    private fun getRecentlyAddedTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
-        val builder = MediaDescriptionCompat.Builder()
-
+    private fun getRecentlyAddedTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
         tracks.asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
-            .map { it.toMediaItem(MediaId.CATEGORY_RECENTLY_ADDED, builder) }
+            .map { it.asContent(MediaId.CATEGORY_RECENTLY_ADDED) }
             .toList()
     }
 
-    private fun getMonthPopularTracks(): Flow<List<MediaItem>> =
+    private fun getMonthPopularTracks(): Flow<List<AudioTrack>> =
         usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
-            val builder = MediaDescriptionCompat.Builder()
-            popularTracks.map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
+            popularTracks.map { it.asContent(MediaId.CATEGORY_POPULAR) }
         }
 
-    private fun getDisposableTracks(): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
-        val builder = MediaDescriptionCompat.Builder()
-
-        disposableTracks.map { track ->
-            val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
-            val description = builder.setMediaId(mediaId.encoded)
-                .setTitle(track.title)
-                .setExtras(Bundle().apply {
-                    putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                    track.lastPlayedTime?.let { lastPlayedTime ->
-                        putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
-                    }
-                }).build()
-            MediaItem(description, MediaItem.FLAG_PLAYABLE)
-        }
-    }
-
-    private fun Track.toMediaItem(
-        category: String,
-        builder: MediaDescriptionCompat.Builder
-    ): MediaItem = playable(
-        builder,
-        id = MediaId.encode(TYPE_TRACKS, category, id),
+    private fun Track.asContent(category: String)= AudioTrack(
+        id = MediaId(TYPE_TRACKS, category, id),
         title = title,
         subtitle = artist,
-        mediaUri = mediaUri.toUri(),
-        iconUri = albumArtUri?.toUri(),
+        album = album,
+        artist = artist,
         duration = duration,
-        disc = discNumber,
-        number = trackNumber
+        discNumber = discNumber,
+        trackNumber = trackNumber,
+        mediaUri = mediaUri.toUri(),
+        iconUri = albumArtUri?.toUri()
     )
 }

@@ -16,16 +16,16 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.collections.associateByLong
-import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -37,7 +37,7 @@ internal class PlaylistChildrenProvider(
 
     override fun findChildren(
         parentId: MediaId
-    ): Flow<List<MediaItem>> {
+    ): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_PLAYLISTS)
 
         val playlistId = parentId.category?.toLongOrNull()
@@ -47,44 +47,41 @@ internal class PlaylistChildrenProvider(
         }
     }
 
-    private fun getPlaylists(): Flow<List<MediaItem>> = playlistDao.playlists.map { playlists ->
-        val builder = MediaDescriptionCompat.Builder()
-        playlists.map { it.toMediaItem(builder) }
+    private fun getPlaylists(): Flow<List<MediaCategory>> = playlistDao.playlists.map { playlists ->
+        playlists.map {
+            MediaCategory(
+                id = MediaId(TYPE_PLAYLISTS, it.id.toString()),
+                title = it.title,
+                iconUri = it.iconUri,
+                trackCount = 0,
+                isPlayable = false
+            )
+        }
     }
 
     private fun getPlaylistMembers(
         playlistId: Long
-    ): Flow<List<MediaItem>> {
+    ): Flow<List<MediaContent>> {
         val playlistMembersFlow = playlistDao.getPlaylistTracks(playlistId)
         return combine(mediaDao.tracks, playlistMembersFlow) { allTracks, members ->
-            val builder = MediaDescriptionCompat.Builder()
             val tracksById = allTracks.associateByLong(Track::id)
 
-            members.mapNotNull { tracksById[it.trackId]?.toMediaItem(playlistId, builder) }
+            members.mapNotNull { tracksById[it.trackId]?.asContent(playlistId) }
                 .takeUnless { it.isEmpty() }
                 ?: throw NoSuchElementException("No playlist with id = $playlistId")
         }
     }
 
-    private fun Playlist.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem = browsable(
-        builder,
-        id = MediaId.encode(TYPE_PLAYLISTS, id.toString()),
-        title = title,
-        iconUri = iconUri
-    )
-
-    private fun Track.toMediaItem(
-        playlistId: Long,
-        builder: MediaDescriptionCompat.Builder
-    ): MediaItem = playable(
-        builder,
-        id = MediaId.encode(TYPE_PLAYLISTS, playlistId.toString(), id),
+    private fun Track.asContent(playlistId: Long) = AudioTrack(
+        id = MediaId(TYPE_PLAYLISTS, playlistId.toString(), id),
         title = title,
         subtitle = artist,
-        mediaUri = mediaUri.toUri(),
-        iconUri = albumArtUri?.toUri(),
+        album = album,
+        artist = artist,
         duration = duration,
-        disc = discNumber,
-        number = trackNumber
+        discNumber = discNumber,
+        trackNumber = trackNumber,
+        mediaUri = mediaUri.toUri(),
+        iconUri = albumArtUri?.toUri()
     )
 }

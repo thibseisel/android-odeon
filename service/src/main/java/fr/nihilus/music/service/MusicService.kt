@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
@@ -173,7 +173,7 @@ class MusicService : BaseBrowserService() {
                 try {
                     val paginationOptions = getPaginationOptions(options)
                     val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
-                    result.sendResult(children)
+                    result.sendResult(children.asMediaItems())
 
                 } catch (pde: PermissionDeniedException) {
                     Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
@@ -215,7 +215,20 @@ class MusicService : BaseBrowserService() {
             result.detach()
             launch(dispatchers.Default) {
                 try {
-                    val item = browserTree.getItem(itemMediaId)
+                    val item = browserTree.getItem(itemMediaId)?.let { media ->
+                        val description = MediaDescriptionCompat.Builder()
+                            .setMediaId(media.id.encoded)
+                            .setTitle(media.title)
+                            .setSubtitle(media.subtitle)
+                            .setIconUri(media.iconUri)
+                            .build()
+
+                        var flags = 0
+                        if (media is MediaCategory) flags = flags or MediaItem.FLAG_BROWSABLE
+                        if (media is AudioTrack) flags =flags or MediaItem.FLAG_PLAYABLE
+                        MediaItem(description, flags)
+                    }
+
                     result.sendResult(item)
                 } catch (pde: PermissionDeniedException) {
                     Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
@@ -236,7 +249,7 @@ class MusicService : BaseBrowserService() {
 
             try {
                 val searchResults = browserTree.search(parsedQuery)
-                result.sendResult(searchResults)
+                result.sendResult(searchResults.asMediaItems())
             } catch (pde: PermissionDeniedException) {
                 Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
                 result.sendResult(null)
@@ -263,6 +276,49 @@ class MusicService : BaseBrowserService() {
                 })
             }
         }
+    }
+
+    private fun List<MediaContent>.asMediaItems(): List<MediaItem> {
+        val playableBuilder = MediaDescriptionCompat.Builder()
+        val browsableBuilder = MediaDescriptionCompat.Builder()
+
+        return map { media ->
+            when (media) {
+                is MediaCategory -> media.asBrowsableItem(browsableBuilder)
+                is AudioTrack -> media.asPlayableItem(playableBuilder)
+            }
+        }
+    }
+
+    private fun MediaCategory.asBrowsableItem(builder: MediaDescriptionCompat.Builder): MediaItem {
+        val description = builder.setMediaId(id.encoded)
+            .setTitle(title)
+            .setSubtitle(subtitle)
+            .setIconUri(iconUri)
+            .setExtras(Bundle(1).apply {
+                putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
+            }).build()
+
+        val flags = when (isPlayable) {
+            true -> MediaItem.FLAG_BROWSABLE or MediaItem.FLAG_PLAYABLE
+            else -> MediaItem.FLAG_BROWSABLE
+        }
+
+        return MediaItem(description, flags)
+    }
+
+    private fun AudioTrack.asPlayableItem(builder: MediaDescriptionCompat.Builder): MediaItem {
+        val description = builder.setMediaId(id.encoded)
+            .setTitle(title)
+            .setSubtitle(subtitle)
+            .setIconUri(iconUri)
+            .setExtras(Bundle(3).apply {
+                putLong(MediaItems.EXTRA_DURATION, duration)
+                putInt(MediaItems.EXTRA_DISC_NUMBER, discNumber)
+                putInt(MediaItems.EXTRA_TRACK_NUMBER, trackNumber)
+            }).build()
+
+        return MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
     /**
@@ -389,8 +445,8 @@ class MusicService : BaseBrowserService() {
             }
 
             player.currentTimeline.getWindow(completedTrackIndex, windowBuffer, true)
-            val completedMedia = windowBuffer.tag as? MediaDescriptionCompat ?: return
-            val (_, _, completedTrackId) = completedMedia.mediaId.toMediaId()
+            val completedMedia = windowBuffer.tag as? AudioTrack ?: return
+            val completedTrackId = completedMedia.id.track
 
             if (completedTrackId != null) {
                 usageManager.reportCompletion(completedTrackId)

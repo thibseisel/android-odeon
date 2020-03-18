@@ -60,7 +60,7 @@ class SubscriptionManagerTest {
         val manager = CachingSubscriptionManager(this, TestBrowserTree)
         val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
-        children.map { it.mediaId }.shouldContainExactly(
+        children.map { it.id.encoded }.shouldContainExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 161),
             encode(TYPE_TRACKS, CATEGORY_ALL, 309),
             encode(TYPE_TRACKS, CATEGORY_ALL, 481),
@@ -209,7 +209,7 @@ class SubscriptionManagerTest {
             PaginationOptions(0, 3)
         )
 
-        paginatedChildren.map { it.mediaId }.shouldContainExactly(
+        paginatedChildren.map { it.id.encoded }.shouldContainExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 161),
             encode(TYPE_TRACKS, CATEGORY_ALL, 309),
             encode(TYPE_TRACKS, CATEGORY_ALL, 481)
@@ -225,7 +225,7 @@ class SubscriptionManagerTest {
             PaginationOptions(3, 2)
         )
 
-        paginatedChildren.map { it.mediaId }.shouldContainExactly(
+        paginatedChildren.map { it.id.encoded }.shouldContainExactly(
             encode(TYPE_TRACKS, CATEGORY_ALL, 219),
             encode(TYPE_TRACKS, CATEGORY_ALL, 75)
         )
@@ -386,7 +386,7 @@ class SubscriptionManagerTest {
         val item = manager.getItem(itemId)
         item.shouldNotBeNull()
 
-        val child = children.find { it.mediaId == item.mediaId }
+        val child = children.find { it.id == item.id }
             ?: failAssumption("$itemId should be listed in the children of $parentId, but wasn't")
         item shouldBeSameInstanceAs child
     }

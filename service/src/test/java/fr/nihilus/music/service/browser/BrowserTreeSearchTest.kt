@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
@@ -144,7 +145,7 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
         val results = tree.search(SearchQuery.Unspecified("Nightmare"))
 
-        results.map { it.mediaId }.shouldContainAll(
+        results.map { it.id.encoded }.shouldContainAll(
             encode(TYPE_ALBUMS, "6"),
             encode(TYPE_TRACKS, CATEGORY_ALL, 75)
         )
@@ -211,14 +212,14 @@ class BrowserTreeSearchTest {
         )
 
         val tree = BrowserTree(TestMediaDao(artist, emptyList(), tracks))
-        val results = tree.search(SearchQuery.Unspecified("av")).map { it.mediaId }
+        val results = tree.search(SearchQuery.Unspecified("av")).map { it.id }
 
         results.shouldContainExactly(
-            encode(TYPE_ARTISTS, "65"), // AVatar
-            encode(TYPE_TRACKS, CATEGORY_ALL, 90), // AValanche
-            encode(TYPE_ARTISTS, "98"), // AVenged Sevenfold
-            encode(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
-            encode(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
+            MediaId(TYPE_ARTISTS, "65"), // AVatar
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 90), // AValanche
+            MediaId(TYPE_ARTISTS, "98"), // AVenged Sevenfold
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
         )
     }
 
