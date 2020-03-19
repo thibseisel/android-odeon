@@ -16,11 +16,9 @@
 
 package fr.nihilus.music.service
 
-import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.playback.RepeatMode
@@ -30,14 +28,13 @@ import fr.nihilus.music.service.browser.SearchQuery
  * A [MediaSession] implementation that delegates to [MediaSessionCompat].
  * It abstracts implementation details such as [MediaMetadataCompat] and [MediaDescriptionCompat]
  * away so that the whole app gains in flexibility and testability.
+ *
+ * @param session The platform media session to which operations are delegated.
+ * This media session should still be released after use.
  */
 internal class MediaSessionCompatWrapper(
-    context: Context
+    private val session: MediaSessionCompat
 ) : MediaSession {
-
-    private val session = MediaSessionCompat(context, "MusicService").also {
-        it.setRatingType(RatingCompat.RATING_NONE)
-    }
 
     private val metadataBuilder = MediaMetadataCompat.Builder()
     private val itemBuilder = MediaDescriptionCompat.Builder()
@@ -127,10 +124,6 @@ internal class MediaSessionCompatWrapper(
 
     override fun setCallback(callback: MediaSession.Callback) {
         session.setCallback(SessionCompatCallbackAdapter(callback))
-    }
-
-    override fun release() {
-        session.release()
     }
 
     private class SessionCompatCallbackAdapter(

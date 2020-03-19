@@ -28,8 +28,6 @@ import fr.nihilus.music.service.browser.SearchQuery
  * A session can receive callbacks from one or more media controllers.
  * This makes it possible for the player to be controller by the app's UI
  * as well as companion devices running Android Wear or Android Auto.
- *
- * You should [release] the session when done performing playback.
  */
 internal interface MediaSession {
 
@@ -73,13 +71,6 @@ internal interface MediaSession {
      */
     fun setShuffleModeEnabled(shouldShuffle: Boolean)
     fun setCallback(callback: Callback)
-
-    /**
-     * Terminates the media session, disconnecting all its clients.
-     * This must be called when the app is no longer expected to play media,
-     * for example when its containing service is destroyed.
-     */
-    fun release()
 
     interface Callback {
         fun onPlay()
