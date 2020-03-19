@@ -63,20 +63,3 @@ interface UsageManager {
      */
     suspend fun reportCompletion(trackId: Long)
 }
-
-
-/**
- * Information on a track that could be deleted from the device's storage to free-up space.
- *
- * @property trackId Unique identifier of the related track.
- * @property title The display title of the related track.
- * @property fileSizeBytes The size of the file stored on the device's storage in bytes.
- * @property lastPlayedTime The epoch time at which that track has been played for the last time,
- * or `null` if it has never been played.
- */
-class DisposableTrack(
-    val trackId: Long,
-    val title: String,
-    val fileSizeBytes: Long,
-    val lastPlayedTime: Long?
-)
