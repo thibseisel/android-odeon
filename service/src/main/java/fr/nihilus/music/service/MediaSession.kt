@@ -17,6 +17,7 @@
 package fr.nihilus.music.service
 
 import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.service.browser.SearchQuery
 
@@ -75,10 +76,10 @@ internal interface MediaSession {
     interface Callback {
         fun onPlay()
         fun onPause()
-        fun onPlayFromMediaId(mediaId: String?)
+        fun onPlayFromMediaId(mediaId: MediaId)
         fun onPlayFromSearch(query: SearchQuery)
         fun onPrepare()
-        fun onPrepareFromMediaId(mediaId: String?)
+        fun onPrepareFromMediaId(mediaId: MediaId)
         fun onPrepareFromSearch(query: SearchQuery)
         fun onSeekTo(position: Long)
         fun onSetRepeatMode(mode: RepeatMode)

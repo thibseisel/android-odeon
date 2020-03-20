@@ -21,8 +21,11 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.core.media.InvalidMediaException
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.service.browser.SearchQuery
+import timber.log.Timber
 
 /**
  * A [MediaSession] implementation that delegates to [MediaSessionCompat].
@@ -138,8 +141,10 @@ internal class MediaSessionCompatWrapper(
             callback.onPause()
         }
 
-        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-            callback.onPlayFromMediaId(mediaId)
+        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) = try {
+            callback.onPlayFromMediaId(mediaId.toMediaId())
+        } catch (invalid: InvalidMediaException) {
+            Timber.i("Cannot play from malformed media id: %s.", mediaId)
         }
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
@@ -151,8 +156,10 @@ internal class MediaSessionCompatWrapper(
             callback.onPrepare()
         }
 
-        override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
-            callback.onPrepareFromMediaId(mediaId)
+        override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) = try {
+            callback.onPrepareFromMediaId(mediaId.toMediaId())
+        } catch (invalid: InvalidMediaException) {
+            Timber.i("Cannot prepare from malformed media id: %s", mediaId)
         }
 
         override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
