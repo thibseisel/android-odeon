@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.service.metadata.OdeonMetadataProvider
 import fr.nihilus.music.service.playback.ErrorHandler
 import fr.nihilus.music.service.playback.MediaQueueManager
 import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
@@ -70,13 +71,14 @@ internal abstract class MediaSessionModule {
             mediaSession: MediaSessionCompat,
             preparer: MediaSessionConnector.PlaybackPreparer,
             navigator: MediaSessionConnector.QueueNavigator,
+            metadataProvider: OdeonMetadataProvider,
             errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
         ) = MediaSessionConnector(mediaSession).also {
             it.setPlayer(player)
             it.setPlaybackPreparer(preparer)
             it.setQueueNavigator(navigator)
-            it.setMediaMetadataProvider(null)
+            it.setMediaMetadataProvider(metadataProvider)
             it.setErrorMessageProvider(errorHandler)
         }
     }
