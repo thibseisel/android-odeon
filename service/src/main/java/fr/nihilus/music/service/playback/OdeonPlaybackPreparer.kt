@@ -26,11 +26,12 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -86,7 +87,7 @@ internal class OdeonPlaybackPreparer
      *
      * @see MediaSessionCompat.Callback.onPrepare
      */
-    override fun onPrepare() {
+    override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
@@ -105,15 +106,13 @@ internal class OdeonPlaybackPreparer
      *
      * @see MediaSessionCompat.Callback.onPrepareFromMediaId
      */
-    override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
+    override fun onPrepareFromMediaId(mediaId: String, playWhenReady: Boolean, extras: Bundle) {
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
-        val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
-        settings.lastQueueMediaId = queueMediaId
-
-        prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
+        settings.lastQueueMediaId = mediaId
+        prepareFromMediaId(mediaId, C.POSITION_UNSET)
     }
 
-    override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
+    override fun onPrepareFromUri(uri: Uri, playWhenReady: Boolean, extras: Bundle) {
         // Not supported at the time.
         throw UnsupportedOperationException()
     }
@@ -122,10 +121,10 @@ internal class OdeonPlaybackPreparer
      * Handle requests to prepare for playing tracks picked from the results of a search.
      */
     @SuppressLint("LogNotTimber")
-    override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+    override fun onPrepareFromSearch(query: String, playWhenReady: Boolean, extras: Bundle) {
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
         if (Log.isLoggable("AssistantSearch", Log.INFO)) {
-            val extString = extras?.keySet()
+            val extString = extras.keySet()
                 ?.joinToString(", ", "{", "}") { "$it=${extras[it]}" }
                 ?: "null"
             Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
@@ -134,7 +133,7 @@ internal class OdeonPlaybackPreparer
         val parsedQuery = SearchQuery.from(query, extras)
         if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
-            onPrepare()
+            onPrepare(playWhenReady)
 
         } else scope.launch(dispatchers.Default) {
             val results = browserTree.search(parsedQuery)
@@ -152,14 +151,13 @@ internal class OdeonPlaybackPreparer
         }
     }
 
-    override fun getCommands(): Array<String>? = null
-
     override fun onCommand(
-        player: Player?,
-        command: String?,
+        player: Player,
+        controlDispatcher: ControlDispatcher,
+        command: String,
         extras: Bundle?,
         cb: ResultReceiver?
-    ) = Unit
+    ): Boolean = false
 
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
         val children = browserTree.getChildren(parentId).first()
@@ -211,8 +209,7 @@ internal class OdeonPlaybackPreparer
                     "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
                 }
 
-                ExtractorMediaSource.Factory(appDataSourceFactory)
-                    .setExtractorsFactory(audioOnlyExtractors)
+                ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
                     .setTag(playableItem)
                     .createMediaSource(sourceUri)
             }

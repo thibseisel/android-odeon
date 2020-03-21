@@ -28,7 +28,6 @@ import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.service.playback.ErrorHandler
 import fr.nihilus.music.service.playback.MediaQueueManager
-import fr.nihilus.music.service.playback.OdeonPlaybackController
 import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
 
 /**
@@ -36,9 +35,6 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
  */
 @Module
 internal abstract class MediaSessionModule {
-
-    @Binds
-    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): MediaSessionConnector.PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): MediaSessionConnector.PlaybackPreparer
@@ -72,14 +68,15 @@ internal abstract class MediaSessionModule {
         fun providesSessionConnector(
             player: ExoPlayer,
             mediaSession: MediaSessionCompat,
-            controller: MediaSessionConnector.PlaybackController,
             preparer: MediaSessionConnector.PlaybackPreparer,
             navigator: MediaSessionConnector.QueueNavigator,
             errorHandler: ErrorMessageProvider<ExoPlaybackException>
 
-        ) = MediaSessionConnector(mediaSession, controller, null).also {
-            it.setPlayer(player, preparer)
+        ) = MediaSessionConnector(mediaSession).also {
+            it.setPlayer(player)
+            it.setPlaybackPreparer(preparer)
             it.setQueueNavigator(navigator)
+            it.setMediaMetadataProvider(null)
             it.setErrorMessageProvider(errorHandler)
         }
     }

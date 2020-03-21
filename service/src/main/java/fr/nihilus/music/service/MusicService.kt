@@ -388,7 +388,7 @@ class MusicService : BaseBrowserService() {
                 return
             }
 
-            player.currentTimeline.getWindow(completedTrackIndex, windowBuffer, true)
+            player.currentTimeline.getWindow(completedTrackIndex, windowBuffer)
             val completedMedia = windowBuffer.tag as? MediaDescriptionCompat ?: return
             val (_, _, completedTrackId) = completedMedia.mediaId.toMediaId()
 

@@ -23,8 +23,8 @@ import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -35,15 +35,15 @@ internal class ErrorHandler
     private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 
-    override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? =
-        when (playbackException?.type) {
+    override fun getErrorMessage(playbackException: ExoPlaybackException): Pair<Int, String> =
+        when (playbackException.type) {
             ExoPlaybackException.TYPE_SOURCE -> handleSourceError(playbackException.sourceException)
             ExoPlaybackException.TYPE_RENDERER -> handleUnexpectedError(playbackException.rendererException)
             ExoPlaybackException.TYPE_UNEXPECTED -> handleUnexpectedError(playbackException.unexpectedException)
             else -> handleUnexpectedError(null)
         }
 
-    private fun handleSourceError(cause: IOException): Pair<Int, String>? = when (cause) {
+    private fun handleSourceError(cause: IOException): Pair<Int, String> = when (cause) {
         is UnrecognizedInputFormatException -> handleUnrecognizedFormat(cause.uri)
         else -> Pair(
             PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
@@ -67,7 +67,7 @@ internal class ErrorHandler
         )
     }
 
-    private fun handleUnexpectedError(cause: Exception?): Pair<Int, String>? {
+    private fun handleUnexpectedError(cause: Exception?): Pair<Int, String> {
         Timber.e(cause, "Unexpected player error.")
         return Pair(
             PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR,

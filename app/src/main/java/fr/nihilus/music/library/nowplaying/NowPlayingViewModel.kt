@@ -31,6 +31,7 @@ import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
@@ -44,20 +45,22 @@ class NowPlayingViewModel
     val state: LiveData<PlayerState> = liveData {
         // The Flow combine operator use a cached value of this Flow when the playback state changes.
         // Mapping here ensures that the transformation is only applied when metadata has changed.
-        val currentTrackState = client.nowPlaying.map { nowPlaying ->
-            nowPlaying?.let {
-                PlayerState.Track(
-                    id = it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toMediaId(),
-                    title = it.displayTitle!!,
-                    artist = it.displaySubtitle!!,
-                    duration = when (it.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
-                        true -> it.duration
-                        else -> PLAYBACK_POSITION_UNKNOWN
-                    },
-                    artworkUri = it.displayIconUri?.toUri()
-                )
+        val currentTrackState = client.nowPlaying
+            .filter { it == null || it.id != null }
+            .map { nowPlaying ->
+                nowPlaying?.let {
+                    PlayerState.Track(
+                        id = it.id.toMediaId(),
+                        title = it.displayTitle!!,
+                        artist = it.displaySubtitle!!,
+                        duration = when (it.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                            true -> it.duration
+                            else -> PLAYBACK_POSITION_UNKNOWN
+                        },
+                        artworkUri = it.displayIconUri?.toUri()
+                    )
+                }
             }
-        }
 
         combine(
             client.playbackState,

@@ -21,6 +21,7 @@ import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -68,24 +69,24 @@ internal class MediaQueueManager
         private val windowBuffer = Timeline.Window()
 
         override fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
-            player.currentTimeline.getWindow(windowIndex, windowBuffer, true)
+            player.currentTimeline.getWindow(windowIndex, windowBuffer)
             return windowBuffer.tag as MediaDescriptionCompat
         }
     }
 
-    override fun getSupportedQueueNavigatorActions(player: Player?): Long =
+    override fun getSupportedQueueNavigatorActions(player: Player): Long =
         navigator.getSupportedQueueNavigatorActions(player)
 
-    override fun onSkipToPrevious(player: Player?) {
-        navigator.onSkipToPrevious(player)
+    override fun onSkipToPrevious(player: Player, controlDispatcher: ControlDispatcher) {
+        navigator.onSkipToPrevious(player, controlDispatcher)
     }
 
-    override fun onSkipToNext(player: Player?) {
-        navigator.onSkipToNext(player)
+    override fun onSkipToNext(player: Player, controlDispatcher: ControlDispatcher) {
+        navigator.onSkipToNext(player, controlDispatcher)
     }
 
-    override fun onSkipToQueueItem(player: Player?, id: Long) {
-        navigator.onSkipToQueueItem(player, id)
+    override fun onSkipToQueueItem(player: Player, controlDispatcher: ControlDispatcher, id: Long) {
+        navigator.onSkipToQueueItem(player, controlDispatcher, id)
     }
 
     override fun onCurrentWindowIndexChanged(player: Player) {
@@ -107,14 +108,13 @@ internal class MediaQueueManager
         }
     }
 
-    override fun getCommands(): Array<String>? = null
-
     override fun onCommand(
-        player: Player?,
-        command: String?,
+        player: Player,
+        controlDispatcher: ControlDispatcher,
+        command: String,
         extras: Bundle?,
         cb: ResultReceiver?
-    ) = Unit
+    ): Boolean = false
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
         val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
