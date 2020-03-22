@@ -73,7 +73,6 @@ internal class MediaSessionConnector(
     private val looper = Util.getLooper()
     private val componentListener = ComponentListener()
 
-    private var controlDispatcher: ControlDispatcher = DefaultControlDispatcher()
     private var queueEditor: QueueEditor? = null
 
     init {
@@ -82,12 +81,6 @@ internal class MediaSessionConnector(
         mediaSession.setCallback(componentListener, Handler(looper))
         invalidateMediaSessionPlaybackState()
         invalidateMediaSessionMetadata()
-    }
-
-    fun setControlDispatcher(controlDispatcher: ControlDispatcher?) {
-        if (this.controlDispatcher !== controlDispatcher) {
-            this.controlDispatcher = controlDispatcher ?: DefaultControlDispatcher()
-        }
     }
 
     fun setQueueEditor(queueEditor: QueueEditor?) {
@@ -219,7 +212,7 @@ internal class MediaSessionConnector(
     }
 
     private fun seekTo(player: Player, windowIndex: Int, positionMs: Long) {
-        controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs)
+        player.seekTo(windowIndex, positionMs)
     }
 
     private fun getMediaSessionPlaybackState(
@@ -253,9 +246,9 @@ internal class MediaSessionConnector(
         fun onTimelineChanged(player: Player)
         fun onCurrentWindowIndexChanged(player: Player)
         fun getActiveQueueItemId(player: Player?): Long
-        fun onSkipToPrevious(player: Player, dispatcher: ControlDispatcher)
-        fun onSkipToNext(player: Player, dispatcher: ControlDispatcher)
-        fun onSkipToQueueItem(player: Player, dispatcher: ControlDispatcher, id: Long)
+        fun onSkipToPrevious(player: Player)
+        fun onSkipToNext(player: Player)
+        fun onSkipToQueueItem(player: Player, id: Long)
     }
 
     interface QueueEditor {
@@ -324,13 +317,13 @@ internal class MediaSessionConnector(
                     seekTo(player, player.currentWindowIndex, C.TIME_UNSET)
                 }
 
-                controlDispatcher.dispatchSetPlayWhenReady(player, true)
+                player.playWhenReady = true
             }
         }
 
         override fun onPause() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-                controlDispatcher.dispatchSetPlayWhenReady(player, false)
+                player.playWhenReady = false
             }
         }
 
@@ -354,14 +347,14 @@ internal class MediaSessionConnector(
 
         override fun onStop() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_STOP)) {
-                controlDispatcher.dispatchStop(player, true)
+                player.stop(true)
             }
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
                 val shuffleModeEnabled = (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
-                controlDispatcher.dispatchSetShuffleModeEnabled(player, shuffleModeEnabled)
+                player.shuffleModeEnabled = shuffleModeEnabled
             }
         }
 
@@ -369,30 +362,30 @@ internal class MediaSessionConnector(
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
                 val newMode = when (repeatMode) {
                     PlaybackStateCompat.REPEAT_MODE_ALL,
-                        PlaybackStateCompat.REPEAT_MODE_GROUP -> Player.REPEAT_MODE_ALL
+                    PlaybackStateCompat.REPEAT_MODE_GROUP -> Player.REPEAT_MODE_ALL
                     PlaybackStateCompat.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
                     else -> Player.REPEAT_MODE_OFF
                 }
 
-                controlDispatcher.dispatchSetRepeatMode(player, newMode)
+                player.repeatMode = newMode
             }
         }
 
         override fun onSkipToNext() {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
-                queueNavigator.onSkipToNext(player, controlDispatcher)
+                queueNavigator.onSkipToNext(player)
             }
         }
 
         override fun onSkipToPrevious() {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)) {
-                queueNavigator.onSkipToPrevious(player, controlDispatcher)
+                queueNavigator.onSkipToPrevious(player)
             }
         }
 
         override fun onSkipToQueueItem(id: Long) {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
-                queueNavigator.onSkipToQueueItem(player, controlDispatcher, id)
+                queueNavigator.onSkipToQueueItem(player, id)
             }
         }
 

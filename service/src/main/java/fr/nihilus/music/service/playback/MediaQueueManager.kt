@@ -21,7 +21,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
@@ -119,7 +118,7 @@ internal class MediaQueueManager
 
     override fun getActiveQueueItemId(player: Player?): Long = activeQueueItemId
 
-    override fun onSkipToPrevious(player: Player, dispatcher: ControlDispatcher) {
+    override fun onSkipToPrevious(player: Player) {
         val timeline = player.currentTimeline
         if (timeline.isEmpty || player.isPlayingAd) {
             return
@@ -131,13 +130,13 @@ internal class MediaQueueManager
         if (previousWindowIndex != C.INDEX_UNSET
             && (player.currentPosition <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS ||
                     (window.isDynamic && !window.isSeekable))) {
-            dispatcher.dispatchSeekTo(player, previousWindowIndex, C.TIME_UNSET)
+            player.seekTo(previousWindowIndex, C.TIME_UNSET)
         } else {
-            dispatcher.dispatchSeekTo(player, windowIndex, 0L)
+            player.seekTo(windowIndex, 0L)
         }
     }
 
-    override fun onSkipToQueueItem(player: Player, dispatcher: ControlDispatcher, id: Long) {
+    override fun onSkipToQueueItem(player: Player, id: Long) {
         val timeline = player.currentTimeline
         if (timeline.isEmpty || player.isPlayingAd) {
             return
@@ -145,11 +144,11 @@ internal class MediaQueueManager
 
         val windowIndex = id.toInt()
         if (windowIndex in 0 until timeline.windowCount) {
-            dispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET)
+            player.seekTo(windowIndex, C.TIME_UNSET)
         }
     }
 
-    override fun onSkipToNext(player: Player, dispatcher: ControlDispatcher) {
+    override fun onSkipToNext(player: Player) {
         val timeline = player.currentTimeline
         if (timeline.isEmpty || player.isPlayingAd) {
             return
@@ -158,9 +157,9 @@ internal class MediaQueueManager
         val windowIndex = player.currentWindowIndex
         val nextWindowIndex = player.nextWindowIndex
         if (nextWindowIndex != C.INDEX_UNSET) {
-            dispatcher.dispatchSeekTo(player, nextWindowIndex, C.TIME_UNSET)
+            player.seekTo(nextWindowIndex, C.TIME_UNSET)
         } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-            dispatcher.dispatchSeekTo(player, windowIndex, C.TIME_UNSET)
+            player.seekTo(windowIndex, C.TIME_UNSET)
         }
     }
 
