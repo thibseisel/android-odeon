@@ -16,17 +16,15 @@
 
 package fr.nihilus.music.service.playback
 
-import android.os.Bundle
-import android.os.ResultReceiver
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ControlDispatcher
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer
@@ -77,16 +75,16 @@ internal class MediaQueueManager
     override fun getSupportedQueueNavigatorActions(player: Player): Long =
         navigator.getSupportedQueueNavigatorActions(player)
 
-    override fun onSkipToPrevious(player: Player, controlDispatcher: ControlDispatcher) {
-        navigator.onSkipToPrevious(player, controlDispatcher)
+    override fun onSkipToPrevious(player: Player, dispatcher: ControlDispatcher) {
+        navigator.onSkipToPrevious(player, dispatcher)
     }
 
-    override fun onSkipToNext(player: Player, controlDispatcher: ControlDispatcher) {
-        navigator.onSkipToNext(player, controlDispatcher)
+    override fun onSkipToNext(player: Player, dispatcher: ControlDispatcher) {
+        navigator.onSkipToNext(player, dispatcher)
     }
 
-    override fun onSkipToQueueItem(player: Player, controlDispatcher: ControlDispatcher, id: Long) {
-        navigator.onSkipToQueueItem(player, controlDispatcher, id)
+    override fun onSkipToQueueItem(player: Player, dispatcher: ControlDispatcher, id: Long) {
+        navigator.onSkipToQueueItem(player, dispatcher, id)
     }
 
     override fun onCurrentWindowIndexChanged(player: Player) {
@@ -107,14 +105,6 @@ internal class MediaQueueManager
             onUpdateMediaSessionMetadata(player)
         }
     }
-
-    override fun onCommand(
-        player: Player,
-        controlDispatcher: ControlDispatcher,
-        command: String,
-        extras: Bundle?,
-        cb: ResultReceiver?
-    ): Boolean = false
 
     private fun onUpdateMediaSessionMetadata(player: Player) {
         val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return

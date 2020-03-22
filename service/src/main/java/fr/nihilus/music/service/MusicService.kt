@@ -32,7 +32,6 @@ import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
