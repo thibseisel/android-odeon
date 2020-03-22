@@ -63,45 +63,25 @@ internal const val PLAYBACK_ACTIONS = (
                 or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
         )
 
-internal const val NAVIGATOR_ACTIONS = (
-        PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM
-                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-        )
-
 internal class MediaSessionConnector(
-    private val mediaSession: MediaSessionCompat
+    private val mediaSession: MediaSessionCompat,
+    private val player: Player,
+    private val playbackPreparer: PlaybackPreparer,
+    private val queueNavigator: QueueNavigator,
+    private val errorMessageProvider: ErrorMessageProvider<in ExoPlaybackException>
 ) {
     private val looper = Util.getLooper()
     private val componentListener = ComponentListener()
 
-    private var player: Player? = null
     private var controlDispatcher: ControlDispatcher = DefaultControlDispatcher()
-    private var errorMessageProvider: ErrorMessageProvider<in ExoPlaybackException>? = null
-    private var playbackPreparer: PlaybackPreparer? = null
-    private var queueNavigator: QueueNavigator? = null
     private var queueEditor: QueueEditor? = null
 
-    private var enabledPlaybackActions: Long = BASE_PLAYBACK_ACTIONS
-
     init {
+        require(player.applicationLooper == looper)
+        player.addListener(componentListener)
         mediaSession.setCallback(componentListener, Handler(looper))
-    }
-
-    fun setPlayer(player: Player?) {
-        require(player == null || player.applicationLooper == looper)
-        this.player?.removeListener(componentListener)
-        this.player = player
-        player?.addListener(componentListener)
         invalidateMediaSessionPlaybackState()
         invalidateMediaSessionMetadata()
-    }
-
-    fun setPlaybackPreparer(playbackPreparer: PlaybackPreparer?) {
-        if (this.playbackPreparer !== playbackPreparer) {
-            this.playbackPreparer = playbackPreparer
-            invalidateMediaSessionPlaybackState()
-        }
     }
 
     fun setControlDispatcher(controlDispatcher: ControlDispatcher?) {
@@ -110,33 +90,12 @@ internal class MediaSessionConnector(
         }
     }
 
-    fun setEnabledPlaybackActions(enabledPlaybackActions: Long) {
-        val actions = enabledPlaybackActions and PLAYBACK_ACTIONS
-        if (this.enabledPlaybackActions != actions) {
-            this.enabledPlaybackActions = actions
-            invalidateMediaSessionPlaybackState()
-        }
-    }
-
-    fun setErrorMessageProvider(errorMessageProvider: ErrorMessageProvider<in ExoPlaybackException>?) {
-        if (this.errorMessageProvider !== errorMessageProvider) {
-            this.errorMessageProvider = errorMessageProvider
-            invalidateMediaSessionPlaybackState()
-        }
-    }
-
-    fun setQueueNavigator(queueNavigator: QueueNavigator?) {
-        if (this.queueNavigator !== queueNavigator) {
-            this.queueNavigator = queueNavigator
-        }
-    }
-
     fun setQueueEditor(queueEditor: QueueEditor?) {
         if (this.queueEditor !== queueEditor) {
             this.queueEditor = queueEditor
             mediaSession.setFlags(when (queueEditor) {
-                null -> MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-                else -> MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS or MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+                null -> 0
+                else -> MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
             })
         }
     }
@@ -147,73 +106,55 @@ internal class MediaSessionConnector(
 
     private fun invalidateMediaSessionPlaybackState() {
         val builder = PlaybackStateCompat.Builder()
-        val player = this.player
 
-        if (player == null) {
-            builder
-                .setActions(buildPrepareActions())
-                .setState(PlaybackStateCompat.STATE_NONE, 0, 0f, SystemClock.elapsedRealtime())
-            mediaSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
-            mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
-            mediaSession.setPlaybackState(builder.build())
-
-        } else {
-            val playbackError = player.playbackError
-            val reportError = playbackError != null
-            val sessionPlaybackState = when {
-                reportError -> PlaybackStateCompat.STATE_ERROR
-                else -> getMediaSessionPlaybackState(player.playbackState, player.playWhenReady)
-            }
-
-            val errorMessageProvider = this.errorMessageProvider
-            if (playbackError != null && errorMessageProvider != null) {
-                val (errorCode, errorMessage) = errorMessageProvider.getErrorMessage(playbackError)
-                builder.setErrorMessage(errorCode, errorMessage)
-            }
-
-            val activeQueueItemId = queueNavigator
-                ?.getActiveQueueItemId(player)
-                ?: MediaSessionCompat.QueueItem.UNKNOWN_ID.toLong()
-            val playbackParameters = player.playbackParameters
-            val sessionPlaybackSpeed = if (player.isPlaying) playbackParameters.speed else 0f
-
-            builder
-                .setActions(buildPrepareActions() or buildPlaybackActions(player))
-                .setActiveQueueItemId(activeQueueItemId)
-                .setBufferedPosition(player.bufferedPosition)
-                .setState(
-                    sessionPlaybackState,
-                    player.currentPosition,
-                    sessionPlaybackSpeed,
-                    SystemClock.elapsedRealtime()
-                )
-
-            mediaSession.setRepeatMode(when (player.repeatMode) {
-                Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
-                Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
-                else -> PlaybackStateCompat.REPEAT_MODE_NONE
-            })
-
-            mediaSession.setShuffleMode(when (player.shuffleModeEnabled) {
-                true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
-                false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
-            })
-
-            mediaSession.setPlaybackState(builder.build())
+        val playbackError = player.playbackError
+        val reportError = playbackError != null
+        val sessionPlaybackState = when {
+            reportError -> PlaybackStateCompat.STATE_ERROR
+            else -> getMediaSessionPlaybackState(player.playbackState, player.playWhenReady)
         }
+
+        val errorMessageProvider = this.errorMessageProvider
+        if (playbackError != null) {
+            val (errorCode, errorMessage) = errorMessageProvider.getErrorMessage(playbackError)
+            builder.setErrorMessage(errorCode, errorMessage)
+        }
+
+        val activeQueueItemId = queueNavigator.getActiveQueueItemId(player)
+        val playbackParameters = player.playbackParameters
+        val sessionPlaybackSpeed = if (player.isPlaying) playbackParameters.speed else 0f
+
+        builder
+            .setActions(buildPrepareActions() or buildPlaybackActions(player))
+            .setActiveQueueItemId(activeQueueItemId)
+            .setBufferedPosition(player.bufferedPosition)
+            .setState(
+                sessionPlaybackState,
+                player.currentPosition,
+                sessionPlaybackSpeed,
+                SystemClock.elapsedRealtime()
+            )
+
+        mediaSession.setRepeatMode(when (player.repeatMode) {
+            Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
+            else -> PlaybackStateCompat.REPEAT_MODE_NONE
+        })
+
+        mediaSession.setShuffleMode(when (player.shuffleModeEnabled) {
+            true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+            false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+        })
+
+        mediaSession.setPlaybackState(builder.build())
     }
 
     fun invalidateMediaSessionQueue() {
-        val player = this.player
-        val queueNavigator = this.queueNavigator
-
-        if (queueNavigator != null && player != null) {
-            queueNavigator.onTimelineChanged(player)
-        }
+        queueNavigator.onTimelineChanged(player)
     }
 
     private fun buildPrepareActions(): Long =
-        PREPARER_ACTIONS and (playbackPreparer?.getSupportedPrepareActions() ?: 0L)
+        PREPARER_ACTIONS and playbackPreparer.getSupportedPrepareActions()
 
     private fun buildPlaybackActions(player: Player): Long {
         var enableSeeking = false
@@ -238,31 +179,21 @@ internal class MediaSessionConnector(
             playbackActions = playbackActions or PlaybackStateCompat.ACTION_REWIND
         }
 
-        playbackActions = playbackActions or enabledPlaybackActions
+        playbackActions = playbackActions and PLAYBACK_ACTIONS
 
         var actions = playbackActions
-        queueNavigator?.let { actions = actions or it.getSupportedQueueNavigatorActions(player) }
+        actions = actions or queueNavigator.getSupportedQueueNavigatorActions(player)
         return actions
     }
 
     private fun canDispatchPlaybackAction(action: Long): Boolean =
-        player != null && (enabledPlaybackActions and action) != 0L
+        PLAYBACK_ACTIONS and action != 0L
 
-    private fun canDispatchToPlaybackPreparer(action: Long): Boolean {
-        val playbackPreparer = this.playbackPreparer
-        return playbackPreparer != null && playbackPreparer.getSupportedPrepareActions() and action != 0L
-    }
+    private fun canDispatchToPlaybackPreparer(action: Long): Boolean =
+        playbackPreparer.getSupportedPrepareActions() and action != 0L
 
-    private fun canDispatchToQueueNavigator(action: Long): Boolean {
-        val player = this.player
-        val queueNavigator = this.queueNavigator
-
-        return player != null
-                && queueNavigator != null
-                && queueNavigator.getSupportedQueueNavigatorActions(player) and action != 0L
-    }
-
-    private fun canDispatchQueueEdit(): Boolean = player != null && queueEditor != null
+    private fun canDispatchToQueueNavigator(action: Long): Boolean =
+        queueNavigator.getSupportedQueueNavigatorActions(player) and action != 0L
 
     private fun rewind(player: Player) {
         if (player.isCurrentWindowSeekable) {
@@ -338,18 +269,11 @@ internal class MediaSessionConnector(
         private var currentWindowCount = 0
 
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            val player = checkNotNull(this@MediaSessionConnector.player)
             val windowCount = player.currentTimeline.windowCount
             val windowIndex = player.currentWindowIndex
 
-            val queueNavigator = this@MediaSessionConnector.queueNavigator
-            if (queueNavigator != null) {
-                queueNavigator.onTimelineChanged(player)
-                invalidateMediaSessionPlaybackState()
-            } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
-                // Active queue item and queue navigation actions may need to be updated
-                invalidateMediaSessionPlaybackState()
-            }
+            queueNavigator.onTimelineChanged(player)
+            invalidateMediaSessionPlaybackState()
 
             currentWindowCount = windowCount
             currentWindowIndex = windowIndex
@@ -374,9 +298,8 @@ internal class MediaSessionConnector(
         }
 
         override fun onPositionDiscontinuity(reason: Int) {
-            val player = checkNotNull(this@MediaSessionConnector.player)
             if (currentWindowIndex != player.currentWindowIndex) {
-                queueNavigator?.onCurrentWindowIndexChanged(player)
+                queueNavigator.onCurrentWindowIndexChanged(player)
                 currentWindowIndex = player.currentWindowIndex
 
                 // Update playback state after queueNavigator.onCurrentWindowIndexChanged
@@ -395,9 +318,8 @@ internal class MediaSessionConnector(
 
         override fun onPlay() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PLAY)) {
-                val player = checkNotNull(this@MediaSessionConnector.player)
                 if (player.playbackState == Player.STATE_IDLE) {
-                    playbackPreparer?.onPrepare(true)
+                    playbackPreparer.onPrepare(true)
                 } else if (player.playbackState == Player.STATE_ENDED) {
                     seekTo(player, player.currentWindowIndex, C.TIME_UNSET)
                 }
@@ -408,39 +330,38 @@ internal class MediaSessionConnector(
 
         override fun onPause() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_PAUSE)) {
-                controlDispatcher.dispatchSetPlayWhenReady(player!!, false)
+                controlDispatcher.dispatchSetPlayWhenReady(player, false)
             }
         }
 
         override fun onSeekTo(positionMs: Long) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-                val player = checkNotNull(this@MediaSessionConnector.player)
                 seekTo(player, player.currentWindowIndex, positionMs)
             }
         }
 
         override fun onFastForward() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
-                fastForward(player!!)
+                fastForward(player)
             }
         }
 
         override fun onRewind() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_REWIND)) {
-                rewind(player!!)
+                rewind(player)
             }
         }
 
         override fun onStop() {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_STOP)) {
-                controlDispatcher.dispatchStop(player!!, true)
+                controlDispatcher.dispatchStop(player, true)
             }
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
                 val shuffleModeEnabled = (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
-                controlDispatcher.dispatchSetShuffleModeEnabled(player!!, shuffleModeEnabled)
+                controlDispatcher.dispatchSetShuffleModeEnabled(player, shuffleModeEnabled)
             }
         }
 
@@ -453,89 +374,80 @@ internal class MediaSessionConnector(
                     else -> Player.REPEAT_MODE_OFF
                 }
 
-                controlDispatcher.dispatchSetRepeatMode(player!!, newMode)
+                controlDispatcher.dispatchSetRepeatMode(player, newMode)
             }
         }
 
         override fun onSkipToNext() {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_NEXT)) {
-                val queueNavigator = checkNotNull(queueNavigator)
-                queueNavigator.onSkipToNext(player!!, controlDispatcher)
+                queueNavigator.onSkipToNext(player, controlDispatcher)
             }
         }
 
         override fun onSkipToPrevious() {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)) {
-                val queueNavigator = checkNotNull(queueNavigator)
-                queueNavigator.onSkipToPrevious(player!!, controlDispatcher)
+                queueNavigator.onSkipToPrevious(player, controlDispatcher)
             }
         }
 
         override fun onSkipToQueueItem(id: Long) {
             if (canDispatchToQueueNavigator(PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM)) {
-                val queueNavigator = checkNotNull(queueNavigator)
-                queueNavigator.onSkipToQueueItem(player!!, controlDispatcher, id)
+                queueNavigator.onSkipToQueueItem(player, controlDispatcher, id)
             }
         }
 
         override fun onPrepare() {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE)) {
-                playbackPreparer!!.onPrepare(false)
+                playbackPreparer.onPrepare(false)
             }
         }
 
         override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID)) {
-                playbackPreparer!!.onPrepareFromMediaId(mediaId, false, extras)
+                playbackPreparer.onPrepareFromMediaId(mediaId, false, extras)
             }
         }
 
         override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH)) {
-                playbackPreparer!!.onPrepareFromSearch(query, false, extras)
+                playbackPreparer.onPrepareFromSearch(query, false, extras)
             }
         }
 
         override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PREPARE_FROM_URI)) {
-                playbackPreparer!!.onPrepareFromUri(uri, false, extras)
+                playbackPreparer.onPrepareFromUri(uri, false, extras)
             }
         }
 
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID)) {
-                playbackPreparer!!.onPrepareFromMediaId(mediaId, true, extras)
+                playbackPreparer.onPrepareFromMediaId(mediaId, true, extras)
             }
         }
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH)) {
-                playbackPreparer!!.onPrepareFromSearch(query, true, extras)
+                playbackPreparer.onPrepareFromSearch(query, true, extras)
             }
         }
 
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
-                playbackPreparer!!.onPrepareFromUri(uri, true, extras)
+                playbackPreparer.onPrepareFromUri(uri, true, extras)
             }
         }
 
         override fun onAddQueueItem(description: MediaDescriptionCompat) {
-            if (canDispatchQueueEdit()) {
-                queueEditor!!.onAddQueueItem(player!!, description)
-            }
+            queueEditor?.onAddQueueItem(player, description)
         }
 
         override fun onAddQueueItem(description: MediaDescriptionCompat, index: Int) {
-            if (canDispatchQueueEdit()) {
-                queueEditor!!.onAddQueueItem(player!!, description, index)
-            }
+            queueEditor?.onAddQueueItem(player, description, index)
         }
 
         override fun onRemoveQueueItem(description: MediaDescriptionCompat) {
-            if (canDispatchQueueEdit()) {
-                queueEditor!!.onRemoveQueueItem(player!!, description)
-            }
+            queueEditor?.onRemoveQueueItem(player, description)
         }
     }
 }

@@ -70,12 +70,6 @@ internal abstract class MediaSessionModule {
             preparer: MediaSessionConnector.PlaybackPreparer,
             navigator: MediaSessionConnector.QueueNavigator,
             errorHandler: ErrorMessageProvider<ExoPlaybackException>
-
-        ) = MediaSessionConnector(mediaSession).also {
-            it.setPlayer(player)
-            it.setPlaybackPreparer(preparer)
-            it.setQueueNavigator(navigator)
-            it.setErrorMessageProvider(errorHandler)
-        }
+        ) = MediaSessionConnector(mediaSession, player, preparer, navigator, errorHandler)
     }
 }
