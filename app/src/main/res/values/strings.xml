@@ -23,7 +23,7 @@
     <string name="action_search">Search</string>
     <string name="empty_songs">No songs</string>
     <string name="all_music">Tracks</string>
-    <string name="empty_albums">No album</string>
+    <string name="empty_albums">No albums</string>
     <string name="prefs_category_appearance">Appearance</string>
     <string name="pref_theme_title">Theme</string>
     <string name="action_playlists">Playlists</string>
@@ -31,10 +31,11 @@
     <string name="play_or_pause">Play or pause</string>
     <string name="skip_previous">Skip to previous</string>
     <string name="skip_next">Skip to next</string>
-    <string name="empty_artist">No artist</string>
+    <string name="empty_artist">No artists</string>
     <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
-    <string name="delete_dialog_title">Delete from library ?</string>
+    <string name="delete_dialog_title">Delete from library?</string>
+    <string name="cancel">Cancel</string>
     <string name="empty_playlist">No playlist</string>
     <string name="delete_dialog_message">This song will be deleted from your device.</string>
     <plurals name="deleted_songs_confirmation">
@@ -53,8 +54,8 @@
     </plurals>
 
     <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Delete %d track ?</item>
-        <item quantity="other">Delete %d tracks ?</item>
+        <item quantity="one">Delete %d track?</item>
+        <item quantity="other">Delete %d tracks?</item>
     </plurals>
 
     <string name="playlist_created">Created new playlist \"%1$s\".</string>
@@ -67,7 +68,7 @@
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
-    <string name="delete_playlist_dialog_title">Delete the playlist \"%s\" ?</string>
+    <string name="delete_playlist_dialog_title">Delete the playlist \"%s\"?</string>
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
     <string name="action_condensed_play_shuffled">Read shuffled</string>
     <string name="action_repeat_mode">Toggle repeat mode</string>

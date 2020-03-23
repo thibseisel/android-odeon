@@ -144,7 +144,7 @@ class NowPlayingViewModel
     fun toggleShuffleMode() {
         viewModelScope.launch {
             state.value?.let {
-                client.setShuffleModeEnabled(it.shuffleModeEnabled)
+                client.setShuffleModeEnabled(!it.shuffleModeEnabled)
             }
         }
     }

@@ -1,0 +1,2 @@
+What's new:
+* Fix display of album artworks in the whole application on Android 10.

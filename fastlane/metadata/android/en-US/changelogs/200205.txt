@@ -1,0 +1,3 @@
+What's new:
+* Polish translation (thanks to @Atrate).
+* Fix a bug where the shuffle mode toggle would not work.
