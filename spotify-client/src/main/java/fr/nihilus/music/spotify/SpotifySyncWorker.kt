@@ -19,7 +19,6 @@ package fr.nihilus.music.spotify
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import fr.nihilus.music.spotify.service.SpotifyService
 
 /**
  * Fetches media metadata from the Spotify API and saves them to local database for later use.
@@ -28,10 +27,8 @@ class SpotifySyncWorker(
     context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
-    @Inject internal lateinit var spotifyService: SpotifyService
 
     override suspend fun doWork(): Result {
-        DaggerSpotifyClientComponent.create().inject(this)
         // TODO Perform synchronization.
         // Here are some thoughts about how it should perform:
         // 1. Scan the cached music metadata to find tracks that do not have features
