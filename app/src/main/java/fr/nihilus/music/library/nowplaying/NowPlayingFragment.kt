@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()
 
-        viewModel.state.observe(this, ::onPlayerStateChanged)
+        viewModel.state.observe(viewLifecycleOwner, ::onPlayerStateChanged)
 
         if (savedInstanceState != null) {
             isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)

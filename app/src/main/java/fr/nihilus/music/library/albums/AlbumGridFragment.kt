@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
             afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
-        viewModel.albums.observe(this) { albumRequest ->
+        viewModel.albums.observe(viewLifecycleOwner) { albumRequest ->
             when (albumRequest) {
                 is LoadRequest.Pending -> refreshToggle.isRefreshing = true
                 is LoadRequest.Success -> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        playlistViewModel.userPlaylists.observe(this) {
+        playlistViewModel.userPlaylists.observe(viewLifecycleOwner) {
             if (it is LoadRequest.Success) {
                 playlistAdapter.submitList(it.data)
             }

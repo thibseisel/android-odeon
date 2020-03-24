@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             }
         }
 
-        viewModel.searchResults.observe(this) { searchResults ->
+        viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
             resultsAdapter.submitList(searchResults)
         }
 

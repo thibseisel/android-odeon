@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.core.ui.motion.Stagger
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
@@ -93,9 +93,9 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
 
         val staggerAnimation = Stagger()
 
-        viewModel.artist.observe(this, ::onArtistDetailLoaded)
+        viewModel.artist.observe(viewLifecycleOwner, ::onArtistDetailLoaded)
 
-        viewModel.children.observe(this) { childrenRequest ->
+        viewModel.children.observe(viewLifecycleOwner) { childrenRequest ->
             when (childrenRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {

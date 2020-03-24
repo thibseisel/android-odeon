@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.
         artist_recycler.adapter = adapter
         artist_recycler.setHasFixedSize(true)
 
-        viewModel.artists.observe(this) { artistRequest ->
+        viewModel.artists.observe(viewLifecycleOwner) { artistRequest ->
             when (artistRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {

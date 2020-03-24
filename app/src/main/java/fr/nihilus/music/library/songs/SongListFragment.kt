@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,12 +30,12 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import fr.nihilus.music.core.ui.motion.Stagger
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {
@@ -67,7 +67,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
         val staggerTransition = Stagger()
 
-        viewModel.tracks.observe(this) { itemRequest ->
+        viewModel.tracks.observe(viewLifecycleOwner) { itemRequest ->
             when (itemRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
@@ -84,7 +84,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
             }
         }
 
-        playlistViewModel.playlistActionResult.observe(this) { playlistEvent ->
+        playlistViewModel.playlistActionResult.observe(viewLifecycleOwner) { playlistEvent ->
             playlistEvent.handle { result ->
                 when (result) {
                     is PlaylistActionResult.Created -> {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             askCleanupConfirmation(selectionTracker.selection)
         }
 
-        viewModel.tracks.observe(this) { disposableTracksRequest ->
+        viewModel.tracks.observe(viewLifecycleOwner) { disposableTracksRequest ->
             when (disposableTracksRequest) {
                 is LoadRequest.Success -> {
                     adapter.submitList(disposableTracksRequest.data)

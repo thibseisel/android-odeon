@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,11 +51,11 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
                 .commit()
         }
 
-        viewModel.tracks.observe(this) { tracks ->
+        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
             label_track_count.text = getString(R.string.dev_matching_tracks_count, tracks.size)
         }
 
-        viewModel.filters.observe(this) { filters ->
+        viewModel.filters.observe(viewLifecycleOwner) { filters ->
             adapter.submitList(filters)
         }
     }

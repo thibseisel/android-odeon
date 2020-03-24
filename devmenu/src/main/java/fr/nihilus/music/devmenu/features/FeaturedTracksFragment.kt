@@ -48,7 +48,7 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
         val adapter = FeaturedTrackAdapter()
         track_list.adapter = adapter
 
-        viewModel.tracks.observe(this) { tracks ->
+        viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
             adapter.submitList(tracks)
         }
     }

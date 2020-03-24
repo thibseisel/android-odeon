@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
         playlist_recycler.adapter = adapter
         playlist_recycler.setHasFixedSize(true)
 
-        viewModel.playlists.observe(this) { playlistsRequest ->
+        viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
