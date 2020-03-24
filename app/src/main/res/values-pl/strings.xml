@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="album_art">Okładka albumu</string>
     <string name="action_albums">Albumy</string>
     <string name="action_settings">Ustawienia</string>
@@ -35,33 +35,32 @@
     <string name="action_delete">Usuń</string>
     <string name="add_to_playlist">Dodaj do playlisty</string>
     <string name="delete_dialog_title">Usunąć z biblioteki muzycznej?</string>
-    <string name="cancel">Anuluj</string>
     <string name="empty_playlist">Brak playlist</string>
     <string name="delete_dialog_message">Ten utwór zostanie usunięty z urządzenia.</string>
-    <plurals name="deleted_songs_confirmation">
+    <plurals name="deleted_songs_confirmation" tools:ignore="MissingQuantity">
         <item quantity="one">Utwór został usunięty.</item>
         <item quantity="other">Utwory zostały usunięte.</item>
     </plurals>
 
-    <plurals name="number_of_tracks">
+    <plurals name="number_of_tracks" tools:ignore="MissingQuantity">
         <item quantity="one">%d utwór</item>
         <item quantity="few">%d utwory</item>
         <item quantity="other">%d utworów</item>
     </plurals>
 
-    <plurals name="number_of_selected_tracks">
+    <plurals name="number_of_selected_tracks" tools:ignore="MissingQuantity">
         <item quantity="one">%d wybrany utwór</item>
         <item quantity="few">%d wybrane utwory</item>
         <item quantity="other">%d wybranych utworów</item>
     </plurals>
 
-    <plurals name="cleanup_confirmation_title">
+    <plurals name="cleanup_confirmation_title" tools:ignore="MissingQuantity">
         <item quantity="one">Usunąć %d utwór?</item>
         <item quantity="few">Usunąć %d utwory?</item>
         <item quantity="other">Usunąć %d utworów?</item>
     </plurals>
 
-    <plurals name="tracks_added_to_playlist">
+    <plurals name="tracks_added_to_playlist" tools:ignore="MissingQuantity">
         <item quantity="one">%1$d utwór dodano do playlisty \"%2$s\"</item>
         <item quantity="few">%1$d utwory dodano do playlisty \"%2$s\"</item>
         <item quantity="other">%1$d utworów dodano do playlisty "\%2$s\"</item>
@@ -69,7 +68,6 @@
 
     <string name="playlist_created">Stworzono nową playlistę \"%1$s\".</string>
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="ok">OK</string>
     <string name="action_edit_playlist">Edytuj playlistę</string>
     <string name="action_delete_playlist">Usuń playlistę</string>
     <string name="delete_playlist_dialog_title">Usunąć playlistę \"%s\"?</string>
@@ -78,9 +76,6 @@
     <string name="action_repeat_mode">Włącz/wyłącz tryb powtarzania</string>
     <string name="action_create_playlist">Nowa playlista</string>
     <string name="hint_playlist_title">Tytuł playlisty</string>
-    <string name="pref_title_skip_silence">Pomijaj ciszę w utworach</string>
-    <string name="pref_summary_skip_silence">Pomijaj początek bądź koniec utworu jeśli jest to cisza</string>
-    <string name="pref_category_experimental">Eksperymentalne</string>
     <string name="last_played_description">Ostatnio odtwarzane %1$s</string>
     <string name="never_played">Nigdy nie odtwarzane</string>
     <string name="pref_theme_light">Jasny</string>
