@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,24 @@ package fr.nihilus.music.glide.palette
 
 import androidx.annotation.ColorInt
 import androidx.palette.graphics.Palette
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import fr.nihilus.music.core.ui.extensions.toHsl
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * Tests the [PrimaryHueFilter] capacity to reject colors that are too close in hue
  * from the picked primary color.
  * Each test is written using colors manually picked from a real world's album art.
  */
-@RunWith(AndroidJUnit4::class)
 class PrimaryHueFilterTest {
 
     @Test
     fun blackHolesAndRevelations() {
         // Orange desert ground
         with(PrimaryHueFilter(0xB04020)) {
-            assertThat(primaryIsGreyScale).isFalse()
-            assertThat(primaryIsNearRed).isTrue()
+            assertFalse(primaryIsGreyScale)
+            assertTrue(primaryIsNearRed)
             assertNotAllowed(0xB03820) // Near the same orange as primary
             assertAccepted(0x4C61A4) // Blue sky
         }
@@ -48,8 +45,8 @@ class PrimaryHueFilterTest {
     fun panzerSurprise() {
         // The orange circle background
         with(PrimaryHueFilter(0xD03820)) {
-            assertThat(primaryIsGreyScale).isFalse()
-            assertThat(primaryIsNearRed).isTrue()
+            assertFalse(primaryIsGreyScale)
+            assertTrue(primaryIsNearRed)
             assertNotAllowed(0xD03820) // The exact same orange
             assertAccepted(0xA09D34) // The canon's green
             assertAccepted(0xFAB45F) // The circle's yellow
@@ -60,8 +57,8 @@ class PrimaryHueFilterTest {
     fun nevermind() {
         // Underwater deep blue
         with(PrimaryHueFilter(0x305898)) {
-            assertThat(primaryIsGreyScale).isFalse()
-            assertThat(primaryIsNearRed).isFalse()
+            assertFalse(primaryIsGreyScale)
+            assertFalse(primaryIsNearRed)
             assertNotAllowed(0x2F5B9C) // Middle underwater blue
             assertAccepted(0x30A0B0) // Surface light blue
         }
@@ -71,8 +68,8 @@ class PrimaryHueFilterTest {
     fun garageInc() {
         // James' black jacket
         with(PrimaryHueFilter(0x001820)) {
-            assertThat(primaryIsGreyScale).isTrue()
-            assertThat(primaryIsNearRed).isFalse()
+            assertTrue(primaryIsGreyScale)
+            assertFalse(primaryIsNearRed)
             assertAccepted(0x54A5C3) // Kirk's blue face
             assertAccepted(0x80C0E0) // James' blue face
         }
@@ -82,8 +79,8 @@ class PrimaryHueFilterTest {
     fun blur() {
         // Blurry gold
         with(PrimaryHueFilter(0xF8A020)) {
-            assertThat(primaryIsGreyScale).isFalse()
-            assertThat(primaryIsNearRed).isFalse()
+            assertFalse(primaryIsGreyScale)
+            assertFalse(primaryIsNearRed)
             assertNotAllowed(0xFEAE25) // The same gold
             assertNotAllowed(0xFFCE33) // Lighter gold
             assertAccepted(0xF0E080) // Light shades of yellow
@@ -94,8 +91,8 @@ class PrimaryHueFilterTest {
     fun whitePixelApe() {
         // Light grey wall behind the ape
         with(PrimaryHueFilter(0xF8F8F8)) {
-            assertThat(primaryIsGreyScale).isTrue()
-            assertThat(primaryIsNearRed).isTrue()
+            assertTrue(primaryIsGreyScale)
+            assertTrue(primaryIsNearRed)
             assertAccepted(0xE03838) // The ape's straw red lines
         }
     }
@@ -104,21 +101,19 @@ class PrimaryHueFilterTest {
     fun drones() {
         // Black shadows
         with(PrimaryHueFilter(0x000000)) {
-            assertThat(primaryIsGreyScale).isTrue()
-            assertThat(primaryIsNearRed).isTrue()
+            assertTrue(primaryIsGreyScale)
+            assertTrue(primaryIsNearRed)
             assertAccepted(0x833717) // The dark red lever
         }
     }
 
     private fun Palette.Filter.assertNotAllowed(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
-        assertWithMessage("Color should have been rejected. Hue = %s", hsl[0])
-            .that(isAllowed(accentColor, hsl)).isFalse()
+        assertFalse(isAllowed(accentColor, hsl), "Color should have been rejected. Hue = ${hsl[0]}")
     }
 
     private fun Palette.Filter.assertAccepted(@ColorInt accentColor: Int) {
         val hsl = accentColor.toHsl()
-        assertWithMessage("Color should have been accepted. Hue = %s", hsl[0])
-            .that(isAllowed(accentColor, hsl)).isTrue()
+        assertTrue(isAllowed(accentColor, hsl), "Color should have been accepted. Hue = ${hsl[0]}")
     }
 }
