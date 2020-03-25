@@ -27,6 +27,7 @@ import androidx.core.util.component2
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import com.google.android.exoplayer2.util.Util
+import javax.inject.Inject
 
 private const val REWIND_MS = 5000L
 private const val FAST_FORWARD_MS = 15000L
@@ -62,12 +63,13 @@ internal const val PLAYBACK_ACTIONS = (
                 or PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
         )
 
-internal class MediaSessionConnector(
+@ServiceScoped
+internal class MediaSessionConnector @Inject constructor(
     private val mediaSession: MediaSessionCompat,
     private val player: Player,
     private val playbackPreparer: PlaybackPreparer,
     private val queueNavigator: QueueNavigator,
-    private val errorMessageProvider: ErrorMessageProvider<in ExoPlaybackException>
+    private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>
 ) {
     private val looper = Util.getLooper()
     private val componentListener = ComponentListener()
