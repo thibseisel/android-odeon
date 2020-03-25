@@ -17,7 +17,6 @@
 package fr.nihilus.music.service.playback
 
 import android.content.Context
-import android.net.Uri
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -44,28 +43,17 @@ internal class ErrorHandler
         }
 
     private fun handleSourceError(cause: IOException): Pair<Int, String>? = when (cause) {
-        is UnrecognizedInputFormatException -> handleUnrecognizedFormat(cause.uri)
+        is UnrecognizedInputFormatException -> handleUnrecognizedFormat()
         else -> Pair(
             PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
             context.getString(R.string.svc_player_source_error_generic)
         )
     }
 
-    private fun handleUnrecognizedFormat(failingUri: Uri?): Pair<Int, String> {
-        if (failingUri != null && failingUri.isHierarchical) {
-            failingUri.path?.substringAfterLast('.')?.let { fileExtension ->
-                return Pair(
-                    PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
-                    context.getString(R.string.svc_player_error_unsupported_file_format, fileExtension)
-                )
-            }
-        }
-
-        return Pair(
-            PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
-            context.getString(R.string.svc_player_error_unsupported_file)
-        )
-    }
+    private fun handleUnrecognizedFormat(): Pair<Int, String> = Pair(
+        PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,
+        context.getString(R.string.svc_player_error_unsupported_file)
+    )
 
     private fun handleUnexpectedError(cause: Exception?): Pair<Int, String>? {
         Timber.e(cause, "Unexpected player error.")
