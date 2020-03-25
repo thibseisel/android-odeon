@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package fr.nihilus.music.service.playback
 
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
@@ -26,13 +25,6 @@ import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.ServiceScoped
-import fr.nihilus.music.service.metadata.IconDownloader
-import fr.nihilus.music.service.metadata.metadataProducer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -46,26 +38,12 @@ private const val UNKNOWN_QUEUE_ID = MediaSessionCompat.QueueItem.UNKNOWN_ID.toL
 @ServiceScoped
 internal class MediaQueueManager
 @Inject constructor(
-    scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
-    private val prefs: Settings,
-    downloader: IconDownloader
+    private val prefs: Settings
 ) : MediaSessionConnector.QueueNavigator {
 
     private val window = Timeline.Window()
     private var activeQueueItemId = MediaSessionCompat.QueueItem.UNKNOWN_ID.toLong()
-
-    private val producer: SendChannel<MediaDescriptionCompat>
-    init {
-        val metadata = Channel<MediaMetadataCompat>()
-        producer = scope.metadataProducer(downloader, metadata)
-
-        scope.launch {
-            metadata.consumeEach { upToDateMetadata ->
-                mediaSession.setMetadata(upToDateMetadata)
-            }
-        }
-    }
 
     override fun getSupportedQueueNavigatorActions(player: Player): Long {
         var enableSkipTo = false
@@ -96,10 +74,6 @@ internal class MediaQueueManager
 
     override fun onTimelineChanged(player: Player) {
         publishFloatingQueueWindow(player)
-
-        if (!player.currentTimeline.isEmpty) {
-            onUpdateMediaSessionMetadata(player)
-        }
     }
 
     override fun onCurrentWindowIndexChanged(player: Player) {
@@ -110,10 +84,6 @@ internal class MediaQueueManager
         }
 
         prefs.lastQueueIndex = player.currentWindowIndex
-
-        if (!player.currentTimeline.isEmpty) {
-            onUpdateMediaSessionMetadata(player)
-        }
     }
 
     override fun getActiveQueueItemId(player: Player?): Long = activeQueueItemId
@@ -221,10 +191,5 @@ internal class MediaQueueManager
     private fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
         val bufferWindow = player.currentTimeline.getWindow(windowIndex, window)
         return bufferWindow.tag as MediaDescriptionCompat
-    }
-
-    private fun onUpdateMediaSessionMetadata(player: Player) {
-        val activeMedia = (player.currentTag as? MediaDescriptionCompat) ?: return
-        producer.offer(activeMedia)
     }
 }

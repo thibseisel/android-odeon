@@ -20,6 +20,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
+import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
@@ -27,6 +29,13 @@ import androidx.core.util.component2
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import com.google.android.exoplayer2.util.Util
+import fr.nihilus.music.service.metadata.IconDownloader
+import fr.nihilus.music.service.metadata.metadataProducer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val REWIND_MS = 5000L
@@ -65,14 +74,18 @@ internal const val PLAYBACK_ACTIONS = (
 
 @ServiceScoped
 internal class MediaSessionConnector @Inject constructor(
+    scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
     private val player: Player,
     private val playbackPreparer: PlaybackPreparer,
     private val queueNavigator: QueueNavigator,
-    private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>
+    private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>,
+    private val iconDownloader: IconDownloader
 ) {
     private val looper = Util.getLooper()
     private val componentListener = ComponentListener()
+
+    private val metadataProducer = scope.startMetadataUpdater()
 
     init {
         require(player.applicationLooper === looper)
@@ -83,7 +96,10 @@ internal class MediaSessionConnector @Inject constructor(
     }
 
     private fun invalidateMediaSessionMetadata() {
-        // Do nothing on purpose.
+        val nowPlayingTrack = player.currentTag as? MediaDescriptionCompat
+        if (nowPlayingTrack != null) {
+            metadataProducer.offer(nowPlayingTrack)
+        }
     }
 
     private fun invalidateMediaSessionPlaybackState() {
@@ -214,6 +230,19 @@ internal class MediaSessionConnector @Inject constructor(
         }
         Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
         else -> PlaybackStateCompat.STATE_NONE
+    }
+
+    private fun CoroutineScope.startMetadataUpdater(): SendChannel<MediaDescriptionCompat> {
+        val metadataOutput = Channel<MediaMetadataCompat>()
+        val producerActor = metadataProducer(iconDownloader, metadataOutput)
+
+        launch {
+            metadataOutput.consumeEach {
+                mediaSession.setMetadata(it)
+            }
+        }
+
+        return producerActor
     }
 
     interface PlaybackPreparer {
