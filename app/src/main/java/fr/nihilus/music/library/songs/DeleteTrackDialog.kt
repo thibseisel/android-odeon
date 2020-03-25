@@ -20,10 +20,11 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.library.HomeViewModel
+import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.newInstance
 
 /**
  * An alert dialog that prompts the user for confirmation to delete a single track from its device.
@@ -31,7 +32,7 @@ import fr.nihilus.music.library.HomeViewModel
  * Instances of this class should be created with [newInstance].
  */
 class DeleteTrackDialog : AppCompatDialogFragment() {
-    private val viewModel: HomeViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return MaterialAlertDialogBuilder(requireContext())

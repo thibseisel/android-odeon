@@ -19,7 +19,7 @@ package fr.nihilus.music.library.playlists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
@@ -35,7 +35,7 @@ import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
 
-    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var adapter: PlaylistsAdapter
 

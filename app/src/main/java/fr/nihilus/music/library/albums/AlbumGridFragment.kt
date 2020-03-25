@@ -19,7 +19,7 @@ package fr.nihilus.music.library.albums
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -38,7 +38,7 @@ import kotlinx.android.synthetic.main.fragment_albums.*
  * Selecting an album opens its [detail view][AlbumDetailFragment].
  */
 class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
-    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var albumAdapter: AlbumsAdapter
 
