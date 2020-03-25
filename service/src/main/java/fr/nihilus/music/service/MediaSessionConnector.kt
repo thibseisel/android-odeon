@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
@@ -73,27 +72,15 @@ internal class MediaSessionConnector(
     private val looper = Util.getLooper()
     private val componentListener = ComponentListener()
 
-    private var queueEditor: QueueEditor? = null
-
     init {
-        require(player.applicationLooper == looper)
+        require(player.applicationLooper === looper)
         player.addListener(componentListener)
         mediaSession.setCallback(componentListener, Handler(looper))
         invalidateMediaSessionPlaybackState()
         invalidateMediaSessionMetadata()
     }
 
-    fun setQueueEditor(queueEditor: QueueEditor?) {
-        if (this.queueEditor !== queueEditor) {
-            this.queueEditor = queueEditor
-            mediaSession.setFlags(when (queueEditor) {
-                null -> 0
-                else -> MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS
-            })
-        }
-    }
-
-    fun invalidateMediaSessionMetadata() {
+    private fun invalidateMediaSessionMetadata() {
         // Do nothing on purpose.
     }
 
@@ -107,7 +94,6 @@ internal class MediaSessionConnector(
             else -> getMediaSessionPlaybackState(player.playbackState, player.playWhenReady)
         }
 
-        val errorMessageProvider = this.errorMessageProvider
         if (playbackError != null) {
             val (errorCode, errorMessage) = errorMessageProvider.getErrorMessage(playbackError)
             builder.setErrorMessage(errorCode, errorMessage)
@@ -142,7 +128,7 @@ internal class MediaSessionConnector(
         mediaSession.setPlaybackState(builder.build())
     }
 
-    fun invalidateMediaSessionQueue() {
+    private fun invalidateMediaSessionQueue() {
         queueNavigator.onTimelineChanged(player)
     }
 
@@ -230,11 +216,6 @@ internal class MediaSessionConnector(
 
     interface PlaybackPreparer {
         fun getSupportedPrepareActions(): Long
-
-        /**
-         * @see MediaSessionCompat.Callback.onPrepare
-         * @param playWhenReady Whether playback should be started after preparation.
-         */
         fun onPrepare(playWhenReady: Boolean)
         fun onPrepareFromMediaId(mediaId: String?, playWhenReady: Boolean, extras: Bundle?)
         fun onPrepareFromSearch(query: String?, playWhenReady: Boolean, extras: Bundle?)
@@ -249,12 +230,6 @@ internal class MediaSessionConnector(
         fun onSkipToPrevious(player: Player)
         fun onSkipToNext(player: Player)
         fun onSkipToQueueItem(player: Player, id: Long)
-    }
-
-    interface QueueEditor {
-        fun onAddQueueItem(player: Player, description: MediaDescriptionCompat)
-        fun onAddQueueItem(player: Player, description: MediaDescriptionCompat, index: Int)
-        fun onRemoveQueueItem(player: Player, description: MediaDescriptionCompat)
     }
 
     private inner class ComponentListener : MediaSessionCompat.Callback(), Player.EventListener {
@@ -429,18 +404,6 @@ internal class MediaSessionConnector(
             if (canDispatchToPlaybackPreparer(PlaybackStateCompat.ACTION_PLAY_FROM_URI)) {
                 playbackPreparer.onPrepareFromUri(uri, true, extras)
             }
-        }
-
-        override fun onAddQueueItem(description: MediaDescriptionCompat) {
-            queueEditor?.onAddQueueItem(player, description)
-        }
-
-        override fun onAddQueueItem(description: MediaDescriptionCompat, index: Int) {
-            queueEditor?.onAddQueueItem(player, description, index)
-        }
-
-        override fun onRemoveQueueItem(description: MediaDescriptionCompat) {
-            queueEditor?.onRemoveQueueItem(player, description)
         }
     }
 }
