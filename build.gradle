@@ -60,16 +60,15 @@ allprojects {
 
 subprojects {
     afterEvaluate {
-        // Common configuration for all modules.
-        def android = extensions.findByName('android') as BaseExtension
-        if (android != null) {
+        // Common Android configuration for all modules.
+        (extensions.findByName('android') as BaseExtension)?.with {
 
-            android.compileOptions {
+            it.compileOptions {
                 sourceCompatibility JavaVersion.VERSION_1_8
                 targetCompatibility JavaVersion.VERSION_1_8
             }
 
-            android.kotlinOptions {
+            it.kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_1_8
                 freeCompilerArgs += [
                         '-Xopt-in=kotlin.RequiresOptIn',
@@ -78,7 +77,7 @@ subprojects {
                 ]
             }
 
-            android.testOptions {
+            it.testOptions {
                 // Include Android resources in unit tests to be resolved by Robolectric.
                 unitTests.includeAndroidResources = true
             }
