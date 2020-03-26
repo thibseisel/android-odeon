@@ -1,0 +1,2 @@
+* Traduction de l'application en Polonais
+* On a réparé le bouton pour activer/désactiver la lecture aléatoire !
