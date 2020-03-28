@@ -89,6 +89,7 @@ internal class OdeonPlaybackPreparer
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
         prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
+        player.playWhenReady = playWhenReady
     }
 
     /**
@@ -108,6 +109,7 @@ internal class OdeonPlaybackPreparer
         val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
         settings.lastQueueMediaId = queueMediaId
         prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
+        player.playWhenReady = playWhenReady
     }
 
     override fun onPrepareFromUri(uri: Uri?, playWhenReady: Boolean, extras: Bundle?) {
@@ -139,12 +141,15 @@ internal class OdeonPlaybackPreparer
             val firstResult = results.firstOrNull()
             if (firstResult?.isBrowsable == true) {
                 prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
+                player.playWhenReady = playWhenReady
             } else {
                 preparePlayer(
                     results.filter { it.isPlayable && !it.isBrowsable },
                     firstShuffledIndex = 0,
                     startPosition = 0
                 )
+
+                player.playWhenReady = playWhenReady
             }
         }
     }
@@ -163,16 +168,18 @@ internal class OdeonPlaybackPreparer
     }
 
     private fun prepareFromMediaId(
-        mediaId: String?,
+        encodedId: String?,
         startPlaybackPosition: Int
     ) = scope.launch(dispatchers.Default) {
-        val (type, category, track) = mediaId.toMediaId()
-        val parentId = MediaId.fromParts(type, category, track = null)
+        val mediaId = encodedId.toMediaId()
+        val parentId = mediaId.copy(track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
-        val firstIndex = if (track != null) {
-            playQueue.indexOfFirst { it.mediaId == mediaId }
-        } else C.POSITION_UNSET
+        val firstIndex = when {
+            mediaId.track != null -> playQueue.indexOfFirst { it.mediaId == encodedId }
+            else -> C.POSITION_UNSET
+        }
+
         preparePlayer(playQueue, firstIndex, startPlaybackPosition)
     }
 
