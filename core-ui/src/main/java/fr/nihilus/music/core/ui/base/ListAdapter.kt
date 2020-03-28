@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ListView
 import androidx.annotation.LayoutRes
+import fr.nihilus.music.core.ui.base.ListAdapter.ViewHolder
 import fr.nihilus.music.core.ui.extensions.inflate
 
 /**

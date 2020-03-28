@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import android.net.Uri
+import fr.nihilus.music.library.albums.AlbumDetailState.Track
 
 /**
  * UI representation of a music album with its composing tracks.

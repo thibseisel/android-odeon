@@ -19,7 +19,6 @@ package fr.nihilus.music.core.ui.motion
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.animation.TimeInterpolator
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup

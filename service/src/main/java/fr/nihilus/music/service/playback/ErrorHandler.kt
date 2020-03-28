@@ -23,8 +23,8 @@ import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject

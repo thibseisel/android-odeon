@@ -19,7 +19,6 @@ package fr.nihilus.music.devmenu
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.observe
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.devmenu.features.ComposerViewModel

@@ -24,6 +24,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.library.HomeViewModel
+import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.newInstance
 
 /**
  * An alert dialog that prompts the user for confirmation to delete a single track from its device.
