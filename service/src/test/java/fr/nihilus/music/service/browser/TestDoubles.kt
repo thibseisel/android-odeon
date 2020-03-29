@@ -76,7 +76,7 @@ internal class TestUsageManager(
     override fun getMostRatedTracks() = infiniteFlowOf(mostRatedTracks)
     override fun getPopularTracksSince(period: Long, unit: TimeUnit) = infiniteFlowOf(mostRatedTracks)
     override fun getDisposableTracks() = infiniteFlowOf(disposableTracks)
-    override fun reportCompletion(trackId: Long) = stub()
+    override suspend fun reportCompletion(trackId: Long) = stub()
 }
 
 internal class TestSpotifyManager(
@@ -97,7 +97,7 @@ internal object StubUsageManager : UsageManager {
     override fun getMostRatedTracks(): Flow<List<Track>> = stub()
     override fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
     override fun getDisposableTracks(): Flow<List<DisposableTrack>> = stub()
-    override fun reportCompletion(trackId: Long) = stub()
+    override suspend fun reportCompletion(trackId: Long) = stub()
 }
 
 internal object StubSpotifyManager : SpotifyManager {
