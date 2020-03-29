@@ -19,7 +19,7 @@ package fr.nihilus.music.service.actions
 import android.os.Bundle
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.CustomActions
-import fr.nihilus.music.core.media.InvalidMediaException
+import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
@@ -57,7 +57,7 @@ internal class DeleteAction
                     "Missing parameter ${CustomActions.EXTRA_MEDIA_IDS}"
                 )
 
-        } catch (ime: InvalidMediaException) {
+        } catch (ime: MalformedMediaIdException) {
             throw ActionFailure(
                 CustomActions.ERROR_CODE_PARAMETER,
                 ime.message

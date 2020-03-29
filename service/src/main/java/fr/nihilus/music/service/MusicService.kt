@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.CustomActions
-import fr.nihilus.music.core.media.InvalidMediaException
+import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
@@ -174,7 +174,7 @@ class MusicService : BaseBrowserService() {
                 val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
                 result.sendResult(children)
 
-            } catch (malformedId: InvalidMediaException) {
+            } catch (malformedId: MalformedMediaIdException) {
                 Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
                 result.sendResult(null)
 
@@ -211,7 +211,7 @@ class MusicService : BaseBrowserService() {
                     val item = subscriptions.getItem(itemMediaId)
                     result.sendResult(item)
 
-                } catch (malformedId: InvalidMediaException) {
+                } catch (malformedId: MalformedMediaIdException) {
                     Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
                     result.sendResult(null)
 
