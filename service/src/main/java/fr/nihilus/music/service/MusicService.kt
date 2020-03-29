@@ -35,9 +35,9 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.InvalidMediaException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
-import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
@@ -168,24 +168,22 @@ class MusicService : BaseBrowserService() {
         result.detach()
 
         launch {
-            val parentMediaId = parentId.toMediaIdOrNull()
-            if (parentMediaId != null) {
-                try {
-                    val paginationOptions = getPaginationOptions(options)
-                    val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
-                    result.sendResult(children)
+            try {
+                val parentMediaId = parentId.toMediaId()
+                val paginationOptions = getPaginationOptions(options)
+                val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
+                result.sendResult(children)
 
-                } catch (pde: PermissionDeniedException) {
-                    Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
-                    result.sendResult(null)
+            } catch (malformedId: InvalidMediaException) {
+                Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
+                result.sendResult(null)
 
-                } catch (invalidParent: NoSuchElementException) {
-                    Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
-                    result.sendResult(null)
-                }
+            } catch (pde: PermissionDeniedException) {
+                Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+                result.sendResult(null)
 
-            } else {
-                Timber.i("Attempt to load children of an invalid media id: %s", parentId)
+            } catch (invalidParent: NoSuchElementException) {
+                Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
                 result.sendResult(null)
             }
         }
@@ -206,17 +204,17 @@ class MusicService : BaseBrowserService() {
         if (itemId == null) {
             result.sendResult(null)
         } else {
-            val itemMediaId = itemId.toMediaIdOrNull() ?: run {
-                Timber.i("Attempt to load item with an invalid media id: %s", itemId)
-                result.sendResult(null)
-                return
-            }
-
             result.detach()
             launch {
                 try {
+                    val itemMediaId = itemId.toMediaId()
                     val item = subscriptions.getItem(itemMediaId)
                     result.sendResult(item)
+
+                } catch (malformedId: InvalidMediaException) {
+                    Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
+                    result.sendResult(null)
+
                 } catch (pde: PermissionDeniedException) {
                     Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
                     result.sendResult(null)
