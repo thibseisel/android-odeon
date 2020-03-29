@@ -167,7 +167,7 @@ class MusicService : BaseBrowserService() {
     ) {
         result.detach()
 
-        launch(dispatchers.Default) {
+        launch {
             val parentMediaId = parentId.toMediaIdOrNull()
             if (parentMediaId != null) {
                 try {
@@ -213,9 +213,9 @@ class MusicService : BaseBrowserService() {
             }
 
             result.detach()
-            launch(dispatchers.Default) {
+            launch {
                 try {
-                    val item = browserTree.getItem(itemMediaId)
+                    val item = subscriptions.getItem(itemMediaId)
                     result.sendResult(item)
                 } catch (pde: PermissionDeniedException) {
                     Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)

@@ -18,6 +18,7 @@ package fr.nihilus.music.service
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.collection.LruCache
+import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
@@ -40,7 +41,8 @@ import javax.inject.Inject
 @ServiceScoped
 internal class CachingSubscriptionManager @Inject constructor(
     serviceScope: CoroutineScope,
-    private val tree: BrowserTree
+    private val tree: BrowserTree,
+    private val dispatchers: AppDispatchers
 ) : SubscriptionManager {
 
     private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext[Job])
@@ -88,6 +90,7 @@ internal class CachingSubscriptionManager @Inject constructor(
     private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaItem>> {
         return tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
+            .flowOn(dispatchers.Default)
             .broadcastIn(scope)
             .also { subscription ->
                 cachedSubscriptions.put(parentId, subscription)
@@ -107,7 +110,7 @@ internal class CachingSubscriptionManager @Inject constructor(
         return if (parentSubscription != null) {
             val children = parentSubscription.consume { receive() }
             children.find { it.mediaId == itemId.encoded }
-        } else {
+        } else withContext(dispatchers.Default) {
             tree.getItem(itemId)
         }
     }
