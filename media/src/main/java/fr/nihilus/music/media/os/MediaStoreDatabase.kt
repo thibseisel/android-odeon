@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,8 +107,7 @@ internal interface MediaStoreDatabase {
  * @param resolver The wrapped [ContentResolver] to which requests are delegated.
  */
 @Reusable
-internal class PlatformMediaStore
-@Inject constructor(
+internal class PlatformMediaStore @Inject constructor(
     private val resolver: ContentResolver
 ) : MediaStoreDatabase {
 

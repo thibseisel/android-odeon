@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @OptIn(KtorExperimentalAPI::class)
-internal class SpotifyServiceImpl
-@TestOnly constructor(
+internal class SpotifyServiceImpl @TestOnly constructor(
     engine: HttpClientEngine,
     private val moshi: Moshi,
     private val accountsService: SpotifyAccountsService,

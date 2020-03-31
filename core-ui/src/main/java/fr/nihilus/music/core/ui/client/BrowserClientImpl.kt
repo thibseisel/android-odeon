@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,7 @@ import kotlin.coroutines.suspendCoroutine
  * allowing to browser available media and send commands to the session transport controls.
  */
 @AppScope
-internal class BrowserClientImpl
-@Inject constructor(applicationContext: Context) : BrowserClient {
+internal class BrowserClientImpl @Inject constructor(applicationContext: Context) : BrowserClient {
 
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)

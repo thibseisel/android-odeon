@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,7 @@ import kotlin.random.Random
  * Handle requests to prepare media that can be played from the Odeon Media Player.
  * This fetches media information from the music library.
  */
-internal class OdeonPlaybackPreparer
-@Inject constructor(
+internal class OdeonPlaybackPreparer @Inject constructor(
     context: Context,
     private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,

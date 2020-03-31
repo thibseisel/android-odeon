@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,7 @@ private const val FAST_FORWARD_MILLIS = 30_000L
  * even if the current timeline is empty.
  */
 @ServiceScoped
-class OdeonPlaybackController
-@Inject constructor(
+class OdeonPlaybackController @Inject constructor(
     private val preparer: MediaSessionConnector.PlaybackPreparer
 ) : DefaultPlaybackController(
     REWIND_MILLIS,

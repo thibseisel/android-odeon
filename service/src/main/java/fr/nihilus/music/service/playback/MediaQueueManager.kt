@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,7 @@ import javax.inject.Inject
  * Handle queue navigation actions and update the media session queue.
  */
 @ServiceScoped
-internal class MediaQueueManager
-@Inject constructor(
+internal class MediaQueueManager @Inject constructor(
     scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
     private val prefs: Settings,

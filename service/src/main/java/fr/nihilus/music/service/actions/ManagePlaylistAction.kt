@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,8 +57,7 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  * @param dispatchers Group of dispatchers to use for coroutine execution.
  */
 @ServiceScoped
-internal class ManagePlaylistAction
-@Inject constructor(
+internal class ManagePlaylistAction @Inject constructor(
     private val playlistDao: PlaylistDao,
     private val files: FileSystem,
     private val dispatchers: AppDispatchers
