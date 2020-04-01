@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,11 @@ data class Playlist(
      * @param title The title of the new playlist.
      * @param iconUri The Uri pointing to an image file that represents the playlist.
      */
+    @Deprecated(
+        "This convenience constructor reads time from a non-testable source. " +
+                "Use the default constructor instead.",
+        ReplaceWith("Playlist(null, title.toString(), System.currentTimeMillis(), iconUri)")
+    )
     @Ignore
     constructor(
         title: CharSequence,
