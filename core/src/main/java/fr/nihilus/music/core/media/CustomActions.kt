@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,23 +37,6 @@ object CustomActions {
     const val ACTION_DELETE_MEDIA = "fr.nihilus.music.media.actions.DELETE_MEDIA"
 
     /**
-     * Custom action for creating and editing user-defined playlists.
-     * Depending on the provided parameters, this action can perform in _CREATE_ and _EDIT_ mode.
-     *
-     * To *create a playlist*, you should specify the following parameters:
-     * - [EXTRA_TITLE] : the title of the newly created playlist.
-     * - [EXTRA_MEDIA_IDS] (optional) : the media ids of tracks to be added to the playlist, in order.
-     * When specified, each media id is expected to have a [track identifier][MediaId.track] part.
-     *
-     * To *add tracks to an existing playlist*, you should specify the following parameters:
-     * - [EXTRA_PLAYLIST_ID] : the media id of the playlist to edit.
-     * This is expected to be a valid media id for an existing playlist.
-     * - [EXTRA_MEDIA_IDS] : the media ids of tracks to be appended to the playlist, in order.
-     * Each media id is expected to have a [track identifier][MediaId.track] part.
-     */
-    const val ACTION_MANAGE_PLAYLIST = "fr.nihilus.music.media.actions.MANAGE_PLAYLIST"
-
-    /**
      * A number of tracks, returned as the result of executing a custom action.
      *
      * Type: `Int`
@@ -66,20 +49,6 @@ object CustomActions {
      * Type: `Array<String>`
      */
     const val EXTRA_MEDIA_IDS = "fr.nihilus.music.media.EXTRA_MEDIA_IDS"
-
-    /**
-     * The title to be given to a newly created entity.
-     *
-     * Type: `String`
-     */
-    const val EXTRA_TITLE = "fr.nihilus.music.media.EXTRA_TITLE"
-
-    /**
-     * The media id of a playlist.
-     *
-     * Type: `String`
-     */
-    const val EXTRA_PLAYLIST_ID = "fr.nihilus.music.media.EXTRA_PLAYLIST_ID"
 
     /**
      * A numeric code describing an error that occurred while executing a custom action.
