@@ -91,6 +91,5 @@ dependencies {
 
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
     androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
-    androidTestImplementation "com.google.truth:truth:${versions.truth}"
     androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
 }
