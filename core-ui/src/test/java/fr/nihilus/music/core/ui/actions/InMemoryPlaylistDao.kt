@@ -23,7 +23,6 @@ import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
-import java.util.*
 
 /**
  * A [PlaylistDao] that stores playlists and their members tracks in memory,
@@ -33,12 +32,12 @@ import java.util.*
  * @param initialMembers The set of tracks that are part of the initial playlists.
  */
 internal class InMemoryPlaylistDao(
-    initialPlaylists: Collection<Playlist> = emptyList(),
-    initialMembers: Collection<PlaylistTrack> = emptyList()
+    initialPlaylists: List<Playlist> = emptyList(),
+    initialMembers: List<PlaylistTrack> = emptyList()
 ) : PlaylistDao() {
 
-    private val _savedPlaylists = TreeSet(compareBy(Playlist::title))
-    private val _playlistTracks = mutableSetOf<PlaylistTrack>()
+    private val _savedPlaylists = initialPlaylists.toSortedSet(compareBy(Playlist::title))
+    private val _playlistTracks = initialMembers.toMutableSet()
 
     private val _playlists = ConflatedBroadcastChannel(initialPlaylists.toList())
     private val _members = ConflatedBroadcastChannel(initialMembers.toList())
@@ -65,13 +64,11 @@ internal class InMemoryPlaylistDao(
     }
 
     override suspend fun savePlaylist(playlist: Playlist): Long {
-        require(playlist.id == null) { "Unsaved playlists should not have an id" }
+        require(playlist.id == 0L) { "Unsaved playlists should have an id of 0" }
 
-        val greatestId = _savedPlaylists.fold(0L) { max, it ->
-            it.id?.let { id -> maxOf(max, id) } ?: max
-        }
-
+        val greatestId = _savedPlaylists.fold(0L) { max, it -> maxOf(max, it.id) }
         val assignedId = greatestId + 1L
+
         _savedPlaylists += playlist.copy(id = assignedId)
         _playlists.offer(_savedPlaylists.toList())
 
