@@ -137,8 +137,6 @@ dependencies {
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
 
-    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
-
     // Test dependencies
     testImplementation project(':core-test')
     testImplementation "androidx.test:rules:${versions.androidx.test}"

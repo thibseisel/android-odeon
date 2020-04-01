@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.playlists
+package fr.nihilus.music.core.ui.actions
 
 import android.graphics.Bitmap
 import android.net.Uri

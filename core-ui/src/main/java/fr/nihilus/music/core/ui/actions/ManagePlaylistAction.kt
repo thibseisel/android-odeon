@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.playlists
+package fr.nihilus.music.core.ui.actions
 
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -61,7 +61,7 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  * @property clock Provider of the system time.
  * @property dispatchers Set of coroutine dispatchers.
  */
-internal class ManagePlaylistAction @Inject constructor(
+class ManagePlaylistAction @Inject constructor(
     private val playlistDao: PlaylistDao,
     private val files: FileSystem,
     private val clock: Clock,
