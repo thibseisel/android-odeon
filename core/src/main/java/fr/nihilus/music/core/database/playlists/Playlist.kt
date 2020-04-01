@@ -19,7 +19,6 @@ package fr.nihilus.music.core.database.playlists
 import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
 /**
@@ -32,11 +31,11 @@ data class Playlist(
 
     /**
      * The unique identifier of this playlist.
-     * If this playlist has not been saved, this identifier will be `null`.
+     * This should be `0` if this playlist has not been persisted yet.
      */
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Long?,
+    val id: Long,
 
     /**
      * The title given by the user to this playlist.
@@ -55,22 +54,4 @@ data class Playlist(
      */
     @ColumnInfo(name = "icon_uri")
     val iconUri: Uri?
-) {
-
-    /**
-     * Create a new unsaved playlist that has the given [title] and an optional icon.
-     *
-     * @param title The title of the new playlist.
-     * @param iconUri The Uri pointing to an image file that represents the playlist.
-     */
-    @Deprecated(
-        "This convenience constructor reads time from a non-testable source. " +
-                "Use the default constructor instead.",
-        ReplaceWith("Playlist(null, title.toString(), System.currentTimeMillis(), iconUri)")
-    )
-    @Ignore
-    constructor(
-        title: CharSequence,
-        iconUri: Uri? = null
-    ) : this(null, title.toString(), System.currentTimeMillis(), iconUri)
-}
+)

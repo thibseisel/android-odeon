@@ -45,7 +45,7 @@ import fr.nihilus.music.core.database.usage.UsageDao
     MediaUsageEvent::class,
     SpotifyLink::class,
     TrackFeature::class
-], version = 4)
+], version = 5)
 @TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -112,6 +112,22 @@ abstract class AppDatabase : RoomDatabase() {
                 // Create new tables "remote_link" and "track_feature".
                 execSQL("CREATE TABLE IF NOT EXISTS `remote_link` (`local_id` INTEGER NOT NULL, `remote_id` TEXT NOT NULL, `sync_date` INTEGER NOT NULL, PRIMARY KEY(`local_id`))")
                 execSQL("CREATE TABLE IF NOT EXISTS `track_feature` (`id` TEXT NOT NULL, `key` INTEGER, `mode` INTEGER NOT NULL, `tempo` REAL NOT NULL, `time_signature` INTEGER NOT NULL, `loudness` REAL NOT NULL, `acousticness` REAL NOT NULL, `danceability` REAL NOT NULL, `energy` REAL NOT NULL, `instrumentalness` REAL NOT NULL, `liveness` REAL NOT NULL, `speechiness` REAL NOT NULL, `valence` REAL NOT NULL, PRIMARY KEY(`id`))")
+            }
+        }
+
+        /**
+         * Migrate the "playlist" table to enforce a non-null primary key:
+         * - Rename table "playlist" to "playlist_old"
+         * - create the playlist table with updated schema
+         * - copy playlists to the new table
+         * - delete the old table.
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                execSQL("ALTER TABLE `playlist` RENAME TO `playlist_old`")
+                execSQL("CREATE TABLE IF NOT EXISTS `playlist` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                execSQL("INSERT INTO `playlist` SELECT * FROM `playlist_old` WHERE id IS NOT NULL")
+                execSQL("DROP TABLE `playlist_old`")
             }
         }
     }

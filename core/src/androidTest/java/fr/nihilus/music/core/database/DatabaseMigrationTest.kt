@@ -92,4 +92,47 @@ class DatabaseMigrationTest {
         // Check that "remote_link" and "track_feature" tables have been added.
         helper.runMigrationsAndValidate(TEST_DB, 3, false, AppDatabase.MIGRATION_3_4)
     }
+
+    @Test
+    fun migration4To5() {
+        var db = helper.createDatabase(TEST_DB, 4)
+
+        db.execSQL("""
+            INSERT INTO playlist (id, title, date_created, icon_uri) 
+            VALUES (42, 'Zen', 1585742400, 'content://fr.nihilus.music.provider/icons/zen.png')
+        """)
+
+        db.execSQL("""
+            INSERT INTO playlist_track (playlist_id, music_id, position)
+            VALUES (42, 16, 1), (42, 19, 2)
+        """)
+
+        db.close()
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, false, AppDatabase.MIGRATION_4_5)
+
+        // Check that the playlist has been properly migrated.
+        db.query("SELECT id, title, date_created, icon_uri FROM playlist").use {
+            assertTrue(it.moveToFirst())
+
+            assertEquals(42L, it.getLong(0))
+            assertEquals("Zen", it.getString(1))
+            assertEquals(1585742400L, it.getLong(2))
+            assertEquals("content://fr.nihilus.music.provider/icons/zen.png", it.getString(3))
+        }
+
+        // Check that playlist tracks have not been destroyed.
+        db.query("SELECT playlist_id, music_id, position FROM playlist_track").use {
+            assertEquals(2, it.count)
+
+            it.moveToPosition(0)
+            assertEquals(42L, it.getLong(0))
+            assertEquals(16L, it.getLong(1))
+            assertEquals(1, it.getInt(2))
+
+            it.moveToPosition(1)
+            assertEquals(42L, it.getLong(0))
+            assertEquals(19, it.getLong(1))
+            assertEquals(2, it.getInt(2))
+        }
+    }
 }

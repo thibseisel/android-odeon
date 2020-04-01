@@ -82,7 +82,7 @@ class ManagePlaylistAction @Inject constructor(
         val trackIds = requireTrackIds(members)
 
         val iconUri = generatePlaylistIcon(name)
-        val newPlaylist = Playlist(null, name, clock.currentEpochTime, iconUri)
+        val newPlaylist = Playlist(0L, name, clock.currentEpochTime, iconUri)
         playlistDao.createPlaylist(newPlaylist, trackIds)
     }
 

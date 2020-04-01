@@ -140,7 +140,7 @@ internal class ManagePlaylistActionTest {
         val action = ManagePlaylistAction(dao)
 
         action.appendMembers(
-            targetPlaylist = MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id!!.toString()),
+            targetPlaylist = MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id.toString()),
             members = listOf(
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L),
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 42L)
@@ -175,17 +175,16 @@ internal class ManagePlaylistActionTest {
 
     @Test
     fun `When deleting a playlist then remove corresponding record from PlaylistDao`() = test.run {
-        val samplePlaylistId = SAMPLE_PLAYLIST.id!!
         val dao = InMemoryPlaylistDao(
             initialPlaylists = listOf(SAMPLE_PLAYLIST),
-            initialMembers = listOf(PlaylistTrack(samplePlaylistId, 16L))
+            initialMembers = listOf(PlaylistTrack(SAMPLE_PLAYLIST.id, 16L))
         )
         val action = ManagePlaylistAction(dao)
 
-        action.deletePlaylist(MediaId(TYPE_PLAYLISTS, samplePlaylistId.toString()))
+        action.deletePlaylist(MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id.toString()))
 
         dao.savedPlaylists shouldNotContain SAMPLE_PLAYLIST
-        dao.savedTracks.forNone { it.playlistId shouldBe samplePlaylistId }
+        dao.savedTracks.forNone { it.playlistId shouldBe SAMPLE_PLAYLIST.id }
     }
 
     @Test
