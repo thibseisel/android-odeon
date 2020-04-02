@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -42,8 +41,6 @@ import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.actions.ActionFailure
-import fr.nihilus.music.service.actions.BrowserAction
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
@@ -75,7 +72,6 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: Settings
-    @Inject internal lateinit var customActions: Map<String, @JvmSuppressWildcards BrowserAction>
 
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
@@ -238,27 +234,6 @@ class MusicService : BaseBrowserService() {
             } catch (pde: PermissionDeniedException) {
                 Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
                 result.sendResult(null)
-            }
-        }
-    }
-
-    override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
-        val customAction = customActions[action] ?: run {
-            Timber.w("Attempt to execute an unsupported custom action: %s", action)
-            result.sendError(null)
-            return
-        }
-
-        result.detach()
-        launch(dispatchers.Default) {
-            try {
-                val resultBundle = customAction.execute(extras)
-                result.sendResult(resultBundle)
-            } catch (failure: ActionFailure) {
-                result.sendError(Bundle(2).apply {
-                    putInt(CustomActions.EXTRA_ERROR_CODE, failure.errorCode)
-                    putString(CustomActions.EXTRA_ERROR_MESSAGE, failure.errorMessage)
-                })
             }
         }
     }
