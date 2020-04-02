@@ -63,16 +63,18 @@ abstract class AppDatabase : RoomDatabase() {
          * Define instructions to be executed on the database to migrate from schema v1 to v2:
          * - Delete the `music_info` table.
          * - Create the `usage_event` table.
+         * - Remove index on `playlist.title` column.
          */
         val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                with(database) {
-                    // Delete the obsolete and unused table "music_info".
-                    execSQL("DROP TABLE IF EXISTS music_info")
-                    // Create the new table "usage_event" to match the "UsageEvent" entity.
-                    execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
-                    execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
-                }
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Delete the obsolete and unused table "music_info".
+                execSQL("DROP TABLE IF EXISTS music_info")
+                // Create the new table "usage_event" to match the "UsageEvent" entity.
+                execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
+                execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
+
+                // Remove unique constraint index on playlist titles
+                execSQL("DROP INDEX `index_playlist_title`")
             }
         }
 
@@ -82,23 +84,21 @@ abstract class AppDatabase : RoomDatabase() {
          * - rename column `art_uri` to `icon_uri`.
          */
         val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                with(database) {
-                    // Recreate the whole playlist table without the unused "date_last_played" column.
-                    // All data are copied to the "playlist_tmp" table with the new schema, then the old table is dropped.
-                    // This is necessary because SQLite doesn't support deleting columns.
-                    execSQL("CREATE TABLE `playlist_tmp` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
-                    execSQL("INSERT INTO `playlist_tmp` SELECT id, title, date_created, art_uri AS icon_uri FROM playlist")
-                    execSQL("DROP TABLE `playlist`")
-                    execSQL("ALTER TABLE `playlist_tmp` RENAME TO `playlist`")
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Recreate the whole playlist table without the unused "date_last_played" column.
+                // All data are copied to the "playlist_tmp" table with the new schema, then the old table is dropped.
+                // This is necessary because SQLite doesn't support deleting columns.
+                execSQL("CREATE TABLE `playlist_tmp` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                execSQL("INSERT INTO `playlist_tmp` SELECT id, title, date_created, art_uri AS icon_uri FROM playlist")
+                execSQL("DROP TABLE `playlist`")
+                execSQL("ALTER TABLE `playlist_tmp` RENAME TO `playlist`")
 
-                    // Recreate the whole usage_event table with its track_id column type changed to INTEGER.
-                    execSQL("CREATE TABLE IF NOT EXISTS `usage_event_tmp` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `event_time` INTEGER NOT NULL)")
-                    execSQL("INSERT INTO `usage_event_tmp` SELECT event_uid, CAST(track_id AS INTEGER), event_time FROM usage_event")
-                    execSQL("DROP INDEX `index_usage_event_track_id`")
-                    execSQL("DROP TABLE `usage_event`")
-                    execSQL("ALTER TABLE `usage_event_tmp` RENAME TO `usage_event`")
-                }
+                // Recreate the whole usage_event table with its track_id column type changed to INTEGER.
+                execSQL("CREATE TABLE IF NOT EXISTS `usage_event_tmp` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `event_time` INTEGER NOT NULL)")
+                execSQL("INSERT INTO `usage_event_tmp` SELECT event_uid, CAST(track_id AS INTEGER), event_time FROM usage_event")
+                execSQL("DROP INDEX `index_usage_event_track_id`")
+                execSQL("DROP TABLE `usage_event`")
+                execSQL("ALTER TABLE `usage_event_tmp` RENAME TO `usage_event`")
             }
         }
 
