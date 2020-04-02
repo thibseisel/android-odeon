@@ -22,35 +22,6 @@ package fr.nihilus.music.core.media
 object CustomActions {
 
     /**
-     * Custom action that deletes media available from the media browser.
-     * Media to be deleted with this action are identified by their media id.
-     *
-     * At the time, only tracks from `tracks/all`, `tracks/disposable` and playlists can be deleted with this action.
-     * Any attempt to delete another type of media will fail.
-     *
-     * Executing this action requires the following parameters:
-     * - [EXTRA_MEDIA_IDS] : the media ids of media to be deleted.
-     *
-     * On success, this action returns the following result:
-     * - [RESULT_TRACK_COUNT] : when tracks have been deleted, the number of tracks that have been successfully deleted.
-     */
-    const val ACTION_DELETE_MEDIA = "fr.nihilus.music.media.actions.DELETE_MEDIA"
-
-    /**
-     * A number of tracks, returned as the result of executing a custom action.
-     *
-     * Type: `Int`
-     */
-    const val RESULT_TRACK_COUNT = "fr.nihilus.music.media.result.TRACK_COUNT"
-
-    /**
-     * An array of media ids.
-     *
-     * Type: `Array<String>`
-     */
-    const val EXTRA_MEDIA_IDS = "fr.nihilus.music.media.EXTRA_MEDIA_IDS"
-
-    /**
      * A numeric code describing an error that occurred while executing a custom action.
      *
      * Type: `Int`

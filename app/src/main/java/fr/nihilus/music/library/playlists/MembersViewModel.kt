@@ -16,14 +16,14 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
@@ -32,7 +32,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MembersViewModel @Inject constructor(
-    private val client: BrowserClient
+    private val client: BrowserClient,
+    private val actions: ManagePlaylistAction
 ): ViewModel() {
 
     private var observeTracksJob: Job? = null
@@ -59,11 +60,8 @@ class MembersViewModel @Inject constructor(
 
     fun deletePlaylist(playlistId: String) {
         viewModelScope.launch {
-            val params = Bundle(1).apply {
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlistId))
-            }
-
-            client.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
+            val playlistMediaId = MediaId(MediaId.TYPE_PLAYLISTS, playlistId)
+            actions.deletePlaylist(playlistMediaId)
         }
     }
 }
