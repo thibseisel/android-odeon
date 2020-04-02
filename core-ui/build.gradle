@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation project(':core')
+    implementation project(':media')
 
     // Dispatcher to Android main thread
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
