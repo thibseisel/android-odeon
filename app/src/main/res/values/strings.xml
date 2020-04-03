@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -98,4 +98,19 @@
     <string name="pref_title_spotify_sync">Sync with Spotify</string>
     <string name="pref_title_audio_analysis">Audio analysis</string>
     <string name="pref_summary_audio_analysis">Select tracks based on their audio features</string>
+    <string name="action_manage_space">Manage space</string>
+    <string name="clear_all_data">Clear all data</string>
+    <plurals name="number_of_playlists">
+        <item quantity="one">%1$d playlist</item>
+        <item quantity="many">%1$d playlists</item>
+    </plurals>
+    <string name="label_delete_all_playlists">Your own selections of tracks. You may want to manage individual playlists in the playlist tab instead.</string>
+    <string name="action_delete_playlists">Delete playlists</string>
+    <string name="label_clear_sync_data">Audio metadata that are periodically fetched from Spotify to create smart selections of tracks.</string>
+    <string name="action_clear_sync_data">Clear sync data</string>
+    <string name="label_clear_usage_stats">Usage statistics that are collected to create smarter playlists. Deleting those will reset the list of tracks you like the most. Those data are never sent to a remote server.</string>
+    <string name="action_clear_usage_stats">Reset usage data</string>
+    <string name="label_clear_user_prefs">Saved settings that you have configured or based on your usage: last played media, playback parameters, app theme. Though we do not suggest doing so, you may want to reset those settings if something goes wrong.</string>
+    <string name="action_reset_prefs">Reset user preferences</string>
+    <string name="label_clear_all_data">Total data used by Odeon, including user-defined playlists, collected data, cached album artworks and saved settings.</string>
 </resources>

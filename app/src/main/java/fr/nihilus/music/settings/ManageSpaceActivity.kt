@@ -16,21 +16,18 @@
 
 package fr.nihilus.music.settings
 
-import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.core.ui.dagger.PerActivity
+import android.os.Bundle
+import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseActivity
 
-@Module
-internal abstract class SettingsModule {
+/**
+ * Activity triggered by the system when clicking on the "Clear Data" button
+ * on this app detail screen.
+ */
+internal class ManageSpaceActivity : BaseActivity() {
 
-    @PerActivity
-    @ContributesAndroidInjector
-    abstract fun settingsActivity(): SettingsActivity
-
-    @ContributesAndroidInjector
-    abstract fun mainPreferenceFragment(): MainPreferenceFragment
-
-    @PerActivity
-    @ContributesAndroidInjector
-    abstract fun manageSpaceActivity(): ManageSpaceActivity
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_manage_space)
+    }
 }

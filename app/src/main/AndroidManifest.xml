@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/core_app_name"
+        android:manageSpaceActivity="fr.nihilus.music.settings.ManageSpaceActivity"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
@@ -84,6 +85,13 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/action_settings"
             android:parentActivityName=".HomeActivity" />
+
+        <!-- Activity triggered by the system when clicking on the "Clear data" button
+            while on this app detail screen.
+            -->
+        <activity
+            android:name=".settings.ManageSpaceActivity"
+            android:label="@string/action_manage_space" />
 
         <!--
             Remove the default WorkManager initializer.

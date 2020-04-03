@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:orientation="vertical"
+    android:padding="@dimen/core_horizontal_edge_margin"
+    tools:context=".settings.ManageSpaceActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/label_playlists"
+            style="@style/Widget.Odeon.ManageSpace.Label"
+            android:text="@string/label_delete_all_playlists"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/playlist_count"
+            style="@style/Widget.Odeon.ManageSpace.Metrics"
+            app:layout_constraintBottom_toBottomOf="@id/clear_playlists"
+            app:layout_constraintEnd_toStartOf="@id/clear_playlists"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/clear_playlists"
+            tools:text="3 playlists" />
+
+        <Button
+            android:id="@+id/clear_playlists"
+            style="@style/Widget.Odeon.ManageSpace.Button"
+            android:text="@string/action_delete_playlists"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_playlists" />
+
+        <TextView
+            android:id="@+id/label_sync_data"
+            style="@style/Widget.Odeon.ManageSpace.Label"
+            android:text="@string/label_clear_sync_data"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clear_playlists" />
+
+        <Button
+            android:id="@+id/clear_sync_data"
+            style="@style/Widget.Odeon.ManageSpace.Button"
+            android:text="@string/action_clear_sync_data"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_sync_data" />
+
+        <TextView
+            android:id="@+id/label_usage_stats"
+            style="@style/Widget.Odeon.ManageSpace.Label"
+            android:text="@string/label_clear_usage_stats"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clear_sync_data" />
+
+        <Button
+            android:id="@+id/clear_usage_stats"
+            style="@style/Widget.Odeon.ManageSpace.Button"
+            android:text="@string/action_clear_usage_stats"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_usage_stats" />
+
+        <TextView
+            android:id="@+id/label_preferences"
+            style="@style/Widget.Odeon.ManageSpace.Label"
+            android:text="@string/label_clear_user_prefs"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/clear_usage_stats" />
+
+        <Button
+            android:id="@+id/reset_preferences"
+            style="@style/Widget.Odeon.ManageSpace.Button"
+            android:text="@string/action_reset_prefs"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_preferences" />
+
+        <TextView
+            android:id="@+id/label_clear_all"
+            style="@style/Widget.Odeon.ManageSpace.Label"
+            android:text="@string/label_clear_all_data"
+            app:layout_constraintBottom_toTopOf="@id/clear_all"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/reset_preferences" />
+
+        <TextView
+            android:id="@+id/total_size"
+            style="@style/Widget.Odeon.ManageSpace.Metrics"
+            app:layout_constraintBottom_toBottomOf="@id/clear_all"
+            app:layout_constraintEnd_toStartOf="@id/clear_all"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/clear_all"
+            tools:text="12,34 Mo used" />
+
+        <Button
+            android:id="@+id/clear_all"
+            style="@style/Widget.Odeon.ManageSpace.ResetButton"
+            android:text="@string/clear_all_data"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_clear_all" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
