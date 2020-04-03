@@ -16,13 +16,13 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.*
-import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.flow.catch
@@ -53,8 +53,9 @@ sealed class PlaylistActionResult {
 /**
  * A shared ViewModel to handle playlist creation and edition.
  */
-class PlaylistManagementViewModel @Inject constructor(
-    private val client: BrowserClient
+internal class PlaylistManagementViewModel @Inject constructor(
+    private val client: BrowserClient,
+    private val action: ManagePlaylistAction
 ) : ViewModel() {
 
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
@@ -69,14 +70,9 @@ class PlaylistManagementViewModel @Inject constructor(
 
     fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
         viewModelScope.launch {
-            val membersTrackIds = Array(members.size) { members[it].mediaId }
+            val membersTrackIds = members.map { it.mediaId.toMediaId() }
 
-            val params = Bundle(2).apply {
-                putString(CustomActions.EXTRA_TITLE, playlistName)
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, membersTrackIds)
-            }
-
-            client.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+            action.createPlaylist(playlistName, membersTrackIds)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Created(playlistName)
             )
@@ -87,15 +83,10 @@ class PlaylistManagementViewModel @Inject constructor(
         addedTracks: Array<MediaBrowserCompat.MediaItem>
     ) {
         viewModelScope.launch {
-            val playlistId = targetPlaylist.mediaId
-            val newTrackMediaIds = Array(addedTracks.size) { addedTracks[it].mediaId }
+            val playlistId = targetPlaylist.mediaId.toMediaId()
+            val newTrackMediaIds = addedTracks.map { it.mediaId.toMediaId() }
 
-            val params = Bundle(2).apply {
-                putString(CustomActions.EXTRA_PLAYLIST_ID, playlistId)
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, newTrackMediaIds)
-            }
-
-            client.executeAction(CustomActions.ACTION_MANAGE_PLAYLIST, params)
+            action.appendMembers(playlistId, newTrackMediaIds)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Edited(
                     targetPlaylist.description.title?.toString().orEmpty(),

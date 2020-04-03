@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package fr.nihilus.music.core.ui.client
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -138,31 +136,6 @@ interface BrowserClient {
      * @param repeatMode The new repeat mode.
      */
     suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int)
-
-    /**
-     * Requests the media service to execute a custom action.
-     *
-     * @param name The name of the action to execute.
-     * This should be one of the `CustomActions.ACTION_*` constants.
-     * @param params The parameters required for the execution of the custom action,
-     * as specified in the documentation or the action name.
-     *
-     * @return The result of the execution of the action, if any.
-     * @throws CustomActionException if the execution of the requested action failed.
-     *
-     * @see CustomActions
-     */
-    suspend fun executeAction(name: String, params: Bundle?): Bundle?
-
-    /**
-     * Thrown when a custom action execution failed.
-     * @param actionName The name of the executed custom action that failed.
-     * @param errorMessage An optional error message describing the error.
-     */
-    class CustomActionException(
-        actionName: String,
-        errorMessage: String?
-    ) : Exception("Custom action $actionName failed: $errorMessage")
 }
 
 /**
