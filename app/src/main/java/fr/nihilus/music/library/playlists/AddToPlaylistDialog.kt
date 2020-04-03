@@ -51,22 +51,19 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)
+
+        playlistViewModel.userPlaylists.observe(this) {
+            if (it is LoadRequest.Success) {
+                playlistAdapter.submitList(it.data)
+            }
+        }
+
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.add_to_playlist)
             .setAdapter(playlistAdapter, dialogEventHandler)
             .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)
             .setNegativeButton(R.string.core_cancel, null)
             .create()
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        playlistViewModel.userPlaylists.observe(viewLifecycleOwner) {
-            if (it is LoadRequest.Success) {
-                playlistAdapter.submitList(it.data)
-            }
-        }
     }
 
     private val dialogEventHandler = DialogInterface.OnClickListener { _, position ->
