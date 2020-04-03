@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "b3303aca61ddff2347d4993a8a3d89b2",
+    "identityHash": "902e6050490a81889f5ad6516919b93e",
     "entities": [
       {
         "tableName": "playlist",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "playlist_track",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`position` INTEGER NOT NULL, `playlist_id` INTEGER NOT NULL, `music_id` INTEGER NOT NULL, PRIMARY KEY(`music_id`, `playlist_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`position` INTEGER NOT NULL, `playlist_id` INTEGER NOT NULL, `music_id` INTEGER NOT NULL, PRIMARY KEY(`music_id`, `playlist_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "position",
@@ -73,7 +73,19 @@
           "autoGenerate": false
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "playlist",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "playlist_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "usage_event",
@@ -235,7 +247,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b3303aca61ddff2347d4993a8a3d89b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '902e6050490a81889f5ad6516919b93e')"
     ]
   }
 }

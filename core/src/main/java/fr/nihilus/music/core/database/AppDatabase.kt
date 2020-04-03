@@ -116,18 +116,24 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /**
-         * Migrate the "playlist" table to enforce a non-null primary key:
-         * - Rename table "playlist" to "playlist_old"
-         * - create the playlist table with updated schema
-         * - copy playlists to the new table
-         * - delete the old table.
+         * Schema migrations related to playlists.
+         * 1. Recreate "playlist" table to enforce non-null primary key.
+         * 2. Recreate "playlist_track" table to enforce a foreign key constraint on "playlist_id".
          */
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Recreate the "playlist" table.
                 execSQL("ALTER TABLE `playlist` RENAME TO `playlist_old`")
-                execSQL("CREATE TABLE IF NOT EXISTS `playlist` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                execSQL("CREATE TABLE `playlist` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
                 execSQL("INSERT INTO `playlist` SELECT * FROM `playlist_old` WHERE id IS NOT NULL")
                 execSQL("DROP TABLE `playlist_old`")
+
+                // Recreate the "playlist_track" table, copying only tracks whose "playlist_id"
+                // matches an "id" in the "playlist" table.
+                execSQL("ALTER TABLE `playlist_track` RENAME TO `playlist_track_old`")
+                execSQL("CREATE TABLE `playlist_track` (`position` INTEGER NOT NULL, `playlist_id` INTEGER NOT NULL, `music_id` INTEGER NOT NULL, PRIMARY KEY(`music_id`, `playlist_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)")
+                execSQL("INSERT INTO `playlist_track` SELECT * FROM `playlist_track_old` WHERE playlist_id IN (SELECT id FROM `playlist`)")
+                execSQL("DROP TABLE `playlist_track_old`")
             }
         }
     }

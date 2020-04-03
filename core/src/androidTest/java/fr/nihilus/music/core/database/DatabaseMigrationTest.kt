@@ -104,7 +104,7 @@ class DatabaseMigrationTest {
 
         db.execSQL("""
             INSERT INTO playlist_track (playlist_id, music_id, position)
-            VALUES (42, 16, 1), (42, 19, 2)
+            VALUES (42, 16, 1), (31, 16, 1), (42, 19, 2), (89, 19, 7)
         """)
 
         db.close()
@@ -120,7 +120,7 @@ class DatabaseMigrationTest {
             assertEquals("content://fr.nihilus.music.provider/icons/zen.png", it.getString(3))
         }
 
-        // Check that playlist tracks have not been destroyed.
+        // Check that playlist tracks have been migrated, ignoring orphan records.
         db.query("SELECT playlist_id, music_id, position FROM playlist_track").use {
             assertEquals(2, it.count)
 
