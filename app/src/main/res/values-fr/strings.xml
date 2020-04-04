@@ -95,12 +95,12 @@
     <string name="clear_all_data">Supprimer toutes les données</string>
     <string name="label_delete_all_playlists">Vos propres sélections de morceaux. Vous pouvez gérer vos playlists individuellement depuis l\'onglet \"Playlists\".</string>
     <string name="action_delete_playlists">Supprimer les playlists</string>
-    <string name="label_clear_sync_data">Metadonnées qui sont périodiquement lues depuis Spotify pour créer des sélections intelligentes.</string>
+    <string name="label_clear_sync_data">Métadonnées audio téléchargées depuis Spotify pour mixer intelligemment vos morceaux.</string>
     <string name="action_clear_sync_data">Effacer les données téléchargées</string>
-    <string name="label_clear_usage_stats">Statistiques d\'utilisations collectées pour générer du contenu personnalisé. En les supprimant, vous perdrez la liste de vos morceaux préférés. Ces statistiques ne sont sauvegardées que sur votre appareil.</string>
-    <string name="action_clear_usage_stats">Réinitialiser les statistiques d\'utilisation</string>
-    <string name="label_clear_user_prefs">Paramètres de personnalisation ou basés sur votre utilisation : dernier morceau lu, paramètres de lecture, thème de l\'interface. Nous vous conseillons de ne réinitialiser les paramètres que si vous rencontrez des problèmes.</string>
-    <string name="action_reset_prefs">Reinitialiser les paramètres utilisateur</string>
+    <string name="label_clear_usage_stats">Statistiques d\'utilisation collectées pour générer des playlists en fonction de vos goûts musicaux.</string>
+    <string name="action_clear_usage_stats">Réinitialiser les statistiques</string>
+    <string name="label_clear_user_prefs">Paramètres de personnalisation ou basés sur votre utilisation : dernier morceau lu, paramètres de lecture, thème de l\'interface. Nous vous conseillons de ne réinitialiser ces paramètres que si vous rencontrez des problèmes.</string>
+    <string name="action_reset_prefs">Reinitialiser les paramètres</string>
     <string name="label_clear_all_data">Toutes les données utilisées par Odéon, y compris les playlists définies par l\'utilisateur, les données téléchargées, les pochettes d\'album temporaires et les paramètres utilisateur.</string>
 
 </resources>

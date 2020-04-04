@@ -36,17 +36,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/playlist_count"
-            style="@style/Widget.Odeon.ManageSpace.Metrics"
-            app:layout_constraintBottom_toBottomOf="@id/clear_playlists"
-            app:layout_constraintEnd_toStartOf="@id/clear_playlists"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/clear_playlists"
-            tools:text="3 playlists" />
-
         <Button
-            android:id="@+id/clear_playlists"
+            android:id="@+id/btn_delete_playlists"
             style="@style/Widget.Odeon.ManageSpace.Button"
             android:text="@string/action_delete_playlists"
             app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +48,7 @@
             style="@style/Widget.Odeon.ManageSpace.Label"
             android:text="@string/label_clear_sync_data"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clear_playlists" />
+            app:layout_constraintTop_toBottomOf="@id/btn_delete_playlists" />
 
         <Button
             android:id="@+id/clear_sync_data"
@@ -74,7 +65,7 @@
             app:layout_constraintTop_toBottomOf="@id/clear_sync_data" />
 
         <Button
-            android:id="@+id/clear_usage_stats"
+            android:id="@+id/btn_clear_usage_stats"
             style="@style/Widget.Odeon.ManageSpace.Button"
             android:text="@string/action_clear_usage_stats"
             app:layout_constraintEnd_toEndOf="parent"
@@ -85,34 +76,32 @@
             style="@style/Widget.Odeon.ManageSpace.Label"
             android:text="@string/label_clear_user_prefs"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/clear_usage_stats" />
+            app:layout_constraintTop_toBottomOf="@id/btn_clear_usage_stats" />
 
         <Button
-            android:id="@+id/reset_preferences"
+            android:id="@+id/btn_reset_preferences"
             style="@style/Widget.Odeon.ManageSpace.Button"
             android:text="@string/action_reset_prefs"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_preferences" />
 
+        <View
+            android:id="@+id/divider"
+            app:layout_constraintEnd_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_reset_preferences"
+            style="@style/Widget.Odeon.Divider" />
+
         <TextView
             android:id="@+id/label_clear_all"
             style="@style/Widget.Odeon.ManageSpace.Label"
             android:text="@string/label_clear_all_data"
-            app:layout_constraintBottom_toTopOf="@id/clear_all"
+            app:layout_constraintBottom_toTopOf="@id/btn_clear_all"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reset_preferences" />
-
-        <TextView
-            android:id="@+id/total_size"
-            style="@style/Widget.Odeon.ManageSpace.Metrics"
-            app:layout_constraintBottom_toBottomOf="@id/clear_all"
-            app:layout_constraintEnd_toStartOf="@id/clear_all"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/clear_all"
-            tools:text="12,34 Mo used" />
+            app:layout_constraintTop_toBottomOf="@id/divider" />
 
         <Button
-            android:id="@+id/clear_all"
+            android:id="@+id/btn_clear_all"
             style="@style/Widget.Odeon.ManageSpace.ResetButton"
             android:text="@string/clear_all_data"
             app:layout_constraintBottom_toBottomOf="parent"

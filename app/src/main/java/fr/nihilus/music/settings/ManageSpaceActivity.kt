@@ -16,9 +16,12 @@
 
 package fr.nihilus.music.settings
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseActivity
+import kotlinx.android.synthetic.main.activity_manage_space.*
 
 /**
  * Activity triggered by the system when clicking on the "Clear Data" button
@@ -29,5 +32,10 @@ internal class ManageSpaceActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_manage_space)
+
+        btn_clear_all.setOnClickListener {
+            val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            manager.clearApplicationUserData()
+        }
     }
 }

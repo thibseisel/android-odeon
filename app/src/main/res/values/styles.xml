@@ -37,23 +37,16 @@
         <item name="android:textAppearance">?textAppearanceBody1</item>
     </style>
 
-    <style name="Widget.Odeon.ManageSpace.Metrics" parent="android:Widget.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_margin">16dp</item>
-        <item name="layout_constraintHorizontal_bias">0</item>
-        <item name="android:textAppearance">?textAppearanceBody1</item>
-        <item name="android:textStyle">bold</item>
-    </style>
-
     <style name="Widget.Odeon.ManageSpace.Button" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
     </style>
 
     <style name="Widget.Odeon.ManageSpace.ResetButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">8dp</item>
     </style>
 
 </resources>
