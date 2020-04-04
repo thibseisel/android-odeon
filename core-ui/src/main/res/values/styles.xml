@@ -89,6 +89,16 @@
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
+    <!-- Style of horizontal dividers. -->
+    <style name="Widget.Odeon.Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:alpha">0.12</item>
+        <item name="android:background">?colorOnSurface</item>
+    </style>
+
     <!-- Style applied to the main Scrolling View in layouts that use NowPlayingFragment. -->
     <style name="MainScrollingView">
         <item name="android:clipToPadding">false</item>
