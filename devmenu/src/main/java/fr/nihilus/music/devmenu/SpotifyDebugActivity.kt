@@ -20,15 +20,25 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.observe
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.devmenu.features.ComposerViewModel
 
 class SpotifyDebugActivity : BaseActivity() {
     private val viewModel by viewModels<ComposerViewModel> { viewModelFactory }
 
+    private val navController: NavController by lazy {
+        findNavController(R.id.nav_host)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify_debug)
+
+        setupActionBarWithNavController(navController, AppBarConfiguration(navController.graph))
 
         viewModel.events.observe(this) { event ->
             event.handle { message ->
@@ -36,4 +46,7 @@ class SpotifyDebugActivity : BaseActivity() {
             }
         }
     }
+
+    override fun onSupportNavigateUp(): Boolean =
+        navController.navigateUp() || super.onSupportNavigateUp()
 }
