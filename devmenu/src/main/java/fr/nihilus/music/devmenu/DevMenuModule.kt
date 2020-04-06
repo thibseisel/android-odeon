@@ -35,6 +35,9 @@ abstract class DevMenuModule {
     internal abstract fun debugActivity(): SpotifyDebugActivity
 
     @ContributesAndroidInjector
+    internal abstract fun debugMenuFragment(): DebugMenuFragment
+
+    @ContributesAndroidInjector
     internal abstract fun composerFragment(): MixComposerFragment
 
     @ContributesAndroidInjector
