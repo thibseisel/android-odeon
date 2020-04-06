@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.devmenu.R
@@ -45,10 +46,8 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
         feature_criteria.addItemDecoration(dividers)
 
         search_button.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.container, FeaturedTracksFragment())
-                .addToBackStack(null)
-                .commit()
+            val toMatchingTracks = MixComposerFragmentDirections.showMatchingTracks()
+            findNavController().navigate(toMatchingTracks)
         }
 
         viewModel.tracks.observe(viewLifecycleOwner) { tracks ->
@@ -66,8 +65,8 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_add_filter -> {
-            val dialog = AddFilterDialog()
-            dialog.show(parentFragmentManager, null)
+            val toNewFilterDialog = MixComposerFragmentDirections.addNewFilter()
+            findNavController().navigate(toNewFilterDialog)
             true
         }
 

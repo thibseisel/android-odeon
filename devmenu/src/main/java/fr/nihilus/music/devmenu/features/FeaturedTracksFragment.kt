@@ -21,6 +21,7 @@ import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -59,7 +60,8 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_save_as_playlist -> {
-            NewPlaylistFromSelectionDialog().show(parentFragmentManager, null)
+            val toNewPlaylistDialog = FeaturedTracksFragmentDirections.createPlaylistFromSelection()
+            findNavController().navigate(toNewPlaylistDialog)
             true
         }
         else -> super.onOptionsItemSelected(item)
