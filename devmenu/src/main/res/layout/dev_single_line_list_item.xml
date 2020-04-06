@@ -44,7 +44,8 @@
         android:maxLines="1"
         android:textAppearance="?textAppearanceListItem"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/icon"
         app:layout_goneMarginStart="0dp"
         tools:text="Impressive list item title" />

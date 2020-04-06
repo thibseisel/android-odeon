@@ -62,7 +62,7 @@ internal class StaticAdapter(
     inner class RowHolder(
         parent: ViewGroup,
         listener: (Row) -> Unit
-    ) : RecyclerView.ViewHolder(parent.inflate(R.layout.dev_two_line_list_item)) {
+    ) : RecyclerView.ViewHolder(parent.inflate(R.layout.dev_single_line_list_item)) {
 
         private val icon: ImageView = itemView.findViewById(R.id.icon)
         private val title: TextView = itemView.findViewById(R.id.title)

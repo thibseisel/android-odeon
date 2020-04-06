@@ -31,6 +31,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/dev_two_line_list_item" />
+        tools:listitem="@layout/dev_single_line_list_item" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
