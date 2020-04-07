@@ -24,7 +24,6 @@ import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.devmenu.R
 import kotlinx.android.synthetic.main.fragment_mix_composer.*
@@ -41,9 +40,7 @@ internal class MixComposerFragment : BaseFragment(R.layout.fragment_mix_composer
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = FeatureSpecAdapter(viewModel)
-        val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.HORIZONTAL)
         feature_criteria.adapter = adapter
-        feature_criteria.addItemDecoration(dividers)
 
         search_button.setOnClickListener {
             val toMatchingTracks = MixComposerFragmentDirections.showMatchingTracks()
