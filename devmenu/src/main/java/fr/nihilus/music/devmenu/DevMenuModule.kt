@@ -23,9 +23,7 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.core.ui.dagger.PerActivity
 import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
-import fr.nihilus.music.devmenu.features.ComposerViewModel
-import fr.nihilus.music.devmenu.features.FeaturedTracksFragment
-import fr.nihilus.music.devmenu.features.MixComposerFragment
+import fr.nihilus.music.devmenu.features.*
 
 @Module
 abstract class DevMenuModule {
@@ -38,6 +36,9 @@ abstract class DevMenuModule {
     internal abstract fun debugMenuFragment(): DebugMenuFragment
 
     @ContributesAndroidInjector
+    internal abstract fun unlinkedTracksFragment(): UnlinkedTrackFragment
+
+    @ContributesAndroidInjector
     internal abstract fun composerFragment(): MixComposerFragment
 
     @ContributesAndroidInjector
@@ -46,4 +47,8 @@ abstract class DevMenuModule {
     @Binds @IntoMap
     @ViewModelKey(ComposerViewModel::class)
     internal abstract fun bindsComposerViewModel(vm: ComposerViewModel): ViewModel
+
+    @Binds @IntoMap
+    @ViewModelKey(UnlinkedTrackViewModel::class)
+    internal abstract fun bindsUnlinkedTrackViewModel(vm: UnlinkedTrackViewModel): ViewModel
 }

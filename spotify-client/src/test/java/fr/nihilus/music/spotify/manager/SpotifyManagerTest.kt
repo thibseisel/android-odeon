@@ -26,6 +26,7 @@ import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.model.SpotifyTrack
+import io.kotlintest.extracting
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldContainExactly
@@ -279,6 +280,33 @@ internal class SpotifyManagerTest {
         val tracks = manager.findTracksHavingFeatures(emptyList())
 
         tracks.map { it.first.title }.shouldContainExactly("A", "B", "J", "U", "Z")
+    }
+
+    @Test
+    fun `When listing unlinked tracks, then return tracks not mapped to Spotify`() = test.run {
+        val dao = FakeMediaDao(
+            sampleTrack(3, "A", "B", "B", 2),
+            sampleTrack(4, "B", "C", "C", 7),
+            sampleTrack(2, "J", "B", "B", 1),
+            sampleTrack(5, "U", "C", "D", 3),
+            sampleTrack(1, "Z", "A", "A", 1)
+        )
+
+        val localDao = FakeSpotifyDao(
+            links = listOf(
+                SpotifyLink(2, "ZEIul98mdUL4rFtTj6u0m5", 0),
+                SpotifyLink(4, "GMQwHtRCwNz1iljZIr8tIV", 0)
+            ),
+            features = listOf(
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
+            )
+        )
+
+        val manager = SpotifyManagerImpl(dao, OfflineSpotifyService, localDao, dispatchers, clock)
+
+        val unlinkedTracks = manager.listUnlinkedTracks()
+        extracting(unlinkedTracks, Track::id).shouldContainExactly(3L, 5L, 1L)
     }
 }
 

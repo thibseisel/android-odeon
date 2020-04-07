@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -60,4 +60,6 @@
     <string name="dev_action_save_as_playlist">Créer une playlist</string>
     <string name="dev_title_playlist_from_selection">Nouvelle playlist à partir de la sélection</string>
     <string name="dev_hint_playlist_title">Titre de la playlist</string>
+    <string name="dev_empty_unlinked_tracks">Tous les morceaux sont à jour</string>
+    <string name="dev_unlinked_tracks">Morceaux désynchronisés</string>
 </resources>

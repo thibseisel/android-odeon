@@ -59,4 +59,6 @@
     <string name="dev_hint_playlist_title">Playlist title</string>
     <string name="dev_filter_by_features">Filter by Audio Features</string>
     <string name="dev_feature_search_results">Search results</string>
+    <string name="dev_empty_unlinked_tracks">All tracks are in sync</string>
+    <string name="dev_unlinked_tracks">Unlinked tracks</string>
 </resources>

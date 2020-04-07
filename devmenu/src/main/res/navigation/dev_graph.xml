@@ -18,6 +18,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/dev_graph"
+    android:label="Unlinked tracks"
     app:startDestination="@id/fragment_debug_menu">
 
     <fragment
@@ -28,6 +29,13 @@
         <action
             android:id="@+id/show_mix_composer"
             app:destination="@id/fragment_mix_composer"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/list_unlinked_tracks"
+            app:destination="@id/fragment_unlinked_tracks"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -53,7 +61,7 @@
         android:id="@+id/fragment_featured_tracks"
         android:name="fr.nihilus.music.devmenu.features.FeaturedTracksFragment"
         android:label="@string/dev_feature_search_results"
-        tools:layout="@layout/fragment_featured_tracks" >
+        tools:layout="@layout/fragment_featured_tracks">
         <action
             android:id="@+id/create_playlist_from_selection"
             app:destination="@id/dialog_new_playlist_from_selection" />
@@ -66,4 +74,9 @@
         android:id="@+id/dialog_new_playlist_from_selection"
         android:name="fr.nihilus.music.devmenu.features.NewPlaylistFromSelectionDialog"
         android:label="@string/dev_title_playlist_from_selection" />
+    <fragment
+        android:id="@+id/fragment_unlinked_tracks"
+        android:label="@string/dev_unlinked_tracks"
+        android:name="fr.nihilus.music.devmenu.features.UnlinkedTrackFragment"
+        tools:layout="@layout/dev_fragment_unlinked_tracks" />
 </navigation>

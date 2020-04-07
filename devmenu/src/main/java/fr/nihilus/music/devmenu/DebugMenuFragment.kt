@@ -30,8 +30,9 @@ internal class DebugMenuFragment : BaseFragment(R.layout.dev_fragment_menu) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Rows will use the id of the navigation action as row id.
+        // Rows use the id of their associated navigation action as row id.
         val menuEntries = listOf(
+            StaticAdapter.Row(R.id.list_unlinked_tracks, R.string.dev_unlinked_tracks),
             StaticAdapter.Row(R.id.show_mix_composer, R.string.dev_filter_by_features)
         )
 

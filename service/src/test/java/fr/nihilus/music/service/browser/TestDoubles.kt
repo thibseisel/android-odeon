@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,8 @@ internal class TestSpotifyManager(
         }
     }
 
+    override suspend fun listUnlinkedTracks(): List<Track> = stub()
+
     override suspend fun sync() = stub()
 
 }
@@ -105,6 +107,8 @@ internal object StubSpotifyManager : SpotifyManager {
     override suspend fun findTracksHavingFeatures(
         filters: List<FeatureFilter>
     ): List<Pair<Track, TrackFeature>> = stub()
+
+    override suspend fun listUnlinkedTracks(): List<Track> = stub()
 
     override suspend fun sync(): Unit = stub()
 
