@@ -61,5 +61,7 @@
     <string name="dev_title_playlist_from_selection">Nouvelle playlist à partir de la sélection</string>
     <string name="dev_hint_playlist_title">Titre de la playlist</string>
     <string name="dev_empty_unlinked_tracks">Tous les morceaux sont à jour</string>
+    <string name="dev_filter_by_features">Filtrer par caractéristiques audio</string>
+    <string name="dev_feature_search_results">Résultats de la recherche</string>
     <string name="dev_unlinked_tracks">Morceaux désynchronisés</string>
 </resources>
