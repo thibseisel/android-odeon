@@ -49,7 +49,7 @@ internal class UnlinkedTrackFragment : BaseFragment(R.layout.dev_fragment_unlink
         val adapter = TrackAdapter()
         adapter.setHasStableIds(true)
 
-        val listDividers = DividerItemDecoration(requireContext(), DividerItemDecoration.HORIZONTAL)
+        val listDividers = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         unlinked_track_list.addItemDecoration(listDividers)
         unlinked_track_list.adapter = adapter
 
