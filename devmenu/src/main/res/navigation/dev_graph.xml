@@ -65,6 +65,9 @@
         <action
             android:id="@+id/create_playlist_from_selection"
             app:destination="@id/dialog_new_playlist_from_selection" />
+        <action
+            android:id="@+id/open_feature_stats_dialog"
+            app:destination="@id/dialog_feature_stats" />
     </fragment>
     <dialog
         android:id="@+id/dialog_add_filter"
@@ -79,4 +82,8 @@
         android:label="@string/dev_unlinked_tracks"
         android:name="fr.nihilus.music.devmenu.features.UnlinkedTrackFragment"
         tools:layout="@layout/dev_fragment_unlinked_tracks" />
+    <dialog
+        android:id="@+id/dialog_feature_stats"
+        android:name="fr.nihilus.music.devmenu.features.FeatureStatsDialog"
+        tools:layout="@layout/dev_dialog_feature_stats"/>
 </navigation>

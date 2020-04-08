@@ -61,4 +61,5 @@
     <string name="dev_feature_search_results">Search results</string>
     <string name="dev_empty_unlinked_tracks">All tracks are in sync</string>
     <string name="dev_unlinked_tracks">Unlinked tracks</string>
+    <string name="dev_show_stats">Show stats</string>
 </resources>

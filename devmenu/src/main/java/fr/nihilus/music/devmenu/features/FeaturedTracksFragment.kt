@@ -59,6 +59,11 @@ internal class FeaturedTracksFragment : BaseFragment(R.layout.fragment_featured_
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_feature_stats -> {
+            val toFeatureStatsDialog = FeaturedTracksFragmentDirections.openFeatureStatsDialog()
+            findNavController().navigate(toFeatureStatsDialog)
+            true
+        }
         R.id.action_save_as_playlist -> {
             val toNewPlaylistDialog = FeaturedTracksFragmentDirections.createPlaylistFromSelection()
             findNavController().navigate(toNewPlaylistDialog)
