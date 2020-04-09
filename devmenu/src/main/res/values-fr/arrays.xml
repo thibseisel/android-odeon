@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@
 <resources>
     <string-array name="dev_key_entries">
         <item>Do</item>
-        <item>Do#</item>
+        <item>Réb</item>
         <item>Ré</item>
-        <item>Ré#</item>
+        <item>Mib</item>
         <item>Mi</item>
         <item>Fa</item>
         <item>Fa#</item>
         <item>Sol</item>
-        <item>Sol#</item>
+        <item>Lab</item>
         <item>La</item>
-        <item>La#</item>
+        <item>Sib</item>
         <item>Si</item>
     </string-array>
 

@@ -234,7 +234,7 @@ internal class SpotifyManagerTest {
                 TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
                 TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f),
                 TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
                 TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f)
             )
         )
@@ -269,7 +269,7 @@ internal class SpotifyManagerTest {
             ),
             features = listOf(
                 TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
                 TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
                 TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f),
                 TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
@@ -298,7 +298,7 @@ internal class SpotifyManagerTest {
                 SpotifyLink(4, "GMQwHtRCwNz1iljZIr8tIV", 0)
             ),
             features = listOf(
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.A_SHARP, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
+                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
                 TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
             )
         )
