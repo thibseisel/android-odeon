@@ -50,15 +50,15 @@ internal class FeatureStatsDialog : AppCompatDialogFragment() {
     }
 
     private fun updateFeatureStats(featuredTracks: List<Pair<Track, TrackFeature>>) {
-        var minTempo = Float.MIN_VALUE
-        var minEnergy = Float.MIN_VALUE
-        var minDanceability = Float.MIN_VALUE
-        var minValence = Float.MIN_VALUE
+        var minTempo = Float.MAX_VALUE
+        var minEnergy = Float.MAX_VALUE
+        var minDanceability = Float.MAX_VALUE
+        var minValence = Float.MAX_VALUE
 
-        var maxTempo = Float.MAX_VALUE
-        var maxEnergy = Float.MAX_VALUE
-        var maxDanceability = Float.MAX_VALUE
-        var maxValence = Float.MAX_VALUE
+        var maxTempo = Float.MIN_VALUE
+        var maxEnergy = Float.MIN_VALUE
+        var maxDanceability = Float.MIN_VALUE
+        var maxValence = Float.MIN_VALUE
 
         var tempoSum = 0f
         var energySum = 0f
