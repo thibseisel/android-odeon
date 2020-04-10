@@ -118,7 +118,7 @@
             app:constraint_referenced_ids="min_tempo,min_energy,min_danceability,min_valence" />
 
         <TextView
-            android:id="@+id/avg_tempo"
+            android:id="@+id/med_tempo"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -128,7 +128,7 @@
             tools:text="120.00" />
 
         <TextView
-            android:id="@+id/avg_energy"
+            android:id="@+id/med_energy"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -138,7 +138,7 @@
             tools:text="90.6%" />
 
         <TextView
-            android:id="@+id/avg_danceability"
+            android:id="@+id/med_danceability"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -148,7 +148,7 @@
             tools:text="52.13%" />
 
         <TextView
-            android:id="@+id/avg_valence"
+            android:id="@+id/med_valence"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
@@ -158,11 +158,11 @@
             tools:text="42.90%" />
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/barrier_avg"
+            android:id="@+id/barrier_med"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="end"
-            app:constraint_referenced_ids="avg_tempo,avg_energy,avg_danceability,avg_valence" />
+            app:constraint_referenced_ids="med_tempo,med_energy,med_danceability,med_valence" />
 
         <TextView
             android:id="@+id/max_tempo"
@@ -171,7 +171,7 @@
             android:layout_marginStart="16dp"
             android:textAppearance="?textAppearanceBody2"
             app:layout_constraintBaseline_toBaselineOf="@id/label_tempo"
-            app:layout_constraintStart_toEndOf="@id/barrier_avg"
+            app:layout_constraintStart_toEndOf="@id/barrier_med"
             tools:text="210" />
 
         <TextView
@@ -181,7 +181,7 @@
             android:layout_marginStart="16dp"
             android:textAppearance="?textAppearanceBody2"
             app:layout_constraintBaseline_toBaselineOf="@id/label_energy"
-            app:layout_constraintStart_toEndOf="@id/barrier_avg"
+            app:layout_constraintStart_toEndOf="@id/barrier_med"
             tools:text="99.85%" />
 
         <TextView
@@ -191,7 +191,7 @@
             android:layout_marginStart="16dp"
             android:textAppearance="?textAppearanceBody2"
             app:layout_constraintBaseline_toBaselineOf="@id/label_danceability"
-            app:layout_constraintStart_toEndOf="@id/barrier_avg"
+            app:layout_constraintStart_toEndOf="@id/barrier_med"
             tools:text="82.79%" />
 
         <TextView
@@ -201,7 +201,7 @@
             android:layout_marginStart="16dp"
             android:textAppearance="?textAppearanceBody2"
             app:layout_constraintBaseline_toBaselineOf="@id/label_valence"
-            app:layout_constraintStart_toEndOf="@id/barrier_avg"
+            app:layout_constraintStart_toEndOf="@id/barrier_med"
             tools:text="95.1%" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

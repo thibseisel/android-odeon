@@ -60,17 +60,7 @@ internal class FeatureStatsDialog : AppCompatDialogFragment() {
         var maxDanceability = Float.MIN_VALUE
         var maxValence = Float.MIN_VALUE
 
-        var tempoSum = 0f
-        var energySum = 0f
-        var danceabilitySum = 0f
-        var valenceSum = 0f
-
         for ((_, feature) in featuredTracks) {
-            tempoSum += feature.tempo
-            energySum += feature.energy
-            danceabilitySum += feature.danceability
-            valenceSum += feature.valence
-
             minTempo = minOf(minTempo, feature.tempo)
             maxTempo = maxOf(maxTempo, feature.tempo)
 
@@ -84,7 +74,19 @@ internal class FeatureStatsDialog : AppCompatDialogFragment() {
             maxValence = maxOf(maxValence, feature.valence)
         }
 
-        val numberOfTracks = featuredTracks.size
+        var medianTempo = 0f
+        var medianEnergy = 0f
+        var medianDanceability = 0f
+        var medianValence = 0f
+
+        if (featuredTracks.isNotEmpty()) {
+            val features = featuredTracks.mapTo(ArrayList(featuredTracks.size)) { it.second }
+            medianTempo = features.medianBy { it.tempo }
+            medianEnergy = features.medianBy { it.energy }
+            medianDanceability = features.medianBy { it.danceability }
+            medianValence = features.medianBy { it.valence }
+        }
+
         val percentFormatter = NumberFormat.getPercentInstance().apply {
             minimumFractionDigits = 1
             maximumFractionDigits = 2
@@ -96,19 +98,35 @@ internal class FeatureStatsDialog : AppCompatDialogFragment() {
         }
 
         min_tempo.text = decimalFormatter.format(minTempo)
-        avg_tempo.text = decimalFormatter.format(tempoSum / numberOfTracks)
+        med_tempo.text = decimalFormatter.format(medianTempo)
         max_tempo.text = decimalFormatter.format(maxTempo)
 
         min_energy.text = percentFormatter.format(minEnergy)
-        avg_energy.text = percentFormatter.format(energySum / numberOfTracks)
+        med_energy.text = percentFormatter.format(medianEnergy)
         max_energy.text = percentFormatter.format(maxEnergy)
 
         min_danceability.text = percentFormatter.format(maxDanceability)
-        avg_danceability.text = percentFormatter.format(danceabilitySum / numberOfTracks)
+        med_danceability.text = percentFormatter.format(medianDanceability)
         max_danceability.text = percentFormatter.format(maxDanceability)
 
         min_valence.text = percentFormatter.format(maxValence)
-        avg_valence.text = percentFormatter.format(valenceSum / numberOfTracks)
+        med_valence.text = percentFormatter.format(medianValence)
         max_valence.text = percentFormatter.format(maxValence)
+    }
+
+    private inline fun List<TrackFeature>.medianBy(
+        crossinline featureSelector: (TrackFeature) -> Float
+    ): Float {
+        sortedBy(featureSelector)
+
+        return when {
+            size == 0 -> -1f
+            size % 2 != 0 -> featureSelector(get(size / 2 + 1))
+            else -> {
+                val firstMedian = featureSelector(get(size / 2))
+                val secondMedian = featureSelector(get(size / 2 + 1))
+                (firstMedian + secondMedian) / 2
+            }
+        }
     }
 }
