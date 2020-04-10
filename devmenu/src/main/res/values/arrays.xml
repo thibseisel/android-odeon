@@ -18,16 +18,16 @@
 <resources>
     <string-array name="dev_key_entries">
         <item>C</item>
-        <item>Db</item>
+        <item>D♭</item>
         <item>D</item>
-        <item>Eb</item>
+        <item>E♭</item>
         <item>E</item>
         <item>F</item>
-        <item>F#</item>
+        <item>F♯</item>
         <item>G</item>
         <item>Ab</item>
         <item>A</item>
-        <item>Bb</item>
+        <item>B♭</item>
         <item>B</item>
     </string-array>
 

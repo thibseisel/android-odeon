@@ -18,16 +18,16 @@
 <resources>
     <string-array name="dev_key_entries">
         <item>Do</item>
-        <item>Réb</item>
+        <item>Ré♭</item>
         <item>Ré</item>
-        <item>Mib</item>
+        <item>Mi♭</item>
         <item>Mi</item>
         <item>Fa</item>
-        <item>Fa#</item>
+        <item>Fa♯</item>
         <item>Sol</item>
-        <item>Lab</item>
+        <item>La♭</item>
         <item>La</item>
-        <item>Sib</item>
+        <item>Si♭</item>
         <item>Si</item>
     </string-array>
 
