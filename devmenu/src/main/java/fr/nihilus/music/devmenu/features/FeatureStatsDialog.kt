@@ -105,11 +105,11 @@ internal class FeatureStatsDialog : AppCompatDialogFragment() {
         med_energy.text = percentFormatter.format(medianEnergy)
         max_energy.text = percentFormatter.format(maxEnergy)
 
-        min_danceability.text = percentFormatter.format(maxDanceability)
+        min_danceability.text = percentFormatter.format(minDanceability)
         med_danceability.text = percentFormatter.format(medianDanceability)
         max_danceability.text = percentFormatter.format(maxDanceability)
 
-        min_valence.text = percentFormatter.format(maxValence)
+        min_valence.text = percentFormatter.format(minValence)
         med_valence.text = percentFormatter.format(medianValence)
         max_valence.text = percentFormatter.format(maxValence)
     }
