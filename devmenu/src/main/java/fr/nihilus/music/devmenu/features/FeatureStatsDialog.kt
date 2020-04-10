@@ -20,10 +20,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import fr.nihilus.music.core.database.spotify.TrackFeature
-import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.devmenu.R
 import fr.nihilus.music.media.provider.Track
 import kotlinx.android.synthetic.main.dev_dialog_feature_stats.*
@@ -32,7 +32,7 @@ import java.text.NumberFormat
 /**
  * A floating dialog displaying statistics on selected tracks.
  */
-internal class FeatureStatsDialog : BaseDialogFragment() {
+internal class FeatureStatsDialog : AppCompatDialogFragment() {
     private val viewModel by activityViewModels<ComposerViewModel>()
 
     override fun onCreateView(
