@@ -19,6 +19,7 @@
 
     <item
         android:id="@+id/action_add_filter"
+        android:contentDescription="@string/dev_title_new_filter"
         android:icon="@drawable/dev_ic_add_24dp"
         android:title="@string/dev_title_new_filter"
         app:showAsAction="ifRoom" />
