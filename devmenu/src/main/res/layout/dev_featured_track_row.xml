@@ -38,7 +38,7 @@
             android:layout_marginEnd="24dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Odeon.Headline6"
+            android:textAppearance="?textAppearanceHeadline6"
             app:firstBaselineToTopHeight="32dp"
             app:lastBaselineToBottomHeight="4dp"
             app:layout_constraintEnd_toStartOf="@id/tone_indicator"
@@ -53,7 +53,7 @@
             android:layout_marginEnd="24dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Odeon.Caption"
+            android:textAppearance="?textAppearanceCaption"
             android:textIsSelectable="true"
             app:firstBaselineToTopHeight="16dp"
             app:layout_constraintEnd_toStartOf="@id/tone_indicator"
@@ -66,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginEnd="16dp"
-            android:textAppearance="@style/TextAppearance.Odeon.Headline6"
+            android:textAppearance="?textAppearanceHeadline6"
             android:textColor="?colorPrimary"
             app:layout_constraintBottom_toBottomOf="@id/remote_track_id"
             app:layout_constraintEnd_toEndOf="parent"
@@ -127,7 +127,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/dev_label_energy"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bottom_section_divider" />
 
@@ -136,7 +136,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dev_label_valence"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_energy" />
 
@@ -145,7 +145,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dev_label_danceability"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_valence" />
 
@@ -190,7 +190,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="@string/dev_label_acousticness"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintBaseline_toBaselineOf="@id/label_energy"
             app:layout_constraintStart_toEndOf="@id/column_guideline"
             app:layout_constraintTop_toBottomOf="@id/bottom_section_divider" />
@@ -210,7 +210,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/dev_label_instrumentalness"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toEndOf="@id/column_guideline"
             app:layout_constraintTop_toBottomOf="@id/label_acousticness" />
 
@@ -228,7 +228,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/dev_label_liveness"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toEndOf="@id/column_guideline"
             app:layout_constraintTop_toBottomOf="@id/label_instrumentalness" />
 
@@ -246,7 +246,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="@string/dev_label_speechiness"
-            android:textAppearance="@style/TextAppearance.Odeon.Body2"
+            android:textAppearance="?textAppearanceBody2"
             app:layout_constraintStart_toEndOf="@id/column_guideline"
             app:layout_constraintTop_toBottomOf="@id/label_liveness" />
 

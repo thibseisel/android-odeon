@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="28dp"
         android:layout_marginStart="32dp"
-        android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:firstBaselineToTopHeight="32dp"
         app:lastBaselineToBottomHeight="4dp"
         android:maxLines="1"
@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
         android:layout_marginStart="28dp"
-        android:textAppearance="@style/TextAppearance.Odeon.Caption"
+        android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBaseline_toBaselineOf="@id/title"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/track_usage.json/data/file_size" />

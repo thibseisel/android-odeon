@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:textAppearance="?textAppearanceHeadline5"
                 android:textColor="?albumPaletteTitleTextColor"
                 tools:text="@sample/albums.json/data/title[1]"/>
 
@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="?textAppearanceSubtitle1"
                 android:textColor="?albumPaletteBodyTextColor"
                 tools:text="@sample/albums.json/data/artist[1]"/>
         </LinearLayout>

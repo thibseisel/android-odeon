@@ -22,6 +22,7 @@
     <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
 
     <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Color attributes -->
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryVariant">@color/color_primary_variant</item>
         <item name="colorSecondary">@color/color_secondary</item>
@@ -34,6 +35,21 @@
 
         <!-- This color is still used as the default status bar color -->
         <item name="colorPrimaryDark">@color/color_primary</item>
+
+        <!-- Typography attributes -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Odeon.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Odeon.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Odeon.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Odeon.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Odeon.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Odeon.Headline6</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Odeon.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Odeon.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Odeon.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Odeon.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Odeon.Overline</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Odeon.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Odeon.Subtitle2</item>
 
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="actionModeStyle">@style/Widget.AppTheme.ActionMode</item>
