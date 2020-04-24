@@ -51,6 +51,11 @@
         <item name="textAppearanceSubtitle1">@style/TextAppearance.Odeon.Subtitle1</item>
         <item name="textAppearanceSubtitle2">@style/TextAppearance.Odeon.Subtitle2</item>
 
+        <!-- Shape attributes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Odeon.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Odeon.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Odeon.LargeComponent</item>
+
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="actionModeStyle">@style/Widget.AppTheme.ActionMode</item>
         <item name="actionModeCloseDrawable">@drawable/ui_ic_clear_24dp</item>
@@ -139,4 +144,9 @@
     <style name="TextAppearance.Odeon.Overline" parent="TextAppearance.MaterialComponents.Overline"/>
     <style name="TextAppearance.Odeon.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1"/>
     <style name="TextAppearance.Odeon.Subtitle2" parent="TextAppearance.MaterialComponents.Subtitle2"/>
+
+    <!-- Shape styles. -->
+    <style name="ShapeAppearance.Odeon.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent"/>
+    <style name="ShapeAppearance.Odeon.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent"/>
+    <style name="ShapeAppearance.Odeon.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent"/>
 </resources>
