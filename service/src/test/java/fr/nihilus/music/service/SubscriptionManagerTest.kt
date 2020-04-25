@@ -38,6 +38,7 @@ import io.kotlintest.matchers.types.shouldNotBeSameInstanceAs
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotThrow
 import io.kotlintest.shouldThrow
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -386,19 +387,31 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `Given active subscription, when getting a single item then use cached children`() = test {
-        val manager = CachingSubscriptionManager(this, TestBrowserTree, dispatchers)
+    fun `Given active subscription, when getting a playable item then use cached children`() = test {
+        assertGetItemFromCache(
+            parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL),
+            itemId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 481L)
+        )
+    }
 
-        // Trigger subscription to all tracks.
-        val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+    @Test
+    fun `Given active subscription, when getting a browsable item then use cached children`() = test {
+        assertGetItemFromCache(
+            parentId = MediaId(TYPE_ALBUMS),
+            itemId = MediaId(TYPE_ALBUMS, "42")
+        )
+    }
+
+    private suspend fun CoroutineScope.assertGetItemFromCache(parentId: MediaId, itemId: MediaId) {
+        // Trigger subscription to fill cache
+        val manager = CachingSubscriptionManager(this, TestBrowserTree, dispatchers)
         val children = manager.loadChildren(parentId, null)
 
-        val itemId = parentId.copy(track = 481L)
+        val child = children.find { it.mediaId == itemId.encoded }
+            ?: failAssumption("$itemId should be listed in the children of $parentId, but wasn't")
+
         val item = manager.getItem(itemId)
         item.shouldNotBeNull()
-
-        val child = children.find { it.mediaId == item.mediaId }
-            ?: failAssumption("$itemId should be listed in the children of $parentId, but wasn't")
         item shouldBeSameInstanceAs child
     }
 

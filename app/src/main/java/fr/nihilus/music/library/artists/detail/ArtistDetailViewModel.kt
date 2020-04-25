@@ -42,7 +42,9 @@ class ArtistDetailViewModel @Inject constructor(
 
     fun setArtist(artistId: String) {
         viewModelScope.launch {
-            _artist.value = client.getItem(artistId)
+            _artist.value = checkNotNull(client.getItem(artistId)) {
+                "Unable to load the detail of artist $artistId"
+            }
         }
 
         observeChildrenJob?.cancel()

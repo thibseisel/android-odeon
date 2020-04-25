@@ -46,7 +46,9 @@ class MembersViewModel @Inject constructor(
 
     fun setPlaylist(playlistId: String) {
         viewModelScope.launch {
-            _playlist.value = client.getItem(playlistId)
+            _playlist.value = checkNotNull(client.getItem(playlistId)) {
+                "Unable to load detail of playlist $playlistId"
+            }
         }
 
         observeTracksJob?.cancel()

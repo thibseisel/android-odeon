@@ -104,7 +104,12 @@ internal class CachingSubscriptionManager @Inject constructor(
     }
 
     override suspend fun getItem(itemId: MediaId): MediaItem? {
-        val parentId = itemId.copy(track = null)
+        val parentId = when {
+            itemId.track != null -> itemId.copy(track = null)
+            itemId.category != null -> itemId.copy(category = null)
+            else -> MediaId(MediaId.TYPE_ROOT)
+        }
+
         val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
 
         return if (parentSubscription != null) {
