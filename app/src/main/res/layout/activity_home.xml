@@ -34,10 +34,10 @@
         android:id="@+id/player_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_floating"
         android:elevation="8dp"
         app:behavior_peekHeight="@dimen/playerview_height"
-        app:layout_behavior="@string/bottom_sheet_behavior">
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:shapeAppearance="@style/ShapeAppearance.Odeon.BottomSheet">
 
         <fragment
             android:id="@+id/fragment_now_playing"

@@ -147,6 +147,17 @@
 
     <!-- Shape styles. -->
     <style name="ShapeAppearance.Odeon.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent"/>
+
     <style name="ShapeAppearance.Odeon.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent"/>
-    <style name="ShapeAppearance.Odeon.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent"/>
+
+    <style name="ShapeAppearance.Odeon.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Odeon.BottomSheet" parent="ShapeAppearance.Odeon.LargeComponent">
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
 </resources>
