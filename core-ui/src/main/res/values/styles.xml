@@ -17,43 +17,43 @@
 
 <resources>
     <!-- Action mode style to look lie Material specs -->
-    <style name="Widget.AppTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
+    <style name="Widget.Odeon.ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="background">?colorSecondaryVariant</item>
-        <item name="titleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.AppTheme.Widget.ActionMode.SubTitle</item>
+        <item name="titleTextStyle">@style/TextAppearance.Odeon.Widget.ActionMode.Title</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Odeon.Widget.ActionMode.SubTitle</item>
     </style>
 
-    <style name="TextAppearance.AppTheme.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+    <style name="TextAppearance.Odeon.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
-    <style name="TextAppearance.AppTheme.Widget.ActionMode.SubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
+    <style name="TextAppearance.Odeon.Widget.ActionMode.SubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
     <!-- Style for PopupMenu that overlaps the anchor and supports Night Theme. -->
-    <style name="Widget.AppTheme.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow"/>
+    <style name="Widget.Odeon.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow"/>
 
     <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
-    <style name="AppTheme.FastScrollStyle" parent="android:Widget.Material.FastScroll">
+    <style name="Widget.Odeon.FastScroll" parent="android:Widget.Material.FastScroll">
         <item name="android:minWidth">124dp</item>
         <item name="android:typeface">monospace</item>
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
     <!-- Style applied to the main Scrolling View in layouts that use NowPlayingFragment. -->
-    <style name="MainScrollingView">
+    <style name="Widget.Odeon.MainScrollingView" parent="">
         <item name="android:clipToPadding">false</item>
         <item name="android:paddingBottom">72dp</item>
     </style>
 
     <!-- Specialization for Lists. -->
-    <style name="MainScrollingView.List">
+    <style name="Widget.Odeon.MainScrollingView.List">
         <item name="android:paddingTop">8dp</item>
     </style>
 
     <!-- Specialization for non-list RecyclerViews with fast scrolling enabled. -->
-    <style name="MainScrollingView.FastScrollRecyclerView">
+    <style name="Widget.Odeon.MainScrollingView.FastScrollRecyclerView">
         <item name="fastScrollEnabled">true</item>
         <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
         <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>

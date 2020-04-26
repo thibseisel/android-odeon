@@ -96,7 +96,7 @@ class SongAdapter(
                 overflowIcon,
                 Gravity.BOTTOM or Gravity.END,
                 0,
-                R.style.Widget_AppTheme_PopupMenu_Overflow
+                R.style.Widget_Odeon_PopupMenu_Overflow
             )
             popup.inflate(R.menu.track_popup_menu)
 

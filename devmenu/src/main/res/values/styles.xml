@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Widget.AppTheme.EditText.Number" parent="Widget.AppCompat.EditText">
+    <style name="Widget.Odeon.EditText.Number" parent="Widget.AppCompat.EditText">
         <item name="android:gravity">center</item>
         <item name="android:inputType">number</item>
         <item name="android:maxLength">3</item>
@@ -24,11 +24,11 @@
         <item name="android:imeOptions">actionNext</item>
     </style>
 
-    <style name="Widget.AppTheme.EditText.Number.Decimal">
+    <style name="Widget.Odeon.EditText.Number.Decimal">
         <item name="android:inputType">numberDecimal</item>
     </style>
 
-    <style name="Widget.AppTheme.TextView.Section" parent="">
+    <style name="Widget.Odeon.TextView.Section" parent="">
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5

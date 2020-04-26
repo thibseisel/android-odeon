@@ -35,7 +35,7 @@
 
     <fr.nihilus.music.view.ScrollPositionListView
         android:id="@+id/songs_listview"
-        style="@style/MainScrollingView.List"
+        style="@style/Widget.Odeon.MainScrollingView.List"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:divider="@null"

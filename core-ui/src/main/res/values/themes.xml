@@ -19,9 +19,9 @@
       - Pointer to the base theme used for both Light and Night.
       - Override this theme to apply API-level specific customizations.
       -->
-    <style name="Base.AppTheme" parent="Base.V21.AppTheme"/>
+    <style name="Base.Odeon" parent="Base.V21.Odeon"/>
 
-    <style name="Base.V21.AppTheme" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Base.V21.Odeon" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Color attributes -->
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryVariant">@color/color_primary_variant</item>
@@ -58,11 +58,11 @@
 
         <!-- Styling ActionMode to look like Material Design Specs -->
         <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeStyle">@style/Widget.AppTheme.ActionMode</item>
+        <item name="actionModeStyle">@style/Widget.Odeon.ActionMode</item>
         <item name="actionModeCloseDrawable">@drawable/ui_ic_clear_24dp</item>
 
         <!-- Custom style for FastScroller -->
-        <item name="android:fastScrollStyle">@style/AppTheme.FastScrollStyle</item>
+        <item name="android:fastScrollStyle">@style/Widget.Odeon.FastScroll</item>
 
         <!-- Color palette to use for an album that has no album art. -->
         <item name="albumPalettePrimaryColor">?colorSurface</item>
@@ -73,13 +73,13 @@
     </style>
 
     <!-- The default theme for the whole application. -->
-    <style name="AppTheme" parent="Base.AppTheme"/>
+    <style name="Odeon" parent="Base.Odeon"/>
 
     <!--
       - Extension of the default theme that removes the decor ActionBar.
       - This allows using Toolbar in XML layouts.
       -->
-    <style name="AppTheme.NoActionBar">
+    <style name="Odeon.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
     </style>

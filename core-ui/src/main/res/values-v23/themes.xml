@@ -16,8 +16,8 @@
   -->
 
 <resources>
-    <style name="Base.AppTheme" parent="Base.V23.AppTheme"/>
-    <style name="Base.V23.AppTheme" parent="Base.V21.AppTheme">
+    <style name="Base.Odeon" parent="Base.V23.Odeon"/>
+    <style name="Base.V23.Odeon" parent="Base.V21.Odeon">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:textViewStyle">@style/Widget.Odeon.TextView</item>
     </style>

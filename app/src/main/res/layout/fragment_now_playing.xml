@@ -82,7 +82,7 @@
     <!-- Progress bar -->
     <SeekBar
         android:id="@+id/seek_bar"
-        style="@style/Widget.AppTheme.SeekBar.FullWidth"
+        style="@style/Widget.Odeon.SeekBar.FullWidth"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"

@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Base.AppTheme">
+    <style name="Odeon" parent="Base.Odeon">
         <item name="colorPrimaryDark">@android:color/black</item>
     </style>
 </resources>
