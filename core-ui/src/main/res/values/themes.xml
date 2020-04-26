@@ -64,6 +64,10 @@
         <!-- Custom style for FastScroller -->
         <item name="android:fastScrollStyle">@style/Widget.Odeon.FastScroll</item>
 
+        <!-- Custom styles for existing Views -->
+        <item name="android:listViewStyle">@style/Widget.Odeon.ListView</item>
+        <item name="recyclerViewStyle">@style/Widget.Odeon.RecyclerView</item>
+
         <!-- Color palette to use for an album that has no album art. -->
         <item name="albumPalettePrimaryColor">?colorSurface</item>
         <item name="albumPaletteAccentColor">?colorSecondary</item>

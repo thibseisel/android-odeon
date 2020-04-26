@@ -65,7 +65,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/artist_detail_recycler"
-            style="@style/Widget.Odeon.MainScrollingView.FastScrollRecyclerView"
+            style="@style/Widget.Odeon.Grid.Offset"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"

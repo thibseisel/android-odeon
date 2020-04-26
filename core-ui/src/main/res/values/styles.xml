@@ -34,30 +34,37 @@
     <!-- Style for PopupMenu that overlaps the anchor and supports Night Theme. -->
     <style name="Widget.Odeon.PopupMenu.Overflow" parent="Widget.MaterialComponents.PopupMenu.Overflow"/>
 
-    <!-- Enables fast scrolling on RecyclerView with theme's default thumb and track -->
+    <!-- Default style for ListView. -->
+    <style name="Widget.Odeon.ListView" parent="Widget.AppCompat.ListView">
+        <item name="android:divider">@null</item>
+        <item name="android:listSelector">@android:color/transparent</item>
+        <item name="android:nestedScrollingEnabled">true</item>
+    </style>
+
+    <!-- Default style for RecyclerView. Specify fast scroll thumb and track drawables. -->
+    <style name="Widget.Odeon.RecyclerView" parent="android:Widget">
+        <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
+        <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
+        <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
+        <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
+    </style>
+
+    <!-- Customization of ListView's FastScroller -->
     <style name="Widget.Odeon.FastScroll" parent="android:Widget.Material.FastScroll">
         <item name="android:minWidth">124dp</item>
         <item name="android:typeface">monospace</item>
         <item name="android:textColor">?colorOnSecondary</item>
     </style>
 
-    <!-- Style applied to the main Scrolling View in layouts that use NowPlayingFragment. -->
-    <style name="Widget.Odeon.MainScrollingView" parent="">
+    <style name="Widget.Odeon.ScrollingView" parent="">
         <item name="android:clipToPadding">false</item>
-        <item name="android:paddingBottom">72dp</item>
     </style>
 
-    <!-- Specialization for Lists. -->
-    <style name="Widget.Odeon.MainScrollingView.List">
+    <style name="Widget.Odeon.List" parent="Widget.Odeon.ScrollingView">
         <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
     </style>
 
-    <!-- Specialization for non-list RecyclerViews with fast scrolling enabled. -->
-    <style name="Widget.Odeon.MainScrollingView.FastScrollRecyclerView">
-        <item name="fastScrollEnabled">true</item>
-        <item name="fastScrollHorizontalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollHorizontalTrackDrawable">?android:fastScrollTrackDrawable</item>
-        <item name="fastScrollVerticalThumbDrawable">?android:fastScrollThumbDrawable</item>
-        <item name="fastScrollVerticalTrackDrawable">?android:fastScrollTrackDrawable</item>
-    </style>
+    <style name="Widget.Odeon.Grid" parent="Widget.Odeon.ScrollingView"/>
+
 </resources>

@@ -30,4 +30,12 @@
     <style name="Widget.Odeon.CardView.Animated">
         <item name="android:stateListAnimator">@animator/card_state_list</item>
     </style>
+
+    <style name="Widget.Odeon.List.Offset">
+        <item name="android:paddingBottom">72dp</item>
+    </style>
+
+    <style name="Widget.Odeon.Grid.Offset">
+        <item name="android:paddingBottom">72dp</item>
+    </style>
 </resources>
