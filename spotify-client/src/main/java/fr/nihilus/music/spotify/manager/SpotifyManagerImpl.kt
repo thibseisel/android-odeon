@@ -121,16 +121,6 @@ internal class SpotifyManagerImpl @Inject constructor(
         }
     }
 
-    /**
-     * Delete links that reference local tracks that no longer exists.
-     */
-    private suspend fun deleteOldLinks(tracks: List<Track>, remoteLinks: List<SpotifyLink>) {
-        val tracksById = tracks.associateByLong { it.id }
-        val oldLinks = remoteLinks.filterNot { tracksById.containsKey(it.trackId) }
-        val deletedTrackIds = LongArray(oldLinks.size) { oldLinks[it].trackId }
-        localDao.deleteLinks(deletedTrackIds)
-    }
-
     private fun buildSearchQueryFor(track: Track) = SpotifyQuery.Track(
         title = track.title,
         artist = track.artist

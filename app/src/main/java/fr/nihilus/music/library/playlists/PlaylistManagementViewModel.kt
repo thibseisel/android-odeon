@@ -54,7 +54,7 @@ sealed class PlaylistActionResult {
  * A shared ViewModel to handle playlist creation and edition.
  */
 internal class PlaylistManagementViewModel @Inject constructor(
-    private val client: BrowserClient,
+    client: BrowserClient,
     private val action: ManagePlaylistAction
 ) : ViewModel() {
 

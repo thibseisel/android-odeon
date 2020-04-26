@@ -57,7 +57,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun allPlaylists() = combine(
+    private fun allPlaylists(): LiveData<LoadRequest<List<MediaItem>>> = combine(
         builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
         builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
         client.getChildren(MediaId.ALL_PLAYLISTS)
@@ -66,7 +66,7 @@ class HomeViewModel @Inject constructor(
             it += mostRecent
             it += mostRated
             it += playlists
-        } as List<MediaItem>
+        }
     }
         .loadState()
         .asLiveData()

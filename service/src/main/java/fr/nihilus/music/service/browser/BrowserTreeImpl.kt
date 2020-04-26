@@ -224,9 +224,7 @@ internal class BrowserTreeImpl @Inject constructor(
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
-        return tree.getChildren(parentId)
-    }
+    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = tree.getChildren(parentId)
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
@@ -325,16 +323,17 @@ internal class BrowserTreeImpl @Inject constructor(
     private fun fuzzyMatch(pattern: String, text: String): Int {
         val matchPosition = text.indexOf(pattern)
 
-        if (matchPosition < 0) {
-            return Int.MIN_VALUE
-        } else {
-            var score = BASE_SCORE - matchPosition - text.length
-            if (matchPosition == 0) {
-                // The query matched the start of the first word, give it a bonus.
-                score += FIRST_WORD_BONUS
-            }
+        return when {
+            matchPosition < 0 -> Int.MIN_VALUE
+            else -> {
+                var score = BASE_SCORE - matchPosition - text.length
+                if (matchPosition == 0) {
+                    // The query matched the start of the first word, give it a bonus.
+                    score += FIRST_WORD_BONUS
+                }
 
-            return score
+                score
+            }
         }
     }
 

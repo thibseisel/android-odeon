@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CleanupViewModel @Inject constructor(
-    private val client: BrowserClient,
+    client: BrowserClient,
     private val deleteAction: DeleteTracksAction
 ) : ViewModel() {
 

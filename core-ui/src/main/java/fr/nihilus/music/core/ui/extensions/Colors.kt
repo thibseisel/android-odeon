@@ -21,6 +21,7 @@ import android.graphics.Color
 import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
+import kotlin.math.abs
 
 /**
  * Produce a darker shade of this color by a given factor.
@@ -105,7 +106,7 @@ fun @receiver:ColorInt Int.toHsl(outHsl: FloatArray = FloatArray(3)) = outHsl.al
             gf -> (bf - rf) / deltaMaxMin + 2f
             else -> (rf - gf) / deltaMaxMin + 4f
         }
-        s = deltaMaxMin / (1f - Math.abs(2f * l - 1f))
+        s = deltaMaxMin / (1f - abs(2f * l - 1f))
     }
 
     h = h * 60f % 360f
