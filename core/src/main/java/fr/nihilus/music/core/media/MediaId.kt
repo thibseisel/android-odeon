@@ -221,7 +221,7 @@ private constructor(
          * Sub-category of the ["tracks" type][MediaId.TYPE_TRACKS] that lists tracks that could be deleted
          * to free up the device's space.
          * tracks are selected according to the following criteria:
-         * 1. The filesize for that track in bytes.
+         * 1. The file size for that track in bytes.
          * 2. The last time that track has been listened to
          * 3. The score for that track (based on usage statistics)
          *
@@ -388,15 +388,3 @@ private constructor(
  * @throws MalformedMediaIdException If the parsed string is `null` or an invalid media id.
  */
 fun String?.toMediaId(): MediaId = MediaId.parse(this)
-
-/**
- * Attempt to parse the receiver string to a media id,
- * returning `null` if its format is incorrect.
- *
- * @receiver A media id in its string-encoded format.
- * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver,
- * or `null` if parsing failed.
- */
-fun String.toMediaIdOrNull(): MediaId? = try {
-    MediaId.parse(this)
-} catch (ime: MalformedMediaIdException) { null }
