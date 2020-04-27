@@ -20,11 +20,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.view.Menu
-import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
+import android.view.*
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.ViewCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
@@ -74,6 +73,8 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             it.addObserver(HasSelectionObserver(it.selection))
         }
 
+        configureViewOffsetForSystemBars()
+
         action_delete_selected.setOnClickListener {
             askCleanupConfirmation(selectionTracker.selection)
         }
@@ -102,6 +103,20 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             val selectedTracks = selectionTracker.selection.toList()
             viewModel.deleteTracks(selectedTracks)
             selectionTracker.clearSelection()
+        }
+    }
+
+    private fun configureViewOffsetForSystemBars() {
+        ViewCompat.setOnApplyWindowInsetsListener(disposable_track_list) { view, insets ->
+            view.updatePadding(bottom = insets.systemWindowInsets.bottom)
+            insets
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(action_delete_selected) { view, insets ->
+            val initialFabMargin = resources.getDimensionPixelSize(R.dimen.fab_margin)
+            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.bottomMargin = initialFabMargin + insets.tappableElementInsets.bottom
+            insets
         }
     }
 

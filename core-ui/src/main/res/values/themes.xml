@@ -88,4 +88,9 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
+        <item name="android:statusBarColor">@color/immersive_ui</item>
+        <item name="android:navigationBarColor">@color/immersive_ui</item>
+    </style>
+
 </resources>

@@ -33,13 +33,11 @@
         android:id="@+id/action_delete_selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tint="@android:color/white"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
         android:visibility="gone"
         app:fabSize="normal"
-        app:layout_anchor="@id/disposable_track_list"
-        app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_delete_24dp"
-        app:useCompatPadding="true"
         tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

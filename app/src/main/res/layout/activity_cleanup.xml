@@ -13,13 +13,34 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<androidx.fragment.app.FragmentContainerView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_host"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
-    tools:context="fr.nihilus.music.library.cleanup.CleanupActivity"
-    tools:layout="@layout/fragment_cleanup" />
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:liftOnScroll="true">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:theme="?actionBarTheme"
+            tools:title="@string/action_cleanup_title" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragment_host"
+        android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="fr.nihilus.music.library.cleanup.CleanupActivity"
+        tools:layout="@layout/fragment_cleanup" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

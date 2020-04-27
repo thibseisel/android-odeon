@@ -46,6 +46,20 @@ var Window.darkSystemIcons: Boolean
     }
 
 /**
+ * Whether the window this View belongs to has requested to be drawn behind the status bar
+ * and the navigation bar.
+ */
+var View.isDrawnEdgeToEdge: Boolean
+    get() = (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != 0) &&
+            (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != 0)
+    set(value) {
+        systemUiVisibility = when (value) {
+            true -> systemUiVisibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+            else -> systemUiVisibility and (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION).inv()
+        }
+    }
+
+/**
  * Convert Density-Independent Pixels to raw pixels using device information
  * provided by the [context].
  *
