@@ -25,9 +25,17 @@
 
     <style name="TextAppearance.Odeon.Headline4" parent="TextAppearance.MaterialComponents.Headline4" />
 
-    <style name="TextAppearance.Odeon.Headline5" parent="TextAppearance.MaterialComponents.Headline5"/>
+    <style name="TextAppearance.Odeon.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/new_rocker_regular</item>
+        <item name="android:fontFamily">@font/new_rocker_regular</item>
+        <item name="android:textSize">22sp</item>
+    </style>
 
-    <style name="TextAppearance.Odeon.Headline6" parent="TextAppearance.MaterialComponents.Headline6"/>
+    <style name="TextAppearance.Odeon.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/new_rocker_regular</item>
+        <item name="android:fontFamily">@font/new_rocker_regular</item>
+        <item name="android:textSize">18sp</item>
+    </style>
 
     <style name="TextAppearance.Odeon.Body1" parent="TextAppearance.MaterialComponents.Body1" />
 
