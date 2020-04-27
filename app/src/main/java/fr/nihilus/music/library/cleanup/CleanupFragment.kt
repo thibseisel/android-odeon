@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.*
 import androidx.appcompat.view.ActionMode
-import androidx.core.view.ViewCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -34,6 +33,7 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.extensions.sumByLong
 import kotlinx.android.synthetic.main.fragment_cleanup.*
@@ -107,16 +107,13 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     }
 
     private fun configureViewOffsetForSystemBars() {
-        ViewCompat.setOnApplyWindowInsetsListener(disposable_track_list) { view, insets ->
-            view.updatePadding(bottom = insets.systemWindowInsets.bottom)
-            insets
+        disposable_track_list.doOnApplyWindowInsets { view, insets, padding, _ ->
+            view.updatePadding(bottom = padding.bottom + insets.systemWindowInsets.bottom)
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(action_delete_selected) { view, insets ->
-            val initialFabMargin = resources.getDimensionPixelSize(R.dimen.fab_margin)
+        action_delete_selected.doOnApplyWindowInsets { view, insets, _, margin ->
             val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.bottomMargin = initialFabMargin + insets.tappableElementInsets.bottom
-            insets
+            layoutParams.bottomMargin = margin.bottom + insets.tappableElementInsets.bottom
         }
     }
 
