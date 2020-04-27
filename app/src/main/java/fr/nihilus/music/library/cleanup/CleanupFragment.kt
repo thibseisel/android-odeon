@@ -191,7 +191,9 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
 
         override fun onItemStateChanged(key: MediaBrowserCompat.MediaItem, selected: Boolean) {
-            updateActionModeText()
+            if (!liveSelection.isEmpty) {
+                updateActionModeText()
+            }
         }
 
         override fun onSelectionRestored() {
