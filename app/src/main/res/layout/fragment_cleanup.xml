@@ -23,11 +23,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/disposable_track_list"
+        style="@style/Widget.Odeon.List"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_disposable_track" />
 
