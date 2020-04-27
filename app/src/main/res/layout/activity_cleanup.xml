@@ -14,10 +14,12 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.fragment.app.FragmentContainerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_host"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
     tools:context="fr.nihilus.music.library.cleanup.CleanupActivity"
     tools:layout="@layout/fragment_cleanup" />

@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:shapeAppearance="@style/ShapeAppearance.Odeon.BottomSheet">
 
-        <fragment
+        <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_now_playing"
             android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
             android:layout_width="match_parent"
