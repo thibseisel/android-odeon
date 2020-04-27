@@ -34,7 +34,7 @@
         <item name="colorOnSecondary">@color/color_on_secondary</item>
 
         <!-- This color is still used as the default status bar color -->
-        <item name="colorPrimaryDark">@color/color_primary</item>
+        <item name="colorPrimaryDark">?colorPrimarySurface</item>
 
         <!-- Typography attributes -->
         <item name="textAppearanceHeadline1">@style/TextAppearance.Odeon.Headline1</item>

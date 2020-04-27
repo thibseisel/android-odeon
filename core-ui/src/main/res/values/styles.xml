@@ -18,17 +18,9 @@
 <resources>
     <!-- Action mode style to look lie Material specs -->
     <style name="Widget.Odeon.ActionMode" parent="Widget.AppCompat.ActionMode">
-        <item name="background">?colorSecondaryVariant</item>
-        <item name="titleTextStyle">@style/TextAppearance.Odeon.Widget.ActionMode.Title</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Odeon.Widget.ActionMode.SubTitle</item>
-    </style>
-
-    <style name="TextAppearance.Odeon.Widget.ActionMode.Title" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">?colorOnSecondary</item>
-    </style>
-
-    <style name="TextAppearance.Odeon.Widget.ActionMode.SubTitle" parent="TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
-        <item name="android:textColor">?colorOnSecondary</item>
+        <item name="titleTextStyle">?textAppearanceHeadline6</item>
+        <item name="subtitleTextStyle">?textAppearanceSubtitle1</item>
+        <item name="background">@color/action_mode_background</item>
     </style>
 
     <!-- Style for PopupMenu that overlaps the anchor and supports Night Theme. -->
