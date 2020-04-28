@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,22 @@
 
 package fr.nihilus.music.library
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
-import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class HomeViewModel
-@Inject constructor(
-    private val client: BrowserClient
+class HomeViewModel @Inject constructor(
+    private val client: BrowserClient,
+    private val actions: DeleteTracksAction
 ) : ViewModel() {
 
     val tracks: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_TRACKS)
@@ -44,15 +44,8 @@ class HomeViewModel
 
     fun deleteSongs(songsToDelete: List<MediaItem>) {
         viewModelScope.launch {
-            val trackMediaIds = Array(songsToDelete.size) { position ->
-                songsToDelete[position].mediaId
-            }
-
-            val parameters = Bundle(1)
-            parameters.putStringArray(CustomActions.EXTRA_MEDIA_IDS, trackMediaIds)
-            val result = client.executeAction(CustomActions.ACTION_DELETE_MEDIA, parameters)
-
-            val deletedTracksCount = result?.getInt(CustomActions.RESULT_TRACK_COUNT) ?: 0
+            val trackIds = songsToDelete.map { it.mediaId.toMediaId() }
+            val deletedTracksCount = actions.delete(trackIds)
             _deleteTracksConfirmation.value = Event(deletedTracksCount)
         }
     }
@@ -64,7 +57,7 @@ class HomeViewModel
         }
     }
 
-    private fun allPlaylists() = combine(
+    private fun allPlaylists(): LiveData<LoadRequest<List<MediaItem>>> = combine(
         builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
         builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
         client.getChildren(MediaId.ALL_PLAYLISTS)
@@ -73,7 +66,7 @@ class HomeViewModel
             it += mostRecent
             it += mostRated
             it += playlists
-        } as List<MediaItem>
+        }
     }
         .loadState()
         .asLiveData()

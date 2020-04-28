@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,7 @@ internal interface SpotifyAccountsService {
     suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken
 }
 
-internal class SpotifyAccountsServiceImpl
-@Inject constructor(
+internal class SpotifyAccountsServiceImpl @Inject constructor(
     engine: HttpClientEngine,
     moshi: Moshi,
     @Named("APP_USER_AGENT") userAgent: String

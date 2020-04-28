@@ -82,6 +82,7 @@
     <string name="cleanup_confirmation_message">Cette opération est irréversible.</string>
     <string name="search_hint">Rechercher un morceau, un artiste…</string>
     <string name="action_clear">Effacer</string>
+    <string name="desc_clear_search">Effacer la recherche</string>
     <string name="action_dev_options">Options pour les développeurs</string>
     <string name="description_more_actions">Plus d\'actions</string>
     <string name="dev_sync_summary_failure">La synchronisation a échoué</string>

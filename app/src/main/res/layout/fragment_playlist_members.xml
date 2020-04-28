@@ -27,16 +27,15 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="?actionBarTheme">
+        android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/menu_playlist_details"
             app:navigationIcon="@drawable/ic_arrow_back_24dp"
-            app:popupTheme="?actionBarPopupTheme"
             tools:title="My playlist" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -60,10 +59,10 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/members_recycler"
-            style="@style/MainScrollingView.FastScrollRecyclerView"
+            style="@style/Widget.Odeon.List.Offset"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="8dp"
+            app:fastScrollEnabled="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/song_list_item"/>
     </androidx.constraintlayout.widget.ConstraintLayout>

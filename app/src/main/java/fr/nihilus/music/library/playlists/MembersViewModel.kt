@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.Job
@@ -31,9 +31,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MembersViewModel
-@Inject constructor(
-    private val client: BrowserClient
+class MembersViewModel @Inject constructor(
+    private val client: BrowserClient,
+    private val actions: ManagePlaylistAction
 ): ViewModel() {
 
     private var observeTracksJob: Job? = null
@@ -46,7 +46,9 @@ class MembersViewModel
 
     fun setPlaylist(playlistId: String) {
         viewModelScope.launch {
-            _playlist.value = client.getItem(playlistId)
+            _playlist.value = checkNotNull(client.getItem(playlistId)) {
+                "Unable to load detail of playlist $playlistId"
+            }
         }
 
         observeTracksJob?.cancel()
@@ -60,11 +62,7 @@ class MembersViewModel
 
     fun deletePlaylist(playlistId: String) {
         viewModelScope.launch {
-            val params = Bundle(1).apply {
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, arrayOf(playlistId))
-            }
-
-            client.executeAction(CustomActions.ACTION_DELETE_MEDIA, params)
+            actions.deletePlaylist(playlistId.toMediaId())
         }
     }
 }

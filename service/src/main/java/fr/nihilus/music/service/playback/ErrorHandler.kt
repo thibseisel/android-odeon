@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 @ServiceScoped
-internal class ErrorHandler
-@Inject constructor(
+internal class ErrorHandler @Inject constructor(
     private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 

@@ -19,6 +19,7 @@
 
     <item
         android:id="@+id/action_save_as_playlist"
+        android:contentDescription="@string/dev_action_save_as_playlist"
         android:icon="@drawable/dev_ic_save_24dp"
         android:title="@string/dev_action_save_as_playlist"
         app:showAsAction="ifRoom" />

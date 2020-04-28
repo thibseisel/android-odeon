@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.AppScope
-import fr.nihilus.music.core.media.CustomActions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.SendChannel
@@ -37,7 +36,6 @@ import kotlinx.coroutines.flow.conflate
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
@@ -45,8 +43,7 @@ import kotlin.coroutines.suspendCoroutine
  * allowing to browser available media and send commands to the session transport controls.
  */
 @AppScope
-internal class BrowserClientImpl
-@Inject constructor(applicationContext: Context) : BrowserClient {
+internal class BrowserClientImpl @Inject constructor(applicationContext: Context) : BrowserClient {
 
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
@@ -65,13 +62,9 @@ internal class BrowserClientImpl
     private val _shuffleMode = ConflatedBroadcastChannel<@PlaybackStateCompat.ShuffleMode Int>()
     private val _repeatMode = ConflatedBroadcastChannel<@PlaybackStateCompat.RepeatMode Int>()
 
-    /** A flow whose latest value is the current playback state. */
     override val playbackState: Flow<PlaybackStateCompat> = _playbackState.asFlow()
-    /** A flow whose latest value is the currently playing track, or `null` if none. */
     override val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying.asFlow()
-    /** A flow whose latest value is the current shuffle mode. */
     override val shuffleMode: Flow<Int> = _shuffleMode.asFlow()
-    /** A flow whose latest value is the current repeat mode. */
     override val repeatMode: Flow<Int> = _repeatMode.asFlow()
 
     override fun connect() {
@@ -183,29 +176,6 @@ internal class BrowserClientImpl
         }
     }
 
-    override suspend fun executeAction(name: String, params: Bundle?): Bundle? {
-        // Wait until connected or the action will fail.
-        deferredController.await()
-
-        return suspendCoroutine {
-            mediaBrowser.sendCustomAction(name, params, object : MediaBrowserCompat.CustomActionCallback() {
-                override fun onResult(action: String?, extras: Bundle?, resultData: Bundle?) {
-                    it.resume(resultData)
-                }
-
-                override fun onError(action: String?, extras: Bundle?, data: Bundle?) {
-                    checkNotNull(action) { "Failing custom action should have a name" }
-                    checkNotNull(data) { "Service should have sent a Bundle explaining the error" }
-
-                    val errorMessage = data.getString(CustomActions.EXTRA_ERROR_MESSAGE)
-                    it.resumeWithException(
-                        BrowserClient.CustomActionException(action, errorMessage)
-                    )
-                }
-            })
-        }
-    }
-
     /**
      * A subscription that sends updates to media children to a [SendChannel].
      */
@@ -301,7 +271,6 @@ internal class BrowserClientImpl
             connectionCallback.onConnectionSuspended()
         }
     }
-
 }
 
 /**

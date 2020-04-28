@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Base.AppTheme">
-        <item name="colorPrimaryDark">@android:color/black</item>
+    <style name="Base.Odeon" parent="Base.V23.Odeon"/>
+    <style name="Base.V23.Odeon" parent="Base.V21.Odeon">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textViewStyle">@style/Widget.Odeon.TextView</item>
     </style>
 </resources>

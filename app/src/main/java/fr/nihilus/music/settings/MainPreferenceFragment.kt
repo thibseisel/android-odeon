@@ -34,8 +34,8 @@ class MainPreferenceFragment : PreferenceFragmentCompat() {
             val startSyncPreference = findPreference<Preference>("start_sync")!!
 
             val workManager = WorkManager.getInstance(requireContext())
-            workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { workInfos ->
-                workInfos.firstOrNull()?.state?.let { workState ->
+            workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { allWorkInfo ->
+                allWorkInfo.firstOrNull()?.state?.let { workState ->
                     startSyncPreference.isEnabled = workState.isFinished
 
                     startSyncPreference.summary = when (workState) {

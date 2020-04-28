@@ -38,8 +38,7 @@ import kotlin.math.sqrt
  * @param usageDao The DAO that controls storage of playback statistics.
  */
 @Reusable
-internal class UsageManagerImpl
-@Inject constructor(
+internal class UsageManagerImpl @Inject constructor(
     private val mediaDao: MediaDao,
     private val usageDao: UsageDao,
     private val clock: Clock

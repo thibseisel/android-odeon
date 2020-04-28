@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.BeforeTest
@@ -264,8 +263,8 @@ class UsageManagerTest {
      * Convenience function to create the [UsageManager] under test with some of its dependencies
      * set with test fixtures.
      */
-    private fun CoroutineScope.UsageManager(mediaDao: MediaDao, usageDao: UsageDao): UsageManager =
-        UsageManagerImpl(this, mediaDao, usageDao, clock)
+    private fun UsageManager(mediaDao: MediaDao, usageDao: UsageDao): UsageManager =
+        UsageManagerImpl(mediaDao, usageDao, clock)
 
     /**
      * Convenience function for defining a track with only parameters

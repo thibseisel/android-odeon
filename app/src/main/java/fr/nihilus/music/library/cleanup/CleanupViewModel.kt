@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 package fr.nihilus.music.library.cleanup
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.media.CustomActions
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
+import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.flow.catch
@@ -33,9 +33,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class CleanupViewModel
-@Inject constructor(
-    private val client: BrowserClient
+class CleanupViewModel @Inject constructor(
+    client: BrowserClient,
+    private val deleteAction: DeleteTracksAction
 ) : ViewModel() {
 
     val tracks: LiveData<LoadRequest<List<MediaItem>>> =
@@ -47,10 +47,8 @@ class CleanupViewModel
 
     fun deleteTracks(selectedTracks: List<MediaItem>) {
         viewModelScope.launch {
-            client.executeAction(CustomActions.ACTION_DELETE_MEDIA, Bundle(1).apply {
-                val deletedMediaIds = Array(selectedTracks.size) { selectedTracks[it].mediaId }
-                putStringArray(CustomActions.EXTRA_MEDIA_IDS, deletedMediaIds)
-            })
+            val targetTrackIds = selectedTracks.map { it.mediaId.toMediaId() }
+            deleteAction.delete(targetTrackIds)
         }
     }
 }

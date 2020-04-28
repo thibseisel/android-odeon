@@ -45,7 +45,7 @@
         android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"

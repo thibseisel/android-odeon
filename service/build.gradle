@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,9 +74,6 @@ dependencies {
     // Glide
     implementation "com.github.bumptech.glide:glide:${versions.glide}"
     kapt "com.github.bumptech.glide:compiler:${versions.glide}"
-
-    // Other libraries
-    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
 
     // Test dependencies
     testImplementation project(':core-test')

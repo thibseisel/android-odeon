@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.core.database.playlists
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
@@ -58,6 +59,7 @@ abstract class PlaylistDao {
      * If the given list of tracks is empty, then nothing happens.
      *
      * @param tracks List of tracks to be added to one or multiple playlists.
+     * @throws SQLiteConstraintException When attempting to add tracks to an unknown playlist.
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun addTracks(tracks: List<PlaylistTrack>)

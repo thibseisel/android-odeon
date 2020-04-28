@@ -30,4 +30,7 @@
 
     <color name="launcher_icon_background">@color/color_primary</color>
     <color name="elevation_8_overlay">@android:color/transparent</color>
+
+    <color name="immersive_ui">#33000000</color>
+    <color name="action_mode_background">#212121</color>
 </resources>

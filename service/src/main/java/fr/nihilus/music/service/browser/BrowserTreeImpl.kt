@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,8 +65,7 @@ private const val BASE_SCORE = 100
 private const val FIRST_WORD_BONUS = 30
 
 @ServiceScoped
-internal class BrowserTreeImpl
-@Inject constructor(
+internal class BrowserTreeImpl @Inject constructor(
     private val context: Context,
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao,
@@ -225,9 +224,7 @@ internal class BrowserTreeImpl
         MediaItem(description, MediaItem.FLAG_PLAYABLE)
     }
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
-        return tree.getChildren(parentId)
-    }
+    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = tree.getChildren(parentId)
 
     override suspend fun getItem(itemId: MediaId): MediaItem? = tree.getItem(itemId)
 
@@ -326,16 +323,17 @@ internal class BrowserTreeImpl
     private fun fuzzyMatch(pattern: String, text: String): Int {
         val matchPosition = text.indexOf(pattern)
 
-        if (matchPosition < 0) {
-            return Int.MIN_VALUE
-        } else {
-            var score = BASE_SCORE - matchPosition - text.length
-            if (matchPosition == 0) {
-                // The query matched the start of the first word, give it a bonus.
-                score += FIRST_WORD_BONUS
-            }
+        return when {
+            matchPosition < 0 -> Int.MIN_VALUE
+            else -> {
+                var score = BASE_SCORE - matchPosition - text.length
+                if (matchPosition == 0) {
+                    // The query matched the start of the first word, give it a bonus.
+                    score += FIRST_WORD_BONUS
+                }
 
-            return score
+                score
+            }
         }
     }
 

@@ -22,7 +22,7 @@ package fr.nihilus.music.core.media
  *
  * @see MediaId
  */
-class InvalidMediaException(message: String) : Exception(message)
+class MalformedMediaIdException(message: String) : Exception(message)
 
 /**
  * The format of media identifier used by the media browser of this application.
@@ -107,7 +107,7 @@ private constructor(
      * @param track The track identifier. When specified, this indicates that the media is playable.
      * This part uniquely identifies the playable content on a given storage.
      * @return A copy of this media id.
-     * @throws InvalidMediaException If some of the overridden parts are invalid.
+     * @throws MalformedMediaIdException If some of the overridden parts are invalid.
      */
     fun copy(
         type: String = this.type,
@@ -221,7 +221,7 @@ private constructor(
          * Sub-category of the ["tracks" type][MediaId.TYPE_TRACKS] that lists tracks that could be deleted
          * to free up the device's space.
          * tracks are selected according to the following criteria:
-         * 1. The filesize for that track in bytes.
+         * 1. The file size for that track in bytes.
          * 2. The last time that track has been listened to
          * 3. The score for that track (based on usage statistics)
          *
@@ -268,10 +268,10 @@ private constructor(
          * Assert that that passed [encoded] String matches the format for a media id
          * then split it into its composing parts.
          *
-         * @throws InvalidMediaException If the passed String does not match the required format.
+         * @throws MalformedMediaIdException If the passed String does not match the required format.
          */
         fun parse(encoded: String?): MediaId {
-            if (encoded == null) throw InvalidMediaException("Null is not allowed as a media id.")
+            if (encoded == null) throw MalformedMediaIdException("Null is not allowed as a media id.")
 
             val categorySeparatorIndex = encoded.indexOf(CATEGORY_SEPARATOR)
             if (categorySeparatorIndex == -1) {
@@ -307,7 +307,7 @@ private constructor(
          * @param type The type of the media, as per [MediaId.type].
          * @param category The optional category of the media, as per [MediaId.category].
          * @param track The optional track identifier, as per [MediaId.track].
-         * @throws InvalidMediaException If one if the provided parts is incorrectly formatted.
+         * @throws MalformedMediaIdException If one if the provided parts is incorrectly formatted.
          */
         fun fromParts(type: String, category: String? = null, track: Long? = null): MediaId {
             // Validate parts while creating the encoded form.
@@ -319,7 +319,7 @@ private constructor(
          * Create a string representation of a media id from the provided parts.
          * Note that creating media ids this way follow the same rules defined by the [MediaId] class.
          *
-         * @throws InvalidMediaException If one of the parts does not match the required format.
+         * @throws MalformedMediaIdException If one of the parts does not match the required format.
          */
         fun encode(type: String, category: String? = null, track: Long? = null): String {
             checkMediaType(type)
@@ -340,7 +340,7 @@ private constructor(
                     }
                 }
 
-                else -> throw InvalidMediaException("Media ids for tracks require a category.")
+                else -> throw MalformedMediaIdException("Media ids for tracks require a category.")
             }
         }
 
@@ -352,25 +352,25 @@ private constructor(
 
         private fun checkMediaType(type: String) {
             if (!isValidType(type)) {
-                throw InvalidMediaException("Invalid media type: $type.")
+                throw MalformedMediaIdException("Invalid media type: $type.")
             }
         }
 
         private fun checkCategory(category: String) {
             if (!isValidCategory(category)) {
-                throw InvalidMediaException("Invalid media category: $category")
+                throw MalformedMediaIdException("Invalid media category: $category")
             }
         }
 
         private fun checkTrackIdentifier(track: String) {
             if (!isValidTrack(track)) {
-                throw InvalidMediaException("Invalid track identifier: $track")
+                throw MalformedMediaIdException("Invalid track identifier: $track")
             }
         }
 
         private fun checkTrackIdentifier(track: Long) {
             if (track < 0L) {
-                throw InvalidMediaException("Invalid track identifier: $track")
+                throw MalformedMediaIdException("Invalid track identifier: $track")
             }
         }
     }
@@ -385,18 +385,6 @@ private constructor(
  * @receiver A media id in its string-encoded format.
  * While `null` is accepted as a value, its parsing will always fail.
  * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver.
- * @throws InvalidMediaException If the parsed string is `null` or an invalid media id.
+ * @throws MalformedMediaIdException If the parsed string is `null` or an invalid media id.
  */
 fun String?.toMediaId(): MediaId = MediaId.parse(this)
-
-/**
- * Attempt to parse the receiver string to a media id,
- * returning `null` if its format is incorrect.
- *
- * @receiver A media id in its string-encoded format.
- * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver,
- * or `null` if parsing failed.
- */
-fun String.toMediaIdOrNull(): MediaId? = try {
-    MediaId.parse(this)
-} catch (ime: InvalidMediaException) { null }

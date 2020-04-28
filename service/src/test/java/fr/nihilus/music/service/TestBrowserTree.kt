@@ -42,7 +42,7 @@ internal object TestBrowserTree : BrowserTree {
             type == TYPE_TRACKS && category == CATEGORY_ALL -> provideAllTracksFlow()
             type == TYPE_ALBUMS -> when {
                 category != null && track == null -> getAlbumChildrenFlow(category.toLong())
-                else -> noChildrenFlow()
+                else -> getAlbumsFlow()
             }
 
             else -> noChildrenFlow()
@@ -70,6 +70,16 @@ internal object TestBrowserTree : BrowserTree {
             .build()
 
         listOf(MediaItem(description, MediaItem.FLAG_PLAYABLE))
+    }
+
+    private fun getAlbumsFlow() = periodicFlow(Long.MAX_VALUE).map {
+        val albumId = MediaId(TYPE_ALBUMS, "42")
+        val description = MediaDescriptionCompat.Builder()
+            .setMediaId(albumId.encoded)
+            .setTitle("Album #42")
+            .build()
+
+        listOf(MediaItem(description, MediaItem.FLAG_BROWSABLE))
     }
 
     private fun periodicFlow(period: Long) = flow {

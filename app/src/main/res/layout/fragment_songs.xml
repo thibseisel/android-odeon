@@ -35,13 +35,10 @@
 
     <fr.nihilus.music.view.ScrollPositionListView
         android:id="@+id/songs_listview"
-        style="@style/MainScrollingView.List"
+        style="@style/Widget.Odeon.List.Offset"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:divider="@null"
         android:fastScrollEnabled="true"
-        android:listSelector="@android:color/transparent"
-        android:nestedScrollingEnabled="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty_songs"
-        android:textAppearance="@style/TextAppearance.Odeon.Headline5"
+        android:textAppearance="?textAppearanceHeadline5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

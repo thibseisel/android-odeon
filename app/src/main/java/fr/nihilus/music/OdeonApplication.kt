@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package fr.nihilus.music
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Configuration
-import androidx.work.WorkManager
 import androidx.work.WorkerFactory
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerApplication
@@ -37,7 +36,7 @@ import javax.inject.Inject
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
-class OdeonApplication : DaggerApplication() {
+class OdeonApplication : DaggerApplication(), Configuration.Provider {
     @Inject lateinit var settings: Settings
     @Inject lateinit var workerFactory: WorkerFactory
 
@@ -53,14 +52,14 @@ class OdeonApplication : DaggerApplication() {
         settings.currentTheme.onEach { theme ->
             AppCompatDelegate.setDefaultNightMode(theme.value)
         }.launchIn(GlobalScope + Dispatchers.Main)
-
-        // Configure WorkManager to use the Dagger Worker factory.
-        val workerConfig = Configuration.Builder().setWorkerFactory(workerFactory).build()
-        WorkManager.initialize(this, workerConfig)
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         val coreDependencies = DaggerCoreComponent.factory().create(this)
         return DaggerAppComponent.factory().create(this, coreDependencies)
     }
+
+    override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
+        .setWorkerFactory(workerFactory)
+        .build()
 }

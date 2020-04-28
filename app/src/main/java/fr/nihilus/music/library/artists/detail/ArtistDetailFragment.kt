@@ -29,13 +29,11 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.TransitionManager
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
-import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.ui.BaseAdapter
@@ -91,8 +89,6 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
             progressIndicator.isVisible = shouldShow
         }
 
-        val staggerAnimation = Stagger()
-
         viewModel.artist.observe(viewLifecycleOwner, ::onArtistDetailLoaded)
 
         viewModel.children.observe(viewLifecycleOwner) { childrenRequest ->
@@ -100,7 +96,6 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(artist_detail_recycler, staggerAnimation)
                     childrenAdapter.submitList(childrenRequest.data)
                 }
                 is LoadRequest.Error -> {

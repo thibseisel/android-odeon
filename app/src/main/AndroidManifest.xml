@@ -27,13 +27,13 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Odeon">
 
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/Odeon.NoActionBar">
 
             <!-- Make this Activity visible in launcher -->
             <intent-filter>
@@ -77,6 +77,7 @@
         <activity
             android:name=".library.cleanup.CleanupActivity"
             android:label="@string/action_cleanup_title"
+            android:theme="@style/Odeon.Immersive"
             android:parentActivityName=".HomeActivity" />
 
         <!-- Activity for toggling user preferences. -->

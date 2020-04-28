@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,13 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
-import fr.nihilus.music.core.media.toMediaIdOrNull
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.actions.ActionFailure
-import fr.nihilus.music.service.actions.BrowserAction
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
 import fr.nihilus.music.service.browser.SearchQuery
@@ -74,7 +71,6 @@ class MusicService : BaseBrowserService() {
     @Inject internal lateinit var connector: MediaSessionConnector
     @Inject internal lateinit var player: Player
     @Inject internal lateinit var settings: Settings
-    @Inject internal lateinit var customActions: Map<String, @JvmSuppressWildcards BrowserAction>
 
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
@@ -166,25 +162,23 @@ class MusicService : BaseBrowserService() {
     ) {
         result.detach()
 
-        launch(dispatchers.Default) {
-            val parentMediaId = parentId.toMediaIdOrNull()
-            if (parentMediaId != null) {
-                try {
-                    val paginationOptions = getPaginationOptions(options)
-                    val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
-                    result.sendResult(children)
+        launch {
+            try {
+                val parentMediaId = parentId.toMediaId()
+                val paginationOptions = getPaginationOptions(options)
+                val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
+                result.sendResult(children)
 
-                } catch (pde: PermissionDeniedException) {
-                    Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
-                    result.sendResult(null)
+            } catch (malformedId: MalformedMediaIdException) {
+                Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
+                result.sendResult(null)
 
-                } catch (invalidParent: NoSuchElementException) {
-                    Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
-                    result.sendResult(null)
-                }
+            } catch (pde: PermissionDeniedException) {
+                Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+                result.sendResult(null)
 
-            } else {
-                Timber.i("Attempt to load children of an invalid media id: %s", parentId)
+            } catch (invalidParent: NoSuchElementException) {
+                Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
                 result.sendResult(null)
             }
         }
@@ -205,17 +199,17 @@ class MusicService : BaseBrowserService() {
         if (itemId == null) {
             result.sendResult(null)
         } else {
-            val itemMediaId = itemId.toMediaIdOrNull() ?: run {
-                Timber.i("Attempt to load item with an invalid media id: %s", itemId)
-                result.sendResult(null)
-                return
-            }
-
             result.detach()
-            launch(dispatchers.Default) {
+            launch {
                 try {
-                    val item = browserTree.getItem(itemMediaId)
+                    val itemMediaId = itemId.toMediaId()
+                    val item = subscriptions.getItem(itemMediaId)
                     result.sendResult(item)
+
+                } catch (malformedId: MalformedMediaIdException) {
+                    Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
+                    result.sendResult(null)
+
                 } catch (pde: PermissionDeniedException) {
                     Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
                     result.sendResult(null)
@@ -239,27 +233,6 @@ class MusicService : BaseBrowserService() {
             } catch (pde: PermissionDeniedException) {
                 Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
                 result.sendResult(null)
-            }
-        }
-    }
-
-    override fun onCustomAction(action: String, extras: Bundle?, result: Result<Bundle>) {
-        val customAction = customActions[action] ?: run {
-            Timber.w("Attempt to execute an unsupported custom action: %s", action)
-            result.sendError(null)
-            return
-        }
-
-        result.detach()
-        launch(dispatchers.Default) {
-            try {
-                val resultBundle = customAction.execute(extras)
-                result.sendResult(resultBundle)
-            } catch (failure: ActionFailure) {
-                result.sendError(Bundle(2).apply {
-                    putInt(CustomActions.EXTRA_ERROR_CODE, failure.errorCode)
-                    putString(CustomActions.EXTRA_ERROR_MESSAGE, failure.errorMessage)
-                })
             }
         }
     }

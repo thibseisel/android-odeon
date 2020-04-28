@@ -67,7 +67,7 @@ class MediaIdTest {
     }
 
     @Test
-    fun whenParsingInvalidStrings_thenFailWithInvalidMediaException() {
+    fun whenParsingInvalidStrings_thenFailWithMalformedMediaIdException() {
         assertParsingFails(null)
         assertParsingFails("")
         assertParsingFails("12e86f5")
@@ -109,14 +109,14 @@ class MediaIdTest {
     }
 
     @Test
-    fun whenEncodingWithTrackIdButNoCategory_thenFailWithInvalidMediaException() {
-        shouldThrow<InvalidMediaException> {
+    fun whenEncodingWithTrackIdButNoCategory_thenFailWithMalformedMediaIdException() {
+        shouldThrow<MalformedMediaIdException> {
             MediaId.encode("type", null, 42)
         }
     }
 
     private fun assertParsingFails(encoded: String?) {
-        shouldThrow<InvalidMediaException> {
+        shouldThrow<MalformedMediaIdException> {
             MediaId.parse(encoded)
         }
     }

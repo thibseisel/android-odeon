@@ -26,7 +26,7 @@
         <activity
             android:name="fr.nihilus.music.devmenu.SpotifyDebugActivity"
             android:label="@string/dev_activity_spotify_debug"
-            android:theme="@style/AppTheme">
+            android:theme="@style/Odeon">
             <intent-filter>
                 <action android:name="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
                 <category android:name="android.intent.category.DEFAULT"/>

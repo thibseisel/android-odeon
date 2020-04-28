@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import fr.nihilus.music.core.database.usage.UsageDao
     MediaUsageEvent::class,
     SpotifyLink::class,
     TrackFeature::class
-], version = 4)
+], version = 5)
 @TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -63,37 +63,42 @@ abstract class AppDatabase : RoomDatabase() {
          * Define instructions to be executed on the database to migrate from schema v1 to v2:
          * - Delete the `music_info` table.
          * - Create the `usage_event` table.
+         * - Remove index on `playlist.title` column.
          */
         val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                with(database) {
-                    // Delete the obsolete and unused table "music_info".
-                    execSQL("DROP TABLE IF EXISTS music_info")
-                    // Create the new table "usage_event" to match the "UsageEvent" entity.
-                    execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
-                    execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
-                }
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Delete the obsolete and unused table "music_info".
+                execSQL("DROP TABLE IF EXISTS music_info")
+                // Create the new table "usage_event" to match the "UsageEvent" entity.
+                execSQL("CREATE TABLE IF NOT EXISTS `usage_event` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` TEXT NOT NULL, `event_time` INTEGER NOT NULL)")
+                execSQL("CREATE INDEX IF NOT EXISTS `index_usage_event_track_id` ON `usage_event` (`track_id`)")
+
+                // Remove unique constraint index on playlist titles
+                execSQL("DROP INDEX `index_playlist_title`")
             }
         }
 
+        /**
+         * Recreate the playlist table to change its schema:
+         * - remove unused column `date_latest_played`
+         * - rename column `art_uri` to `icon_uri`.
+         */
         val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                with(database) {
-                    // Recreate the whole playlist table without the unused "date_last_played" column.
-                    // All data are copied to the "playlist_tmp" table with the new schema, then the old table is dropped.
-                    // This is necessary because SQLite doesn't support deleting columns.
-                    execSQL("CREATE TABLE `playlist_tmp` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
-                    execSQL("INSERT INTO `playlist_tmp` SELECT id, title, date_created, art_uri AS icon_uri FROM playlist")
-                    execSQL("DROP TABLE `playlist`")
-                    execSQL("ALTER TABLE `playlist_tmp` RENAME TO `playlist`")
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Recreate the whole playlist table without the unused "date_last_played" column.
+                // All data are copied to the "playlist_tmp" table with the new schema, then the old table is dropped.
+                // This is necessary because SQLite doesn't support deleting columns.
+                execSQL("CREATE TABLE `playlist_tmp` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                execSQL("INSERT INTO `playlist_tmp` SELECT id, title, date_created, art_uri AS icon_uri FROM playlist")
+                execSQL("DROP TABLE `playlist`")
+                execSQL("ALTER TABLE `playlist_tmp` RENAME TO `playlist`")
 
-                    // Recreate the whole usage_event table with its track_id column type changed to INTEGER.
-                    execSQL("CREATE TABLE IF NOT EXISTS `usage_event_tmp` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `event_time` INTEGER NOT NULL)")
-                    execSQL("INSERT INTO `usage_event_tmp` SELECT event_uid, CAST(track_id AS INTEGER), event_time FROM usage_event")
-                    execSQL("DROP INDEX `index_usage_event_track_id`")
-                    execSQL("DROP TABLE `usage_event`")
-                    execSQL("ALTER TABLE `usage_event_tmp` RENAME TO `usage_event`")
-                }
+                // Recreate the whole usage_event table with its track_id column type changed to INTEGER.
+                execSQL("CREATE TABLE IF NOT EXISTS `usage_event_tmp` (`event_uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `track_id` INTEGER NOT NULL, `event_time` INTEGER NOT NULL)")
+                execSQL("INSERT INTO `usage_event_tmp` SELECT event_uid, CAST(track_id AS INTEGER), event_time FROM usage_event")
+                execSQL("DROP INDEX `index_usage_event_track_id`")
+                execSQL("DROP TABLE `usage_event`")
+                execSQL("ALTER TABLE `usage_event_tmp` RENAME TO `usage_event`")
             }
         }
 
@@ -107,6 +112,28 @@ abstract class AppDatabase : RoomDatabase() {
                 // Create new tables "remote_link" and "track_feature".
                 execSQL("CREATE TABLE IF NOT EXISTS `remote_link` (`local_id` INTEGER NOT NULL, `remote_id` TEXT NOT NULL, `sync_date` INTEGER NOT NULL, PRIMARY KEY(`local_id`))")
                 execSQL("CREATE TABLE IF NOT EXISTS `track_feature` (`id` TEXT NOT NULL, `key` INTEGER, `mode` INTEGER NOT NULL, `tempo` REAL NOT NULL, `time_signature` INTEGER NOT NULL, `loudness` REAL NOT NULL, `acousticness` REAL NOT NULL, `danceability` REAL NOT NULL, `energy` REAL NOT NULL, `instrumentalness` REAL NOT NULL, `liveness` REAL NOT NULL, `speechiness` REAL NOT NULL, `valence` REAL NOT NULL, PRIMARY KEY(`id`))")
+            }
+        }
+
+        /**
+         * Schema migrations related to playlists.
+         * 1. Recreate "playlist" table to enforce non-null primary key.
+         * 2. Recreate "playlist_track" table to enforce a foreign key constraint on "playlist_id".
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+                // Recreate the "playlist" table.
+                execSQL("ALTER TABLE `playlist` RENAME TO `playlist_old`")
+                execSQL("CREATE TABLE `playlist` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `icon_uri` TEXT)")
+                execSQL("INSERT INTO `playlist` SELECT * FROM `playlist_old` WHERE id IS NOT NULL")
+                execSQL("DROP TABLE `playlist_old`")
+
+                // Recreate the "playlist_track" table, copying only tracks whose "playlist_id"
+                // matches an "id" in the "playlist" table.
+                execSQL("ALTER TABLE `playlist_track` RENAME TO `playlist_track_old`")
+                execSQL("CREATE TABLE `playlist_track` (`position` INTEGER NOT NULL, `playlist_id` INTEGER NOT NULL, `music_id` INTEGER NOT NULL, PRIMARY KEY(`music_id`, `playlist_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)")
+                execSQL("INSERT INTO `playlist_track` SELECT * FROM `playlist_track_old` WHERE playlist_id IN (SELECT id FROM `playlist`)")
+                execSQL("DROP TABLE `playlist_track_old`")
             }
         }
     }

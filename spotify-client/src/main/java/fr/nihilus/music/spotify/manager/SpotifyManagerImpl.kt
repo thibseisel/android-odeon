@@ -26,10 +26,12 @@ import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -117,16 +119,6 @@ internal class SpotifyManagerImpl @Inject constructor(
                     }
             }
         }
-    }
-
-    /**
-     * Delete links that reference local tracks that no longer exists.
-     */
-    private suspend fun deleteOldLinks(tracks: List<Track>, remoteLinks: List<SpotifyLink>) {
-        val tracksById = tracks.associateByLong { it.id }
-        val oldLinks = remoteLinks.filterNot { tracksById.containsKey(it.trackId) }
-        val deletedTrackIds = LongArray(oldLinks.size) { oldLinks[it].trackId }
-        localDao.deleteLinks(deletedTrackIds)
     }
 
     private fun buildSearchQueryFor(track: Track) = SpotifyQuery.Track(

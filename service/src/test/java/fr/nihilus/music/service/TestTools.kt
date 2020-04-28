@@ -21,7 +21,7 @@ import android.support.v4.media.MediaBrowserCompat
 import androidx.test.ext.truth.os.BundleSubject
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.provider.Track
 import kotlin.random.Random
 
 /**

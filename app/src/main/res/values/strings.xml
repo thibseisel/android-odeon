@@ -35,7 +35,6 @@
     <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library?</string>
-    <string name="cancel">Cancel</string>
     <string name="empty_playlist">No playlist</string>
     <string name="delete_dialog_message">This song will be deleted from your device.</string>
     <plurals name="deleted_songs_confirmation">
@@ -90,6 +89,7 @@
     <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
     <string name="search_hint">Find a track, an artist…</string>
     <string name="action_clear">Clear</string>
+    <string name="desc_clear_search">Clear search query</string>
     <string name="description_more_actions">More actions</string>
     <string name="action_dev_options">Developer Options</string>
     <string name="dev_sync_summary_waiting">Waiting for network to be available…</string>

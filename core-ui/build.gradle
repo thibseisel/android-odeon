@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation project(':core')
+    implementation project(':media')
 
     // Dispatcher to Android main thread
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
@@ -55,6 +56,8 @@ dependencies {
 
     api "com.google.dagger:dagger-android:${versions.dagger}"
     api "com.google.dagger:dagger-android-support:${versions.dagger}"
+
+    implementation "com.github.thibseisel:kdenticon-android:${versions.kdenticon}"
 
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 

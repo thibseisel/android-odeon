@@ -36,8 +36,7 @@ private const val UNKNOWN_QUEUE_ID = MediaSessionCompat.QueueItem.UNKNOWN_ID.toL
  * Handle queue navigation actions and update the media session queue.
  */
 @ServiceScoped
-internal class MediaQueueManager
-@Inject constructor(
+internal class MediaQueueManager @Inject constructor(
     private val mediaSession: MediaSessionCompat,
     private val prefs: Settings
 ) : MediaSessionConnector.QueueNavigator {

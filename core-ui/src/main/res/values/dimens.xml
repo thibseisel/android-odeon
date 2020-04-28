@@ -20,4 +20,5 @@
     <dimen name="core_larger_horizontal_edge_margin">32dp</dimen>
     <dimen name="core_card_max_elevation">8dp</dimen>
     <dimen name="core_shape_corner_radius">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>

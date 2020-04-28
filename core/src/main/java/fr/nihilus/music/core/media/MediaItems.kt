@@ -38,14 +38,14 @@ object MediaItems {
      *
      * Type: integer
      */
-    const val EXTRA_TRACK_NUMBER = "trackno"
+    const val EXTRA_TRACK_NUMBER = "track_no"
 
     /**
      * The number of the disc this track appears.
      *
      * Type: integer
      */
-    const val EXTRA_DISC_NUMBER = "discno"
+    const val EXTRA_DISC_NUMBER = "disc_no"
 
     /**
      * The size of the local file associated with this media, in bytes.
@@ -53,7 +53,7 @@ object MediaItems {
      *
      * Type: long
      */
-    const val EXTRA_FILE_SIZE = "filesize"
+    const val EXTRA_FILE_SIZE = "file_size"
 
     /**
      * The epoch time at which that track has been played for the last time.
