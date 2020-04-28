@@ -53,10 +53,11 @@
                 app:layout_collapseParallaxMultiplier="0.5"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
+                android:background="@android:color/transparent"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@drawable/ic_arrow_back_24dp"
                 app:popupTheme="?actionBarPopupTheme" />

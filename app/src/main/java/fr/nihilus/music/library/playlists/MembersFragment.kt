@@ -58,7 +58,6 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         super.onViewCreated(view, savedInstanceState)
 
         toolbar.apply {
-            inflateMenu(R.menu.menu_playlist_details)
             menu.findItem(R.id.action_delete)?.isVisible = args.isDeletable
             setOnMenuItemClickListener(::onOptionsItemSelected)
             setNavigationOnClickListener { findNavController().navigateUp() }

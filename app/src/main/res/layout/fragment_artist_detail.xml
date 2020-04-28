@@ -34,10 +34,11 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:titleEnabled="false">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
+                android:elevation="0dp"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="@drawable/ic_arrow_back_24dp"
                 app:popupTheme="?actionBarPopupTheme"

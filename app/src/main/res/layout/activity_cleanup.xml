@@ -26,11 +26,12 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:theme="?actionBarTheme"
+            app:popupTheme="?actionBarPopupTheme"
             tools:title="@string/action_cleanup_title" />
     </com.google.android.material.appbar.AppBarLayout>
 
