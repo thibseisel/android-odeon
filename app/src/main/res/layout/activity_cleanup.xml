@@ -18,7 +18,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context="fr.nihilus.music.library.cleanup.CleanupActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
@@ -35,12 +36,11 @@
             tools:title="@string/action_cleanup_title" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.fragment.app.FragmentContainerView
+    <fragment
         android:id="@+id/fragment_host"
         android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="fr.nihilus.music.library.cleanup.CleanupActivity"
         tools:layout="@layout/fragment_cleanup" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
