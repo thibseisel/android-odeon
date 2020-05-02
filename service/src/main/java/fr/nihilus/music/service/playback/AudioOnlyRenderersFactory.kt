@@ -46,13 +46,13 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener
 internal class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
 
     override fun createRenderers(
-        eventHandler: Handler?,
-        videoRendererEventListener: VideoRendererEventListener?,
-        audioRendererEventListener: AudioRendererEventListener?,
-        textRendererOutput: TextOutput?,
-        metadataRendererOutput: MetadataOutput?,
+        eventHandler: Handler,
+        videoRendererEventListener: VideoRendererEventListener,
+        audioRendererEventListener: AudioRendererEventListener,
+        textRendererOutput: TextOutput,
+        metadataRendererOutput: MetadataOutput,
         drmSessionManager: DrmSessionManager<FrameworkMediaCrypto>?
-    ) = arrayOf<Renderer>(
+    ): Array<out Renderer> = arrayOf<Renderer>(
         // Audio-only renderer
         MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT, eventHandler, audioRendererEventListener)
     )

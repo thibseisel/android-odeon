@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,12 @@ import android.app.PendingIntent
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.service.playback.ErrorHandler
 import fr.nihilus.music.service.playback.MediaQueueManager
-import fr.nihilus.music.service.playback.OdeonPlaybackController
 import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
 
 /**
@@ -36,9 +33,6 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
  */
 @Module
 internal abstract class MediaSessionModule {
-
-    @Binds
-    abstract fun bindsPlaybackController(controller: OdeonPlaybackController): MediaSessionConnector.PlaybackController
 
     @Binds
     abstract fun bindsPlaybackPreparer(preparer: OdeonPlaybackPreparer): MediaSessionConnector.PlaybackPreparer
@@ -66,21 +60,6 @@ internal abstract class MediaSessionModule {
                 it.setSessionActivity(sessionActivityPendingIntent)
                 it.setRatingType(RatingCompat.RATING_NONE)
             }
-        }
-
-        @Provides @ServiceScoped
-        fun providesSessionConnector(
-            player: ExoPlayer,
-            mediaSession: MediaSessionCompat,
-            controller: MediaSessionConnector.PlaybackController,
-            preparer: MediaSessionConnector.PlaybackPreparer,
-            navigator: MediaSessionConnector.QueueNavigator,
-            errorHandler: ErrorMessageProvider<ExoPlaybackException>
-
-        ) = MediaSessionConnector(mediaSession, controller, null).also {
-            it.setPlayer(player, preparer)
-            it.setQueueNavigator(navigator)
-            it.setErrorMessageProvider(errorHandler)
         }
     }
 }

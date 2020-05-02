@@ -20,17 +20,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.ShuffleOrder
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
@@ -40,6 +37,7 @@ import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.R
+import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.extensions.doOnPrepared
@@ -85,11 +83,12 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      *
      * @see MediaSessionCompat.Callback.onPrepare
      */
-    override fun onPrepare() {
+    override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
         prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
+        player.playWhenReady = playWhenReady
     }
 
     /**
@@ -104,15 +103,15 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      *
      * @see MediaSessionCompat.Callback.onPrepareFromMediaId
      */
-    override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
+    override fun onPrepareFromMediaId(mediaId: String?, playWhenReady: Boolean, extras: Bundle?) {
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
         val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
         settings.lastQueueMediaId = queueMediaId
-
         prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
+        player.playWhenReady = playWhenReady
     }
 
-    override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
+    override fun onPrepareFromUri(uri: Uri?, playWhenReady: Boolean, extras: Bundle?) {
         // Not supported at the time.
         throw UnsupportedOperationException()
     }
@@ -121,10 +120,10 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      * Handle requests to prepare for playing tracks picked from the results of a search.
      */
     @SuppressLint("LogNotTimber")
-    override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+    override fun onPrepareFromSearch(query: String?, playWhenReady: Boolean, extras: Bundle?) {
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
-        if (Log.isLoggable("AssistantSearch", Log.INFO)) {
-            val extString = extras?.keySet()
+        if (Log.isLoggable("AssistantSearch", Log.INFO) && extras != null) {
+            val extString = extras.keySet()
                 ?.joinToString(", ", "{", "}") { "$it=${extras[it]}" }
                 ?: "null"
             Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
@@ -133,7 +132,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         val parsedQuery = SearchQuery.from(query, extras)
         if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
-            onPrepare()
+            onPrepare(playWhenReady)
 
         } else scope.launch(dispatchers.Default) {
             val results = browserTree.search(parsedQuery)
@@ -141,24 +140,18 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             val firstResult = results.firstOrNull()
             if (firstResult?.isBrowsable == true) {
                 prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
+                player.playWhenReady = playWhenReady
             } else {
                 preparePlayer(
                     results.filter { it.isPlayable && !it.isBrowsable },
                     firstShuffledIndex = 0,
                     startPosition = 0
                 )
+
+                player.playWhenReady = playWhenReady
             }
         }
     }
-
-    override fun getCommands(): Array<String>? = null
-
-    override fun onCommand(
-        player: Player?,
-        command: String?,
-        extras: Bundle?,
-        cb: ResultReceiver?
-    ) = Unit
 
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
         val children = browserTree.getChildren(parentId).first()
@@ -174,16 +167,18 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     }
 
     private fun prepareFromMediaId(
-        mediaId: String?,
+        encodedId: String?,
         startPlaybackPosition: Int
     ) = scope.launch(dispatchers.Default) {
-        val (type, category, track) = mediaId.toMediaId()
-        val parentId = MediaId.fromParts(type, category, track = null)
+        val mediaId = encodedId.toMediaId()
+        val parentId = mediaId.copy(track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
-        val firstIndex = if (track != null) {
-            playQueue.indexOfFirst { it.mediaId == mediaId }
-        } else C.POSITION_UNSET
+        val firstIndex = when {
+            mediaId.track != null -> playQueue.indexOfFirst { it.mediaId == encodedId }
+            else -> C.POSITION_UNSET
+        }
+
         preparePlayer(playQueue, firstIndex, startPlaybackPosition)
     }
 
@@ -210,8 +205,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
                     "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
                 }
 
-                ExtractorMediaSource.Factory(appDataSourceFactory)
-                    .setExtractorsFactory(audioOnlyExtractors)
+                ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
                     .setTag(playableItem)
                     .createMediaSource(sourceUri)
             }
