@@ -38,10 +38,6 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener
  *
  * The full explanation is detailed
  * on the [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
- *
- * In addition to only being able to play audio, this renderer factory replaces
- * the "silence skipping" feature by "silence trimming", which is basically the same
- * except that only the start and the end of a track are skipped.
  */
 internal class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
 
