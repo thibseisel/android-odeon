@@ -19,6 +19,7 @@ package fr.nihilus.music.service.playback
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
+import com.google.android.exoplayer2.extractor.flac.FlacExtractor
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
@@ -46,6 +47,8 @@ internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
         // .ogg and .oga audio files
         OggExtractor(),
         // .ac3 (Dolby Digital) audio files
-        Ac3Extractor()
+        Ac3Extractor(),
+        // .flac audio files for API 27+
+        FlacExtractor()
     )
 }
