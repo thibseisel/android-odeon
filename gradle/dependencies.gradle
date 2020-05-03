@@ -29,7 +29,7 @@ ext.versions = [
                 'palette'          : '1.0.0',
                 'preference'       : '1.1.1',
                 'recyclerview'     : '1.1.0',
-                'rvSelection'      : '1.0.0',
+                'rvSelection'      : '1.1.0-rc01',
                 'room'             : '2.2.5',
                 'viewpager2'       : '1.0.0',
                 'work'             : '2.3.4',
