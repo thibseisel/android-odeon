@@ -24,11 +24,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/unlinked_track_list"
+        style="@style/Widget.Odeon.List"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/dev_unlinked_track_row" />
 

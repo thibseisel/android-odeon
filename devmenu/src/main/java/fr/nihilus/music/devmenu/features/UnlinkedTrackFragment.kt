@@ -24,12 +24,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.inflate
+import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.devmenu.R
 import fr.nihilus.music.media.provider.Track
 import kotlinx.android.synthetic.main.dev_fragment_unlinked_tracks.*
