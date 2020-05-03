@@ -26,7 +26,6 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
@@ -35,6 +34,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
+import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.extensions.sumByLong
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 

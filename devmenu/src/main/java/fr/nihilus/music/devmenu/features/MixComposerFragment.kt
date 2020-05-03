@@ -23,8 +23,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
-import androidx.recyclerview.widget.DividerItemDecoration
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.devmenu.R
 import kotlinx.android.synthetic.main.fragment_mix_composer.*
 
