@@ -85,7 +85,7 @@
     <string name="desc_clear_search">Effacer la recherche</string>
     <string name="action_dev_options">Options pour les développeurs</string>
     <string name="description_more_actions">Plus d\'actions</string>
-    <string name="dev_sync_summary_failure">La synchronisation a échoué</string>
+    <string name="dev_sync_summary_failure">Echec de la synchronisation</string>
     <string name="dev_sync_summary_running">Synchronisation en cours…</string>
     <string name="dev_sync_summary_success">Synchronisé avec succès</string>
     <string name="dev_sync_summary_waiting">En attente d\'une connexion internet…</string>

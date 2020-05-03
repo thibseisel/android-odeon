@@ -94,4 +94,12 @@
     <string name="action_clear">Wyczyść</string>
     <string name="description_more_actions">Więcej działań</string>
     <string name="action_dev_options">Opcje programisty</string>
+    <string name="desc_clear_search">Wyczyść wyszukiwanie</string>
+    <string name="dev_sync_summary_waiting">Oczekiwanie na dostępność sieci…</string>
+    <string name="dev_sync_summary_running">Synchronizacja jest uruchomiona…</string>
+    <string name="dev_sync_summary_success">Zsynchronizowano pomyślnie</string>
+    <string name="dev_sync_summary_failure">Synchronizacja nie powiodła się</string>
+    <string name="pref_title_spotify_sync">Synchronizuj z Spotify</string>
+    <string name="pref_title_audio_analysis">Analiza audio</string>
+    <string name="pref_summary_audio_analysis">Wybierz ścieżki na podstawie ich specyfikacji audio</string>
 </resources>
