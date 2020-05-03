@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,16 @@ internal class SpotifyConverters {
     @TypeConverter
     fun Pitch?.toEncodedKey(): Int? = when (this) {
         Pitch.C -> 0
-        Pitch.C_SHARP -> 1
+        Pitch.D_FLAT -> 1
         Pitch.D -> 2
-        Pitch.D_SHARP -> 3
+        Pitch.E_FLAT -> 3
         Pitch.E -> 4
         Pitch.F -> 5
         Pitch.F_SHARP -> 6
         Pitch.G -> 7
-        Pitch.G_SHARP -> 8
+        Pitch.A_FLAT -> 8
         Pitch.A -> 9
-        Pitch.A_SHARP -> 10
+        Pitch.B_FLAT -> 10
         Pitch.B -> 11
         else -> null
     }

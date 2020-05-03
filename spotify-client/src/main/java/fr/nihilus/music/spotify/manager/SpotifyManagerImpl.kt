@@ -60,6 +60,14 @@ internal class SpotifyManagerImpl @Inject constructor(
         }
     }
 
+    override suspend fun listUnlinkedTracks(): List<Track> = coroutineScope {
+        val allTracks = async { mediaDao.tracks.first() }
+        val allLinks = async { localDao.getLinks() }
+
+        val linksPerTrackId = allLinks.await().associateByLong { it.trackId }
+        allTracks.await().filterNot { linksPerTrackId.containsKey(it.id) }
+    }
+
     override suspend fun sync() {
         val unSyncedTracks = coroutineScope {
             // Load tracks and remote links in parallel.

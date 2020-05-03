@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.nihilus.music.devmenu">
 
-    <application>
+    <application android:theme="@style/Odeon">
 
         <!--
           - Activity for debugging playlists that can be built with data from the Spotify API.
@@ -25,8 +25,7 @@
           -->
         <activity
             android:name="fr.nihilus.music.devmenu.SpotifyDebugActivity"
-            android:label="@string/dev_activity_spotify_debug"
-            android:theme="@style/Odeon">
+            android:label="@string/dev_activity_spotify_debug">
             <intent-filter>
                 <action android:name="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
                 <category android:name="android.intent.category.DEFAULT"/>

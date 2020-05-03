@@ -18,6 +18,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_feature_stats"
+        android:icon="@drawable/dev_ic_chart_24dp"
+        android:title="@string/dev_show_stats"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_save_as_playlist"
         android:contentDescription="@string/dev_action_save_as_playlist"
         android:icon="@drawable/dev_ic_save_24dp"

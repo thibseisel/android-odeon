@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,16 @@ interface SpotifyManager {
      * @return Tracks whose audio features match all provided filters.
      */
     suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>>
+
+    /**
+     * Lists tracks that have not been associated with a track from the Spotify API.
+     * Those tracks may not be linked for one of the following reason:
+     * - it has been added recently, and sync has not been performed yet ;
+     * - no matching track has been found on the Spotify API.
+     *
+     * @return A list of tracks having no match from the Spotify API (yet).
+     */
+    suspend fun listUnlinkedTracks(): List<Track>
 
     /**
      * Fetch media metadata from the Spotify API and store them locally for offline use.

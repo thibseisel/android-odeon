@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <string name="dev_label_energy">Energie</string>
     <string name="dev_label_loudness">Intensité</string>
 
-    <style name="dev_label_tone">Tonalité</style>
+    <string name="dev_label_tone">Tonalité</string>
     <string name="dev_label_tempo">Tempo</string>
     <string name="dev_category_title_feature">Caractéristiques</string>
     <string name="dev_acousticness">Acoustique</string>
@@ -29,7 +29,6 @@
     <string name="dev_label_instrumentalness">Instrumental</string>
     <string name="dev_label_valence">Positivité</string>
     <string name="dev_label_liveness">Joué live</string>
-    <string name="dev_label_tone">Tonalité</string>
     <string name="hint_maximum">Max</string>
     <string name="hint_minimum">Min</string>
     <string name="dev_title_new_filter">Nouveau filtre</string>
@@ -43,21 +42,12 @@
     <string name="dev_format_tempo">%1$.0f BPM</string>
     <string name="dev_format_signature">%d temps</string>
     <string name="dev_label_pitch_key">Tonalité</string>
-    <string name="dev_mode_minor">Mineur</string>
-    <string name="dev_mode_major">Majeur</string>
-    <string name="dev_key_c">Do</string>
-    <string name="dev_key_cs">Do#</string>
-    <string name="dev_key_d">Ré</string>
-    <string name="dev_key_ds">Ré#</string>
-    <string name="dev_key_e">Mi</string>
-    <string name="dev_key_f">Fa</string>
-    <string name="dev_key_fs">Fa#</string>
-    <string name="dev_key_g">Sol</string>
-    <string name="dev_key_gs">Sol#</string>
-    <string name="dev_key_a">La</string>
-    <string name="dev_key_as">La#</string>
-    <string name="dev_key_b">Si</string>
     <string name="dev_action_save_as_playlist">Créer une playlist</string>
     <string name="dev_title_playlist_from_selection">Nouvelle playlist à partir de la sélection</string>
     <string name="dev_hint_playlist_title">Titre de la playlist</string>
+    <string name="dev_empty_unlinked_tracks">Tous les morceaux sont à jour</string>
+    <string name="dev_filter_by_features">Filtrer par caractéristiques audio</string>
+    <string name="dev_feature_search_results">Résultats de la recherche</string>
+    <string name="dev_unlinked_tracks">Morceaux désynchronisés</string>
+    <string name="dev_show_stats">Afficher les statistiques</string>
 </resources>
