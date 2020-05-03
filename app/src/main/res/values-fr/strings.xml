@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="action_albums">Albums</string>
     <string name="action_artists">Artistes</string>
     <string name="action_settings">Paramètres</string>
@@ -38,30 +38,6 @@
     <string name="empty_playlist">Aucune playlist</string>
     <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
     <string name="delete_dialog_message">Ce morceau sera effacé de votre appareil.</string>
-    <plurals name="deleted_songs_confirmation">
-        <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau a été supprimé.</item>
-        <item quantity="other">Ces morceaux ont été supprimés.</item>
-    </plurals>
-    <plurals name="number_of_tracks">
-        <item quantity="one">%d morceau</item>
-        <item quantity="other">%d morceaux</item>
-    </plurals>
-
-    <plurals name="number_of_selected_tracks">
-        <item quantity="one">%d morceau sélectionné</item>
-        <item quantity="other">%d morceaux sélectionnés</item>
-    </plurals>
-
-    <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Supprimer %d morceau ?</item>
-        <item quantity="other">Supprimer %d morceaux ?</item>
-    </plurals>
-
-    <plurals name="tracks_added_to_playlist">
-        <item quantity="one">%1$d titre ajouté à la playlist \"%2$s\"</item>
-        <item quantity="other">%1$d titres ajoutés à la playlist \"%2$s\"</item>
-    </plurals>
-
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
     <string name="action_delete_playlist">Supprimer la playlist</string>
     <string name="action_edit_playlist">Modifier la playlist</string>
@@ -92,5 +68,4 @@
     <string name="pref_title_spotify_sync">Synchroniser avec Spotify</string>
     <string name="pref_title_audio_analysis">Analyse audio</string>
     <string name="pref_summary_audio_analysis">Selectionner des morceaux en fonction de leurs caractéristiques audio</string>
-
 </resources>

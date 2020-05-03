@@ -37,33 +37,7 @@
     <string name="delete_dialog_title">Delete from library?</string>
     <string name="empty_playlist">No playlist</string>
     <string name="delete_dialog_message">This song will be deleted from your device.</string>
-    <plurals name="deleted_songs_confirmation">
-        <item quantity="one">The track has been deleted.</item>
-        <item quantity="other">Those tracks have been deleted.</item>
-    </plurals>
-
-    <plurals name="number_of_tracks">
-        <item quantity="one">%d track</item>
-        <item quantity="other">%d tracks</item>
-    </plurals>
-
-    <plurals name="number_of_selected_tracks">
-        <item quantity="one">%d track selected</item>
-        <item quantity="other">%d tracks selected</item>
-    </plurals>
-
-    <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Delete %d track?</item>
-        <item quantity="other">Delete %d tracks?</item>
-    </plurals>
-
     <string name="playlist_created">Created new playlist \"%1$s\".</string>
-
-    <plurals name="tracks_added_to_playlist">
-        <item quantity="one">%1$d track added to playlist \"%2$s\"</item>
-        <item quantity="other">%1$d tracks added to playlist "\%2$s\"</item>
-    </plurals>
-
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
