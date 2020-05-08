@@ -119,7 +119,6 @@ dependencies {
     implementation project(':devmenu')
 
     // Support library dependencies
-    implementation "androidx.cardview:cardview:${versions.androidx.cardview}"
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
     implementation "androidx.recyclerview:recyclerview-selection:${versions.androidx.rvSelection}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidx.viewpager2}"
