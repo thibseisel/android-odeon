@@ -15,11 +15,33 @@
   ~ limitations under the License.
   -->
 
-<fragment
-    android:id="@+id/content_fragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="fr.nihilus.music.settings.MainPreferenceFragment"
-    tools:context="fr.nihilus.music.settings.SettingsActivity"/>
+    tools:context="fr.nihilus.music.settings.SettingsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:theme="?actionBarTheme"
+            app:popupTheme="?actionBarPopupTheme"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp"
+            app:title="@string/action_settings" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <fragment
+        android:id="@+id/content_fragment"
+        android:name="fr.nihilus.music.settings.MainPreferenceFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
