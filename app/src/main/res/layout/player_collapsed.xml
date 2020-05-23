@@ -24,41 +24,51 @@
     android:layout_gravity="bottom"
     app:cardElevation="8dp"
     app:cardMaxElevation="8dp"
+    app:cardBackgroundColor="?colorPrimarySurface"
     app:shapeAppearanceOverlay="@style/ShapeAppearance.Odeon.Player"
     tools:showIn="@layout/activity_home">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:minHeight="72dp">
 
         <ProgressBar
             android:id="@+id/now_playing_progress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="2dp"
             android:minHeight="0dp"
-            app:layout_constraintTop_toBottomOf="@id/top_section_guideline"
             app:layout_constraintTop_toTopOf="parent"
             tools:progress="100" />
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/top_section_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="56dp" />
-
         <ImageView
             android:id="@+id/now_playing_artwork"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:contentDescription="@string/album_art"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_margin="8dp"
+            android:layout_marginStart="16dp"
             app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
             tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/now_playing_artist"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:textAppearance="?textAppearanceOverline"
+            tools:text="Muse"
+            app:layout_constraintStart_toEndOf="@id/now_playing_artwork"
+            android:layout_marginStart="16dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?colorOnPrimarySurface"
+            app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
+            app:layout_constraintBottom_toTopOf="@id/now_playing_title"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintEnd_toStartOf="@id/now_playing_toggle"/>
 
         <TextView
             android:id="@+id/now_playing_title"
@@ -67,11 +77,13 @@
             android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textColor="?colorOnPrimarySurface"
             android:textAppearance="?textAppearanceSubtitle1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/now_playing_toggle"
             app:layout_constraintStart_toEndOf="@id/now_playing_artwork"
-            app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
+            app:layout_constraintTop_toBottomOf="@id/now_playing_artist"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="The 2nd Law: Isolated System" />
 
         <fr.nihilus.music.view.PlayPauseButton
@@ -81,6 +93,7 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/play_or_pause"
             android:padding="16dp"
+            android:tint="?colorOnPrimarySurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/now_playing_progress"

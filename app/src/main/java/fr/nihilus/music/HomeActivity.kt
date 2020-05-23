@@ -137,10 +137,12 @@ class HomeActivity : BaseActivity() {
 
             if (it.currentTrack != null) {
                 progressUpdater.update(it.position, it.currentTrack.duration, it.lastPositionUpdateTime, it.isPlaying)
+                now_playing_artist.text = it.currentTrack.artist
                 now_playing_title.text = it.currentTrack.title
                 artworkLoader.load(it.currentTrack.artworkUri).into(now_playing_artwork)
             } else {
                 progressUpdater.update(0L, 0L, it.lastPositionUpdateTime, false)
+                now_playing_artist.text = null
                 now_playing_title.text = null
                 Glide.with(this).clear(now_playing_progress)
             }
