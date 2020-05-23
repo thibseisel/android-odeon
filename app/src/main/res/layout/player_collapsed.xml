@@ -88,11 +88,12 @@
 
         <fr.nihilus.music.view.PlayPauseButton
             android:id="@+id/now_playing_toggle"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="@string/play_or_pause"
-            android:padding="16dp"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp"
             android:tint="?colorOnPrimarySurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
