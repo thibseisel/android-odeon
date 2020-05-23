@@ -31,7 +31,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways|snap"
             app:popupTheme="?actionBarPopupTheme"
             android:theme="?actionBarTheme"
             app:title="@string/core_app_name" />
