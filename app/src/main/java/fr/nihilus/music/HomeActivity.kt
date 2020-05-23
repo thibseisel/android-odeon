@@ -19,6 +19,7 @@ package fr.nihilus.music
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.Toast
@@ -29,6 +30,7 @@ import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
+import com.bumptech.glide.Glide
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
@@ -36,9 +38,11 @@ import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingViewModel
 import fr.nihilus.music.library.nowplaying.PlayerState
+import fr.nihilus.music.library.nowplaying.ProgressAutoUpdater
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
 import kotlinx.android.synthetic.main.player_collapsed.*
@@ -54,6 +58,9 @@ class HomeActivity : BaseActivity() {
 
     private val navController: NavController
         get() = findNavController(R.id.nav_host_fragment)
+
+    private lateinit var artworkLoader: GlideRequest<Bitmap>
+    private lateinit var progressUpdater: ProgressAutoUpdater
 
     private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
         private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
@@ -103,6 +110,12 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun setupPlayerView() {
+        artworkLoader = GlideApp.with(this).asBitmap()
+            .roundedCorners(resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius))
+            .error(R.drawable.ic_audiotrack_24dp)
+
+        progressUpdater = ProgressAutoUpdater(now_playing_progress)
+
         now_playing_card.doOnApplyWindowInsets { view, insets, _, margin ->
             val lp = view.layoutParams as ViewGroup.MarginLayoutParams
             lp.bottomMargin = insets.tappableElementInsets.bottom + margin.bottom
@@ -123,16 +136,13 @@ class HomeActivity : BaseActivity() {
             now_playing_progress.progress = it.position.toInt()
 
             if (it.currentTrack != null) {
-                now_playing_progress.max = it.currentTrack.duration.toInt()
+                progressUpdater.update(it.position, it.currentTrack.duration, it.lastPositionUpdateTime, it.isPlaying)
                 now_playing_title.text = it.currentTrack.title
-                GlideApp.with(this)
-                    .load(it.currentTrack.artworkUri)
-                    .error(R.drawable.ic_audiotrack_24dp)
-                    .into(now_playing_artwork)
+                artworkLoader.load(it.currentTrack.artworkUri).into(now_playing_artwork)
             } else {
-                now_playing_progress.max = 0
+                progressUpdater.update(0L, 0L, it.lastPositionUpdateTime, false)
                 now_playing_title.text = null
-                now_playing_artwork.setImageDrawable(null)
+                Glide.with(this).clear(now_playing_progress)
             }
         }
 

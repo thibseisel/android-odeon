@@ -19,6 +19,7 @@ package fr.nihilus.music.library.nowplaying
 import android.os.Handler
 import android.os.SystemClock
 import android.text.format.DateUtils
+import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import java.util.concurrent.Executors
@@ -49,10 +50,10 @@ private const val PROGRESS_UPDATE_PERIOD = 1000L
  * Parameter is the desired playback position in milliseconds.
  */
 class ProgressAutoUpdater(
-    private val seekBar: SeekBar,
-    private val seekPosition: TextView,
-    private val seekDuration: TextView,
-    private val updateListener: (Long) -> Unit
+    private val seekBar: ProgressBar,
+    private val seekPosition: TextView? = null,
+    private val seekDuration: TextView? = null,
+    updateListener: ((position: Long) -> Unit)? = null
 ) {
     private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
@@ -69,8 +70,10 @@ class ProgressAutoUpdater(
     private var updateFuture: ScheduledFuture<*>? = null
 
     init {
-        val listener = UserSeekListener()
-        seekBar.setOnSeekBarChangeListener(listener)
+        if (seekBar is SeekBar && updateListener != null) {
+            val listener = UserSeekListener(updateListener)
+            seekBar.setOnSeekBarChangeListener(listener)
+        }
     }
 
     fun update(position: Long, duration: Long, updateTime: Long, autoAdvance: Boolean) {
@@ -82,15 +85,15 @@ class ProgressAutoUpdater(
 
         // Update the max progression.
         seekBar.max = duration.toInt()
-        seekDuration.text = DateUtils.formatElapsedTime(builder, duration / 1000L)
+        seekDuration?.text = DateUtils.formatElapsedTime(builder, duration / 1000L)
 
         // Update the visual playback position.
         if (position != -1L) {
             seekBar.progress = position.toInt()
-            seekPosition.text = DateUtils.formatElapsedTime(builder, position / 1000L)
+            seekPosition?.text = DateUtils.formatElapsedTime(builder, position / 1000L)
         } else {
             seekBar.progress = 0
-            seekPosition.text = null
+            seekPosition?.text = null
         }
 
         // Schedule to automatically update playback position if requested.
@@ -122,10 +125,12 @@ class ProgressAutoUpdater(
         }
     }
 
-    private inner class UserSeekListener : SeekBar.OnSeekBarChangeListener {
+    private inner class UserSeekListener(
+        private val listener: (position: Long) -> Unit
+    ) : SeekBar.OnSeekBarChangeListener {
 
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            seekPosition.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
+            seekPosition?.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -133,7 +138,7 @@ class ProgressAutoUpdater(
         }
 
         override fun onStopTrackingTouch(seekBar: SeekBar) {
-            updateListener(seekBar.progress.toLong())
+            listener(seekBar.progress.toLong())
             scheduleProgressUpdate()
         }
     }
