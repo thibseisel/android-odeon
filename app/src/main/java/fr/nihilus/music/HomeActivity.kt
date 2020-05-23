@@ -20,27 +20,28 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
+import androidx.core.view.isVisible
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.library.nowplaying.NowPlayingFragment
-import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.library.nowplaying.NowPlayingViewModel
+import fr.nihilus.music.library.nowplaying.PlayerState
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
-import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.player_collapsed.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,14 +50,10 @@ class HomeActivity : BaseActivity() {
     @Inject lateinit var permissions: RuntimePermissions
 
     private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
-
-    private lateinit var bottomSheet: BottomSheetBehavior<*>
-    private lateinit var playerFragment: NowPlayingFragment
+    private val playerViewModel: NowPlayingViewModel by viewModels { viewModelFactory }
 
     private val navController: NavController
         get() = findNavController(R.id.nav_host_fragment)
-
-    private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
 
     private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
         private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
@@ -68,6 +65,14 @@ class HomeActivity : BaseActivity() {
                 window.statusBarColor = statusBarColor
                 window.darkSystemIcons = false
             }
+        }
+    }
+
+    private val autoHideCollapsedPlayer = NavController.OnDestinationChangedListener { _, destination, _ ->
+        if (destination.id == R.id.fragment_now_playing) {
+            now_playing_card.isVisible = false
+        } else {
+            now_playing_card.isVisible = viewModel.playerVisible.value == true
         }
     }
 
@@ -85,55 +90,59 @@ class HomeActivity : BaseActivity() {
         }
     }
 
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-
-        if (fragment is NowPlayingFragment) {
-            playerFragment = fragment
-            fragment.setOnRequestPlayerExpansionListener { shouldCollapse ->
-                bottomSheet.state =
-                        if (shouldCollapse) BottomSheetBehavior.STATE_COLLAPSED
-                        else BottomSheetBehavior.STATE_EXPANDED
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         navController.addOnDestinationChangedListener(statusBarNavListener)
-        bottomSheet.addBottomSheetCallback(sheetCollapsingCallback)
+        navController.addOnDestinationChangedListener(autoHideCollapsedPlayer)
     }
 
     override fun onPause() {
-        bottomSheet.removeBottomSheetCallback(sheetCollapsingCallback)
+        navController.removeOnDestinationChangedListener(autoHideCollapsedPlayer)
         navController.removeOnDestinationChangedListener(statusBarNavListener)
         super.onPause()
     }
 
     private fun setupPlayerView() {
-        bottomSheet = BottomSheetBehavior.from(player_container)
+        now_playing_card.doOnApplyWindowInsets { view, insets, _, margin ->
+            val lp = view.layoutParams as ViewGroup.MarginLayoutParams
+            lp.bottomMargin = insets.tappableElementInsets.bottom + margin.bottom
+        }
+
+        now_playing_card.setOnClickListener {
+            navController.navigate(MainGraphDirections.expandPlayer())
+        }
+
+        now_playing_toggle.setOnClickListener {
+            playerViewModel.togglePlayPause()
+        }
+
+        playerViewModel.state.observe(this) {
+            now_playing_toggle.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in it.availableActions
+            now_playing_toggle.isPlaying = it.isPlaying
+
+            now_playing_progress.progress = it.position.toInt()
+
+            if (it.currentTrack != null) {
+                now_playing_progress.max = it.currentTrack.duration.toInt()
+                now_playing_title.text = it.currentTrack.title
+                GlideApp.with(this)
+                    .load(it.currentTrack.artworkUri)
+                    .error(R.drawable.ic_audiotrack_24dp)
+                    .into(now_playing_artwork)
+            } else {
+                now_playing_progress.max = 0
+                now_playing_title.text = null
+                now_playing_artwork.setImageDrawable(null)
+            }
+        }
 
         // Show / hide BottomSheet on startup without an animation
-        setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value == true)
-        viewModel.playerSheetVisible.observe(this, this::onSheetVisibilityChanged)
+        viewModel.playerVisible.observe(this, this::onPlayerVisibilityChanged)
 
         viewModel.playerError.observe(this) { playerErrorEvent ->
             playerErrorEvent.handle { errorMessage ->
                 Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
             }
-        }
-    }
-
-    /**
-     * Called when the back button is pressed.
-     * This will close the navigation drawer if open, collapse the player view if expanded,
-     * or otherwise follow the default behavior (pop fragment back stack or finish activity).
-     */
-    override fun onBackPressed() {
-        if (bottomSheet.state == BottomSheetBehavior.STATE_EXPANDED) {
-            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        } else {
-            super.onBackPressed()
         }
     }
 
@@ -173,34 +182,8 @@ class HomeActivity : BaseActivity() {
         }
     }
 
-    /**
-     * Show or hide the player view depending on the passed playback state.
-     * This method is meant to be called only once to show or hide player view without animation.
-     */
-    private fun setInitialBottomSheetVisibility(shouldShow: Boolean) {
-        bottomSheet.peekHeight = if (shouldShow) {
-            resources.getDimensionPixelSize(R.dimen.playerview_height)
-        } else {
-            resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
-        }
-    }
-
-    private fun onSheetVisibilityChanged(sheetVisible: Boolean) = when {
-        sheetVisible -> {
-            val collapsedSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_height)
-            bottomSheet.setPeekHeight(collapsedSheetHeight, true)
-        }
-
-        bottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED -> {
-            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
-            bottomSheet.setPeekHeight(hiddenSheetHeight, true)
-        }
-
-        else -> {
-            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
-            bottomSheet.setPeekHeight(hiddenSheetHeight, false)
-            bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
+    private fun onPlayerVisibilityChanged(playerVisible: Boolean) {
+        now_playing_card.isVisible = playerVisible
     }
 
     /**
@@ -208,36 +191,8 @@ class HomeActivity : BaseActivity() {
      * This is intended to handle actions relative to launcher shortcuts (API 25+).
      *
      * @param intent the intent that started this activity, or was received later
-     * @return true if intent was handled, false otherwise
      */
     private fun handleIntent(intent: Intent?) {
         Timber.d("Received intent: %s", intent)
-        when (intent?.action) {
-
-            MusicService.ACTION_PLAYER_UI -> {
-                player_container.postDelayed({
-                    bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
-                }, 300L)
-            }
-        }
-    }
-
-    /**
-     * Toggle the visibility of elements in [NowPlayingFragment]
-     * depending on the collapsing state of the bottom sheet.
-     */
-    private inner class BottomSheetCollapsingCallback : BottomSheetBehavior.BottomSheetCallback() {
-        override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
-
-        override fun onStateChanged(bottomSheet: View, newState: Int) {
-            if (newState == BottomSheetBehavior.STATE_SETTLING ||
-                newState == BottomSheetBehavior.STATE_DRAGGING) {
-                return
-            }
-
-            val isExpandedOrExpanding = newState != BottomSheetBehavior.STATE_COLLAPSED
-                    && newState != BottomSheetBehavior.STATE_HIDDEN
-            playerFragment.setCollapsed(!isExpandedOrExpanding)
-        }
     }
 }

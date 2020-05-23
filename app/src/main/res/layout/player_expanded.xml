@@ -23,17 +23,32 @@
     android:paddingStart="32dp"
     android:paddingEnd="32dp">
 
-    <ImageView
+    <ImageSwitcher
         android:id="@+id/now_playing_artwork"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:contentDescription="@string/album_art"
-        app:layout_constraintBottom_toTopOf="@id/now_playing_title"
+        android:animateFirstView="false"
+        app:layout_constraintBottom_toTopOf="@+id/now_playing_progress"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/avatars" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/album_art"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/avatars"
+            tools:visibility="gone" />
+    </ImageSwitcher>
 
     <SeekBar
         android:id="@+id/now_playing_progress"
@@ -76,7 +91,7 @@
         android:gravity="center"
         android:maxLines="2"
         android:textAppearance="?textAppearanceHeadline5"
-        app:layout_constraintBottom_toTopOf="@id/master_play_pause"
+        app:layout_constraintBottom_toTopOf="@id/now_playing_toggle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
@@ -105,12 +120,12 @@
         android:padding="8dp"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/master_play_pause"
+        app:layout_constraintEnd_toStartOf="@+id/now_playing_toggle"
         app:layout_constraintStart_toEndOf="@+id/repeat_button"
         app:layout_constraintTop_toBottomOf="@id/now_playing_title" />
 
     <fr.nihilus.music.view.FloatingPlayPauseButton
-        android:id="@+id/master_play_pause"
+        android:id="@+id/now_playing_toggle"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:contentDescription="@string/play_or_pause"
@@ -134,7 +149,7 @@
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/shuffle_button"
-        app:layout_constraintStart_toEndOf="@+id/master_play_pause"
+        app:layout_constraintStart_toEndOf="@+id/now_playing_toggle"
         app:layout_constraintTop_toBottomOf="@id/now_playing_title" />
 
     <ImageView

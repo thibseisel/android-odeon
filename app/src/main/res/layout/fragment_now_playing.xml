@@ -138,12 +138,12 @@
         android:padding="8dp"
         android:src="@drawable/ic_skip_previous_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/master_play_pause"
+        app:layout_constraintEnd_toStartOf="@+id/now_playing_toggle"
         app:layout_constraintStart_toEndOf="@+id/repeat_button"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <fr.nihilus.music.view.FloatingPlayPauseButton
-        android:id="@+id/master_play_pause"
+        android:id="@+id/now_playing_toggle"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:contentDescription="@string/play_or_pause"
@@ -167,7 +167,7 @@
         android:src="@drawable/ic_skip_next_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/shuffle_button"
-        app:layout_constraintStart_toEndOf="@+id/master_play_pause"
+        app:layout_constraintStart_toEndOf="@+id/now_playing_toggle"
         app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
 
     <ImageView

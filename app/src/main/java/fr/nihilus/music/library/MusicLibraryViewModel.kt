@@ -34,7 +34,7 @@ class MusicLibraryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
-    val playerSheetVisible: LiveData<Boolean> = _playerSheetVisible
+    val playerVisible: LiveData<Boolean> = _playerSheetVisible
 
     private val _playerError = MutableLiveData<Event<CharSequence>>()
     val playerError: LiveData<Event<CharSequence>> = _playerError
@@ -49,7 +49,6 @@ class MusicLibraryViewModel @Inject constructor(
                 }
 
                 PlaybackStateCompat.STATE_ERROR -> {
-                    _playerSheetVisible.value = false
                     _playerError.value = Event(it.errorMessage)
                 }
 

@@ -135,4 +135,15 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/fragment_home" />
     </fragment>
+    <fragment
+        android:id="@+id/fragment_now_playing"
+        android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment" />
+    <action
+        android:id="@+id/expand_player"
+        app:destination="@id/fragment_now_playing"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:launchSingleTop="true"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 </navigation>

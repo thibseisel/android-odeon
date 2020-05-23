@@ -19,7 +19,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".HomeActivity">
 
     <fragment
         android:id="@+id/nav_host_fragment"
@@ -30,22 +31,6 @@
         app:navGraph="@navigation/main_graph"
         tools:layout="@layout/fragment_home" />
 
-    <fr.nihilus.music.view.BottomSheetHost
-        android:id="@+id/player_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="8dp"
-        app:behavior_peekHeight="@dimen/playerview_height"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        app:shapeAppearance="@style/ShapeAppearance.Odeon.BottomSheet">
-
-        <fragment
-            android:id="@+id/fragment_now_playing"
-            android:name="fr.nihilus.music.library.nowplaying.NowPlayingFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_now_playing" />
-
-    </fr.nihilus.music.view.BottomSheetHost>
+    <include layout="@layout/player_collapsed"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

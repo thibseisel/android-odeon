@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
@@ -30,31 +30,23 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
-import kotlinx.android.synthetic.main.fragment_now_playing.*
-import kotlinx.android.synthetic.main.fragment_now_playing_top.*
+import kotlinx.android.synthetic.main.player_expanded.*
 import timber.log.Timber
 
-private const val LEVEL_CHEVRON_UP = 0
-private const val LEVEL_CHEVRON_DOWN = 1
-
-private const val KEY_IS_COLLAPSED = "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
-
-class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
-    private var playerExpansionListener: ((Boolean) -> Unit)? = null
-    private var isCollapsed = true
+class NowPlayingFragment: BaseFragment(R.layout.player_expanded) {
 
     private lateinit var glideRequest: GlideRequest<Drawable>
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
-    private val viewModel by viewModels<NowPlayingViewModel> { viewModelFactory }
+    private val viewModel by activityViewModels<NowPlayingViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val context = requireContext()
-        albumArtTarget = SwitcherTarget(album_art_switcher)
-        autoUpdater = ProgressAutoUpdater(seek_bar, seek_position, seek_duration) {
+        albumArtTarget = SwitcherTarget(now_playing_artwork)
+        autoUpdater = ProgressAutoUpdater(now_playing_progress, now_playing_position, now_playing_duration) {
             position -> viewModel.seekTo(position)
         }
 
@@ -76,19 +68,13 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         }
 
         val clickHandler = WidgetClickListener()
-        play_pause_button.setOnClickListener(clickHandler)
-
-        // Buttons that are only present in landscape mode
-        mini_prev_button?.setOnClickListener(clickHandler)
-        mini_next_button?.setOnClickListener(clickHandler)
 
         // Playback control buttons at bottom
         repeat_button.setOnClickListener(clickHandler)
         skip_prev_button.setOnClickListener(clickHandler)
-        master_play_pause.setOnClickListener(clickHandler)
+        now_playing_toggle.setOnClickListener(clickHandler)
         skip_next_button.setOnClickListener(clickHandler)
         shuffle_button.setOnClickListener(clickHandler)
-        chevron.setOnClickListener(clickHandler)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -100,43 +86,6 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             .centerCrop()
 
         viewModel.state.observe(viewLifecycleOwner, ::onPlayerStateChanged)
-
-        if (savedInstanceState != null) {
-            isCollapsed = savedInstanceState.getBoolean(KEY_IS_COLLAPSED, true)
-            setCollapsedInternal(isCollapsed)
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(KEY_IS_COLLAPSED, isCollapsed)
-    }
-
-    /**
-     * Listens for requests for this Fragment to expand the BottomSheet it is in, if any.
-     */
-    fun setOnRequestPlayerExpansionListener(listener: ((isCollapsed: Boolean) -> Unit)?) {
-        playerExpansionListener = listener
-    }
-
-    /**
-     * Requests this fragment to change its display to reflect a collapsed or an expanded state.
-     * When collapsed, only a part of its Views are visible at a time.
-     * When expanded, all its views are visible.
-     */
-    fun setCollapsed(isCollapsed: Boolean) {
-        if (this.isCollapsed != isCollapsed) {
-            this.isCollapsed = isCollapsed
-            setCollapsedInternal(isCollapsed)
-        }
-    }
-
-    private fun setCollapsedInternal(isCollapsed: Boolean) {
-        chevron.setImageLevel(if (isCollapsed) LEVEL_CHEVRON_UP else LEVEL_CHEVRON_DOWN)
-        val targetVisibility = if (isCollapsed) View.VISIBLE else View.GONE
-        play_pause_button.visibility = targetVisibility
-        mini_prev_button?.visibility = targetVisibility
-        mini_next_button?.visibility = targetVisibility
     }
 
     private fun onPlayerStateChanged(state: PlayerState) {
@@ -144,8 +93,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         updateControls(state.availableActions)
 
         // Update display of play/pause toggle buttons
-        play_pause_button.isPlaying = state.isPlaying
-        master_play_pause.isPlaying = state.isPlaying
+        now_playing_toggle.isPlaying = state.isPlaying
 
         // Update appearance of shuffle and repeat buttons based on current mode.
         shuffle_button.isActivated = state.shuffleModeEnabled
@@ -156,8 +104,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             val media = state.currentTrack
 
             // Set the title and the description.
-            title_view.text = media.title
-            subtitle_view.text = media.artist
+            now_playing_title.text = media.title
 
             // Update progress and labels
             autoUpdater.update(state.position, media.duration, state.lastPositionUpdateTime, state.isPlaying)
@@ -166,22 +113,15 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             glideRequest.load(media.artworkUri).into(albumArtTarget)
 
         } else {
-            title_view.text = null
-            subtitle_view.text = null
-
+            now_playing_title.text = null
             autoUpdater.update(0L, 0L, state.lastPositionUpdateTime, false)
         }
     }
 
     private fun updateControls(availableActions: Set<PlayerState.Action>) {
-        play_pause_button.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
-
-        mini_prev_button?.isEnabled = PlayerState.Action.SKIP_BACKWARD in availableActions
-        mini_next_button?.isEnabled = PlayerState.Action.SKIP_FORWARD in availableActions
-
         repeat_button.isEnabled = PlayerState.Action.SET_REPEAT_MODE in availableActions
         skip_prev_button.isEnabled = PlayerState.Action.SKIP_BACKWARD in availableActions
-        master_play_pause.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
+        now_playing_toggle.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
         skip_next_button.isEnabled = PlayerState.Action.SKIP_FORWARD in availableActions
         shuffle_button.isEnabled = PlayerState.Action.SET_SHUFFLE_MODE in availableActions
     }
@@ -190,10 +130,9 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
 
         override fun onClick(view: View) {
             when(view.id) {
-                R.id.chevron -> playerExpansionListener?.invoke(!isCollapsed)
-                R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
-                R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
-                R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()
+                R.id.now_playing_toggle -> viewModel.togglePlayPause()
+                R.id.skip_prev_button -> viewModel.skipToPrevious()
+                R.id.skip_next_button -> viewModel.skipToNext()
                 R.id.shuffle_button -> viewModel.toggleShuffleMode()
                 R.id.repeat_button -> viewModel.toggleRepeatMode()
                 else -> Timber.w("Unhandled click event for View with id: %s", view.id)

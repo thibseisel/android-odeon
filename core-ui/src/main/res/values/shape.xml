@@ -30,4 +30,8 @@
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
+
+    <style name="ShapeAppearance.Odeon.Player" parent="ShapeAppearance.Odeon.MediumComponent">
+        <item name="cornerSize">0dp</item>
+    </style>
 </resources>
