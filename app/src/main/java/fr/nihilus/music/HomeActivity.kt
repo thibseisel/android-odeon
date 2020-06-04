@@ -21,22 +21,21 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.observe
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
+import com.google.android.material.card.MaterialCardView
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
-import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.core.ui.extensions.isDrawnEdgeToEdge
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.library.MusicLibraryViewModel
@@ -62,29 +61,27 @@ class HomeActivity : BaseActivity() {
     private lateinit var artworkLoader: GlideRequest<Bitmap>
     private lateinit var progressUpdater: ProgressAutoUpdater
 
-    private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
-        private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
-            resolveThemeColor(this@HomeActivity, R.attr.colorPrimaryDark)
-        }
-
-        override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-            if (destination.id != R.id.fragment_album_detail) {
-                window.statusBarColor = statusBarColor
-                window.darkSystemIcons = false
+    private val statusBarNavListener =
+        NavController.OnDestinationChangedListener { _, destination, _ ->
+            when(destination.id) {
+                R.id.fragment_now_playing -> window.darkSystemIcons = true
+                R.id.fragment_album_detail -> {}
+                else -> window.darkSystemIcons = false
             }
         }
-    }
 
-    private val autoHideCollapsedPlayer = NavController.OnDestinationChangedListener { _, destination, _ ->
-        if (destination.id == R.id.fragment_now_playing) {
-            now_playing_card.isVisible = false
-        } else {
-            now_playing_card.isVisible = viewModel.playerVisible.value == true
+    private val autoHideCollapsedPlayer =
+        NavController.OnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.fragment_now_playing) {
+                now_playing_card.isVisible = false
+            } else {
+                now_playing_card.isVisible = viewModel.playerVisible.value == true
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.decorView.isDrawnEdgeToEdge = true
         setContentView(R.layout.activity_home)
 
         setupPlayerView()
@@ -116,9 +113,16 @@ class HomeActivity : BaseActivity() {
 
         progressUpdater = ProgressAutoUpdater(now_playing_progress)
 
-        now_playing_card.doOnApplyWindowInsets { view, insets, _, margin ->
-            val lp = view.layoutParams as ViewGroup.MarginLayoutParams
-            lp.bottomMargin = insets.tappableElementInsets.bottom + margin.bottom
+        val bottomCardPadding = now_playing_card.contentPaddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(now_playing_card) { view, insets ->
+            val card = view as MaterialCardView
+            card.setContentPadding(
+                card.contentPaddingLeft,
+                card.contentPaddingTop,
+                card.contentPaddingRight,
+                bottomCardPadding + insets.systemWindowInsets.bottom
+            )
+            insets
         }
 
         now_playing_card.setOnClickListener {
@@ -195,7 +199,8 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun onPlayerVisibilityChanged(playerVisible: Boolean) {
-        now_playing_card.isVisible = playerVisible
+        val isNotExpanded = navController.currentDestination?.id != R.id.fragment_now_playing
+        now_playing_card.isVisible = playerVisible && isNotExpanded
     }
 
     /**

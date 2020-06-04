@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -34,6 +35,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.ui.BaseAdapter
@@ -81,6 +83,10 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
                     dispatchAddStarting(holder)
                     return false
                 }
+            }
+
+            doOnApplyWindowInsets { list, insets, padding, _ ->
+                list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
             }
         }
 

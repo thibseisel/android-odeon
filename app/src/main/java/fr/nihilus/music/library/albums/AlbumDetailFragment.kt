@@ -24,6 +24,7 @@ import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -35,6 +36,7 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.extensions.doOnEnd
 import fr.nihilus.music.glide.GlideApp
@@ -74,9 +76,11 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
         val adapter = TrackAdapter(viewModel::playTrack)
         recycler.adapter = adapter
+        recycler.doOnApplyWindowInsets { list, insets, padding, _ ->
+            list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
+        }
 
         setDarkHomeUpIndicator(true)
-        setDarkStatusBarIcons(true)
 
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail)

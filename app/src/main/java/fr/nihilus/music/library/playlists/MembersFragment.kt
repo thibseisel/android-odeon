@@ -23,6 +23,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -36,6 +37,7 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.ui.BaseAdapter
@@ -71,6 +73,9 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         adapter = MembersAdapter(this, this)
         members_recycler.adapter = adapter
         members_recycler.setHasFixedSize(true)
+        members_recycler.doOnApplyWindowInsets { list, insets, padding, _ ->
+            list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
+        }
 
         // Disable add animations because we'll manually animate those.
         members_recycler.itemAnimator = object : DefaultItemAnimator() {

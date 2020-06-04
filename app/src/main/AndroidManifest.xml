@@ -33,7 +33,7 @@
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTop"
-            android:theme="@style/Odeon.NoActionBar">
+            android:theme="@style/Odeon.Immersive">
 
             <!-- Make this Activity visible in launcher -->
             <intent-filter>

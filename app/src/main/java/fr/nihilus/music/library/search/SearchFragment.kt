@@ -23,6 +23,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.updatePadding
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -32,6 +33,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.songs.DeleteTrackDialog
 import kotlinx.android.synthetic.main.fragment_search.*
@@ -52,6 +54,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         recyclerView.setHasFixedSize(true)
         resultsAdapter = SearchResultsAdapter(this, ::onSuggestionSelected)
         recyclerView.adapter = resultsAdapter
+        recyclerView.doOnApplyWindowInsets { list, insets, padding, _ ->
+            list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
+        }
 
         with(search_toolbar) {
             setNavigationOnClickListener { onNavigateUp() }

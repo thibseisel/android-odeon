@@ -22,6 +22,7 @@ import android.view.View
 import android.widget.ListView
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
@@ -30,6 +31,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
@@ -58,6 +60,9 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
         val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val songsListView = view.findViewById<ListView>(R.id.songs_listview)
         songsListView.adapter = songAdapter
+        songsListView.doOnApplyWindowInsets { list, insets, padding, _ ->
+            list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
+        }
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
             progressIndicator.isVisible = shouldShowProgress

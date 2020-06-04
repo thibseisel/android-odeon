@@ -19,6 +19,7 @@ package fr.nihilus.music.library.artists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
@@ -26,6 +27,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
@@ -52,6 +54,9 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.
 
         artist_recycler.adapter = adapter
         artist_recycler.setHasFixedSize(true)
+        artist_recycler.doOnApplyWindowInsets { list, insets, padding, _ ->
+            list.updatePadding(bottom = insets.systemWindowInsets.bottom + padding.bottom)
+        }
 
         viewModel.artists.observe(viewLifecycleOwner) { artistRequest ->
             when (artistRequest) {

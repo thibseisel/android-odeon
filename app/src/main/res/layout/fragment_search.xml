@@ -14,56 +14,48 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_search_results"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_toolbar"
-        tools:listitem="@layout/item_search_suggestion" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_toolbar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardUseCompatPadding="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:theme="?actionBarTheme"
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/search_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:menu="@menu/menu_search"
-            app:navigationIcon="@drawable/ic_arrow_back_24dp"
-            app:popupTheme="?actionBarPopupTheme">
-
-            <EditText
-                android:id="@+id/search_input"
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/search_toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:ellipsize="end"
-                android:hint="@string/search_hint"
-                android:imeOptions="actionSearch"
-                android:importantForAutofill="no"
-                android:inputType="textAutoComplete|textAutoCorrect"
-                android:maxLines="1" />
-        </com.google.android.material.appbar.MaterialToolbar>
-    </com.google.android.material.card.MaterialCardView>
+                android:layout_height="?actionBarSize"
+                app:menu="@menu/menu_search"
+                app:navigationIcon="@drawable/ic_arrow_back_24dp"
+                app:popupTheme="?actionBarPopupTheme">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:ellipsize="end"
+                    android:hint="@string/search_hint"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="textAutoComplete|textAutoCorrect"
+                    android:maxLines="1" />
+            </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        style="@style/Widget.Odeon.List.Offset"
+        android:id="@+id/list_search_results"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_search_suggestion" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
