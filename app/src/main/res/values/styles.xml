@@ -32,7 +32,7 @@
     </style>
 
     <style name="Widget.Odeon.List.Offset">
-        <item name="android:paddingBottom">72dp</item>
+        <item name="android:paddingBottom">80dp</item>
     </style>
 
     <style name="Widget.Odeon.Grid.Offset">
