@@ -28,10 +28,7 @@ import fr.nihilus.music.core.AppScope
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -61,10 +58,10 @@ internal class BrowserClientImpl @Inject constructor(applicationContext: Context
     private val _shuffleMode = MutableStateFlow(PlaybackStateCompat.SHUFFLE_MODE_NONE)
     private val _repeatMode = MutableStateFlow(PlaybackStateCompat.REPEAT_MODE_NONE)
 
-    override val playbackState: Flow<PlaybackStateCompat> = _playbackState
-    override val nowPlaying: Flow<MediaMetadataCompat?> = _nowPlaying
-    override val shuffleMode: Flow<Int> = _shuffleMode
-    override val repeatMode: Flow<Int> = _repeatMode
+    override val playbackState: StateFlow<PlaybackStateCompat> = _playbackState
+    override val nowPlaying: StateFlow<MediaMetadataCompat?> = _nowPlaying
+    override val shuffleMode: StateFlow<Int> = _shuffleMode
+    override val repeatMode: StateFlow<Int> = _repeatMode
 
     override fun connect() {
         if (!mediaBrowser.isConnected) {

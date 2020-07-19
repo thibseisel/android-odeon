@@ -20,6 +20,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Manage interactions with a remote Media Session.
@@ -29,22 +30,22 @@ interface BrowserClient {
     /**
      * A flow whose latest value is the current playback state.
      */
-    val playbackState: Flow<PlaybackStateCompat>
+    val playbackState: StateFlow<PlaybackStateCompat>
 
     /**
      * A flow whose latest value is the currently playing track, or `null` if none.
      */
-    val nowPlaying: Flow<MediaMetadataCompat?>
+    val nowPlaying: StateFlow<MediaMetadataCompat?>
 
     /**
      * A flow whose latest value is the current shuffle mode.
      */
-    val shuffleMode: Flow<Int>
+    val shuffleMode: StateFlow<Int>
 
     /**
      * A flow whose latest value is the current repeat mode.
      */
-    val repeatMode: Flow<Int>
+    val repeatMode: StateFlow<Int>
 
     /**
      * Initiate connection to the media browser.
