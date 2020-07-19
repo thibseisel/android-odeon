@@ -5,6 +5,7 @@ build/
 # Local only files
 local.properties
 captures/
+mappings/
 
 # IntelliJ .idea folder
 .idea/workspace.xml
