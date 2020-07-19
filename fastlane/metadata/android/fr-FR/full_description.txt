@@ -1,0 +1,11 @@
+<i>Odeon</i> apporte toutes les fonctionnalités essentielles d'un lecteur musical dans une interface simple et épurée :
+<ul>
+    <li>Listez vos morceaux par titre, artiste et album.</li>
+    <li>Contrôler la lecture via l'application, l'écran de verrouillage ou votre casque audio.</li>
+    <li>Créez vos propres listes de lecture.</li>
+    <li>Ecoutez les morceaux que vous avez ajouté recemment ou ceux que vous aimez le plus.</li>
+    <li>Supprimez les morceaux que vous n'écoutez plus pour faire de la place sur votre appareil.</li>
+    <li>Contrôlez votre musique en conduisant avec Android Auto.</li>
+    <li>Dites à l'Assistant Google ce que vous voulez jouer.</li>
+    <li>Utilisez le thème sombre pour reposer vos yeux et augmenter la durée de vie de la batterie.</li>
+</ul>

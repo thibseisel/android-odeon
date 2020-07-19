@@ -19,7 +19,7 @@ package fr.nihilus.music.library.artists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
@@ -33,7 +33,7 @@ import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_artists.*
 
 class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.OnItemSelectedListener {
-    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
+    private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var adapter: ArtistAdapter
 

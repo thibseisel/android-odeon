@@ -1,0 +1,3 @@
+* Passez plus rapidement des chansons aux artistes grâce à la nouvelle présentation de la page d'accueil sous forme d'onglets.
+* Trouvez plus rapidement votre morceau préférée grâce à la barre de recherche. Vous pouvez même demander à Google Assistant de jouer un morceau pour vous ! Dites "Joue du Daft Punk sur Odéon" !
+* Vous avez beaucoup de morceaux mais ne savez pas lesquels vous n'écoutez plus ? Vous pouvez désormais les trouver et les supprimer avec la nouvelle fonctionnalité "Nettoyage".

@@ -41,7 +41,7 @@ import kotlinx.android.synthetic.main.fragment_songs.*
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
-    private val viewModel: HomeViewModel by viewModels(::requireParentFragment)
+    private val viewModel: HomeViewModel by activityViewModels()
     private val playlistViewModel: PlaylistManagementViewModel by viewModels { viewModelFactory }
 
     private lateinit var songAdapter: SongAdapter

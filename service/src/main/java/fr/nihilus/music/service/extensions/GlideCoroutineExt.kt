@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 /**
@@ -56,15 +56,19 @@ internal suspend fun RequestBuilder<Bitmap>.intoBitmap(width: Int, height: Int):
 private class BitmapSuspendTarget(
     width: Int,
     height: Int,
-    private val continuation: Continuation<Bitmap?>
+    private val continuation: CancellableContinuation<Bitmap?>
 ) : CustomTarget<Bitmap>(width, height) {
 
     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-        continuation.resume(resource)
+        if (continuation.isActive) {
+            continuation.resume(resource)
+        }
     }
 
     override fun onLoadFailed(errorDrawable: Drawable?) {
-        continuation.resume(null)
+        if (continuation.isActive) {
+            continuation.resume(null)
+        }
     }
 
     override fun onLoadCleared(placeholder: Drawable?) {

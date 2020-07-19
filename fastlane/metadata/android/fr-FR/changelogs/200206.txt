@@ -1,0 +1,2 @@
+* Correction d'un plantage après suppression d'un morceau depuis les résultats de recherche
+* Correction d'un plantage potentiel à la mise à jour de la notification avec un morceau sans pochette d'album

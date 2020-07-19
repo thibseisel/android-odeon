@@ -23,7 +23,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit
  * Each collection is contained in a tab.
  */
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val viewModel by viewModels<HomeViewModel> { viewModelFactory }
+    private val viewModel by activityViewModels<HomeViewModel> { viewModelFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

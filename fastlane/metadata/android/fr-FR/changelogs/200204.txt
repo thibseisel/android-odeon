@@ -1,0 +1,1 @@
+* Correction d'un bug d'affichage des pochettes d'album sur Android 10.

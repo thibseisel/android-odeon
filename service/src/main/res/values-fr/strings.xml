@@ -36,8 +36,7 @@
     <string name="svc_action_previous">Précédent</string>
     <string name="svc_channel_mediasession">Lecture en cours</string>
     <string name="svc_channel_mediasession_description">Contrôler la lecture depuis l\'écran de verrouillage et le volet des notifications.</string>
-    <string name="svc_player_error_unsupported_file">Odéon ne peut pas lire ce fichier.</string>
-    <string name="svc_player_error_unsupported_file_format">Odéon ne peut pas lire les fichiers de format %s.</string>
+    <string name="svc_player_error_unsupported_file">Odéon ne peut pas lire ce format de fichier.</string>
     <string name="svc_player_source_error_generic">Une erreur s\'est produite lors de la lecture de ce morceau. Si cela se produit régulièrement, le fichier est peut-être endommagé.</string>
     <string name="svc_category_popular">Populaire ce mois-ci</string>
     <string name="svc_category_popular_description">Une rétrospective de vos dernières tendances musicales</string>

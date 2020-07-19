@@ -26,8 +26,8 @@ android {
         applicationId 'fr.nihilus.music'
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion rootProject.targetSdkVersion
-        versionCode 200205
-        versionName '2.0.3'
+        versionCode 200206
+        versionName '2.0.4'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
