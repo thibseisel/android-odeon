@@ -24,9 +24,8 @@ import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -37,20 +36,20 @@ internal class ComposerViewModel @Inject constructor(
     private val playlistAction: ManagePlaylistAction
 ) : ViewModel() {
 
-    private val _filters = ConflatedBroadcastChannel<List<FeatureFilterState>>(emptyList())
+    private val _filters = MutableStateFlow<List<FeatureFilterState>>(emptyList())
 
     private val _events = MutableLiveData<Event<String>>()
     val events: LiveData<Event<String>> get() = _events
 
     val filters: LiveData<List<FeatureFilterState>> = liveData {
-        _filters.asFlow().collectLatest {
+        _filters.collectLatest {
             delay(1000)
             emit(it)
         }
     }
 
     val tracks: LiveData<List<Pair<Track, TrackFeature>>> = liveData {
-        _filters.asFlow()
+        _filters
             .debounce(300)
             .collectLatest {
                 val filters = it.map { specs ->
@@ -75,27 +74,27 @@ internal class ComposerViewModel @Inject constructor(
     }
 
     fun setFilter(specs: FeatureFilterState) {
-        val currentFilters = _filters.valueOrNull ?: emptyList()
+        val currentFilters = _filters.value
         val existingFilterIndex = currentFilters.indexOfFirst { it.feature == specs.feature }
 
         if (existingFilterIndex >= 0) {
             val updatedFilters = currentFilters.toMutableList()
             updatedFilters[existingFilterIndex] = specs
-            _filters.offer(updatedFilters)
+            _filters.value = updatedFilters
 
         } else {
-            _filters.offer(currentFilters + specs)
+            _filters.value = currentFilters + specs
         }
     }
 
     fun removeFilter(specs: FeatureFilterState) {
-        val currentFilters = _filters.valueOrNull ?: emptyList()
+        val currentFilters = _filters.value
         val removedFilterIndex = currentFilters.indexOfFirst { it.feature == specs.feature }
 
         if (removedFilterIndex >= 0) {
             val updatedFilters = currentFilters.toMutableList()
             updatedFilters.removeAt(removedFilterIndex)
-            _filters.offer(updatedFilters)
+            _filters.value = updatedFilters
         }
     }
 
@@ -109,11 +108,6 @@ internal class ComposerViewModel @Inject constructor(
             playlistAction.createPlaylist(title, trackIds)
             _events.value = Event("Created new playlist $title")
         }
-    }
-
-    override fun onCleared() {
-        _filters.close()
-        super.onCleared()
     }
 }
 
