@@ -1,0 +1,2 @@
+* Fix a crash when deleting tracks from search results
+* Fix a potential crash when updating notification with a track with no album art
