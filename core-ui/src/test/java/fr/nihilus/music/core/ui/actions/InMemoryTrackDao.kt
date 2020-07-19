@@ -23,9 +23,8 @@ import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
 
 /**
@@ -43,10 +42,10 @@ internal class InMemoryTrackDao(
 ) : MediaDao {
 
     private val savedTracks = initial.toSortedSet(compareBy(Track::title))
-    private val _tracks = ConflatedBroadcastChannel(initial.toList())
+    private val _tracks = MutableStateFlow(initial.toList())
 
     override val tracks: Flow<List<Track>>
-        get() = _tracks.asFlow().onEach {
+        get() = _tracks.onEach {
             if (!permissionGranted) {
                 throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
@@ -67,7 +66,7 @@ internal class InMemoryTrackDao(
         val tracksHaveBeenDeleted = savedTracks.removeAll { it.id in trackIds }
 
         if (tracksHaveBeenDeleted) {
-            _tracks.offer(savedTracks.toList())
+            _tracks.value = savedTracks.toList()
         }
 
         return sizeBeforeDelete - savedTracks.size

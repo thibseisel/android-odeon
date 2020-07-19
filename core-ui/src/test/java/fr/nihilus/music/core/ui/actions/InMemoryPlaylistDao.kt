@@ -19,9 +19,8 @@ package fr.nihilus.music.core.ui.actions
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 /**
@@ -39,8 +38,8 @@ internal class InMemoryPlaylistDao(
     private val _savedPlaylists = initialPlaylists.toSortedSet(compareBy(Playlist::title))
     private val _playlistTracks = initialMembers.toMutableSet()
 
-    private val _playlists = ConflatedBroadcastChannel(initialPlaylists.toList())
-    private val _members = ConflatedBroadcastChannel(initialMembers.toList())
+    private val _playlists = MutableStateFlow(initialPlaylists.toList())
+    private val _members = MutableStateFlow(initialMembers.toList())
 
     /**
      * A readonly view of the currently saved set of playlists.
@@ -55,10 +54,10 @@ internal class InMemoryPlaylistDao(
         get() = _playlistTracks.toList()
 
     override val playlists: Flow<List<Playlist>>
-        get() = _playlists.asFlow()
+        get() = _playlists
 
     override fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>> {
-        return _members.asFlow().map { members ->
+        return _members.map { members ->
             members.filter { it.playlistId == playlistId }
         }
     }
@@ -70,7 +69,7 @@ internal class InMemoryPlaylistDao(
         val assignedId = greatestId + 1L
 
         _savedPlaylists += playlist.copy(id = assignedId)
-        _playlists.offer(_savedPlaylists.toList())
+        _playlists.value = _savedPlaylists.toList()
 
         return assignedId
     }
@@ -83,22 +82,22 @@ internal class InMemoryPlaylistDao(
         }
 
         _playlistTracks += tracks
-        _members.offer(_playlistTracks.toList())
+        _members.value = _playlistTracks.toList()
     }
 
     override suspend fun deletePlaylist(playlistId: Long) {
         val playlistHasBeenDeleted = _savedPlaylists.removeAll { it.id == playlistId }
         if (playlistHasBeenDeleted) {
-            _playlists.offer(_savedPlaylists.toList())
+            _playlists.value = _savedPlaylists.toList()
             _playlistTracks.removeAll { it.playlistId == playlistId }
-            _members.offer(_playlistTracks.toList())
+            _members.value = _playlistTracks.toList()
         }
     }
 
     override suspend fun deletePlaylistTracks(trackIds: LongArray) {
         val tracksHaveBeenDeleted = _playlistTracks.removeAll { it.trackId in trackIds }
         if (tracksHaveBeenDeleted) {
-            _members.offer(_playlistTracks.toList())
+            _members.value = _playlistTracks.toList()
         }
     }
 
