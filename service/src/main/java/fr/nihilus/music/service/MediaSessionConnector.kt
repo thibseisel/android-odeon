@@ -223,7 +223,10 @@ internal class MediaSessionConnector @Inject constructor(
         exoPlayerPlaybackState: Int,
         playWhenReady: Boolean
     ): Int = when (exoPlayerPlaybackState) {
-        Player.STATE_BUFFERING -> PlaybackStateCompat.STATE_BUFFERING
+        Player.STATE_BUFFERING -> when {
+            playWhenReady -> PlaybackStateCompat.STATE_BUFFERING
+            else -> PlaybackStateCompat.STATE_PAUSED
+        }
         Player.STATE_READY -> when {
             playWhenReady -> PlaybackStateCompat.STATE_PLAYING
             else -> PlaybackStateCompat.STATE_PAUSED
