@@ -50,7 +50,7 @@ data class PlaylistTrack(
     /**
      * Id of the playlist this track belongs to.
      */
-    @ColumnInfo(name = "playlist_id")
+    @ColumnInfo(name = "playlist_id", index = true)
     val playlistId: Long,
 
     /**

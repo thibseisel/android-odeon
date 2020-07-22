@@ -130,8 +130,10 @@ abstract class AppDatabase : RoomDatabase() {
 
                 // Recreate the "playlist_track" table, copying only tracks whose "playlist_id"
                 // matches an "id" in the "playlist" table.
+                // Also add index to playlist_id to avoid full table scan when deleting playlists.
                 execSQL("ALTER TABLE `playlist_track` RENAME TO `playlist_track_old`")
                 execSQL("CREATE TABLE `playlist_track` (`position` INTEGER NOT NULL, `playlist_id` INTEGER NOT NULL, `music_id` INTEGER NOT NULL, PRIMARY KEY(`music_id`, `playlist_id`), FOREIGN KEY(`playlist_id`) REFERENCES `playlist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)")
+                execSQL("CREATE INDEX `index_playlist_track_playlist_id` ON `playlist_track` (`playlist_id`)")
                 execSQL("INSERT INTO `playlist_track` SELECT * FROM `playlist_track_old` WHERE playlist_id IN (SELECT id FROM `playlist`)")
                 execSQL("DROP TABLE `playlist_track_old`")
             }
