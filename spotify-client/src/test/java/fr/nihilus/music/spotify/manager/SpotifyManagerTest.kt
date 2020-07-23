@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.spotify.manager
 
-import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.spotify.MusicalMode
 import fr.nihilus.music.core.database.spotify.Pitch
 import fr.nihilus.music.core.database.spotify.SpotifyLink
@@ -42,7 +41,6 @@ internal class SpotifyManagerTest {
     val test = CoroutineTestRule()
 
     private val clock = TestClock(123456789L)
-    private val dispatchers = AppDispatchers(test.dispatcher)
 
     @Test
     fun `When syncing tracks, then create a link to the spotify ID for each`() = test.run {
@@ -60,7 +58,7 @@ internal class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
         manager.sync()
 
         localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
@@ -79,7 +77,7 @@ internal class SpotifyManagerTest {
             features = emptyList()
         )
 
-        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
         manager.sync()
 
         localDao.links.shouldBeEmpty()
@@ -100,7 +98,7 @@ internal class SpotifyManagerTest {
             features = emptyList()
         )
 
-        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
         manager.sync()
 
         localDao.links.shouldBeEmpty()
@@ -126,7 +124,7 @@ internal class SpotifyManagerTest {
             sampleTrack(134, "Track", "Artist", "Album", 1)
         )
 
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
         manager.sync()
 
         localDao.links.map { it.trackId }.shouldContainExactly(134)
@@ -153,7 +151,7 @@ internal class SpotifyManagerTest {
             features = sampleFeatures
         )
 
-        val manager = SpotifyManagerImpl(repository, service, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
         shouldNotThrowAny {
             manager.sync()
         }
@@ -202,7 +200,7 @@ internal class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
 
         val tracksIds = manager.findTracksHavingFeatures(emptyList()).map { (track, _) -> track.id }
         tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
@@ -239,7 +237,7 @@ internal class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
 
         val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map { (track, _) -> track.id }
         happyTrackIds.shouldContainExactlyInAnyOrder(1L, 2L, 3L)
@@ -276,7 +274,7 @@ internal class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
         val tracks = manager.findTracksHavingFeatures(emptyList())
 
         tracks.map { it.first.title }.shouldContainExactly("A", "B", "J", "U", "Z")
@@ -303,7 +301,7 @@ internal class SpotifyManagerTest {
             )
         )
 
-        val manager = SpotifyManagerImpl(dao, OfflineSpotifyService, localDao, dispatchers, clock)
+        val manager = SpotifyManagerImpl(dao, OfflineSpotifyService, localDao, clock)
 
         val unlinkedTracks = manager.listUnlinkedTracks()
         extracting(unlinkedTracks, Track::id).shouldContainExactly(3L, 5L, 1L)

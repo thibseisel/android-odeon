@@ -17,7 +17,6 @@
 package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.collections.associateByLong
-import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.MediaDao
@@ -29,9 +28,7 @@ import fr.nihilus.music.spotify.service.SpotifyService
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.firstOrNull
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -43,7 +40,6 @@ internal class SpotifyManagerImpl @Inject constructor(
     private val mediaDao: MediaDao,
     private val service: SpotifyService,
     private val localDao: SpotifyDao,
-    private val dispatchers: AppDispatchers,
     private val clock: Clock
 ) : SpotifyManager {
 
@@ -91,12 +87,9 @@ internal class SpotifyManagerImpl @Inject constructor(
             val newLinks = mutableListOf<SpotifyLink>()
 
             for (track in unSyncedTracks) {
-                val spotifyTrack = withContext(dispatchers.IO) {
-                    val query = buildSearchQueryFor(track)
-                    Timber.tag("SpotifySync").v("Searching %s", query)
-                    val results = service.search(query).take(1).toList()
-                    results.firstOrNull()
-                }
+                val query = buildSearchQueryFor(track)
+                Timber.tag("SpotifySync").v("Searching %s", query)
+                val spotifyTrack = service.search(query).firstOrNull()
 
                 if (spotifyTrack != null) {
                     Timber.tag("SpotifySync").v("Found track %s", spotifyTrack.name)
@@ -107,22 +100,20 @@ internal class SpotifyManagerImpl @Inject constructor(
                 }
             }
 
-            withContext(dispatchers.IO) {
-                newLinks.asSequence()
-                    .chunked(100)
-                    .forEach { links ->
-                        val trackIds = links.map { it.spotifyId }
-                        when (val resource = service.getSeveralTrackFeatures(trackIds)) {
-                            is HttpResource.Loaded -> {
-                                for ((index, link) in links.withIndex()) {
-                                    val feature = resource.data[index] ?: continue
-                                    localDao.saveTrackFeature(link, feature.asLocalFeature())
-                                }
+            newLinks.asSequence()
+                .chunked(100)
+                .forEach { links ->
+                    val trackIds = links.map { it.spotifyId }
+                    when (val resource = service.getSeveralTrackFeatures(trackIds)) {
+                        is HttpResource.Loaded -> {
+                            for ((index, link) in links.withIndex()) {
+                                val feature = resource.data[index] ?: continue
+                                localDao.saveTrackFeature(link, feature.asLocalFeature())
                             }
+                        }
 
-                            is HttpResource.Failed -> {
-                                Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP error %s (%s)", resource.status, resource.message)
-                            }
+                        is HttpResource.Failed -> {
+                            Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP error %s (%s)", resource.status, resource.message)
                         }
                     }
             }
