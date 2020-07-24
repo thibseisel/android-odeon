@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.matchers.string.shouldContain
+import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.matchers.types.shouldBeNull
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.matchers.types.shouldNotBeNull
@@ -608,22 +609,28 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When requesting too much resources at one time, then fail with IllegalArgumentException`() = runBlockingTest {
-        val apiClient = spotifyService {
-            fail("Expected no network call, but called endpoint ${it.url.encodedPath}.")
+    fun `When requesting more resources at once than backend limits, then chunk into multiple requests`() = runBlockingTest {
+        val apiClient = spotifyService(handler = dummySpotifyBackend())
+
+        val artistIds = List(51) { "$it" }
+        apiClient.getSeveralArtists(artistIds).shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyArtist>>> {
+            it.data.shouldHaveSize(51)
         }
 
-        val artistIds = List(51) { "12Chz98pHFMPJEknJQMWvI" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralArtists(artistIds) }
+        val albumIds = List(21) { "$it" }
+        apiClient.getSeveralAlbums(albumIds).shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyAlbum>>> {
+            it.data.shouldHaveSize(21)
+        }
 
-        val albumIds = List(21) { "5OZgDtx180ZZPMpm36J2zC" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralAlbums(albumIds) }
+        val trackIds = List(51) { "$it" }
+        apiClient.getSeveralTracks(trackIds).shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyTrack>>> {
+            it.data.shouldHaveSize(51)
+        }
 
-        val trackIds = List(51) { "7f0vVL3xi4i78Rv5Ptn2s1" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralTracks(trackIds) }
-
-        val trackFeatureIds = List(101) { "7f0vVL3xi4i78Rv5Ptn2s1" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralTrackFeatures(trackFeatureIds) }
+        val trackFeatureIds = List(101) { "$it" }
+        apiClient.getSeveralTrackFeatures(trackFeatureIds).shouldBeInstanceOf<HttpResource.Loaded<List<AudioFeature>>> {
+            it.data.shouldHaveSize(101)
+        }
     }
 
     @Test

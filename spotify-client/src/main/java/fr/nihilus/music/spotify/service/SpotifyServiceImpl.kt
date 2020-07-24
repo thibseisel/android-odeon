@@ -35,11 +35,19 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
 import javax.inject.Named
+
+private const val MAX_SEVERAL_ALBUMS = 20
+private const val MAX_SEVERAL_ARTISTS = 50
+private const val MAX_SEVERAL_TRACKS = 50
+private const val MAX_SEVERAL_FEATURES = 100
 
 @OptIn(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl @TestOnly constructor(
@@ -50,7 +58,7 @@ internal class SpotifyServiceImpl @TestOnly constructor(
     private val clientKey: String,
     private val clientSecret: String,
     private var token: OAuthToken? = null
-): SpotifyService {
+) : SpotifyService {
 
     @Inject constructor(
         engine: HttpClientEngine,
@@ -120,14 +128,8 @@ internal class SpotifyServiceImpl @TestOnly constructor(
         return singleResource(response, SpotifyArtist::class.java)
     }
 
-    override suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<SpotifyArtist?>> {
-        require(ids.size in 0..50)
-        val response = http.get<HttpResponse>(path = "/v1/artists") {
-            parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
-        }
-
-        return listResource(response, artistListAdapter)
-    }
+    override suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<SpotifyArtist?>> =
+        getSeveralResources("/v1/artists", ids, artistListAdapter, MAX_SEVERAL_ARTISTS)
 
     override fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum> {
         val albumPageRequest = HttpRequestBuilder(path = "/v1/artists/$artistId/albums") {
@@ -143,14 +145,8 @@ internal class SpotifyServiceImpl @TestOnly constructor(
         return singleResource(response, SpotifyAlbum::class.java)
     }
 
-    override suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<SpotifyAlbum?>> {
-        require(ids.size in 0..20)
-        val response = http.get<HttpResponse>(path = "/v1/albums") {
-            parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
-        }
-
-        return listResource(response, albumListAdapter)
-    }
+    override suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<SpotifyAlbum?>> =
+        getSeveralResources("/v1/albums", ids, albumListAdapter, MAX_SEVERAL_ALBUMS)
 
     override fun getAlbumTracks(albumId: String): Flow<SpotifyTrack> {
         val trackPageRequest = HttpRequestBuilder(path = "/v1/albums/$albumId/tracks")
@@ -163,14 +159,8 @@ internal class SpotifyServiceImpl @TestOnly constructor(
         return singleResource(response, SpotifyTrack::class.java)
     }
 
-    override suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<SpotifyTrack?>> {
-        require(ids.size in 0..50)
-        val response = http.get<HttpResponse>(path = "/v1/tracks") {
-            parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
-        }
-
-        return listResource(response, trackListAdapter)
-    }
+    override suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<SpotifyTrack?>> =
+        getSeveralResources("/v1/tracks", ids, trackListAdapter, MAX_SEVERAL_TRACKS)
 
     override suspend fun getTrackFeatures(trackId: String): HttpResource<AudioFeature> {
         require(trackId.isNotEmpty())
@@ -178,14 +168,13 @@ internal class SpotifyServiceImpl @TestOnly constructor(
         return singleResource(response, AudioFeature::class.java)
     }
 
-    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): HttpResource<List<AudioFeature?>> {
-        require(trackIds.size in 0..100)
-        val response = http.get<HttpResponse>(path = "/v1/audio-features") {
-            parameter(SpotifyService.QUERY_IDS, trackIds.joinToString(","))
-        }
-
-        return listResource(response, featureListAdapter)
-    }
+    override suspend fun getSeveralTrackFeatures(trackIds: List<String>): HttpResource<List<AudioFeature?>> =
+        getSeveralResources(
+            "/v1/audio-features",
+            trackIds,
+            featureListAdapter,
+            MAX_SEVERAL_FEATURES
+        )
 
     override fun <T : Any> search(query: SpotifyQuery<T>): Flow<T> {
         val searchParam: String
@@ -230,17 +219,44 @@ internal class SpotifyServiceImpl @TestOnly constructor(
         else -> parseApiError(response)
     }
 
-    private suspend fun <T : Any> listResource(
-        response: HttpResponse,
-        adapter: JsonAdapter<List<T>>
-    ) : HttpResource<List<T?>> = when (response.status) {
-
-        HttpStatusCode.OK -> {
-            val list = adapter.fromJson(response.readText())!!
-            HttpResource.Loaded(list)
+    /**
+     * Fetch multiple resources at once by their id.
+     * @param T Type of the fetched resource.
+     * @param endpoint The HTTP GET endpoint from which resources should be fetched.
+     * @param resourceIds Identifiers of the resources to fetch, in order.
+     * There may be more than [limit] ids.
+     * @param listAdapter Deserializer for arrays of the fetched resource.
+     * @param limit The maximum number of simultaneous ids to fetch,
+     * as constrained by the Spotify API.
+     */
+    private suspend fun <T : Any> getSeveralResources(
+        endpoint: String,
+        resourceIds: List<String>,
+        listAdapter: JsonAdapter<List<T>>,
+        limit: Int
+    ): HttpResource<List<T?>> {
+        val responseChunks = coroutineScope {
+            resourceIds.chunked(limit)
+                .map { ids ->
+                    async {
+                        http.get<HttpResponse>(path = endpoint) {
+                            parameter(SpotifyService.QUERY_IDS, ids.joinToString(","))
+                        }
+                    }
+                }
+                .awaitAll()
         }
 
-        else -> parseApiError(response)
+        val failedResponse = responseChunks.firstOrNull { it.status != HttpStatusCode.OK }
+        if (failedResponse != null) {
+            return parseApiError(failedResponse)
+        } else {
+            val mergedResources = responseChunks.flatMap { response ->
+                listAdapter.fromJson(response.readText())!!
+            }
+
+            return HttpResource.Loaded(mergedResources)
+        }
     }
 
     private fun <T> paginatedFlow(

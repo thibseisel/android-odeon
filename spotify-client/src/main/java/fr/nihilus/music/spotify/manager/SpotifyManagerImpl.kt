@@ -100,22 +100,18 @@ internal class SpotifyManagerImpl @Inject constructor(
                 }
             }
 
-            newLinks.asSequence()
-                .chunked(100)
-                .forEach { links ->
-                    val trackIds = links.map { it.spotifyId }
-                    when (val resource = service.getSeveralTrackFeatures(trackIds)) {
-                        is HttpResource.Loaded -> {
-                            for ((index, link) in links.withIndex()) {
-                                val feature = resource.data[index] ?: continue
-                                localDao.saveTrackFeature(link, feature.asLocalFeature())
-                            }
-                        }
-
-                        is HttpResource.Failed -> {
-                            Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP error %s (%s)", resource.status, resource.message)
-                        }
+            val trackIds = newLinks.map { it.spotifyId }
+            when (val resource = service.getSeveralTrackFeatures(trackIds)) {
+                is HttpResource.Loaded -> {
+                    for ((index, link) in newLinks.withIndex()) {
+                        val feature = resource.data[index] ?: continue
+                        localDao.saveTrackFeature(link, feature.asLocalFeature())
                     }
+                }
+
+                is HttpResource.Failed -> {
+                    Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP error %s (%s)", resource.status, resource.message)
+                }
             }
         }
     }
