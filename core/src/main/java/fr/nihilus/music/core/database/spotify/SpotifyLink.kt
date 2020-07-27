@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,9 @@ import androidx.room.PrimaryKey
 data class SpotifyLink(
 
     /**
-     * The unique identifier of the media stored locally on the device.
-     * This should be the identifier of the track from the Android MediaStore.
+     * The unique identifier of the media stored locally on the device,
+     * typically one assigned by the Android MediaStore.
+     * If that media is removed from the device, then the corresponding link should be deleted.
      */
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "local_id")
