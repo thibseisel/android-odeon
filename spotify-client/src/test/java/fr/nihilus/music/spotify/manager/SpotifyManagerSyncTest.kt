@@ -22,11 +22,9 @@ import fr.nihilus.music.core.database.spotify.SpotifyLink
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.spotify.model.AudioFeature
-import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test
 
@@ -35,62 +33,58 @@ internal class SpotifyManagerSyncTest {
     private val clock = TestClock(123456789L)
 
     @Test
-    fun `When syncing tracks, then create a link to the spotify ID for each`() = runBlockingTest {
+    fun `Given properly tagged tracks, then create a link to the spotify ID for each`() = runBlockingTest {
         val localDao = FakeSpotifyDao()
         val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
+            track(294, "Algorithm", "Muse", "Simulation Theory", 1),
+            track(295, "The Dark Side", "Muse", "Simulation Theory", 2),
+            track(165, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6)
         )
 
-        val service = FakeSpotifyService(
-            tracks = listOf(
-                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
-            ),
-            features = listOf(
-                AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
-            )
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
+        val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
         manager.sync()
 
-        localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
-        localDao.features shouldContain TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
+        localDao.links.shouldContainExactlyInAnyOrder(
+            SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L),
+            SpotifyLink(295, "0dMYPDqcI4ca4cjqlmp9mE", 123456789L),
+            SpotifyLink(165, "5lnsL7pCg0fQKcWnlkD1F0", 123456789L)
+        )
+        localDao.features.shouldContainExactlyInAnyOrder(
+            TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f),
+            TrackFeature("0dMYPDqcI4ca4cjqlmp9mE", Pitch.D, MusicalMode.MAJOR, 99.979f, 4, -3.759f, 0.000884f, 0.484f, 0.927f, 0.00000396f, 0.223f, 0.0425f, 0.389f),
+            TrackFeature("5lnsL7pCg0fQKcWnlkD1F0", Pitch.G, MusicalMode.MAJOR, 142.684f, 4, -8.245f, 0.00365f, 0.324f, 0.631f, 0.0459f, 0.221f, 0.0407f, 0.346f)
+        )
     }
 
     @Test
-    fun `When syncing and no track matched, then create no link`() = runBlockingTest {
+    fun `It should dissociate tracks with similar title`() = runBlockingTest {
         val localDao = FakeSpotifyDao()
         val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
+            track(299, "Something Human", "Muse", "Simulation Theory", 6),
+            track(306, "Something Human (Acoustic)", "Muse", "Simulation Theory", 15)
         )
 
-        val service = FakeSpotifyService(
-            tracks = emptyList(),
-            features = emptyList()
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
+        val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
         manager.sync()
 
-        localDao.links.shouldBeEmpty()
-        localDao.features.shouldBeEmpty()
+        localDao.links.shouldContainExactlyInAnyOrder(
+            SpotifyLink(299, "1esX5rtwwssnsEQNQk0HGg", 123456789L),
+            SpotifyLink(306, "1D2ISRyHAs9QBHIWVQIbgM", 123456789L)
+        )
+        localDao.features.shouldContainExactlyInAnyOrder(
+            TrackFeature("1esX5rtwwssnsEQNQk0HGg", Pitch.A, MusicalMode.MAJOR, 105.018f, 4, -4.841f, 0.0536f, 0.59f, 0.903f, 0.00289f, 0.12f, 0.0542f,0.545f),
+            TrackFeature("1D2ISRyHAs9QBHIWVQIbgM", Pitch.A, MusicalMode.MAJOR, 105.023f, 4, -5.284f, 0.425f, 0.609f, 0.832f, 0.000044f, 0.17f, 0.039f, 0.654f)
+        )
     }
 
     @Test
-    fun `When syncing and features are not found, then create no link`() = runBlockingTest {
+    fun `When no track matched, then create no link`() = runBlockingTest {
         val localDao = FakeSpotifyDao()
         val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
+            track(294, "Mechanical Rhythm", "ACE+", "Xenoblade Original Soundtrack", 15)
         )
 
-        val service = FakeSpotifyService(
-            tracks = listOf(
-                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
-            ),
-            features = emptyList()
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
+        val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
         manager.sync()
 
         localDao.links.shouldBeEmpty()
@@ -98,7 +92,7 @@ internal class SpotifyManagerSyncTest {
     }
 
     @Test
-    fun `When syncing, then delete links for tracks that have been deleted`() = runBlockingTest {
+    fun `Given deleted tracks, then delete corresponding links`() = runBlockingTest {
         val localDao = FakeSpotifyDao(
             links = listOf(
                 SpotifyLink(289, "MH5U9eiW1fgFukImkVf9cq", 0L),
@@ -113,7 +107,7 @@ internal class SpotifyManagerSyncTest {
         )
 
         val repository = FakeMediaDao(
-            sampleTrack(134, "Track", "Artist", "Album", 1)
+            track(134, "Track", "Artist", "Album", 1)
         )
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
@@ -123,12 +117,25 @@ internal class SpotifyManagerSyncTest {
         localDao.features.map { it.id }.shouldContainExactly("NNcqs3H84QCpqpJXF5WCly")
     }
 
-    private fun sampleTrack(
+    private fun track(
         id: Long,
         title: String,
         artist: String,
         album: String,
-        trackNumber: Int,
-        discNumber: Int = 1
-    ): Track = Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)
+        trackNumber: Int
+    ): Track = Track(
+        id = id,
+        title = title,
+        artist = artist,
+        album = album,
+        duration = 0,
+        discNumber = 1,
+        trackNumber = trackNumber,
+        mediaUri = "",
+        albumArtUri = null,
+        availabilityDate = 0,
+        artistId = artist.hashCode().toLong(),
+        albumId = album.hashCode().toLong(),
+        fileSize = 0
+    )
 }
