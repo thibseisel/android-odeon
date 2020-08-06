@@ -17,8 +17,10 @@
 package fr.nihilus.music.service
 
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.media.AudioManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.*
@@ -301,7 +303,15 @@ class MusicService : BaseBrowserService() {
 
             // Display a notification, putting the service to the foreground.
             val notification = notificationBuilder.buildNotification()
-            startForeground(NOW_PLAYING_NOTIFICATION, notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOW_PLAYING_NOTIFICATION,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                )
+            } else {
+                startForeground(NOW_PLAYING_NOTIFICATION, notification)
+            }
 
             // Start the service to keep it playing even when all clients unbound.
             this@MusicService.startSelf()
