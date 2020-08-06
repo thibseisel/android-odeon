@@ -131,6 +131,7 @@ internal class MediaNotificationBuilder @Inject constructor(
             .setContentText(metadata.displaySubtitle)
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(metadata.albumArt)
+            .setShowWhen(false)
             .setOnlyAlertOnce(true)
             .setSmallIcon(if (isPlaying) R.drawable.svc_notif_play_arrow else R.drawable.svc_notif_pause)
             .setStyle(mediaStyle)
