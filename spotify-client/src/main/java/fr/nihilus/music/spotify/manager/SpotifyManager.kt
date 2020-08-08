@@ -18,6 +18,7 @@ package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.media.provider.Track
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Main entry point for tagging and classifying media stored on the device.
@@ -60,5 +61,17 @@ interface SpotifyManager {
      * If it is found, that track is considered linked to its remote counterpart.
      * 3. Download audio features for each newly linked track and save them locally.
      */
-    suspend fun sync()
+    fun sync(): Flow<SyncProgress>
 }
+
+/**
+ * Notify callers of a progress in the Spotify sync process.
+ */
+data class SyncProgress(
+    /** The number of tracks that was successfully synced. */
+    val success: Int,
+    /** The number of tracks that could not be identified. */
+    val failures: Int,
+    /** The total number of tracks to be processed during this sync. */
+    val total: Int
+)

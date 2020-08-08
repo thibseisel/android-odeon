@@ -27,6 +27,8 @@ import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import timber.log.Timber
@@ -66,7 +68,9 @@ internal class SpotifyManagerImpl @Inject constructor(
         allTracks.await().filterNot { linksPerTrackId.containsKey(it.id) }
     }
 
-    override suspend fun sync() = coroutineScope {
+    override fun sync(): Flow<SyncProgress> = channelFlow {
+        val downstream = this
+
         // Load tracks and remote links in parallel.
         val allTracks = async { mediaDao.tracks.first() }
         val allLinks = async { localDao.getLinks() }
@@ -89,17 +93,37 @@ internal class SpotifyManagerImpl @Inject constructor(
                 unSyncedTracks.forEach { send(it) }
             }
 
-            val newLinks = produce<SpotifyLink>(capacity = Channel.BUFFERED) {
+            val newLinks = produce<SpotifyLink?>(capacity = Channel.BUFFERED) {
                 repeat(CONCURRENT_TRACK_MATCHER) { trackMatcher(tracks, channel) }
             }
 
-            featureDownloader(newLinks)
+            // Emulate a broadcast to workaround a bug in the broadcast coroutine builder
+            val validLinks = Channel<SpotifyLink>(Channel.BUFFERED)
+            val trackLinkStatus = Channel<Boolean>(Channel.BUFFERED)
+            launch {
+                newLinks.consumeEach {
+                    trackLinkStatus.send(it != null)
+                    if (it != null) {
+                        validLinks.send(it)
+                    }
+                }
+
+                validLinks.close()
+                trackLinkStatus.close()
+            }
+
+            featureDownloader(validLinks)
+            progressNotifier(
+                trackCount = unSyncedTracks.size,
+                linkStatuses = trackLinkStatus,
+                progress = downstream
+            )
         }
     }
 
     private fun CoroutineScope.trackMatcher(
         tracks: ReceiveChannel<Track>,
-        newLinks: SendChannel<SpotifyLink>
+        newLinks: SendChannel<SpotifyLink?>
     ) = launch(CoroutineName("track-matcher")) {
         for (track in tracks) {
             val query = SpotifyQuery.Track(title = track.title, artist = track.artist)
@@ -117,6 +141,7 @@ internal class SpotifyManagerImpl @Inject constructor(
 
             } else {
                 Timber.tag("SpotifySync").w("Found no result for track %s.", track.title)
+                newLinks.send(null)
             }
         }
     }
@@ -143,6 +168,38 @@ internal class SpotifyManagerImpl @Inject constructor(
                     resource.message
                 )
             }
+        }
+    }
+
+    private fun CoroutineScope.progressNotifier(
+        trackCount: Int,
+        linkStatuses: ReceiveChannel<Boolean>,
+        progress: SendChannel<SyncProgress>
+    ) = launch(CoroutineName("progress-notifier")) {
+        var synced = 0
+        var failures = 0
+
+        progress.send(
+            SyncProgress(
+                success = 0,
+                failures = 0,
+                total = trackCount
+            )
+        )
+
+        linkStatuses.consumeEach { isSuccess ->
+            when {
+                isSuccess -> ++synced
+                else -> ++failures
+            }
+
+            progress.send(
+                SyncProgress(
+                    success = synced,
+                    failures = failures,
+                    total = trackCount
+                )
+            )
         }
     }
 

@@ -26,6 +26,9 @@ import androidx.core.app.NotificationCompat
 import androidx.work.*
 import fr.nihilus.music.core.worker.SingleWorkerFactory
 import fr.nihilus.music.spotify.manager.SpotifyManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.conflate
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
@@ -48,12 +51,33 @@ class SpotifySyncWorker(
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    private val cancelSyncAction = NotificationCompat.Action(
+        R.drawable.sfy_ic_cancel_24,
+        context.getString(R.string.sfy_action_cancel_sync),
+        WorkManager.getInstance(context).createCancelPendingIntent(id)
+    )
+
     override suspend fun doWork(): Result {
         promoteToForeground()
 
         return try {
             manager.sync()
+                .conflate()
+                .collect { progress ->
+                    val intermediateProgressNotification = createProgressNotification(
+                        progress = progress.success + progress.failures,
+                        max = progress.total
+                    )
+
+                    notificationManager.notify(NOTIFICATION_ID, intermediateProgressNotification)
+
+                    // Prevent from updating notification more than once per second.
+                    // This should be replaced by a suitable "throttleLatest" flow operator.
+                    delay(500)
+                }
+
             Result.success()
+
         } catch (syncFailure: Exception) {
             Timber.e(syncFailure, "An error occurred while syncing with Spotify.")
             Result.failure()
@@ -65,26 +89,26 @@ class SpotifySyncWorker(
             initNotificationChannel()
         }
 
-        val foregroundNotification = createProgressNotification()
+        val foregroundNotification = createProgressNotification(progress = 0, max = 0)
         val foregroundInfo = ForegroundInfo(NOTIFICATION_ID, foregroundNotification)
         setForeground(foregroundInfo)
     }
 
-    private fun createProgressNotification(): Notification {
+    private fun createProgressNotification(progress: Int, max: Int): Notification {
+        if (BuildConfig.DEBUG) {
+            check(max >= 0)
+            check(progress in 0..max)
+        }
+
         val context = applicationContext
         val notificationTitle = context.getString(R.string.sfy_sync_notification_title)
-
-        val cancelSyncAction = NotificationCompat.Action(
-            R.drawable.sfy_ic_cancel_24,
-            context.getString(R.string.sfy_action_cancel_sync),
-            WorkManager.getInstance(context).createCancelPendingIntent(id)
-        )
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setContentTitle(notificationTitle)
             .setTicker(notificationTitle)
             .setSmallIcon(R.drawable.sfy_ic_sync_24)
+            .setProgress(max, progress, max == 0)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .addAction(cancelSyncAction)

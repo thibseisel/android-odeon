@@ -22,6 +22,8 @@ import fr.nihilus.music.core.database.spotify.SpotifyLink
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.toList
 import io.kotlintest.matchers.collections.shouldBeEmpty
 import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -42,7 +44,7 @@ internal class SpotifyManagerSyncTest {
         )
 
         val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
-        manager.sync()
+        manager.sync().collect()
 
         localDao.links.shouldContainExactlyInAnyOrder(
             SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L),
@@ -65,7 +67,7 @@ internal class SpotifyManagerSyncTest {
         )
 
         val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
-        manager.sync()
+        manager.sync().collect()
 
         localDao.links.shouldContainExactlyInAnyOrder(
             SpotifyLink(299, "1esX5rtwwssnsEQNQk0HGg", 123456789L),
@@ -85,7 +87,7 @@ internal class SpotifyManagerSyncTest {
         )
 
         val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
-        manager.sync()
+        manager.sync().collect()
 
         localDao.links.shouldBeEmpty()
         localDao.features.shouldBeEmpty()
@@ -111,10 +113,32 @@ internal class SpotifyManagerSyncTest {
         )
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
-        manager.sync()
+        manager.sync().collect()
 
         localDao.links.map { it.trackId }.shouldContainExactly(134)
         localDao.features.map { it.id }.shouldContainExactly("NNcqs3H84QCpqpJXF5WCly")
+    }
+
+    @Test
+    fun `Returned flow should report progress`() = runBlockingTest {
+        val localDao = FakeSpotifyDao()
+        val repository = FakeMediaDao(
+            track(294, "Algorithm", "Muse", "Simulation Theory", 1),
+            track(165, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6),
+            track(294, "Mechanical Rhythm", "ACE+", "Xenoblade Original Soundtrack", 15),
+            track(295, "The Dark Side", "Muse", "Simulation Theory", 2)
+        )
+
+        val manager = SpotifyManagerImpl(repository, InMemorySpotifyService, localDao, clock)
+        val progressEvents = manager.sync().toList()
+
+        progressEvents.shouldContainExactly(
+            SyncProgress(0, 0, 4),
+            SyncProgress(1, 0, 4),
+            SyncProgress(2, 0, 4),
+            SyncProgress(2, 1, 4),
+            SyncProgress(3, 1, 4)
+        )
     }
 
     private fun track(
