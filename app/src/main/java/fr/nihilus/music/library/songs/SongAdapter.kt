@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,12 @@ import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
+import fr.nihilus.music.glide.roundedCorners
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
 /**
@@ -45,13 +46,13 @@ class SongAdapter(
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
     private val indexer = AlphaSectionIndexer()
-    private val glideRequest: GlideRequest<Bitmap>
+    private val glideRequest: RequestBuilder<Bitmap>
 
     init {
         val context = fragment.requireContext()
         val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
 
-        glideRequest = GlideApp.with(fragment).asBitmap()
+        glideRequest = Glide.with(fragment).asBitmap()
             .roundedCorners(cornerRadius)
             .error(R.drawable.ic_audiotrack_24dp)
     }
@@ -128,7 +129,7 @@ class SongAdapter(
             }
         }
 
-        fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
+        fun bind(item: MediaBrowserCompat.MediaItem, glide: RequestBuilder<Bitmap>) {
             with(item.description) {
                 glide.load(iconUri).into(cover)
                 titleView.text = title

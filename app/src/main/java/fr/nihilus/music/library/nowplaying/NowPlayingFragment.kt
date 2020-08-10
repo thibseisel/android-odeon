@@ -23,12 +23,12 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.SwitcherTarget
 import kotlinx.android.synthetic.main.fragment_now_playing.*
 import kotlinx.android.synthetic.main.fragment_now_playing_top.*
@@ -43,7 +43,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
 
-    private lateinit var glideRequest: GlideRequest<Drawable>
+    private lateinit var glideRequest: RequestBuilder<Drawable>
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
@@ -94,7 +94,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        glideRequest = GlideApp.with(this).asDrawable()
+        glideRequest = Glide.with(this).asDrawable()
             .error(R.drawable.ic_audiotrack_24dp)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .centerCrop()

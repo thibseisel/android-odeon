@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.extensions.inflate
-import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.ui.MediaItemDiffer
 
 internal class SearchResultsAdapter(
@@ -40,7 +40,7 @@ internal class SearchResultsAdapter(
     private val listener: (item: MediaBrowserCompat.MediaItem, action: ItemAction) -> Unit
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
 
-    private val glide = GlideApp.with(fragment).asBitmap()
+    private val glide = Glide.with(fragment).asBitmap()
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
