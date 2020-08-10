@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
     <dimen name="playlist_title_input_spacing">16dp</dimen>
     <dimen name="collapsing_toolbar_height">192dp</dimen>
     <dimen name="artist_detail_overlay">96dp</dimen>
-    <dimen name="two_line_list_item_height">72dp</dimen>
     <array name="preset_album_title_size">
         <item>14sp</item>
         <item>16sp</item>

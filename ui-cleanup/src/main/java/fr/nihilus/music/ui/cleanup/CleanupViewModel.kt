@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class CleanupViewModel @Inject constructor(
+internal class CleanupViewModel @Inject constructor(
     client: BrowserClient,
     private val deleteAction: DeleteTracksAction
 ) : ViewModel() {

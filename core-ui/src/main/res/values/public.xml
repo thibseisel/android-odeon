@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <public name="ui_ic_clear_24dp" type="drawable"/>
+    <public name="ui_ic_delete_24dp" type="drawable"/>
     <public name="core_ok" type="string"/>
     <public name="core_cancel" type="string"/>
     <public name="core_horizontal_edge_margin" type="dimen"/>

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@
     <string name="skip_previous">Skip to previous</string>
     <string name="skip_next">Skip to next</string>
     <string name="empty_artist">No artists</string>
-    <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library?</string>
     <string name="empty_playlist">No playlist</string>
@@ -47,8 +46,6 @@
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
-    <string name="last_played_description">Last played %1$s</string>
-    <string name="never_played">Never played</string>
     <string name="pref_theme_light">Light</string>
     <string name="pref_theme_dark">Dark</string>
     <string name="pref_theme_battery">Set by Battery Saver</string>
@@ -59,8 +56,6 @@
         <item>@string/pref_theme_battery</item>
         <item>@string/pref_theme_system</item>
     </string-array>
-    <string name="action_cleanup_title">Free storage space</string>
-    <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
     <string name="search_hint">Find a track, an artist…</string>
     <string name="action_clear">Clear</string>
     <string name="desc_clear_search">Clear search query</string>

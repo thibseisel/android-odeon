@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
@@ -26,7 +26,6 @@ import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.core.ui.extensions.inflate
@@ -34,7 +33,7 @@ import fr.nihilus.music.core.ui.extensions.inflate
 /**
  * Displays tracks that could be safely deleted from the device's storage in a list.
  */
-class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
+internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
     private val asyncDiffer = AsyncListDiffer(this, MediaItemDiffer)
 
     val currentList: List<MediaItem>

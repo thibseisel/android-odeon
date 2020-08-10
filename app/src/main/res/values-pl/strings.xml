@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@
     <string name="skip_previous">Przejdź do poprzedniego</string>
     <string name="skip_next">Przejdź do następnego</string>
     <string name="empty_artist">Brak wykonawców</string>
-    <string name="action_delete">Usuń</string>
     <string name="add_to_playlist">Dodaj do playlisty</string>
     <string name="delete_dialog_title">Usunąć z biblioteki muzycznej?</string>
     <string name="empty_playlist">Brak playlist</string>
@@ -47,8 +46,6 @@
     <string name="action_repeat_mode">Włącz/wyłącz tryb powtarzania</string>
     <string name="action_create_playlist">Nowa playlista</string>
     <string name="hint_playlist_title">Tytuł playlisty</string>
-    <string name="last_played_description">Ostatnio odtwarzane %1$s</string>
-    <string name="never_played">Nigdy nie odtwarzane</string>
     <string name="pref_theme_light">Jasny</string>
     <string name="pref_theme_dark">Ciemny</string>
     <string name="pref_theme_battery">Ustawiany przez oszczędzanie baterii</string>
@@ -59,8 +56,6 @@
         <item>@string/pref_theme_battery</item>
         <item>@string/pref_theme_system</item>
     </string-array>
-    <string name="action_cleanup_title">Zwolnij miejsce na dysku</string>
-    <string name="cleanup_confirmation_message">Tego działania nie można cofnąć.</string>
     <string name="search_hint">Znajdź utwór, artystę…</string>
     <string name="action_clear">Wyczyść</string>
     <string name="description_more_actions">Więcej działań</string>

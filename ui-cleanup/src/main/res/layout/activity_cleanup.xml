@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="fr.nihilus.music.library.cleanup.CleanupActivity">
+    tools:context="fr.nihilus.music.ui.cleanup.CleanupActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
@@ -38,7 +38,7 @@
 
     <fragment
         android:id="@+id/fragment_host"
-        android:name="fr.nihilus.music.library.cleanup.CleanupFragment"
+        android:name="fr.nihilus.music.ui.cleanup.CleanupFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

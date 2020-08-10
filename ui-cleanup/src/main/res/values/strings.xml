@@ -16,7 +16,8 @@
   -->
 
 <resources>
-    <string name="core_ok">OK</string>
-    <string name="core_cancel">Annuler</string>
-    <string name="core_action_delete">Supprimer</string>
+    <string name="never_played">Never played</string>
+    <string name="last_played_description">Last played %1$s</string>
+    <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
+    <string name="action_cleanup_title">Free storage space</string>
 </resources>

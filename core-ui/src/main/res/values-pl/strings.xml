@@ -18,4 +18,5 @@
 <resources>
     <string name="core_ok">OK</string>
     <string name="core_cancel">Anuluj</string>
+    <string name="core_action_delete">Usuń</string>
 </resources>

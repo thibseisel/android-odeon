@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import androidx.lifecycle.ViewModel
 import dagger.Binds
@@ -32,9 +32,9 @@ abstract class CleanupModule {
     abstract fun cleanupActivity(): CleanupActivity
 
     @ContributesAndroidInjector
-    abstract fun cleanupFragment(): CleanupFragment
+    internal abstract fun cleanupFragment(): CleanupFragment
 
     @Binds @IntoMap
     @ViewModelKey(CleanupViewModel::class)
-    abstract fun bindsCleanupViewModel(viewModel: CleanupViewModel): ViewModel
+    internal abstract fun bindsCleanupViewModel(viewModel: CleanupViewModel): ViewModel
 }

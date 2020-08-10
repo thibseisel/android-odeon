@@ -16,7 +16,13 @@
   -->
 
 <resources>
-    <string name="core_ok">OK</string>
-    <string name="core_cancel">Annuler</string>
-    <string name="core_action_delete">Supprimer</string>
+    <plurals name="cleanup_confirmation_title">
+        <item quantity="one">Supprimer %d morceau ?</item>
+        <item quantity="other">Supprimer %d morceaux ?</item>
+    </plurals>
+
+    <plurals name="number_of_selected_tracks">
+        <item quantity="one">%d morceau sélectionné</item>
+        <item quantity="other">%d morceaux sélectionnés</item>
+    </plurals>
 </resources>

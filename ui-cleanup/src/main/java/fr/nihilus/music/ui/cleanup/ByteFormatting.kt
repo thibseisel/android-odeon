@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -33,7 +33,7 @@ import kotlin.math.pow
  *
  * @return A string that can be used to display the specified number of bytes to users.
  */
-fun formatToHumanReadableByteCount(byteCount: Long) = buildString {
+internal fun formatToHumanReadableByteCount(byteCount: Long) = buildString {
     if (byteCount < 1000) {
         append(byteCount.coerceAtLeast(0))
         append(' ')

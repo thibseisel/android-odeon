@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,3 +39,16 @@ val <E> LongSparseArray<E>.values: List<E>
             it.add(valueAt(index))
         }
     }
+
+/**
+ * Returns the sum of all values produced by [selector] function
+ * applied to all elements in the collection.
+ */
+inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
+    var sum = 0L
+    for (element in this) {
+        sum += selector(element)
+    }
+
+    return sum
+}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
     <string name="empty_artist">Aucun artiste</string>
-    <string name="action_delete">Supprimer</string>
     <string name="add_to_playlist">Ajouter à une playlist</string>
     <string name="empty_playlist">Aucune playlist</string>
     <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
@@ -48,14 +47,10 @@
     <string name="action_create_playlist">Nouvelle playlist</string>
     <string name="hint_playlist_title">Titre de la playlist</string>
     <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
-    <string name="last_played_description">Dernière lecture %1$s</string>
-    <string name="never_played">Jamais lu</string>
     <string name="pref_theme_battery">Selon l\'économiseur de batterie</string>
     <string name="pref_theme_dark">Sombre</string>
     <string name="pref_theme_light">Clair</string>
     <string name="pref_theme_system">Valeur du système</string>
-    <string name="action_cleanup_title">Libérer de l\'espace</string>
-    <string name="cleanup_confirmation_message">Cette opération est irréversible.</string>
     <string name="search_hint">Rechercher un morceau, un artiste…</string>
     <string name="action_clear">Effacer</string>
     <string name="desc_clear_search">Effacer la recherche</string>

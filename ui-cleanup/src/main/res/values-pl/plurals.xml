@@ -15,8 +15,15 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="core_ok">OK</string>
-    <string name="core_cancel">Annuler</string>
-    <string name="core_action_delete">Supprimer</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <plurals name="cleanup_confirmation_title" tools:ignore="MissingQuantity">
+        <item quantity="one">Usunąć %d utwór?</item>
+        <item quantity="few">Usunąć %d utwory?</item>
+        <item quantity="other">Usunąć %d utworów?</item>
+    </plurals>
+    <plurals name="number_of_selected_tracks" tools:ignore="MissingQuantity">
+        <item quantity="one">%d wybrany utwór</item>
+        <item quantity="few">%d wybrane utwory</item>
+        <item quantity="other">%d wybranych utworów</item>
+    </plurals>
 </resources>

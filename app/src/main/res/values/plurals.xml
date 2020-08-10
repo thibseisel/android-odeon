@@ -24,14 +24,6 @@
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
-    <plurals name="number_of_selected_tracks">
-        <item quantity="one">%d track selected</item>
-        <item quantity="other">%d tracks selected</item>
-    </plurals>
-    <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Delete %d track?</item>
-        <item quantity="other">Delete %d tracks?</item>
-    </plurals>
     <plurals name="tracks_added_to_playlist">
         <item quantity="one">%1$d track added to playlist \"%2$s\"</item>
         <item quantity="other">%1$d tracks added to playlist "\%2$s\"</item>

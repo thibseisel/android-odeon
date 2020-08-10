@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -27,7 +27,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.R
+import fr.nihilus.music.core.collections.sumByLong
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
@@ -35,7 +35,6 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
-import fr.nihilus.music.extensions.sumByLong
 import kotlinx.android.synthetic.main.fragment_cleanup.*
 
 /**
@@ -46,7 +45,7 @@ private const val REQUEST_CONFIRM_CLEANUP = 1337
 /**
  * Lists tracks that could be deleted from the device's storage to free-up space.
  */
-class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
+internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private val viewModel by viewModels<CleanupViewModel> { viewModelFactory }
     private lateinit var selectionTracker: SelectionTracker<MediaBrowserCompat.MediaItem>
@@ -124,7 +123,7 @@ class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             REQUEST_CONFIRM_CLEANUP,
             resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
             getString(R.string.cleanup_confirmation_message),
-            R.string.action_delete,
+            R.string.core_action_delete,
             R.string.core_cancel
         )
 

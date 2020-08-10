@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +14,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="core_ok">OK</string>
-    <string name="core_cancel">Annuler</string>
-    <string name="core_action_delete">Supprimer</string>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="@integer/default_animation_duration" android:exitFadeDuration="@integer/default_animation_duration">
+    <item android:state_activated="true">
+        <color android:color="?colorControlHighlight" />
+    </item>
+    <item android:state_checked="true">
+        <color android:color="?colorControlHighlight" />
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

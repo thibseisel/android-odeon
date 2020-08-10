@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.cleanup
+package fr.nihilus.music.ui.cleanup
 
 import io.kotlintest.shouldBe
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class ByteFormattingTest {
+internal class ByteFormattingTest {
 
     @BeforeTest
     fun setupLocale() {
