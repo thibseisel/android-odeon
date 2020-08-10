@@ -22,8 +22,8 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.glide.roundedCorners
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class MembersAdapter(
     fragment: Fragment,

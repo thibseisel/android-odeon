@@ -35,10 +35,10 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_playlist_members.*
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAdapter.OnItemSelectedListener {

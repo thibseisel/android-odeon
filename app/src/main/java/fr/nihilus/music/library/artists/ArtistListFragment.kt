@@ -25,11 +25,11 @@ import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
-import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_artists.*
 
 class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.OnItemSelectedListener {

@@ -32,11 +32,11 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {

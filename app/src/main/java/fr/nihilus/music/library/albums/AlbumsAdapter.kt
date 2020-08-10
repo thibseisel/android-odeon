@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package fr.nihilus.music.library.albums
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class AlbumsAdapter(
     fragment: Fragment,

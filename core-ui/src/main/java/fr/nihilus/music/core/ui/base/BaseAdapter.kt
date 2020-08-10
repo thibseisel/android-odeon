@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui
+package fr.nihilus.music.core.ui.base
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
@@ -26,7 +26,9 @@ import fr.nihilus.music.core.ui.extensions.inflate
 /**
  * A RecyclerView adapter dedicated to the display of a set of media items.
  */
-abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : ListAdapter<MediaItem, VH>(MediaItemDiffer) {
+abstract class BaseAdapter<VH : BaseAdapter.ViewHolder> : ListAdapter<MediaItem, VH>(
+    MediaItemDiffer
+) {
 
     /**
      * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.

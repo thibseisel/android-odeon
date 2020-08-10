@@ -20,7 +20,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import fr.nihilus.music.R
-import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseAdapter
 
 /**
  * Display playlist media items as a grid of floating cards.

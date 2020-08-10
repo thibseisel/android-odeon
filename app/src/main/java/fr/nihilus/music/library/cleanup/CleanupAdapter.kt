@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.core.ui.extensions.inflate
-import fr.nihilus.music.ui.MediaItemDiffer
 
 /**
  * Displays tracks that could be safely deleted from the device's storage in a list.

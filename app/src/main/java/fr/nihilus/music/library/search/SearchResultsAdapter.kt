@@ -32,8 +32,8 @@ import com.bumptech.glide.Glide
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.core.ui.extensions.inflate
-import fr.nihilus.music.ui.MediaItemDiffer
 
 internal class SearchResultsAdapter(
     fragment: Fragment,

@@ -20,8 +20,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.library.artists.ArtistHolder
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistAdapter(
     fragment: Fragment,

@@ -22,12 +22,12 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
     fragment: Fragment,
