@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -72,19 +72,6 @@
                     android:scheme="https"/>
             </intent-filter>
         </activity>
-
-        <!-- Activity for selecting tracks to be deleted to free-up space. -->
-        <activity
-            android:name=".library.cleanup.CleanupActivity"
-            android:label="@string/action_cleanup_title"
-            android:theme="@style/Odeon.Immersive"
-            android:parentActivityName=".HomeActivity" />
-
-        <!-- Activity for toggling user preferences. -->
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:label="@string/action_settings"
-            android:parentActivityName=".HomeActivity" />
 
         <!--
             Remove the default WorkManager initializer.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ package fr.nihilus.music.library.artists.detail
 import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
 import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
     fragment: Fragment,
@@ -33,7 +35,7 @@ internal class ArtistDetailAdapter(
 ) : BaseAdapter<BaseAdapter.ViewHolder>() {
 
     private val paletteLoader: GlideRequest<AlbumArt>
-    private val bitmapLoader: GlideRequest<Bitmap>
+    private val bitmapLoader: RequestBuilder<Bitmap>
     private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     init {
@@ -44,7 +46,7 @@ internal class ArtistDetailAdapter(
             .fallbackColors(defaultPalette)
             .error(defaultAlbumIcon)
             .centerCrop()
-        bitmapLoader = GlideApp.with(fragment).asBitmap()
+        bitmapLoader = Glide.with(fragment).asBitmap()
             .error(defaultTrackIcon)
             .centerCrop()
     }

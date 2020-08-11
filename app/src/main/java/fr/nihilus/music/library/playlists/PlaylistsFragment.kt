@@ -27,10 +27,10 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
+import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.ui.BaseAdapter
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {

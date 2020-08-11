@@ -25,16 +25,6 @@
         <item quantity="other">%d morceaux</item>
     </plurals>
 
-    <plurals name="number_of_selected_tracks">
-        <item quantity="one">%d morceau sélectionné</item>
-        <item quantity="other">%d morceaux sélectionnés</item>
-    </plurals>
-
-    <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Supprimer %d morceau ?</item>
-        <item quantity="other">Supprimer %d morceaux ?</item>
-    </plurals>
-
     <plurals name="tracks_added_to_playlist">
         <item quantity="one">%1$d titre ajouté à la playlist \"%2$s\"</item>
         <item quantity="other">%1$d titres ajoutés à la playlist \"%2$s\"</item>

@@ -51,6 +51,9 @@ dependencies {
     api "androidx.navigation:navigation-fragment-ktx:${versions.androidx.navigation}"
     api "androidx.navigation:navigation-ui-ktx:${versions.androidx.navigation}"
 
+    // Image loading
+    api "com.github.bumptech.glide:glide:${versions.glide}"
+
     // Material Components
     api "com.google.android.material:material:${versions.material}"
 

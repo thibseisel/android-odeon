@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import dagger.Module
 import fr.nihilus.music.core.ui.dagger.CoreUiModule
 import fr.nihilus.music.core.ui.viewmodel.ViewModelModule
 import fr.nihilus.music.library.HomeModule
-import fr.nihilus.music.library.cleanup.CleanupModule
-import fr.nihilus.music.settings.SettingsModule
+import fr.nihilus.music.ui.cleanup.CleanupModule
+import fr.nihilus.music.ui.settings.SettingsModule
 
 /**
  * Configure dependencies for the client-side GUI application.

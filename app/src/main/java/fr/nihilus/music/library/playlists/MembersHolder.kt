@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ import android.text.format.DateUtils
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseAdapter
 
 /**
  * Display a playlist's track.
  */
 internal class MembersHolder(
     parent: ViewGroup,
-    private val glide: GlideRequest<Bitmap>
+    private val glide: RequestBuilder<Bitmap>
 ) : BaseAdapter.ViewHolder(parent, R.layout.playlist_track_item) {
 
     private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)

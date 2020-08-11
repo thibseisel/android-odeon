@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,21 +39,6 @@ object GlideExtensions {
     fun asAlbumArt(builder: RequestBuilder<AlbumArt>) = builder
 
     /**
-     * Applies [RoundedCorners] to all default types and throws an exception
-     * if asked to transform an unknown type.
-     * This will override previous calls to [BaseRequestOptions.dontTransform].
-     *
-     * @param radius The desired corner rounding, in pixels.
-     *
-     * @see RoundedCorners
-     */
-    @[JvmStatic GlideOption]
-    fun roundedCorners(options: BaseRequestOptions<*>, @Px radius: Int): BaseRequestOptions<*> =
-        options
-            .downsample(DownsampleStrategy.FIT_CENTER)
-            .transform(RoundedCorners(radius))
-
-    /**
      * Specify the default colors to use when one or more colors
      * cannot be extracted from the loaded Bitmap.
      *
@@ -76,3 +61,18 @@ object GlideExtensions {
         )
 
 }
+
+/**
+ * Applies [RoundedCorners] to all default types and throws an exception
+ * if asked to transform an unknown type.
+ * This will override previous calls to [BaseRequestOptions.dontTransform].
+ *
+ * @param radius The desired corner rounding, in pixels.
+ *
+ * @see RoundedCorners
+ */
+fun <T> RequestBuilder<T>.roundedCorners(
+    @Px radius: Int
+): RequestBuilder<T> = this
+    .downsample(DownsampleStrategy.FIT_CENTER)
+    .transform(RoundedCorners(radius))

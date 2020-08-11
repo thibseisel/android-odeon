@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 
     <item
         android:id="@+id/action_delete"
-        android:icon="@drawable/ic_delete_24dp"
-        android:title="@string/action_delete"
+        android:icon="@drawable/ui_ic_delete_24dp"
+        android:title="@string/core_action_delete"
         app:showAsAction="ifRoom"/>
 </menu>

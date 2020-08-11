@@ -27,18 +27,6 @@
         <item quantity="other">%d utworów</item>
     </plurals>
 
-    <plurals name="number_of_selected_tracks" tools:ignore="MissingQuantity">
-        <item quantity="one">%d wybrany utwór</item>
-        <item quantity="few">%d wybrane utwory</item>
-        <item quantity="other">%d wybranych utworów</item>
-    </plurals>
-
-    <plurals name="cleanup_confirmation_title" tools:ignore="MissingQuantity">
-        <item quantity="one">Usunąć %d utwór?</item>
-        <item quantity="few">Usunąć %d utwory?</item>
-        <item quantity="other">Usunąć %d utworów?</item>
-    </plurals>
-
     <plurals name="tracks_added_to_playlist" tools:ignore="MissingQuantity">
         <item quantity="one">%1$d utwór dodano do playlisty \"%2$s\"</item>
         <item quantity="few">%1$d utwory dodano do playlisty \"%2$s\"</item>

@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,22 +17,18 @@
 <resources>
     <string name="album_art">Album art</string>
     <string name="action_albums">Albums</string>
-    <string name="action_settings">Settings</string>
     <string name="action_artists">Artists</string>
     <string name="play_all_shuffled">Play all shuffled</string>
     <string name="action_search">Search</string>
     <string name="empty_songs">No songs</string>
     <string name="all_music">Tracks</string>
     <string name="empty_albums">No albums</string>
-    <string name="prefs_category_appearance">Appearance</string>
-    <string name="pref_theme_title">Theme</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Toggle shuffle mode</string>
     <string name="play_or_pause">Play or pause</string>
     <string name="skip_previous">Skip to previous</string>
     <string name="skip_next">Skip to next</string>
     <string name="empty_artist">No artists</string>
-    <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library?</string>
     <string name="empty_playlist">No playlist</string>
@@ -47,30 +43,8 @@
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
-    <string name="last_played_description">Last played %1$s</string>
-    <string name="never_played">Never played</string>
-    <string name="pref_theme_light">Light</string>
-    <string name="pref_theme_dark">Dark</string>
-    <string name="pref_theme_battery">Set by Battery Saver</string>
-    <string name="pref_theme_system">Use system default</string>
-    <string-array name="prefs_theme_titles">
-        <item>@string/pref_theme_light</item>
-        <item>@string/pref_theme_dark</item>
-        <item>@string/pref_theme_battery</item>
-        <item>@string/pref_theme_system</item>
-    </string-array>
-    <string name="action_cleanup_title">Free storage space</string>
-    <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
     <string name="search_hint">Find a track, an artist…</string>
     <string name="action_clear">Clear</string>
     <string name="desc_clear_search">Clear search query</string>
     <string name="description_more_actions">More actions</string>
-    <string name="action_dev_options">Developer Options</string>
-    <string name="dev_sync_summary_waiting">Waiting for network to be available…</string>
-    <string name="dev_sync_summary_running">Sync is running…</string>
-    <string name="dev_sync_summary_success">Synced successfully</string>
-    <string name="dev_sync_summary_failure">Sync failed</string>
-    <string name="pref_title_spotify_sync">Sync with Spotify</string>
-    <string name="pref_title_audio_analysis">Audio analysis</string>
-    <string name="pref_summary_audio_analysis">Select tracks based on their audio features</string>
 </resources>

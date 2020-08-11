@@ -19,6 +19,7 @@ package fr.nihilus.music.library.playlists
 import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
@@ -27,13 +28,13 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
 
 /**
  * A fragment displaying an Alert Dialog prompting the user to choose to which playlists
@@ -104,7 +105,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     private class TargetPlaylistsAdapter(
         fragment: Fragment
     ) : ListAdapter<MediaItem, PlaylistHolder>() {
-        private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
+        private val glideRequest = Glide.with(fragment).asBitmap().circleCrop()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(parent)
 
@@ -122,7 +123,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         private val iconView = itemView.findViewById<ImageView>(R.id.icon_view)
         private val titleView = itemView.findViewById<TextView>(R.id.title_view)
 
-        fun bind(playlist: MediaItem, glide: GlideRequest<*>) {
+        fun bind(playlist: MediaItem, glide: RequestBuilder<Bitmap>) {
             titleView.text = playlist.description.title
             glide.load(playlist.description.iconUri).into(iconView)
         }

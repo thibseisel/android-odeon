@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,22 +17,18 @@
 <resources>
     <string name="album_art">Okładka albumu</string>
     <string name="action_albums">Albumy</string>
-    <string name="action_settings">Ustawienia</string>
     <string name="action_artists">Wykonawcy</string>
     <string name="play_all_shuffled">Odtwarzaj losowo wszystkie</string>
     <string name="action_search">Szukaj</string>
     <string name="empty_songs">Brak utworów</string>
     <string name="all_music">Utwory</string>
     <string name="empty_albums">Brak albumów</string>
-    <string name="prefs_category_appearance">Wygląd</string>
-    <string name="pref_theme_title">Motyw</string>
     <string name="action_playlists">Playlisty</string>
     <string name="action_shuffle_mode">Włącz/wyłącz tryb losowy</string>
     <string name="play_or_pause">Odtwarzaj bądź pauzuj</string>
     <string name="skip_previous">Przejdź do poprzedniego</string>
     <string name="skip_next">Przejdź do następnego</string>
     <string name="empty_artist">Brak wykonawców</string>
-    <string name="action_delete">Usuń</string>
     <string name="add_to_playlist">Dodaj do playlisty</string>
     <string name="delete_dialog_title">Usunąć z biblioteki muzycznej?</string>
     <string name="empty_playlist">Brak playlist</string>
@@ -47,30 +43,8 @@
     <string name="action_repeat_mode">Włącz/wyłącz tryb powtarzania</string>
     <string name="action_create_playlist">Nowa playlista</string>
     <string name="hint_playlist_title">Tytuł playlisty</string>
-    <string name="last_played_description">Ostatnio odtwarzane %1$s</string>
-    <string name="never_played">Nigdy nie odtwarzane</string>
-    <string name="pref_theme_light">Jasny</string>
-    <string name="pref_theme_dark">Ciemny</string>
-    <string name="pref_theme_battery">Ustawiany przez oszczędzanie baterii</string>
-    <string name="pref_theme_system">Używaj motywu systemowego</string>
-    <string-array name="prefs_theme_titles">
-        <item>@string/pref_theme_light</item>
-        <item>@string/pref_theme_dark</item>
-        <item>@string/pref_theme_battery</item>
-        <item>@string/pref_theme_system</item>
-    </string-array>
-    <string name="action_cleanup_title">Zwolnij miejsce na dysku</string>
-    <string name="cleanup_confirmation_message">Tego działania nie można cofnąć.</string>
     <string name="search_hint">Znajdź utwór, artystę…</string>
     <string name="action_clear">Wyczyść</string>
     <string name="description_more_actions">Więcej działań</string>
-    <string name="action_dev_options">Opcje programisty</string>
     <string name="desc_clear_search">Wyczyść wyszukiwanie</string>
-    <string name="dev_sync_summary_waiting">Oczekiwanie na dostępność sieci…</string>
-    <string name="dev_sync_summary_running">Synchronizacja jest uruchomiona…</string>
-    <string name="dev_sync_summary_success">Zsynchronizowano pomyślnie</string>
-    <string name="dev_sync_summary_failure">Synchronizacja nie powiodła się</string>
-    <string name="pref_title_spotify_sync">Synchronizuj z Spotify</string>
-    <string name="pref_title_audio_analysis">Analiza audio</string>
-    <string name="pref_summary_audio_analysis">Wybierz ścieżki na podstawie ich specyfikacji audio</string>
 </resources>
