@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.core.ui.extensions.toHsl
 import fr.nihilus.music.glide.GlideExtensions
 import fr.nihilus.music.library.albums.AlbumPalette
@@ -109,7 +110,10 @@ private val ACCENT_TARGET = Target.Builder()
  * @param value The integer whose 4 bytes should be written to the array.
  */
 private fun ByteArray.writeInt(startIndex: Int, value: Int) {
-    assert(size > startIndex + 3)
+    if (BuildConfig.DEBUG) {
+        check(size > startIndex + 3)
+    }
+
     this[startIndex] = (value ushr 24).toByte()
     this[startIndex + 1] = (value ushr 16).toByte()
     this[startIndex + 2] = (value ushr 8).toByte()
@@ -233,13 +237,13 @@ class BufferAlbumArtDecoder(
             source.position(maybeHeaderPosition + HEADER_BYTE_SIZE)
 
             @Suppress("UsePropertyAccessSyntax")
-            (AlbumPalette(
-        primary = source.getInt(),
-        accent = source.getInt(),
-        titleText = source.getInt(),
-        bodyText = source.getInt(),
-        textOnAccent = source.getInt()
-    ))
+            AlbumPalette(
+                primary = source.getInt(),
+                accent = source.getInt(),
+                titleText = source.getInt(),
+                bodyText = source.getInt(),
+                textOnAccent = source.getInt()
+            )
         } else {
             val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
             extractColorPalette(bitmapResource.get(), defaultPalette)

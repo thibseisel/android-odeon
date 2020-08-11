@@ -72,6 +72,7 @@ internal interface IconDownloader {
 internal class GlideDownloader @Inject constructor(context: Context) : IconDownloader {
     private val glide: RequestBuilder<Bitmap> = Glide.with(context)
         .asBitmap()
+        .disallowHardwareConfig()
         .downsample(DownsampleStrategy.CENTER_INSIDE)
         .lock()
 

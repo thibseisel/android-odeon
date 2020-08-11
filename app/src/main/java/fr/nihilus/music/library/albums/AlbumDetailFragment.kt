@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
+            .disallowHardwareConfig()
             .doOnEnd(this::startPostponedEnterTransition)
             .into(object : ImageViewTarget<AlbumArt>(album_art_view) {
 

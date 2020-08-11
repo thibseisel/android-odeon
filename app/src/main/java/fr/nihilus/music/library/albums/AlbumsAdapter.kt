@@ -37,6 +37,7 @@ internal class AlbumsAdapter(
         val context = fragment.requireContext()
         val fallbackIcon = context.getDrawable(R.drawable.ic_album_24dp)
         glideRequest = GlideApp.with(fragment).asAlbumArt()
+            .disallowHardwareConfig()
             .fallbackColors(defaultPalette)
             .error(fallbackIcon)
             .dontTransform()

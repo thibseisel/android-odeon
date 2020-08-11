@@ -36,7 +36,7 @@ object GlideExtensions {
      * Generate an [AlbumPalette] from the loaded bitmap.
      */
     @[JvmStatic GlideType(AlbumArt::class)]
-    fun asAlbumArt(builder: RequestBuilder<AlbumArt>) = builder
+    fun asAlbumArt(builder: RequestBuilder<AlbumArt>) = builder.disallowHardwareConfig()
 
     /**
      * Specify the default colors to use when one or more colors
