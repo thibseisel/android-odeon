@@ -22,8 +22,8 @@
 
     <activity
         android:id="@+id/activity_settings"
-        android:name="fr.nihilus.music.settings.SettingsActivity"
-        android:label="@string/action_settings"
+        android:name="fr.nihilus.music.ui.settings.SettingsActivity"
+        android:label="@string/core_action_settings"
         tools:layout="@layout/activity_settings" />
     <activity
         android:id="@+id/activity_cleanup"

@@ -73,12 +73,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity for toggling user preferences. -->
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:label="@string/action_settings"
-            android:parentActivityName=".HomeActivity" />
-
         <!--
             Remove the default WorkManager initializer.
             WorkManager will be initialized at application startup instead.

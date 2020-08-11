@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2020 Thibault Seisel
   ~
@@ -15,9 +14,14 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <string name="core_ok">OK</string>
-    <string name="core_cancel">Anuluj</string>
-    <string name="core_action_delete">Usuń</string>
-    <string name="core_action_settings">Ustawienia</string>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="fr.nihilus.music.ui.settings">
+
+    <application android:theme="@style/Odeon">
+        <!-- Activity for toggling user preferences. -->
+        <activity
+            android:name="fr.nihilus.music.ui.settings.SettingsActivity"
+            android:label="@string/core_action_settings" />
+
+    </application>
+</manifest>

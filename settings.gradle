@@ -16,3 +16,4 @@
 rootProject.name = 'android-odeon'
 include ':app', ':service', ':media', ':core-test', ':core', ':core-ui', ':spotify-client', ':devmenu'
 include ':ui-cleanup'
+include ':ui-settings'

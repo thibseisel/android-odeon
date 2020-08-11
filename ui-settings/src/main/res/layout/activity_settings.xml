@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,5 +21,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="fr.nihilus.music.settings.MainPreferenceFragment"
-    tools:context="fr.nihilus.music.settings.SettingsActivity"/>
+    android:name="fr.nihilus.music.ui.settings.MainPreferenceFragment"
+    tools:context=".SettingsActivity"/>

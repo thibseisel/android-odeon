@@ -19,4 +19,5 @@
     <string name="core_ok">OK</string>
     <string name="core_cancel">Cancel</string>
     <string name="core_action_delete">Delete</string>
+    <string name="core_action_settings">Settings</string>
 </resources>

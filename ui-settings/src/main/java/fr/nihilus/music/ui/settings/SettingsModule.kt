@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.settings
+package fr.nihilus.music.ui.settings
 
-import android.os.Bundle
-import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.base.BaseActivity
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import fr.nihilus.music.core.ui.dagger.PerActivity
 
-class SettingsActivity : BaseActivity() {
+@Module
+abstract class SettingsModule {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-    }
+    @PerActivity
+    @ContributesAndroidInjector
+    abstract fun settingsActivity(): SettingsActivity
+
+    @ContributesAndroidInjector
+    internal abstract fun mainPreferenceFragment(): MainPreferenceFragment
 }

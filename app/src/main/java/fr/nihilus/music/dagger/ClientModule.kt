@@ -20,8 +20,8 @@ import dagger.Module
 import fr.nihilus.music.core.ui.dagger.CoreUiModule
 import fr.nihilus.music.core.ui.viewmodel.ViewModelModule
 import fr.nihilus.music.library.HomeModule
-import fr.nihilus.music.settings.SettingsModule
 import fr.nihilus.music.ui.cleanup.CleanupModule
+import fr.nihilus.music.ui.settings.SettingsModule
 
 /**
  * Configure dependencies for the client-side GUI application.

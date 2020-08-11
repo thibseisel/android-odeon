@@ -119,12 +119,12 @@ dependencies {
     implementation project(':devmenu')
 
     implementation project(':ui-cleanup')
+    implementation project(':ui-settings')
 
     // Support library dependencies
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidx.viewpager2}"
     implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
-    implementation "androidx.preference:preference-ktx:${versions.androidx.preference}"
 
     // Glide
     kapt "com.github.bumptech.glide:compiler:${versions.glide}"

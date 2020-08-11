@@ -18,15 +18,12 @@
 <resources>
     <string name="action_albums">Albums</string>
     <string name="action_artists">Artistes</string>
-    <string name="action_settings">Paramètres</string>
     <string name="album_art">Pochette d\'album</string>
     <string name="play_all_shuffled">Tout lire en mode aléatoire</string>
     <string name="action_search">Rechercher</string>
     <string name="empty_songs">Aucun morceau</string>
     <string name="all_music">Morceaux</string>
     <string name="empty_albums">Aucun album</string>
-    <string name="pref_theme_title">Thème</string>
-    <string name="prefs_category_appearance">Apparence</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Activer la lecture aléatoire</string>
     <string name="play_or_pause">Play ou pause</string>
@@ -47,20 +44,8 @@
     <string name="action_create_playlist">Nouvelle playlist</string>
     <string name="hint_playlist_title">Titre de la playlist</string>
     <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
-    <string name="pref_theme_battery">Selon l\'économiseur de batterie</string>
-    <string name="pref_theme_dark">Sombre</string>
-    <string name="pref_theme_light">Clair</string>
-    <string name="pref_theme_system">Valeur du système</string>
     <string name="search_hint">Rechercher un morceau, un artiste…</string>
     <string name="action_clear">Effacer</string>
     <string name="desc_clear_search">Effacer la recherche</string>
-    <string name="action_dev_options">Options pour les développeurs</string>
     <string name="description_more_actions">Plus d\'actions</string>
-    <string name="dev_sync_summary_failure">Echec de la synchronisation</string>
-    <string name="dev_sync_summary_running">Synchronisation en cours…</string>
-    <string name="dev_sync_summary_success">Synchronisé avec succès</string>
-    <string name="dev_sync_summary_waiting">En attente d\'une connexion internet…</string>
-    <string name="pref_title_spotify_sync">Synchroniser avec Spotify</string>
-    <string name="pref_title_audio_analysis">Analyse audio</string>
-    <string name="pref_summary_audio_analysis">Selectionner des morceaux en fonction de leurs caractéristiques audio</string>
 </resources>
