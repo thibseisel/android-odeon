@@ -30,6 +30,7 @@ import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
+import fr.nihilus.music.spotify.manager.SyncProgress
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -91,7 +92,7 @@ internal class TestSpotifyManager(
 
     override suspend fun listUnlinkedTracks(): List<Track> = stub()
 
-    override suspend fun sync() = stub()
+    override fun sync(): Flow<SyncProgress> = stub()
 
 }
 
@@ -110,8 +111,7 @@ internal object StubSpotifyManager : SpotifyManager {
 
     override suspend fun listUnlinkedTracks(): List<Track> = stub()
 
-    override suspend fun sync(): Unit = stub()
-
+    override fun sync(): Flow<SyncProgress> = stub()
 }
 
 internal object StubMediaDao : MediaDao {

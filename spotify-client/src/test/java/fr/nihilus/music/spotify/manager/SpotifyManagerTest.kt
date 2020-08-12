@@ -23,16 +23,10 @@ import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.spotify.model.AudioFeature
-import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotlintest.extracting
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContain
 import io.kotlintest.matchers.collections.shouldContainExactly
 import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotlintest.shouldNotThrowAny
 import org.junit.Rule
-import kotlin.random.Random
 import kotlin.test.Test
 
 internal class SpotifyManagerTest {
@@ -41,145 +35,6 @@ internal class SpotifyManagerTest {
     val test = CoroutineTestRule()
 
     private val clock = TestClock(123456789L)
-
-    @Test
-    fun `When syncing tracks, then create a link to the spotify ID for each`() = test.run {
-        val localDao = FakeSpotifyDao()
-        val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
-        )
-
-        val service = FakeSpotifyService(
-            tracks = listOf(
-                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
-            ),
-            features = listOf(
-                AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
-            )
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
-        manager.sync()
-
-        localDao.links shouldContain SpotifyLink(294, "7f0vVL3xi4i78Rv5Ptn2s1", 123456789L)
-        localDao.features shouldContain TrackFeature("7f0vVL3xi4i78Rv5Ptn2s1", Pitch.D, MusicalMode.MAJOR, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f)
-    }
-
-    @Test
-    fun `When syncing and no track matched, then create no link`() = test.run {
-        val localDao = FakeSpotifyDao()
-        val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
-        )
-
-        val service = FakeSpotifyService(
-            tracks = emptyList(),
-            features = emptyList()
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
-        manager.sync()
-
-        localDao.links.shouldBeEmpty()
-        localDao.features.shouldBeEmpty()
-    }
-
-    @Test
-    fun `When syncing and features are not found, then create no link`() = test.run {
-        val localDao = FakeSpotifyDao()
-        val repository = FakeMediaDao(
-            sampleTrack(294, "Algorithm", "Muse", "Simulation Theory", 1, 1)
-        )
-
-        val service = FakeSpotifyService(
-            tracks = listOf(
-                SpotifyTrack("7f0vVL3xi4i78Rv5Ptn2s1", "Algorithm", 1, 1, 245960, false)
-            ),
-            features = emptyList()
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
-        manager.sync()
-
-        localDao.links.shouldBeEmpty()
-        localDao.features.shouldBeEmpty()
-    }
-
-    @Test
-    fun `When syncing, then delete links for tracks that have been deleted`() = test.run {
-        val localDao = FakeSpotifyDao(
-            links = listOf(
-                SpotifyLink(289, "MH5U9eiW1fgFukImkVf9cq", 0L),
-                SpotifyLink(134, "NNcqs3H84QCpqpJXF5WCly", 0L),
-                SpotifyLink(879, "MRngff0u5EMK5kEOm62c6P", 0L)
-            ),
-            features = listOf(
-                TrackFeature("NNcqs3H84QCpqpJXF5WCly", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
-                TrackFeature("MH5U9eiW1fgFukImkVf9cq", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
-                TrackFeature("MRngff0u5EMK5kEOm62c6P", null, MusicalMode.MINOR, 80f, 4, -60f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
-            )
-        )
-
-        val repository = FakeMediaDao(
-            sampleTrack(134, "Track", "Artist", "Album", 1)
-        )
-
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
-        manager.sync()
-
-        localDao.links.map { it.trackId }.shouldContainExactly(134)
-        localDao.features.map { it.id }.shouldContainExactly("NNcqs3H84QCpqpJXF5WCly")
-    }
-
-    @Test
-    fun `When syncing more than 100 tracks at once, then sync should not fail`() = test.run {
-        val sampleTracks = generateDummyTracks().take(200).toList()
-        val spotifyIds = randomSpotifyIds().take(200).toList()
-
-        val remoteTracks = spotifyIds.map { id ->
-            SpotifyTrack(id, "Title", 1, 1, 0, false)
-        }
-        val sampleFeatures = spotifyIds.map { id ->
-            AudioFeature(id, null, 1, 120f, 4, -10f, .5f, .5f, .5f, .5f, .5f, .5f, .5f)
-        }
-
-        val localDao = FakeSpotifyDao()
-        val repository = FakeMediaDao(*sampleTracks.toTypedArray())
-
-        val service = FakeSpotifyService(
-            tracks = remoteTracks,
-            features = sampleFeatures
-        )
-
-        val manager = SpotifyManagerImpl(repository, service, localDao, clock)
-        shouldNotThrowAny {
-            manager.sync()
-        }
-    }
-
-    private fun generateDummyTracks() = sequence<Track> {
-        var trackId = 0L
-
-        while (true) {
-            yield(
-                Track(
-                    id = trackId++,
-                    title ="Title",
-                    artist ="Artist",
-                    album ="Album",
-                    duration = 0,
-                    discNumber = 0,
-                    trackNumber = 1,
-                    mediaUri = "",
-                    albumArtUri = null,
-                    availabilityDate = 0,
-                    artistId = 0,
-                    albumId = 0,
-                    fileSize = 1_000_000
-                )
-            )
-        }
-    }
 
     @Test
     fun `Given no filter, when finding tracks by feature then only return linked tracks`() = test.run {
@@ -306,28 +161,13 @@ internal class SpotifyManagerTest {
         val unlinkedTracks = manager.listUnlinkedTracks()
         extracting(unlinkedTracks, Track::id).shouldContainExactly(3L, 5L, 1L)
     }
+
+    private fun sampleTrack(
+        id: Long,
+        title: String,
+        artist: String,
+        album: String,
+        trackNumber: Int,
+        discNumber: Int = 1
+    ): Track = Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)
 }
-
-private fun randomSpotifyIds(): Sequence<String> = sequence {
-    val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-    val buffer = StringBuilder()
-
-    while(true) {
-        buffer.setLength(0)
-        repeat(22) { index ->
-            val randomCharIndex = Random.nextInt(0, chars.length)
-            buffer.append(index, chars[randomCharIndex])
-        }
-
-        yield(buffer.toString())
-    }
-}
-
-private fun sampleTrack(
-    id: Long,
-    title: String,
-    artist: String,
-    album: String,
-    trackNumber: Int,
-    discNumber: Int = 1
-): Track = Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)

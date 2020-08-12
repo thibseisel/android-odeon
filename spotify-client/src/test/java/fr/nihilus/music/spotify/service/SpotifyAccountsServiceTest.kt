@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.spotify.service
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.squareup.moshi.Moshi
 import io.kotlintest.matchers.types.shouldBeInstanceOf
 import io.kotlintest.shouldBe
@@ -31,8 +30,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runBlockingTest
 import org.intellij.lang.annotations.Language
-import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import kotlin.test.Test
 
 private const val TEST_CLIENT_ID = "client_id"
@@ -50,9 +47,7 @@ private val AUTH_TOKEN = """{
 /**
  * Checks the behavior of the Spotify Accounts API client.
  */
-@RunWith(AndroidJUnit4::class)
-@Config(manifest = Config.NONE)
-class SpotifyAccountsServiceTest {
+internal class SpotifyAccountsServiceTest {
 
     private val moshi = Moshi.Builder().build()
 

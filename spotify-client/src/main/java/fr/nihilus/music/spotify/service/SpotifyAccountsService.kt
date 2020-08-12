@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.spotify.service
 
-import android.util.Base64
 import com.squareup.moshi.Moshi
 import fr.nihilus.music.spotify.model.OAuthError
 import io.ktor.client.HttpClient
@@ -33,6 +32,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
+import io.ktor.util.InternalAPI
+import io.ktor.util.encodeBase64
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -80,8 +81,10 @@ internal class SpotifyAccountsServiceImpl @Inject constructor(
     }
 
     override suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken {
-        val compositeKey = "$clientId:$clientSecret".toByteArray()
-        val base64Key = Base64.encodeToString(compositeKey, Base64.NO_WRAP)
+        val compositeKey = "$clientId:$clientSecret"
+
+        @OptIn(InternalAPI::class)
+        val base64Key = compositeKey.encodeBase64()
 
         val response = http.post<HttpResponse> {
             header(HttpHeaders.Authorization, "Basic $base64Key")

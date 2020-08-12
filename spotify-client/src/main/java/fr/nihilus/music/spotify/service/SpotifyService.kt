@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ internal interface SpotifyService {
      * If an artist is not found, a `null` is returned at the appropriate position.
      * Duplicates in [ids] results in duplicates in the returned artists.
      *
-     * @param ids The Spotify IDs for the artists. Maximum `50` IDs.
+     * @param ids The Spotify IDs for the artists.
      * @return The information for each artist, in the order requested.
      */
     suspend fun getSeveralArtists(ids: List<String>): HttpResource<List<SpotifyArtist?>>
@@ -70,7 +70,7 @@ internal interface SpotifyService {
      * If an album is not found, a `null` is returned at the appropriate position.
      * Duplicates in [ids] results in duplicates in the returned albums.
      *
-     * @param ids The Spotify IDs for the albums. Maximum: `20` IDs.
+     * @param ids The Spotify IDs for the albums.
      * @return The information for each album, in the order requested.
      */
     suspend fun getSeveralAlbums(ids: List<String>): HttpResource<List<SpotifyAlbum?>>
@@ -98,7 +98,7 @@ internal interface SpotifyService {
      * If a track is not found, a `null` is returned at the appropriate position.
      * Duplicates in [ids] results in duplicates in the returned tracks.
      *
-     * @param ids The Spotify IDs for the tracks. Maximum: `50` IDs.
+     * @param ids The Spotify IDs for the tracks.
      * @return The information for each track, in the order requested.
      */
     suspend fun getSeveralTracks(ids: List<String>): HttpResource<List<SpotifyTrack?>>
@@ -116,7 +116,7 @@ internal interface SpotifyService {
      * If a track is not found, a `null` is returned at the appropriate position.
      * Duplicates in [trackIds] results in duplicates in the returned tracks' features.
      *
-     * @param trackIds The Spotify IDs for the tracks. Maximum: `100` IDs.
+     * @param trackIds The Spotify IDs for the tracks.
      * @return The audio features for each track, in the order requested.
      */
     suspend fun getSeveralTrackFeatures(trackIds: List<String>): HttpResource<List<AudioFeature?>>
