@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@
 
     <ImageView
         android:id="@+id/chevron"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="8dp"
+        android:paddingHorizontal="8dp"
+        android:layout_marginStart="@dimen/core_horizontal_edge_margin"
         android:scaleType="centerInside"
         app:srcCompat="@drawable/level_chevron_up_down"
         tools:srcCompat="@drawable/ic_chevron_down_24dp"/>
@@ -100,7 +101,7 @@
         android:id="@+id/mini_next_button"
         android:layout_width="48dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
+        android:layout_marginEnd="4dp"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/skip_next"
         android:padding="12dp"

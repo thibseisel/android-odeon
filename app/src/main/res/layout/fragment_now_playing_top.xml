@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -23,13 +23,14 @@
 
     <ImageView
         android:id="@+id/chevron"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="8dp"
+        android:layout_marginStart="16dp"
+        android:paddingHorizontal="8dp"
         app:srcCompat="@drawable/level_chevron_up_down"
         tools:srcCompat="@drawable/ic_chevron_down_24dp"
         android:scaleType="centerInside"/>
@@ -38,7 +39,6 @@
         android:id="@+id/title_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
@@ -54,7 +54,6 @@
         android:id="@+id/subtitle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
@@ -68,12 +67,12 @@
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/play_pause_button"
-        android:layout_width="40dp"
+        android:layout_width="56dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
-        android:padding="8dp"
+        android:paddingEnd="16dp"
+        android:paddingStart="16dp"
         android:scaleType="fitCenter"
         android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
