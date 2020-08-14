@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,18 +26,18 @@
     android:background="?attr/selectableItemBackground"
     android:textDirection="locale">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/album_art"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="@dimen/core_horizontal_edge_margin"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars"/>
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Odeon.SmallComponent"
+        tools:src="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/title"

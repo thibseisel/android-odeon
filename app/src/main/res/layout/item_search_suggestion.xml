@@ -24,7 +24,7 @@
     android:background="?selectableItemBackground"
     android:minHeight="56dp">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/icon_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
