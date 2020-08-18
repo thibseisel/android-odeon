@@ -24,7 +24,6 @@ import android.view.*
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.core.collections.sumByLong

@@ -22,7 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.observe
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.devmenu.R
 import fr.nihilus.music.media.provider.Track
