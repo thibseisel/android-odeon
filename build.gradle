@@ -30,14 +30,8 @@ buildscript {
     }
 
     repositories {
-        if (project.hasProperty('repositoryMirrors')) {
-            repositoryMirrors.split(',').each { mirror ->
-                maven { url mirror }
-            }
-        } else {
-            google()
-            jcenter()
-        }
+        google()
+        jcenter()
     }
 
     dependencies {
@@ -50,14 +44,8 @@ buildscript {
 
 allprojects {
     repositories {
-        if (project.hasProperty('repositoryMirrors')) {
-            repositoryMirrors.split(',').each { mirror ->
-                maven { url mirror }
-            }
-        } else {
-            google()
-            jcenter()
-        }
+        google()
+        jcenter()
     }
 }
 
