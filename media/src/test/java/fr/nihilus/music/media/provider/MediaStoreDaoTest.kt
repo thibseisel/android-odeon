@@ -33,14 +33,14 @@ import fr.nihilus.music.core.test.os.GrantedPermission
 import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.matchers.withClue
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
@@ -80,9 +80,8 @@ class MediaStoreDaoTest {
 
     private suspend fun Flow<List<*>>.shouldFailDueToMissingExternalStorageReadPermission() = test {
         val exception = expectFailure()
-        exception.shouldBeInstanceOf<PermissionDeniedException> {
-            it.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
-        }
+        exception.shouldBeInstanceOf<PermissionDeniedException>()
+        exception.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
     }
 
     @Test

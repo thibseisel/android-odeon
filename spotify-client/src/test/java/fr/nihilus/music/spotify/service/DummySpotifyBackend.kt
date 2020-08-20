@@ -17,7 +17,7 @@
 package fr.nihilus.music.spotify.service
 
 import fr.nihilus.music.core.test.fail
-import io.kotlintest.matchers.numerics.shouldBeLessThanOrEqual
+import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData

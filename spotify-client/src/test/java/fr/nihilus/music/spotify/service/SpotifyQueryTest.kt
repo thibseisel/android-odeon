@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.spotify.service
 
-import io.kotlintest.data.forall
-import io.kotlintest.shouldBe
-import io.kotlintest.tables.row
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SpotifyQueryTest {
@@ -76,7 +76,7 @@ class SpotifyQueryTest {
 
     @Test
     fun `Given a track title with quotes, then omit quote marks`() {
-        forall(
+        forAll(
             row("Don't Stop Me Now", "track:\"dont stop me now\""),
             row("I'm a Lady", "track:\"im a lady\""),
             row("You've Got Another Thing Comin'", "track:\"youve got another thing comin\""),

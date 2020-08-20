@@ -26,10 +26,10 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.provider.Track
-import io.kotlintest.extracting
-import io.kotlintest.matchers.collections.shouldNotContain
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.extracting
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import org.junit.Rule
 import kotlin.test.Test

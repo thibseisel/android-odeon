@@ -23,9 +23,9 @@ import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
-import io.kotlintest.extracting
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.assertions.extracting
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import org.junit.Rule
 import kotlin.test.Test
 

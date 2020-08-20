@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.THEIR_MEDIA_ID
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlinx.coroutines.test.runBlockingTest as test

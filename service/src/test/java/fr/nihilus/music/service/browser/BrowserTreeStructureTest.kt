@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,12 @@ import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.service.assertOn
 import fr.nihilus.music.service.generateRandomTrackSequence
-import io.kotlintest.inspectors.forOne
-import io.kotlintest.matchers.collections.*
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotThrowAny
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.inspectors.forOne
+import io.kotest.matchers.collections.*
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test

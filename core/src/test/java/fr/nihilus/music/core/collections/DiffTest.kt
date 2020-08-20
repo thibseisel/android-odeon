@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.core.collections
 
-import io.kotlintest.matchers.beEmpty
-import io.kotlintest.matchers.collections.shouldContainAll
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.should
+import io.kotest.matchers.collections.beEmpty
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.should
 import org.junit.Test
 
 class DiffTest {

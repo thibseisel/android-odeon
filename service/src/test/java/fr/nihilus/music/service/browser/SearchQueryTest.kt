@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,9 @@ package fr.nihilus.music.service.browser
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.kotlintest.matchers.types.shouldBeTypeOf
-import io.kotlintest.shouldBe
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,17 +43,15 @@ internal class SearchQueryTest {
     @Test
     fun `When query has no options, then parse it as an Unspecified query`() {
         val result = SearchQuery.from("muse", null)
-        result.shouldBeTypeOf<SearchQuery.Unspecified> {
-            it.userQuery shouldBe "muse"
-        }
+        result.shouldBeTypeOf<SearchQuery.Unspecified>()
+        result.userQuery shouldBe "muse"
     }
 
     @Test
     fun `When query has artist focus, then parse it as an Artist query`() {
         val result = SearchQuery.from("muse", artistOptions("Muse"))
-        result.shouldBeTypeOf<SearchQuery.Artist> {
-            it.name shouldBe "Muse"
-        }
+        result.shouldBeTypeOf<SearchQuery.Artist>()
+        result.name shouldBe "Muse"
     }
 
     @Test
@@ -62,7 +61,8 @@ internal class SearchQueryTest {
             albumOptions("Muse", "Simulation Theory")
         )
 
-        result.shouldBeTypeOf<SearchQuery.Album> {
+        result.shouldBeTypeOf<SearchQuery.Album>()
+        assertSoftly(result) {
             it.artist shouldBe "Muse"
             it.title shouldBe "Simulation Theory"
         }
@@ -75,7 +75,8 @@ internal class SearchQueryTest {
             trackOptions("Muse", "Simulation Theory", "Algorithm")
         )
 
-        result.shouldBeTypeOf<SearchQuery.Song> {
+        result.shouldBeTypeOf<SearchQuery.Song>()
+        assertSoftly(result) {
             it.artist shouldBe "Muse"
             it.album shouldBe "Simulation Theory"
             it.title shouldBe "Algorithm"
@@ -90,22 +91,24 @@ internal class SearchQueryTest {
         }
 
         val result = SearchQuery.from("rock", options)
-        result.shouldBeTypeOf<SearchQuery.Unspecified> {
-            it.userQuery shouldBe "rock"
-        }
+        result.shouldBeTypeOf<SearchQuery.Unspecified>()
+        result.userQuery shouldBe "rock"
     }
 
+    @Suppress("SameParameterValue")
     private fun artistOptions(name: String?) = Bundle(2).apply {
         putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Artists.ENTRY_CONTENT_TYPE)
         putString(MediaStore.EXTRA_MEDIA_ARTIST, name)
     }
 
+    @Suppress("SameParameterValue")
     private fun albumOptions(artist: String?, title: String?) = Bundle(3).apply {
         putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Albums.ENTRY_CONTENT_TYPE)
         putString(MediaStore.EXTRA_MEDIA_ARTIST, artist)
         putString(MediaStore.EXTRA_MEDIA_ALBUM, title)
     }
 
+    @Suppress("SameParameterValue")
     private fun trackOptions(artist: String?, album: String?, title: String?) = Bundle(4).apply {
         putString(MediaStore.EXTRA_MEDIA_FOCUS, MediaStore.Audio.Media.ENTRY_CONTENT_TYPE)
         putString(MediaStore.EXTRA_MEDIA_ARTIST, artist)

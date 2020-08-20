@@ -22,11 +22,11 @@ import fr.nihilus.music.core.database.spotify.SpotifyLink
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test
 
