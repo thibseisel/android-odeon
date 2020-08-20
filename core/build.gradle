@@ -57,7 +57,6 @@ kapt {
 
 dependencies {
     // Shared Kotlin language features
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.koroutines}"
 
     // Shared AndroidX libraries
@@ -81,7 +80,7 @@ dependencies {
     implementation "androidx.media:media:${versions.androidx.media}"
 
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
-    testImplementation "io.kotlintest:kotlintest-assertions:${versions.kotlintest}"
+    testImplementation "io.kotest:kotest-assertions-core:${versions.kotest}"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
     testImplementation "io.mockk:mockk:${versions.mockk}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"

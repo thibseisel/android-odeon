@@ -106,7 +106,7 @@ internal class SpotifyServiceImpl @TestOnly constructor(
             }
 
             // If token is expired, then renew it then re-attempt the request.
-            feature(HttpSend)!!.intercept { origin ->
+            feature(HttpSend)!!.intercept { origin, _ ->
                 if (origin.response.status != HttpStatusCode.Unauthorized) origin else {
                     val newToken = authenticate()
                     val request = HttpRequestBuilder()

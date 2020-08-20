@@ -32,16 +32,16 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
-import io.kotlintest.extracting
-import io.kotlintest.inspectors.forAll
-import io.kotlintest.inspectors.forNone
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.matchers.collections.shouldNotContain
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.extracting
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.inspectors.forAll
+import io.kotest.inspectors.forNone
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.Test
@@ -69,9 +69,9 @@ internal class ManagePlaylistActionTest {
 
         val playlists = dao.savedPlaylists
         playlists shouldHaveSize 1
-        playlists[0].should {
-            it.title shouldBe NEW_PLAYLIST_NAME
-            it.created shouldBe TEST_TIME
+        assertSoftly(playlists[0]) {
+            title shouldBe NEW_PLAYLIST_NAME
+            created shouldBe TEST_TIME
         }
 
         dao.savedTracks.shouldBeEmpty()

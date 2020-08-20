@@ -19,7 +19,6 @@ package fr.nihilus.music.devmenu
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration

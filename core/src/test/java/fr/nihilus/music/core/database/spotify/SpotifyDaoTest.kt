@@ -21,7 +21,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.database.AppDatabase
-import io.kotlintest.shouldBe
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest

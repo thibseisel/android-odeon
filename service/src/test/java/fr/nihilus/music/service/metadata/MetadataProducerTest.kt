@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,25 +23,24 @@ import android.os.Bundle
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.service.extensions.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.channels.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
-@ObsoleteCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 class MetadataProducerTest {
-
-    //@JvmField @Rule val coroutineTimeout = CoroutinesTimeout.seconds(5)
 
     private val sampleMediaDescription by lazy {
         MediaDescription(
@@ -63,26 +62,32 @@ class MetadataProducerTest {
             producer.send(sampleMediaDescription)
 
             val metadata = output.receive()
-            assertThat(metadata.id).isEqualTo(sampleMediaDescription.mediaId)
+            metadata.id shouldBe sampleMediaDescription.mediaId
 
             // Generic display properties.
-            assertThat(metadata.displayTitle).isEqualTo("Nightmare")
-            assertThat(metadata.displaySubtitle).isEqualTo("Avenged Sevenfold")
-            assertThat(metadata.displayDescription).isEqualTo("Well, that intro is creepy")
-            assertThat(metadata.duration).isEqualTo(374648L)
-            assertThat(metadata.displayIconUri).isEqualTo("file:///Music/Nightmare.mp3")
+            assertSoftly(metadata) {
+                displayTitle shouldBe "Nightmare"
+                displaySubtitle shouldBe "Avenged Sevenfold"
+                displayDescription shouldBe "Well, that intro is creepy"
+                duration shouldBe 374648L
+                displayIconUri shouldBe "file:///Music/Nightmare.mp3"
+            }
 
             // Specific properties that may be used by some Bluetooth devices.
-            assertThat(metadata.title).isEqualTo("Nightmare")
-            assertThat(metadata.artist).isEqualTo("Avenged Sevenfold")
-            assertThat(metadata.album).isEqualTo("Nightmare")
+            assertSoftly(metadata) {
+                title shouldBe "Nightmare"
+                artist shouldBe "Avenged Sevenfold"
+                album shouldBe "Nightmare"
+            }
 
             // Check that the loaded icon is 320x320 and has a red pixel on top, as defined by DummyBitmapFactory.
-            metadata.albumArt?.let { iconBitmap ->
-                assertThat(iconBitmap.width).isEqualTo(320)
-                assertThat(iconBitmap.height).isEqualTo(320)
-                assertThat(iconBitmap.getPixel(0, 0)).isEqualTo(Color.RED)
-            } ?: fail("Metadata should have a bitmap at ${MediaMetadataCompat.METADATA_KEY_ALBUM_ART}, but was null.")
+            val iconBitmap = metadata.albumArt
+            iconBitmap.shouldNotBeNull()
+            assertSoftly(iconBitmap) {
+                width shouldBe 320
+                height shouldBe 320
+                getPixel(0, 0) shouldBe Color.RED
+            }
 
         } finally {
             producer.close()
@@ -108,13 +113,15 @@ class MetadataProducerTest {
             producer.send(emptyDescription)
             val metadata = output.receive()
 
-            assertThat(metadata.id).isEqualTo(emptyDescription.mediaId)
-            assertThat(metadata.displayTitle).isNull()
-            assertThat(metadata.displaySubtitle).isNull()
-            assertThat(metadata.displayDescription).isNull()
-            assertThat(metadata.duration).isEqualTo(-1L)
-            assertThat(metadata.displayIconUri).isNull()
-            assertThat(metadata.albumArt).isNull()
+            assertSoftly(metadata) {
+                id shouldBe encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
+                displayTitle.shouldBeNull()
+                displaySubtitle.shouldBeNull()
+                displayDescription.shouldBeNull()
+                duration shouldBe -1L
+                displayIconUri.shouldBeNull()
+                albumArt.shouldBeNull()
+            }
 
         } finally {
             producer.close()
@@ -140,7 +147,7 @@ class MetadataProducerTest {
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME)
 
             val lastTrackMetadata = output.receive()
-            assertThat(lastTrackMetadata.id).isEqualTo(secondItemId)
+            lastTrackMetadata.id shouldBe secondItemId
 
         } finally {
             producer.close()
@@ -163,11 +170,13 @@ class MetadataProducerTest {
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
 
             val firstMetadata = output.receive()
-            assertThat(firstMetadata.id).isEqualTo(itemId)
-            assertThat(firstMetadata.displayTitle).isEqualTo("First item")
+            assertSoftly(firstMetadata) {
+                id shouldBe itemId
+                displayTitle shouldBe "First item"
+            }
 
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
-            assertThat(output.isEmpty).isTrue()
+            output.shouldBeEmpty()
 
         } finally {
             producer.close()

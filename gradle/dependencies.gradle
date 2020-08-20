@@ -16,8 +16,8 @@
 
 ext.versions = [
         'plugin'        : '0.29.0',
-        'kotlin'        : '1.3.72',
-        'koroutines'    : '1.3.8',
+        'kotlin'        : '1.4.0',
+        'koroutines'    : '1.3.9',
         'androidx'      : [
                 'appcompat'        : '1.1.0',
                 'constraint_layout': '1.1.3',
@@ -42,14 +42,14 @@ ext.versions = [
         'exoplayer'     : '2.11.7',
         'glide'         : '4.11.0',
         'kdenticon'     : '1.0.0-alpha5',
-        'ktor'          : '1.3.2',
+        'ktor'          : '1.4.0',
         'material'      : '1.1.0',
         'moshi'         : '1.9.2',
         'ratioimageview': '1.0.0',
         'timber'        : '4.7.1',
 
         'junit'         : '4.12',
-        'kotlintest'    : '3.3.3',
+        'kotest'        : '4.2.0',
         'mockk'         : '1.9.3',
         'robolectric'   : '4.3.1',
         'truth'         : '0.44'

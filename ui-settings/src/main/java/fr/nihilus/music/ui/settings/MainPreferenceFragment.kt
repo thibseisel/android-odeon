@@ -17,7 +17,6 @@
 package fr.nihilus.music.ui.settings
 
 import android.os.Bundle
-import androidx.lifecycle.observe
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.*

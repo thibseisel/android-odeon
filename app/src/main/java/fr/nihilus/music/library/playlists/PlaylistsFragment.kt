@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId

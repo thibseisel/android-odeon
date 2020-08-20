@@ -17,9 +17,9 @@
 package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Moshi
-import io.kotlintest.matchers.types.shouldBeInstanceOf
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.request.HttpRequestData
@@ -89,7 +89,8 @@ internal class SpotifyAccountsServiceTest {
             request.url.encodedPath shouldBe "api/token"
             request.headers[HttpHeaders.Authorization] shouldBe "Basic $CLIENT_BASE64_KEY"
 
-            request.body.shouldBeInstanceOf<FormDataContent> {
+            request.body.let {
+                it.shouldBeInstanceOf<FormDataContent>()
                 it.formData["grant_type"] shouldBe "client_credentials"
             }
 

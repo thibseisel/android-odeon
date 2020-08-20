@@ -16,13 +16,12 @@
 
 package fr.nihilus.music.core.test.coroutines.flow
 
-import io.kotlintest.matchers.beEmpty
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldNotThrowAny
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
@@ -214,7 +213,7 @@ internal class FlowTestOperatorTest {
 
         source.test {
             // The source flow should not have been collected yet.
-            values should beEmpty()
+            values.shouldBeEmpty()
 
             // Request to only collect one element.
             shouldNotThrowAny {

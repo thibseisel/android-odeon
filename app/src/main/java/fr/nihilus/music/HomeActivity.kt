@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController

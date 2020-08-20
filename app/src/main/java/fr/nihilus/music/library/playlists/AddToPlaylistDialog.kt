@@ -27,7 +27,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
