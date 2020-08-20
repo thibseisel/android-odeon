@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import timber.log.Timber
 import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 private const val ANDROID_PLATFORM = "android"
 private val WHITESPACE_REGEX = "\\s|\\n".toRegex()
@@ -280,7 +282,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         var eventType = parser.next()
         while (eventType != XmlResourceParser.END_TAG) {
             val isRelease = parser.getAttributeBooleanValue(null, "release", false)
-            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase()
+            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase(Locale.ROOT)
             callerSignatures += KnownSignature(signature, isRelease)
 
             eventType = parser.next()

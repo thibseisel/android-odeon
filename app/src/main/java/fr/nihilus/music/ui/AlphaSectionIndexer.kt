@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,7 +105,7 @@ private val SECTION_COMPARATOR = Comparator { a: String, b: String ->
  * Extract the section name from an item label.
  */
 private fun String.toNormalizedSubSection(): String {
-    val trimmed = this.trimStart().toUpperCase()
+    val trimmed = this.trimStart().toUpperCase(Locale.ENGLISH)
     val withoutCommonPrefixes = when {
         trimmed.startsWith("THE ") -> trimmed.drop(4)
         trimmed.startsWith("AN ") -> trimmed.drop(3)
