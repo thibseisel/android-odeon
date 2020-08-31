@@ -16,38 +16,38 @@
 
 package fr.nihilus.music.ui.cleanup
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
-import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.flow.catch
+import fr.nihilus.music.media.usage.DisposableTrack
+import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 internal class CleanupViewModel @Inject constructor(
-    client: BrowserClient,
-    private val deleteAction: DeleteTracksAction
+    private val deleteAction: DeleteTracksAction,
+    usageManager: UsageManager
 ) : ViewModel() {
 
-    val tracks: LiveData<LoadRequest<List<MediaItem>>> =
-        client.getChildren(MediaId.encode(MediaId.TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE))
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+    val tracks: LiveData<LoadRequest<List<DisposableTrack>>> =
+        usageManager.getDisposableTracks()
+            .map { LoadRequest.Success(it) as LoadRequest<List<DisposableTrack>> }
             .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .asLiveData()
 
-    fun deleteTracks(selectedTracks: List<MediaItem>) {
+    fun deleteTracks(selectedTracks: List<DisposableTrack>) {
         viewModelScope.launch {
-            val targetTrackIds = selectedTracks.map { it.mediaId.toMediaId() }
+            val targetTrackIds = selectedTracks.map {
+                MediaId(TYPE_TRACKS, CATEGORY_ALL, it.trackId)
+            }
             deleteAction.delete(targetTrackIds)
         }
     }

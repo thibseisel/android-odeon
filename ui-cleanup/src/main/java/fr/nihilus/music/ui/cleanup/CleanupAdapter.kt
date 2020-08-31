@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui.cleanup
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -25,27 +24,31 @@ import android.widget.TextView
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.core.ui.extensions.inflate
+import fr.nihilus.music.media.usage.DisposableTrack
 
 /**
  * Displays tracks that could be safely deleted from the device's storage in a list.
  */
 internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
-    private val asyncDiffer = AsyncListDiffer(this, MediaItemDiffer)
+    private val asyncDiffer = AsyncListDiffer(this, DisposableDiffer())
 
-    val currentList: List<MediaItem>
+    val currentList: List<DisposableTrack>
         get() = asyncDiffer.currentList
 
-    var selection: SelectionTracker<MediaItem>? = null
+    var selection: SelectionTracker<Long>? = null
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
         val track = currentList[position]
-        val isSelectedPosition = selection?.isSelected(track) ?: false
+        val isSelectedPosition = selection?.isSelected(track.trackId) ?: false
 
         // Reflect the selection state on the item.
         holder.markAsSelected(isSelectedPosition)
@@ -63,6 +66,14 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
 
     override fun getItemCount(): Int = currentList.size
 
+    override fun getItemId(position: Int): Long =
+        if (hasStableIds()) {
+            val track = currentList[position]
+            track.trackId
+        } else {
+            RecyclerView.NO_ID
+        }
+
     /**
      * Submits a new list to be diffed, and displayed.
      *
@@ -71,7 +82,7 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
      *
      * @param list The new list to be displayed.
      */
-    fun submitList(list: List<MediaItem>) {
+    fun submitList(list: List<DisposableTrack>) {
         asyncDiffer.submitList(list)
     }
 
@@ -93,25 +104,16 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
          * The detail of this track item.
          * This is used by the selection library to determine the behavior of individual items.
          */
-        val itemDetails = TrackDetails(this) { position ->
-            currentList.getOrNull(position)
-        }
+        val itemDetails = TrackDetails(this)
 
         /**
          * Updates this holder's view to reflect the data in the provided [track].
          * @param track The metadata of the track to be displayed.
          */
-        fun bind(track: MediaItem) {
-            val item = track.description
-            val extras = item.extras!!
-
-            val fileSizeBytes = extras.getLong(MediaItems.EXTRA_FILE_SIZE, 0)
-            val lastPlayedTime = extras.takeIf { it.containsKey(MediaItems.EXTRA_LAST_PLAYED_TIME) }
-                ?.getLong(MediaItems.EXTRA_LAST_PLAYED_TIME)
-
-            title.text = item.title
-            usageDescription.text = formatElapsedTimeSince(lastPlayedTime)
-            fileSizeCaption.text = formatToHumanReadableByteCount(fileSizeBytes)
+        fun bind(track: DisposableTrack) {
+            title.text = track.title
+            usageDescription.text = formatElapsedTimeSince(track.lastPlayedTime)
+            fileSizeCaption.text = formatToHumanReadableByteCount(track.fileSizeBytes)
         }
 
         fun markAsSelected(selected: Boolean) {
@@ -131,20 +133,27 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
      * Provides information about a specific row in the track list.
      *
      * @param holder The ViewHolder associated with the item at this position.
-     * @param itemProvider A function that returns a track given its adapter position.
      */
-    class TrackDetails(
-        private val holder: ViewHolder,
-        private val itemProvider: (position: Int) -> MediaItem?
-    ) : ItemDetailsLookup.ItemDetails<MediaItem>() {
+    class TrackDetails(private val holder: ViewHolder) : ItemDetailsLookup.ItemDetails<Long>() {
 
         override fun getPosition(): Int = holder.adapterPosition
 
-        override fun getSelectionKey(): MediaItem? {
-            val itemPosition = holder.adapterPosition
-            return itemProvider(itemPosition)
-        }
+        override fun getSelectionKey(): Long? = holder.itemId
 
         override fun inSelectionHotspot(e: MotionEvent): Boolean = true
+    }
+
+    private class DisposableDiffer : DiffUtil.ItemCallback<DisposableTrack>() {
+
+        override fun areItemsTheSame(
+            oldItem: DisposableTrack,
+            newItem: DisposableTrack
+        ): Boolean = oldItem.trackId == newItem.trackId
+
+        override fun areContentsTheSame(
+            oldItem: DisposableTrack,
+            newItem: DisposableTrack
+        ): Boolean = oldItem == newItem
+
     }
 }
