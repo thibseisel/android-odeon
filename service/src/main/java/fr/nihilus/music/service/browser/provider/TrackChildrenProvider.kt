@@ -16,16 +16,14 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.service.MediaContent
+import fr.nihilus.music.service.AudioTrack
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -36,7 +34,7 @@ internal class TrackChildrenProvider(
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
-    override fun findChildren(parentId: MediaId): Flow<List<MediaItem>> {
+    override fun findChildren(parentId: MediaId): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_TRACKS && parentId.category != null)
 
         return when (parentId.category) {
@@ -48,40 +46,34 @@ internal class TrackChildrenProvider(
         }
     }
 
-    private fun getAllTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
-        val builder = MediaDescriptionCompat.Builder()
-        tracks.map { it.toMediaItem(MediaId.CATEGORY_ALL, builder) }
+    private fun getAllTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
+        tracks.map { it.toPlayableMedia(MediaId.CATEGORY_ALL) }
     }
 
-    private fun getMostRatedTracks(): Flow<List<MediaItem>> = usageManager.getMostRatedTracks().map { mostRated ->
-        val builder = MediaDescriptionCompat.Builder()
-        mostRated.map { it.toMediaItem(MediaId.CATEGORY_MOST_RATED, builder) }
+    private fun getMostRatedTracks(): Flow<List<AudioTrack>> = usageManager.getMostRatedTracks().map { mostRated ->
+        mostRated.map { it.toPlayableMedia(MediaId.CATEGORY_MOST_RATED) }
     }
 
-    private fun getRecentlyAddedTracks(): Flow<List<MediaItem>> = mediaDao.tracks.map { tracks ->
-        val builder = MediaDescriptionCompat.Builder()
-
+    private fun getRecentlyAddedTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
         tracks.asSequence()
             .sortedByDescending { it.availabilityDate }
             .take(25)
-            .map { it.toMediaItem(MediaId.CATEGORY_RECENTLY_ADDED, builder) }
+            .map { it.toPlayableMedia(MediaId.CATEGORY_RECENTLY_ADDED) }
             .toList()
     }
 
-    private fun getMonthPopularTracks(): Flow<List<MediaItem>> =
+    private fun getMonthPopularTracks(): Flow<List<AudioTrack>> =
         usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
-            val builder = MediaDescriptionCompat.Builder()
-            popularTracks.map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
+            popularTracks.map { it.toPlayableMedia(MediaId.CATEGORY_POPULAR) }
         }
 
-    private fun Track.toMediaItem(
-        category: String,
-        builder: MediaDescriptionCompat.Builder
-    ): MediaItem = playable(
-        builder,
-        id = MediaId.encode(TYPE_TRACKS, category, id),
+    private fun Track.toPlayableMedia(
+        category: String
+    ) = AudioTrack(
+        id = MediaId(TYPE_TRACKS, category, id),
         title = title,
-        subtitle = artist,
+        artist = artist,
+        album = album,
         mediaUri = mediaUri.toUri(),
         iconUri = albumArtUri?.toUri(),
         duration = duration,

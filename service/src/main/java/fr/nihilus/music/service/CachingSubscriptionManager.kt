@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.service
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.collection.LruCache
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
@@ -37,7 +36,7 @@ import javax.inject.Inject
  * @param serviceScope The lifecycle of the service that owns this manager.
  * @param tree The source of media metadata.
  */
-@OptIn(FlowPreview::class)
+@OptIn(ObsoleteCoroutinesApi::class, FlowPreview::class)
 @ServiceScoped
 internal class CachingSubscriptionManager @Inject constructor(
     serviceScope: CoroutineScope,
@@ -56,7 +55,7 @@ internal class CachingSubscriptionManager @Inject constructor(
     override suspend fun loadChildren(
         parentId: MediaId,
         options: PaginationOptions?
-    ): List<MediaItem> {
+    ): List<MediaContent> {
         val subscription = mutex.withLock {
             cachedSubscriptions.get(parentId) ?: createSubscription(parentId)
         }
@@ -71,9 +70,9 @@ internal class CachingSubscriptionManager @Inject constructor(
     }
 
     private fun applyPagination(
-        children: List<MediaItem>,
+        children: List<MediaContent>,
         options: PaginationOptions?
-    ): List<MediaItem> = when (options) {
+    ): List<MediaContent> = when (options) {
         null -> children
         else -> {
             val fromIndex = options.page * options.size
@@ -87,7 +86,7 @@ internal class CachingSubscriptionManager @Inject constructor(
         }
     }
 
-    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaItem>> {
+    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaContent>> {
         return tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
             .flowOn(dispatchers.Default)
@@ -103,7 +102,7 @@ internal class CachingSubscriptionManager @Inject constructor(
             }
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? {
+    override suspend fun getItem(itemId: MediaId): MediaContent? {
         val parentId = when {
             itemId.track != null -> itemId.copy(track = null)
             itemId.category != null -> itemId.copy(category = null)
@@ -114,20 +113,20 @@ internal class CachingSubscriptionManager @Inject constructor(
 
         return if (parentSubscription != null) {
             val children = parentSubscription.consume { receive() }
-            children.find { it.mediaId == itemId.encoded }
+            children.find { it.id == itemId }
         } else withContext(dispatchers.Default) {
             tree.getItem(itemId)
         }
     }
 
     private class LruSubscriptionCache :
-        LruCache<MediaId, BroadcastChannel<List<MediaItem>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
+        LruCache<MediaId, BroadcastChannel<List<MediaContent>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
 
         override fun entryRemoved(
             evicted: Boolean,
             key: MediaId,
-            oldValue: BroadcastChannel<List<MediaItem>>,
-            newValue: BroadcastChannel<List<MediaItem>>?
+            oldValue: BroadcastChannel<List<MediaContent>>,
+            newValue: BroadcastChannel<List<MediaContent>>?
         ) = oldValue.cancel()
     }
 }

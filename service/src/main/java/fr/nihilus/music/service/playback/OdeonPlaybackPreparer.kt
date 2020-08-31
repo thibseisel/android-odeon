@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
@@ -33,10 +32,14 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.R
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
@@ -86,7 +89,8 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
+        val lastPlayedMediaId = settings.lastQueueMediaId?.toMediaId()
+            ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
         player.playWhenReady = playWhenReady
     }
@@ -105,8 +109,10 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      */
     override fun onPrepareFromMediaId(mediaId: String?, playWhenReady: Boolean, extras: Bundle?) {
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
-        val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
-        settings.lastQueueMediaId = queueMediaId
+        val queueMediaId = mediaId?.toMediaId()
+            ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
+        settings.lastQueueMediaId = queueMediaId.encoded
+
         prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
         player.playWhenReady = playWhenReady
     }
@@ -138,12 +144,12 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             val results = browserTree.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
-            if (firstResult?.isBrowsable == true) {
-                prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
+            if (firstResult is MediaCategory) {
+                prepareFromMediaId(firstResult.id, C.POSITION_UNSET)
                 player.playWhenReady = playWhenReady
             } else {
                 preparePlayer(
-                    results.filter { it.isPlayable && !it.isBrowsable },
+                    results.filterIsInstance<AudioTrack>(),
                     firstShuffledIndex = 0,
                     startPosition = 0
                 )
@@ -153,9 +159,9 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         }
     }
 
-    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
+    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<AudioTrack> = try {
         val children = browserTree.getChildren(parentId).first()
-        children.filter { it.isPlayable && !it.isBrowsable }
+        children.filterIsInstance<AudioTrack>()
 
     } catch (pde: PermissionDeniedException) {
         Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
@@ -167,15 +173,14 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     }
 
     private fun prepareFromMediaId(
-        encodedId: String?,
+        mediaId: MediaId,
         startPlaybackPosition: Int
     ) = scope.launch(dispatchers.Default) {
-        val mediaId = encodedId.toMediaId()
         val parentId = mediaId.copy(track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
         val firstIndex = when {
-            mediaId.track != null -> playQueue.indexOfFirst { it.mediaId == encodedId }
+            mediaId.track != null -> playQueue.indexOfFirst { it.id == mediaId }
             else -> C.POSITION_UNSET
         }
 
@@ -194,20 +199,16 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      * otherwise playback will be set to start at the first index in the queue (shuffled or not).
      */
     private suspend fun preparePlayer(
-        playQueue: List<MediaItem>,
+        playQueue: List<AudioTrack>,
         firstShuffledIndex: Int,
         startPosition: Int
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
             val mediaSources = Array(playQueue.size) {
-                val playableItem = playQueue[it].description
-                val sourceUri = checkNotNull(playableItem.mediaUri) {
-                    "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
-                }
-
+                val audioTrack = playQueue[it]
                 ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
-                    .setTag(playableItem)
-                    .createMediaSource(sourceUri)
+                    .setTag(audioTrack)
+                    .createMediaSource(audioTrack.mediaUri)
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.

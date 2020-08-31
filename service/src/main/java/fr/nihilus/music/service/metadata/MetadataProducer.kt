@@ -16,9 +16,8 @@
 
 package fr.nihilus.music.service.metadata
 
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -30,12 +29,6 @@ import kotlinx.coroutines.channels.consumeEach
  * The maximum width/height for the icon of the currently playing metadata.
  */
 private const val ICON_MAX_SIZE = 320
-
-/**
- * Special value for [MediaMetadataCompat.METADATA_KEY_DURATION] indicating that the duration of the related track
- * is unknown of infinite.
- */
-private const val DURATION_UNKNOWN = -1L
 
 /**
  * Starts a coroutine that transforms received queue items into [MediaMetadataCompat] instances
@@ -52,7 +45,7 @@ private const val DURATION_UNKNOWN = -1L
 internal fun CoroutineScope.metadataProducer(
     downloader: IconDownloader,
     metadata: SendChannel<MediaMetadataCompat>
-): SendChannel<MediaDescriptionCompat> = actor(
+): SendChannel<AudioTrack> = actor(
     capacity = Channel.CONFLATED,
     start = CoroutineStart.LAZY
 ) {
@@ -61,7 +54,7 @@ internal fun CoroutineScope.metadataProducer(
     var updateJob = scheduleMetadataUpdate(downloader, currentlyPlayingItem, builder, metadata)
 
     consumeEach { description ->
-        if (currentlyPlayingItem.mediaId != description.mediaId) {
+        if (currentlyPlayingItem.id != description.id) {
             currentlyPlayingItem = description
 
             updateJob.cancel()
@@ -71,37 +64,36 @@ internal fun CoroutineScope.metadataProducer(
 }
 
 /**
- * Extract track metadata from the provided [media description][description] and load its icon.
+ * Extract track metadata from the provided [media description][track] and load its icon.
  * The launched coroutine supports cancellation.
  *
  * @param downloader The downloader used to load the icon associated with the metadata.
- * @param description The description of the media from which metadata should be extracted.
+ * @param track The track from which metadata should be extracted.
  * @param builder A metadata builder that can be reused to create different [MediaMetadataCompat] instances.
  * @param output Send metadata to this channel when ready.
  */
 private fun CoroutineScope.scheduleMetadataUpdate(
     downloader: IconDownloader,
-    description: MediaDescriptionCompat,
+    track: AudioTrack,
     builder: MediaMetadataCompat.Builder,
     output: SendChannel<MediaMetadataCompat>
 ): Job = launch {
-    val trackIcon = description.iconUri?.let {
+    val trackIcon = track.iconUri?.let {
         downloader.loadBitmap(it, ICON_MAX_SIZE, ICON_MAX_SIZE)
     }
 
     val metadata = builder.apply {
-        id = checkNotNull(description.mediaId) { "Every description should have a media id" }
-        val trackTitle = description.title?.toString()
-        title = trackTitle
-        displayTitle = trackTitle
-        displaySubtitle = description.subtitle?.toString()
-        displayDescription = description.description?.toString()
-        displayIconUri = description.iconUri?.toString()
+        id = track.id.encoded
+        title = track.title
+        displayTitle = track.title
+        displaySubtitle = track.artist
+        displayDescription = track.album
+        displayIconUri = track.iconUri?.toString()
         displayIcon = trackIcon
         albumArt = trackIcon
-
-        val extras = description.extras
-        duration = extras?.getLong(MediaItems.EXTRA_DURATION, DURATION_UNKNOWN) ?: DURATION_UNKNOWN
+        duration = track.duration
+        artist = track.artist
+        album = track.album
     }.build()
 
     output.send(metadata)

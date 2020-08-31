@@ -16,12 +16,8 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.net.Uri
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -40,7 +36,7 @@ internal abstract class ChildrenProvider {
      * The returned flow throws [NoSuchElementException] if the requested parent
      * is not browsable or is not part of the media tree.
      */
-    fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = when (parentId.track) {
+    fun getChildren(parentId: MediaId): Flow<List<MediaContent>> = when (parentId.track) {
         null -> findChildren(parentId)
         else -> flow<Nothing> {
             throw NoSuchElementException("$parentId is not browsable")
@@ -56,56 +52,5 @@ internal abstract class ChildrenProvider {
      * The returned flow should throw [NoSuchElementException] if the requested parent
      * is not browsable or is not part of the media tree.
      */
-    protected abstract fun findChildren(parentId: MediaId): Flow<List<MediaItem>>
-
-    /**
-     * Helper function to create a browsable [MediaItem].
-     */
-    protected fun browsable(
-        builder: MediaDescriptionCompat.Builder,
-        id: String,
-        title: String,
-        subtitle: String? = null,
-        trackCount: Int = 0,
-        iconUri: Uri? = null
-    ): MediaItem {
-        val extras = if (trackCount <= 0) null else Bundle(1).apply {
-            putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, trackCount)
-        }
-
-        val description = builder.setMediaId(id)
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setIconUri(iconUri)
-            .setExtras(extras)
-            .build()
-        return MediaItem(description, MediaItem.FLAG_BROWSABLE)
-    }
-
-    /**
-     * Helper function to create a playable [MediaItem].
-     */
-    protected fun playable(
-        builder: MediaDescriptionCompat.Builder,
-        id: String,
-        title: String,
-        subtitle: String,
-        mediaUri: Uri,
-        iconUri: Uri?,
-        duration: Long,
-        disc: Int,
-        number: Int
-    ) : MediaItem {
-        val description = builder.setMediaId(id)
-            .setTitle(title)
-            .setSubtitle(subtitle)
-            .setMediaUri(mediaUri)
-            .setIconUri(iconUri)
-            .setExtras(Bundle().apply {
-                putLong(MediaItems.EXTRA_DURATION, duration)
-                putInt(MediaItems.EXTRA_DISC_NUMBER, disc)
-                putInt(MediaItems.EXTRA_TRACK_NUMBER, number)
-            }).build()
-        return MediaItem(description, MediaItem.FLAG_PLAYABLE)
-    }
+    protected abstract fun findChildren(parentId: MediaId): Flow<List<MediaContent>>
 }

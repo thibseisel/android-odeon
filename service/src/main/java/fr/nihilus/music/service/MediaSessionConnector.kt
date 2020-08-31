@@ -20,7 +20,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.SystemClock
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -96,7 +95,7 @@ internal class MediaSessionConnector @Inject constructor(
     }
 
     private fun invalidateMediaSessionMetadata() {
-        val nowPlayingTrack = player.currentTag as? MediaDescriptionCompat
+        val nowPlayingTrack = player.currentTag as? AudioTrack
         if (nowPlayingTrack != null) {
             metadataProducer.offer(nowPlayingTrack)
         }
@@ -235,7 +234,7 @@ internal class MediaSessionConnector @Inject constructor(
         else -> PlaybackStateCompat.STATE_NONE
     }
 
-    private fun CoroutineScope.startMetadataUpdater(): SendChannel<MediaDescriptionCompat> {
+    private fun CoroutineScope.startMetadataUpdater(): SendChannel<AudioTrack> {
         val metadataOutput = Channel<MediaMetadataCompat>()
         val producerActor = metadataProducer(iconDownloader, metadataOutput)
 

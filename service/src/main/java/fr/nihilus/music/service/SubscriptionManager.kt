@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.service
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.PaginationOptions
 import kotlinx.coroutines.flow.Flow
@@ -63,7 +62,7 @@ internal interface SubscriptionManager {
      * @throws NoSuchElementException if the requested parent is not browsable
      * or is not part of the media tree.
      */
-    suspend fun loadChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>
+    suspend fun loadChildren(parentId: MediaId, options: PaginationOptions?): List<MediaContent>
 
     /**
      * Get a single item from the media tree.
@@ -71,5 +70,5 @@ internal interface SubscriptionManager {
      * @param itemId The media id of that item in the media tree.
      * @return The requested item, or `null` if that item is not part of the media tree.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaContent?
 }

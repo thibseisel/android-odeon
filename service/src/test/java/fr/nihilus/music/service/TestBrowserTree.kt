@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.service
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
+import android.net.Uri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
@@ -35,7 +34,7 @@ import kotlinx.coroutines.flow.map
  */
 internal object TestBrowserTree : BrowserTree {
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> {
+    override fun getChildren(parentId: MediaId): Flow<List<MediaContent>> {
         val (type, category, track) = parentId
 
         return when {
@@ -49,37 +48,43 @@ internal object TestBrowserTree : BrowserTree {
         }
     }
 
-    private fun provideAllTracksFlow(): Flow<List<MediaItem>> = periodicFlow(1000).map {
-        val builder = MediaDescriptionCompat.Builder()
+    private fun provideAllTracksFlow() = periodicFlow(1000).map {
         longArrayOf(161, 309, 481, 48, 125, 294, 219, 75, 464, 477).map { trackId ->
-            val mediaId = MediaId(TYPE_TRACKS, CATEGORY_ALL, trackId)
-            val description = builder.setMediaId(mediaId.encoded)
-                .setTitle("Track #$trackId")
-                .build()
-
-            MediaItem(description, MediaItem.FLAG_BROWSABLE)
+            AudioTrack(
+                id = MediaId(TYPE_TRACKS, CATEGORY_ALL, trackId),
+                title = "Track #$trackId",
+                artist = "",
+                album = "",
+                mediaUri = Uri.EMPTY,
+                duration = 0L,
+                disc = 0,
+                number = 0
+            )
         }
     }
 
     private fun getAlbumChildrenFlow(albumId: Long) = periodicFlow(500).map {
-        val albumTrackId = MediaId(TYPE_ALBUMS, albumId.toString(), albumId)
-        val description = MediaDescriptionCompat.Builder()
-            .setMediaId(albumTrackId.encoded)
-            .setTitle("Track #$albumId")
-            .setSubtitle("Album #$albumId")
-            .build()
-
-        listOf(MediaItem(description, MediaItem.FLAG_PLAYABLE))
+        listOf(
+            AudioTrack(
+                id = MediaId(TYPE_ALBUMS, albumId.toString(), albumId),
+                title = "Track #$albumId",
+                album = "Album #$albumId",
+                artist = "sample_artist",
+                mediaUri = Uri.EMPTY,
+                disc = 0,
+                number = 0,
+                duration = 0
+            )
+        )
     }
 
     private fun getAlbumsFlow() = periodicFlow(Long.MAX_VALUE).map {
-        val albumId = MediaId(TYPE_ALBUMS, "42")
-        val description = MediaDescriptionCompat.Builder()
-            .setMediaId(albumId.encoded)
-            .setTitle("Album #42")
-            .build()
-
-        listOf(MediaItem(description, MediaItem.FLAG_BROWSABLE))
+        listOf(
+            MediaCategory(
+                id = MediaId(TYPE_ALBUMS, "42"),
+                title = "Album #42"
+            )
+        )
     }
 
     private fun periodicFlow(period: Long) = flow {
@@ -93,7 +98,7 @@ internal object TestBrowserTree : BrowserTree {
         throw NoSuchElementException()
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? = stub()
+    override suspend fun getItem(itemId: MediaId): MediaContent? = stub()
 
-    override suspend fun search(query: SearchQuery): List<MediaItem> = stub()
+    override suspend fun search(query: SearchQuery): List<MediaContent> = stub()
 }

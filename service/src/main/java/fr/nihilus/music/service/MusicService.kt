@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
@@ -88,7 +89,7 @@ class MusicService : BaseBrowserService() {
         mediaController = MediaControllerCompat(this, session)
         mediaController.transportControls.run {
             setShuffleMode(
-                when(settings.shuffleModeEnabled) {
+                when (settings.shuffleModeEnabled) {
                     true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
                     else -> PlaybackStateCompat.SHUFFLE_MODE_NONE
                 }
@@ -169,7 +170,9 @@ class MusicService : BaseBrowserService() {
                 val parentMediaId = parentId.toMediaId()
                 val paginationOptions = getPaginationOptions(options)
                 val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
-                result.sendResult(children)
+
+                val builder = MediaDescriptionCompat.Builder()
+                result.sendResult(children.map { it.toItem(builder) })
 
             } catch (malformedId: MalformedMediaIdException) {
                 Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
@@ -205,8 +208,8 @@ class MusicService : BaseBrowserService() {
             launch {
                 try {
                     val itemMediaId = itemId.toMediaId()
-                    val item = subscriptions.getItem(itemMediaId)
-                    result.sendResult(item)
+                    val requestedContent = subscriptions.getItem(itemMediaId)
+                    result.sendResult(requestedContent?.toItem())
 
                 } catch (malformedId: MalformedMediaIdException) {
                     Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
@@ -231,12 +234,48 @@ class MusicService : BaseBrowserService() {
 
             try {
                 val searchResults = browserTree.search(parsedQuery)
-                result.sendResult(searchResults)
+                val builder = MediaDescriptionCompat.Builder()
+                result.sendResult(searchResults.map { it.toItem(builder) })
+
             } catch (pde: PermissionDeniedException) {
                 Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
                 result.sendResult(null)
             }
         }
+    }
+
+    private fun MediaContent.toItem(
+        builder: MediaDescriptionCompat.Builder = MediaDescriptionCompat.Builder()
+    ): MediaItem {
+        builder
+            .setMediaId(id.encoded)
+            .setTitle(title)
+            .setIconUri(iconUri)
+
+        val flags: Int
+        when (this) {
+            is MediaCategory -> {
+                flags = MediaItem.FLAG_BROWSABLE
+                builder
+                    .setSubtitle(subtitle)
+                    .setExtras(Bundle().apply {
+                        putInt(MediaItems.EXTRA_NUMBER_OF_TRACKS, count)
+                    })
+            }
+
+            is AudioTrack -> {
+                flags = MediaItem.FLAG_PLAYABLE
+                builder
+                    .setSubtitle(artist)
+                    .setExtras(Bundle(3).apply {
+                        putInt(MediaItems.EXTRA_DISC_NUMBER, disc)
+                        putInt(MediaItems.EXTRA_TRACK_NUMBER, number)
+                        putLong(MediaItems.EXTRA_DURATION, duration)
+                    })
+            }
+        }
+
+        return MediaItem(builder.build(), flags)
     }
 
     /**
@@ -371,13 +410,14 @@ class MusicService : BaseBrowserService() {
             }
 
             player.currentTimeline.getWindow(completedTrackIndex, windowBuffer)
-            val completedMedia = windowBuffer.tag as? MediaDescriptionCompat ?: return
-            val (_, _, completedTrackId) = completedMedia.mediaId.toMediaId()
 
-            if (completedTrackId != null) {
-                launch {
-                    usageManager.reportCompletion(completedTrackId)
-                }
+            val completedMedia = windowBuffer.tag as AudioTrack
+            val completedTrackId = checkNotNull(completedMedia.id.track) {
+                "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
+            }
+
+            launch {
+                usageManager.reportCompletion(completedTrackId)
             }
         }
     }

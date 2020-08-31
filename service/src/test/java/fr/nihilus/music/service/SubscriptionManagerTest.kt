@@ -24,13 +24,13 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.service.browser.PaginationOptions
+import io.kotest.assertions.extracting
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.*
@@ -70,17 +70,17 @@ class SubscriptionManagerTest {
         val manager = CachingSubscriptionManager(this, TestBrowserTree, dispatchers)
         val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
-        children.map { it.mediaId }.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 161),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 309),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 48),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 125),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 294),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 219),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 464),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 477)
+        extracting(children, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 48),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 125),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 294),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 219),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 75),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 464),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 477)
         )
     }
 
@@ -220,10 +220,10 @@ class SubscriptionManagerTest {
             PaginationOptions(0, 3)
         )
 
-        paginatedChildren.map { it.mediaId }.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 161),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 309),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481)
+        extracting(paginatedChildren, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
     }
 
@@ -236,9 +236,9 @@ class SubscriptionManagerTest {
             PaginationOptions(3, 2)
         )
 
-        paginatedChildren.map { it.mediaId }.shouldContainExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 219),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75)
+        extracting(paginatedChildren, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 219),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 75)
         )
     }
 
@@ -407,7 +407,7 @@ class SubscriptionManagerTest {
         val manager = CachingSubscriptionManager(this, TestBrowserTree, dispatchers)
         val children = manager.loadChildren(parentId, null)
 
-        val child = children.find { it.mediaId == itemId.encoded }
+        val child = children.find { it.id == itemId }
             ?: failAssumption("$itemId should be listed in the children of $parentId, but wasn't")
 
         val item = manager.getItem(itemId)

@@ -19,25 +19,26 @@ package fr.nihilus.music.service.browser
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.THEIR_MEDIA_ID
+import fr.nihilus.music.service.MediaContent
+import io.kotest.assertions.extracting
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
-import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 import kotlinx.coroutines.test.runBlockingTest as test
 
 @RunWith(AndroidJUnit4::class)
-class BrowserTreeSearchTest {
+internal class BrowserTreeSearchTest {
 
     private val context: Context
         get() = ApplicationProvider.getApplicationContext()
@@ -47,7 +48,7 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Empty)
-        assertThat(results).isEmpty()
+        results.shouldBeEmpty()
     }
 
     @Test
@@ -55,8 +56,8 @@ class BrowserTreeSearchTest {
         val browserTree = givenRealisticBrowserTree()
 
         val results = browserTree.search(SearchQuery.Artist("Foo Fighters"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ARTISTS, "13")
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ARTISTS, "13")
         )
     }
 
@@ -65,8 +66,8 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Album("Foo Fighters", "Wasting Light"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ALBUMS, "26")
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ALBUMS, "26")
         )
     }
 
@@ -75,13 +76,13 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Song(
-            "Foo Fighters",
-            "Concrete and Gold",
-            "Dirty Water"
+            artist = "Foo Fighters",
+            album = "Concrete and Gold",
+            title = "Dirty Water"
         ))
 
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481)
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
     }
 
@@ -90,8 +91,8 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Unspecified("foo fighters"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ARTISTS, "13")
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ARTISTS, "13")
         )
     }
 
@@ -100,8 +101,8 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Unspecified("concrete and gold"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ALBUMS, "102")
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ALBUMS, "102")
         )
     }
 
@@ -110,8 +111,8 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Unspecified("dirty water"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 481)
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481)
         )
     }
 
@@ -120,8 +121,8 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
 
         val results = tree.search(SearchQuery.Album("Avenged Sevenfold", "Nightmare"))
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ALBUMS, "6")
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ALBUMS, "6")
         )
     }
 
@@ -133,10 +134,10 @@ class BrowserTreeSearchTest {
         // Note that the album should be listed first.
         val results = tree.search(SearchQuery.Unspecified("nightmare"))
 
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_ALBUMS, "6"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75)
-        ).inOrder()
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ALBUMS, "6"),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 75)
+        )
     }
 
     @Test
@@ -144,9 +145,9 @@ class BrowserTreeSearchTest {
         val tree = givenRealisticBrowserTree()
         val results = tree.search(SearchQuery.Unspecified("Nightmare"))
 
-        results.map { it.mediaId }.shouldContainAll(
-            encode(TYPE_ALBUMS, "6"),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 75)
+        extracting(results, MediaContent::id).shouldContainAll(
+            MediaId(TYPE_ALBUMS, "6"),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 75)
         )
     }
 
@@ -168,12 +169,12 @@ class BrowserTreeSearchTest {
         // then "You've Got AnOTHER Thing Comin" (pattern matches farther)
         val results = tree.search(SearchQuery.Unspecified("other"))
 
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 12),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 23),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 34),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 98)
-        ).inOrder()
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 12),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 23),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 34),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 98)
+        )
     }
 
     @Test
@@ -190,11 +191,11 @@ class BrowserTreeSearchTest {
         // shorter items should be displayed first.
         val results = tree.search(SearchQuery.Unspecified("are"))
 
-        assertThat(results).comparingElementsUsing(THEIR_MEDIA_ID).containsExactly(
-            encode(TYPE_TRACKS, CATEGORY_ALL, 10),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 63),
-            encode(TYPE_TRACKS, CATEGORY_ALL, 42)
-        ).inOrder()
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 10),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 63),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 42)
+        )
     }
 
     @Test
@@ -211,14 +212,14 @@ class BrowserTreeSearchTest {
         )
 
         val tree = BrowserTree(TestMediaDao(artist, emptyList(), tracks))
-        val results = tree.search(SearchQuery.Unspecified("av")).map { it.mediaId }
+        val results = tree.search(SearchQuery.Unspecified("av"))
 
-        results.shouldContainExactly(
-            encode(TYPE_ARTISTS, "65"), // AVatar
-            encode(TYPE_TRACKS, CATEGORY_ALL, 90), // AValanche
-            encode(TYPE_ARTISTS, "98"), // AVenged Sevenfold
-            encode(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
-            encode(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
+        extracting(results, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_ARTISTS, "65"), // AVatar
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 90), // AValanche
+            MediaId(TYPE_ARTISTS, "98"), // AVenged Sevenfold
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
         )
     }
 

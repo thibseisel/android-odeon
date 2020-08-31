@@ -17,7 +17,6 @@
 package fr.nihilus.music.service
 
 import android.Manifest
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.stub
@@ -42,15 +41,15 @@ internal class PermissionBrowserTree(
     var granted: Boolean
 ) : BrowserTree {
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = flow {
+    override fun getChildren(parentId: MediaId): Flow<List<MediaContent>> = flow {
         while (true) {
-            if (granted) emit(emptyList<MediaItem>())
+            if (granted) emit(emptyList())
             else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
             delay(1000)
         }
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaItem? = stub()
+    override suspend fun getItem(itemId: MediaId): MediaContent? = stub()
 
-    override suspend fun search(query: SearchQuery): List<MediaItem> = stub()
+    override suspend fun search(query: SearchQuery): List<MediaContent> = stub()
 }
