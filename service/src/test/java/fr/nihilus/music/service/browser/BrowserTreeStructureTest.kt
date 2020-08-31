@@ -22,7 +22,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -36,14 +35,12 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
-import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.service.assertOn
 import fr.nihilus.music.service.generateRandomTrackSequence
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.inspectors.forOne
 import io.kotest.matchers.collections.*
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
@@ -86,7 +83,6 @@ internal class BrowserTreeStructureTest {
             "$TYPE_TRACKS/$CATEGORY_ALL",
             "$TYPE_TRACKS/$CATEGORY_RECENTLY_ADDED",
             "$TYPE_TRACKS/$CATEGORY_MOST_RATED",
-            "$TYPE_TRACKS/$CATEGORY_DISPOSABLE",
             "$TYPE_TRACKS/$CATEGORY_POPULAR"
         )
 
@@ -330,41 +326,6 @@ internal class BrowserTreeStructureTest {
                 containsKey(MediaItems.EXTRA_DURATION)
                 integer(MediaItems.EXTRA_DISC_NUMBER).isEqualTo(1)
                 integer(MediaItems.EXTRA_TRACK_NUMBER).isEqualTo(6)
-            }
-        }
-    }
-
-    @Test
-    fun `When loading children of Disposable, then return disposable items from usage manager`() = runBlockingTest {
-        val usageManager = TestUsageManager(emptyList(), disposableTracks = listOf(
-            DisposableTrack(48L, "Give It Up", 5_716_578, null),
-            DisposableTrack(161L, "1741 (The Battle of Cartagena)", 17_506_481, 1565272800)
-        ))
-
-        val browserTree = BrowserTreeImpl(context, StubMediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
-        val children = browserTree.getChildren(
-            MediaId(TYPE_TRACKS, CATEGORY_DISPOSABLE)
-        ).first()
-
-        children.shouldHaveSize(2)
-
-        children[0] should {
-            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|48"
-            it.description.title shouldBe "Give It Up"
-
-            assertOn(it.description.extras) {
-                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(5_716_578)
-                doesNotContainKey(MediaItems.EXTRA_LAST_PLAYED_TIME)
-            }
-        }
-
-        children[1] should {
-            it.mediaId shouldBe "$TYPE_TRACKS/$CATEGORY_DISPOSABLE|161"
-            it.description.title shouldBe "1741 (The Battle of Cartagena)"
-
-            assertOn(it.description.extras) {
-                longInt(MediaItems.EXTRA_FILE_SIZE).isEqualTo(17_506_481)
-                longInt(MediaItems.EXTRA_LAST_PLAYED_TIME).isEqualTo(1565272800)
             }
         }
     }

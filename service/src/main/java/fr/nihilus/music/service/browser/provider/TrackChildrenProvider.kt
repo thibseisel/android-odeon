@@ -44,7 +44,6 @@ internal class TrackChildrenProvider(
             MediaId.CATEGORY_MOST_RATED -> getMostRatedTracks()
             MediaId.CATEGORY_POPULAR -> getMonthPopularTracks()
             MediaId.CATEGORY_RECENTLY_ADDED -> getRecentlyAddedTracks()
-            MediaId.CATEGORY_DISPOSABLE -> getDisposableTracks()
             else -> flow { throw NoSuchElementException("No such parent: $parentId") }
         }
     }
@@ -74,23 +73,6 @@ internal class TrackChildrenProvider(
             val builder = MediaDescriptionCompat.Builder()
             popularTracks.map { it.toMediaItem(MediaId.CATEGORY_POPULAR, builder) }
         }
-
-    private fun getDisposableTracks(): Flow<List<MediaItem>> = usageManager.getDisposableTracks().map { disposableTracks ->
-        val builder = MediaDescriptionCompat.Builder()
-
-        disposableTracks.map { track ->
-            val mediaId = MediaId(TYPE_TRACKS, MediaId.CATEGORY_DISPOSABLE, track.trackId)
-            val description = builder.setMediaId(mediaId.encoded)
-                .setTitle(track.title)
-                .setExtras(Bundle().apply {
-                    putLong(MediaItems.EXTRA_FILE_SIZE, track.fileSizeBytes)
-                    track.lastPlayedTime?.let { lastPlayedTime ->
-                        putLong(MediaItems.EXTRA_LAST_PLAYED_TIME, lastPlayedTime)
-                    }
-                }).build()
-            MediaItem(description, MediaItem.FLAG_PLAYABLE)
-        }
-    }
 
     private fun Track.toMediaItem(
         category: String,

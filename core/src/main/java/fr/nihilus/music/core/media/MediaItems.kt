@@ -46,21 +46,4 @@ object MediaItems {
      * Type: integer
      */
     const val EXTRA_DISC_NUMBER = "disc_no"
-
-    /**
-     * The size of the local file associated with this media, in bytes.
-     * This extra is only available on tracks from the [disposable category][MediaId.CATEGORY_DISPOSABLE].
-     *
-     * Type: long
-     */
-    const val EXTRA_FILE_SIZE = "file_size"
-
-    /**
-     * The epoch time at which that track has been played for the last time.
-     * This extra is only available on tracks from the [disposable category][MediaId.CATEGORY_DISPOSABLE],
-     * and only if that track has been played at least once.
-     *
-     * Type: long
-     */
-    const val EXTRA_LAST_PLAYED_TIME = "last_played_time"
 }

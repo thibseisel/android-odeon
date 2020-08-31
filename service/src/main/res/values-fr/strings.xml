@@ -24,7 +24,6 @@
     <string name="svc_all_music">Tous les morceaux</string>
     <string name="svc_last_added">Derniers ajouts</string>
     <string name="svc_most_rated">Favoris</string>
-    <string name="svc_category_disposable">Nettoyage</string>
     <string name="svc_artist_subtitle">%1$d albums, %2$d morceaux</string>
     <string name="svc_recently_added_description">C\'est nouveau ça vient de sortir !</string>
     <string name="svc_most_rated_description">Le Panthéon de votre bibliothèque musicale.</string>

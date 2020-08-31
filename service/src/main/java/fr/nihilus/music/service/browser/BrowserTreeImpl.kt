@@ -24,7 +24,6 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
-import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_DISPOSABLE
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_POPULAR
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
@@ -113,12 +112,6 @@ internal class BrowserTreeImpl @Inject constructor(
                 context.getString(R.string.svc_last_added),
                 subtitle = res.getString(R.string.svc_recently_added_description),
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
-                provider = trackProvider
-            )
-
-            category(
-                CATEGORY_DISPOSABLE,
-                context.getString(R.string.svc_category_disposable),
                 provider = trackProvider
             )
         }
