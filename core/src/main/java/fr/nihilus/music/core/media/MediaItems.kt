@@ -20,30 +20,32 @@ package fr.nihilus.music.core.media
  * A helper class grouping media-related constants.
  */
 object MediaItems {
+
     /**
      * The listening time represented by this item, may it be a track, an album or a playlist.
      *
      * Type: long
      */
-    const val EXTRA_DURATION = "duration"
+    const val EXTRA_DURATION = "fr.nihilus.music.extra.DURATION"
+
     /**
      * The number of tracks that this browsable media item contains.
      *
      * Type: integer
      */
-    const val EXTRA_NUMBER_OF_TRACKS = "number_of_tracks"
+    const val EXTRA_NUMBER_OF_TRACKS = "fr.nihilus.music.extra.NUMBER_OF_TRACKS"
 
     /**
      * The number of this track in its album.
      *
      * Type: integer
      */
-    const val EXTRA_TRACK_NUMBER = "track_no"
+    const val EXTRA_TRACK_NUMBER = "fr.nihilus.music.extra.TRACK_NUMBER"
 
     /**
      * The number of the disc this track appears.
      *
      * Type: integer
      */
-    const val EXTRA_DISC_NUMBER = "disc_no"
+    const val EXTRA_DISC_NUMBER = "fr.nihilus.music.extra.DISC_NUMBER"
 }
