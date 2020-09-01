@@ -47,7 +47,7 @@ ext.versions = [
         'timber'        : '4.7.1',
 
         'junit'         : '4.12',
-        'kotest'        : '4.2.0',
+        'kotest'        : '4.2.3',
         'mockk'         : '1.10.0',
         'robolectric'   : '4.4',
 ]

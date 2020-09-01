@@ -25,6 +25,7 @@ import io.kotest.property.arbitrary.arb
 import io.kotest.property.arbitrary.filter
 import io.kotest.property.arbitrary.filterNot
 import io.kotest.property.forAll
+import io.kotest.property.forNone
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 
@@ -50,8 +51,8 @@ class FeatureFilterTest {
                 singleKey.matches(it)
             }
 
-            forAll(randomFeatures.filter { it.key != Pitch.A }) {
-                !singleKey.matches(it)
+            forNone(randomFeatures.filter { it.key != Pitch.A }) {
+                singleKey.matches(it)
             }
         }
 
@@ -67,8 +68,8 @@ class FeatureFilterTest {
                 majorFilter.matches(it)
             }
 
-            forAll(randomFeatures.filter { it.mode != MusicalMode.MAJOR }) {
-                !majorFilter.matches(it)
+            forNone(randomFeatures.filter { it.mode != MusicalMode.MAJOR }) {
+                majorFilter.matches(it)
             }
         }
 
@@ -85,8 +86,8 @@ class FeatureFilterTest {
             }
 
             val otherTonesTrackGen = randomFeatures.filterNot { it.key == Pitch.D && it.mode == MusicalMode.MINOR }
-            forAll(otherTonesTrackGen) {
-                !dMinorFilter.matches(it)
+            forNone(otherTonesTrackGen) {
+                dMinorFilter.matches(it)
             }
         }
 
@@ -103,8 +104,8 @@ class FeatureFilterTest {
             }
 
             val allegroTrackGen = randomFeatures.filter { it.tempo in 112f..160f }
-            forAll(allegroTrackGen) {
-                !moderatoFilter.matches(it)
+            forNone(allegroTrackGen) {
+                moderatoFilter.matches(it)
             }
         }
     }
