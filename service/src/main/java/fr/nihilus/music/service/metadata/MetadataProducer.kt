@@ -88,7 +88,7 @@ private fun CoroutineScope.scheduleMetadataUpdate(
         displayTitle = track.title
         displaySubtitle = track.artist
         displayDescription = track.album
-        displayIconUri = track.iconUri?.toString()
+        displayIconUri = track.iconUri
         displayIcon = trackIcon
         albumArt = trackIcon
         duration = track.duration

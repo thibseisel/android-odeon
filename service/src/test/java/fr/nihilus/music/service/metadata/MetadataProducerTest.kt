@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
+import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -69,7 +70,7 @@ internal class MetadataProducerTest {
                 displaySubtitle shouldBe "Avenged Sevenfold"
                 displayDescription shouldBe "Nightmare"
                 duration shouldBe 374648L
-                displayIconUri shouldBe "file:///Music/Nightmare.mp3"
+                displayIconUri shouldBe "file:///Music/Nightmare.mp3".toUri()
             }
 
             // Specific properties that may be used by some Bluetooth devices.

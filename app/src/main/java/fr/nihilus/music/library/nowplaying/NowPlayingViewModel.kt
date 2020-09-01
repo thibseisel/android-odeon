@@ -56,7 +56,7 @@ class NowPlayingViewModel @Inject constructor(
                             true -> it.duration
                             else -> PLAYBACK_POSITION_UNKNOWN
                         },
-                        artworkUri = it.displayIconUri?.toUri()
+                        artworkUri = it.displayIconUri
                     )
                 }
             }
