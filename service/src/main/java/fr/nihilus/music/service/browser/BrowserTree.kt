@@ -16,24 +16,26 @@
 
 package fr.nihilus.music.service.browser
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.MediaContent
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.AudioTrack
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Define the hierarchy of media that can be browsed by remote clients connected to the service.
  * Media are organized in a tree-like structure, with 2 type of nodes:
- * - [Browsable items][MediaItem.isBrowsable] that have children themselves that can be retrieved using [getChildren],
- * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
+ * - [Browsable items][MediaCategory] that have children themselves that can be retrieved using [getChildren],
+ * - [Playable leafs][AudioTrack] that do not have children but can be played.
  */
 internal interface BrowserTree {
 
     /**
-     * Retrieve children media of an item with the given [parentId] in the browser tree.
+     * Retrieve children media of a media with the given [parentId] in the browser tree.
      * The nature of those children depends on the media id of its parent and the internal structure of the media tree.
      * See [MediaId] for more information.
      *
-     * @param parentId The media id of an item whose children should be loaded.
+     * @param parentId The media id of a media whose children should be loaded.
      *
      * @return An asynchronous stream whose latest emitted value is the current list of children
      * of the specified parent node (whose media id is [parentId]) in the media tree.
@@ -41,7 +43,7 @@ internal interface BrowserTree {
      * The returned flow will throw [NoSuchElementException] if the requested parent node
      * is not browsable or not part of the media tree.
      */
-    fun getChildren(parentId: MediaId): Flow<List<MediaItem>>
+    fun getChildren(parentId: MediaId): Flow<List<MediaContent>>
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
@@ -50,16 +52,16 @@ internal interface BrowserTree {
      * @param itemId The media id of the item to retrieve.
      * @return An item with the same media id as the requested one, or `null` if no item matches.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaContent?
 
     /**
-     * Search the browser tree for media items whose title matches the supplied [query].
+     * Search the browser tree for media whose title matches the supplied [query].
      * What exactly should be searched is determined by the type of the [SearchQuery].
      *
      * @param query The client-provided search query.
-     * @return A list of media items matching the search criteria.
+     * @return A list of media matching the search criteria.
      */
-    suspend fun search(query: SearchQuery): List<MediaItem>
+    suspend fun search(query: SearchQuery): List<MediaContent>
 }
 
 /**

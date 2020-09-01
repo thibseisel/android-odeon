@@ -19,15 +19,13 @@ package fr.nihilus.music.ui.cleanup
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.view.*
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.core.collections.sumByLong
-import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -47,7 +45,8 @@ private const val REQUEST_CONFIRM_CLEANUP = 1337
 internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private val viewModel by viewModels<CleanupViewModel> { viewModelFactory }
-    private lateinit var selectionTracker: SelectionTracker<MediaBrowserCompat.MediaItem>
+    private lateinit var adapter: CleanupAdapter
+    private lateinit var selectionTracker: SelectionTracker<Long>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,15 +56,15 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         recyclerView.addItemDecoration(dividers)
 
-        val adapter = CleanupAdapter()
+        adapter = CleanupAdapter()
         recyclerView.adapter = adapter
 
         selectionTracker = SelectionTracker.Builder(
-            "disposable_tracks_selection",
+            "track_ids_selection",
             recyclerView,
-            TrackKeyProvider(adapter),
+            StableIdKeyProvider(recyclerView),
             TrackDetailLookup(recyclerView),
-            StorageStrategy.createParcelableStorage(MediaBrowserCompat.MediaItem::class.java)
+            StorageStrategy.createLongStorage()
         ).build().also {
             adapter.selection = it
             it.addObserver(HasSelectionObserver(it.selection))
@@ -98,7 +97,11 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CONFIRM_CLEANUP && resultCode == DialogInterface.BUTTON_POSITIVE) {
-            val selectedTracks = selectionTracker.selection.toList()
+            val tracksById = adapter.currentList.associateByLong { it.trackId }
+            val selectedTracks = selectionTracker.selection.mapNotNull { trackId ->
+                tracksById[trackId]
+            }
+
             viewModel.deleteTracks(selectedTracks)
             selectionTracker.clearSelection()
         }
@@ -115,7 +118,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
     }
 
-    private fun askCleanupConfirmation(deletedTracks: Selection<MediaBrowserCompat.MediaItem>) {
+    private fun askCleanupConfirmation(deletedTracks: Selection<Long>) {
         val selected = deletedTracks.size()
         val dialog = ConfirmDialogFragment.newInstance(
             this,
@@ -138,33 +141,13 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     }
 
     /**
-     * Associate selection keys to positions in the adapter.
-     */
-    private class TrackKeyProvider(
-        private val adapter: CleanupAdapter
-    ) : ItemKeyProvider<MediaBrowserCompat.MediaItem>(SCOPE_CACHED) {
-
-        override fun getKey(position: Int): MediaBrowserCompat.MediaItem? {
-            val items = adapter.currentList
-            return items.getOrNull(position)
-        }
-
-        override fun getPosition(key: MediaBrowserCompat.MediaItem): Int {
-            val currentItems = adapter.currentList
-            val trackId = key.mediaId
-            val indexOfKey = currentItems.indexOfFirst { it.mediaId == trackId }
-            return if (indexOfKey != -1) indexOfKey else RecyclerView.NO_POSITION
-        }
-    }
-
-    /**
      * Provides the detail of items in the selectable list from their ViewHolder.
      */
     private class TrackDetailLookup(
         private val view: RecyclerView
-    ) : ItemDetailsLookup<MediaBrowserCompat.MediaItem>() {
+    ) : ItemDetailsLookup<Long>() {
 
-        override fun getItemDetails(e: MotionEvent): ItemDetails<MediaBrowserCompat.MediaItem>? {
+        override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
             return view.findChildViewUnder(e.x, e.y)
                 ?.let { view.getChildViewHolder(it) as? CleanupAdapter.ViewHolder }
                 ?.itemDetails
@@ -172,8 +155,8 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     }
 
     private inner class HasSelectionObserver(
-        private val liveSelection: Selection<MediaBrowserCompat.MediaItem>
-    ) : SelectionTracker.SelectionObserver<MediaBrowserCompat.MediaItem>(),
+        private val liveSelection: Selection<Long>
+    ) : SelectionTracker.SelectionObserver<Long>(),
         ActionMode.Callback {
 
         private var hadSelection = false
@@ -188,7 +171,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             }
         }
 
-        override fun onItemStateChanged(key: MediaBrowserCompat.MediaItem, selected: Boolean) {
+        override fun onItemStateChanged(key: Long, selected: Boolean) {
             if (!liveSelection.isEmpty) {
                 updateActionModeText()
             }
@@ -218,11 +201,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                     selectedCount,
                     selectedCount
                 )
-
-                val freedBytes = liveSelection.sumByLong {
-                    it.description.extras?.getLong(MediaItems.EXTRA_FILE_SIZE) ?: 0L
-                }
-                mode.subtitle = formatToHumanReadableByteCount(freedBytes)
+                //mode.subtitle = formatToHumanReadableByteCount(freedBytes)
             }
         }
 

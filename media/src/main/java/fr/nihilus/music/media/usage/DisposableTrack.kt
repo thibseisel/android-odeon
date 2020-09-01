@@ -25,7 +25,7 @@ package fr.nihilus.music.media.usage
  * @property lastPlayedTime The epoch time at which that track has been played for the last time,
  * or `null` if it has never been played.
  */
-class DisposableTrack(
+data class DisposableTrack(
     val trackId: Long,
     val title: String,
     val fileSizeBytes: Long,

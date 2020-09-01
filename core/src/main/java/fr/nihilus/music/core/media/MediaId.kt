@@ -218,19 +218,6 @@ private constructor(
         const val CATEGORY_POPULAR = "popular"
 
         /**
-         * Sub-category of the ["tracks" type][MediaId.TYPE_TRACKS] that lists tracks that could be deleted
-         * to free up the device's space.
-         * tracks are selected according to the following criteria:
-         * 1. The file size for that track in bytes.
-         * 2. The last time that track has been listened to
-         * 3. The score for that track (based on usage statistics)
-         *
-         * @see MediaId.TYPE_TRACKS
-         * @see MediaId.category
-         */
-        const val CATEGORY_DISPOSABLE = "disposable"
-
-        /**
          * The unique identifier of the root of the media browser.
          */
         @JvmField val ROOT = encode(TYPE_ROOT)

@@ -16,14 +16,13 @@
 
 package fr.nihilus.music.service.browser.provider
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaDescriptionCompat
 import androidx.core.net.toUri
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
-import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.service.MediaContent
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.spotify.manager.FeatureFilter
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +35,7 @@ internal class SmartCategoryProvider(
 
     override fun findChildren(
         parentId: MediaId
-    ): Flow<List<MediaItem>> {
+    ): Flow<List<MediaContent>> {
         check(parentId.type == TYPE_SMART && parentId.category != null)
 
         return when (parentId.category) {
@@ -46,39 +45,37 @@ internal class SmartCategoryProvider(
         }
     }
 
-    private fun getHappyTracks(): Flow<List<MediaItem>> = flow {
-        val builder = MediaDescriptionCompat.Builder()
+    private fun getHappyTracks(): Flow<List<AudioTrack>> = flow {
         val happyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::valence, 0.65f, 1.0f)
         )
 
         val happyTracks = spotifyManager.findTracksHavingFeatures(happyFilters)
-            .map { (track, _) -> track.toMediaItem(builder) }
+            .map { (track, _) -> track.toPlayableMedia() }
 
         emit(happyTracks)
         suspendCancellableCoroutine<Nothing> {}
     }
 
-    private fun getDanceableTracks(): Flow<List<MediaItem>> = flow {
-        val builder = MediaDescriptionCompat.Builder()
+    private fun getDanceableTracks(): Flow<List<AudioTrack>> = flow {
         val partyFilters = listOf(
             FeatureFilter.OnRange(TrackFeature::danceability, 0.7f, 1.0f),
             FeatureFilter.OnRange(TrackFeature::energy, 0.5f, 1.0f)
         )
 
         val partyTracks = spotifyManager.findTracksHavingFeatures(partyFilters)
-            .map { (track, _) -> track.toMediaItem(builder) }
+            .map { (track, _) -> track.toPlayableMedia() }
 
         emit(partyTracks)
         suspendCancellableCoroutine<Nothing> {}
     }
 
-    private fun Track.toMediaItem(builder: MediaDescriptionCompat.Builder): MediaItem {
-        return playable(
-            builder,
-            id = encode(TYPE_SMART, "HAPPY", id),
+    private fun Track.toPlayableMedia(): AudioTrack {
+        return AudioTrack(
+            id = MediaId(TYPE_SMART, "HAPPY", id),
             title = title,
-            subtitle = artist,
+            artist = artist,
+            album = album,
             mediaUri = mediaUri.toUri(),
             iconUri = albumArtUri?.toUri(),
             duration = duration,

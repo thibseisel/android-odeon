@@ -23,8 +23,11 @@ import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.core.ui.dagger.PerActivity
 import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
+import fr.nihilus.music.media.dagger.MediaSourceModule
 
-@Module
+@Module(includes = [
+    MediaSourceModule::class
+])
 abstract class CleanupModule {
 
     @PerActivity

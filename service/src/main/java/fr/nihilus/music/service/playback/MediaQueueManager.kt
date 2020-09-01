@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.ServiceScoped
 import java.util.*
@@ -140,13 +141,14 @@ internal class MediaQueueManager @Inject constructor(
             return
         }
 
+        val builder = MediaDescriptionCompat.Builder()
         val queue = ArrayDeque<MediaSessionCompat.QueueItem>()
         val queueSize = timeline.windowCount.coerceAtMost(MAX_QUEUE_SIZE)
 
         // Add the active queue item.
         val currentWindowIndex = player.currentWindowIndex
         queue += MediaSessionCompat.QueueItem(
-            getMediaDescription(player, currentWindowIndex),
+            getMediaDescription(player, currentWindowIndex, builder),
             currentWindowIndex.toLong()
         )
 
@@ -163,7 +165,7 @@ internal class MediaQueueManager @Inject constructor(
                 if (lastWindowIndex != C.INDEX_UNSET) {
                     queue.add(
                         MediaSessionCompat.QueueItem(
-                            getMediaDescription(player, lastWindowIndex),
+                            getMediaDescription(player, lastWindowIndex, builder),
                             lastWindowIndex.toLong()
                         )
                     )
@@ -175,7 +177,7 @@ internal class MediaQueueManager @Inject constructor(
                 if (firstWindowIndex != C.INDEX_UNSET) {
                     queue.addFirst(
                         MediaSessionCompat.QueueItem(
-                            getMediaDescription(player, firstWindowIndex),
+                            getMediaDescription(player, firstWindowIndex, builder),
                             firstWindowIndex.toLong()
                         )
                     )
@@ -187,8 +189,19 @@ internal class MediaQueueManager @Inject constructor(
         }
     }
 
-    private fun getMediaDescription(player: Player, windowIndex: Int): MediaDescriptionCompat {
+    private fun getMediaDescription(
+        player: Player,
+        windowIndex: Int,
+        builder: MediaDescriptionCompat.Builder
+    ): MediaDescriptionCompat {
         val bufferWindow = player.currentTimeline.getWindow(windowIndex, window)
-        return bufferWindow.tag as MediaDescriptionCompat
+        val track = bufferWindow.tag as AudioTrack
+
+        return builder
+            .setMediaId(track.id.encoded)
+            .setTitle(track.title)
+            .setSubtitle(track.artist)
+            .setIconUri(track.iconUri)
+            .build()
     }
 }
