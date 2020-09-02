@@ -129,9 +129,6 @@ dependencies {
     // Glide
     kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
-    // My libraries
-    implementation "com.github.thibseisel:ratioimageview:${versions.ratioimageview}"
-
     // Dagger
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
     kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"

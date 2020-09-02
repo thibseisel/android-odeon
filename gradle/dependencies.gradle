@@ -44,7 +44,6 @@ ext.versions = [
         'ktor'          : '1.4.0',
         'material'      : '1.1.0',
         'moshi'         : '1.10.0',
-        'ratioimageview': '1.0.0',
         'timber'        : '4.7.1',
 
         'junit'         : '4.12',

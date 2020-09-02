@@ -41,7 +41,7 @@
             app:statusBarScrim="?albumPalettePrimaryColor"
             app:titleEnabled="false">
 
-            <com.github.thibseisel.ratioimageview.RatioImageView
+            <fr.nihilus.music.core.ui.view.RatioImageView
                 android:id="@+id/album_art_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
