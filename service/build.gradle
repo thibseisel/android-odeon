@@ -78,9 +78,7 @@ dependencies {
     // Test dependencies
     testImplementation project(':core-test')
     testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "com.google.truth:truth:${versions.truth}"
     testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
-    testImplementation "androidx.test.ext:truth:${versions.androidx.ext_truth}"
 
     // Android-specific test dependencies
     androidTestImplementation "androidx.test:core:${versions.androidx.test}"

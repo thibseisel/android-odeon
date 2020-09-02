@@ -35,7 +35,6 @@ ext.versions = [
                 'work'             : '2.3.4',
                 'test'             : '1.2.0',
                 'ext_junit'        : '1.1.1',
-                'ext_truth'        : '1.2.0',
                 'espresso'         : '3.2.0'
         ],
         'dagger'        : '2.27',
@@ -52,5 +51,4 @@ ext.versions = [
         'kotest'        : '4.2.0',
         'mockk'         : '1.9.3',
         'robolectric'   : '4.3.1',
-        'truth'         : '0.44'
 ]
