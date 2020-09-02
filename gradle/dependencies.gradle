@@ -37,13 +37,13 @@ ext.versions = [
                 'ext_junit'        : '1.1.1',
                 'espresso'         : '3.2.0'
         ],
-        'dagger'        : '2.27',
-        'exoplayer'     : '2.11.7',
+        'dagger'        : '2.28.3',
+        'exoplayer'     : '2.11.8',
         'glide'         : '4.11.0',
         'kdenticon'     : '1.0.0-alpha5',
         'ktor'          : '1.4.0',
         'material'      : '1.1.0',
-        'moshi'         : '1.9.2',
+        'moshi'         : '1.10.0',
         'ratioimageview': '1.0.0',
         'timber'        : '4.7.1',
 
