@@ -26,8 +26,8 @@ internal sealed class MediaContent {
 
     /**
      * Unique identifier of this media node in the browse hierarchy.
-     * Playable media (leaf nodes) have a non-null [track-specific part][MediaId.track]
-     * while categories (browsable nodes) doesn't.
+     * [Playable media (leaf nodes)][AudioTrack] have a non-null [track-specific part][MediaId.track]
+     * while [categories (browsable nodes)][MediaCategory] doesn't.
      */
     abstract val id: MediaId
 
@@ -42,6 +42,19 @@ internal sealed class MediaContent {
      * Optional uri pointing to a graphical representation of this node.
      */
     abstract val iconUri: Uri?
+
+    /**
+     * Whether this media content has children on his own.
+     */
+    abstract val browsable: Boolean
+
+    /**
+     * Whether this media content can be played.
+     *
+     * Some media may be both browsable and playable: users may either browse their children
+     * and play them individually, or play all its children at once.
+     */
+    abstract val playable: Boolean
 }
 
 /**
@@ -102,6 +115,12 @@ internal data class AudioTrack(
 
 ) : MediaContent() {
 
+    override val browsable: Boolean
+        get() = false
+
+    override val playable: Boolean
+        get() = true
+
     init {
         requireNotNull(id.track) { "Media id should be that of a playable media: $id" }
         require(duration >= 0L) { "Invalid duration for media \"$title\": $duration" }
@@ -140,12 +159,23 @@ internal data class MediaCategory(
     override val iconUri: Uri? = null,
 
     /**
+     * Whether this category should be marked as both playable and browsable.
+     * Selecting a playable category will start playback of all of its children.
+     *
+     * @see MediaContent.playable
+     */
+    override val playable: Boolean = false,
+
+    /**
      * The number of children of this category.
      * This is not relevant for all categories, may be `0`.
      */
     val count: Int = 0
 
 ) : MediaContent() {
+
+    override val browsable: Boolean
+        get() = true
 
     init {
         require(id.track == null) { "Media id should be that of a browsable media: $id" }

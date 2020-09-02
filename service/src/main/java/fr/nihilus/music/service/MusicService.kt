@@ -252,10 +252,8 @@ class MusicService : BaseBrowserService() {
             .setTitle(title)
             .setIconUri(iconUri)
 
-        val flags: Int
         when (this) {
             is MediaCategory -> {
-                flags = MediaItem.FLAG_BROWSABLE
                 builder
                     .setSubtitle(subtitle)
                     .setExtras(Bundle().apply {
@@ -264,7 +262,6 @@ class MusicService : BaseBrowserService() {
             }
 
             is AudioTrack -> {
-                flags = MediaItem.FLAG_PLAYABLE
                 builder
                     .setSubtitle(artist)
                     .setExtras(Bundle(3).apply {
@@ -273,6 +270,14 @@ class MusicService : BaseBrowserService() {
                         putLong(MediaItems.EXTRA_DURATION, duration)
                     })
             }
+        }
+
+        var flags = 0
+        if (browsable) {
+            flags = flags or MediaItem.FLAG_BROWSABLE
+        }
+        if (playable) {
+            flags = flags or MediaItem.FLAG_PLAYABLE
         }
 
         return MediaItem(builder.build(), flags)

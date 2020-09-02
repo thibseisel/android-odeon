@@ -71,6 +71,7 @@ internal class AlbumChildrenProvider(
             title = title,
             subtitle = artist,
             iconUri = albumArtUri?.toUri(),
+            playable = true,
             count = trackCount
         )
     }

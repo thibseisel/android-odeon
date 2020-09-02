@@ -46,14 +46,7 @@ internal class CategoryChildrenProvider(
             ?: flow { throw NoSuchElementException("No such category: $categoryId") }
 
     private fun getCategories(): Flow<List<MediaCategory>> = flow {
-        val categoryItems = categories.map { (_, category) ->
-            MediaCategory(
-                id = category.mediaId,
-                title = category.title,
-                subtitle = category.subtitle,
-                iconUri = category.iconUri
-            )
-        }
+        val categoryItems = categories.map { (_, category) -> category.item }
 
         emit(categoryItems)
         suspendCancellableCoroutine<Nothing> {}

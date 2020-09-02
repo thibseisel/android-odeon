@@ -87,7 +87,7 @@ internal class BrowserTreeStructureTest {
         )
 
         assertThatAllAreBrowsableAmong(trackTypeChildren)
-        assertThatNoneArePlayableAmong(trackTypeChildren)
+        assertThatAllArePlayableAmong(trackTypeChildren)
     }
 
     @Test
@@ -106,6 +106,7 @@ internal class BrowserTreeStructureTest {
         )
 
         assertThatAllAreBrowsableAmong(albumTypeChildren)
+        assertThatAllArePlayableAmong(albumTypeChildren)
     }
 
     @Test
@@ -134,6 +135,7 @@ internal class BrowserTreeStructureTest {
         )
 
         assertThatAllAreBrowsableAmong(allArtists)
+        assertThatNoneArePlayableAmong(allArtists)
     }
 
     @Test
@@ -161,6 +163,7 @@ internal class BrowserTreeStructureTest {
         )
 
         assertThatAllAreBrowsableAmong(allPlaylists)
+        assertThatAllArePlayableAmong(allPlaylists)
     }
 
     @Test
@@ -366,6 +369,7 @@ internal class BrowserTreeStructureTest {
         val artistAlbums = artistChildren.filter { it.id.track == null }
 
         assertThatAllAreBrowsableAmong(artistAlbums)
+        assertThatAllArePlayableAmong(artistAlbums)
         extracting(artistAlbums) { id }.shouldContainExactly(expectedAlbumIds)
     }
 
@@ -533,7 +537,7 @@ internal class BrowserTreeStructureTest {
     }
 
     private fun assertThatAllAreBrowsableAmong(children: List<MediaContent>) {
-        val nonBrowsableItems = children.filterNot { it is MediaCategory }
+        val nonBrowsableItems = children.filterNot { it.browsable }
 
         if (nonBrowsableItems.isNotEmpty()) {
             fail(buildString {
@@ -545,7 +549,7 @@ internal class BrowserTreeStructureTest {
     }
 
     private fun assertThatAllArePlayableAmong(children: List<MediaContent>) {
-        val nonPlayableItems = children.filterNot { it is AudioTrack }
+        val nonPlayableItems = children.filterNot { it.playable }
 
         if (nonPlayableItems.isNotEmpty()) {
             fail(buildString {
@@ -557,7 +561,7 @@ internal class BrowserTreeStructureTest {
     }
 
     private fun assertThatNoneArePlayableAmong(children: List<MediaContent>) {
-        val playableItems = children.filterIsInstance<AudioTrack>()
+        val playableItems = children.filter { it.playable }
 
         if (playableItems.isNotEmpty()) {
             fail(buildString {
@@ -569,7 +573,7 @@ internal class BrowserTreeStructureTest {
     }
 
     private fun assertThatNoneAreBrowsableAmong(children: List<MediaContent>) {
-        val browsableItems = children.filterIsInstance<MediaCategory>()
+        val browsableItems = children.filter { it.browsable }
 
         if (browsableItems.isNotEmpty()) {
             fail(buildString {

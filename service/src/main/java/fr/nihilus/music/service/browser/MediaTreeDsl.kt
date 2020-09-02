@@ -269,6 +269,7 @@ private constructor(
              * @param title The display title of the media item representing this category.
              * @param subtitle The display subtitle of the media item representing this category.
              * @param iconUri An uri pointing to an icon representing this category.
+             * @param playable Whether this category should be both browsable and playable.
              * @param provider Defines how children of this category should be retrieved.
              */
             fun category(
@@ -276,6 +277,7 @@ private constructor(
                 title: String,
                 subtitle: String? = null,
                 iconUri: Uri? = null,
+                playable: Boolean = false,
                 provider: ChildrenProvider
             ) {
                 val categoryMediaId = MediaId(typeId, categoryId)
@@ -286,6 +288,7 @@ private constructor(
                     title = title,
                     subtitle = subtitle,
                     iconUri = iconUri,
+                    playable = playable,
                     provider = provider
                 )
             }
@@ -320,6 +323,7 @@ private constructor(
      * @param title The display title of the media item representing this category.
      * @param subtitle The display subtitle of the media item representing this category.
      * @param iconUri An uri pointing to an icon representing this category.
+     * @param playable Whether this category should be both playable and browsable.
      * @param provider An async function for querying the children of this category.
      */
     class Category(
@@ -327,6 +331,7 @@ private constructor(
         val title: String,
         val subtitle: String?,
         val iconUri: Uri?,
+        val playable: Boolean,
         val provider: ChildrenProvider
     ) {
         /**
@@ -337,7 +342,8 @@ private constructor(
                 id = mediaId,
                 title = title,
                 subtitle = subtitle,
-                iconUri = iconUri
+                iconUri = iconUri,
+                playable = playable
             )
 
         fun children(): Flow<List<MediaContent>> = provider.getChildren(mediaId)

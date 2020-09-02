@@ -83,6 +83,7 @@ internal class BrowserTreeImpl @Inject constructor(
             category(
                 CATEGORY_ALL,
                 title = res.getString(R.string.svc_all_music),
+                playable = true,
                 provider = trackProvider
             )
 
@@ -91,6 +92,7 @@ internal class BrowserTreeImpl @Inject constructor(
                 title = res.getString(R.string.svc_most_rated),
                 subtitle = res.getString(R.string.svc_most_rated_description),
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_rated_128dp),
+                playable = true,
                 provider = trackProvider
             )
 
@@ -99,6 +101,7 @@ internal class BrowserTreeImpl @Inject constructor(
                 title = context.getString(R.string.svc_category_popular),
                 subtitle = context.getString(R.string.svc_category_popular_description),
                 iconUri = null,
+                playable = true,
                 provider = trackProvider
             )
 
@@ -107,6 +110,7 @@ internal class BrowserTreeImpl @Inject constructor(
                 context.getString(R.string.svc_last_added),
                 subtitle = res.getString(R.string.svc_recently_added_description),
                 iconUri = res.getResourceUri(R.drawable.svc_ic_most_recent_128dp),
+                playable = true,
                 provider = trackProvider
             )
         }
@@ -138,12 +142,14 @@ internal class BrowserTreeImpl @Inject constructor(
             category(
                 "HAPPY",
                 context.getString(R.string.svc_happy_category_title),
+                playable = true,
                 provider = smartPlaylists
             )
 
             category(
                 "PARTY",
                 context.getString(R.string.svc_party_category_title),
+                playable = true,
                 provider = smartPlaylists
             )
         }
@@ -171,6 +177,7 @@ internal class BrowserTreeImpl @Inject constructor(
             title = title,
             subtitle = artist,
             iconUri = albumArtUri?.toUri(),
+            playable = true,
             count = trackCount
         )
     }
