@@ -149,7 +149,12 @@ class MusicService : BaseBrowserService() {
                 Uri.parse("content://${BuildConfig.APP_PROVIDER_AUTHORITY}/"),
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
             )
-            BrowserRoot(MediaId.ROOT, null)
+
+            BrowserRoot(MediaId.ROOT, Bundle(3).apply {
+                putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
+                putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
+                putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
+            })
         } else null
     }
 
