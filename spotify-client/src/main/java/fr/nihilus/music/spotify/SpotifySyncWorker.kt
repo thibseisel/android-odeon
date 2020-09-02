@@ -16,10 +16,12 @@
 
 package fr.nihilus.music.spotify
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -84,14 +86,19 @@ class SpotifySyncWorker(
         }
     }
 
+    @SuppressLint("InlinedApi")
     private suspend fun promoteToForeground() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             initNotificationChannel()
         }
 
-        val foregroundNotification = createProgressNotification(progress = 0, max = 0)
-        val foregroundInfo = ForegroundInfo(NOTIFICATION_ID, foregroundNotification)
-        setForeground(foregroundInfo)
+        setForeground(
+            ForegroundInfo(
+                NOTIFICATION_ID,
+                createProgressNotification(progress = 0, max = 0),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        )
     }
 
     private fun createProgressNotification(progress: Int, max: Int): Notification {

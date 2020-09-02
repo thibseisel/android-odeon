@@ -32,7 +32,7 @@ ext.versions = [
                 'rvSelection'      : '1.1.0-rc01',
                 'room'             : '2.2.5',
                 'viewpager2'       : '1.0.0',
-                'work'             : '2.3.4',
+                'work'             : '2.4.0',
                 'test'             : '1.2.0',
                 'ext_junit'        : '1.1.1',
                 'espresso'         : '3.2.0'
