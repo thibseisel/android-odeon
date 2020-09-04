@@ -151,6 +151,7 @@ class MusicService : BaseBrowserService() {
             )
 
             BrowserRoot(MediaId.ROOT, Bundle(3).apply {
+                putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
                 putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
                 putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
                 putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
