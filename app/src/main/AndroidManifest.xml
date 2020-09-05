@@ -16,7 +16,8 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="fr.nihilus.music">
+    package="fr.nihilus.music"
+    android:installLocation="auto">
 
     <application
         android:name=".OdeonApplication"
