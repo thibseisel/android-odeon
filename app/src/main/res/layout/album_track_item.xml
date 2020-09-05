@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="32dp"
         android:layout_marginBottom="16dp"
-        android:textAlignment="center"
-        android:textAppearance="?textAppearanceButton"
+        android:gravity="center"
+        android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
