@@ -15,7 +15,7 @@
  */
 
 ext.versions = [
-        'plugin'        : '0.29.0',
+        'plugin'        : '0.30.0',
         'kotlin'        : '1.4.0',
         'koroutines'    : '1.3.9',
         'androidx'      : [
@@ -29,7 +29,7 @@ ext.versions = [
                 'palette'          : '1.0.0',
                 'preference'       : '1.1.1',
                 'recyclerview'     : '1.1.0',
-                'rvSelection'      : '1.1.0-rc01',
+                'rvSelection'      : '1.1.0-rc02',
                 'room'             : '2.2.5',
                 'viewpager2'       : '1.0.0',
                 'work'             : '2.4.0',
