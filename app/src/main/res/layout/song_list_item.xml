@@ -44,7 +44,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
         android:ellipsize="end"
-        android:maxLines="1"
+        android:maxLines="@integer/song_title_max_lines"
         android:textAppearance="?textAppearanceSubtitle1"
         app:firstBaselineToTopHeight="32dp"
         app:lastBaselineToBottomHeight="4dp"
@@ -58,6 +58,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
@@ -65,6 +66,7 @@
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
         app:layout_constraintStart_toEndOf="@id/album_art_view"
         app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="@sample/songs.json/data/subtitle" />
 
     <ImageView

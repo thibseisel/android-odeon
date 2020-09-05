@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -18,4 +18,5 @@
 <resources>
     <integer name="album_grid_span_count">4</integer>
     <integer name="artist_grid_span_count">3</integer>
+    <integer name="song_title_max_lines">1</integer>
 </resources>
