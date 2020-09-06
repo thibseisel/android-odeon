@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -29,17 +29,17 @@
     </style>
 
     <style name="Widget.Odeon.TextView.Section" parent="">
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingTop">@dimen/grid_2</item>
+        <item name="android:paddingBottom">@dimen/grid_1</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5
         </item>
     </style>
 
     <style name="Widget.Odeon.Cartridge" parent="">
-        <item name="android:layout_marginStart">8dp</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginBottom">16dp</item>
-        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:layout_marginStart">@dimen/grid_1</item>
+        <item name="android:layout_marginTop">@dimen/grid_2</item>
+        <item name="android:layout_marginBottom">@dimen/grid_2</item>
+        <item name="android:layout_marginEnd">@dimen/grid_1</item>
         <item name="android:background">@drawable/dev_cartridge_shape</item>
         <item name="android:backgroundTint">?colorPrimary</item>
         <item name="android:textAppearance">@style/TextAppearance.Odeon.Subtitle2</item>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -54,33 +54,31 @@
             android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/core_horizontal_edge_margin"
-            android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
+            android:layout_marginStart="@dimen/grid_2"
+            android:layout_marginEnd="@dimen/grid_2"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?textAppearanceSubtitle1"
-            app:autoSizePresetSizes="@array/preset_album_title_size"
-            app:autoSizeTextType="uniform"
-            app:firstBaselineToTopHeight="28dp"
-            app:lastBaselineToBottomHeight="4dp"
+            android:textAppearance="?textAppearanceBody1"
+            app:layout_constraintBottom_toTopOf="@id/artist"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/band_guideline"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="@sample/songs.json/data/title" />
 
         <TextView
             android:id="@+id/artist"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/core_horizontal_edge_margin"
-            android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
+            android:layout_marginTop="@dimen/grid_0_5"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?textAppearanceCaption"
-            app:firstBaselineToTopHeight="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/title"
+            app:layout_constraintStart_toStartOf="@id/title"
             app:layout_constraintTop_toBottomOf="@+id/title"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="@sample/songs.json/data/artist" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

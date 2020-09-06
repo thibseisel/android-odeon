@@ -16,7 +16,16 @@
   -->
 
 <resources>
-    <dimen name="core_card_max_elevation">8dp</dimen>
-    <dimen name="core_shape_corner_radius">8dp</dimen>
-    <dimen name="fab_margin">@dimen/grid_2</dimen>
+    <!--
+        Components should be laid out by a 8dp grid system:
+        https://material.io/design/layout/spacing-methods.html#baseline-grid
+        -->
+    <dimen name="grid_1">8dp</dimen>
+    <dimen name="grid_2">16dp</dimen>
+    <dimen name="grid_3">24dp</dimen>
+    <dimen name="grid_4">32dp</dimen>
+
+    <!-- Types align to a 4dp baseline grid. -->
+    <dimen name="grid_0_5">4dp</dimen>
+    <dimen name="grid_1_5">12dp</dimen>
 </resources>

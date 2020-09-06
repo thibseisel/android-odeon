@@ -35,7 +35,7 @@ internal class ArtistHolder(
     onArtistSelected: (position: Int) -> Unit
 ) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_grid_item) {
 
-    private val artistName: TextView = itemView.findViewById(R.id.subtitle)
+    private val artistName: TextView = itemView.findViewById(R.id.title_view)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
     private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
 

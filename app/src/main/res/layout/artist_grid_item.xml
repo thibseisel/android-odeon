@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card"
@@ -37,50 +36,49 @@
             android:layout_height="0dp"
             android:contentDescription="@string/album_art"
             android:scaleType="centerCrop"
+            app:layout_constraintBottom_toTopOf="@id/band_guideline"
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/band_guideline"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_person_24dp"/>
+            tools:src="@drawable/ic_person_24dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/band_guideline"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="horizontal"
-            app:layout_constraintGuide_end="64dp"/>
+            app:layout_constraintGuide_end="64dp" />
 
         <TextView
-            android:id="@+id/subtitle"
+            android:id="@+id/title_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
-            android:layout_marginStart="@dimen/core_horizontal_edge_margin"
-            app:firstBaselineToTopHeight="28dp"
-            app:lastBaselineToBottomHeight="4dp"
+            android:layout_marginStart="@dimen/grid_2"
+            android:layout_marginEnd="@dimen/grid_2"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?textAppearanceSubtitle1"
+            android:textAppearance="?textAppearanceBody1"
+            app:layout_constraintBottom_toTopOf="@id/subtitle_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/band_guideline"
-            tools:text="@sample/artists.json/data/name"/>
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="@sample/artists.json/data/name" />
 
         <TextView
             android:id="@+id/subtitle_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
-            android:layout_marginStart="@dimen/core_horizontal_edge_margin"
+            android:layout_marginTop="@dimen/grid_0_5"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?textAppearanceCaption"
-            app:firstBaselineToTopHeight="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/subtitle"
-            tools:text="@sample/artists.json/data/subtitle"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/title_view"
+            app:layout_constraintStart_toStartOf="@id/title_view"
+            app:layout_constraintTop_toBottomOf="@+id/title_view"
+            tools:text="@sample/artists.json/data/subtitle" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

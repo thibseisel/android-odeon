@@ -54,7 +54,7 @@
         android:id="@+id/text_when_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/core_larger_horizontal_edge_margin"
+        android:layout_margin="@dimen/grid_4"
         android:text="@string/dev_empty_unlinked_tracks"
         android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintBottom_toBottomOf="parent"

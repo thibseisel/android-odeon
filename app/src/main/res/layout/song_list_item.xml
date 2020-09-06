@@ -15,39 +15,38 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
+    android:minHeight="72dp"
     android:textDirection="locale">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/album_art_view"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_marginStart="@dimen/core_horizontal_edge_margin"
+        android:layout_marginTop="@dimen/grid_1"
+        android:layout_marginBottom="@dimen/grid_1"
+        android:layout_marginStart="@dimen/grid_2"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:src="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
+        android:layout_marginTop="@dimen/grid_2"
+        android:layout_marginStart="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="@integer/song_title_max_lines"
-        android:textAppearance="?textAppearanceSubtitle1"
-        app:firstBaselineToTopHeight="32dp"
-        app:lastBaselineToBottomHeight="4dp"
+        android:textAppearance="?textAppearanceBody1"
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
         app:layout_constraintStart_toEndOf="@id/album_art_view"
         app:layout_constraintTop_toTopOf="parent"
@@ -57,30 +56,29 @@
         android:id="@+id/subtitle_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="@dimen/grid_0_5"
+        android:layout_marginBottom="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
-        app:firstBaselineToTopHeight="16dp"
-        app:layout_constraintEnd_toStartOf="@id/overflow_icon"
-        app:layout_constraintStart_toEndOf="@id/album_art_view"
-        app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/overflow_icon"
+        app:layout_constraintStart_toStartOf="@id/title"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintVertical_bias="0"
         tools:text="@sample/songs.json/data/subtitle" />
 
     <ImageView
         android:id="@+id/overflow_icon"
-        android:layout_width="56dp"
+        android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:scaleType="center"
+        android:layout_marginTop="@dimen/grid_1_5"
+        android:layout_marginEnd="@dimen/grid_1_5"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/description_more_actions"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:scaleType="center"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_overflow_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
