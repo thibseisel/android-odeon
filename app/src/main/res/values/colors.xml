@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <color name="launcher_icon_background">@color/color_primary</color>
+    <color name="launcher_icon_background">@color/mtrl_deep_purple_500</color>
 </resources>

@@ -23,15 +23,12 @@
 
     <style name="Base.V21.Odeon" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Color attributes -->
-        <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorPrimaryVariant">@color/color_primary_variant</item>
-        <item name="colorSecondary">@color/color_secondary</item>
-        <item name="colorSecondaryVariant">@color/color_secondary_variant</item>
-        <item name="colorOnSurface">@color/color_on_surface</item>
-        <item name="colorError">@color/color_error</item>
-        <item name="colorOnError">@color/color_on_error</item>
-        <item name="colorOnPrimary">@color/color_on_primary</item>
-        <item name="colorOnSecondary">@color/color_on_secondary</item>
+        <item name="colorPrimary">@color/mtrl_deep_purple_500</item>
+        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_700</item>
+        <item name="colorSecondary">@color/mtrl_orange_a200</item>
+        <item name="colorSecondaryVariant">@color/mtrl_orange_a200</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnSecondary">@android:color/black</item>
 
         <!-- This color is still used as the default status bar color -->
         <item name="colorPrimaryDark">?colorPrimarySurface</item>

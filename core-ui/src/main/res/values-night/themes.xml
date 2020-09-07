@@ -17,6 +17,14 @@
 
 <resources>
     <style name="Odeon" parent="Base.Odeon">
+        <item name="colorPrimary">@color/mtrl_deep_purple_200</item>
+        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_500</item>
+        <item name="colorSecondary">@color/mtrl_orange_a100</item>
+        <item name="colorSecondaryVariant">@color/mtrl_orange_a100</item>
+        <item name="colorOnPrimary">@android:color/black</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+
+        <!-- This color is still used as the default status bar color -->
         <item name="colorPrimaryDark">@android:color/black</item>
     </style>
 </resources>
