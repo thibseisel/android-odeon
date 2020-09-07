@@ -16,23 +16,14 @@
 
 <resources>
     <!--
-      - Pointer to the base theme used for both Light and Night.
-      - Override this theme to apply API-level specific customizations.
-      -->
-    <style name="Base.Odeon" parent="Base.V21.Odeon"/>
+        Pointer to the Android API-specific base theme.
+        Override this theme to apply API-level specific customizations.
+        -->
+    <style name="Platform.Odeon" parent="Platform.Odeon.V21"/>
+    <style name="Platform.Odeon.V21" parent="Theme.MaterialComponents.DayNight.DarkActionBar"/>
 
-    <style name="Base.V21.Odeon" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Color attributes -->
-        <item name="colorPrimary">@color/mtrl_deep_purple_500</item>
-        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_700</item>
-        <item name="colorSecondary">@color/mtrl_orange_a200</item>
-        <item name="colorSecondaryVariant">@color/mtrl_orange_a200</item>
-        <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorOnSecondary">@android:color/black</item>
-
-        <!-- This color is still used as the default status bar color -->
-        <item name="colorPrimaryDark">?colorPrimarySurface</item>
-
+    <!-- Definition of the app theme, minus color palette. -->
+    <style name="Base.Odeon" parent="Platform.Odeon">
         <!-- Typography attributes -->
         <item name="textAppearanceHeadline1">@style/TextAppearance.Odeon.Headline1</item>
         <item name="textAppearanceHeadline2">@style/TextAppearance.Odeon.Headline2</item>
@@ -73,8 +64,19 @@
         <item name="albumPaletteTextOnAccentColor">?colorOnSecondary</item>
     </style>
 
-    <!-- The default theme for the whole application. -->
-    <style name="Odeon" parent="Base.Odeon"/>
+    <!-- App Light Theme, overridden in values-night -->
+    <style name="Odeon" parent="Base.Odeon">
+        <!-- Color attributes -->
+        <item name="colorPrimary">@color/mtrl_deep_purple_500</item>
+        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_700</item>
+        <item name="colorSecondary">@color/mtrl_orange_a200</item>
+        <item name="colorSecondaryVariant">@color/mtrl_orange_a200</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+
+        <!-- This color is still used as the default status bar color -->
+        <item name="colorPrimaryDark">?colorPrimarySurface</item>
+    </style>
 
     <!--
       - Extension of the default theme that removes the decor ActionBar.
@@ -85,6 +87,10 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <!--
+        Extension of the default theme that draws edge to edge,
+        i.e. behind status and navigation bars.
+        -->
     <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
         <item name="android:statusBarColor">@color/immersive_ui</item>
         <item name="android:navigationBarColor">@color/immersive_ui</item>

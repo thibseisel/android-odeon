@@ -16,6 +16,7 @@
   -->
 
 <resources>
+    <!-- App Dark Theme. -->
     <style name="Odeon" parent="Base.Odeon">
         <item name="colorPrimary">@color/mtrl_deep_purple_200</item>
         <item name="colorPrimaryVariant">@color/mtrl_deep_purple_500</item>
