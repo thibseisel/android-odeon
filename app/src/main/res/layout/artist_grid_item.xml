@@ -48,14 +48,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="horizontal"
-            app:layout_constraintGuide_end="64dp" />
+            app:layout_constraintGuide_end="72dp" />
 
         <TextView
             android:id="@+id/title_view"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/grid_2"
-            android:layout_marginEnd="@dimen/grid_2"
+            android:layout_marginHorizontal="@dimen/grid_2"
+            android:layout_marginTop="@dimen/grid_2"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?textAppearanceSubtitle1"
@@ -74,7 +74,6 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?textAppearanceCaption"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/title_view"
             app:layout_constraintStart_toStartOf="@id/title_view"
             app:layout_constraintTop_toBottomOf="@+id/title_view"
