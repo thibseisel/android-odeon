@@ -62,7 +62,7 @@
                 android:importantForAutofill="no"
                 android:inputType="textAutoComplete|textAutoCorrect"
                 android:maxLines="1"
-                android:textAppearance="?textAppearanceBody1" />
+                android:textAppearance="?textAppearanceSubtitle1" />
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.card.MaterialCardView>
 

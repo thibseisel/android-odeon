@@ -31,7 +31,7 @@
         android:layout_marginTop="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="?textAppearanceBody1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

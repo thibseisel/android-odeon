@@ -44,7 +44,7 @@
         android:layout_marginHorizontal="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="?textAppearanceBody1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/duration"

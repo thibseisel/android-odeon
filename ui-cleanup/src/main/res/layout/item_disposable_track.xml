@@ -43,7 +43,7 @@
         android:layout_marginEnd="@dimen/grid_3"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="?textAppearanceBody1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintEnd_toStartOf="@id/file_size"
         app:layout_constraintStart_toEndOf="@id/selection_mark"
         app:layout_constraintTop_toTopOf="parent"
