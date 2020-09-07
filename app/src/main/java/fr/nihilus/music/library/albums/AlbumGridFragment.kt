@@ -84,6 +84,12 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
             holder.transitionView to albumId
         )
 
+        // Reset transitions previously set when moving to another fragment.
+        requireParentFragment().apply {
+            exitTransition = null
+            reenterTransition = null
+        }
+
         findNavController().navigate(toAlbumDetail, transitionExtras)
     }
 

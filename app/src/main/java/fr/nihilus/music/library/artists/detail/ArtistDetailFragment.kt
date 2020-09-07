@@ -33,10 +33,10 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
-import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
 import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
+import java.util.concurrent.TimeUnit
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
@@ -56,7 +56,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentArtistDetailBinding.bind(view)
 
-        postponeEnterTransition()
+        postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 

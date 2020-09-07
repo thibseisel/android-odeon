@@ -27,6 +27,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -49,6 +50,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSearchBinding.bind(view)
         this.binding = binding
+
+        setupFragmentTransitions()
 
         val recyclerView = binding.listSearchResults
         recyclerView.setHasFixedSize(true)
@@ -81,6 +84,16 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
         if (savedInstanceState == null) {
             showKeyboard(binding.searchInput)
+        }
+    }
+
+    private fun setupFragmentTransitions() {
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = transitionDuration
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = transitionDuration
         }
     }
 

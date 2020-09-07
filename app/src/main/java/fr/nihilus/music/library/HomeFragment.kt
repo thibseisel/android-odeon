@@ -29,6 +29,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.databinding.FragmentHomeBinding
@@ -51,7 +52,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         // Postpone transition when returning from album detail.
         postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
-        allowReturnTransitionOverlap = true
 
         // Configure toolbar with title and menu.
         binding.toolbar.run {
@@ -67,7 +67,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             tab.icon = pagerAdapter.getIcon(position)
             tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()
-
 
         viewModel.deleteTracksConfirmation.observe(viewLifecycleOwner) { toastMessageEvent ->
             toastMessageEvent.handle { deletedTracksCount ->
@@ -87,25 +86,40 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setOnMenuItemClickListener(::onOptionsItemSelected)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_shuffle -> {
-                viewModel.playAllShuffled()
-                true
-            }
-
-            R.id.start_cleanup -> {
-                findNavController().navigate(R.id.start_cleanup)
-                true
-            }
-
-            R.id.activity_settings -> {
-                findNavController().navigate(R.id.activity_settings)
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_search -> {
+            navigateToSearch()
+            true
         }
+
+        R.id.action_shuffle -> {
+            viewModel.playAllShuffled()
+            true
+        }
+
+        R.id.start_cleanup -> {
+            findNavController().navigate(R.id.start_cleanup)
+            true
+        }
+
+        R.id.activity_settings -> {
+            findNavController().navigate(R.id.activity_settings)
+            true
+        }
+
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun navigateToSearch() {
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = transitionDuration
+        }
+        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = transitionDuration
+        }
+
+        findNavController().navigate(HomeFragmentDirections.actionHomeToSearch())
     }
 
     /**
