@@ -42,19 +42,19 @@
     </style>
 
     <style name="TextAppearance.Odeon.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
-        <item name="fontFamily">@font/quicksand</item>
+        <item name="fontFamily">@font/quicksand_medium</item>
         <item name="android:textSize">25sp</item>
         <item name="android:letterSpacing">0</item>
     </style>
 
     <style name="TextAppearance.Odeon.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="fontFamily">@font/quicksand_medium</item>
+        <item name="fontFamily">@font/quicksand_semibold</item>
         <item name="android:textSize">21sp</item>
         <item name="android:letterSpacing">0.0071428571</item>
     </style>
 
     <style name="TextAppearance.Odeon.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="fontFamily">@font/quicksand</item>
+        <item name="fontFamily">@font/quicksand_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.009375</item>
     </style>
@@ -78,21 +78,20 @@
     </style>
 
     <style name="TextAppearance.Odeon.Button" parent="TextAppearance.MaterialComponents.Button">
-        <item name="fontFamily">@font/quicksand_medium</item>
+        <item name="fontFamily">@font/quicksand_bold</item>
         <item name="android:textSize">14sp</item>
         <item name="android:letterSpacing">0.089285714</item>
         <item name="textAllCaps">true</item>
-        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="TextAppearance.Odeon.Caption" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="fontFamily">@font/quicksand</item>
+        <item name="fontFamily">@font/quicksand_medium</item>
         <item name="android:textSize">12sp</item>
         <item name="android:letterSpacing">0.0333333333</item>
     </style>
 
     <style name="TextAppearance.Odeon.Overline" parent="TextAppearance.MaterialComponents.Overline">
-        <item name="fontFamily">@font/quicksand</item>
+        <item name="fontFamily">@font/quicksand_medium</item>
         <item name="android:textSize">10sp</item>
         <item name="android:letterSpacing">0.15</item>
     </style>
