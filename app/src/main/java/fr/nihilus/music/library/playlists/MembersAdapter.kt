@@ -30,7 +30,7 @@ internal class MembersAdapter(
 ) : ListAdapter<MediaItem, MembersHolder>(MediaItemDiffer) {
 
     private val glideRequest = Glide.with(fragment).asBitmap()
-        .fallback(R.drawable.ic_audiotrack_24dp)
+        .error(R.drawable.ic_audiotrack_24dp)
 
     override fun onCreateViewHolder(
         parent: ViewGroup, viewType: Int
