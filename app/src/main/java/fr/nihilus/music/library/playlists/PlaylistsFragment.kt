@@ -20,11 +20,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.Hold
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
@@ -44,15 +47,33 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
         lateinit var adapter: PlaylistsAdapter
         val onPlaylistSelected = { position: Int ->
             val selectedPlaylist = adapter.getItem(position)
+            val playlistId = selectedPlaylist.mediaId!!
             val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-                playlistId = selectedPlaylist.mediaId!!
+                playlistId = playlistId
             )
-            findNavController().navigate(toPlaylistTracks)
+
+            val playlistHolder = binding.playlistRecycler.findViewHolderForAdapterPosition(position)!!
+            val transitionExtras = FragmentNavigatorExtras(
+                playlistHolder.itemView to playlistId
+            )
+
+            requireParentFragment().apply {
+                exitTransition = Hold().apply {
+                    duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+                    addTarget(R.id.fragment_home)
+                }
+                reenterTransition = null
+            }
+
+            findNavController().navigate(toPlaylistTracks, transitionExtras)
         }
 
         adapter = PlaylistsAdapter(this, onPlaylistSelected)
         binding.playlistRecycler.adapter = adapter
         binding.playlistRecycler.setHasFixedSize(true)
+        binding.playlistRecycler.afterMeasure {
+            requireParentFragment().startPostponedEnterTransition()
+        }
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
