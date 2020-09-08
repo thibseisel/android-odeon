@@ -71,6 +71,13 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
 
     private fun onArtistSelected(position: Int) {
         val artist = adapter.getItem(position)
+
+        // Reset transitions set by another navigation events.
+        requireParentFragment().apply {
+            exitTransition = null
+            reenterTransition = null
+        }
+
         val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
         findNavController().navigate(toArtistDetail)
     }

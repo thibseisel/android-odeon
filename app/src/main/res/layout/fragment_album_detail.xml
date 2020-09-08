@@ -48,7 +48,7 @@
                 android:contentDescription="@string/album_art"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                app:aspectRatio="16:9"
+                app:aspectRatio="1:1"
                 app:layout_collapseMode="parallax"
                 app:layout_collapseParallaxMultiplier="0.5"
                 tools:src="@tools:sample/backgrounds/scenic" />

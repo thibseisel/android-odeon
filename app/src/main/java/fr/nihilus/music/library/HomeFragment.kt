@@ -51,7 +51,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         val binding = FragmentHomeBinding.bind(view)
 
         // Postpone transition when returning from album detail.
-        postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
+        postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
 
         // Configure toolbar with title and menu.
         binding.toolbar.run {

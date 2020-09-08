@@ -22,6 +22,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.Hold
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -81,12 +82,16 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         val albumId = album.mediaId!!
         val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to albumId
+            holder.itemView to albumId
         )
 
-        // Reset transitions previously set when moving to another fragment.
+        // Reset transitions previously set when moving to search fragment,
+        // and keep it displayed while animating to the next destination.
         requireParentFragment().apply {
-            exitTransition = null
+            exitTransition = Hold().apply {
+                duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+                addTarget(R.id.fragment_home)
+            }
             reenterTransition = null
         }
 

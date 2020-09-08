@@ -28,13 +28,14 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Transition
-import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
 import com.bumptech.glide.request.target.ImageViewTarget
+import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.luminance
+import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
@@ -70,7 +71,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         // Set transition names.
         // Note that they don't need to match with the names of the selected grid item.
         // They only have to be unique in this fragment.
-        binding.albumArtView.transitionName = args.albumId
+        view.transitionName = args.albumId
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
@@ -112,24 +113,29 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     private fun setupSharedElementTransitions() {
-        val inflater = TransitionInflater.from(requireContext())
-        val albumArtTransition = inflater.inflateTransition(R.transition.album_art_transition)
-        sharedElementEnterTransition = albumArtTransition
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            // Animate behind player sheet and status bar.
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            // Draw a background color behind the track list to prevent from drawing
+            // the seeing the previous fragment beneath.
+            containerColor = resolveThemeColor(requireContext(), R.attr.colorSurface)
 
-        albumArtTransition.addListener(object : TransitionListenerAdapter() {
+            addListener(object : TransitionListenerAdapter() {
 
-            override fun onTransitionStart(transition: Transition) {
-                // Hide the Floating Action Button at the beginning of the animation.
-                binding?.playFab?.isVisible = false
-            }
+                override fun onTransitionStart(transition: Transition) {
+                    // Hide the Floating Action Button at the beginning of the animation.
+                    binding?.playFab?.isVisible = false
+                }
 
-            override fun onTransitionEnd(transition: Transition) {
-                activity?.window?.statusBarColor = Color.TRANSPARENT
+                override fun onTransitionEnd(transition: Transition) {
+                    activity?.window?.statusBarColor = Color.TRANSPARENT
 
-                // Show the Floating Action Button after transition is completed.
-                binding?.playFab?.show()
-            }
-        })
+                    // Show the Floating Action Button after transition is completed.
+                    binding?.playFab?.show()
+                }
+            })
+        }
     }
 
     private fun applyPaletteTheme(palette: AlbumPalette, binding: FragmentAlbumDetailBinding) {
