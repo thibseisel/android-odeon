@@ -23,7 +23,9 @@
     <color name="mtrl_orange_a200">#ffab40</color>
 
     <color name="elevation_8_overlay">@android:color/transparent</color>
-
-    <color name="immersive_ui">#33000000</color>
     <color name="action_mode_background">#212121</color>
+
+    <!-- Background protection for navigation bar, varied on Q+ -->
+    <color name="immersive_sys_ui">#33000000</color>
+    <color name="nav_bar_background">@color/immersive_sys_ui</color>
 </resources>
