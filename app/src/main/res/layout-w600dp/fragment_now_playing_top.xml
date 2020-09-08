@@ -46,6 +46,7 @@
         app:layout_constraintStart_toEndOf="@+id/chevron"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
+        app:layout_goneMarginEnd="@dimen/grid_2"
         tools:text="@sample/songs.json/data/title" />
 
     <TextView
@@ -56,7 +57,7 @@
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/mini_prev_button"
+        app:layout_constraintEnd_toEndOf="@+id/title_view"
         app:layout_constraintStart_toStartOf="@id/title_view"
         app:layout_constraintTop_toBottomOf="@id/title_view"
         tools:text="@sample/songs.json/data/artist" />
