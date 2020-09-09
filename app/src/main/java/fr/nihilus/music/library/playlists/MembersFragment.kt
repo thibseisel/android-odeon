@@ -34,10 +34,10 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.databinding.FragmentPlaylistMembersBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
+import java.util.concurrent.TimeUnit
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
@@ -62,8 +62,9 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentPlaylistMembersBinding.bind(view)
 
+        // Wait for playlist tracks to be loaded before triggering enter transition.
+        postponeEnterTransition(500, TimeUnit.MILLISECONDS)
         view.transitionName = args.playlistId
-        postponeEnterTransition()
 
         binding.toolbar.apply {
             val playlistType = args.playlistId.toMediaId().type
@@ -80,9 +81,6 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         adapter = MembersAdapter(this, ::onTrackSelected)
         binding.membersRecycler.adapter = adapter
         binding.membersRecycler.setHasFixedSize(true)
-        binding.membersRecycler.afterMeasure {
-            startPostponedEnterTransition()
-        }
 
         viewModel.playlist.observe(viewLifecycleOwner, {
             binding.toolbar.title = it.description.title
@@ -94,10 +92,12 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(membersRequest.data)
+                    startPostponedEnterTransition()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
+                    startPostponedEnterTransition()
                 }
             }
         }

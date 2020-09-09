@@ -25,6 +25,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentArtistsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
@@ -59,11 +60,13 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(artistRequest.data)
                     binding.groupEmptyView.isVisible = artistRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
                     binding.groupEmptyView.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }

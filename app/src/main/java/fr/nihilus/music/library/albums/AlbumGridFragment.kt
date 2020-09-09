@@ -27,7 +27,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
@@ -55,7 +55,6 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         binding.albumRecycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
-            afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
         viewModel.albums.observe(viewLifecycleOwner) { albumRequest ->
@@ -65,11 +64,13 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(albumRequest.data)
                     binding.groupEmptyView.isVisible = albumRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(emptyList())
                     binding.groupEmptyView.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }

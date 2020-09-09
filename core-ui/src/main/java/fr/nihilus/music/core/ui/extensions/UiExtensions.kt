@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import kotlin.math.roundToInt
 
@@ -122,4 +123,17 @@ fun Fragment.startActionMode(callback: ActionMode.Callback): ActionMode? {
                     "to be attached to a subclass of AppCompatActivity"
         )
     return hostActivity.startSupportActionMode(callback)
+}
+
+/**
+ * Start enter transitions that were postponed for this fragment when its content has been redrawn.
+ * This is meant to be used when the data backing a RecyclerView
+ * has been updated for the first time.
+ *
+ * See [https://developer.android.com/training/basics/fragments/animate#recyclerview]
+ */
+fun Fragment.startPostponedEnterTransitionWhenDrawn() {
+    (requireView().parent as? ViewGroup)?.doOnPreDraw {
+        startPostponedEnterTransition()
+    }
 }

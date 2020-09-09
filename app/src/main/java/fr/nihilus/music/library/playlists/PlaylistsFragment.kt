@@ -27,8 +27,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.databinding.FragmentPlaylistBinding
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 
@@ -71,9 +71,6 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
         adapter = PlaylistsAdapter(this, onPlaylistSelected)
         binding.playlistRecycler.adapter = adapter
         binding.playlistRecycler.setHasFixedSize(true)
-        binding.playlistRecycler.afterMeasure {
-            requireParentFragment().startPostponedEnterTransition()
-        }
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
@@ -82,11 +79,13 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(playlistsRequest.data)
                     binding.groupEmptyView.isVisible = playlistsRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
                     binding.groupEmptyView.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }

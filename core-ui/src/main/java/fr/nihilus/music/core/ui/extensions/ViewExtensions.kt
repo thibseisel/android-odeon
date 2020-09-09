@@ -34,12 +34,3 @@ import androidx.annotation.LayoutRes
  */
 fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
     LayoutInflater.from(context).inflate(resource, this, attach)
-
-inline fun <T : View> T.afterMeasure(crossinline block: T.() -> Unit) {
-    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-            block()
-        }
-    })
-}

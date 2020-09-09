@@ -40,7 +40,7 @@ import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
-import fr.nihilus.music.extensions.doOnEnd
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import java.util.concurrent.TimeUnit
 
 /**
@@ -65,7 +65,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         val binding = FragmentAlbumDetailBinding.bind(view)
         this.binding = binding
 
-        // We are expecting an enter transition.
+        // Start shared element enter transition only after track list have been loaded.
         postponeEnterTransition(500, TimeUnit.MILLISECONDS)
 
         // Set transition names.
@@ -88,6 +88,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
+            startPostponedEnterTransitionWhenDrawn()
         }
     }
 
@@ -100,7 +101,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
             .disallowHardwareConfig()
-            .doOnEnd(this::startPostponedEnterTransition)
             .into(object : ImageViewTarget<AlbumArt>(binding.albumArtView) {
 
                 override fun setResource(resource: AlbumArt?) {
