@@ -58,19 +58,6 @@ class HomeActivity : BaseActivity() {
 
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
 
-    private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
-        private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
-            resolveThemeColor(this@HomeActivity, R.attr.colorPrimaryDark)
-        }
-
-        override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-            if (destination.id != R.id.fragment_album_detail) {
-                window.statusBarColor = statusBarColor
-                window.darkSystemIcons = false
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -101,13 +88,11 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        navController.addOnDestinationChangedListener(statusBarNavListener)
         bottomSheet.addBottomSheetCallback(sheetCollapsingCallback)
     }
 
     override fun onPause() {
         bottomSheet.removeBottomSheetCallback(sheetCollapsingCallback)
-        navController.removeOnDestinationChangedListener(statusBarNavListener)
         super.onPause()
     }
 

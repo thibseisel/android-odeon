@@ -17,12 +17,11 @@
 package fr.nihilus.music.library.albums
 
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.luminance
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -33,8 +32,6 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
@@ -82,9 +79,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         val adapter = TrackAdapter(viewModel::playTrack)
         binding.recycler.adapter = adapter
 
-        setDarkHomeUpIndicator(true, binding)
-        setDarkStatusBarIcons(true)
-
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
@@ -119,7 +113,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
             // Draw a background color behind the track list to prevent from drawing
             // the seeing the previous fragment beneath.
-            containerColor = resolveThemeColor(requireContext(), R.attr.colorSurface)
+            val themeColorSurface = resolveThemeColor(requireContext(), R.attr.colorSurface)
+            setAllContainerColors(themeColorSurface)
 
             addListener(object : TransitionListenerAdapter() {
 
@@ -129,8 +124,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
                 }
 
                 override fun onTransitionEnd(transition: Transition) {
-                    activity?.window?.statusBarColor = Color.TRANSPARENT
-
                     // Show the Floating Action Button after transition is completed.
                     binding?.playFab?.show()
                 }
@@ -143,21 +136,14 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         binding.titleView.setTextColor(palette.titleText)
         binding.subtitleView.setTextColor(palette.bodyText)
 
-        val darkStatusText = palette.bodyText.luminance < 0.5f
+        val darkStatusText = palette.primary.luminance > 0.5f
         setDarkHomeUpIndicator(darkStatusText, binding)
-        setDarkStatusBarIcons(darkStatusText)
 
         binding.collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
         binding.collapsingToolbar.setContentScrimColor(palette.primary)
 
         binding.playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
         binding.playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
-    }
-
-    private fun setDarkStatusBarIcons(isDark: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity?.window?.darkSystemIcons = isDark
-        }
     }
 
     private fun setDarkHomeUpIndicator(dark: Boolean, binding: FragmentAlbumDetailBinding) {
