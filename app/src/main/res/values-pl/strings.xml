@@ -43,7 +43,7 @@
     <string name="action_repeat_mode">Włącz/wyłącz tryb powtarzania</string>
     <string name="action_create_playlist">Nowa playlista</string>
     <string name="hint_playlist_title">Tytuł playlisty</string>
-    <string name="search_hint">Znajdź utwór, artystę…</string>
+    <string name="search_hint">Znajdź utwór, artystę</string>
     <string name="action_clear">Wyczyść</string>
     <string name="description_more_actions">Więcej działań</string>
     <string name="desc_clear_search">Wyczyść wyszukiwanie</string>

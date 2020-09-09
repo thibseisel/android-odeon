@@ -44,7 +44,7 @@
     <string name="action_create_playlist">Nouvelle playlist</string>
     <string name="hint_playlist_title">Titre de la playlist</string>
     <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
-    <string name="search_hint">Rechercher un morceau, un artiste…</string>
+    <string name="search_hint">Rechercher un morceau, un artiste</string>
     <string name="action_clear">Effacer</string>
     <string name="desc_clear_search">Effacer la recherche</string>
     <string name="description_more_actions">Plus d\'actions</string>
