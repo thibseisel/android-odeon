@@ -100,11 +100,12 @@
         android:id="@+id/recycler"
         style="@style/Widget.Odeon.List.Offset"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/album_track_item"/>
+        tools:listitem="@layout/album_track_item"
+        tools:itemCount="1"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/play_fab"
