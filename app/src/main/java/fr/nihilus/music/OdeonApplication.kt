@@ -16,6 +16,7 @@
 
 package fr.nihilus.music
 
+import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Configuration
 import androidx.work.WorkerFactory
@@ -46,6 +47,7 @@ class OdeonApplication : DaggerApplication(), Configuration.Provider {
         if (BuildConfig.DEBUG) {
             // Print logs to Logcat
             Timber.plant(Timber.DebugTree())
+            StrictMode.enableDefaults()
         }
 
         // Apply theme whenever it is changed via preferences.
