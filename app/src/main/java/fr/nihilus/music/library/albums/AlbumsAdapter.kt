@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseAdapter
@@ -35,7 +36,7 @@ internal class AlbumsAdapter(
 
     init {
         val context = fragment.requireContext()
-        val fallbackIcon = context.getDrawable(R.drawable.ic_album_24dp)
+        val fallbackIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
         glideRequest = GlideApp.with(fragment).asAlbumArt()
             .disallowHardwareConfig()
             .fallbackColors(defaultPalette)

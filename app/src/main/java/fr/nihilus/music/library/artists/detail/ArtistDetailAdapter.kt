@@ -18,6 +18,7 @@ package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -40,8 +41,8 @@ internal class ArtistDetailAdapter(
 
     init {
         val context = fragment.requireContext()
-        val defaultAlbumIcon = context.getDrawable(R.drawable.ic_album_24dp)
-        val defaultTrackIcon = context.getDrawable(R.drawable.ic_audiotrack_24dp)
+        val defaultAlbumIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
+        val defaultTrackIcon = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         paletteLoader = GlideApp.with(fragment).asAlbumArt()
             .disallowHardwareConfig()
             .fallbackColors(defaultPalette)

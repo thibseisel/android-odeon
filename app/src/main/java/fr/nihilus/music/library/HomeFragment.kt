@@ -22,6 +22,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -125,10 +126,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         fun getIcon(position: Int): Drawable? = when (position) {
-            0 -> context.getDrawable(R.drawable.ic_audiotrack_24dp)
-            1 -> context.getDrawable(R.drawable.ic_album_24dp)
-            2 -> context.getDrawable(R.drawable.ic_person_24dp)
-            3 -> context.getDrawable(R.drawable.ic_playlist_24dp)
+            0 -> ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
+            1 -> ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
+            2 -> ContextCompat.getDrawable(context, R.drawable.ic_person_24dp)
+            3 -> ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp)
             else -> null
         }
     }
