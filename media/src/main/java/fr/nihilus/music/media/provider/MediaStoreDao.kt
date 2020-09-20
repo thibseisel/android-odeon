@@ -189,7 +189,7 @@ internal class MediaStoreDao @Inject constructor(
                         )
                     }
                 }
-            } ?: emptyList<Track>()
+            } ?: emptyList()
         }
     }
 
@@ -237,7 +237,7 @@ internal class MediaStoreDao @Inject constructor(
                     }
                 }
 
-            } ?: emptyList<Album>()
+            } ?: emptyList()
         }
     }
 
@@ -278,7 +278,7 @@ internal class MediaStoreDao @Inject constructor(
                         )
                     }
                 }
-            } ?: emptyList<Artist>()
+            } ?: emptyList()
         }
     }
 

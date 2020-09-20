@@ -72,7 +72,7 @@ class HomeViewModel @Inject constructor(
         .asLiveData()
 
 
-    private fun builtInPlaylistFlow(category: String) = flow<MediaItem> {
+    private fun builtInPlaylistFlow(category: String) = flow {
         val itemId = MediaId.encode(MediaId.TYPE_TRACKS, category)
         emit(client.getItem(itemId) ?: error("Item with id $itemId should always exist."))
     }
