@@ -23,7 +23,6 @@ import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -41,7 +40,7 @@ internal class PermissionBrowserTree(
     var granted: Boolean
 ) : BrowserTree {
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaContent>> = flow {
+    override fun getChildren(parentId: MediaId) = flow<List<MediaContent>> {
         while (true) {
             if (granted) emit(emptyList())
             else throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
