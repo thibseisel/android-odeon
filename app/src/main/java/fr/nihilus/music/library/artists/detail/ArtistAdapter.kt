@@ -31,7 +31,7 @@ internal class ArtistAdapter(
 ) : ListAdapter<MediaItem, ArtistHolder>(MediaItemDiffer) {
 
     private val glide = Glide.with(fragment).asBitmap()
-        .error(R.drawable.ic_person_24dp)
+        .error(R.drawable.placeholder_artist_icon)
         .centerCrop()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

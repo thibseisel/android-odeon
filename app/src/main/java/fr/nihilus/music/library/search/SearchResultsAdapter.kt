@@ -91,9 +91,9 @@ internal class SearchResultsAdapter(
             titleView.text = title
 
             when (itemViewType) {
-                R.id.view_type_track -> glide.error(R.drawable.ic_audiotrack_24dp).load(iconUri)
-                R.id.view_type_album -> glide.fallback(R.drawable.ic_album_24dp).load(null as Uri?)
-                R.id.view_type_artist -> glide.fallback(R.drawable.ic_person_24dp).load(null as Uri?)
+                R.id.view_type_track -> glide.error(R.drawable.placeholder_track_icon).load(iconUri)
+                R.id.view_type_album -> glide.fallback(R.drawable.placeholder_album_icon).load(null as Uri?)
+                R.id.view_type_artist -> glide.fallback(R.drawable.placeholder_artist_icon).load(null as Uri?)
                 R.id.view_type_playlist -> glide.fallback(R.drawable.ic_playlist_24dp).load(iconUri)
                 else -> error("Unexpected view type: $itemViewType")
             }.into(iconView)
