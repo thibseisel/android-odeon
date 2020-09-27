@@ -22,8 +22,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
-import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -72,11 +70,8 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
     private fun onPlaylistSelected(position: Int) {
         val selectedPlaylist = adapter.getItem(position)
-        val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
-        val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
         val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-            playlistId = selectedPlaylist.mediaId!!,
-            isDeletable = isDeletablePlaylist
+            playlistId = selectedPlaylist.mediaId!!
         )
 
         findNavController().navigate(toPlaylistTracks)

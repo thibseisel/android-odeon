@@ -56,10 +56,6 @@
         <argument
             android:name="playlistId"
             app:argType="string" />
-        <argument
-            android:name="isDeletable"
-            android:defaultValue="false"
-            app:argType="boolean" />
     </fragment>
 
     <fragment

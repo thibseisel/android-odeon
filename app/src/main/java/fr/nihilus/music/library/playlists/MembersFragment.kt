@@ -31,6 +31,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -56,7 +58,8 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         super.onViewCreated(view, savedInstanceState)
 
         toolbar.apply {
-            menu.findItem(R.id.action_delete)?.isVisible = args.isDeletable
+            val playlistType = args.playlistId.toMediaId().type
+            menu.findItem(R.id.action_delete)?.isVisible = playlistType == MediaId.TYPE_PLAYLISTS
             setOnMenuItemClickListener(::onOptionsItemSelected)
             setNavigationOnClickListener { findNavController().navigateUp() }
         }
