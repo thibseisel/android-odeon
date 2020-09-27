@@ -25,25 +25,26 @@ import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.ui.base.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
 
 internal class TrackHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.artist_track_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onTrackSelected: (position: Int) -> Unit
+) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_track_item) {
 
-    val albumArt: ImageView = itemView.findViewById(R.id.album_art)
-    val title: TextView = itemView.findViewById(R.id.title)
-    val duration: TextView = itemView.findViewById(R.id.duration)
+    private val albumArt: ImageView = itemView.findViewById(R.id.album_art)
+    private val title: TextView = itemView.findViewById(R.id.title)
+    private val duration: TextView = itemView.findViewById(R.id.duration)
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onTrackSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        val description = item.description
+    override fun bind(data: MediaBrowserCompat.MediaItem) {
+        val description = data.description
         title.text = description.title
         glide.load(description.iconUri).into(albumArt)
 

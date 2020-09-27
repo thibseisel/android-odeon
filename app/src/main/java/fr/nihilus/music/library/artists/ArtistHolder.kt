@@ -24,31 +24,32 @@ import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.ui.base.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
 
 /**
  * Display an artist as a floating 16:9 card.
  */
 internal class ArtistHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onArtistSelected: (position: Int) -> Unit
+) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_grid_item) {
 
     private val artistName: TextView = itemView.findViewById(R.id.subtitle)
     private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
     private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onArtistSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        artistName.text = item.description.title
-        glide.load(item.description.iconUri).into(cover)
+    override fun bind(data: MediaBrowserCompat.MediaItem) {
+        artistName.text = data.description.title
+        glide.load(data.description.iconUri).into(cover)
 
-        item.description.extras?.let {
+        data.description.extras?.let {
             val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
             subtitle.text = subtitle.resources.getQuantityString(
                 R.plurals.number_of_tracks,

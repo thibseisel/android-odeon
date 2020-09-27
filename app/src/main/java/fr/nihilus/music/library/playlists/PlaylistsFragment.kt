@@ -26,13 +26,12 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
-import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import kotlinx.android.synthetic.main.fragment_playlist.*
 
-class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
+class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
     private val viewModel: HomeViewModel by activityViewModels()
 
@@ -40,7 +39,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = PlaylistsAdapter(this, this)
+        adapter = PlaylistsAdapter(this, ::onPlaylistSelected)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,7 +70,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.
         }
     }
 
-    override fun onItemSelected(position: Int) {
+    private fun onPlaylistSelected(position: Int) {
         val selectedPlaylist = adapter.getItem(position)
         val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
         val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS

@@ -17,13 +17,16 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.base.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.glide.GlideApp
 import fr.nihilus.music.glide.GlideRequest
@@ -32,8 +35,8 @@ import fr.nihilus.music.library.albums.AlbumHolder
 
 internal class ArtistDetailAdapter(
     fragment: Fragment,
-    private val listener: OnItemSelectedListener
-) : BaseAdapter<BaseAdapter.ViewHolder>() {
+    private val selectionListener: SelectionListener
+) : ListAdapter<MediaItem, BaseHolder<MediaItem>>(MediaItemDiffer) {
 
     private val paletteLoader: GlideRequest<AlbumArt>
     private val bitmapLoader: RequestBuilder<Bitmap>
@@ -58,13 +61,28 @@ internal class ArtistDetailAdapter(
         return if (item.isBrowsable) R.id.view_type_album else R.id.view_type_track
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseHolder<MediaItem> {
         return when (viewType) {
-            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, true)
-            R.id.view_type_track -> TrackHolder(parent, bitmapLoader)
+            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, isArtistAlbum = true) { albumPosition ->
+                selectionListener.onAlbumSelected(albumPosition)
+            }
+
+            R.id.view_type_track -> TrackHolder(parent, bitmapLoader) { trackPosition ->
+                selectionListener.onTrackSelected(trackPosition)
+            }
+
             else -> error("Unexpected view type: $viewType")
-        }.apply {
-            onAttachListeners(listener)
         }
+    }
+
+    override fun onBindViewHolder(holder: BaseHolder<MediaItem>, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    public override fun getItem(position: Int): MediaItem = super.getItem(position)
+
+    interface SelectionListener {
+        fun onAlbumSelected(position: Int)
+        fun onTrackSelected(position: Int)
     }
 }

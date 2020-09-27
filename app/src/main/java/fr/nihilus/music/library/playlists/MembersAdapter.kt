@@ -17,18 +17,20 @@
 package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.base.BaseAdapter
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.glide.roundedCorners
 
 internal class MembersAdapter(
     fragment: Fragment,
-    private val listener: OnItemSelectedListener
-) : BaseAdapter<MembersHolder>() {
+    private val onTrackSelected: (position: Int) -> Unit
+) : ListAdapter<MediaItem, MembersHolder>(MediaItemDiffer) {
 
     private val glideRequest: RequestBuilder<Bitmap>
 
@@ -40,8 +42,13 @@ internal class MembersAdapter(
             .fallback(R.drawable.ic_audiotrack_24dp)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembersHolder =
-        MembersHolder(parent, glideRequest).also { holder ->
-            holder.onAttachListeners(listener)
-        }
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): MembersHolder = MembersHolder(parent, glideRequest, onTrackSelected)
+
+    override fun onBindViewHolder(holder: MembersHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    public override fun getItem(position: Int): MediaItem = super.getItem(position)
 }

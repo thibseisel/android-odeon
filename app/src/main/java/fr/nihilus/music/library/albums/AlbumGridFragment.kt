@@ -25,7 +25,6 @@ import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
-import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.library.HomeFragmentDirections
@@ -36,7 +35,7 @@ import kotlinx.android.synthetic.main.fragment_albums.*
  * Display all albums in a grid of images.
  * Selecting an album opens its [detail view][AlbumDetailFragment].
  */
-class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.OnItemSelectedListener {
+class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
     private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var albumAdapter: AlbumsAdapter
@@ -49,7 +48,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
             progressIndicator.isVisible = progressVisible
         }
 
-        albumAdapter = AlbumsAdapter(this, this)
+        albumAdapter = AlbumsAdapter(this, ::onAlbumSelected)
         album_recycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
@@ -73,7 +72,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums), BaseAdapter.On
         }
     }
 
-    override fun onItemSelected(position: Int) {
+    private fun onAlbumSelected(position: Int) {
         val album = albumAdapter.getItem(position)
         val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 

@@ -24,21 +24,20 @@ import androidx.navigation.fragment.findNavController
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
-import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
 import kotlinx.android.synthetic.main.fragment_artists.*
 
-class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.OnItemSelectedListener {
+class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
     private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var adapter: ArtistAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        adapter = ArtistAdapter(this, this)
+        adapter = ArtistAdapter(this, ::onArtistSelected)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,7 +68,7 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists), BaseAdapter.
         }
     }
 
-    override fun onItemSelected(position: Int) {
+    private fun onArtistSelected(position: Int) {
         val artist = adapter.getItem(position)
         val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
         findNavController().navigate(toArtistDetail)

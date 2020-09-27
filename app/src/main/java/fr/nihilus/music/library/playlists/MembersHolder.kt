@@ -17,7 +17,7 @@
 package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -25,15 +25,16 @@ import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.ui.base.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
 
 /**
  * Display a playlist's track.
  */
 internal class MembersHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.playlist_track_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onTrackSelected: (position: Int) -> Unit
+) : BaseHolder<MediaItem>(parent, R.layout.playlist_track_item) {
 
     private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
     private val title: TextView = itemView.findViewById(R.id.title)
@@ -42,14 +43,14 @@ internal class MembersHolder(
     private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
     private val durationBuilder = StringBuilder()
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onTrackSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        val description = item.description
+    override fun bind(data: MediaItem) {
+        val description = data.description
         glide.load(description.iconUri).into(albumArt)
         title.text = description.title
 

@@ -16,8 +16,9 @@
 
 package fr.nihilus.music.library.search
 
+import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Adapter
@@ -27,18 +28,18 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
-import fr.nihilus.music.core.ui.extensions.inflate
 
 internal class SearchResultsAdapter(
     fragment: Fragment,
-    private val listener: (item: MediaBrowserCompat.MediaItem, action: ItemAction) -> Unit
-) : ListAdapter<MediaBrowserCompat.MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
+    private val listener: (item: MediaItem, action: ItemAction) -> Unit
+) : ListAdapter<MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
 
     private val glide = Glide.with(fragment).asBitmap()
 
@@ -56,17 +57,24 @@ internal class SearchResultsAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent, viewType)
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ) = ViewHolder(parent, viewType, glide) { position, action ->
+        listener(getItem(position), action)
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item)
     }
 
-    inner class ViewHolder(
+    class ViewHolder(
         parent: ViewGroup,
-        viewType: Int
-    ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_search_suggestion)) {
+        viewType: Int,
+        private val glide: RequestBuilder<Bitmap>,
+        private val onItemAction: (position: Int, action: ItemAction) -> Unit
+    ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
 
         private val iconView: ImageView = itemView.findViewById(R.id.icon_view)
         private val titleView: TextView = itemView.findViewById(R.id.title_view)
@@ -75,12 +83,11 @@ internal class SearchResultsAdapter(
             setupTrackActionMenu(viewType)
 
             itemView.setOnClickListener {
-                val selectedItem = getItem(adapterPosition)
-                listener(selectedItem, ItemAction.PRIMARY)
+                onItemAction(adapterPosition, ItemAction.PRIMARY)
             }
         }
 
-        fun bind(result: MediaBrowserCompat.MediaItem): Unit = with(result.description) {
+        override fun bind(data: MediaItem): Unit = with(data.description) {
             titleView.text = title
 
             when (itemViewType) {
@@ -108,16 +115,14 @@ internal class SearchResultsAdapter(
 
                 popup.inflate(R.menu.track_popup_menu)
                 popup.setOnMenuItemClickListener {
-                    val item = getItem(adapterPosition)
-
                     when (it.itemId) {
                         R.id.action_playlist -> {
-                            listener(item, ItemAction.ADD_TO_PLAYLIST)
+                            onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
                             true
                         }
 
                         R.id.action_delete -> {
-                            listener(item, ItemAction.DELETE)
+                            onItemAction(adapterPosition, ItemAction.DELETE)
                             true
                         }
 

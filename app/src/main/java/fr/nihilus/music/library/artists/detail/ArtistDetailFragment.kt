@@ -31,16 +31,15 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
-import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import kotlinx.android.synthetic.main.fragment_artist_detail.*
 
-class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
-    private lateinit var childrenAdapter: ArtistDetailAdapter
+class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
+    private lateinit var childrenAdapter: ArtistDetailAdapter
     private val args: ArtistDetailFragmentArgs by navArgs()
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
@@ -50,7 +49,6 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         super.onCreate(savedInstanceState)
 
         viewModel.setArtist(args.artistId)
-        childrenAdapter = ArtistDetailAdapter(this, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -59,6 +57,20 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         postponeEnterTransition()
 
         toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+
+        childrenAdapter = ArtistDetailAdapter(this, object : ArtistDetailAdapter.SelectionListener {
+
+            override fun onAlbumSelected(position: Int) {
+                val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
+                val album = childrenAdapter.getItem(position)
+                onAlbumSelected(holder, album)
+            }
+
+            override fun onTrackSelected(position: Int) {
+                val track = childrenAdapter.getItem(position)
+                onTrackSelected(track)
+            }
+        })
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
         val manager = GridLayoutManager(context, spanCount)
@@ -95,22 +107,13 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    childrenAdapter.submitList(childrenRequest.data)
+                    this.childrenAdapter.submitList(childrenRequest.data)
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
-                    childrenAdapter.submitList(emptyList())
+                    this.childrenAdapter.submitList(emptyList())
                 }
             }
-        }
-    }
-
-    override fun onItemSelected(position: Int) {
-        val selectedItem = childrenAdapter.getItem(position)
-        val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) ?: return
-        when (holder.itemViewType) {
-            R.id.view_type_track -> onTrackSelected(selectedItem)
-            R.id.view_type_album -> onAlbumSelected(holder as AlbumHolder, selectedItem)
         }
     }
 

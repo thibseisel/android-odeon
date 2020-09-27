@@ -34,13 +34,12 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
-import fr.nihilus.music.core.ui.base.BaseAdapter
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.library.MusicLibraryViewModel
 import kotlinx.android.synthetic.main.fragment_playlist_members.*
 
-class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAdapter.OnItemSelectedListener {
+class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
     private val viewModel: MembersViewModel by viewModels { viewModelFactory }
@@ -67,7 +66,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
             progressIndicator.isVisible = shouldShow
         }
 
-        adapter = MembersAdapter(this, this)
+        adapter = MembersAdapter(this, ::onTrackSelected)
         members_recycler.adapter = adapter
         members_recycler.setHasFixedSize(true)
 
@@ -126,7 +125,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members), BaseAd
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onItemSelected(position: Int) {
+    private fun onTrackSelected(position: Int) {
         val member = adapter.getItem(position)
         hostViewModel.playMedia(member)
     }
