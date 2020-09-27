@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide.palette
+package fr.nihilus.music.core.ui.glide.palette
 
 import androidx.annotation.ColorInt
 import androidx.palette.graphics.Palette

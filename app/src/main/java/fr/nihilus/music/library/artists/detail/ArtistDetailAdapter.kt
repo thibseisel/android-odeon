@@ -27,10 +27,10 @@ import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.GlideRequest
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumHolder
 
 internal class ArtistDetailAdapter(

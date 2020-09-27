@@ -28,7 +28,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import fr.nihilus.music.R
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.glide.SwitcherTarget
+import fr.nihilus.music.core.ui.glide.SwitcherTarget
 import kotlinx.android.synthetic.main.fragment_now_playing.*
 import kotlinx.android.synthetic.main.fragment_now_playing_top.*
 import timber.log.Timber

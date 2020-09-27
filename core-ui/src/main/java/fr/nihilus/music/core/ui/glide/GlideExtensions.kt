@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide
+package fr.nihilus.music.core.ui.glide
 
 import android.graphics.Color
 import androidx.annotation.Px
@@ -26,8 +26,8 @@ import com.bumptech.glide.load.Option
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.BaseRequestOptions
-import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.library.albums.AlbumPalette
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 
 @GlideExtension
 object GlideExtensions {

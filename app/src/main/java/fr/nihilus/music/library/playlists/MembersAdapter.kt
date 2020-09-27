@@ -25,7 +25,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
-import fr.nihilus.music.glide.roundedCorners
+import fr.nihilus.music.core.ui.glide.roundedCorners
 
 internal class MembersAdapter(
     fragment: Fragment,

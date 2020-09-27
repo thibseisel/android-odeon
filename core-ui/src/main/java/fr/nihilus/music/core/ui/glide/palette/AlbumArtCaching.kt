@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide.palette
+package fr.nihilus.music.core.ui.glide.palette
 
 import android.graphics.Bitmap
 import androidx.annotation.ColorInt
@@ -27,10 +27,9 @@ import com.bumptech.glide.load.engine.Resource
 import com.bumptech.glide.load.engine.bitmap_recycle.ArrayPool
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
-import fr.nihilus.music.BuildConfig
+import fr.nihilus.music.core.ui.BuildConfig
 import fr.nihilus.music.core.ui.extensions.toHsl
-import fr.nihilus.music.glide.GlideExtensions
-import fr.nihilus.music.library.albums.AlbumPalette
+import fr.nihilus.music.core.ui.glide.GlideExtensions
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream

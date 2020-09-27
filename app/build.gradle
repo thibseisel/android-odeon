@@ -125,10 +125,6 @@ dependencies {
     // Support library dependencies
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidx.viewpager2}"
-    implementation "androidx.palette:palette-ktx:${versions.androidx.palette}"
-
-    // Glide
-    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
 
     // Dagger
     kapt "com.google.dagger:dagger-compiler:${versions.dagger}"

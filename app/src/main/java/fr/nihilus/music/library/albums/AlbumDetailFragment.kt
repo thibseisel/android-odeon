@@ -35,9 +35,10 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.luminance
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.extensions.doOnEnd
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.palette.AlbumArt
 import kotlinx.android.synthetic.main.fragment_album_detail.*
 import java.util.concurrent.TimeUnit
 

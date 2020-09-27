@@ -31,7 +31,7 @@ import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.glide.roundedCorners
+import fr.nihilus.music.core.ui.glide.roundedCorners
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
 /**

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide
+package fr.nihilus.music.core.ui.glide
 
 import android.content.Context
 import android.os.Build
@@ -29,10 +29,10 @@ import com.bumptech.glide.load.resource.bitmap.Downsampler
 import com.bumptech.glide.load.resource.bitmap.StreamBitmapDecoder
 import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
-import fr.nihilus.music.glide.palette.AlbumArt
-import fr.nihilus.music.glide.palette.AlbumArtEncoder
-import fr.nihilus.music.glide.palette.BufferAlbumArtDecoder
-import fr.nihilus.music.glide.palette.StreamAlbumArtDecoder
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumArtEncoder
+import fr.nihilus.music.core.ui.glide.palette.BufferAlbumArtDecoder
+import fr.nihilus.music.core.ui.glide.palette.StreamAlbumArtDecoder
 import java.io.InputStream
 import java.nio.ByteBuffer
 

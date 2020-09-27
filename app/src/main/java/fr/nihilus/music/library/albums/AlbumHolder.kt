@@ -27,7 +27,8 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 
 internal class AlbumHolder(
     parent: ViewGroup,

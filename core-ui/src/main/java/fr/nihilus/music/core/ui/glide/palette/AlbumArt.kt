@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.glide.palette
+package fr.nihilus.music.core.ui.glide.palette
 
 import android.graphics.Bitmap
-import fr.nihilus.music.library.albums.AlbumPalette
 
 data class AlbumArt(val bitmap: Bitmap, val palette: AlbumPalette)

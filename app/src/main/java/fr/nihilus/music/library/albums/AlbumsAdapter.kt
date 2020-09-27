@@ -23,10 +23,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.GlideRequest
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.glide.palette.AlbumArt
 
 internal class AlbumsAdapter(
     fragment: Fragment,

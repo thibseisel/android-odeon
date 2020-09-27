@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package fr.nihilus.music.extensions
 import android.content.Context
 import androidx.core.content.res.getColorOrThrow
 import fr.nihilus.music.R
-import fr.nihilus.music.library.albums.AlbumPalette
+import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 
 fun Context.resolveDefaultAlbumPalette(): AlbumPalette {
     val attrs = obtainStyledAttributes(R.styleable.DefaultAlbumPalette)
