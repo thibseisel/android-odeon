@@ -24,7 +24,6 @@ import fr.nihilus.music.OdeonApplication
 import fr.nihilus.music.core.AppScope
 import fr.nihilus.music.core.CoreComponent
 import fr.nihilus.music.core.worker.WorkManagerModule
-import fr.nihilus.music.devmenu.DevMenuModule
 import fr.nihilus.music.service.MusicServiceModule
 import fr.nihilus.music.spotify.dagger.SpotifyWorkerModule
 
@@ -40,7 +39,7 @@ import fr.nihilus.music.spotify.dagger.SpotifyWorkerModule
         AppModule::class,
         MusicServiceModule::class,
         ClientModule::class,
-        DevMenuModule::class,
+        DebugOnlyModule::class,
         WorkManagerModule::class,
         SpotifyWorkerModule::class
     ]

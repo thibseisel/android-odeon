@@ -116,10 +116,11 @@ dependencies {
     implementation project(':media')
     implementation project(':service')
     implementation project(':spotify-client')
-    implementation project(':devmenu')
 
     implementation project(':ui-cleanup')
     implementation project(':ui-settings')
+
+    debugImplementation project(':devmenu')
 
     // Support library dependencies
     implementation "androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}"
