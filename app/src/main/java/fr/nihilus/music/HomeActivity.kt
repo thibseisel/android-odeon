@@ -34,12 +34,12 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.databinding.ActivityHomeBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
-import kotlinx.android.synthetic.main.activity_home.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,6 +49,7 @@ class HomeActivity : BaseActivity() {
 
     private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
 
+    private lateinit var binding: ActivityHomeBinding
     private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var playerFragment: NowPlayingFragment
 
@@ -72,7 +73,8 @@ class HomeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupPlayerView()
 
@@ -110,7 +112,7 @@ class HomeActivity : BaseActivity() {
     }
 
     private fun setupPlayerView() {
-        bottomSheet = BottomSheetBehavior.from(player_container)
+        bottomSheet = BottomSheetBehavior.from(binding.playerContainer)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value == true)
@@ -214,7 +216,7 @@ class HomeActivity : BaseActivity() {
         when (intent?.action) {
 
             MusicService.ACTION_PLAYER_UI -> {
-                player_container.postDelayed({
+                binding.playerContainer.postDelayed({
                     bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 }, 300L)
             }

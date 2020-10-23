@@ -33,9 +33,10 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
+import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
-import kotlinx.android.synthetic.main.fragment_artist_detail.*
 
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
@@ -53,15 +54,16 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentArtistDetailBinding.bind(view)
 
         postponeEnterTransition()
 
-        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         childrenAdapter = ArtistDetailAdapter(this, object : ArtistDetailAdapter.SelectionListener {
 
             override fun onAlbumSelected(position: Int) {
-                val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
+                val holder = binding.artistDetailRecycler.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
                 val album = childrenAdapter.getItem(position)
                 onAlbumSelected(holder, album)
             }
@@ -81,7 +83,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
             }
         }
 
-        with(artist_detail_recycler) {
+        binding.artistDetailRecycler.apply {
             adapter = childrenAdapter
             layoutManager = manager
             setHasFixedSize(true)
@@ -100,7 +102,9 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
             progressIndicator.isVisible = shouldShow
         }
 
-        viewModel.artist.observe(viewLifecycleOwner, ::onArtistDetailLoaded)
+        viewModel.artist.observe(viewLifecycleOwner) {
+            binding.toolbar.title = it.description.title
+        }
 
         viewModel.children.observe(viewLifecycleOwner) { childrenRequest ->
             when (childrenRequest) {
@@ -115,10 +119,6 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
                 }
             }
         }
-    }
-
-    private fun onArtistDetailLoaded(artist: MediaItem) {
-        toolbar.title = artist.description.title
     }
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {

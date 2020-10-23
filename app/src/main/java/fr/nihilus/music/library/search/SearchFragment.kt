@@ -31,9 +31,9 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.databinding.FragmentSearchBinding
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.songs.DeleteTrackDialog
-import kotlinx.android.synthetic.main.fragment_search.*
 
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private val viewModel by viewModels<SearchViewModel> { viewModelFactory }
@@ -42,26 +42,29 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private val backToTopObserver =  BackToTopObserver()
+    private var binding: FragmentSearchBinding? = null
     private lateinit var resultsAdapter: SearchResultsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentSearchBinding.bind(view)
+        this.binding = null
 
-        val recyclerView = list_search_results
+        val recyclerView = binding.listSearchResults
         recyclerView.setHasFixedSize(true)
         resultsAdapter = SearchResultsAdapter(this, ::onSuggestionSelected)
         recyclerView.adapter = resultsAdapter
 
-        with(search_toolbar) {
+        with(binding.searchToolbar) {
             setNavigationOnClickListener { onNavigateUp() }
             setOnMenuItemClickListener(::onOptionsItemSelected)
         }
 
-        search_input.doAfterTextChanged { text ->
+        binding.searchInput.doAfterTextChanged { text ->
             viewModel.search(text ?: "")
         }
 
-        search_input.setOnEditorActionListener { v, actionId, _ ->
+        binding.searchInput.setOnEditorActionListener { v, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
                     viewModel.search(v.text ?: "")
@@ -77,7 +80,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         if (savedInstanceState == null) {
-            showKeyboard(search_input)
+            showKeyboard(binding.searchInput)
         }
     }
 
@@ -93,8 +96,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_clear -> {
-            search_input.text = null
-            search_input.requestFocus()
+            val input = binding!!.searchInput
+            input.text = null
+            input.requestFocus()
             resultsAdapter.submitList(emptyList())
             true
         }
@@ -103,7 +107,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun onNavigateUp() {
-        hideKeyboard(search_input)
+        hideKeyboard(binding!!.searchInput)
         val navController = findNavController()
         navController.navigateUp()
     }
@@ -143,7 +147,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun browseMedia(item: MediaBrowserCompat.MediaItem) {
-        hideKeyboard(search_input)
+        hideKeyboard(binding!!.searchInput)
         val navController = findNavController()
         val (type, _, _) = item.mediaId.toMediaId()
 
@@ -168,6 +172,11 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
     private inner class BackToTopObserver : RecyclerView.AdapterDataObserver() {
 
         override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = onChanged()
@@ -177,7 +186,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = onChanged()
 
         override fun onChanged() {
-            list_search_results.scrollToPosition(0)
+            binding?.listSearchResults?.scrollToPosition(0)
         }
     }
 }

@@ -31,11 +31,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.databinding.FragmentHomeBinding
 import fr.nihilus.music.library.albums.AlbumGridFragment
 import fr.nihilus.music.library.artists.ArtistListFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.SongListFragment
-import kotlinx.android.synthetic.main.fragment_home.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,22 +47,23 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentHomeBinding.bind(view)
 
         // Postpone transition when returning from album detail.
         postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
         allowReturnTransitionOverlap = true
 
         // Configure toolbar with title and menu.
-        toolbar.run {
+        binding.toolbar.run {
             setTitle(R.string.core_app_name)
             prepareMenu()
         }
 
         // Configure tabs and ViewPager.
         val pagerAdapter = MusicLibraryTabAdapter(this)
-        fragment_pager.adapter = pagerAdapter
-        fragment_pager.offscreenPageLimit = 1
-        TabLayoutMediator(tab_host, fragment_pager, false) { tab, position ->
+        binding.fragmentPager.adapter = pagerAdapter
+        binding.fragmentPager.offscreenPageLimit = 1
+        TabLayoutMediator(binding.tabHost, binding.fragmentPager, false) { tab, position ->
             tab.icon = pagerAdapter.getIcon(position)
             tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()

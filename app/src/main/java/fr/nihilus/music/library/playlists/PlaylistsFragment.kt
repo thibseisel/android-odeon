@@ -25,31 +25,34 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
-import kotlinx.android.synthetic.main.fragment_playlist.*
 
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
     private val viewModel: HomeViewModel by activityViewModels()
 
-    private lateinit var adapter: PlaylistsAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = PlaylistsAdapter(this, ::onPlaylistSelected)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentPlaylistBinding.bind(view)
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
-        playlist_recycler.adapter = adapter
-        playlist_recycler.setHasFixedSize(true)
+        lateinit var adapter: PlaylistsAdapter
+        val onPlaylistSelected = { position: Int ->
+            val selectedPlaylist = adapter.getItem(position)
+            val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
+                playlistId = selectedPlaylist.mediaId!!
+            )
+            findNavController().navigate(toPlaylistTracks)
+        }
+
+        adapter = PlaylistsAdapter(this, onPlaylistSelected)
+        binding.playlistRecycler.adapter = adapter
+        binding.playlistRecycler.setHasFixedSize(true)
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
@@ -57,23 +60,15 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(playlistsRequest.data)
-                    group_empty_view.isVisible = playlistsRequest.data.isEmpty()
+                    binding.groupEmptyView.isVisible = playlistsRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
-                    group_empty_view.isVisible = true
+                    binding.groupEmptyView.isVisible = true
                 }
             }
         }
     }
 
-    private fun onPlaylistSelected(position: Int) {
-        val selectedPlaylist = adapter.getItem(position)
-        val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-            playlistId = selectedPlaylist.mediaId!!
-        )
-
-        findNavController().navigate(toPlaylistTracks)
-    }
 }

@@ -19,7 +19,6 @@ package fr.nihilus.music.library.songs
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.View
-import android.widget.ListView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -30,12 +29,12 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
+import fr.nihilus.music.databinding.FragmentSongsBinding
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
-import kotlinx.android.synthetic.main.fragment_songs.*
 
 class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
@@ -43,24 +42,16 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
     private val viewModel: HomeViewModel by activityViewModels()
     private val playlistViewModel: PlaylistManagementViewModel by viewModels { viewModelFactory }
 
-    private lateinit var songAdapter: SongAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        songAdapter = SongAdapter(this, ::onTrackAction)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentSongsBinding.bind(view)
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
-        val songsListView = view.findViewById<ListView>(R.id.songs_listview)
-        songsListView.adapter = songAdapter
+        val songAdapter = SongAdapter(this, ::onTrackAction)
+        binding.songsListview.adapter = songAdapter
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
-            progressIndicator.isVisible = shouldShowProgress
-            songsListView.isVisible = !shouldShowProgress
+            binding.progressIndicator.isVisible = shouldShowProgress
+            binding.songsListview.isVisible = !shouldShowProgress
         }
 
 
@@ -71,14 +62,14 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(songs_listview, staggerTransition)
+                    TransitionManager.beginDelayedTransition(binding.songsListview, staggerTransition)
                     songAdapter.submitList(itemRequest.data)
-                    group_empty_view.isVisible = itemRequest.data.isEmpty()
+                    binding.groupEmptyView.isVisible = itemRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     songAdapter.submitList(emptyList())
-                    group_empty_view.isVisible = true
+                    binding.groupEmptyView.isVisible = true
                 }
             }
         }

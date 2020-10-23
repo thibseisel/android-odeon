@@ -19,7 +19,6 @@ package fr.nihilus.music.library.playlists
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
@@ -38,8 +37,8 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
+import fr.nihilus.music.databinding.FragmentPlaylistMembersBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
-import kotlinx.android.synthetic.main.fragment_playlist_members.*
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
@@ -56,8 +55,9 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentPlaylistMembersBinding.bind(view)
 
-        toolbar.apply {
+        binding.toolbar.apply {
             val playlistType = args.playlistId.toMediaId().type
             menu.findItem(R.id.action_delete)?.isVisible = playlistType == MediaId.TYPE_PLAYLISTS
             setOnMenuItemClickListener(::onOptionsItemSelected)
@@ -70,11 +70,11 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         }
 
         adapter = MembersAdapter(this, ::onTrackSelected)
-        members_recycler.adapter = adapter
-        members_recycler.setHasFixedSize(true)
+        binding.membersRecycler.adapter = adapter
+        binding.membersRecycler.setHasFixedSize(true)
 
         // Disable add animations because we'll manually animate those.
-        members_recycler.itemAnimator = object : DefaultItemAnimator() {
+        binding.membersRecycler.itemAnimator = object : DefaultItemAnimator() {
             override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
                 dispatchAddFinished(holder)
                 dispatchAddStarting(holder)
@@ -84,14 +84,16 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
         val staggerTransition = Stagger()
 
-        viewModel.playlist.observe(viewLifecycleOwner, ::onPlaylistDetailLoaded)
+        viewModel.playlist.observe(viewLifecycleOwner, {
+            binding.toolbar.title = it.description.title
+        })
 
         viewModel.members.observe(viewLifecycleOwner) { membersRequest ->
             when (membersRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(members_recycler, staggerTransition)
+                    TransitionManager.beginDelayedTransition(binding.membersRecycler, staggerTransition)
                     adapter.submitList(membersRequest.data)
                 }
                 is LoadRequest.Error -> {
@@ -100,10 +102,6 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
                 }
             }
         }
-    }
-
-    private fun onPlaylistDetailLoaded(playlist: MediaBrowserCompat.MediaItem) {
-        toolbar.title = playlist.description.title
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -38,8 +38,8 @@ import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
 import fr.nihilus.music.extensions.doOnEnd
-import kotlinx.android.synthetic.main.fragment_album_detail.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -50,6 +50,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
 
+    private var binding: FragmentAlbumDetailBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -58,35 +60,39 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentAlbumDetailBinding.bind(view)
+        this.binding = binding
+
         // We are expecting an enter transition.
         postponeEnterTransition(500, TimeUnit.MILLISECONDS)
 
         // Set transition names.
         // Note that they don't need to match with the names of the selected grid item.
         // They only have to be unique in this fragment.
-        album_art_view.transitionName = args.albumId
+        binding.albumArtView.transitionName = args.albumId
 
-        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
-        play_fab.setOnClickListener {
+        binding.playFab.setOnClickListener {
             viewModel.playAlbum()
         }
 
         val adapter = TrackAdapter(viewModel::playTrack)
-        recycler.adapter = adapter
+        binding.recycler.adapter = adapter
 
-        setDarkHomeUpIndicator(true)
+        setDarkHomeUpIndicator(true, binding)
         setDarkStatusBarIcons(true)
 
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
-            onAlbumDetailLoaded(albumDetail)
+            onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
         }
     }
 
-    private fun onAlbumDetailLoaded(album: AlbumDetailState) {
-        title_view.text = album.title
-        subtitle_view.text = album.subtitle
+    private fun onAlbumDetailLoaded(album: AlbumDetailState, binding: FragmentAlbumDetailBinding) {
+        binding.titleView.text = album.title
+        binding.subtitleView.text = album.subtitle
 
         GlideApp.with(this).asAlbumArt()
             .load(album.artworkUri)
@@ -94,11 +100,11 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             .dontTransform()
             .disallowHardwareConfig()
             .doOnEnd(this::startPostponedEnterTransition)
-            .into(object : ImageViewTarget<AlbumArt>(album_art_view) {
+            .into(object : ImageViewTarget<AlbumArt>(binding.albumArtView) {
 
                 override fun setResource(resource: AlbumArt?) {
                     if (resource != null) {
-                        applyPaletteTheme(resource.palette)
+                        applyPaletteTheme(resource.palette, binding)
                         super.view.setImageBitmap(resource.bitmap)
                     }
                 }
@@ -114,32 +120,32 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
             override fun onTransitionStart(transition: Transition) {
                 // Hide the Floating Action Button at the beginning of the animation.
-                play_fab?.isVisible = false
+                binding?.playFab?.isVisible = false
             }
 
             override fun onTransitionEnd(transition: Transition) {
                 activity?.window?.statusBarColor = Color.TRANSPARENT
 
                 // Show the Floating Action Button after transition is completed.
-                play_fab?.show()
+                binding?.playFab?.show()
             }
         })
     }
 
-    private fun applyPaletteTheme(palette: AlbumPalette) {
-        album_info_layout.setBackgroundColor(palette.primary)
-        title_view.setTextColor(palette.titleText)
-        subtitle_view.setTextColor(palette.bodyText)
+    private fun applyPaletteTheme(palette: AlbumPalette, binding: FragmentAlbumDetailBinding) {
+        binding.albumInfoLayout.setBackgroundColor(palette.primary)
+        binding.titleView.setTextColor(palette.titleText)
+        binding.subtitleView.setTextColor(palette.bodyText)
 
         val darkStatusText = palette.bodyText.luminance < 0.5f
-        setDarkHomeUpIndicator(darkStatusText)
+        setDarkHomeUpIndicator(darkStatusText, binding)
         setDarkStatusBarIcons(darkStatusText)
 
-        collapsing_toolbar.setStatusBarScrimColor(palette.primaryDark)
-        collapsing_toolbar.setContentScrimColor(palette.primary)
+        binding.collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
+        binding.collapsingToolbar.setContentScrimColor(palette.primary)
 
-        play_fab.backgroundTintList = ColorStateList.valueOf(palette.accent)
-        play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
+        binding.playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        binding.playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
     }
 
     private fun setDarkStatusBarIcons(isDark: Boolean) {
@@ -148,7 +154,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         }
     }
 
-    private fun setDarkHomeUpIndicator(dark: Boolean) {
+    private fun setDarkHomeUpIndicator(dark: Boolean, binding: FragmentAlbumDetailBinding) {
         val themedContext = ContextThemeWrapper(
             requireContext(),
             if (dark) R.style.ThemeOverlay_AppCompat_Light
@@ -156,6 +162,11 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         )
 
         val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
-        toolbar.navigationIcon = upArrow
+        binding.toolbar.navigationIcon = upArrow
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }
