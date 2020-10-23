@@ -17,8 +17,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 import com.android.build.gradle.BaseExtension
 
-apply plugin: 'com.github.ben-manes.versions'
-
 buildscript {
     apply from: 'gradle/dependencies.gradle'
 
@@ -40,6 +38,10 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}"
         classpath "com.github.ben-manes:gradle-versions-plugin:${versions.plugin}"
     }
+}
+
+plugins {
+    id 'com.github.ben-manes.versions' version '0.30.0'
 }
 
 allprojects {
