@@ -27,9 +27,9 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
-import kotlinx.android.synthetic.main.fragment_albums.*
 
 /**
  * Display all albums in a grid of images.
@@ -38,18 +38,20 @@ import kotlinx.android.synthetic.main.fragment_albums.*
 class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
     private val viewModel: HomeViewModel by activityViewModels()
 
+    private var binding: FragmentAlbumsBinding? = null
     private lateinit var albumAdapter: AlbumsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentAlbumsBinding.bind(view)
+        this.binding = binding
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val refreshToggle = ProgressTimeLatch { progressVisible ->
-            progressIndicator.isVisible = progressVisible
+            binding.progressIndicator.isVisible = progressVisible
         }
 
         albumAdapter = AlbumsAdapter(this, ::onAlbumSelected)
-        album_recycler.apply {
+        binding.albumRecycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
             afterMeasure { requireParentFragment().startPostponedEnterTransition() }
@@ -61,12 +63,12 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
                 is LoadRequest.Success -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(albumRequest.data)
-                    group_empty_view.isVisible = albumRequest.data.isEmpty()
+                    binding.groupEmptyView.isVisible = albumRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(emptyList())
-                    group_empty_view.isVisible = true
+                    binding.groupEmptyView.isVisible = true
                 }
             }
         }
@@ -74,7 +76,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
 
     private fun onAlbumSelected(position: Int) {
         val album = albumAdapter.getItem(position)
-        val holder = album_recycler.findViewHolderForAdapterPosition(position) as AlbumHolder
+        val holder = binding!!.albumRecycler.findViewHolderForAdapterPosition(position) as AlbumHolder
 
         val albumId = album.mediaId!!
         val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)
@@ -83,5 +85,10 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         )
 
         findNavController().navigate(toAlbumDetail, transitionExtras)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

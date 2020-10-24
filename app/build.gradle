@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'androidx.navigation.safeargs.kotlin'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'androidx.navigation.safeargs.kotlin'
+}
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -29,6 +30,10 @@ android {
         versionCode 201001
         versionName '2.1.0-beta01'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     // Retrieve keystore properties from this machine's global Gradle properties.
@@ -103,10 +108,6 @@ android {
             matchingFallbacks = ['debug']
         }
     }
-}
-
-androidExtensions {
-    experimental = true
 }
 
 dependencies {

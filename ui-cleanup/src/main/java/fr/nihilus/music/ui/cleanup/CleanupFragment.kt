@@ -32,7 +32,7 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
-import kotlinx.android.synthetic.main.fragment_cleanup.*
+import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
 
 /**
  * Code associated with the request to confirm deleting tracks.
@@ -44,6 +44,8 @@ private const val REQUEST_CONFIRM_CLEANUP = 1337
  */
 internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
+    private var binding: FragmentCleanupBinding? = null
+
     private val viewModel by viewModels<CleanupViewModel> { viewModelFactory }
     private lateinit var adapter: CleanupAdapter
     private lateinit var selectionTracker: SelectionTracker<Long>
@@ -51,7 +53,11 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView = disposable_track_list
+        val binding = FragmentCleanupBinding.bind(view)
+        this.binding = binding
+
+        val recyclerView = binding.disposableTrackList
+
         recyclerView.setHasFixedSize(true)
         val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
         recyclerView.addItemDecoration(dividers)
@@ -70,9 +76,9 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             it.addObserver(HasSelectionObserver(it.selection))
         }
 
-        configureViewOffsetForSystemBars()
+        configureViewOffsetForSystemBars(binding)
 
-        action_delete_selected.setOnClickListener {
+        binding.actionDeleteSelected.setOnClickListener {
             askCleanupConfirmation(selectionTracker.selection)
         }
 
@@ -107,12 +113,17 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
     }
 
-    private fun configureViewOffsetForSystemBars() {
-        disposable_track_list.doOnApplyWindowInsets { view, insets, padding, _ ->
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    private fun configureViewOffsetForSystemBars(bindings: FragmentCleanupBinding) {
+        bindings.disposableTrackList.doOnApplyWindowInsets { view, insets, padding, _ ->
             view.updatePadding(bottom = padding.bottom + insets.systemWindowInsets.bottom)
         }
 
-        action_delete_selected.doOnApplyWindowInsets { view, insets, _, margin ->
+        bindings.actionDeleteSelected.doOnApplyWindowInsets { view, insets, _, margin ->
             val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.bottomMargin = margin.bottom + insets.tappableElementInsets.bottom
         }
@@ -133,10 +144,11 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     }
 
     private fun setFabVisibility(visible: Boolean) {
+        val fab = binding!!.actionDeleteSelected
         if (visible) {
-            action_delete_selected.show()
+            fab.show()
         } else {
-            action_delete_selected.hide()
+            fab.hide()
         }
     }
 

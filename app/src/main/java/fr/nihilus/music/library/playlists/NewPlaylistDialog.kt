@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
@@ -24,13 +23,13 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
+import fr.nihilus.music.databinding.NewPlaylistInputBinding
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -40,21 +39,18 @@ class NewPlaylistDialog : BaseDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
 
-        @SuppressLint("InflateParams")
-        val inputLayout = LayoutInflater.from(context).inflate(R.layout.new_playlist_input, null)
-        inputLayout.layoutParams = ViewGroup.LayoutParams(
+        val binding = NewPlaylistInputBinding.inflate(LayoutInflater.from(context))
+        binding.root.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-        val titleInputView = inputLayout.findViewById<EditText>(R.id.title_input)
-
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
-            .setView(inputLayout)
+            .setView(binding.root)
             .setNegativeButton(R.string.core_cancel, null)
             .setPositiveButton(R.string.core_ok) { _, _ ->
-                val currentPlaylistTitle = titleInputView.text?.toString()
+                val currentPlaylistTitle = binding.titleInput.text?.toString()
                 check(isValidTitle(currentPlaylistTitle))
                 onRequestCreatePlaylist(currentPlaylistTitle)
             }
@@ -62,8 +58,8 @@ class NewPlaylistDialog : BaseDialogFragment() {
 
         dialog.setOnShowListener {
             val saveButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-            saveButton.isEnabled = isValidTitle(titleInputView.text)
-            titleInputView.doAfterTextChanged { playlistTitle ->
+            saveButton.isEnabled = isValidTitle(binding.titleInput.text)
+            binding.titleInput.doAfterTextChanged { playlistTitle ->
                 val hasValidPlaylistTitle = isValidTitle(playlistTitle)
                 saveButton.isEnabled = hasValidPlaylistTitle
             }

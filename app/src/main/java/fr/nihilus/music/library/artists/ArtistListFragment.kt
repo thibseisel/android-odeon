@@ -25,10 +25,10 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.databinding.FragmentArtistsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
-import kotlinx.android.synthetic.main.fragment_artists.*
 
 class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
     private val viewModel: HomeViewModel by activityViewModels()
@@ -42,14 +42,15 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentArtistsBinding.bind(view)
 
         val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
             progressIndicator.isVisible = shouldShow
         }
 
-        artist_recycler.adapter = adapter
-        artist_recycler.setHasFixedSize(true)
+        binding.artistRecycler.adapter = adapter
+        binding.artistRecycler.setHasFixedSize(true)
 
         viewModel.artists.observe(viewLifecycleOwner) { artistRequest ->
             when (artistRequest) {
@@ -57,12 +58,12 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(artistRequest.data)
-                    group_empty_view.isVisible = artistRequest.data.isEmpty()
+                    binding.groupEmptyView.isVisible = artistRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
-                    group_empty_view.isVisible = true
+                    binding.groupEmptyView.isVisible = true
                 }
             }
         }
