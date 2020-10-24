@@ -51,7 +51,9 @@ internal abstract class SpotifyClientModule {
         fun providesClientKey() = BuildConfig.SPOTIFY_CLIENT_ID
 
         @Provides @Named("APP_USER_AGENT")
-        fun providesUserAgent() = "Odeon/${BuildConfig.VERSION_NAME} OkHttp"
+        fun providesUserAgent(
+            @Named("APP_VERSION_NAME") versionName: String
+        ): String = "Odeon/$versionName OkHttp"
 
         @Provides @Reusable
         fun providesMoshi(): Moshi = Moshi.Builder()
