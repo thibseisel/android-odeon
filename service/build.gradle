@@ -15,74 +15,74 @@
  */
 
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id("com.android.library")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdkVersion(rootProject.compileSdkVersion)
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.targetSdkVersion
+        minSdkVersion(rootProject.minSdkVersion)
+        targetSdkVersion(rootProject.targetSdkVersion)
 
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        consumerProguardFiles 'consumer-rules.pro'
+        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         debug {
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.debug.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.debug.provider'
+            buildConfigField("String", "APP_PROVIDER_AUTHORITY", "\"fr.nihilus.music.debug.provider\"")
+            manifestPlaceholders.providerAuthority = "fr.nihilus.music.debug.provider"
         }
 
         release {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
                 freeCompilerArgs += [
-                        '-Xno-param-assertions',
-                        '-Xno-call-assertions',
-                        '-Xno-receiver-assertions'
+                        "-Xno-param-assertions",
+                        "-Xno-call-assertions",
+                        "-Xno-receiver-assertions"
                 ]
             }
 
-            buildConfigField 'String', 'APP_PROVIDER_AUTHORITY', '"fr.nihilus.music.provider"'
-            manifestPlaceholders.providerAuthority = 'fr.nihilus.music.provider'
+            buildConfigField("String", "APP_PROVIDER_AUTHORITY", "\"fr.nihilus.music.provider\"")
+            manifestPlaceholders.providerAuthority = "fr.nihilus.music.provider"
         }
     }
 }
 
 dependencies {
-    implementation project(':core')
-    api project(':media')
-    implementation project(':spotify-client')
+    implementation(project(":core"))
+    api(project(":media"))
+    implementation(project(":spotify-client"))
 
     // Kotlin language support
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.koroutines}")
 
     // Android support libraries
-    implementation "androidx.appcompat:appcompat:${versions.androidx.appcompat}"
-    implementation "androidx.media:media:${versions.androidx.media}"
+    implementation("androidx.appcompat:appcompat:${versions.androidx.appcompat}")
+    implementation("androidx.media:media:${versions.androidx.media}")
 
     // ExoPlayer
-    api "com.google.android.exoplayer:exoplayer-core:${versions.exoplayer}"
+    api("com.google.android.exoplayer:exoplayer-core:${versions.exoplayer}")
 
     // Dagger
-    implementation "com.google.dagger:dagger-android:${versions.dagger}"
-    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
-    kapt "com.google.dagger:dagger-android-processor:${versions.dagger}"
+    implementation("com.google.dagger:dagger-android:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
+    kapt("com.google.dagger:dagger-android-processor:${versions.dagger}")
 
     // Glide
-    implementation "com.github.bumptech.glide:glide:${versions.glide}"
-    kapt "com.github.bumptech.glide:compiler:${versions.glide}"
+    implementation("com.github.bumptech.glide:glide:${versions.glide}")
+    kapt("com.github.bumptech.glide:compiler:${versions.glide}")
 
     // Test dependencies
-    testImplementation project(':core-test')
-    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    testImplementation(project(":core-test"))
+    testImplementation("org.robolectric:robolectric:${versions.robolectric}")
+    testImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
 
     // Android-specific test dependencies
-    androidTestImplementation "androidx.test:core:${versions.androidx.test}"
-    androidTestImplementation "androidx.test:runner:${versions.androidx.test}"
-    androidTestImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    androidTestImplementation("androidx.test:core:${versions.androidx.test}")
+    androidTestImplementation("androidx.test:runner:${versions.androidx.test}")
+    androidTestImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
 }

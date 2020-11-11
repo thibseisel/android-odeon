@@ -15,20 +15,20 @@
  */
 
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id("com.android.library")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion(rootProject.ext.compileSdkVersion)
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion(rootProject.ext.minSdkVersion)
+        targetSdkVersion(rootProject.ext.targetSdkVersion)
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles 'consumer-rules.pro'
+        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -36,9 +36,9 @@ android {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
                 freeCompilerArgs += [
-                        '-Xno-param-assertions',
-                        '-Xno-call-assertions',
-                        '-Xno-receiver-assertions'
+                        "-Xno-param-assertions",
+                        "-Xno-call-assertions",
+                        "-Xno-receiver-assertions"
                 ]
             }
         }
@@ -46,15 +46,15 @@ android {
 }
 
 dependencies {
-    implementation project(':core')
+    implementation(project(":core"))
 
     // Dagger
-    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
 
     // Test dependencies
-    testImplementation project(':core-test')
-    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
-    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
-    testImplementation "androidx.room:room-ktx:${versions.androidx.room}"
-    kaptTest "com.google.dagger:dagger-compiler:${versions.dagger}"
+    testImplementation(project(":core-test"))
+    testImplementation("org.robolectric:robolectric:${versions.robolectric}")
+    testImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
+    testImplementation("androidx.room:room-ktx:${versions.androidx.room}")
+    kaptTest("com.google.dagger:dagger-compiler:${versions.dagger}")
 }

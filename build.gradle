@@ -18,7 +18,7 @@
 import com.android.build.gradle.BaseExtension
 
 buildscript {
-    apply from: 'gradle/dependencies.gradle'
+    apply(from: "gradle/dependencies.gradle")
 
     ext {
         // SDK and tools
@@ -33,14 +33,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}"
+        classpath ("com.android.tools.build:gradle:4.1.1")
+        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}")
+        classpath ("androidx.navigation:navigation-safe-args-gradle-plugin:${versions.androidx.navigation}")
     }
 }
 
 plugins {
-    id 'com.github.ben-manes.versions' version '0.33.0'
+    id ("com.github.ben-manes.versions") version "0.33.0"
 }
 
 allprojects {
@@ -53,18 +53,18 @@ allprojects {
 subprojects {
     afterEvaluate {
         // Common Android configuration for all modules.
-        (extensions.findByName('android') as BaseExtension)?.with {
+        (extensions.findByName("android") as BaseExtension)?.with {
 
             it.compileOptions {
-                sourceCompatibility JavaVersion.VERSION_1_8
-                targetCompatibility JavaVersion.VERSION_1_8
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
             }
 
             it.kotlinOptions {
                 jvmTarget = JavaVersion.VERSION_1_8
                 freeCompilerArgs += [
-                        '-Xopt-in=kotlin.RequiresOptIn',
-                        '-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi',
+                        "-Xopt-in=kotlin.RequiresOptIn",
+                        "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 ]
             }
 
@@ -75,15 +75,15 @@ subprojects {
         }
 
         // Configure Dagger code generation for all modules.
-        extensions.findByName('kapt')?.arguments {
-            arg('dagger.formatGeneratedSource', 'disabled')
-            arg('dagger.fastInit', 'enabled')
+        extensions.findByName("kapt")?.arguments {
+            arg("dagger.formatGeneratedSource", "disabled")
+            arg("dagger.fastInit", "enabled")
         }
     }
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+    delete(rootProject.buildDir)
 }
 
 tasks.withType(Wrapper) {

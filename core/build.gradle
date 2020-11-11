@@ -15,20 +15,20 @@
  */
 
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id("com.android.library")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion(rootProject.ext.compileSdkVersion)
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion(rootProject.ext.minSdkVersion)
+        targetSdkVersion(rootProject.ext.targetSdkVersion)
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles 'consumer-rules.pro'
+        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -36,9 +36,9 @@ android {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
                 freeCompilerArgs += [
-                        '-Xno-param-assertions',
-                        '-Xno-call-assertions',
-                        '-Xno-receiver-assertions'
+                        "-Xno-param-assertions",
+                        "-Xno-call-assertions",
+                        "-Xno-receiver-assertions"
                 ]
             }
         }
@@ -52,47 +52,47 @@ android {
 
 kapt {
     arguments {
-        arg('room.schemaLocation', "$projectDir/schemas".toString())
-        arg('room.incremental', 'true')
+        arg("room.schemaLocation", "$projectDir/schemas".toString())
+        arg("room.incremental", "true")
     }
 }
 
 dependencies {
     // Shared Kotlin language features
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.koroutines}"
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.koroutines}")
 
     // Shared AndroidX libraries
-    api "androidx.core:core-ktx:${versions.androidx.core}"
-    api "androidx.work:work-runtime-ktx:${versions.androidx.work}"
+    api("androidx.core:core-ktx:${versions.androidx.core}")
+    api("androidx.work:work-runtime-ktx:${versions.androidx.work}")
 
     // Timber Logging
-    api "com.jakewharton.timber:timber:${versions.timber}"
+    api("com.jakewharton.timber:timber:${versions.timber}")
 
     // Dagger - compiler is included to generate implementation factories.
-    api "com.google.dagger:dagger:${versions.dagger}"
-    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
+    api("com.google.dagger:dagger:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
 
     // Room Database
-    api "androidx.room:room-ktx:${versions.androidx.room}"
-    kapt "androidx.room:room-compiler:${versions.androidx.room}"
+    api("androidx.room:room-ktx:${versions.androidx.room}")
+    kapt("androidx.room:room-compiler:${versions.androidx.room}")
 
     // Provides the instance of SharedPreferences
-    api "androidx.preference:preference-ktx:${versions.androidx.preference}"
+    api("androidx.preference:preference-ktx:${versions.androidx.preference}")
 
-    implementation "androidx.media:media:${versions.androidx.media}"
+    implementation("androidx.media:media:${versions.androidx.media}")
 
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
-    testImplementation "io.kotest:kotest-assertions-core:${versions.kotest}"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}"
-    testImplementation "io.mockk:mockk:${versions.mockk}"
-    testImplementation "androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}"
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}")
+    testImplementation("io.kotest:kotest-assertions-core:${versions.kotest}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.koroutines}")
+    testImplementation("io.mockk:mockk:${versions.mockk}")
+    testImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
     testImplementation ("org.robolectric:robolectric:${versions.robolectric}") {
-        exclude group: "com.google.auto.service", module: "auto-service"
+        exclude(group: "com.google.auto.service", module: "auto-service")
     }
 
-    androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}"
-    androidTestImplementation "androidx.test:core-ktx:${versions.androidx.test}"
-    androidTestImplementation "androidx.test:runner:${versions.androidx.test}"
-    androidTestImplementation "androidx.test:rules:${versions.androidx.test}"
-    androidTestImplementation "androidx.room:room-testing:${versions.androidx.room}"
+    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}")
+    androidTestImplementation("androidx.test:core-ktx:${versions.androidx.test}")
+    androidTestImplementation("androidx.test:runner:${versions.androidx.test}")
+    androidTestImplementation("androidx.test:rules:${versions.androidx.test}")
+    androidTestImplementation("androidx.room:room-testing:${versions.androidx.room}")
 }
