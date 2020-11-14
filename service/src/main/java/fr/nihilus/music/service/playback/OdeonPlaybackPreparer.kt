@@ -91,8 +91,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         // If not available, play all songs.
         val lastPlayedMediaId = settings.lastQueueMediaId?.toMediaId()
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
-        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
-        player.playWhenReady = playWhenReady
+        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex, playWhenReady)
     }
 
     /**
@@ -113,8 +112,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         settings.lastQueueMediaId = queueMediaId.encoded
 
-        prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
-        player.playWhenReady = playWhenReady
+        prepareFromMediaId(queueMediaId, C.POSITION_UNSET, playWhenReady)
     }
 
     override fun onPrepareFromUri(uri: Uri?, playWhenReady: Boolean, extras: Bundle?) {
@@ -145,16 +143,14 @@ internal class OdeonPlaybackPreparer @Inject constructor(
 
             val firstResult = results.firstOrNull()
             if (firstResult is MediaCategory) {
-                prepareFromMediaId(firstResult.id, C.POSITION_UNSET)
-                player.playWhenReady = playWhenReady
+                prepareFromMediaId(firstResult.id, C.POSITION_UNSET, playWhenReady)
             } else {
                 preparePlayer(
                     results.filterIsInstance<AudioTrack>(),
                     firstShuffledIndex = 0,
-                    startPosition = 0
+                    startPosition = 0,
+                    playWhenReady
                 )
-
-                player.playWhenReady = playWhenReady
             }
         }
     }
@@ -174,7 +170,8 @@ internal class OdeonPlaybackPreparer @Inject constructor(
 
     private fun prepareFromMediaId(
         mediaId: MediaId,
-        startPlaybackPosition: Int
+        startPlaybackPosition: Int,
+        playWhenReady: Boolean
     ) = scope.launch(dispatchers.Default) {
         val parentId = mediaId.copy(track = null)
 
@@ -184,7 +181,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             else -> C.POSITION_UNSET
         }
 
-        preparePlayer(playQueue, firstIndex, startPlaybackPosition)
+        preparePlayer(playQueue, firstIndex, startPlaybackPosition, playWhenReady)
     }
 
     /**
@@ -201,7 +198,8 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     private suspend fun preparePlayer(
         playQueue: List<AudioTrack>,
         firstShuffledIndex: Int,
-        startPosition: Int
+        startPosition: Int,
+        playWhenReady: Boolean
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
             val mediaSources = Array(playQueue.size) {
@@ -239,6 +237,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             player.prepare(concatenatedSource)
             player.doOnPrepared {
                 concatenatedSource.setShuffleOrder(predictableShuffleOrder)
+                player.playWhenReady = playWhenReady
             }
 
             // Start playback at a given position if specified, otherwise at first shuffled index.
