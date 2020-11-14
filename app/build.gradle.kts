@@ -34,6 +34,13 @@ android {
 
     // Retrieve keystore properties from this machine's global Gradle properties.
     signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("release/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+
         create("release") {
             keyAlias = propOrDefault("android.signing.keyAlias", "")
             keyPassword = propOrDefault("android.signing.keyPassword", "")
@@ -58,12 +65,13 @@ android {
     buildTypes {
         // Allow installing a debug version of the application along a production one
         val debug by getting {
+            signingConfig = signingConfigs["debug"]
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
         }
 
         val release by getting {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs["release"]
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
