@@ -13,7 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-rootProject.name = 'android-odeon'
-include ':app', ':service', ':media', ':core-test', ':core', ':core-ui', ':spotify-client', ':devmenu'
-include ':ui-cleanup'
-include ':ui-settings'
+
+plugins {
+    id("com.android.library")
+    kotlin("android")
+    kotlin("kapt")
+}
+
+android {
+    defaultConfig {
+        consumerProguardFiles("consumer-rules.pro")
+    }
+}
+
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":core-ui"))
+    implementation(project(":spotify-client"))
+
+    implementation("androidx.preference:preference-ktx:${Libs.Androidx.preference}")
+
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+
+    testImplementation(project(":core-test"))
+}
