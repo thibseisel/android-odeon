@@ -77,7 +77,6 @@ class MusicService : BaseBrowserService() {
 
     private lateinit var mediaController: MediaControllerCompat
     private lateinit var notificationManager: NotificationManagerCompat
-    private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var packageValidator: PackageValidator
 
     private val controllerCallback = MediaControllerCallback()
@@ -115,7 +114,6 @@ class MusicService : BaseBrowserService() {
         player.addListener(completionListener)
 
         notificationManager = NotificationManagerCompat.from(this)
-        becomingNoisyReceiver = BecomingNoisyReceiver(this, session.sessionToken)
         packageValidator = PackageValidator(this, R.xml.svc_allowed_media_browser_callers)
 
         /**
@@ -339,6 +337,10 @@ class MusicService : BaseBrowserService() {
                 PlaybackStateCompat.STATE_NONE,
                 PlaybackStateCompat.STATE_STOPPED,
                 PlaybackStateCompat.STATE_ERROR -> onPlaybackStopped()
+
+                else -> {
+                    // Intentionally empty.
+                }
             }
         }
 
@@ -347,9 +349,6 @@ class MusicService : BaseBrowserService() {
             if (!session.isActive) {
                 session.isActive = true
             }
-
-            // Start listening for audio becoming noisy events
-            becomingNoisyReceiver.register()
 
             // Display a notification, putting the service to the foreground.
             val notification = notificationBuilder.buildNotification()
@@ -368,9 +367,6 @@ class MusicService : BaseBrowserService() {
         }
 
         private fun onPlaybackPaused() {
-            // Stop listening for audio becoming noisy events since playback is already paused.
-            becomingNoisyReceiver.unregister()
-
             // Put the service back to the background, keeping the notification
             stopForeground(false)
 
@@ -381,9 +377,6 @@ class MusicService : BaseBrowserService() {
         }
 
         private fun onPlaybackStopped() {
-            // We should not receive "audio becoming noisy" events at this point.
-            becomingNoisyReceiver.unregister()
-
             // Clear notification and service foreground status
             stopForeground(true)
 

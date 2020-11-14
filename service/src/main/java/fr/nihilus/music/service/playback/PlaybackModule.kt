@@ -39,6 +39,7 @@ internal object PlaybackModule {
             .build()
 
         player.setAudioAttributes(musicAttributes, true)
+        player.setHandleAudioBecomingNoisy(true)
         return player
     }
 }
