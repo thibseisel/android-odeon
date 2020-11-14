@@ -28,7 +28,6 @@ android {
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "APP_PROVIDER_AUTHORITY", "\"fr.nihilus.music.debug.provider\"")
-            manifestPlaceholders["providerAuthority"] = "fr.nihilus.music.debug.provider"
         }
 
         getByName("release") {
@@ -42,7 +41,6 @@ android {
             }
 
             buildConfigField("String", "APP_PROVIDER_AUTHORITY", "\"fr.nihilus.music.provider\"")
-            manifestPlaceholders["providerAuthority"] = "fr.nihilus.music.provider"
         }
     }
 }
