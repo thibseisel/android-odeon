@@ -48,7 +48,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSearchBinding.bind(view)
-        this.binding = null
+        this.binding = binding
 
         val recyclerView = binding.listSearchResults
         recyclerView.setHasFixedSize(true)
