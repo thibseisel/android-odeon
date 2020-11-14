@@ -20,8 +20,7 @@
     android:layout_height="48dp"
     xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center_vertical"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
+    android:paddingHorizontal="@dimen/grid_2"
     android:textAppearance="?textAppearanceBody2"
     tools:text="Instrumentalness">
 

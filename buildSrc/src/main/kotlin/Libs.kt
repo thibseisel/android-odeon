@@ -43,7 +43,7 @@ object Libs {
     const val glide = "4.11.0"
     const val kdenticon = "1.0.0-alpha5"
     const val ktor = "1.4.1"
-    const val material = "1.1.0"
+    const val material = "1.2.1"
     const val moshi = "1.11.0"
     const val timber = "4.7.1"
 

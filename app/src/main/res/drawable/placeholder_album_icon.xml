@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <integer name="default_animation_duration">220</integer>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/color_on_surface_12_alpha"/>
+    <item android:drawable="@drawable/ic_album_24dp"/>
+</layer-list>

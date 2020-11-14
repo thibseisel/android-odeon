@@ -31,7 +31,6 @@ import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.core.ui.glide.roundedCorners
 import fr.nihilus.music.ui.AlphaSectionIndexer
 
 /**
@@ -46,16 +45,8 @@ class SongAdapter(
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
     private val indexer = AlphaSectionIndexer()
-    private val glideRequest: RequestBuilder<Bitmap>
-
-    init {
-        val context = fragment.requireContext()
-        val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
-
-        glideRequest = Glide.with(fragment).asBitmap()
-            .roundedCorners(cornerRadius)
-            .error(R.drawable.ic_audiotrack_24dp)
-    }
+    private val glideRequest = Glide.with(fragment).asBitmap()
+        .error(R.drawable.placeholder_track_icon)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 

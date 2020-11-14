@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,30 +16,30 @@
   -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-       xmlns:app="http://schemas.android.com/apk/res-auto"
-       xmlns:tools="http://schemas.android.com/tools"
-       android:textDirection="locale"
-       tools:showIn="@layout/fragment_now_playing">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:textDirection="locale"
+    tools:showIn="@layout/fragment_now_playing">
 
     <ImageView
         android:id="@+id/chevron"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/grid_2"
         android:contentDescription="@string/album_art"
+        android:paddingHorizontal="@dimen/grid_1"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="8dp"
         app:srcCompat="@drawable/level_chevron_up_down"
-        tools:srcCompat="@drawable/ic_chevron_down_24dp"
-        android:scaleType="centerInside"/>
+        tools:srcCompat="@drawable/ic_chevron_down_24dp" />
 
     <TextView
         android:id="@+id/title_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceSubtitle1"
@@ -48,35 +48,34 @@
         app:layout_constraintStart_toEndOf="@+id/chevron"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        tools:text="@sample/songs.json/data/title"/>
+        app:layout_goneMarginEnd="@dimen/grid_2"
+        tools:text="@sample/songs.json/data/title" />
 
     <TextView
         android:id="@+id/subtitle_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginTop="@dimen/grid_0_5"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
-        android:textColor="?android:attr/textColorTertiary"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/play_pause_button"
-        app:layout_constraintStart_toEndOf="@id/chevron"
+        app:layout_constraintEnd_toEndOf="@+id/title_view"
+        app:layout_constraintStart_toStartOf="@id/title_view"
         app:layout_constraintTop_toBottomOf="@id/title_view"
-        tools:text="@sample/songs.json/data/artist"/>
+        tools:text="@sample/songs.json/data/artist" />
 
     <fr.nihilus.music.view.PlayPauseButton
         android:id="@+id/play_pause_button"
-        android:layout_width="40dp"
+        android:layout_width="48dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
+        android:layout_marginEnd="@dimen/grid_1_5"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_or_pause"
-        android:padding="8dp"
+        android:paddingHorizontal="@dimen/grid_1_5"
         android:scaleType="fitCenter"
         android:src="@drawable/level_play_pause"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 </merge>

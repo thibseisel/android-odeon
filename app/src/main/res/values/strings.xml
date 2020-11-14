@@ -43,7 +43,7 @@
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
-    <string name="search_hint">Find a track, an artist…</string>
+    <string name="search_hint">Find a track, an artist</string>
     <string name="action_clear">Clear</string>
     <string name="desc_clear_search">Clear search query</string>
     <string name="description_more_actions">More actions</string>

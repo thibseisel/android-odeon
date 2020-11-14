@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,11 +39,7 @@
 
         <action
             android:id="@+id/browse_artist_album"
-            app:destination="@id/fragment_album_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/fragment_album_detail" />
         <argument
             android:name="artistId"
             app:argType="string" />
@@ -64,11 +61,7 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/browse_album_detail"
-            app:destination="@id/fragment_album_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/fragment_album_detail" />
         <action
             android:id="@+id/browse_artist_detail"
             app:destination="@id/fragment_artist_detail"
@@ -78,16 +71,12 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/browse_playlist_content"
-            app:destination="@id/fragment_playlist_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+            app:destination="@id/fragment_playlist_detail" />
         <action
             android:id="@+id/start_cleanup"
             app:destination="@id/activity_cleanup" />
         <action
-            android:id="@+id/action_fragment_home_to_searchFragment"
+            android:id="@+id/action_home_to_search"
             app:destination="@id/fragment_search" />
     </fragment>
 
@@ -108,27 +97,12 @@
         tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/browse_playlist_content"
-            app:destination="@id/fragment_playlist_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/fragment_home" />
+            app:destination="@id/fragment_playlist_detail" />
         <action
             android:id="@+id/browse_artist_detail"
-            app:destination="@id/fragment_artist_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/fragment_home" />
+            app:destination="@id/fragment_artist_detail" />
         <action
             android:id="@+id/browse_album_detail"
-            app:destination="@id/fragment_album_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/fragment_home" />
+            app:destination="@id/fragment_album_detail" />
     </fragment>
 </navigation>

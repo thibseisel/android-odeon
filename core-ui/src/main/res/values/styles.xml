@@ -53,8 +53,8 @@
     </style>
 
     <style name="Widget.Odeon.List" parent="Widget.Odeon.ScrollingView">
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingTop">@dimen/grid_1</item>
+        <item name="android:paddingBottom">@dimen/grid_1</item>
     </style>
 
     <style name="Widget.Odeon.Grid" parent="Widget.Odeon.ScrollingView"/>

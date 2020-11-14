@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:transitionGroup="true">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_search_results"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
+        android:paddingVertical="@dimen/grid_1"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,12 +57,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
-                android:ellipsize="end"
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:importantForAutofill="no"
                 android:inputType="textAutoComplete|textAutoCorrect"
-                android:maxLines="1" />
+                android:textAppearance="?textAppearanceSubtitle1" />
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.card.MaterialCardView>
 

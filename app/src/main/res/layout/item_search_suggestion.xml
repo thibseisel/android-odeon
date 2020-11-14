@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,13 +24,12 @@
     android:background="?selectableItemBackground"
     android:minHeight="56dp">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/icon_view"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="@dimen/core_horizontal_edge_margin"
-        android:layout_marginTop="8dp"
+        android:layout_marginVertical="@dimen/grid_1"
+        android:layout_marginStart="@dimen/grid_2"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,7 +41,7 @@
         android:id="@+id/title_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceSubtitle1"
@@ -56,8 +55,7 @@
         android:id="@+id/overflow_icon"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="@dimen/grid_1_5"
         android:scaleType="center"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/description_more_actions"

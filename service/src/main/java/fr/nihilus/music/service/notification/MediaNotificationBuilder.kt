@@ -56,7 +56,7 @@ internal class MediaNotificationBuilder @Inject constructor(
      * An action that does nothing.
      * Used to display a blank space in lieu of a disabled action.
      */
-    private val noOpAction = NotificationCompat.Action(0, null, null)
+    private val noOpAction = NotificationCompat.Action(R.drawable.svc_ic_blank_24, null, null)
 
     private val previousAction = NotificationCompat.Action(
         R.drawable.svc_ic_skip_previous_36dp,

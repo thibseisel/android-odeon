@@ -35,14 +35,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="@dimen/core_horizontal_edge_margin"/>
+        app:layout_constraintGuide_begin="@dimen/grid_2"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="@dimen/core_horizontal_edge_margin"/>
+        app:layout_constraintGuide_end="@dimen/grid_2"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottom_guideline"
@@ -95,7 +95,7 @@
         android:id="@+id/seek_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/grid_1"
         android:textAppearance="?textAppearanceOverline"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -106,7 +106,7 @@
         android:id="@+id/seek_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="@dimen/grid_1"
         android:textAppearance="?textAppearanceOverline"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -118,7 +118,7 @@
         android:id="@+id/repeat_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="@dimen/core_horizontal_edge_margin"
+        android:layout_marginStart="@dimen/grid_2"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_repeat_mode"
         android:padding="12dp"
@@ -174,7 +174,7 @@
         android:id="@+id/shuffle_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="@dimen/core_horizontal_edge_margin"
+        android:layout_marginEnd="@dimen/grid_2"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_shuffle_mode"
         android:padding="12dp"

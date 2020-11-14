@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <color name="immersive_ui">@android:color/transparent</color>
+    <color name="nav_bar_background">@android:color/transparent</color>
 </resources>

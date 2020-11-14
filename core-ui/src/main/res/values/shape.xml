@@ -19,7 +19,10 @@
     <!-- Shape styles. -->
     <style name="ShapeAppearance.Odeon.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent"/>
 
-    <style name="ShapeAppearance.Odeon.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent"/>
+    <style name="ShapeAppearance.Odeon.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
 
     <style name="ShapeAppearance.Odeon.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
         <item name="cornerFamily">rounded</item>

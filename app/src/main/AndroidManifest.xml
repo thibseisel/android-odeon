@@ -34,7 +34,8 @@
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTop"
-            android:theme="@style/Odeon.NoActionBar">
+            android:theme="@style/Odeon.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
 
             <!-- Make this Activity visible in launcher -->
             <intent-filter>
@@ -58,7 +59,7 @@
                 <data
                     android:host="github.com"
                     android:path="/thibseisel/android-odeon"
-                    android:scheme="http"/>
+                    android:scheme="http" />
             </intent-filter>
 
             <intent-filter>
@@ -70,7 +71,7 @@
                 <data
                     android:host="github.com"
                     android:path="/thibseisel/android-odeon"
-                    android:scheme="https"/>
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

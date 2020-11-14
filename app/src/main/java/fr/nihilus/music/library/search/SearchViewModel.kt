@@ -18,12 +18,13 @@ package fr.nihilus.music.library.search
 
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.client.BrowserClient
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,23 +33,33 @@ class SearchViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
 
-    private val _searchResults = MutableLiveData<List<MediaBrowserCompat.MediaItem>>()
-    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>> = _searchResults
-
-    private val searchActor = Channel<String>(Channel.CONFLATED).also { channel ->
-        channel.consumeAsFlow()
-            .filter { it.isNotBlank() && it.length >= 2 }
-            .distinctUntilChanged()
-            .mapLatest { query ->
-                delay(200)
-                client.search(query)
-            }
-            .onEach { _searchResults.value = it }
-            .launchIn(viewModelScope)
+    private val mediaTypeImportance = compareBy<MediaBrowserCompat.MediaItem> { item ->
+        when (item.mediaId.toMediaId().type) {
+            MediaId.TYPE_TRACKS -> 0
+            MediaId.TYPE_PLAYLISTS -> 1
+            MediaId.TYPE_ARTISTS -> 2
+            MediaId.TYPE_ALBUMS -> 3
+            else -> 5
+        }
     }
 
+    private val searchQuery = MutableStateFlow("")
+
+    @OptIn(FlowPreview::class)
+    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>> = searchQuery
+        .debounce(300)
+        .mapLatest { query ->
+            if (!query.isBlank()) {
+                val results = client.search(query)
+                results.sortedWith(mediaTypeImportance)
+            } else {
+                emptyList()
+            }
+        }
+        .asLiveData()
+
     fun search(query: CharSequence) {
-        searchActor.offer(query.toString())
+        searchQuery.value = query.toString()
     }
 
     fun play(item: MediaBrowserCompat.MediaItem) {

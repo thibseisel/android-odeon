@@ -14,12 +14,34 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<fragment
-    android:id="@+id/content_fragment"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_settings"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="fr.nihilus.music.ui.settings.MainPreferenceFragment"
-    tools:context=".SettingsActivity"/>
+    tools:context=".SettingsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:theme="?actionBarTheme"
+            app:popupTheme="?actionBarPopupTheme"
+            tools:title="@string/core_action_settings" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <fragment
+        android:id="@+id/content_fragment"
+        android:name="fr.nihilus.music.ui.settings.MainPreferenceFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
