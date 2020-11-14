@@ -20,15 +20,6 @@ plugins {
     kotlin("kapt")
 }
 
-android {
-    compileSdkVersion(AppConfig.compileSdk)
-
-    defaultConfig {
-        minSdkVersion(AppConfig.minSdk)
-        targetSdkVersion(AppConfig.targetSdk)
-    }
-}
-
 dependencies {
     api(project(":core"))
 

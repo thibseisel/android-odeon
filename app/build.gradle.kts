@@ -22,17 +22,10 @@ plugins {
 }
 
 android {
-    compileSdkVersion(AppConfig.compileSdk)
-
     defaultConfig {
         applicationId("fr.nihilus.music")
-        minSdkVersion(AppConfig.minSdk)
-        targetSdkVersion(AppConfig.targetSdk)
-
         versionCode(201001)
         versionName("2.1.0-beta01")
-
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
 
     buildFeatures {

@@ -21,13 +21,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion(AppConfig.compileSdk)
-
     defaultConfig {
-        minSdkVersion(AppConfig.minSdk)
-        targetSdkVersion(AppConfig.targetSdk)
-
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
         consumerProguardFiles("consumer-rules.pro")
     }
 }

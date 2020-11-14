@@ -57,6 +57,15 @@ subprojects {
     // Common Android configuration
     afterEvaluate {
         configure<BaseExtension> {
+            compileSdkVersion(AppConfig.compileSdk)
+
+            defaultConfig {
+                minSdkVersion(AppConfig.minSdk)
+                targetSdkVersion(AppConfig.targetSdk)
+
+                testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+            }
+
             compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_1_8
                 targetCompatibility = JavaVersion.VERSION_1_8

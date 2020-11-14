@@ -20,16 +20,8 @@ plugins {
     kotlin("kapt")
 }
 
-android {
-    compileSdkVersion(AppConfig.compileSdk)
-
-    defaultConfig {
-        minSdkVersion(AppConfig.minSdk)
-        targetSdkVersion(AppConfig.targetSdk)
-
-        testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
-        consumerProguardFiles("consumer-rules.pro")
-    }
+android.defaultConfig {
+    consumerProguardFiles("consumer-rules.pro")
 }
 
 dependencies {
