@@ -16,29 +16,32 @@
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    kotlin("android")
+    kotlin("kapt")
     id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
-    compileSdkVersion(rootProject.compileSdkVersion)
+    compileSdkVersion(AppConfig.compileSdk)
+
     defaultConfig {
         applicationId("fr.nihilus.music")
-        minSdkVersion(rootProject.minSdkVersion)
-        targetSdkVersion(rootProject.targetSdkVersion)
+        minSdkVersion(AppConfig.minSdk)
+        targetSdkVersion(AppConfig.targetSdk)
+
         versionCode(201001)
         versionName("2.1.0-beta01")
+
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
 
     // Retrieve keystore properties from this machine's global Gradle properties.
     signingConfigs {
-        release {
+        create("release") {
             keyAlias = propOrDefault("android.signing.keyAlias", "")
             keyPassword = propOrDefault("android.signing.keyPassword", "")
             storeFile = file(propOrDefault("android.signing.storeFile", "signing/release.jks"))
@@ -61,27 +64,27 @@ android {
 
     buildTypes {
         // Allow installing a debug version of the application along a production one
-        debug {
+        val debug by getting {
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
         }
 
-        release {
-            signingConfig = signingConfigs.release
-            shrinkResources = true
-            minifyEnabled = true
+        val release by getting {
+            signingConfig = signingConfigs.getByName("release")
+            isShrinkResources = true
+            isMinifyEnabled = true
             proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
-                freeCompilerArgs += [
-                        "-Xno-param-assertions",
-                        "-Xno-call-assertions",
-                        "-Xno-receiver-assertions"
-                ]
+                freeCompilerArgs += listOf(
+                    "-Xno-param-assertions",
+                    "-Xno-call-assertions",
+                    "-Xno-receiver-assertions"
+                )
             }
         }
 
@@ -93,19 +96,30 @@ android {
          * The main intent is to test the app in debug mode but with its code obfuscated
          * since it could fail unexpectedly.
          */
-        beta {
-            initWith buildTypes.debug
+        create("beta") {
+            initWith(debug)
 
             versionNameSuffix = "-beta"
             applicationIdSuffix = ".debug"
 
             // Unlike release builds, keep the app debuggable.
-            shrinkResources = true
-            minifyEnabled = true
-            proguardFiles = buildTypes.release.proguardFiles + "beta-rules.pro"
+            isShrinkResources = true
+            isMinifyEnabled = true
+            proguardFiles(
+                *release.proguardFiles.toTypedArray(),
+                "beta-rules.pro"
+            )
 
             // Tell dependent modules to be compiled with their debug variant.
-            matchingFallbacks = ["debug"]
+            setMatchingFallbacks("debug")
+        }
+    }
+
+    kapt {
+        arguments {
+            // Configure Dagger code generation
+            arg("dagger.formatGeneratedSource", "disabled")
+            arg("dagger.fastInit", "enabled")
         }
     }
 }
@@ -124,21 +138,21 @@ dependencies {
     debugImplementation(project(":devmenu"))
 
     // Support library dependencies
-    implementation("androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}")
-    implementation("androidx.viewpager2:viewpager2:${versions.androidx.viewpager2}")
+    implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
+    implementation("androidx.viewpager2:viewpager2:${Libs.Androidx.viewpager2}")
 
     // Dagger
-    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation("androidx.test:rules:${versions.androidx.test}")
-    testImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
-    testImplementation("org.robolectric:robolectric:${versions.robolectric}")
+    testImplementation("androidx.test:rules:${Libs.Androidx.test}")
+    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
+    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
 
-    androidTestImplementation("androidx.test:core:${versions.androidx.test}")
-    androidTestImplementation("androidx.test:rules:${versions.androidx.test}")
-    androidTestImplementation("androidx.test:runner:${versions.androidx.test}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${versions.androidx.espresso}")
+    androidTestImplementation("androidx.test:core:${Libs.Androidx.test}")
+    androidTestImplementation("androidx.test:rules:${Libs.Androidx.test}")
+    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
+    androidTestImplementation("androidx.test.espresso:espresso-core:${Libs.Androidx.espresso}")
 }

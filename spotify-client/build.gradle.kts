@@ -16,22 +16,22 @@
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    kotlin("android")
+    kotlin("kapt")
 }
 
 android {
-    compileSdkVersion(rootProject.ext.compileSdkVersion)
+    compileSdkVersion(AppConfig.compileSdk)
 
     defaultConfig {
-        minSdkVersion(rootProject.ext.minSdkVersion)
-        targetSdkVersion(rootProject.ext.targetSdkVersion)
+        minSdkVersion(AppConfig.minSdk)
+        targetSdkVersion(AppConfig.targetSdk)
 
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
         consumerProguardFiles("consumer-rules.pro", "moshi.pro", "okhttp3.pro", "okio.pro")
 
-        def clientId = propOrDefault("odeon.spotify.clientId", "")
-        def clientSecret = propOrDefault("odeon.spotify.clientSecret", "")
+        val clientId = propOrDefault("odeon.spotify.clientId", "")
+        val clientSecret = propOrDefault("odeon.spotify.clientSecret", "")
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"$clientId\"")
         buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"$clientSecret\"")
     }
@@ -42,16 +42,16 @@ dependencies {
     implementation(project(":media"))
 
     // Ktor Client - MultiPlatform HTTP Client
-    api("io.ktor:ktor-client-okhttp:${versions.ktor}")
-    implementation("io.ktor:ktor-client-json:${versions.ktor}")
+    api("io.ktor:ktor-client-okhttp:${Libs.ktor}")
+    implementation("io.ktor:ktor-client-json:${Libs.ktor}")
 
     // Moshi - Kotlin JSON serialization
-    api("com.squareup.moshi:moshi:${versions.moshi}")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}")
-    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
+    api("com.squareup.moshi:moshi:${Libs.moshi}")
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:${Libs.moshi}")
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
 
     testImplementation(project(":core-test"))
-    testImplementation("io.ktor:ktor-client-mock-jvm:${versions.ktor}")
-    testImplementation("io.mockk:mockk:${versions.mockk}")
-    kaptTest("com.google.dagger:dagger-compiler:${versions.dagger}")
+    testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
+    testImplementation("io.mockk:mockk:${Libs.mockk}")
+    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
 }

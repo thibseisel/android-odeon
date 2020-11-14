@@ -16,16 +16,16 @@
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    kotlin("android")
+    kotlin("kapt")
 }
 
 android {
-    compileSdkVersion(rootProject.ext.compileSdkVersion)
+    compileSdkVersion(AppConfig.compileSdk)
 
     defaultConfig {
-        minSdkVersion(rootProject.ext.minSdkVersion)
-        targetSdkVersion(rootProject.ext.targetSdkVersion)
+        minSdkVersion(AppConfig.minSdk)
+        targetSdkVersion(AppConfig.targetSdk)
 
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
         consumerProguardFiles("consumer-rules.pro")
@@ -41,11 +41,11 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":media"))
 
-    implementation("androidx.recyclerview:recyclerview:${versions.androidx.recyclerview}")
-    implementation("androidx.recyclerview:recyclerview-selection:${versions.androidx.rvSelection}")
+    implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
+    implementation("androidx.recyclerview:recyclerview-selection:${Libs.Androidx.rvSelection}")
 
-    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
 
     testImplementation(project(":core-test"))
 }

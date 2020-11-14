@@ -16,30 +16,30 @@
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
+    kotlin("android")
+    kotlin("kapt")
 }
 
 android {
-    compileSdkVersion(rootProject.ext.compileSdkVersion)
+    compileSdkVersion(AppConfig.compileSdk)
 
     defaultConfig {
-        minSdkVersion(rootProject.ext.minSdkVersion)
-        targetSdkVersion(rootProject.ext.targetSdkVersion)
+        minSdkVersion(AppConfig.minSdk)
+        targetSdkVersion(AppConfig.targetSdk)
 
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        release {
+        getByName("release") {
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
-                freeCompilerArgs += [
-                        "-Xno-param-assertions",
-                        "-Xno-call-assertions",
-                        "-Xno-receiver-assertions"
-                ]
+                freeCompilerArgs += listOf(
+                    "-Xno-param-assertions",
+                    "-Xno-call-assertions",
+                    "-Xno-receiver-assertions"
+                )
             }
         }
     }
@@ -49,12 +49,12 @@ dependencies {
     implementation(project(":core"))
 
     // Dagger
-    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation("org.robolectric:robolectric:${versions.robolectric}")
-    testImplementation("androidx.test.ext:junit-ktx:${versions.androidx.ext_junit}")
-    testImplementation("androidx.room:room-ktx:${versions.androidx.room}")
-    kaptTest("com.google.dagger:dagger-compiler:${versions.dagger}")
+    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
+    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
+    testImplementation("androidx.room:room-ktx:${Libs.Androidx.room}")
+    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
 }

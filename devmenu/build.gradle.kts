@@ -16,18 +16,18 @@
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("kotlin-kapt")
-    id("kotlin-android-extensions")
+    kotlin("android")
+    kotlin("kapt")
+    kotlin("android.extensions")
     id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
-    compileSdkVersion(rootProject.ext.compileSdkVersion)
+    compileSdkVersion(AppConfig.compileSdk)
 
     defaultConfig {
-        minSdkVersion(rootProject.ext.minSdkVersion)
-        targetSdkVersion(rootProject.ext.targetSdkVersion)
+        minSdkVersion(AppConfig.minSdk)
+        targetSdkVersion(AppConfig.targetSdk)
 
         testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
         consumerProguardFiles("consumer-rules.pro")
@@ -41,8 +41,8 @@ dependencies {
     implementation(project(":spotify-client"))
 
     // Dagger
-    kapt("com.google.dagger:dagger-compiler:${versions.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${versions.dagger}")
+    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
 
     testImplementation(project(":core-test"))
 }
