@@ -88,13 +88,19 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.onNavDestinationSelected(findNavController())) {
-            return true
-        }
-
         return when (item.itemId) {
             R.id.action_shuffle -> {
                 viewModel.playAllShuffled()
+                true
+            }
+
+            R.id.start_cleanup -> {
+                findNavController().navigate(R.id.start_cleanup)
+                true
+            }
+
+            R.id.activity_settings -> {
+                findNavController().navigate(R.id.activity_settings)
                 true
             }
 
