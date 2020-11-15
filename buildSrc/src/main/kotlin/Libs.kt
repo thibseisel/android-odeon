@@ -39,7 +39,7 @@ object Libs {
     }
 
     const val dagger = "2.29.1"
-    const val exoplayer = "2.11.8"
+    const val exoplayer = "2.12.1"
     const val glide = "4.11.0"
     const val kdenticon = "1.0.0-alpha5"
     const val ktor = "1.4.1"

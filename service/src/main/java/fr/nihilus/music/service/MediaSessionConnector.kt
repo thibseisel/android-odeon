@@ -81,7 +81,7 @@ internal class MediaSessionConnector @Inject constructor(
     private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>,
     private val iconDownloader: IconDownloader
 ) {
-    private val looper = Util.getLooper()
+    private val looper = Util.getCurrentOrMainLooper()
     private val componentListener = ComponentListener()
 
     private val metadataProducer = scope.startMetadataUpdater()
@@ -104,7 +104,7 @@ internal class MediaSessionConnector @Inject constructor(
     private fun invalidateMediaSessionPlaybackState() {
         val builder = PlaybackStateCompat.Builder()
 
-        val playbackError = player.playbackError
+        val playbackError = player.playerError
         val reportError = playbackError != null
         val sessionPlaybackState = when {
             reportError -> PlaybackStateCompat.STATE_ERROR
