@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener
  * Enabling floating point output disables audio processing, but may allow for higher quality
  * audio output.
  */
-private const val FLOAT_OUTPUT_ENABLED = false
+private const val FLOAT_OUTPUT_ENABLED = true
 
 /**
  * Whether audio should be played using the offload path.
