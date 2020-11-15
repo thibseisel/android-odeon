@@ -19,16 +19,38 @@ package fr.nihilus.music.service.playback
 import android.content.Context
 import android.os.Handler
 import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Renderer
 import com.google.android.exoplayer2.RenderersFactory
+import com.google.android.exoplayer2.audio.AudioCapabilities
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
+import com.google.android.exoplayer2.audio.DefaultAudioSink
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
-import com.google.android.exoplayer2.drm.DrmSessionManager
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
 import com.google.android.exoplayer2.metadata.MetadataOutput
 import com.google.android.exoplayer2.text.TextOutput
 import com.google.android.exoplayer2.video.VideoRendererEventListener
+
+/**
+ * Whether floating point audio should be output when possible.
+ *
+ * Enabling floating point output disables audio processing, but may allow for higher quality
+ * audio output.
+ */
+private const val FLOAT_OUTPUT_ENABLED = false
+
+/**
+ * Whether audio should be played using the offload path.
+ *
+ * Audio offload disables ExoPlayer audio processing, but significantly reduces
+ * the energy consumption of the playback when
+ * [offload scheduling][ExoPlayer.experimentalSetOffloadSchedulingEnabled] is enabled.
+ *
+ * Most Android devices can only support one offload [android.media.AudioTrack] at a time
+ * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
+ * play in offload.
+ */
+private const val AUDIO_OFFLOAD_ENABLED = false
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
@@ -49,6 +71,18 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
         metadataRendererOutput: MetadataOutput
     ) = arrayOf<Renderer>(
         // Audio-only renderer
-        MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT, eventHandler, audioRendererEventListener)
+        MediaCodecAudioRenderer(
+            context,
+            MediaCodecSelector.DEFAULT,
+            eventHandler,
+            audioRendererEventListener,
+            DefaultAudioSink(
+                AudioCapabilities.getCapabilities(context),
+                DefaultAudioSink.DefaultAudioProcessorChain(),
+                FLOAT_OUTPUT_ENABLED,
+                false,
+                AUDIO_OFFLOAD_ENABLED
+            )
+        )
     )
 }
