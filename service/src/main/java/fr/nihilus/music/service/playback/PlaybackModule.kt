@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import dagger.Module
 import dagger.Provides
 import fr.nihilus.music.service.MusicService
@@ -31,15 +32,16 @@ internal object PlaybackModule {
 
     @Provides @ServiceScoped
     fun provideExoPlayer(context: MusicService): ExoPlayer {
-        val player = SimpleExoPlayer.Builder(context, AudioOnlyRenderersFactory(context)).build()
-
         val musicAttributes = AudioAttributes.Builder()
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .setUsage(C.USAGE_MEDIA)
             .build()
 
-        player.setAudioAttributes(musicAttributes, true)
-        player.setHandleAudioBecomingNoisy(true)
-        return player
+        val extractors = AudioOnlyExtractorsFactory()
+        return SimpleExoPlayer.Builder(context, AudioOnlyRenderersFactory(context), extractors)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(context, extractors))
+            .setAudioAttributes(musicAttributes, true)
+            .setHandleAudioBecomingNoisy(true)
+            .build()
     }
 }
