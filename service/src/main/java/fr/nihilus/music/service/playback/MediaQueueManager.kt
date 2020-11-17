@@ -194,8 +194,8 @@ internal class MediaQueueManager @Inject constructor(
         windowIndex: Int,
         builder: MediaDescriptionCompat.Builder
     ): MediaDescriptionCompat {
-        val bufferWindow = player.currentTimeline.getWindow(windowIndex, window)
-        val track = bufferWindow.tag as AudioTrack
+        val currentItem = player.getMediaItemAt(windowIndex)
+        val track = currentItem.playbackProperties?.tag as AudioTrack
 
         return builder
             .setMediaId(track.id.encoded)

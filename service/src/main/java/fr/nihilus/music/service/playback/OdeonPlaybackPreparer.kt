@@ -17,7 +17,6 @@
 package fr.nihilus.music.service.playback
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
@@ -25,11 +24,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ShuffleOrder
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -37,13 +33,11 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.media.R
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
-import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -57,19 +51,12 @@ import kotlin.random.Random
  * This fetches media information from the music library.
  */
 internal class OdeonPlaybackPreparer @Inject constructor(
-    context: Context,
     private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
     private val settings: Settings
 ) : MediaSessionConnector.PlaybackPreparer {
-
-    private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
-    private val appDataSourceFactory = DefaultDataSourceFactory(
-        context,
-        Util.getUserAgent(context, context.getString(R.string.core_app_name))
-    )
 
     override fun getSupportedPrepareActions(): Long =
         PlaybackStateCompat.ACTION_PREPARE or
@@ -202,11 +189,12 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         playWhenReady: Boolean
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
-            val mediaSources = Array(playQueue.size) {
-                val audioTrack = playQueue[it]
-                ProgressiveMediaSource.Factory(appDataSourceFactory, audioOnlyExtractors)
-                    .setTag(audioTrack)
-                    .createMediaSource(audioTrack.mediaUri)
+            val queueItems = playQueue.map { track ->
+                MediaItem.Builder()
+                    .setMediaId(track.id.encoded)
+                    .setUri(track.mediaUri)
+                    .setTag(track)
+                    .build()
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.
@@ -224,29 +212,17 @@ internal class OdeonPlaybackPreparer @Inject constructor(
                 ShuffleOrder.DefaultShuffleOrder(playQueue.size, randomSeed)
             }
 
-            // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(
-                false,
-                predictableShuffleOrder,
-                *mediaSources
-            )
-
-            // Prepare the new playing queue.
-            // Because of an issue with ExoPlayer, shuffle order is reset when player is prepared.
-            // As a workaround, wait for the player to be prepared before setting the shuffle order.
-            player.prepare(concatenatedSource)
-            player.doOnPrepared {
-                concatenatedSource.setShuffleOrder(predictableShuffleOrder)
-                player.playWhenReady = playWhenReady
-            }
-
             // Start playback at a given position if specified, otherwise at first shuffled index.
             val targetPlaybackPosition = when (startPosition) {
                 in playQueue.indices -> startPosition
                 else -> predictableShuffleOrder.firstIndex
             }
 
-            player.seekToDefaultPosition(targetPlaybackPosition)
+            player.setMediaItems(queueItems, targetPlaybackPosition, C.TIME_UNSET)
+            player.setShuffleOrder(predictableShuffleOrder)
+            player.prepare()
+
+            player.playWhenReady = playWhenReady
         }
     }
 

@@ -33,7 +33,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
@@ -398,10 +397,12 @@ class MusicService : BaseBrowserService() {
     }
 
     private inner class TrackCompletionListener : Player.EventListener {
-        private val windowBuffer = Timeline.Window()
 
-        override fun onPositionDiscontinuity(@Player.DiscontinuityReason reason: Int) {
-            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+        override fun onMediaItemTransition(
+            mediaItem: com.google.android.exoplayer2.MediaItem?,
+            @Player.MediaItemTransitionReason reason: Int
+        ) {
+            if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
                 onTrackCompletion(player)
             }
         }
@@ -413,9 +414,8 @@ class MusicService : BaseBrowserService() {
                 return
             }
 
-            player.currentTimeline.getWindow(completedTrackIndex, windowBuffer)
-
-            val completedMedia = windowBuffer.tag as AudioTrack
+            val completedMediaItem = player.getMediaItemAt(completedTrackIndex)
+            val completedMedia = completedMediaItem.playbackProperties?.tag as AudioTrack
             val completedTrackId = checkNotNull(completedMedia.id.track) {
                 "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
             }
