@@ -49,6 +49,7 @@ internal object PlaybackModule {
         if (BuildConfig.DEBUG) {
             // Print player logs on debug builds.
             player.addAnalyticsListener(EventLogger(null))
+            player.setThrowsWhenUsingWrongThread(true)
         }
 
         return player
