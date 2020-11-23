@@ -76,7 +76,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastQueueMediaId?.toMediaId()
+        val lastPlayedMediaId = settings.lastQueueMediaId
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex, playWhenReady)
     }
@@ -97,7 +97,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
         val queueMediaId = mediaId?.toMediaId()
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
-        settings.lastQueueMediaId = queueMediaId.encoded
+        settings.lastQueueMediaId = queueMediaId
 
         prepareFromMediaId(queueMediaId, C.POSITION_UNSET, playWhenReady)
     }

@@ -17,6 +17,7 @@
 package fr.nihilus.music.core.settings
 
 import androidx.appcompat.app.AppCompatDelegate
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.playback.RepeatMode
 import kotlinx.coroutines.flow.Flow
 
@@ -42,7 +43,7 @@ interface Settings {
      *
      * Modifying this value automatically increments the [queueIdentifier].
      */
-    var lastQueueMediaId: String?
+    var lastQueueMediaId: MediaId?
 
     /**
      * The index of the last played item in the last played queue.

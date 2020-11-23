@@ -23,6 +23,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.playback.RepeatMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
@@ -57,21 +59,25 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading lastQueueMediaId, then return the latest written value or null`() {
+        val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+
         val settings = SharedPreferencesSettings(context, prefs)
         settings.lastQueueMediaId shouldBe null
 
-        prefs.edit().putString(PREF_KEY_LAST_PLAYED, MediaId.ALL_TRACKS).commit()
-        settings.lastQueueMediaId shouldBe MediaId.ALL_TRACKS
+        prefs.edit().putString(PREF_KEY_LAST_PLAYED, allTracks.encoded).commit()
+        settings.lastQueueMediaId shouldBe allTracks
     }
 
     @Test
     fun `When updating lastQueueMediaId, then also increment queueIdentifier`() {
+        val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+
         prefs.edit().putLong(PREF_KEY_QUEUE_IDENTIFIER, 12L).commit()
 
         val settings = SharedPreferencesSettings(context, prefs)
-        settings.lastQueueMediaId = MediaId.ALL_TRACKS
+        settings.lastQueueMediaId = allTracks
 
-        prefs.getString(PREF_KEY_LAST_PLAYED, null) shouldBe MediaId.ALL_TRACKS
+        prefs.getString(PREF_KEY_LAST_PLAYED, null) shouldBe allTracks.encoded
         prefs.getLong(PREF_KEY_QUEUE_IDENTIFIER, 0L) shouldBe 13L
     }
 
