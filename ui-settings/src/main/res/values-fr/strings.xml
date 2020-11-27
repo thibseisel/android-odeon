@@ -30,4 +30,10 @@
     <string name="pref_title_spotify_sync">Synchroniser avec Spotify</string>
     <string name="pref_title_audio_analysis">Analyse audio</string>
     <string name="pref_summary_audio_analysis">Selectionner des morceaux en fonction de leurs caractéristiques audio</string>
+    <string name="prefs_category_playback_options">Paramètres de lecture</string>
+    <string name="pref_title_reload_queue">Reprendre la dernière lecture au démarrage</string>
+    <string name="pref_reload_queue_disabled">Ne pas reprendre</string>
+    <string name="pref_reload_queue_start">Depuis le début</string>
+    <string name="pref_reload_queue_track">Depuis le dernier morceau joué</string>
+    <string name="pref_reload_queue_position">Exactement là où la lecture s\'était arrêtée</string>
 </resources>

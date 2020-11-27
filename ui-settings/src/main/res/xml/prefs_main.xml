@@ -29,6 +29,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/prefs_category_playback_options">
+        <ListPreference
+            android:defaultValue="@string/pref_reload_queue_track_value"
+            android:entries="@array/pref_reload_queue_entries"
+            android:entryValues="@array/prefs_reload_queue_values"
+            android:key="reload_queue"
+            android:title="@string/pref_title_reload_queue"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
     <PreferenceCategory
         android:title="@string/action_dev_options"
         app:isPreferenceVisible="@bool/core_is_debug_enabled">

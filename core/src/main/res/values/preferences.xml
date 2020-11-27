@@ -31,5 +31,15 @@
         <item>@string/pref_theme_system_value</item>
     </string-array>
 
-    <bool name="pref_default_skip_silence">false</bool>
+    <string name="pref_reload_queue_disabled_value" translatable="false">fr.nihilus.music.pref.reload_queue.DISABLED</string>
+    <string name="pref_reload_queue_start_value" translatable="false">fr.nihilus.music.pref.reload_queue.START</string>
+    <string name="pref_reload_queue_track_value" translatable="false">fr.nihilus.music.pref.reload_queue.TRACK</string>
+    <string name="pref_reload_queue_position_value" translatable="false">fr.nihilus.music.pref.reload_queue.POSITION</string>
+
+    <string-array name="prefs_reload_queue_values">
+        <item>@string/pref_reload_queue_disabled_value</item>
+        <item>@string/pref_reload_queue_start_value</item>
+        <item>@string/pref_reload_queue_track_value</item>
+        <item>@string/pref_reload_queue_position_value</item>
+    </string-array>
 </resources>
