@@ -20,12 +20,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.annotation.StringRes
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.playback.RepeatMode
+import fr.nihilus.music.core.settings.Settings.QueueReloadStrategy
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.produceIn
@@ -102,6 +105,26 @@ class SharedPreferencesSettingsTest {
     }
 
     @Test
+    fun `When reading lastPlayedPosition, then return the saved value or -1`() {
+        val settings = SharedPreferencesSettings(context, prefs)
+        settings.lastPlayedPosition shouldBe -1L
+
+        prefs.edit().putLong(PREF_KEY_QUEUE_POSITION, 12345L).commit()
+
+        settings.lastPlayedPosition shouldBe 12345L
+    }
+
+    @Test
+    fun `When setting lastPlayedPosition, then update the saved value`() {
+        prefs.edit().putLong(PREF_KEY_QUEUE_POSITION, Long.MAX_VALUE).commit()
+
+        val settings = SharedPreferencesSettings(context, prefs)
+        settings.lastPlayedPosition = 12345L
+
+        prefs.getLong(PREF_KEY_QUEUE_POSITION, Long.MIN_VALUE) shouldBe 12345L
+    }
+
+    @Test
     fun `When reading shuffleModeEnabled, then return the saved value or false`() {
         val settings = SharedPreferencesSettings(context, prefs)
         settings.shuffleModeEnabled shouldBe false
@@ -119,6 +142,23 @@ class SharedPreferencesSettingsTest {
         settings.shuffleModeEnabled = false
 
         prefs.getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, true) shouldBe false
+    }
+
+    @Test
+    fun `When reading queueReload, then return the saved value as an enum or FROM_TRACK`() {
+        val settings = SharedPreferencesSettings(context, prefs)
+        settings.queueReload shouldBe QueueReloadStrategy.FROM_TRACK
+
+        fun enumFor(@StringRes prefValueResId: Int): QueueReloadStrategy {
+            val prefStringValue = context.getString(prefValueResId)
+            prefs.edit().putString(PREF_KEY_RELOAD_QUEUE, prefStringValue).commit()
+            return settings.queueReload
+        }
+
+        enumFor(R.string.pref_reload_queue_disabled_value) shouldBe QueueReloadStrategy.NO_RELOAD
+        enumFor(R.string.pref_reload_queue_start_value) shouldBe QueueReloadStrategy.FROM_START
+        enumFor(R.string.pref_reload_queue_track_value) shouldBe QueueReloadStrategy.FROM_TRACK
+        enumFor(R.string.pref_reload_queue_position_value) shouldBe QueueReloadStrategy.AT_POSITION
     }
 
     @Test

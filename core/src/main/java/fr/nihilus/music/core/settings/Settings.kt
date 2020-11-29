@@ -38,6 +38,12 @@ interface Settings {
     val queueIdentifier: Long
 
     /**
+     * Describes how the last played queue should be reload on app started.
+     * Defaults to [QueueReloadStrategy.FROM_TRACK].
+     */
+    val queueReload: QueueReloadStrategy
+
+    /**
      * The media ID of the last loaded playing queue.
      * Defaults to `null` when no playing queue has been built yet.
      *
@@ -50,6 +56,12 @@ interface Settings {
      * Defaults to `0` when no item has been played yet.
      */
     var lastQueueIndex: Int
+
+    /**
+     * The playback position within the track that was last played, in milliseconds.
+     * Defaults to `-1` when no track has been played yet.
+     */
+    var lastPlayedPosition: Long
 
     /**
      * Whether shuffle mode is enabled, i.e. tracks in a playlist are played in random order.
@@ -89,5 +101,33 @@ interface Settings {
          * this will be set from the theme system settings.
          */
         SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+    }
+
+    /**
+     * Available options of the "Reload last played queue" preference.
+     */
+    enum class QueueReloadStrategy {
+        /**
+         * Don't reload the last played queue.
+         * Attempts to prepare last played queue should make a smart choice of the media to play.
+         */
+        NO_RELOAD,
+
+        /**
+         * Reload queue that was playing when the player last stopped,
+         * starting at its first track.
+         */
+        FROM_START,
+
+        /**
+         * Reload queue starting from the beginning of the track that was playing
+         * when the player last stopped.
+         */
+        FROM_TRACK,
+
+        /**
+         * Reload queue at the exact same position it was when the player last stopped.
+         */
+        AT_POSITION
     }
 }

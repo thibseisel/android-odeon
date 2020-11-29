@@ -23,6 +23,7 @@ import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.playback.RepeatMode
+import fr.nihilus.music.core.settings.Settings.QueueReloadStrategy
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -67,6 +68,19 @@ internal class SharedPreferencesSettings @Inject constructor(
     override val queueIdentifier: Long
         get() = preferences.getLong(PREF_KEY_QUEUE_IDENTIFIER, 0L)
 
+    override val queueReload: QueueReloadStrategy
+        get() {
+            val prefValues = context.resources.getStringArray(R.array.prefs_reload_queue_values)
+            return when (val value = preferences.getString(PREF_KEY_RELOAD_QUEUE, null)) {
+                prefValues[0] -> QueueReloadStrategy.NO_RELOAD
+                prefValues[1] -> QueueReloadStrategy.FROM_START
+                prefValues[2] -> QueueReloadStrategy.FROM_TRACK
+                prefValues[3] -> QueueReloadStrategy.AT_POSITION
+                null -> QueueReloadStrategy.FROM_TRACK
+                else -> error("Unexpected value for $PREF_KEY_RELOAD_QUEUE preference: $value")
+            }
+        }
+
     override var lastQueueMediaId: MediaId?
         get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.toMediaId()
         set(mediaId) {
@@ -79,6 +93,10 @@ internal class SharedPreferencesSettings @Inject constructor(
     override var lastQueueIndex: Int
         get() = preferences.getInt(PREF_KEY_QUEUE_INDEX, 0)
         set(indexInQueue) = preferences.edit().putInt(PREF_KEY_QUEUE_INDEX, indexInQueue).apply()
+
+    override var lastPlayedPosition: Long
+        get() = preferences.getLong(PREF_KEY_QUEUE_POSITION, -1L)
+        set(position) = preferences.edit().putLong(PREF_KEY_QUEUE_POSITION, position).apply()
 
     override var shuffleModeEnabled: Boolean
         get() = preferences.getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, false)
@@ -133,3 +151,5 @@ internal class SharedPreferencesSettings @Inject constructor(
 @TestOnly internal const val PREF_KEY_LAST_PLAYED = "last_played"
 @TestOnly internal const val PREF_KEY_QUEUE_IDENTIFIER = "load_counter"
 @TestOnly internal const val PREF_KEY_QUEUE_INDEX = "last_played_index"
+@TestOnly internal const val PREF_KEY_QUEUE_POSITION = "last_played_position_ms"
+@TestOnly internal const val PREF_KEY_RELOAD_QUEUE = "reload_queue"
