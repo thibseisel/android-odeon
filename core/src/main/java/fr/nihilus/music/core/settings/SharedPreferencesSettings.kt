@@ -18,7 +18,6 @@ package fr.nihilus.music.core.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -105,18 +104,12 @@ internal class SharedPreferencesSettings @Inject constructor(
             .apply()
 
     override var repeatMode: RepeatMode
-        get() = when (preferences.getInt(PREF_KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_NONE)) {
-            PlaybackStateCompat.REPEAT_MODE_ALL,
-            PlaybackStateCompat.REPEAT_MODE_GROUP -> RepeatMode.ALL
-            PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.ONE
-            else -> RepeatMode.DISABLED
+        get() {
+            val repeatModeCode = preferences.getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
+            return RepeatMode.values().first { it.code == repeatModeCode }
         }
         set(mode) = preferences.edit()
-            .putInt(PREF_KEY_REPEAT_MODE, when (mode) {
-                RepeatMode.ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
-                RepeatMode.ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
-                else -> PlaybackStateCompat.REPEAT_MODE_NONE
-            })
+            .putInt(PREF_KEY_REPEAT_MODE, mode.code)
             .apply()
 
     val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)

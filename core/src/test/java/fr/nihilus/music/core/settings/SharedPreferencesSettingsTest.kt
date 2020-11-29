@@ -19,7 +19,6 @@ package fr.nihilus.music.core.settings
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.annotation.StringRes
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -166,28 +165,28 @@ class SharedPreferencesSettingsTest {
         val settings = SharedPreferencesSettings(context, prefs)
         settings.repeatMode shouldBe RepeatMode.DISABLED
 
-        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_ONE).commit()
+        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, RepeatMode.ONE.code).commit()
         settings.repeatMode shouldBe RepeatMode.ONE
 
-        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_ALL).commit()
+        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, RepeatMode.ALL.code).commit()
         settings.repeatMode shouldBe RepeatMode.ALL
 
-        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_NONE).commit()
+        prefs.edit().putInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code).commit()
         settings.repeatMode shouldBe RepeatMode.DISABLED
     }
 
     @Test
-    fun `When setting repeatMode, then update the saved REPEAT_MODE_* value`() {
+    fun `When setting repeatMode, then update prefs with the corresponding code`() {
         val settings = SharedPreferencesSettings(context, prefs)
 
         settings.repeatMode = RepeatMode.ONE
-        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe PlaybackStateCompat.REPEAT_MODE_ONE
+        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe RepeatMode.ONE.code
 
         settings.repeatMode = RepeatMode.ALL
-        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe PlaybackStateCompat.REPEAT_MODE_ALL
+        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe RepeatMode.ALL.code
 
         settings.repeatMode = RepeatMode.DISABLED
-        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe PlaybackStateCompat.REPEAT_MODE_NONE
+        prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe RepeatMode.DISABLED.code
     }
 
     @Test
