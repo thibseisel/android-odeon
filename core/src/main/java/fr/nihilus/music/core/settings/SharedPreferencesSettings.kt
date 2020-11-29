@@ -118,9 +118,6 @@ internal class SharedPreferencesSettings @Inject constructor(
             .putInt(PREF_KEY_REPEAT_MODE, mode.code)
             .apply()
 
-    val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)
-        .map { it.getBoolean(PREF_KEY_SKIP_SILENCE, false) }
-
     private fun preferenceFlow(watchedKey: String) = callbackFlow<SharedPreferences> {
         val valueListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (watchedKey == key) {
@@ -143,7 +140,6 @@ internal class SharedPreferencesSettings @Inject constructor(
     }.conflate()
 }
 
-@TestOnly internal const val PREF_KEY_SKIP_SILENCE = "skip_silence"
 @TestOnly internal const val PREF_KEY_SHUFFLE_MODE_ENABLED = "shuffle_mode_enabled"
 @TestOnly internal const val PREF_KEY_REPEAT_MODE = "repeat_mode"
 @TestOnly internal const val PREF_KEY_LAST_PLAYED = "last_played"

@@ -225,17 +225,4 @@ class SharedPreferencesSettingsTest {
 
         updates.cancel()
     }
-
-    @Test
-    fun `When observing skipSilence then emit the latest saved value or false`() = runBlockingTest {
-        val settings = SharedPreferencesSettings(context, prefs)
-        val updates = settings.skipSilence.produceIn(this)
-
-        updates.receive() shouldBe false
-
-        prefs.edit().putBoolean(PREF_KEY_SKIP_SILENCE, true).commit()
-        updates.receive() shouldBe true
-
-        updates.cancel()
-    }
 }
