@@ -73,8 +73,6 @@ dependencies {
     // Provides the instance of SharedPreferences
     api("androidx.preference:preference-ktx:${Libs.Androidx.preference}")
 
-    implementation("androidx.media:media:${Libs.Androidx.media}")
-
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${Libs.kotlin}")
     testImplementation("io.kotest:kotest-assertions-core:${Libs.kotest}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libs.koroutines}")
