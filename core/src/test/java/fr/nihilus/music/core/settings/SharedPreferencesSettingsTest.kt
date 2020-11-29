@@ -149,8 +149,10 @@ class SharedPreferencesSettingsTest {
         settings.queueReload shouldBe QueueReloadStrategy.FROM_TRACK
 
         fun enumFor(@StringRes prefValueResId: Int): QueueReloadStrategy {
-            val prefStringValue = context.getString(prefValueResId)
-            prefs.edit().putString(PREF_KEY_RELOAD_QUEUE, prefStringValue).commit()
+            prefs.edit().putString(
+                context.getString(R.string.pref_key_reload_queue),
+                context.getString(prefValueResId)
+            ).commit()
             return settings.queueReload
         }
 
@@ -205,19 +207,20 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When observing currentTheme then emit the latest saved value`() = runBlockingTest {
-        prefs.edit().putString(PREF_KEY_THEME, "light").commit()
+        val themePrefKey = context.getString(R.string.pref_key_theme)
+        prefs.edit().putString(themePrefKey, "light").commit()
 
         val settings = SharedPreferencesSettings(context, prefs)
         val updates = settings.currentTheme.produceIn(this)
         updates.receive() shouldBe Settings.AppTheme.LIGHT
 
-        prefs.edit().putString(PREF_KEY_THEME, "dark").commit()
+        prefs.edit().putString(themePrefKey, "dark").commit()
         updates.receive() shouldBe Settings.AppTheme.DARK
 
-        prefs.edit().putString(PREF_KEY_THEME, "battery").commit()
+        prefs.edit().putString(themePrefKey, "battery").commit()
         updates.receive() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
 
-        prefs.edit().putString(PREF_KEY_THEME, "system").commit()
+        prefs.edit().putString(themePrefKey, "system").commit()
         updates.receive() shouldBe Settings.AppTheme.SYSTEM
 
         updates.cancel()

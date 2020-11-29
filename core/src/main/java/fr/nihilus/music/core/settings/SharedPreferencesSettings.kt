@@ -51,17 +51,21 @@ internal class SharedPreferencesSettings @Inject constructor(
      */
     private val preferenceListeners = mutableSetOf<SharedPreferences.OnSharedPreferenceChangeListener>()
 
-    override val currentTheme: Flow<Settings.AppTheme> = preferenceFlow(PREF_KEY_THEME)
-        .map { prefs ->
-            val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
+    override val currentTheme: Flow<Settings.AppTheme>
+        get() {
+            val prefKey = context.getString(R.string.pref_key_theme)
+            return preferenceFlow(prefKey)
+                .map { prefs ->
+                    val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
 
-            when (val themeValue = prefs.getString(PREF_KEY_THEME, defaultThemeValue)) {
-                context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
-                context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
-                context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
-                context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
-                else -> error("Unexpected value for $PREF_KEY_THEME preference: $themeValue")
-            }
+                    when (val themeValue = prefs.getString(prefKey, defaultThemeValue)) {
+                        context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
+                        context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
+                        context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
+                        context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
+                        else -> error("Unexpected value for $prefKey preference: $themeValue")
+                    }
+                }
         }
 
     override val queueIdentifier: Long
@@ -70,13 +74,15 @@ internal class SharedPreferencesSettings @Inject constructor(
     override val queueReload: QueueReloadStrategy
         get() {
             val prefValues = context.resources.getStringArray(R.array.prefs_reload_queue_values)
-            return when (val value = preferences.getString(PREF_KEY_RELOAD_QUEUE, null)) {
+
+            val prefKey = context.getString(R.string.pref_key_reload_queue)
+            return when (val value = preferences.getString(prefKey, null)) {
                 prefValues[0] -> QueueReloadStrategy.NO_RELOAD
                 prefValues[1] -> QueueReloadStrategy.FROM_START
                 prefValues[2] -> QueueReloadStrategy.FROM_TRACK
                 prefValues[3] -> QueueReloadStrategy.AT_POSITION
                 null -> QueueReloadStrategy.FROM_TRACK
-                else -> error("Unexpected value for $PREF_KEY_RELOAD_QUEUE preference: $value")
+                else -> error("Unexpected value for $prefKey preference: $value")
             }
         }
 
@@ -137,7 +143,6 @@ internal class SharedPreferencesSettings @Inject constructor(
     }.conflate()
 }
 
-@TestOnly internal const val PREF_KEY_THEME = "pref_theme"
 @TestOnly internal const val PREF_KEY_SKIP_SILENCE = "skip_silence"
 @TestOnly internal const val PREF_KEY_SHUFFLE_MODE_ENABLED = "shuffle_mode_enabled"
 @TestOnly internal const val PREF_KEY_REPEAT_MODE = "repeat_mode"
@@ -145,4 +150,3 @@ internal class SharedPreferencesSettings @Inject constructor(
 @TestOnly internal const val PREF_KEY_QUEUE_IDENTIFIER = "load_counter"
 @TestOnly internal const val PREF_KEY_QUEUE_INDEX = "last_played_index"
 @TestOnly internal const val PREF_KEY_QUEUE_POSITION = "last_played_position_ms"
-@TestOnly internal const val PREF_KEY_RELOAD_QUEUE = "reload_queue"
