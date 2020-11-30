@@ -22,7 +22,6 @@ import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.playback.RepeatMode
-import fr.nihilus.music.core.settings.Settings.QueueReloadStrategy
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow

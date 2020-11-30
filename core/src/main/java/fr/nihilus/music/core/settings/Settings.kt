@@ -103,31 +103,4 @@ interface Settings {
         SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
     }
 
-    /**
-     * Available options of the "Reload last played queue" preference.
-     */
-    enum class QueueReloadStrategy {
-        /**
-         * Don't reload the last played queue.
-         * Attempts to prepare last played queue should make a smart choice of the media to play.
-         */
-        NO_RELOAD,
-
-        /**
-         * Reload queue that was playing when the player last stopped,
-         * starting at its first track.
-         */
-        FROM_START,
-
-        /**
-         * Reload queue starting from the beginning of the track that was playing
-         * when the player last stopped.
-         */
-        FROM_TRACK,
-
-        /**
-         * Reload queue at the exact same position it was when the player last stopped.
-         */
-        AT_POSITION
-    }
 }
