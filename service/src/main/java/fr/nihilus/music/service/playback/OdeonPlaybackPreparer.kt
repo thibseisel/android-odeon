@@ -76,9 +76,19 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastQueueMediaId
-            ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
-        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex, playWhenReady)
+        val reloadStrategy = settings.queueReload
+        prepareFromMediaId(
+            mediaId = settings.lastQueueMediaId ?: MediaId(TYPE_TRACKS, CATEGORY_ALL),
+            startPlaybackPosition = when {
+                reloadStrategy.reloadTrack -> settings.lastQueueIndex
+                else -> 0
+            },
+            playbackPosition = when {
+                reloadStrategy.reloadPosition -> settings.lastPlayedPosition
+                else -> C.TIME_UNSET
+            },
+            playWhenReady = playWhenReady
+        )
     }
 
     /**
@@ -99,7 +109,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         settings.lastQueueMediaId = queueMediaId
 
-        prepareFromMediaId(queueMediaId, C.POSITION_UNSET, playWhenReady)
+        prepareFromMediaId(queueMediaId, C.POSITION_UNSET, C.TIME_UNSET, playWhenReady)
     }
 
     override fun onPrepareFromUri(uri: Uri?, playWhenReady: Boolean, extras: Bundle?) {
@@ -130,13 +140,14 @@ internal class OdeonPlaybackPreparer @Inject constructor(
 
             val firstResult = results.firstOrNull()
             if (firstResult is MediaCategory) {
-                prepareFromMediaId(firstResult.id, C.POSITION_UNSET, playWhenReady)
+                prepareFromMediaId(firstResult.id, C.POSITION_UNSET, C.TIME_UNSET, playWhenReady)
             } else {
                 preparePlayer(
                     results.filterIsInstance<AudioTrack>(),
                     firstShuffledIndex = 0,
-                    startPosition = 0,
-                    playWhenReady
+                    startIndex = 0,
+                    playbackPosition = C.TIME_UNSET,
+                    playWhenReady = playWhenReady
                 )
             }
         }
@@ -158,6 +169,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     private fun prepareFromMediaId(
         mediaId: MediaId,
         startPlaybackPosition: Int,
+        playbackPosition: Long,
         playWhenReady: Boolean
     ) = scope.launch(dispatchers.Default) {
         val parentId = mediaId.copy(track = null)
@@ -168,24 +180,31 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             else -> C.POSITION_UNSET
         }
 
-        preparePlayer(playQueue, firstIndex, startPlaybackPosition, playWhenReady)
+        preparePlayer(
+            playQueue,
+            firstShuffledIndex = firstIndex,
+            startIndex = startPlaybackPosition,
+            playbackPosition = playbackPosition,
+            playWhenReady
+        )
     }
 
     /**
      * Prepare playback of a given [playQueue]
-     * and start playing the index at [startPosition] when ready.
+     * and start playing the index at [startIndex] when ready.
      *
      * @param playQueue The items to be played. All media should be playable and have a media uri.
      * @param firstShuffledIndex The index of the item that should be the first when playing shuffled.
      * This should be a valid index in [playQueue], otherwise an index is chosen randomly.
-     * @param startPosition The index of the item that should be played when the player is ready.
+     * @param startIndex The index of the item that should be played when the player is ready.
      * This should be a valid index in [playQueue],
      * otherwise playback will be set to start at the first index in the queue (shuffled or not).
      */
     private suspend fun preparePlayer(
         playQueue: List<AudioTrack>,
         firstShuffledIndex: Int,
-        startPosition: Int,
+        startIndex: Int,
+        playbackPosition: Long,
         playWhenReady: Boolean
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
@@ -213,12 +232,12 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             }
 
             // Start playback at a given position if specified, otherwise at first shuffled index.
-            val targetPlaybackPosition = when (startPosition) {
-                in playQueue.indices -> startPosition
+            val targetPlaybackPosition = when (startIndex) {
+                in playQueue.indices -> startIndex
                 else -> predictableShuffleOrder.firstIndex
             }
 
-            player.setMediaItems(queueItems, targetPlaybackPosition, C.TIME_UNSET)
+            player.setMediaItems(queueItems, targetPlaybackPosition, playbackPosition)
             player.setShuffleOrder(predictableShuffleOrder)
             player.prepare()
 
