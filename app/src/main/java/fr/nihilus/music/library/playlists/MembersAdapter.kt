@@ -29,7 +29,9 @@ internal class MembersAdapter(
     private val onTrackSelected: (position: Int) -> Unit
 ) : ListAdapter<MediaItem, MembersHolder>(MediaItemDiffer) {
 
-    private val glideRequest = Glide.with(fragment).asBitmap()
+    // Note: Glide is attached to the context of the activity to workaround a bug in
+    // MaterialContainerTransform not capturing images in return transition.
+    private val glideRequest = Glide.with(fragment.requireActivity()).asBitmap()
         .error(R.drawable.ic_audiotrack_24dp)
 
     override fun onCreateViewHolder(

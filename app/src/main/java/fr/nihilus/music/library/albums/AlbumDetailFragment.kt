@@ -90,7 +90,9 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         binding.titleView.text = album.title
         binding.subtitleView.text = album.subtitle
 
-        GlideApp.with(this).asAlbumArt()
+        // Note: Glide is attached to the context of the activity to workaround a bug in
+        // MaterialContainerTransform not capturing images in return transition.
+        GlideApp.with(requireActivity()).asAlbumArt()
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
