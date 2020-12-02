@@ -53,15 +53,16 @@ internal class SharedPreferencesSettings @Inject constructor(
     override val currentTheme: Flow<Settings.AppTheme>
         get() {
             val prefKey = context.getString(R.string.pref_key_theme)
+            val themeValues = context.resources.getStringArray(R.array.prefs_theme_values)
+            val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
+
             return preferenceFlow(prefKey)
                 .map { prefs ->
-                    val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
-
                     when (val themeValue = prefs.getString(prefKey, defaultThemeValue)) {
-                        context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
-                        context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
-                        context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
-                        context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
+                        themeValues[0] -> Settings.AppTheme.LIGHT
+                        themeValues[1] -> Settings.AppTheme.DARK
+                        themeValues[2] -> Settings.AppTheme.BATTERY_SAVER_ONLY
+                        themeValues[3] -> Settings.AppTheme.SYSTEM
                         else -> error("Unexpected value for $prefKey preference: $themeValue")
                     }
                 }
