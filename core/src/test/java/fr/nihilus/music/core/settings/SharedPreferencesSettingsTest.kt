@@ -155,10 +155,22 @@ class SharedPreferencesSettingsTest {
             return settings.queueReload
         }
 
-        enumFor(R.string.pref_reload_queue_disabled_value) shouldBe QueueReloadStrategy.NO_RELOAD
         enumFor(R.string.pref_reload_queue_start_value) shouldBe QueueReloadStrategy.FROM_START
         enumFor(R.string.pref_reload_queue_track_value) shouldBe QueueReloadStrategy.FROM_TRACK
         enumFor(R.string.pref_reload_queue_position_value) shouldBe QueueReloadStrategy.AT_POSITION
+    }
+
+    @Test
+    fun `When reading prepareQueueOnStartup, then return saved value or true`() {
+        val settings = SharedPreferencesSettings(context, prefs)
+        settings.prepareQueueOnStartup shouldBe true
+
+        val prefKey = context.getString(R.string.pref_key_prepare_on_startup)
+        prefs.edit().putBoolean(prefKey, false).commit()
+        settings.prepareQueueOnStartup shouldBe false
+
+        prefs.edit().putBoolean(prefKey, true).commit()
+        settings.prepareQueueOnStartup shouldBe true
     }
 
     @Test

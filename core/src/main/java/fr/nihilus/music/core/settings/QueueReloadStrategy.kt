@@ -21,10 +21,6 @@ package fr.nihilus.music.core.settings
  */
 enum class QueueReloadStrategy(
     /**
-     * Whether this strategy allows reloading the last played list of tracks.
-     */
-    val reloadQueue: Boolean,
-    /**
      * Whether this strategy allows resuming playback from the same track that was playing
      * when the player last stopped.
      */
@@ -36,21 +32,10 @@ enum class QueueReloadStrategy(
     val reloadPosition: Boolean
 ) {
     /**
-     * Don't reload the last played queue.
-     * Attempts to prepare last played queue should make a smart choice of the media to play.
-     */
-    NO_RELOAD(
-        reloadQueue = false,
-        reloadTrack = false,
-        reloadPosition = false
-    ),
-
-    /**
      * Reload queue that was playing when the player last stopped,
      * starting at its first track.
      */
     FROM_START(
-        reloadQueue = true,
         reloadTrack = false,
         reloadPosition = false
     ),
@@ -60,7 +45,6 @@ enum class QueueReloadStrategy(
      * when the player last stopped.
      */
     FROM_TRACK(
-        reloadQueue = true,
         reloadTrack = true,
         reloadPosition = false
     ),
@@ -69,7 +53,6 @@ enum class QueueReloadStrategy(
      * Reload queue at the exact same position it was when the player last stopped.
      */
     AT_POSITION(
-        reloadQueue = true,
         reloadTrack = true,
         reloadPosition = true
     )

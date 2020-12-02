@@ -31,9 +31,9 @@
     <string name="pref_title_audio_analysis">Analiza audio</string>
     <string name="pref_summary_audio_analysis">Wybierz ścieżki na podstawie ich specyfikacji audio</string>
     <string name="prefs_category_playback_options">Playback options</string>
-    <string name="pref_title_reload_queue">Restore last played queue on app startup</string>
-    <string name="pref_reload_queue_disabled">Don\'t restore</string>
-    <string name="pref_reload_queue_start">From start</string>
+    <string name="pref_title_reload_queue">Reload last played queue</string>
+    <string name="pref_reload_queue_start">From the beginning</string>
     <string name="pref_reload_queue_track">From last played track</string>
-    <string name="pref_reload_queue_position">From the position it last stopped</string>
+    <string name="pref_reload_queue_position">Exactly where it last stopped</string>
+    <string name="pref_title_prepare_on_startup">Prepare queue on app startup</string>
 </resources>

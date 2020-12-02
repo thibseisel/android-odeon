@@ -218,10 +218,7 @@ internal class BrowserClientImpl @Inject constructor(
             deferredController.complete(controller)
 
             // Prepare last played playlist if nothing to play.
-            if (
-                controller.playbackState?.isPrepared != true &&
-                settings.queueReload.reloadQueue
-            ) {
+            if (controller.playbackState?.isPrepared != true && settings.prepareQueueOnStartup) {
                 controller.transportControls.prepare()
             }
         }

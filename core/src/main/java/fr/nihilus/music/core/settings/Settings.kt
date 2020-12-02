@@ -38,10 +38,15 @@ interface Settings {
     val queueIdentifier: Long
 
     /**
-     * Describes how the last played queue should be reload on app started.
+     * Describes how the last played queue should be re-prepared.
      * Defaults to [QueueReloadStrategy.FROM_TRACK].
      */
     val queueReload: QueueReloadStrategy
+
+    /**
+     * Whether the last played queue should be re-prepared on app startup.
+     */
+    val prepareQueueOnStartup: Boolean
 
     /**
      * The media ID of the last loaded playing queue.
@@ -102,5 +107,4 @@ interface Settings {
          */
         SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
     }
-
 }

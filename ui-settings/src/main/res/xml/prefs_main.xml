@@ -37,6 +37,11 @@
             android:key="@string/pref_key_reload_queue"
             android:title="@string/pref_title_reload_queue"
             app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            android:key="@string/pref_key_prepare_on_startup"
+            android:title="@string/pref_title_prepare_on_startup"
+            android:defaultValue="@bool/pref_default_prepare_on_startup" />
     </PreferenceCategory>
 
     <PreferenceCategory

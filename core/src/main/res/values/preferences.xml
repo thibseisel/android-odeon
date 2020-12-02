@@ -33,15 +33,16 @@
     </string-array>
 
     <string name="pref_key_reload_queue" translatable="false">reload_queue</string>
-    <string name="pref_reload_queue_disabled_value" translatable="false">fr.nihilus.music.pref.reload_queue.DISABLED</string>
     <string name="pref_reload_queue_start_value" translatable="false">fr.nihilus.music.pref.reload_queue.START</string>
     <string name="pref_reload_queue_track_value" translatable="false">fr.nihilus.music.pref.reload_queue.TRACK</string>
     <string name="pref_reload_queue_position_value" translatable="false">fr.nihilus.music.pref.reload_queue.POSITION</string>
 
     <string-array name="prefs_reload_queue_values">
-        <item>@string/pref_reload_queue_disabled_value</item>
         <item>@string/pref_reload_queue_start_value</item>
         <item>@string/pref_reload_queue_track_value</item>
         <item>@string/pref_reload_queue_position_value</item>
     </string-array>
+
+    <string name="pref_key_prepare_on_startup" translatable="false">reload_queue_on_startup</string>
+    <bool name="pref_default_prepare_on_startup">true</bool>
 </resources>

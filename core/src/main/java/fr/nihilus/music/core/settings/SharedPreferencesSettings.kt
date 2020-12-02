@@ -76,14 +76,19 @@ internal class SharedPreferencesSettings @Inject constructor(
 
             val prefKey = context.getString(R.string.pref_key_reload_queue)
             return when (val value = preferences.getString(prefKey, null)) {
-                prefValues[0] -> QueueReloadStrategy.NO_RELOAD
-                prefValues[1] -> QueueReloadStrategy.FROM_START
-                prefValues[2] -> QueueReloadStrategy.FROM_TRACK
-                prefValues[3] -> QueueReloadStrategy.AT_POSITION
+                prefValues[0] -> QueueReloadStrategy.FROM_START
+                prefValues[1] -> QueueReloadStrategy.FROM_TRACK
+                prefValues[2] -> QueueReloadStrategy.AT_POSITION
                 null -> QueueReloadStrategy.FROM_TRACK
                 else -> error("Unexpected value for $prefKey preference: $value")
             }
         }
+
+    override val prepareQueueOnStartup: Boolean
+        get() = preferences.getBoolean(
+            context.getString(R.string.pref_key_prepare_on_startup),
+            context.resources.getBoolean(R.bool.pref_default_prepare_on_startup)
+        )
 
     override var lastQueueMediaId: MediaId?
         get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.toMediaId()
