@@ -25,6 +25,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.AppScope
+import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
@@ -39,7 +40,10 @@ import kotlin.coroutines.suspendCoroutine
  * allowing to browser available media and send commands to the session transport controls.
  */
 @AppScope
-internal class BrowserClientImpl @Inject constructor(applicationContext: Context) : BrowserClient {
+internal class BrowserClientImpl @Inject constructor(
+    applicationContext: Context,
+    private val settings: Settings
+) : BrowserClient {
 
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
@@ -214,7 +218,7 @@ internal class BrowserClientImpl @Inject constructor(applicationContext: Context
             deferredController.complete(controller)
 
             // Prepare last played playlist if nothing to play.
-            if (controller.playbackState?.isPrepared != true) {
+            if (controller.playbackState?.isPrepared != true && settings.prepareQueueOnStartup) {
                 controller.transportControls.prepare()
             }
         }

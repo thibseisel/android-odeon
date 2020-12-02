@@ -23,10 +23,25 @@
             android:defaultValue="@string/pref_theme_default_value"
             android:entries="@array/prefs_theme_titles"
             android:entryValues="@array/prefs_theme_values"
-            android:key="pref_theme"
+            android:key="@string/pref_key_theme"
             android:title="@string/pref_theme_title"
             app:useSimpleSummaryProvider="true" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/prefs_category_playback_options">
+        <ListPreference
+            android:defaultValue="@string/pref_reload_queue_track_value"
+            android:entries="@array/pref_reload_queue_entries"
+            android:entryValues="@array/prefs_reload_queue_values"
+            android:key="@string/pref_key_reload_queue"
+            android:title="@string/pref_title_reload_queue"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreference
+            android:key="@string/pref_key_prepare_on_startup"
+            android:title="@string/pref_title_prepare_on_startup"
+            android:defaultValue="@bool/pref_default_prepare_on_startup" />
     </PreferenceCategory>
 
     <PreferenceCategory

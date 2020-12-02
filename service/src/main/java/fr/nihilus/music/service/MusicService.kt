@@ -368,6 +368,7 @@ class MusicService : BaseBrowserService() {
         private fun onPlaybackPaused() {
             // Put the service back to the background, keeping the notification
             stopForeground(false)
+            settings.lastPlayedPosition = player.currentPosition
 
             // Update the notification content if the session is active
             if (session.isActive) {

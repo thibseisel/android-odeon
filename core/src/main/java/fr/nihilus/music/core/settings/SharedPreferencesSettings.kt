@@ -18,7 +18,6 @@ package fr.nihilus.music.core.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -51,21 +50,46 @@ internal class SharedPreferencesSettings @Inject constructor(
      */
     private val preferenceListeners = mutableSetOf<SharedPreferences.OnSharedPreferenceChangeListener>()
 
-    override val currentTheme: Flow<Settings.AppTheme> = preferenceFlow(PREF_KEY_THEME)
-        .map { prefs ->
+    override val currentTheme: Flow<Settings.AppTheme>
+        get() {
+            val prefKey = context.getString(R.string.pref_key_theme)
+            val themeValues = context.resources.getStringArray(R.array.prefs_theme_values)
             val defaultThemeValue = context.getString(R.string.pref_theme_default_value)
 
-            when (val themeValue = prefs.getString(PREF_KEY_THEME, defaultThemeValue)) {
-                context.getString(R.string.pref_theme_light_value) -> Settings.AppTheme.LIGHT
-                context.getString(R.string.pref_theme_battery_value) -> Settings.AppTheme.BATTERY_SAVER_ONLY
-                context.getString(R.string.pref_theme_dark_value) -> Settings.AppTheme.DARK
-                context.getString(R.string.pref_theme_system_value) -> Settings.AppTheme.SYSTEM
-                else -> error("Unexpected value for $PREF_KEY_THEME preference: $themeValue")
-            }
+            return preferenceFlow(prefKey)
+                .map { prefs ->
+                    when (val themeValue = prefs.getString(prefKey, defaultThemeValue)) {
+                        themeValues[0] -> Settings.AppTheme.LIGHT
+                        themeValues[1] -> Settings.AppTheme.DARK
+                        themeValues[2] -> Settings.AppTheme.BATTERY_SAVER_ONLY
+                        themeValues[3] -> Settings.AppTheme.SYSTEM
+                        else -> error("Unexpected value for $prefKey preference: $themeValue")
+                    }
+                }
         }
 
     override val queueIdentifier: Long
         get() = preferences.getLong(PREF_KEY_QUEUE_IDENTIFIER, 0L)
+
+    override val queueReload: QueueReloadStrategy
+        get() {
+            val prefValues = context.resources.getStringArray(R.array.prefs_reload_queue_values)
+
+            val prefKey = context.getString(R.string.pref_key_reload_queue)
+            return when (val value = preferences.getString(prefKey, null)) {
+                prefValues[0] -> QueueReloadStrategy.FROM_START
+                prefValues[1] -> QueueReloadStrategy.FROM_TRACK
+                prefValues[2] -> QueueReloadStrategy.AT_POSITION
+                null -> QueueReloadStrategy.FROM_TRACK
+                else -> error("Unexpected value for $prefKey preference: $value")
+            }
+        }
+
+    override val prepareQueueOnStartup: Boolean
+        get() = preferences.getBoolean(
+            context.getString(R.string.pref_key_prepare_on_startup),
+            context.resources.getBoolean(R.bool.pref_default_prepare_on_startup)
+        )
 
     override var lastQueueMediaId: MediaId?
         get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.toMediaId()
@@ -80,6 +104,10 @@ internal class SharedPreferencesSettings @Inject constructor(
         get() = preferences.getInt(PREF_KEY_QUEUE_INDEX, 0)
         set(indexInQueue) = preferences.edit().putInt(PREF_KEY_QUEUE_INDEX, indexInQueue).apply()
 
+    override var lastPlayedPosition: Long
+        get() = preferences.getLong(PREF_KEY_QUEUE_POSITION, -1L)
+        set(position) = preferences.edit().putLong(PREF_KEY_QUEUE_POSITION, position).apply()
+
     override var shuffleModeEnabled: Boolean
         get() = preferences.getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, false)
         set(enabled) = preferences.edit()
@@ -87,22 +115,13 @@ internal class SharedPreferencesSettings @Inject constructor(
             .apply()
 
     override var repeatMode: RepeatMode
-        get() = when (preferences.getInt(PREF_KEY_REPEAT_MODE, PlaybackStateCompat.REPEAT_MODE_NONE)) {
-            PlaybackStateCompat.REPEAT_MODE_ALL,
-            PlaybackStateCompat.REPEAT_MODE_GROUP -> RepeatMode.ALL
-            PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.ONE
-            else -> RepeatMode.DISABLED
+        get() {
+            val repeatModeCode = preferences.getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
+            return RepeatMode.values().first { it.code == repeatModeCode }
         }
         set(mode) = preferences.edit()
-            .putInt(PREF_KEY_REPEAT_MODE, when (mode) {
-                RepeatMode.ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
-                RepeatMode.ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
-                else -> PlaybackStateCompat.REPEAT_MODE_NONE
-            })
+            .putInt(PREF_KEY_REPEAT_MODE, mode.code)
             .apply()
-
-    val skipSilence: Flow<Boolean> = preferenceFlow(PREF_KEY_SKIP_SILENCE)
-        .map { it.getBoolean(PREF_KEY_SKIP_SILENCE, false) }
 
     private fun preferenceFlow(watchedKey: String) = callbackFlow<SharedPreferences> {
         val valueListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
@@ -126,10 +145,9 @@ internal class SharedPreferencesSettings @Inject constructor(
     }.conflate()
 }
 
-@TestOnly internal const val PREF_KEY_THEME = "pref_theme"
-@TestOnly internal const val PREF_KEY_SKIP_SILENCE = "skip_silence"
 @TestOnly internal const val PREF_KEY_SHUFFLE_MODE_ENABLED = "shuffle_mode_enabled"
 @TestOnly internal const val PREF_KEY_REPEAT_MODE = "repeat_mode"
 @TestOnly internal const val PREF_KEY_LAST_PLAYED = "last_played"
 @TestOnly internal const val PREF_KEY_QUEUE_IDENTIFIER = "load_counter"
 @TestOnly internal const val PREF_KEY_QUEUE_INDEX = "last_played_index"
+@TestOnly internal const val PREF_KEY_QUEUE_POSITION = "last_played_position_ms"
