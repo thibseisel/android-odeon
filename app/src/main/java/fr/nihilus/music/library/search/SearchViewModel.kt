@@ -49,7 +49,7 @@ class SearchViewModel @Inject constructor(
     val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>> = searchQuery
         .debounce(300)
         .mapLatest { query ->
-            if (!query.isBlank()) {
+            if (query.isNotBlank()) {
                 val results = client.search(query)
                 results.sortedWith(mediaTypeImportance)
             } else {
