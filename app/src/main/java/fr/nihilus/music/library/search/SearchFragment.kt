@@ -25,16 +25,21 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentSearchBinding
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.songs.DeleteTrackDialog
+import java.util.concurrent.TimeUnit
 
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private val viewModel by viewModels<SearchViewModel> { viewModelFactory }
@@ -42,7 +47,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
-    private val backToTopObserver =  BackToTopObserver()
+    private val backToTopObserver = BackToTopObserver()
     private var binding: FragmentSearchBinding? = null
     private lateinit var resultsAdapter: SearchResultsAdapter
 
@@ -51,12 +56,26 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         val binding = FragmentSearchBinding.bind(view)
         this.binding = binding
 
-        setupFragmentTransitions()
+        postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+        setupHomeToSearchTransition()
 
         val recyclerView = binding.listSearchResults
         recyclerView.setHasFixedSize(true)
-        resultsAdapter = SearchResultsAdapter(this, ::onSuggestionSelected)
+
+        resultsAdapter = SearchResultsAdapter(this) { item, adapterPosition, action ->
+            val holder = checkNotNull(recyclerView.findViewHolderForAdapterPosition(adapterPosition))
+            onSuggestionSelected(item, holder, action)
+        }
         recyclerView.adapter = resultsAdapter
+
+        val gridSpanCount = minOf(
+            resources.getInteger(R.integer.album_grid_span_count),
+            resources.getInteger(R.integer.artist_grid_span_count)
+        )
+        val spanSizer = SearchSpanLookup(gridSpanCount)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), gridSpanCount).apply {
+            spanSizeLookup = spanSizer
+        }
 
         with(binding.searchToolbar) {
             setNavigationOnClickListener { onNavigateUp() }
@@ -79,7 +98,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
+            spanSizer.update(searchResults)
             resultsAdapter.submitList(searchResults)
+            startPostponedEnterTransitionWhenDrawn()
         }
 
         if (savedInstanceState == null) {
@@ -87,7 +108,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
     }
 
-    private fun setupFragmentTransitions() {
+    private fun setupHomeToSearchTransition() {
         val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = transitionDuration
@@ -95,6 +116,15 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
             duration = transitionDuration
         }
+    }
+
+    private fun setupHoldTransition() {
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        exitTransition = Hold().apply {
+            duration = transitionDuration
+            addTarget(requireView())
+        }
+        reenterTransition = null
     }
 
     override fun onStart() {
@@ -119,10 +149,21 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         else -> false
     }
 
+    private fun createLayoutManager(): RecyclerView.LayoutManager {
+        val gridSpanCount = minOf(
+            resources.getInteger(R.integer.album_grid_span_count),
+            resources.getInteger(R.integer.artist_grid_span_count)
+        )
+
+        return GridLayoutManager(requireContext(), gridSpanCount).apply {
+            spanSizeLookup = SearchSpanLookup(gridSpanCount)
+        }
+    }
+
     private fun onNavigateUp() {
         hideKeyboard(binding!!.searchInput)
-        val navController = findNavController()
-        navController.navigateUp()
+        setupHomeToSearchTransition()
+        findNavController().navigateUp()
     }
 
     private fun showKeyboard(view: View) {
@@ -136,11 +177,12 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
     private fun onSuggestionSelected(
         item: MediaBrowserCompat.MediaItem,
+        holder: RecyclerView.ViewHolder,
         action: SearchResultsAdapter.ItemAction
     ) {
         when (action) {
             SearchResultsAdapter.ItemAction.PRIMARY -> when {
-                item.isBrowsable -> browseMedia(item)
+                item.isBrowsable -> browseMedia(item, holder)
                 item.isPlayable -> {
                     viewModel.play(item)
                     onNavigateUp()
@@ -159,7 +201,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
     }
 
-    private fun browseMedia(item: MediaBrowserCompat.MediaItem) {
+    private fun browseMedia(item: MediaBrowserCompat.MediaItem, holder: RecyclerView.ViewHolder) {
         hideKeyboard(binding!!.searchInput)
         val navController = findNavController()
         val (type, _, _) = item.mediaId.toMediaId()
@@ -168,7 +210,11 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             MediaId.TYPE_ALBUMS -> {
                 val albumId = item.mediaId!!
                 val toAlbumDetail = SearchFragmentDirections.browseAlbumDetail(albumId)
-                navController.navigate(toAlbumDetail)
+
+                setupHoldTransition()
+
+                val transitionExtras = FragmentNavigatorExtras(holder.itemView to albumId)
+                navController.navigate(toAlbumDetail, transitionExtras)
             }
 
             MediaId.TYPE_ARTISTS -> {
@@ -180,7 +226,11 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             MediaId.TYPE_PLAYLISTS -> {
                 val playlistId = item.mediaId!!
                 val toPlaylistContent = SearchFragmentDirections.browsePlaylistContent(playlistId)
-                navController.navigate(toPlaylistContent)
+
+                setupHoldTransition()
+
+                val transitionExtras = FragmentNavigatorExtras(holder.itemView to playlistId)
+                navController.navigate(toPlaylistContent, transitionExtras)
             }
         }
     }

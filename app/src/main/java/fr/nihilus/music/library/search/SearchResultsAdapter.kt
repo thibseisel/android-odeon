@@ -17,7 +17,6 @@
 package fr.nihilus.music.library.search
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.Gravity
 import android.view.ViewGroup
@@ -25,7 +24,6 @@ import android.widget.Adapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
@@ -35,13 +33,20 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
+import fr.nihilus.music.library.albums.AlbumHolder
+import fr.nihilus.music.library.artists.ArtistHolder
+import fr.nihilus.music.library.playlists.PlaylistHolder
 
 internal class SearchResultsAdapter(
     fragment: Fragment,
-    private val listener: (item: MediaItem, action: ItemAction) -> Unit
-) : ListAdapter<MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
+    private val listener: (item: MediaItem, adapterPosition: Int, action: ItemAction) -> Unit
+) : ListAdapter<MediaItem, BaseHolder<MediaItem>>(MediaItemDiffer) {
 
     private val glide = Glide.with(fragment).asBitmap()
+    private val albumLoader = GlideApp.with(fragment).asAlbumArt()
+    private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
@@ -60,18 +65,32 @@ internal class SearchResultsAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ) = ViewHolder(parent, viewType, glide) { position, action ->
-        listener(getItem(position), action)
+    ): BaseHolder<MediaItem> = when (viewType) {
+        R.id.view_type_track -> TrackHolder(parent, glide) { position, action ->
+            listener(getItem(position), position, action)
+        }
+        R.id.view_type_album -> AlbumHolder(parent, albumLoader, defaultPalette, false) { position ->
+            listener(getItem(position), position, ItemAction.PRIMARY)
+        }
+        R.id.view_type_artist -> ArtistHolder(parent, glide) { position ->
+            listener(getItem(position), position, ItemAction.PRIMARY)
+        }
+        R.id.view_type_playlist -> PlaylistHolder(parent, glide) { position ->
+            listener(getItem(position), position, ItemAction.PRIMARY)
+        }
+        else -> error("Unexpected viewType: $viewType")
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: BaseHolder<MediaItem>, position: Int) {
         val item = getItem(position)
         holder.bind(item)
     }
 
-    class ViewHolder(
+    /**
+     * Hold references to Views that are part of a
+     */
+    class TrackHolder(
         parent: ViewGroup,
-        viewType: Int,
         private val glide: RequestBuilder<Bitmap>,
         private val onItemAction: (position: Int, action: ItemAction) -> Unit
     ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
@@ -80,59 +99,49 @@ internal class SearchResultsAdapter(
         private val titleView: TextView = itemView.findViewById(R.id.title_view)
 
         init {
-            setupTrackActionMenu(viewType)
+            setupTrackActionMenu()
 
             itemView.setOnClickListener {
                 onItemAction(adapterPosition, ItemAction.PRIMARY)
             }
         }
 
-        override fun bind(data: MediaItem): Unit = with(data.description) {
-            titleView.text = title
-
-            when (itemViewType) {
-                R.id.view_type_track -> glide.error(R.drawable.placeholder_track_icon).load(iconUri)
-                R.id.view_type_album -> glide.fallback(R.drawable.placeholder_album_icon).load(null as Uri?)
-                R.id.view_type_artist -> glide.fallback(R.drawable.placeholder_artist_icon).load(null as Uri?)
-                R.id.view_type_playlist -> glide.fallback(R.drawable.ic_playlist_24dp).load(iconUri)
-                else -> error("Unexpected view type: $itemViewType")
-            }.into(iconView)
+        override fun bind(data: MediaItem) {
+            with(data.description) {
+                titleView.text = title
+                glide.fallback(R.drawable.placeholder_track_icon).load(iconUri).into(iconView)
+            }
         }
 
-        private fun setupTrackActionMenu(viewType: Int) {
+        private fun setupTrackActionMenu() {
             val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
-            val isTrack = (viewType == R.id.view_type_track)
-            overflowIcon.isVisible = isTrack
+            val popup = PopupMenu(
+                itemView.context,
+                overflowIcon,
+                Gravity.END or Gravity.BOTTOM,
+                0,
+                R.style.Widget_Odeon_PopupMenu_Overflow
+            )
 
-            if (isTrack) {
-                val popup = PopupMenu(
-                    itemView.context,
-                    overflowIcon,
-                    Gravity.END or Gravity.BOTTOM,
-                    0,
-                    R.style.Widget_Odeon_PopupMenu_Overflow
-                )
-
-                popup.inflate(R.menu.track_popup_menu)
-                popup.setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.action_playlist -> {
-                            onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
-                            true
-                        }
-
-                        R.id.action_delete -> {
-                            onItemAction(adapterPosition, ItemAction.DELETE)
-                            true
-                        }
-
-                        else -> false
+            popup.inflate(R.menu.track_popup_menu)
+            popup.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_playlist -> {
+                        onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
+                        true
                     }
-                }
 
-                overflowIcon.setOnClickListener {
-                    popup.show()
+                    R.id.action_delete -> {
+                        onItemAction(adapterPosition, ItemAction.DELETE)
+                        true
+                    }
+
+                    else -> false
                 }
+            }
+
+            overflowIcon.setOnClickListener {
+                popup.show()
             }
         }
     }
