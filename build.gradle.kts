@@ -49,6 +49,7 @@ subprojects {
             jvmTarget = "1.8"
             freeCompilerArgs += arrayOf(
                 "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
             )
         }

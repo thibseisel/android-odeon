@@ -72,9 +72,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             resources.getInteger(R.integer.album_grid_span_count),
             resources.getInteger(R.integer.artist_grid_span_count)
         )
-        val spanSizer = SearchSpanLookup(gridSpanCount)
         recyclerView.layoutManager = GridLayoutManager(requireContext(), gridSpanCount).apply {
-            spanSizeLookup = spanSizer
+            spanSizeLookup = SearchSpanSizer(gridSpanCount, resultsAdapter)
+            isUsingSpansToEstimateScrollbarDimensions = true
         }
 
         with(binding.searchToolbar) {
@@ -98,7 +98,6 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         viewModel.searchResults.observe(viewLifecycleOwner) { searchResults ->
-            spanSizer.update(searchResults)
             resultsAdapter.submitList(searchResults)
             startPostponedEnterTransitionWhenDrawn()
         }
@@ -147,17 +146,6 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         else -> false
-    }
-
-    private fun createLayoutManager(): RecyclerView.LayoutManager {
-        val gridSpanCount = minOf(
-            resources.getInteger(R.integer.album_grid_span_count),
-            resources.getInteger(R.integer.artist_grid_span_count)
-        )
-
-        return GridLayoutManager(requireContext(), gridSpanCount).apply {
-            spanSizeLookup = SearchSpanLookup(gridSpanCount)
-        }
     }
 
     private fun onNavigateUp() {
@@ -250,6 +238,31 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
 
         override fun onChanged() {
             binding?.listSearchResults?.scrollToPosition(0)
+        }
+    }
+
+    /**
+     * Determines how many grid spans each item should take.
+     */
+    private class SearchSpanSizer(
+        private val spanCount: Int,
+        private val adapter: SearchResultsAdapter
+    ) : GridLayoutManager.SpanSizeLookup() {
+
+        init {
+            isSpanIndexCacheEnabled = true
+            isSpanGroupIndexCacheEnabled = true
+        }
+
+        override fun getSpanSize(position: Int): Int {
+            return when (val viewType = adapter.getItemViewType(position)) {
+                R.id.view_type_album,
+                R.id.view_type_artist -> 1
+                R.id.view_type_track,
+                R.id.view_type_playlist,
+                R.id.view_type_header -> spanCount
+                else -> error("Unexpected view type for position $position: $viewType")
+            }
         }
     }
 }
