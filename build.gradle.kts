@@ -40,6 +40,17 @@ allprojects {
         google()
         jcenter()
     }
+
+    tasks.register("configurations") {
+        group = "help"
+        description = "Display build configurations declared in project ':${this@allprojects.name}'"
+
+        doLast {
+            for (it in configurations) {
+                println("${it.name} - ${it.description}")
+            }
+        }
+    }
 }
 
 subprojects {
