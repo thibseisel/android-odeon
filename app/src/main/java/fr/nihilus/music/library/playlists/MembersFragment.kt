@@ -64,9 +64,8 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
             setNavigationOnClickListener { findNavController().navigateUp() }
         }
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
         adapter = MembersAdapter(this, ::onTrackSelected)

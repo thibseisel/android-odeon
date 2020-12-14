@@ -44,9 +44,8 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentArtistsBinding.bind(view)
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
         binding.artistRecycler.adapter = adapter

@@ -97,9 +97,8 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
             }
         }
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
         viewModel.artist.observe(viewLifecycleOwner) {
