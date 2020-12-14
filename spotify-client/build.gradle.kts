@@ -24,8 +24,8 @@ android {
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro", "moshi.pro", "okhttp3.pro", "okio.pro")
 
-        val clientId = propOrDefault("odeon.spotify.clientId", "")
-        val clientSecret = propOrDefault("odeon.spotify.clientSecret", "")
+        val clientId = getSpotifyProperty("clientId")
+        val clientSecret = getSpotifyProperty("clientSecret")
         buildConfigField("String", "SPOTIFY_CLIENT_ID", "\"$clientId\"")
         buildConfigField("String", "SPOTIFY_CLIENT_SECRET", "\"$clientSecret\"")
     }
@@ -48,4 +48,13 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
     testImplementation("io.mockk:mockk:${Libs.mockk}")
     kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
+}
+
+fun getSpotifyProperty(name: String): String {
+    val fullPropertyName = "odeon.spotify.$name"
+    val value = project.findProperty(fullPropertyName) as? String
+    if (value == null) {
+        logger.warn("Property \"{}\" is not defined ; sync with Spotify won't work properly.", fullPropertyName)
+    }
+    return value.orEmpty()
 }
