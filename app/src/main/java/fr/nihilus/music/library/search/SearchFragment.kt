@@ -126,6 +126,16 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         reenterTransition = null
     }
 
+    private fun setupSharedAxisTransition() {
+        val sharedAxisDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = sharedAxisDuration
+        }
+        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = sharedAxisDuration
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         resultsAdapter.registerAdapterDataObserver(backToTopObserver)
@@ -208,6 +218,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             MediaId.TYPE_ARTISTS -> {
                 val artistId = item.mediaId!!
                 val toArtistDetail = SearchFragmentDirections.browseArtistDetail(artistId)
+                setupSharedAxisTransition()
                 navController.navigate(toArtistDetail)
             }
 

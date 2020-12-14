@@ -29,12 +29,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.Hold
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import java.util.concurrent.TimeUnit
@@ -56,6 +57,8 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentArtistDetailBinding.bind(view)
+
+        setupGridToDetailTransition()
 
         // Wait for albums to be displayed before returning from album detail screen.
         postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
@@ -121,6 +124,16 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
                     startPostponedEnterTransitionWhenDrawn()
                 }
             }
+        }
+    }
+
+    private fun setupGridToDetailTransition() {
+        val sharedAxisDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = sharedAxisDuration
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = sharedAxisDuration
         }
     }
 

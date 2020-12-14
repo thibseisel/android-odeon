@@ -21,6 +21,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -76,9 +77,14 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
         val artist = adapter.getItem(position)
 
         // Reset transitions set by another navigation events.
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
         requireParentFragment().apply {
-            exitTransition = null
-            reenterTransition = null
+            exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+                duration = transitionDuration
+            }
+            reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+                duration = transitionDuration
+            }
         }
 
         val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
