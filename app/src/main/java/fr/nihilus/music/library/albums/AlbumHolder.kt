@@ -58,8 +58,6 @@ internal class AlbumHolder(
         }
     }
 
-    inline val transitionView get() = albumArt
-
     init {
         itemView.setOnClickListener {
             onAlbumSelected(adapterPosition)
@@ -74,6 +72,7 @@ internal class AlbumHolder(
 
     override fun bind(data: MediaBrowserCompat.MediaItem) {
         val description = data.description
+        itemView.transitionName = description.mediaId
         title.text = description.title
 
         subtitle.text = if (isArtistAlbum) {
@@ -84,6 +83,5 @@ internal class AlbumHolder(
         }
 
         glide.load(description.iconUri).into(albumViewTarget)
-        albumArt.transitionName = description.mediaId
     }
 }

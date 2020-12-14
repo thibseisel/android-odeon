@@ -46,6 +46,7 @@ internal class PlaylistHolder(
 
     override fun bind(data: MediaBrowserCompat.MediaItem) {
         val description = data.description
+        itemView.transitionName = description.mediaId
         title.text = description.title
         subtitle.text = description.subtitle
         glide.load(description.iconUri).into(image)

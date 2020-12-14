@@ -16,11 +16,12 @@
 
 package fr.nihilus.music.library.search
 
-import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.client.BrowserClient
@@ -29,12 +30,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class SearchViewModel @Inject constructor(
+internal class SearchViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
 
-    private val mediaTypeImportance = compareBy<MediaBrowserCompat.MediaItem> { item ->
-        when (item.mediaId.toMediaId().type) {
+    private val mediaTypeImportance = compareBy<String> { mediaType ->
+        when (mediaType) {
             MediaId.TYPE_TRACKS -> 0
             MediaId.TYPE_PLAYLISTS -> 1
             MediaId.TYPE_ARTISTS -> 2
@@ -46,12 +47,12 @@ class SearchViewModel @Inject constructor(
     private val searchQuery = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
-    val searchResults: LiveData<List<MediaBrowserCompat.MediaItem>> = searchQuery
+    val searchResults: LiveData<List<SearchResult>> = searchQuery
         .debounce(300)
         .mapLatest { query ->
-            if (!query.isBlank()) {
+            if (query.isNotBlank()) {
                 val results = client.search(query)
-                results.sortedWith(mediaTypeImportance)
+                groupByMediaType(results)
             } else {
                 emptyList()
             }
@@ -62,9 +63,30 @@ class SearchViewModel @Inject constructor(
         searchQuery.value = query.toString()
     }
 
-    fun play(item: MediaBrowserCompat.MediaItem) {
+    fun play(item: MediaItem) {
         viewModelScope.launch {
             client.playFromMediaId(item.mediaId!!)
         }
+    }
+
+    private fun groupByMediaType(items: List<MediaItem>): List<SearchResult> {
+        val mediaByType = items.groupByTo(sortedMapOf(mediaTypeImportance)) {
+            it.mediaId.toMediaId().type
+        }
+
+        return buildList {
+            for ((mediaType, media) in mediaByType) {
+                add(SearchResult.SectionHeader(titleFor(mediaType)))
+                media.mapTo(this) { SearchResult.Media(it) }
+            }
+        }
+    }
+
+    private fun titleFor(mediaType: String) = when (mediaType) {
+        MediaId.TYPE_TRACKS -> R.string.all_music
+        MediaId.TYPE_ALBUMS -> R.string.action_albums
+        MediaId.TYPE_ARTISTS -> R.string.action_artists
+        MediaId.TYPE_PLAYLISTS -> R.string.action_playlists
+        else -> error("Unexpected media type in search results: $mediaType")
     }
 }

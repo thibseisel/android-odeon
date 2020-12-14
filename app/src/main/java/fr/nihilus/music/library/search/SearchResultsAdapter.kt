@@ -17,16 +17,14 @@
 package fr.nihilus.music.library.search
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -34,106 +32,71 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
+import fr.nihilus.music.library.albums.AlbumHolder
+import fr.nihilus.music.library.artists.ArtistHolder
+import fr.nihilus.music.library.playlists.PlaylistHolder
 
 internal class SearchResultsAdapter(
     fragment: Fragment,
-    private val listener: (item: MediaItem, action: ItemAction) -> Unit
-) : ListAdapter<MediaItem, SearchResultsAdapter.ViewHolder>(MediaItemDiffer) {
+    private val listener: (item: MediaItem, adapterPosition: Int, action: ItemAction) -> Unit
+) : ListAdapter<SearchResult, BaseHolder<*>>(SearchResultDiffer()) {
 
     private val glide = Glide.with(fragment).asBitmap()
+    private val albumLoader = GlideApp.with(fragment).asAlbumArt()
+    private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
-    override fun getItemViewType(position: Int): Int {
-        val item = getItem(position)
+    override fun getItemViewType(position: Int): Int = when (val result = getItem(position)) {
+        is SearchResult.SectionHeader -> R.id.view_type_header
+        is SearchResult.Media -> getMediaViewType(result.item)
+    }
+
+    private fun getMediaViewType(item: MediaItem): Int {
         val (type, category, track) = item.mediaId.toMediaId()
-
         return when {
             track != null -> R.id.view_type_track
-            category == null -> Adapter.IGNORE_ITEM_VIEW_TYPE
+            category == null -> error("Expected search result to have a media category")
             type == MediaId.TYPE_ALBUMS -> R.id.view_type_album
             type == MediaId.TYPE_ARTISTS -> R.id.view_type_artist
             type == MediaId.TYPE_PLAYLISTS -> R.id.view_type_playlist
-            else -> Adapter.IGNORE_ITEM_VIEW_TYPE
+            else -> error("Unexpected media type in search results: $type")
         }
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ) = ViewHolder(parent, viewType, glide) { position, action ->
-        listener(getItem(position), action)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.bind(item)
-    }
-
-    class ViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-        private val glide: RequestBuilder<Bitmap>,
-        private val onItemAction: (position: Int, action: ItemAction) -> Unit
-    ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
-
-        private val iconView: ImageView = itemView.findViewById(R.id.icon_view)
-        private val titleView: TextView = itemView.findViewById(R.id.title_view)
-
-        init {
-            setupTrackActionMenu(viewType)
-
-            itemView.setOnClickListener {
-                onItemAction(adapterPosition, ItemAction.PRIMARY)
-            }
+    ): BaseHolder<*> {
+        val browsableSelectedListener = { adapterPosition: Int ->
+            val result = getItem(adapterPosition) as SearchResult.Media
+            listener(result.item, adapterPosition, ItemAction.PRIMARY)
         }
 
-        override fun bind(data: MediaItem): Unit = with(data.description) {
-            titleView.text = title
-
-            when (itemViewType) {
-                R.id.view_type_track -> glide.error(R.drawable.placeholder_track_icon).load(iconUri)
-                R.id.view_type_album -> glide.fallback(R.drawable.placeholder_album_icon).load(null as Uri?)
-                R.id.view_type_artist -> glide.fallback(R.drawable.placeholder_artist_icon).load(null as Uri?)
-                R.id.view_type_playlist -> glide.fallback(R.drawable.ic_playlist_24dp).load(iconUri)
-                else -> error("Unexpected view type: $itemViewType")
-            }.into(iconView)
-        }
-
-        private fun setupTrackActionMenu(viewType: Int) {
-            val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
-            val isTrack = (viewType == R.id.view_type_track)
-            overflowIcon.isVisible = isTrack
-
-            if (isTrack) {
-                val popup = PopupMenu(
-                    itemView.context,
-                    overflowIcon,
-                    Gravity.END or Gravity.BOTTOM,
-                    0,
-                    R.style.Widget_Odeon_PopupMenu_Overflow
-                )
-
-                popup.inflate(R.menu.track_popup_menu)
-                popup.setOnMenuItemClickListener {
-                    when (it.itemId) {
-                        R.id.action_playlist -> {
-                            onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
-                            true
-                        }
-
-                        R.id.action_delete -> {
-                            onItemAction(adapterPosition, ItemAction.DELETE)
-                            true
-                        }
-
-                        else -> false
-                    }
-                }
-
-                overflowIcon.setOnClickListener {
-                    popup.show()
-                }
+        return when (viewType) {
+            R.id.view_type_header -> SectionHolder(parent)
+            R.id.view_type_track -> TrackHolder(parent, glide) { position, action ->
+                val result = getItem(position) as SearchResult.Media
+                listener(result.item, position, action)
             }
+            R.id.view_type_album -> AlbumHolder(
+                parent,
+                albumLoader,
+                defaultPalette,
+                isArtistAlbum = false,
+                browsableSelectedListener
+            )
+            R.id.view_type_artist -> ArtistHolder(parent, glide, browsableSelectedListener)
+            R.id.view_type_playlist -> PlaylistHolder(parent, glide, browsableSelectedListener)
+            else -> error("Unexpected viewType: $viewType")
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun onBindViewHolder(holder: BaseHolder<*>, position: Int) {
+        when (val result = getItem(position)) {
+            is SearchResult.SectionHeader -> (holder as SectionHolder).bind(result)
+            is SearchResult.Media -> (holder as BaseHolder<MediaItem>).bind(result.item)
         }
     }
 
@@ -159,5 +122,91 @@ internal class SearchResultsAdapter(
          * This is only applicable to tracks.
          */
         DELETE
+    }
+
+    /**
+     * Displays a section title that separates groups of media of the same type.
+     */
+    private class SectionHolder(
+        parent: ViewGroup
+    ) : BaseHolder<SearchResult.SectionHeader>(parent, R.layout.section_header_item) {
+        private val title: TextView = itemView.findViewById(R.id.title)
+
+        override fun bind(data: SearchResult.SectionHeader) {
+            title.setText(data.titleResId)
+        }
+    }
+
+    /**
+     * Displays a track search result.
+     */
+    private class TrackHolder(
+        parent: ViewGroup,
+        private val glide: RequestBuilder<Bitmap>,
+        private val onItemAction: (position: Int, action: ItemAction) -> Unit
+    ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
+
+        private val iconView: ImageView = itemView.findViewById(R.id.icon_view)
+        private val titleView: TextView = itemView.findViewById(R.id.title_view)
+
+        init {
+            setupTrackActionMenu()
+
+            itemView.setOnClickListener {
+                onItemAction(adapterPosition, ItemAction.PRIMARY)
+            }
+        }
+
+        override fun bind(data: MediaItem) {
+            with(data.description) {
+                titleView.text = title
+                glide.fallback(R.drawable.placeholder_track_icon).load(iconUri).into(iconView)
+            }
+        }
+
+        private fun setupTrackActionMenu() {
+            val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
+            val popup = PopupMenu(
+                itemView.context,
+                overflowIcon,
+                Gravity.END or Gravity.BOTTOM,
+                0,
+                R.style.Widget_Odeon_PopupMenu_Overflow
+            )
+
+            popup.inflate(R.menu.track_popup_menu)
+            popup.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.action_playlist -> {
+                        onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
+                        true
+                    }
+
+                    R.id.action_delete -> {
+                        onItemAction(adapterPosition, ItemAction.DELETE)
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+
+            overflowIcon.setOnClickListener {
+                popup.show()
+            }
+        }
+    }
+
+    private class SearchResultDiffer : DiffUtil.ItemCallback<SearchResult>() {
+
+        override fun areItemsTheSame(
+            oldItem: SearchResult,
+            newItem: SearchResult
+        ): Boolean = oldItem.hasSameId(newItem)
+
+        override fun areContentsTheSame(
+            oldItem: SearchResult,
+            newItem: SearchResult
+        ): Boolean = newItem.hasSameContent(newItem)
     }
 }

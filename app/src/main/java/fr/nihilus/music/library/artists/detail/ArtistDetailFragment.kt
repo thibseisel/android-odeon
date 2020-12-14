@@ -28,11 +28,13 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.transition.Hold
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
@@ -56,6 +58,9 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentArtistDetailBinding.bind(view)
 
+        setupGridToDetailTransition()
+
+        // Wait for albums to be displayed before returning from album detail screen.
         postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
@@ -87,7 +92,6 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
             adapter = childrenAdapter
             layoutManager = manager
             setHasFixedSize(true)
-            afterMeasure { startPostponedEnterTransition() }
             itemAnimator = object : DefaultItemAnimator() {
                 override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
                     dispatchAddFinished(holder)
@@ -111,12 +115,24 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     this.childrenAdapter.submitList(childrenRequest.data)
+                    startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     this.childrenAdapter.submitList(emptyList())
+                    startPostponedEnterTransitionWhenDrawn()
                 }
             }
+        }
+    }
+
+    private fun setupGridToDetailTransition() {
+        val sharedAxisDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = sharedAxisDuration
+        }
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = sharedAxisDuration
         }
     }
 
@@ -124,8 +140,14 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
         val albumId = album.mediaId!!
         val toAlbumDetail = ArtistDetailFragmentDirections.browseArtistAlbum(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to albumId
+            holder.itemView to albumId
         )
+
+        // Keep this fragment displayed while animating to the next destination.
+        exitTransition = Hold().apply {
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            addTarget(R.id.fragment_artist_detail)
+        }
 
         findNavController().navigate(toAlbumDetail, transitionExtras)
     }

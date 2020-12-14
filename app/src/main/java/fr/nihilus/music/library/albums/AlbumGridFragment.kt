@@ -22,11 +22,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.Hold
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
@@ -54,7 +55,6 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         binding.albumRecycler.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
-            afterMeasure { requireParentFragment().startPostponedEnterTransition() }
         }
 
         viewModel.albums.observe(viewLifecycleOwner) { albumRequest ->
@@ -64,11 +64,13 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(albumRequest.data)
                     binding.groupEmptyView.isVisible = albumRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(emptyList())
                     binding.groupEmptyView.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }
@@ -81,12 +83,16 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         val albumId = album.mediaId!!
         val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to albumId
+            holder.itemView to albumId
         )
 
-        // Reset transitions previously set when moving to another fragment.
+        // Reset transitions previously set when moving to search fragment,
+        // and keep it displayed while animating to the next destination.
         requireParentFragment().apply {
-            exitTransition = null
+            exitTransition = Hold().apply {
+                duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+                addTarget(R.id.fragment_home)
+            }
             reenterTransition = null
         }
 

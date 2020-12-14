@@ -21,10 +21,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentArtistsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
@@ -58,11 +60,13 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(artistRequest.data)
                     binding.groupEmptyView.isVisible = artistRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
                     binding.groupEmptyView.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }
@@ -70,6 +74,18 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
 
     private fun onArtistSelected(position: Int) {
         val artist = adapter.getItem(position)
+
+        // Reset transitions set by another navigation events.
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        requireParentFragment().apply {
+            exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+                duration = transitionDuration
+            }
+            reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+                duration = transitionDuration
+            }
+        }
+
         val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
         findNavController().navigate(toArtistDetail)
     }

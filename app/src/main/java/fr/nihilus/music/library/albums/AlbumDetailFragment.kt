@@ -17,29 +17,27 @@
 package fr.nihilus.music.library.albums
 
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.luminance
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Transition
-import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
 import com.bumptech.glide.request.target.ImageViewTarget
+import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.core.ui.extensions.luminance
+import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
-import fr.nihilus.music.extensions.doOnEnd
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import java.util.concurrent.TimeUnit
 
 /**
@@ -64,13 +62,13 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         val binding = FragmentAlbumDetailBinding.bind(view)
         this.binding = binding
 
-        // We are expecting an enter transition.
+        // Start shared element enter transition only after track list have been loaded.
         postponeEnterTransition(500, TimeUnit.MILLISECONDS)
 
         // Set transition names.
         // Note that they don't need to match with the names of the selected grid item.
         // They only have to be unique in this fragment.
-        binding.albumArtView.transitionName = args.albumId
+        view.transitionName = args.albumId
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
@@ -81,12 +79,10 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         val adapter = TrackAdapter(viewModel::playTrack)
         binding.recycler.adapter = adapter
 
-        setDarkHomeUpIndicator(true, binding)
-        setDarkStatusBarIcons(true)
-
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
+            startPostponedEnterTransitionWhenDrawn()
         }
     }
 
@@ -94,12 +90,13 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         binding.titleView.text = album.title
         binding.subtitleView.text = album.subtitle
 
-        GlideApp.with(this).asAlbumArt()
+        // Note: Glide is attached to the context of the activity to workaround a bug in
+        // MaterialContainerTransform not capturing images in return transition.
+        GlideApp.with(requireActivity()).asAlbumArt()
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
             .disallowHardwareConfig()
-            .doOnEnd(this::startPostponedEnterTransition)
             .into(object : ImageViewTarget<AlbumArt>(binding.albumArtView) {
 
                 override fun setResource(resource: AlbumArt?) {
@@ -112,24 +109,28 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     private fun setupSharedElementTransitions() {
-        val inflater = TransitionInflater.from(requireContext())
-        val albumArtTransition = inflater.inflateTransition(R.transition.album_art_transition)
-        sharedElementEnterTransition = albumArtTransition
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            // Animate behind player sheet and status bar.
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            // Draw a background color behind the track list to prevent from drawing
+            // the seeing the previous fragment beneath.
+            val themeColorSurface = resolveThemeColor(requireContext(), R.attr.colorSurface)
+            setAllContainerColors(themeColorSurface)
 
-        albumArtTransition.addListener(object : TransitionListenerAdapter() {
+            addListener(object : TransitionListenerAdapter() {
 
-            override fun onTransitionStart(transition: Transition) {
-                // Hide the Floating Action Button at the beginning of the animation.
-                binding?.playFab?.isVisible = false
-            }
+                override fun onTransitionStart(transition: Transition) {
+                    // Hide the Floating Action Button at the beginning of the animation.
+                    binding?.playFab?.isVisible = false
+                }
 
-            override fun onTransitionEnd(transition: Transition) {
-                activity?.window?.statusBarColor = Color.TRANSPARENT
-
-                // Show the Floating Action Button after transition is completed.
-                binding?.playFab?.show()
-            }
-        })
+                override fun onTransitionEnd(transition: Transition) {
+                    // Show the Floating Action Button after transition is completed.
+                    binding?.playFab?.show()
+                }
+            })
+        }
     }
 
     private fun applyPaletteTheme(palette: AlbumPalette, binding: FragmentAlbumDetailBinding) {
@@ -137,21 +138,14 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         binding.titleView.setTextColor(palette.titleText)
         binding.subtitleView.setTextColor(palette.bodyText)
 
-        val darkStatusText = palette.bodyText.luminance < 0.5f
+        val darkStatusText = palette.primary.luminance > 0.5f
         setDarkHomeUpIndicator(darkStatusText, binding)
-        setDarkStatusBarIcons(darkStatusText)
 
         binding.collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
         binding.collapsingToolbar.setContentScrimColor(palette.primary)
 
         binding.playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
         binding.playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
-    }
-
-    private fun setDarkStatusBarIcons(isDark: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity?.window?.darkSystemIcons = isDark
-        }
     }
 
     private fun setDarkHomeUpIndicator(dark: Boolean, binding: FragmentAlbumDetailBinding) {

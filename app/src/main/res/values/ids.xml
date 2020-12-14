@@ -16,6 +16,7 @@
 
 <resources>
     <!-- View types -->
+    <item name="view_type_header" type="id"/>
     <item name="view_type_album" type="id"/>
     <item name="view_type_track" type="id"/>
     <item name="view_type_artist" type="id"/>

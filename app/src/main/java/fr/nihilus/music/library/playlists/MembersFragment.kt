@@ -26,9 +26,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.TransitionManager
+import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.toMediaId
@@ -36,9 +34,10 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.motion.Stagger
+import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.databinding.FragmentPlaylistMembersBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
+import java.util.concurrent.TimeUnit
 
 class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
@@ -51,11 +50,21 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.setPlaylist(args.playlistId)
+
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            setAllContainerColors(resolveThemeColor(requireContext(), R.attr.colorSurface))
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentPlaylistMembersBinding.bind(view)
+
+        // Wait for playlist tracks to be loaded before triggering enter transition.
+        postponeEnterTransition(500, TimeUnit.MILLISECONDS)
+        view.transitionName = args.playlistId
 
         binding.toolbar.apply {
             val playlistType = args.playlistId.toMediaId().type
@@ -72,17 +81,6 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         binding.membersRecycler.adapter = adapter
         binding.membersRecycler.setHasFixedSize(true)
 
-        // Disable add animations because we'll manually animate those.
-        binding.membersRecycler.itemAnimator = object : DefaultItemAnimator() {
-            override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
-                dispatchAddFinished(holder)
-                dispatchAddStarting(holder)
-                return false
-            }
-        }
-
-        val staggerTransition = Stagger()
-
         viewModel.playlist.observe(viewLifecycleOwner, {
             binding.toolbar.title = it.description.title
         })
@@ -92,12 +90,13 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(binding.membersRecycler, staggerTransition)
                     adapter.submitList(membersRequest.data)
+                    startPostponedEnterTransition()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
+                    startPostponedEnterTransition()
                 }
             }
         }
