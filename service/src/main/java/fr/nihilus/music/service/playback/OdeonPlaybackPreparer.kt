@@ -125,8 +125,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
         if (Log.isLoggable("AssistantSearch", Log.INFO) && extras != null) {
             val extString = extras.keySet()
-                ?.joinToString(", ", "{", "}") { "$it=${extras[it]}" }
-                ?: "null"
+                .joinToString(", ", "{", "}") { "$it=${extras[it]}" }
             Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
         }
 

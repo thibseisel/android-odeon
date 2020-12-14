@@ -223,6 +223,11 @@ private constructor(
         @JvmField val ROOT = encode(TYPE_ROOT)
 
         /**
+         * An alternative browser tree root for querying recently played tracks.
+         */
+        @JvmField val RECENT_ROOT = encode("RECENT")
+
+        /**
          * The unique identifier of the parent of all available tracks.
          * @see CATEGORY_ALL
          */

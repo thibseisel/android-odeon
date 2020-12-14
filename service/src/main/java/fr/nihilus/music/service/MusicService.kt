@@ -36,6 +36,8 @@ import com.google.android.exoplayer2.Player
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.os.PermissionDeniedException
@@ -139,21 +141,38 @@ class MusicService : BaseBrowserService() {
         rootHints: Bundle?
     ): BrowserRoot? {
         // Check the caller's signature and disconnect it if not allowed by returning `null`.
-        return if (packageValidator.isKnownCaller(clientPackageName, clientUid)) {
-            // Grant permission to known callers to read album arts without storage permissions.
-            grantUriPermission(
-                clientPackageName,
-                Uri.parse("content://${BuildConfig.APP_PROVIDER_AUTHORITY}/"),
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-            )
+        if (!packageValidator.isKnownCaller(clientPackageName, clientUid)) {
+            return null
+        }
 
-            BrowserRoot(MediaId.ROOT, Bundle(3).apply {
-                putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
-                putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
-                putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
-                putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
-            })
-        } else null
+        // Grant permission to known callers to read album arts without storage permissions.
+        grantUriPermission(
+            clientPackageName,
+            Uri.parse("content://${BuildConfig.APP_PROVIDER_AUTHORITY}/"),
+            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+        )
+
+        val rootExtras = Bundle().apply {
+            putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
+
+            putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
+            putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
+            putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
+
+            // All our media are playable offline.
+            // Forward OFFLINE hint when specified.
+            if (rootHints?.getBoolean(BrowserRoot.EXTRA_OFFLINE) == true) {
+                putBoolean(BrowserRoot.EXTRA_OFFLINE, true)
+            }
+        }
+
+        // Specific browser root to load last played content.
+        if (rootHints?.getBoolean(BrowserRoot.EXTRA_RECENT) == true) {
+            rootExtras.putBoolean(BrowserRoot.EXTRA_RECENT, true)
+            return BrowserRoot(MediaId.RECENT_ROOT, rootExtras)
+        }
+
+        return BrowserRoot(MediaId.ROOT, rootExtras)
     }
 
     override fun onLoadChildren(
@@ -172,10 +191,16 @@ class MusicService : BaseBrowserService() {
             try {
                 val parentMediaId = parentId.toMediaId()
                 val paginationOptions = getPaginationOptions(options)
-                val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
+                if (parentMediaId.encoded == MediaId.RECENT_ROOT) {
+                    val lastPlayedTrack = loadLastPlayedTrack(paginationOptions)
+                    result.sendResult(listOf(lastPlayedTrack))
 
-                val builder = MediaDescriptionCompat.Builder()
-                result.sendResult(children.map { it.toItem(builder) })
+                } else {
+                    val children = subscriptions.loadChildren(parentMediaId, paginationOptions)
+
+                    val builder = MediaDescriptionCompat.Builder()
+                    result.sendResult(children.map { it.toItem(builder) })
+                }
 
             } catch (malformedId: MalformedMediaIdException) {
                 Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
@@ -190,6 +215,17 @@ class MusicService : BaseBrowserService() {
                 result.sendResult(null)
             }
         }
+    }
+
+    private suspend fun loadLastPlayedTrack(pagination: PaginationOptions?): MediaItem {
+        val lastPlayedQueue = settings.lastQueueMediaId ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
+        val reloadStrategy = settings.queueReload
+        val children = subscriptions.loadChildren(lastPlayedQueue, pagination)
+        val trackIndex = when {
+            reloadStrategy.reloadTrack -> settings.lastQueueIndex.coerceIn(children.indices)
+            else -> 0
+        }
+        return children[trackIndex].toItem()
     }
 
     private fun getPaginationOptions(options: Bundle): PaginationOptions? {
