@@ -19,7 +19,7 @@ package fr.nihilus.music.library.playlists
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.*
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
@@ -70,7 +70,7 @@ internal class PlaylistManagementViewModel @Inject constructor(
 
     fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
         viewModelScope.launch {
-            val membersTrackIds = members.map { it.mediaId.toMediaId() }
+            val membersTrackIds = members.map { it.mediaId.parse() }
 
             action.createPlaylist(playlistName, membersTrackIds)
             _playlistActionResult.value = Event(
@@ -83,8 +83,8 @@ internal class PlaylistManagementViewModel @Inject constructor(
         addedTracks: Array<MediaBrowserCompat.MediaItem>
     ) {
         viewModelScope.launch {
-            val playlistId = targetPlaylist.mediaId.toMediaId()
-            val newTrackMediaIds = addedTracks.map { it.mediaId.toMediaId() }
+            val playlistId = targetPlaylist.mediaId.parse()
+            val newTrackMediaIds = addedTracks.map { it.mediaId.parse() }
 
             action.appendMembers(playlistId, newTrackMediaIds)
             _playlistActionResult.value = Event(

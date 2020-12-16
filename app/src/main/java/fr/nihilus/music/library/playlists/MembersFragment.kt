@@ -29,7 +29,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -67,7 +67,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         view.transitionName = args.playlistId
 
         binding.toolbar.apply {
-            val playlistType = args.playlistId.toMediaId().type
+            val playlistType = args.playlistId.parse().type
             menu.findItem(R.id.action_delete)?.isVisible = playlistType == MediaId.TYPE_PLAYLISTS
             setOnMenuItemClickListener(::onOptionsItemSelected)
             setNavigationOnClickListener { findNavController().navigateUp() }
@@ -81,9 +81,9 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         binding.membersRecycler.adapter = adapter
         binding.membersRecycler.setHasFixedSize(true)
 
-        viewModel.playlist.observe(viewLifecycleOwner, {
+        viewModel.playlist.observe(viewLifecycleOwner) {
             binding.toolbar.title = it.description.title
-        })
+        }
 
         viewModel.members.observe(viewLifecycleOwner) { membersRequest ->
             when (membersRequest) {

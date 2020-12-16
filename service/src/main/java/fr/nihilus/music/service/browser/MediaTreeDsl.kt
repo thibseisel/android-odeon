@@ -19,7 +19,7 @@ package fr.nihilus.music.service.browser
 import android.net.Uri
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
@@ -80,7 +80,7 @@ private constructor(
      */
     private val rootItem: MediaCategory
         get() = MediaCategory(
-            id = rootId.toMediaId(),
+            id = rootId.parse(),
             title = rootName
         )
 

@@ -19,13 +19,12 @@ package fr.nihilus.music.library.nowplaying
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.*
@@ -49,7 +48,7 @@ class NowPlayingViewModel @Inject constructor(
             .map { nowPlaying ->
                 nowPlaying?.let {
                     PlayerState.Track(
-                        id = it.id.toMediaId(),
+                        id = it.id.parse(),
                         title = it.displayTitle!!,
                         artist = it.displaySubtitle!!,
                         duration = when (it.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {

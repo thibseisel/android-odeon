@@ -39,7 +39,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
@@ -189,7 +189,7 @@ class MusicService : BaseBrowserService() {
 
         launch {
             try {
-                val parentMediaId = parentId.toMediaId()
+                val parentMediaId = parentId.parse()
                 val paginationOptions = getPaginationOptions(options)
                 if (parentMediaId.encoded == MediaId.RECENT_ROOT) {
                     val lastPlayedTrack = loadLastPlayedTrack(paginationOptions)
@@ -246,7 +246,7 @@ class MusicService : BaseBrowserService() {
             result.detach()
             launch {
                 try {
-                    val itemMediaId = itemId.toMediaId()
+                    val itemMediaId = itemId.parse()
                     val requestedContent = subscriptions.getItem(itemMediaId)
                     result.sendResult(requestedContent?.toItem())
 

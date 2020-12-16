@@ -30,7 +30,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
@@ -53,7 +53,7 @@ internal class SearchResultsAdapter(
     }
 
     private fun getMediaViewType(item: MediaItem): Int {
-        val (type, category, track) = item.mediaId.toMediaId()
+        val (type, category, track) = item.mediaId.parse()
         return when {
             track != null -> R.id.view_type_track
             category == null -> error("Expected search result to have a media category")

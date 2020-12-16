@@ -33,7 +33,7 @@ import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentSearchBinding
@@ -202,7 +202,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private fun browseMedia(item: MediaBrowserCompat.MediaItem, holder: RecyclerView.ViewHolder) {
         hideKeyboard(binding!!.searchInput)
         val navController = findNavController()
-        val (type, _, _) = item.mediaId.toMediaId()
+        val (type, _, _) = item.mediaId.parse()
 
         when (type) {
             MediaId.TYPE_ALBUMS -> {

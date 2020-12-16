@@ -23,7 +23,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -71,7 +71,7 @@ internal class SearchViewModel @Inject constructor(
 
     private fun groupByMediaType(items: List<MediaItem>): List<SearchResult> {
         val mediaByType = items.groupByTo(sortedMapOf(mediaTypeImportance)) {
-            it.mediaId.toMediaId().type
+            it.mediaId.parse().type
         }
 
         return buildList {

@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -92,7 +92,7 @@ internal class SharedPreferencesSettings @Inject constructor(
         )
 
     override var lastQueueMediaId: MediaId?
-        get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.toMediaId()
+        get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.parse()
         set(mediaId) {
             preferences.edit()
                 .putString(PREF_KEY_LAST_PLAYED, mediaId?.encoded)

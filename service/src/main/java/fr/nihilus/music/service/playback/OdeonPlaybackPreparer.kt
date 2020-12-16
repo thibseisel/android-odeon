@@ -30,7 +30,7 @@ import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.AudioTrack
@@ -105,7 +105,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
      */
     override fun onPrepareFromMediaId(mediaId: String?, playWhenReady: Boolean, extras: Bundle?) {
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
-        val queueMediaId = mediaId?.toMediaId()
+        val queueMediaId = mediaId?.parse()
             ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         settings.lastQueueMediaId = queueMediaId
 

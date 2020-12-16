@@ -379,4 +379,4 @@ private constructor(
  * @return A valid media id whose [encoded format][MediaId.encoded] is the same as the receiver.
  * @throws MalformedMediaIdException If the parsed string is `null` or an invalid media id.
  */
-fun String?.toMediaId(): MediaId = MediaId.parse(this)
+fun String?.parse(): MediaId = MediaId.parse(this)

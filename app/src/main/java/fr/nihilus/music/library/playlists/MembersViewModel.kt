@@ -21,7 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
@@ -62,7 +62,7 @@ class MembersViewModel @Inject constructor(
 
     fun deletePlaylist(playlistId: String) {
         viewModelScope.launch {
-            actions.deletePlaylist(playlistId.toMediaId())
+            actions.deletePlaylist(playlistId.parse())
         }
     }
 }

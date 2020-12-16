@@ -19,7 +19,7 @@ package fr.nihilus.music.library
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
@@ -44,7 +44,7 @@ class HomeViewModel @Inject constructor(
 
     fun deleteSongs(songsToDelete: List<MediaItem>) {
         viewModelScope.launch {
-            val trackIds = songsToDelete.map { it.mediaId.toMediaId() }
+            val trackIds = songsToDelete.map { it.mediaId.parse() }
             val deletedTracksCount = actions.delete(trackIds)
             _deleteTracksConfirmation.value = Event(deletedTracksCount)
         }
