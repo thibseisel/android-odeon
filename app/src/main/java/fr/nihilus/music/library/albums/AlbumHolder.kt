@@ -19,9 +19,6 @@ package fr.nihilus.music.library.albums
 import android.graphics.drawable.Drawable
 import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.cardview.widget.CardView
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.R
@@ -29,6 +26,7 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.databinding.AlbumGridItemBinding
 
 internal class AlbumHolder(
     parent: ViewGroup,
@@ -38,12 +36,8 @@ internal class AlbumHolder(
     onAlbumSelected: (position: Int) -> Unit
 ) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.album_grid_item) {
 
-    private val card: CardView = itemView.findViewById(R.id.card)
-    private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.artist)
-
-    private val albumViewTarget = object : ImageViewTarget<AlbumArt>(albumArt) {
+    private val binding = AlbumGridItemBinding.bind(itemView)
+    private val albumViewTarget = object : ImageViewTarget<AlbumArt>(binding.albumArtwork) {
 
         override fun setResource(resource: AlbumArt?) {
             if (resource != null) {
@@ -64,20 +58,20 @@ internal class AlbumHolder(
         }
     }
 
-    private fun applyPalette(palette: AlbumPalette) {
+    private fun applyPalette(palette: AlbumPalette) = with(binding) {
         card.setCardBackgroundColor(palette.primary)
-        title.setTextColor(palette.titleText)
-        subtitle.setTextColor(palette.bodyText)
+        albumTitle.setTextColor(palette.titleText)
+        artistName.setTextColor(palette.bodyText)
     }
 
     override fun bind(data: MediaBrowserCompat.MediaItem) {
         val description = data.description
         itemView.transitionName = description.mediaId
-        title.text = description.title
+        binding.albumTitle.text = description.title
 
-        subtitle.text = if (isArtistAlbum) {
+        binding.artistName.text = if (isArtistAlbum) {
             val trackNb = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-            subtitle.resources.getQuantityString(R.plurals.number_of_tracks, trackNb, trackNb)
+            itemView.resources.getQuantityString(R.plurals.number_of_tracks, trackNb, trackNb)
         } else {
             description.subtitle
         }

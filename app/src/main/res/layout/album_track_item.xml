@@ -62,7 +62,7 @@
         app:layout_constraintGuide_begin="72dp"/>
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/track_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/grid_2"
@@ -71,14 +71,14 @@
         android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintEnd_toStartOf="@+id/track_duration"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/text_start_guideline"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title"/>
 
     <TextView
-        android:id="@+id/duration"
+        android:id="@+id/track_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/grid_2"

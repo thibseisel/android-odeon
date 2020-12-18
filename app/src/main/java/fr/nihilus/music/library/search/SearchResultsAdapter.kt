@@ -20,8 +20,6 @@ import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
@@ -33,6 +31,8 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.databinding.ItemSearchSuggestionBinding
+import fr.nihilus.music.databinding.SectionHeaderItemBinding
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.artists.ArtistHolder
@@ -130,10 +130,11 @@ internal class SearchResultsAdapter(
     private class SectionHolder(
         parent: ViewGroup
     ) : BaseHolder<SearchResult.SectionHeader>(parent, R.layout.section_header_item) {
-        private val title: TextView = itemView.findViewById(R.id.title)
+
+        private val binding = SectionHeaderItemBinding.bind(itemView)
 
         override fun bind(data: SearchResult.SectionHeader) {
-            title.setText(data.titleResId)
+            binding.sectionTitle.setText(data.titleResId)
         }
     }
 
@@ -142,12 +143,12 @@ internal class SearchResultsAdapter(
      */
     private class TrackHolder(
         parent: ViewGroup,
-        private val glide: RequestBuilder<Bitmap>,
+        glide: RequestBuilder<Bitmap>,
         private val onItemAction: (position: Int, action: ItemAction) -> Unit
     ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
 
-        private val iconView: ImageView = itemView.findViewById(R.id.icon_view)
-        private val titleView: TextView = itemView.findViewById(R.id.title_view)
+        private val binding = ItemSearchSuggestionBinding.bind(itemView)
+        private val imageLoader = glide.fallback(R.drawable.placeholder_track_icon)
 
         init {
             setupTrackActionMenu()
@@ -159,16 +160,15 @@ internal class SearchResultsAdapter(
 
         override fun bind(data: MediaItem) {
             with(data.description) {
-                titleView.text = title
-                glide.fallback(R.drawable.placeholder_track_icon).load(iconUri).into(iconView)
+                binding.trackTitle.text = title
+                imageLoader.load(iconUri).into(binding.albumArtwork)
             }
         }
 
         private fun setupTrackActionMenu() {
-            val overflowIcon: ImageView = itemView.findViewById(R.id.overflow_icon)
             val popup = PopupMenu(
                 itemView.context,
-                overflowIcon,
+                binding.overflowIcon,
                 Gravity.END or Gravity.BOTTOM,
                 0,
                 R.style.Widget_Odeon_PopupMenu_Overflow
@@ -191,7 +191,7 @@ internal class SearchResultsAdapter(
                 }
             }
 
-            overflowIcon.setOnClickListener {
+            binding.overflowIcon.setOnClickListener {
                 popup.show()
             }
         }

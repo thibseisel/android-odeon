@@ -67,7 +67,7 @@ internal class ArtistDetailAdapter(
                 selectionListener.onAlbumSelected(albumPosition)
             }
 
-            R.id.view_type_track -> TrackHolder(parent, bitmapLoader) { trackPosition ->
+            R.id.view_type_track -> ArtistTrackHolder(parent, bitmapLoader) { trackPosition ->
                 selectionListener.onTrackSelected(trackPosition)
             }
 

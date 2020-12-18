@@ -18,14 +18,13 @@ package fr.nihilus.music.library.albums
 
 import android.text.format.DateUtils
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.extensions.inflate
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.AlbumTrackItemBinding
 
 /**
  * Manage the presentation of tracks that are part of an album in a list [RecyclerView].
@@ -59,12 +58,11 @@ internal class TrackAdapter(
         onBindViewHolder(holder, position, emptyList())
     }
 
-    class ViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(parent.inflate(R.layout.album_track_item)) {
-        private val isPlayingIndicator: ImageView = itemView.findViewById(R.id.play_indicator)
-        private val trackNo: TextView = itemView.findViewById(R.id.track_no)
-        private val title: TextView = itemView.findViewById(R.id.title)
-        private val duration: TextView = itemView.findViewById(R.id.duration)
+    class ViewHolder(
+        parent: ViewGroup
+    ) : BaseHolder<AlbumDetailState.Track>(parent, R.layout.album_track_item) {
 
+        private val binding = AlbumTrackItemBinding.bind(itemView)
         private val timeBuilder = StringBuilder()
 
         /**
@@ -75,20 +73,20 @@ internal class TrackAdapter(
          * @param isPlaying Whether the track is the one currently playing.
          */
         fun setPlaybackState(isPlaying: Boolean) {
-            isPlayingIndicator.isVisible = isPlaying
-            trackNo.isVisible = !isPlaying
+            binding.playIndicator.isVisible = isPlaying
+            binding.trackNo.isVisible = !isPlaying
         }
 
         /**
          * Updates this holder's view to reflect the current track.
          *
-         * @param track The track that should be displayed by this holder.
+         * @param data The track that should be displayed by this holder.
          */
-        fun bind(track: AlbumDetailState.Track) {
-            trackNo.text = track.number.toString()
-            title.text = track.title
-            duration.text = DateUtils.formatElapsedTime(timeBuilder, track.duration / 1000L)
-            setPlaybackState(track.isPlaying)
+        override fun bind(data: AlbumDetailState.Track) {
+            binding.trackNo.text = data.number.toString()
+            binding.trackTitle.text = data.title
+            binding.trackDuration.text = DateUtils.formatElapsedTime(timeBuilder, data.duration / 1000L)
+            setPlaybackState(data.isPlaying)
         }
     }
 

@@ -26,7 +26,7 @@
     android:paddingVertical="@dimen/grid_2">
 
     <CheckBox
-        android:id="@+id/selection_mark"
+        android:id="@+id/tick_mark"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:gravity="top"
@@ -36,7 +36,7 @@
         tools:text=" " />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/track_title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/grid_2"
@@ -45,7 +45,7 @@
         android:maxLines="1"
         android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintEnd_toStartOf="@id/file_size"
-        app:layout_constraintStart_toEndOf="@id/selection_mark"
+        app:layout_constraintStart_toEndOf="@id/tick_mark"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title" />
 
@@ -55,9 +55,9 @@
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/grid_0_5"
         android:textAppearance="?textAppearanceCaption"
-        app:layout_constraintStart_toStartOf="@id/title"
-        app:layout_constraintEnd_toEndOf="@id/title"
-        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="@id/track_title"
+        app:layout_constraintEnd_toEndOf="@id/track_title"
+        app:layout_constraintTop_toBottomOf="@id/track_title"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0"
         tools:text="@sample/track_usage.json/data/usage_info" />
@@ -67,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?textAppearanceCaption"
-        app:layout_constraintTop_toTopOf="@id/title"
+        app:layout_constraintTop_toTopOf="@id/track_title"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/track_usage.json/data/file_size" />
 

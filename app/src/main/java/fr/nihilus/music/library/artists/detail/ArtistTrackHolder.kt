@@ -20,22 +20,19 @@ import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.text.format.DateUtils
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.ArtistTrackItemBinding
 
-internal class TrackHolder(
+internal class ArtistTrackHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<Bitmap>,
     onTrackSelected: (position: Int) -> Unit
 ) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_track_item) {
 
-    private val albumArt: ImageView = itemView.findViewById(R.id.album_art)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val duration: TextView = itemView.findViewById(R.id.duration)
+    private val binding = ArtistTrackItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
@@ -45,12 +42,12 @@ internal class TrackHolder(
 
     override fun bind(data: MediaBrowserCompat.MediaItem) {
         val description = data.description
-        title.text = description.title
-        glide.load(description.iconUri).into(albumArt)
+        binding.trackTitle.text = description.title
+        glide.load(description.iconUri).into(binding.albumArtwork)
 
         description.extras?.let {
             val millis = it.getLong(MediaItems.EXTRA_DURATION)
-            duration.text = DateUtils.formatElapsedTime(millis / 1000L)
+            binding.trackDuration.text = DateUtils.formatElapsedTime(millis / 1000L)
         }
     }
 }

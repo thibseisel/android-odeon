@@ -26,7 +26,7 @@
     android:textDirection="locale">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/album_art"
+        android:id="@+id/album_artwork"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginVertical="@dimen/grid_1"
@@ -38,7 +38,7 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/track_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/grid_2"
@@ -47,20 +47,20 @@
         android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintEnd_toStartOf="@+id/track_duration"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@id/album_art"
+        app:layout_constraintStart_toEndOf="@id/album_artwork"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title"/>
 
     <TextView
-        android:id="@+id/duration"
+        android:id="@+id/track_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
-        app:layout_constraintBaseline_toBaselineOf="@id/title"
+        app:layout_constraintBaseline_toBaselineOf="@id/track_title"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/songs.json/data/duration"/>
 

@@ -19,12 +19,11 @@ package fr.nihilus.music.library.artists
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.ArtistGridItemBinding
 
 /**
  * Display an artist as a floating 16:9 card.
@@ -35,9 +34,7 @@ internal class ArtistHolder(
     onArtistSelected: (position: Int) -> Unit
 ) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_grid_item) {
 
-    private val artistName: TextView = itemView.findViewById(R.id.title_view)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
-    private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
+    private val binding = ArtistGridItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
@@ -46,12 +43,12 @@ internal class ArtistHolder(
     }
 
     override fun bind(data: MediaBrowserCompat.MediaItem) {
-        artistName.text = data.description.title
-        glide.load(data.description.iconUri).into(cover)
+        binding.artistName.text = data.description.title
+        glide.load(data.description.iconUri).into(binding.artistArtwork)
 
         data.description.extras?.let {
             val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-            subtitle.text = subtitle.resources.getQuantityString(
+            binding.subtitle.text = itemView.resources.getQuantityString(
                 R.plurals.number_of_tracks,
                 trackCount, trackCount
             )

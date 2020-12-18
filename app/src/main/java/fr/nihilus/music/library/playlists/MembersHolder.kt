@@ -20,12 +20,11 @@ import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.text.format.DateUtils
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.PlaylistTrackItemBinding
 
 /**
  * Display a playlist's track.
@@ -36,10 +35,7 @@ internal class MembersHolder(
     onTrackSelected: (position: Int) -> Unit
 ) : BaseHolder<MediaItem>(parent, R.layout.playlist_track_item) {
 
-    private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
-
+    private val binding = PlaylistTrackItemBinding.bind(itemView)
     private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
     private val durationBuilder = StringBuilder()
 
@@ -51,12 +47,12 @@ internal class MembersHolder(
 
     override fun bind(data: MediaItem) {
         val description = data.description
-        glide.load(description.iconUri).into(albumArt)
-        title.text = description.title
+        glide.load(description.iconUri).into(binding.albumArtwork)
+        binding.trackTitle.text = description.title
 
         val millis = description.extras?.getLong(MediaItems.EXTRA_DURATION)
                 ?: error("Track should have extras")
-        subtitle.text = String.format(
+        binding.trackMetadata.text = String.format(
             subtitleTemplate, description.subtitle,
             DateUtils.formatElapsedTime(durationBuilder, millis / 1000L)
         )

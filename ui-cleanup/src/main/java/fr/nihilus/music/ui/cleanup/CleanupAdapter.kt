@@ -19,15 +19,14 @@ package fr.nihilus.music.ui.cleanup
 import android.text.format.DateUtils
 import android.view.MotionEvent
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.TextView
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.core.ui.extensions.inflate
+import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.media.usage.DisposableTrack
+import fr.nihilus.music.ui.cleanup.databinding.ItemDisposableTrackBinding
 
 /**
  * Displays tracks that could be safely deleted from the device's storage in a list.
@@ -92,13 +91,10 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
      */
     inner class ViewHolder(
         parent: ViewGroup
-    ) : RecyclerView.ViewHolder(parent.inflate(R.layout.item_disposable_track)) {
+    ) : BaseHolder<DisposableTrack>(parent, R.layout.item_disposable_track) {
 
         private val context = parent.context
-        private val tickMark = itemView.findViewById<CheckBox>(R.id.selection_mark)
-        private val title = itemView.findViewById<TextView>(R.id.title)
-        private val usageDescription = itemView.findViewById<TextView>(R.id.usage_description)
-        private val fileSizeCaption = itemView.findViewById<TextView>(R.id.file_size)
+        private val binding = ItemDisposableTrackBinding.bind(itemView)
 
         /**
          * The detail of this track item.
@@ -107,17 +103,17 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
         val itemDetails = TrackDetails(this)
 
         /**
-         * Updates this holder's view to reflect the data in the provided [track].
-         * @param track The metadata of the track to be displayed.
+         * Updates this holder's view to reflect the data in the provided [data].
+         * @param data The metadata of the track to be displayed.
          */
-        fun bind(track: DisposableTrack) {
-            title.text = track.title
-            usageDescription.text = formatElapsedTimeSince(track.lastPlayedTime)
-            fileSizeCaption.text = formatToHumanReadableByteCount(track.fileSizeBytes)
+        override fun bind(data: DisposableTrack) {
+            binding.trackTitle.text = data.title
+            binding.usageDescription.text = formatElapsedTimeSince(data.lastPlayedTime)
+            binding.fileSize.text = formatToHumanReadableByteCount(data.fileSizeBytes)
         }
 
         fun markAsSelected(selected: Boolean) {
-            tickMark.isChecked = selected
+            binding.tickMark.isChecked = selected
             itemView.isActivated = selected
         }
 
@@ -138,7 +134,7 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
 
         override fun getPosition(): Int = holder.adapterPosition
 
-        override fun getSelectionKey(): Long? = holder.itemId
+        override fun getSelectionKey(): Long = holder.itemId
 
         override fun inSelectionHotspot(e: MotionEvent): Boolean = true
     }

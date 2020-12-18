@@ -25,7 +25,7 @@
     android:textDirection="locale">
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/album_art_view"
+        android:id="@+id/album_artwork"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginTop="@dimen/grid_1"
@@ -39,7 +39,7 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/track_title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/grid_2"
@@ -48,12 +48,12 @@
         android:maxLines="@integer/song_title_max_lines"
         android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
-        app:layout_constraintStart_toEndOf="@id/album_art_view"
+        app:layout_constraintStart_toEndOf="@id/album_artwork"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title" />
 
     <TextView
-        android:id="@+id/subtitle_view"
+        android:id="@+id/track_metadata"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/grid_0_5"
@@ -63,8 +63,8 @@
         android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/overflow_icon"
-        app:layout_constraintStart_toStartOf="@id/title"
-        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="@id/track_title"
+        app:layout_constraintTop_toBottomOf="@id/track_title"
         app:layout_constraintVertical_bias="0"
         tools:text="@sample/songs.json/data/subtitle" />
 
