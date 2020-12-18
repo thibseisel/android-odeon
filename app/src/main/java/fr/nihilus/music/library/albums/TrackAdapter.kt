@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.library.albums
 
-import android.text.format.DateUtils
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
@@ -25,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.databinding.AlbumTrackItemBinding
+import fr.nihilus.music.ui.formatDuration
 
 /**
  * Manage the presentation of tracks that are part of an album in a list [RecyclerView].
@@ -63,7 +63,6 @@ internal class TrackAdapter(
     ) : BaseHolder<AlbumDetailState.Track>(parent, R.layout.album_track_item) {
 
         private val binding = AlbumTrackItemBinding.bind(itemView)
-        private val timeBuilder = StringBuilder()
 
         /**
          * Updates this holder's view to indicate if this track is currently playing.
@@ -85,7 +84,7 @@ internal class TrackAdapter(
         override fun bind(data: AlbumDetailState.Track) {
             binding.trackNo.text = data.number.toString()
             binding.trackTitle.text = data.title
-            binding.trackDuration.text = DateUtils.formatElapsedTime(timeBuilder, data.duration / 1000L)
+            binding.trackDuration.text = formatDuration(data.duration)
             setPlaybackState(data.isPlaying)
         }
     }

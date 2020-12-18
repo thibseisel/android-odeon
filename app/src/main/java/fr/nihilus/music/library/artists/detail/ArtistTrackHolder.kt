@@ -18,13 +18,13 @@ package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
-import android.text.format.DateUtils
 import android.view.ViewGroup
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.databinding.ArtistTrackItemBinding
+import fr.nihilus.music.ui.formatDuration
 
 internal class ArtistTrackHolder(
     parent: ViewGroup,
@@ -46,8 +46,8 @@ internal class ArtistTrackHolder(
         glide.load(description.iconUri).into(binding.albumArtwork)
 
         description.extras?.let {
-            val millis = it.getLong(MediaItems.EXTRA_DURATION)
-            binding.trackDuration.text = DateUtils.formatElapsedTime(millis / 1000L)
+            val durationMillis = it.getLong(MediaItems.EXTRA_DURATION)
+            binding.trackDuration.text = formatDuration(durationMillis)
         }
     }
 }

@@ -18,7 +18,6 @@ package fr.nihilus.music.library.songs
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.SectionIndexer
@@ -32,6 +31,7 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.ListAdapter
 import fr.nihilus.music.databinding.SongListItemBinding
 import fr.nihilus.music.ui.AlphaSectionIndexer
+import fr.nihilus.music.ui.formatDuration
 
 /**
  * Bridge each media track to its list UI representation.
@@ -126,7 +126,7 @@ class SongAdapter(
         }
 
         private fun bindSubtitle(textView: TextView, text: CharSequence?, durationMillis: Long) {
-            val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
+            val duration = formatDuration(durationMillis)
             textView.text = textView.context.getString(R.string.song_item_subtitle, text, duration)
         }
     }

@@ -18,13 +18,13 @@ package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.text.format.DateUtils
 import android.view.ViewGroup
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.databinding.PlaylistTrackItemBinding
+import fr.nihilus.music.ui.formatDuration
 
 /**
  * Display a playlist's track.
@@ -37,7 +37,6 @@ internal class MembersHolder(
 
     private val binding = PlaylistTrackItemBinding.bind(itemView)
     private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
-    private val durationBuilder = StringBuilder()
 
     init {
         itemView.setOnClickListener {
@@ -54,7 +53,7 @@ internal class MembersHolder(
                 ?: error("Track should have extras")
         binding.trackMetadata.text = String.format(
             subtitleTemplate, description.subtitle,
-            DateUtils.formatElapsedTime(durationBuilder, millis / 1000L)
+            formatDuration(millis)
         )
     }
 }
