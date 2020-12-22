@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import android.net.Uri
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.library.albums.AlbumDetailState.Track
 
 /**
@@ -31,7 +32,7 @@ internal class AlbumDetailState(
      * This can be used as an identifier to request the media service
      * to play all tracks from this album.
      */
-    val id: String,
+    val id: MediaId,
 
     /**
      * The title of the album.
@@ -63,7 +64,7 @@ internal class AlbumDetailState(
          * The media id of this track.
          * This can be used as an identifier to request the media service to play this track.
          */
-        val id: String,
+        val id: MediaId,
 
         /**
          * The position of the track in the album.

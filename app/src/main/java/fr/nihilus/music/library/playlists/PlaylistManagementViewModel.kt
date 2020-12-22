@@ -62,7 +62,7 @@ internal class PlaylistManagementViewModel @Inject constructor(
     val playlistActionResult: LiveData<Event<PlaylistActionResult>> = _playlistActionResult
 
     val userPlaylists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> =
-        client.getChildren(MediaId.encode(MediaId.TYPE_PLAYLISTS))
+        client.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

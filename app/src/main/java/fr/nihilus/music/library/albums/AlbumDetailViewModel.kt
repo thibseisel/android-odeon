@@ -17,7 +17,9 @@
 package fr.nihilus.music.library.albums
 
 import androidx.lifecycle.*
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaItems
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.id
 import kotlinx.coroutines.flow.combine
@@ -31,7 +33,7 @@ internal class AlbumDetailViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
 
-    private val albumId = MutableLiveData<String>()
+    private val albumId = MutableLiveData<MediaId>()
 
     /**
      * Live UI state describing detail of the viewed album with its tracks.
@@ -44,16 +46,16 @@ internal class AlbumDetailViewModel @Inject constructor(
             val albumTracksFlow = client.getChildren(albumId)
 
             combine(albumFlow, albumTracksFlow, client.nowPlaying) { album, tracks, nowPlaying ->
-                val currentlyPlayingMediaId = nowPlaying?.id
+                val currentlyPlayingMediaId = nowPlaying?.id?.parse()
                 checkNotNull(album)
 
                 AlbumDetailState(
-                    id = checkNotNull(album.mediaId),
+                    id = album.mediaId.parse(),
                     title = album.description.title?.toString() ?: "",
                     subtitle = album.description.subtitle?.toString() ?: "",
                     artworkUri = album.description.iconUri,
                     tracks = tracks.map {
-                        val trackId = checkNotNull(it.mediaId)
+                        val trackId = it.mediaId.parse()
                         val extras = checkNotNull(it.description.extras)
 
                         AlbumDetailState.Track(
@@ -75,7 +77,7 @@ internal class AlbumDetailViewModel @Inject constructor(
      * @param albumId The media id of the album.
      */
     fun setAlbumId(albumId: String) {
-        this.albumId.value = albumId
+        this.albumId.value = albumId.parse()
     }
 
     /**
@@ -97,7 +99,7 @@ internal class AlbumDetailViewModel @Inject constructor(
         playMedia(track.id)
     }
 
-    private fun playMedia(mediaId: String) = viewModelScope.launch {
+    private fun playMedia(mediaId: MediaId) = viewModelScope.launch {
         client.playFromMediaId(mediaId)
     }
 }

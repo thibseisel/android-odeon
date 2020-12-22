@@ -169,10 +169,10 @@ class MusicService : BaseBrowserService() {
         // Specific browser root to load last played content.
         if (rootHints?.getBoolean(BrowserRoot.EXTRA_RECENT) == true) {
             rootExtras.putBoolean(BrowserRoot.EXTRA_RECENT, true)
-            return BrowserRoot(MediaId.RECENT_ROOT, rootExtras)
+            return BrowserRoot(MediaId.RECENT_ROOT.encoded, rootExtras)
         }
 
-        return BrowserRoot(MediaId.ROOT, rootExtras)
+        return BrowserRoot(MediaId.ROOT.encoded, rootExtras)
     }
 
     override fun onLoadChildren(
@@ -191,7 +191,7 @@ class MusicService : BaseBrowserService() {
             try {
                 val parentMediaId = parentId.parse()
                 val paginationOptions = getPaginationOptions(options)
-                if (parentMediaId.encoded == MediaId.RECENT_ROOT) {
+                if (parentMediaId == MediaId.RECENT_ROOT) {
                     val lastPlayedTrack = loadLastPlayedTrack(paginationOptions)
                     result.sendResult(listOf(lastPlayedTrack))
 

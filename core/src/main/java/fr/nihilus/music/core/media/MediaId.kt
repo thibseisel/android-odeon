@@ -220,33 +220,33 @@ private constructor(
         /**
          * The unique identifier of the root of the media browser.
          */
-        @JvmField val ROOT = encode(TYPE_ROOT)
+        @JvmField val ROOT = fromParts(TYPE_ROOT)
 
         /**
          * An alternative browser tree root for querying recently played tracks.
          */
-        @JvmField val RECENT_ROOT = encode("RECENT")
+        @JvmField val RECENT_ROOT = fromParts("RECENT")
 
         /**
          * The unique identifier of the parent of all available tracks.
          * @see CATEGORY_ALL
          */
-        @JvmField val ALL_TRACKS = encode(TYPE_TRACKS, CATEGORY_ALL)
+        @JvmField val ALL_TRACKS = fromParts(TYPE_TRACKS, CATEGORY_ALL)
 
         /**
          * The unique identifier of the parent of all albums.
          */
-        @JvmField val ALL_ALBUMS = encode(TYPE_ALBUMS)
+        @JvmField val ALL_ALBUMS = fromParts(TYPE_ALBUMS)
 
         /**
          * The unique identifier of the parent of all artists.
          */
-        @JvmField val ALL_ARTISTS = encode(TYPE_ARTISTS)
+        @JvmField val ALL_ARTISTS = fromParts(TYPE_ARTISTS)
 
         /**
          * The unique identifier of the parent of all playlists.
          */
-        @JvmField val ALL_PLAYLISTS = encode(TYPE_PLAYLISTS)
+        @JvmField val ALL_PLAYLISTS = fromParts(TYPE_PLAYLISTS)
 
         /**
          * Convenience function for creating media ids from their component parts.

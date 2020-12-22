@@ -25,6 +25,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.AppScope
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.SendChannel
@@ -82,21 +83,21 @@ internal class BrowserClientImpl @Inject constructor(
         }
     }
 
-    override fun getChildren(parentId: String): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
+    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
 
         val subscription = ChannelSubscription(channel)
-        mediaBrowser.subscribe(parentId, subscription)
-        awaitClose { mediaBrowser.unsubscribe(parentId, subscription) }
+        mediaBrowser.subscribe(parentId.encoded, subscription)
+        awaitClose { mediaBrowser.unsubscribe(parentId.encoded, subscription) }
     }.conflate()
 
-    override suspend fun getItem(itemId: String): MediaItem? {
+    override suspend fun getItem(itemId: MediaId): MediaItem? {
         deferredController.await()
 
         return suspendCoroutine { continuation ->
-            mediaBrowser.getItem(itemId, object : MediaBrowserCompat.ItemCallback() {
+            mediaBrowser.getItem(itemId.encoded, object : MediaBrowserCompat.ItemCallback() {
                 override fun onItemLoaded(item: MediaItem?) {
                     continuation.resume(item)
                 }
@@ -135,9 +136,9 @@ internal class BrowserClientImpl @Inject constructor(
         controller.transportControls.pause()
     }
 
-    override suspend fun playFromMediaId(mediaId: String) {
+    override suspend fun playFromMediaId(mediaId: MediaId) {
         val controller = deferredController.await()
-        controller.transportControls.playFromMediaId(mediaId, null)
+        controller.transportControls.playFromMediaId(mediaId.encoded, null)
     }
 
     override suspend fun seekTo(positionMs: Long) {

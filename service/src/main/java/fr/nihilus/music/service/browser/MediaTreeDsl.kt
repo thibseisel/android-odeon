@@ -19,7 +19,6 @@ package fr.nihilus.music.service.browser
 import android.net.Uri
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.browser.provider.CategoryChildrenProvider
@@ -52,7 +51,7 @@ internal annotation class MediaTreeDsl
  */
 internal class MediaTree
 private constructor(
-    private val rootId: String,
+    private val rootId: MediaId,
     private val rootName: String,
     private val types: Map<String, Type>
 ) {
@@ -69,7 +68,7 @@ private constructor(
          */
         @MediaTreeDsl
         operator fun invoke(
-            rootId: String,
+            rootId: MediaId,
             rootName: String,
             block: Builder.() -> Unit
         ): MediaTree = Builder(rootId, rootName).apply(block).build()
@@ -80,7 +79,7 @@ private constructor(
      */
     private val rootItem: MediaCategory
         get() = MediaCategory(
-            id = rootId.parse(),
+            id = rootId,
             title = rootName
         )
 
@@ -98,7 +97,7 @@ private constructor(
         val (typeId, categoryId, trackId) = parentId
 
         return when {
-            parentId.encoded == rootId -> rootChildren()
+            parentId == rootId -> rootChildren()
             categoryId == null -> requireType(typeId).categories()
             trackId != null -> throw NoSuchElementException("$parentId is not browsable")
             else -> requireType(typeId).categoryChildren(categoryId)
@@ -122,7 +121,7 @@ private constructor(
     suspend fun getItem(itemId: MediaId): MediaContent? {
         val (typeId, categoryId, trackId) = itemId
         return when {
-            itemId.encoded == rootId -> rootItem
+            itemId == rootId -> rootItem
             categoryId == null -> types[typeId]?.item
             trackId == null -> types[typeId]?.categories()?.first()?.find { it.id == itemId }
             else -> types[typeId]?.categoryChildren(categoryId)?.first()?.find { it.id == itemId }
@@ -140,7 +139,7 @@ private constructor(
      */
     @MediaTreeDsl
     class Builder(
-        private val rootId: String,
+        private val rootId: MediaId,
         private val rootName: String
     ) {
         private val typeRegistry = mutableMapOf<String, Type>()

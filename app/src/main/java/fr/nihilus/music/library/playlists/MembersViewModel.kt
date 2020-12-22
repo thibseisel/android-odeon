@@ -45,14 +45,15 @@ class MembersViewModel @Inject constructor(
     val members: LiveData<LoadRequest<List<MediaItem>>> = _members
 
     fun setPlaylist(playlistId: String) {
+        val playlistMediaId = playlistId.parse()
         viewModelScope.launch {
-            _playlist.value = checkNotNull(client.getItem(playlistId)) {
-                "Unable to load detail of playlist $playlistId"
+            _playlist.value = checkNotNull(client.getItem(playlistMediaId)) {
+                "Unable to load detail of playlist $playlistMediaId"
             }
         }
 
         observeTracksJob?.cancel()
-        observeTracksJob = client.getChildren(playlistId)
+        observeTracksJob = client.getChildren(playlistMediaId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

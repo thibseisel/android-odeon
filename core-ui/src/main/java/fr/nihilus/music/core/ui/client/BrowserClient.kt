@@ -19,6 +19,7 @@ package fr.nihilus.music.core.ui.client
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import fr.nihilus.music.core.media.MediaId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -73,7 +74,7 @@ interface BrowserClient {
      * @param parentId The media id of a browsable item.
      * @return a flow of children of the specified browsable item.
      */
-    fun getChildren(parentId: String): Flow<List<MediaBrowserCompat.MediaItem>>
+    fun getChildren(parentId: MediaId): Flow<List<MediaBrowserCompat.MediaItem>>
 
     /**
      * Retrieve information of a single item from the media browser.
@@ -82,7 +83,7 @@ interface BrowserClient {
      * @return A media item with the same media id as the one requested,
      * or `null` if no such item exists or an error occurred.
      */
-    suspend fun getItem(itemId: String): MediaBrowserCompat.MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaBrowserCompat.MediaItem?
 
     /**
      * Search the given [terms][query] in the whole music library.
@@ -106,7 +107,7 @@ interface BrowserClient {
      * Requests the media service to play the item with the specified [mediaId].
      * @param mediaId The media id of a playable item.
      */
-    suspend fun playFromMediaId(mediaId: String)
+    suspend fun playFromMediaId(mediaId: MediaId)
 
     /**
      * Requests the media service to move its playback position

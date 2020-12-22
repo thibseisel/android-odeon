@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
@@ -41,14 +42,15 @@ class ArtistDetailViewModel @Inject constructor(
     val children: LiveData<LoadRequest<List<MediaItem>>> = _children
 
     fun setArtist(artistId: String) {
+        val artistMediaId = artistId.parse()
         viewModelScope.launch {
-            _artist.value = checkNotNull(client.getItem(artistId)) {
+            _artist.value = checkNotNull(client.getItem(artistMediaId)) {
                 "Unable to load the detail of artist $artistId"
             }
         }
 
         observeChildrenJob?.cancel()
-        observeChildrenJob = client.getChildren(artistId)
+        observeChildrenJob = client.getChildren(artistMediaId)
             .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

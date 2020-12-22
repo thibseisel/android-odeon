@@ -26,7 +26,9 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -65,7 +67,7 @@ internal class SearchViewModel @Inject constructor(
 
     fun play(item: MediaItem) {
         viewModelScope.launch {
-            client.playFromMediaId(item.mediaId!!)
+            client.playFromMediaId(item.mediaId.parse())
         }
     }
 
