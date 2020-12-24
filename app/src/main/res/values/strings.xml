@@ -47,4 +47,5 @@
     <string name="action_clear">Clear</string>
     <string name="desc_clear_search">Clear search query</string>
     <string name="description_more_actions">More actions</string>
+    <string name="desc_play_album">Play album</string>
 </resources>

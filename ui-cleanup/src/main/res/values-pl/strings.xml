@@ -20,4 +20,5 @@
     <string name="last_played_description">Ostatnio odtwarzane %1$s</string>
     <string name="cleanup_confirmation_message">Tego działania nie można cofnąć.</string>
     <string name="action_cleanup_title">Zwolnij miejsce na dysku</string>
+    <string name="desc_delete_selected_tracks">Delete selected tracks</string>
 </resources>

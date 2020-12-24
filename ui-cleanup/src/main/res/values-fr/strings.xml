@@ -20,4 +20,5 @@
     <string name="last_played_description">Dernière lecture %1$s</string>
     <string name="cleanup_confirmation_message">Cette opération est irréversible.</string>
     <string name="action_cleanup_title">Libérer de l\'espace</string>
+    <string name="desc_delete_selected_tracks">Supprimer les morceaux sélectionnés</string>
 </resources>
