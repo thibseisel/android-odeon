@@ -68,7 +68,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
         childrenAdapter = ArtistDetailAdapter(this, object : ArtistDetailAdapter.SelectionListener {
 
             override fun onAlbumSelected(position: Int) {
-                val holder = binding.artistDetailRecycler.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
+                val holder = binding.artistChildren.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
                 val album = childrenAdapter.getItem(position)
                 onAlbumSelected(holder, album)
             }
@@ -88,7 +88,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
             }
         }
 
-        binding.artistDetailRecycler.apply {
+        binding.artistChildren.apply {
             adapter = childrenAdapter
             layoutManager = manager
             setHasFixedSize(true)

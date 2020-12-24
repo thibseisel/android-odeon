@@ -27,8 +27,8 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 
@@ -48,11 +48,9 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
         val onPlaylistSelected = { position: Int ->
             val selectedPlaylist = adapter.getItem(position)
             val playlistId = selectedPlaylist.mediaId!!
-            val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-                playlistId = playlistId
-            )
+            val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(playlistId)
 
-            val playlistHolder = binding.playlistRecycler.findViewHolderForAdapterPosition(position)!!
+            val playlistHolder = binding.playlistList.findViewHolderForAdapterPosition(position)!!
             val transitionExtras = FragmentNavigatorExtras(
                 playlistHolder.itemView to playlistId
             )
@@ -69,8 +67,8 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
         }
 
         adapter = PlaylistsAdapter(this, onPlaylistSelected)
-        binding.playlistRecycler.adapter = adapter
-        binding.playlistRecycler.setHasFixedSize(true)
+        binding.playlistList.adapter = adapter
+        binding.playlistList.setHasFixedSize(true)
 
         viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
@@ -78,13 +76,13 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(playlistsRequest.data)
-                    binding.groupEmptyView.isVisible = playlistsRequest.data.isEmpty()
+                    binding.emptyViewGroup.isVisible = playlistsRequest.data.isEmpty()
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
-                    binding.groupEmptyView.isVisible = true
+                    binding.emptyViewGroup.isVisible = true
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }

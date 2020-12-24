@@ -21,7 +21,7 @@
     tools:showIn="@layout/fragment_now_playing">
 
     <ImageView
-        android:id="@+id/chevron"
+        android:id="@+id/collapse_indicator"
         android:layout_width="56dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/grid_2"
@@ -34,32 +34,32 @@
         tools:srcCompat="@drawable/ic_chevron_down_24dp" />
 
     <TextView
-        android:id="@+id/title_view"
+        android:id="@+id/track_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceSubtitle1"
-        app:layout_constraintBottom_toTopOf="@+id/subtitle_view"
+        app:layout_constraintBottom_toTopOf="@+id/track_artist"
         app:layout_constraintEnd_toStartOf="@+id/mini_prev_button"
-        app:layout_constraintStart_toEndOf="@+id/chevron"
+        app:layout_constraintStart_toEndOf="@+id/collapse_indicator"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_goneMarginEnd="@dimen/grid_2"
         tools:text="@sample/songs.json/data/title" />
 
     <TextView
-        android:id="@+id/subtitle_view"
+        android:id="@+id/track_artist"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="?textAppearanceCaption"
         app:layout_constraintBottom_toTopOf="@+id/top_guideline"
-        app:layout_constraintEnd_toEndOf="@+id/title_view"
-        app:layout_constraintStart_toStartOf="@id/title_view"
-        app:layout_constraintTop_toBottomOf="@id/title_view"
+        app:layout_constraintEnd_toEndOf="@+id/track_title"
+        app:layout_constraintStart_toStartOf="@id/track_title"
+        app:layout_constraintTop_toBottomOf="@id/track_title"
         tools:text="@sample/songs.json/data/artist" />
 
     <ImageView

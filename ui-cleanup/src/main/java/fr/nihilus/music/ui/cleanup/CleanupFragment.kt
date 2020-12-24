@@ -78,7 +78,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
         configureViewOffsetForSystemBars(binding)
 
-        binding.actionDeleteSelected.setOnClickListener {
+        binding.deleteTracksButton.setOnClickListener {
             askCleanupConfirmation(selectionTracker.selection)
         }
 
@@ -123,7 +123,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             view.updatePadding(bottom = padding.bottom + insets.systemWindowInsets.bottom)
         }
 
-        bindings.actionDeleteSelected.doOnApplyWindowInsets { view, insets, _, margin ->
+        bindings.deleteTracksButton.doOnApplyWindowInsets { view, insets, _, margin ->
             val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.bottomMargin = margin.bottom + insets.tappableElementInsets.bottom
         }
@@ -144,7 +144,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     }
 
     private fun setFabVisibility(visible: Boolean) {
-        val fab = binding!!.actionDeleteSelected
+        val fab = binding!!.deleteTracksButton
         if (visible) {
             fab.show()
         } else {

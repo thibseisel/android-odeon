@@ -67,7 +67,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/artist_detail_recycler"
+            android:id="@+id/artist_children"
             style="@style/Widget.Odeon.Grid.Offset"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

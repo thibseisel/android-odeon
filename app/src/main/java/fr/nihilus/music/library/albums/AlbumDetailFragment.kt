@@ -33,11 +33,11 @@ import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
-import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import java.util.concurrent.TimeUnit
 
 /**
@@ -77,7 +77,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         }
 
         val adapter = TrackAdapter(viewModel::playTrack)
-        binding.recycler.adapter = adapter
+        binding.albumTrackList.adapter = adapter
 
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail, binding)
@@ -87,8 +87,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     private fun onAlbumDetailLoaded(album: AlbumDetailState, binding: FragmentAlbumDetailBinding) {
-        binding.titleView.text = album.title
-        binding.subtitleView.text = album.subtitle
+        binding.albumTitle.text = album.title
+        binding.albumArtistName.text = album.subtitle
 
         // Note: Glide is attached to the context of the activity to workaround a bug in
         // MaterialContainerTransform not capturing images in return transition.
@@ -97,7 +97,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
             .disallowHardwareConfig()
-            .into(object : ImageViewTarget<AlbumArt>(binding.albumArtView) {
+            .into(object : ImageViewTarget<AlbumArt>(binding.albumArtwork) {
 
                 override fun setResource(resource: AlbumArt?) {
                     if (resource != null) {
@@ -135,8 +135,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
     private fun applyPaletteTheme(palette: AlbumPalette, binding: FragmentAlbumDetailBinding) {
         binding.albumInfoLayout.setBackgroundColor(palette.primary)
-        binding.titleView.setTextColor(palette.titleText)
-        binding.subtitleView.setTextColor(palette.bodyText)
+        binding.albumTitle.setTextColor(palette.titleText)
+        binding.albumArtistName.setTextColor(palette.bodyText)
 
         val darkStatusText = palette.primary.luminance > 0.5f
         setDarkHomeUpIndicator(darkStatusText, binding)
@@ -155,7 +155,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
         )
 
-        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
+        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ui_ic_arrow_back_24dp)
         binding.toolbar.navigationIcon = upArrow
     }
 

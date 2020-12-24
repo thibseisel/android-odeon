@@ -59,7 +59,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
         setupHomeToSearchTransition()
 
-        val recyclerView = binding.listSearchResults
+        val recyclerView = binding.searchResultGrid
         recyclerView.setHasFixedSize(true)
 
         resultsAdapter = SearchResultsAdapter(this) { item, adapterPosition, action ->
@@ -248,7 +248,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = onChanged()
 
         override fun onChanged() {
-            binding?.listSearchResults?.scrollToPosition(0)
+            binding?.searchResultGrid?.scrollToPosition(0)
         }
     }
 

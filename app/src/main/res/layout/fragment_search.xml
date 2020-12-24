@@ -24,7 +24,7 @@
     tools:context=".library.search.SearchFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_search_results"
+        android:id="@+id/search_result_grid"
         style="@style/Widget.Odeon.Grid.Offset"
         android:layout_width="match_parent"
         android:layout_height="0dp"

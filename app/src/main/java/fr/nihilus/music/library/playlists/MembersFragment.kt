@@ -78,8 +78,8 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         }
 
         adapter = MembersAdapter(this, ::onTrackSelected)
-        binding.membersRecycler.adapter = adapter
-        binding.membersRecycler.setHasFixedSize(true)
+        binding.playlistTrackList.adapter = adapter
+        binding.playlistTrackList.setHasFixedSize(true)
 
         viewModel.playlist.observe(viewLifecycleOwner) {
             binding.toolbar.title = it.description.title

@@ -52,7 +52,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
         }
 
         albumAdapter = AlbumsAdapter(this, ::onAlbumSelected)
-        binding.albumRecycler.apply {
+        binding.albumGrid.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
         }
@@ -63,13 +63,13 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
                 is LoadRequest.Success -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(albumRequest.data)
-                    binding.groupEmptyView.isVisible = albumRequest.data.isEmpty()
+                    binding.emptyViewGroup.isVisible = albumRequest.data.isEmpty()
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     refreshToggle.isRefreshing = false
                     albumAdapter.submitList(emptyList())
-                    binding.groupEmptyView.isVisible = true
+                    binding.emptyViewGroup.isVisible = true
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
@@ -78,7 +78,7 @@ class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
 
     private fun onAlbumSelected(position: Int) {
         val album = albumAdapter.getItem(position)
-        val holder = binding!!.albumRecycler.findViewHolderForAdapterPosition(position) as AlbumHolder
+        val holder = binding!!.albumGrid.findViewHolderForAdapterPosition(position) as AlbumHolder
 
         val albumId = album.mediaId!!
         val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)

@@ -47,13 +47,12 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
         val binding = FragmentSongsBinding.bind(view)
 
         val songAdapter = SongAdapter(this, ::onTrackAction)
-        binding.songsListview.adapter = songAdapter
+        binding.trackList.adapter = songAdapter
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
             binding.progressIndicator.isVisible = shouldShowProgress
-            binding.songsListview.isVisible = !shouldShowProgress
+            binding.trackList.isVisible = !shouldShowProgress
         }
-
 
         val staggerTransition = Stagger()
 
@@ -62,14 +61,14 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(binding.songsListview, staggerTransition)
+                    TransitionManager.beginDelayedTransition(binding.trackList, staggerTransition)
                     songAdapter.submitList(itemRequest.data)
-                    binding.groupEmptyView.isVisible = itemRequest.data.isEmpty()
+                    binding.emptyViewGroup.isVisible = itemRequest.data.isEmpty()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     songAdapter.submitList(emptyList())
-                    binding.groupEmptyView.isVisible = true
+                    binding.emptyViewGroup.isVisible = true
                 }
             }
         }

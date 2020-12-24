@@ -50,8 +50,8 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
             binding.progressIndicator.isVisible = shouldShow
         }
 
-        binding.artistRecycler.adapter = adapter
-        binding.artistRecycler.setHasFixedSize(true)
+        binding.artistGrid.adapter = adapter
+        binding.artistGrid.setHasFixedSize(true)
 
         viewModel.artists.observe(viewLifecycleOwner) { artistRequest ->
             when (artistRequest) {
@@ -59,13 +59,13 @@ class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(artistRequest.data)
-                    binding.groupEmptyView.isVisible = artistRequest.data.isEmpty()
+                    binding.emptyViewGroup.isVisible = artistRequest.data.isEmpty()
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
-                    binding.groupEmptyView.isVisible = true
+                    binding.emptyViewGroup.isVisible = true
                     requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }

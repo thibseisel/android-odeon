@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,7 +31,7 @@
         tools:listitem="@layout/item_disposable_track" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/action_delete_selected"
+        android:id="@+id/delete_tracks_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

@@ -94,7 +94,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         binding.masterPlayPause.setOnClickListener(clickHandler)
         binding.skipNextButton.setOnClickListener(clickHandler)
         binding.shuffleButton.setOnClickListener(clickHandler)
-        topBinding.chevron.setOnClickListener(clickHandler)
+        topBinding.collapseIndicator.setOnClickListener(clickHandler)
 
         glideRequest = Glide.with(this).asDrawable()
             .error(R.drawable.ic_audiotrack_24dp)
@@ -137,7 +137,12 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
 
     private fun setCollapsedInternal(isCollapsed: Boolean) {
         val topBinding = topBinding ?: return
-        topBinding.chevron.setImageLevel(if (isCollapsed) LEVEL_CHEVRON_UP else LEVEL_CHEVRON_DOWN)
+        topBinding.collapseIndicator.setImageLevel(
+            when {
+                isCollapsed -> LEVEL_CHEVRON_UP
+                else -> LEVEL_CHEVRON_DOWN
+            }
+        )
         val targetVisibility = if (isCollapsed) View.VISIBLE else View.GONE
         topBinding.playPauseButton.visibility = targetVisibility
         topBinding.miniPrevButton?.visibility = targetVisibility
@@ -165,8 +170,8 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             val media = state.currentTrack
 
             // Set the title and the description.
-            topBinding.titleView.text = media.title
-            topBinding.subtitleView.text = media.artist
+            topBinding.trackTitle.text = media.title
+            topBinding.trackArtist.text = media.artist
 
             // Update progress and labels
             autoUpdater.update(state.position, media.duration, state.lastPositionUpdateTime, state.isPlaying)
@@ -175,8 +180,8 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
             glideRequest.load(media.artworkUri).into(albumArtTarget)
 
         } else {
-            topBinding.titleView.text = null
-            topBinding.subtitleView.text = null
+            topBinding.trackTitle.text = null
+            topBinding.trackArtist.text = null
 
             autoUpdater.update(0L, 0L, state.lastPositionUpdateTime, false)
         }
@@ -208,7 +213,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
 
         override fun onClick(view: View) {
             when(view.id) {
-                R.id.chevron -> playerExpansionListener?.invoke(!isCollapsed)
+                R.id.collapse_indicator -> playerExpansionListener?.invoke(!isCollapsed)
                 R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
                 R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()
                 R.id.skip_next_button, R.id.mini_next_button -> viewModel.skipToNext()

@@ -58,7 +58,7 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/members_recycler"
+            android:id="@+id/playlist_track_list"
             style="@style/Widget.Odeon.List.Offset"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

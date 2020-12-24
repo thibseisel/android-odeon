@@ -25,15 +25,10 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
-import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.databinding.ActivityHomeBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
@@ -52,9 +47,6 @@ class HomeActivity : BaseActivity() {
     private lateinit var binding: ActivityHomeBinding
     private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var playerFragment: NowPlayingFragment
-
-    private val navController: NavController
-        get() = findNavController(R.id.nav_host_fragment)
 
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
 

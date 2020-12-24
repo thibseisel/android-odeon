@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <fr.nihilus.music.view.ScrollPositionListView
-        android:id="@+id/songs_listview"
+        android:id="@+id/track_list"
         style="@style/Widget.Odeon.List.Offset"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@id/empty_icon"/>
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/group_empty_view"
+        android:id="@+id/empty_view_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
