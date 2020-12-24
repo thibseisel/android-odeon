@@ -27,7 +27,7 @@ import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
 internal abstract class AlbumsModule {
 
     @ContributesAndroidInjector
-    abstract fun albumGridFragment(): AlbumGridFragment
+    abstract fun albumGridFragment(): AlbumsFragment
 
     @ContributesAndroidInjector
     abstract fun albumDetailFragment(): AlbumDetailFragment

@@ -36,7 +36,7 @@ import fr.nihilus.music.library.HomeViewModel
  * Display all albums in a grid of images.
  * Selecting an album opens its [detail view][AlbumDetailFragment].
  */
-class AlbumGridFragment : BaseFragment(R.layout.fragment_albums) {
+class AlbumsFragment : BaseFragment(R.layout.fragment_albums) {
     private val viewModel: HomeViewModel by activityViewModels()
 
     private var binding: FragmentAlbumsBinding? = null

@@ -29,14 +29,14 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
-import fr.nihilus.music.databinding.FragmentSongsBinding
+import fr.nihilus.music.databinding.FragmentAllTracksBinding
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 
-class SongListFragment : BaseFragment(R.layout.fragment_songs) {
+class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
     private val viewModel: HomeViewModel by activityViewModels()
@@ -44,7 +44,7 @@ class SongListFragment : BaseFragment(R.layout.fragment_songs) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentSongsBinding.bind(view)
+        val binding = FragmentAllTracksBinding.bind(view)
 
         val songAdapter = SongAdapter(this, ::onTrackAction)
         binding.trackList.adapter = songAdapter

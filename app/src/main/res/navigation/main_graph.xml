@@ -47,8 +47,8 @@
 
     <fragment
         android:id="@+id/fragment_playlist_detail"
-        android:name="fr.nihilus.music.library.playlists.MembersFragment"
-        tools:layout="@layout/fragment_playlist_members">
+        android:name="fr.nihilus.music.library.playlists.PlaylistDetailFragment"
+        tools:layout="@layout/fragment_playlist_detail">
 
         <argument
             android:name="playlistId"

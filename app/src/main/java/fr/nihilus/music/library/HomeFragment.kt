@@ -32,10 +32,10 @@ import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.databinding.FragmentHomeBinding
-import fr.nihilus.music.library.albums.AlbumGridFragment
-import fr.nihilus.music.library.artists.ArtistListFragment
+import fr.nihilus.music.library.albums.AlbumsFragment
+import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
-import fr.nihilus.music.library.songs.SongListFragment
+import fr.nihilus.music.library.songs.AllTracksFragment
 import java.util.concurrent.TimeUnit
 
 /**
@@ -130,9 +130,9 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         override fun getItemCount(): Int = 4
 
         override fun createFragment(position: Int): Fragment = when(position) {
-            0 -> SongListFragment()
-            1 -> AlbumGridFragment()
-            2 -> ArtistListFragment()
+            0 -> AllTracksFragment()
+            1 -> AlbumsFragment()
+            2 -> ArtistsFragment()
             3 -> PlaylistsFragment()
             else -> error("Requested a Fragment for a tab at unexpected position: $position")
         }

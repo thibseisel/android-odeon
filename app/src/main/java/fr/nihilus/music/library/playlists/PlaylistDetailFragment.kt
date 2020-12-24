@@ -35,16 +35,16 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.themeColor
-import fr.nihilus.music.databinding.FragmentPlaylistMembersBinding
+import fr.nihilus.music.databinding.FragmentPlaylistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
 
-class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
+class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
     private val viewModel: MembersViewModel by viewModels { viewModelFactory }
 
-    private val args by navArgs<MembersFragmentArgs>()
+    private val args by navArgs<PlaylistDetailFragmentArgs>()
     private lateinit var adapter: MembersAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +60,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentPlaylistMembersBinding.bind(view)
+        val binding = FragmentPlaylistDetailBinding.bind(view)
 
         // Wait for playlist tracks to be loaded before triggering enter transition.
         postponeEnterTransition(500, TimeUnit.MILLISECONDS)

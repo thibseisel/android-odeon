@@ -30,7 +30,7 @@ import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 internal abstract class SongsModule {
 
     @ContributesAndroidInjector
-    abstract fun songListFragment(): SongListFragment
+    abstract fun songListFragment(): AllTracksFragment
 
     @ContributesAndroidInjector
     abstract fun addToPlaylistDialog(): AddToPlaylistDialog

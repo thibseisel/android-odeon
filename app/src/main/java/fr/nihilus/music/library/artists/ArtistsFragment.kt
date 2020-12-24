@@ -32,7 +32,7 @@ import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.artists.detail.ArtistAdapter
 
-class ArtistListFragment : BaseFragment(R.layout.fragment_artists) {
+class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
     private val viewModel: HomeViewModel by activityViewModels()
 
     private lateinit var adapter: ArtistAdapter
