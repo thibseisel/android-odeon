@@ -34,7 +34,7 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.databinding.FragmentPlaylistMembersBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
@@ -54,7 +54,7 @@ class MembersFragment : BaseFragment(R.layout.fragment_playlist_members) {
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host_fragment
             duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
-            setAllContainerColors(resolveThemeColor(requireContext(), R.attr.colorSurface))
+            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
         }
     }
 

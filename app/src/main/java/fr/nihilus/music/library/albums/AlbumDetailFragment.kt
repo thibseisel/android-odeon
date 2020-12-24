@@ -32,8 +32,8 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.resolveThemeColor
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
@@ -115,7 +115,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
             // Draw a background color behind the track list to prevent from drawing
             // the seeing the previous fragment beneath.
-            val themeColorSurface = resolveThemeColor(requireContext(), R.attr.colorSurface)
+            val themeColorSurface = requireContext().themeColor(R.attr.colorSurface)
             setAllContainerColors(themeColorSurface)
 
             addListener(object : TransitionListenerAdapter() {

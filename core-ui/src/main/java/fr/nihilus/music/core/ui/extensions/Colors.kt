@@ -19,6 +19,7 @@ package fr.nihilus.music.core.ui.extensions
 import android.content.Context
 import android.graphics.Color
 import android.util.TypedValue
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import kotlin.math.abs
@@ -107,8 +108,13 @@ fun @receiver:ColorInt Int.toHsl(outHsl: FloatArray = FloatArray(3)) = outHsl.al
     outHsl[2] = l.coerceIn(0f, 1f)
 }
 
-fun resolveThemeColor(context: Context, themeAttrId: Int): Int {
+/**
+ * Resolves a color associated with the specified [attrResId] from the given context theme.
+ * @param attrResId Theme attribute such as `R.attr.colorPrimary`.
+ * @return An Int-packed color.
+ */
+fun Context.themeColor(@AttrRes attrResId: Int): Int {
     val outValue = TypedValue()
-    context.theme.resolveAttribute(themeAttrId, outValue, true)
+    theme.resolveAttribute(attrResId, outValue, true)
     return outValue.data
 }
