@@ -99,6 +99,7 @@ android {
          */
         create("beta") {
             initWith(debug)
+            sourceSets["beta"].setRoot("src/${debug.name}")
 
             versionNameSuffix = "-beta"
             applicationIdSuffix = ".debug"
@@ -137,6 +138,7 @@ dependencies {
     implementation(project(":ui-settings"))
 
     debugImplementation(project(":devmenu"))
+    "betaImplementation"(project(":devmenu"))
 
     // Support library dependencies
     implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
