@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
         )
 
-        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ui_ic_arrow_back_24dp)
+        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
         binding.toolbar.navigationIcon = upArrow
     }
 
