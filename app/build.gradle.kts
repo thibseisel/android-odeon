@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ plugins {
 android {
     defaultConfig {
         applicationId("fr.nihilus.music")
-        versionCode(201001)
-        versionName("2.1.0-beta01")
+        versionCode(201002)
+        versionName("2.1.0-beta02")
     }
 
     buildFeatures {
