@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,18 @@ inline val @receiver:ColorInt Int.green get() = (this shr 8) and 0xff
  * Return the blue component of a color int.
  */
 inline val @receiver:ColorInt Int.blue get() = this and 0xff
+
+/**
+ * Computes the relative luminance of a color.
+ * Assumes sRGB encoding. Based on the formula for relative luminance
+ * defined in WCAG 2.0, W3C Recommendation 11 December 2008.
+ *
+ * @receiver A color packed integer in the sRGB color space.
+ * @return a value between 0 (darkest black) and 1 (lightest white).
+ * @see Color.luminance
+ */
+val @receiver:ColorInt Int.luminance: Float
+    get() = (0.2126f * red) + (0.7152f * green) + (0.0722f * blue)
 
 /**
  * Convert RGB components of a color to HSL (hue-saturation-lightness).
