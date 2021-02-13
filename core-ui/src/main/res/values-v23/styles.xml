@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2021 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -20,5 +20,5 @@
     <style name="Widget.Odeon.TextView" parent="android:Widget.TextView">
         <item name="android:hyphenationFrequency">none</item>
     </style>
-    
+
 </resources>

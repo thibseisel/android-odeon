@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ private const val PROPNAME_IS_MIRROR = "fr.nihilus.music.core.ui:is_mirror"
  */
 class SharedFade : Transition() {
 
-    override fun getTransitionProperties(): Array<String>? = arrayOf(PROPNAME_IS_MIRROR)
+    override fun getTransitionProperties(): Array<String> = arrayOf(PROPNAME_IS_MIRROR)
 
     private fun captureMirrorValues(transitionValues: TransitionValues) {
         val view = transitionValues.view ?: return

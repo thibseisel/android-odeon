@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ class MediaStoreDaoTest {
     fun `When querying albums, then map cursor columns to a list of Album`() = test.run {
         val dao = MediaDao()
         val albums = dao.albums.first()
-        
+
         albums.find { it.id == 40L }?.should { secondLaw ->
             secondLaw.id shouldBe 40L
             secondLaw.title shouldBe "The 2nd Law"
@@ -181,9 +181,9 @@ class MediaStoreDaoTest {
             secondLaw.albumArtUri shouldBe "content://media/external/audio/albumart/40"
         } ?: failAssumption("Expected the album \"The 2nd Law\".")
     }
-    
+
     @Test
-    fun `When querying artists, then list them all in alphabetic order`() = test.run { 
+    fun `When querying artists, then list them all in alphabetic order`() = test.run {
         val dao = MediaDao()
 
         val artists = dao.artists.first()

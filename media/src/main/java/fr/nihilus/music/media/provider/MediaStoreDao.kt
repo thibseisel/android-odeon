@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,7 +224,7 @@ internal class MediaStoreDao @Inject constructor(
                 ArrayList<Album>(cursor.count).also { albumList ->
                     while (cursor.moveToNext()) {
                         val albumId = cursor.getLong(colId)
-                        
+
                         albumList += Album(
                             id = albumId,
                             title = cursor.getString(colTitle),
