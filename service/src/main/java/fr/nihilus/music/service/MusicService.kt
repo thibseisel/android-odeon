@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,9 +146,11 @@ class MusicService : BaseBrowserService() {
         }
 
         // Grant permission to known callers to read album arts without storage permissions.
+        // Context.getPackageName() => applicationId as per https://developer.android.com/studio/build/application-id
+        val applicationId = packageName
         grantUriPermission(
             clientPackageName,
-            Uri.parse("content://${BuildConfig.APP_PROVIDER_AUTHORITY}/"),
+            Uri.parse("content://$applicationId.provider/"),
             Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
         )
 

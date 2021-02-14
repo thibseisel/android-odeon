@@ -81,7 +81,7 @@ android {
 
             // Configure Kotlin compiler optimisations for releases
             kotlinOptions {
-                freeCompilerArgs += listOf(
+                freeCompilerArgs = freeCompilerArgs + listOf(
                     "-Xno-param-assertions",
                     "-Xno-call-assertions",
                     "-Xno-receiver-assertions"
@@ -89,31 +89,30 @@ android {
             }
         }
 
-        /* Beta are built quite the same as releases, but differ by the following:
-         * - when installed on a device, it will not overwrite the release app.
-         * - it is obfuscated but still debuggable.
-         * - APKs are not required to be signed.
+        /* Staging builds are similar to releases but differ by the following:
+         * - can be installed alongside the release app,
+         * - code is obfuscated, but still debuggable,
+         * - APKs are signed with the debug key.
          *
-         * The main intent is to test the app in debug mode but with its code obfuscated
-         * since it could fail unexpectedly.
+         * The main intent is to test the app in debug mode but with its code obfuscated.
          */
-        create("beta") {
-            initWith(debug)
-            sourceSets["beta"].setRoot("src/${debug.name}")
+        create("staging") {
+            initWith(release)
+            setMatchingFallbacks(release.name)
+            sourceSets["staging"].setRoot("src/staging")
 
-            versionNameSuffix = "-beta"
+            versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
 
             // Unlike release builds, keep the app debuggable.
-            isShrinkResources = true
-            isMinifyEnabled = true
+            debuggable(true)
+            setSigningConfig(debug.signingConfig)
+
+            // Keep line number information for obfuscation debugging.
             proguardFiles(
                 *release.proguardFiles.toTypedArray(),
-                "beta-rules.pro"
+                "staging-rules.pro"
             )
-
-            // Tell dependent modules to be compiled with their debug variant.
-            setMatchingFallbacks("debug")
         }
     }
 
@@ -138,7 +137,6 @@ dependencies {
     implementation(project(":ui-settings"))
 
     debugImplementation(project(":devmenu"))
-    "betaImplementation"(project(":devmenu"))
 
     // Support library dependencies
     implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
