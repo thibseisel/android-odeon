@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,4 +51,17 @@ dependencies {
     testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
     testImplementation("androidx.room:room-ktx:${Libs.Androidx.room}")
     kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
+}
+
+tasks.register<Exec>("refreshMediaStore") {
+    group = "emulator"
+    description = "Scan device's Music folder for files to refresh MediaStore"
+
+    val mediaScannerCommand = """
+        "find /storage/emulated/0/Music/ -type f | while read f; do \
+        am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+        -d \"file://${'$'}{f}\"; done"
+    """.trimIndent()
+    executable = "adb"
+    args("shell", mediaScannerCommand)
 }
