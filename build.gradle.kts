@@ -91,6 +91,32 @@ subprojects {
     }
 }
 
+tasks.register<Exec>("startAutoDhu") {
+    group = "android-auto"
+    description = "Start Android Auto's Desktop Head Unit (DHU)"
+
+    val androidSdkRoot = System.getenv("ANDROID_SDK_ROOT")
+        ?: "${System.getenv("user.home")}/android-sdk"
+
+    workingDir("$androidSdkRoot/extras/google/auto")
+    standardInput = System.`in`
+
+    if (System.getProperty("os.name").contains("windows", true)) {
+        executable = "cmd"
+        args("/c", "desktop-head-unit")
+    } else {
+        executable = "desktop-head-unit"
+    }
+
+    doFirst {
+        exec {
+            workingDir("$androidSdkRoot/platform-tools")
+            executable = "adb"
+            args("forward", "tcp:5277", "tcp:5277")
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
