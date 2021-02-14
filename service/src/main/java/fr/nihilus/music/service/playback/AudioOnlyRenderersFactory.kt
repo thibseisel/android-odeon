@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener
  * Enabling floating point output disables audio processing, but may allow for higher quality
  * audio output.
  */
-private const val FLOAT_OUTPUT_ENABLED = true
+private const val FLOAT_OUTPUT_ENABLED = false
 
 /**
  * Whether audio should be played using the offload path.
@@ -50,7 +50,7 @@ private const val FLOAT_OUTPUT_ENABLED = true
  * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
  * play in offload.
  */
-private const val AUDIO_OFFLOAD_ENABLED = true
+private const val AUDIO_OFFLOAD_ENABLED = false
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
