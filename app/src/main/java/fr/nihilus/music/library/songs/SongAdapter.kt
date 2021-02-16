@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,13 +45,15 @@ class SongAdapter(
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
     private val indexer = AlphaSectionIndexer()
-    private val glideRequest = Glide.with(fragment).asBitmap()
+    private val imageLoader = Glide.with(fragment).asBitmap()
         .error(R.drawable.placeholder_track_icon)
+        .autoClone()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(parent, imageLoader)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position], glideRequest)
+        holder.bind(items[position])
     }
 
     override fun getSections(): Array<out Any> = indexer.sections
@@ -75,7 +77,10 @@ class SongAdapter(
      *
      * @param parent The parent list view.
      */
-    inner class ViewHolder(parent: ViewGroup) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
+    inner class ViewHolder(
+        parent: ViewGroup,
+        private val glide: RequestBuilder<Bitmap>
+    ) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
         private val binding = SongListItemBinding.bind(itemView)
 
         init {
@@ -117,7 +122,7 @@ class SongAdapter(
             }
         }
 
-        fun bind(item: MediaBrowserCompat.MediaItem, glide: RequestBuilder<Bitmap>) {
+        fun bind(item: MediaBrowserCompat.MediaItem) {
             with(item.description) {
                 glide.load(iconUri).into(binding.albumArtwork)
                 binding.trackTitle.text = title

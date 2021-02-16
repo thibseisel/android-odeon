@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ internal class SearchResultsAdapter(
     private val listener: (item: MediaItem, adapterPosition: Int, action: ItemAction) -> Unit
 ) : ListAdapter<SearchResult, BaseHolder<*>>(SearchResultDiffer()) {
 
-    private val glide = Glide.with(fragment).asBitmap()
-    private val albumLoader = GlideApp.with(fragment).asAlbumArt()
+    private val glide = Glide.with(fragment).asBitmap().autoClone()
+    private val albumLoader = GlideApp.with(fragment).asAlbumArt().autoClone()
     private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     override fun getItemViewType(position: Int): Int = when (val result = getItem(position)) {

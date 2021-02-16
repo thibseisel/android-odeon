@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
 
-    private lateinit var glideRequest: RequestBuilder<Drawable>
     private lateinit var albumArtTarget: SwitcherTarget
     private lateinit var autoUpdater: ProgressAutoUpdater
 
@@ -50,6 +49,17 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var topBinding: FragmentNowPlayingTopBinding? = null
 
     private val viewModel by viewModels<NowPlayingViewModel> { viewModelFactory }
+
+    private lateinit var glideRequest: RequestBuilder<Drawable>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        glideRequest = Glide.with(this).asDrawable()
+            .error(R.drawable.ic_audiotrack_24dp)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .centerCrop()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,11 +105,6 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
         binding.skipNextButton.setOnClickListener(clickHandler)
         binding.shuffleButton.setOnClickListener(clickHandler)
         topBinding.collapseIndicator.setOnClickListener(clickHandler)
-
-        glideRequest = Glide.with(this).asDrawable()
-            .error(R.drawable.ic_audiotrack_24dp)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .centerCrop()
 
         viewModel.state.observe(viewLifecycleOwner) {
             onPlayerStateChanged(it, binding, topBinding)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,9 +51,11 @@ internal class ArtistDetailAdapter(
             .fallbackColors(defaultPalette)
             .error(defaultAlbumIcon)
             .centerCrop()
+            .autoClone()
         bitmapLoader = Glide.with(fragment).asBitmap()
             .error(defaultTrackIcon)
             .centerCrop()
+            .autoClone()
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -63,7 +65,12 @@ internal class ArtistDetailAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseHolder<MediaItem> {
         return when (viewType) {
-            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, isArtistAlbum = true) { albumPosition ->
+            R.id.view_type_album -> AlbumHolder(
+                parent,
+                paletteLoader,
+                defaultPalette,
+                isArtistAlbum = true
+            ) { albumPosition ->
                 selectionListener.onAlbumSelected(albumPosition)
             }
 
