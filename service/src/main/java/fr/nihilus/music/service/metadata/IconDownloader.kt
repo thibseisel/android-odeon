@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ internal class GlideDownloader @Inject constructor(context: Context) : IconDownl
         .asBitmap()
         .disallowHardwareConfig()
         .downsample(DownsampleStrategy.CENTER_INSIDE)
-        .lock()
+        .autoClone()
 
     override suspend fun loadBitmap(iconUri: Uri, width: Int, height: Int): Bitmap? {
         require(width >= 0 || width == IconDownloader.ORIGINAL_SIZE) {
