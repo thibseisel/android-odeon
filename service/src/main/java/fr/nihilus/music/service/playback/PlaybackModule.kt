@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.util.EventLogger
 import dagger.Module
 import dagger.Provides
@@ -39,9 +38,11 @@ internal object PlaybackModule {
             .setUsage(C.USAGE_MEDIA)
             .build()
 
-        val extractors = AudioOnlyExtractorsFactory()
-        val player = SimpleExoPlayer.Builder(context, AudioOnlyRenderersFactory(context), extractors)
-            .setMediaSourceFactory(DefaultMediaSourceFactory(context, extractors))
+        val player = SimpleExoPlayer.Builder(
+            context,
+            AudioOnlyRenderersFactory(context),
+            AudioOnlyExtractorsFactory()
+        )
             .setAudioAttributes(musicAttributes, true)
             .setHandleAudioBecomingNoisy(true)
             .build()

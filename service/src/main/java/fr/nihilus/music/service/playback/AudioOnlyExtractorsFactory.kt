@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.extractor.ExtractorsFactory
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor
+import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
@@ -47,6 +48,8 @@ internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
         OggExtractor(),
         // .ac3 (Dolby Digital) audio files
         Ac3Extractor(),
+        // Apple .m4a (which is in fact the same format as MPEG-4)
+        Mp4Extractor(),
         // .flac audio files for API 27+
         FlacExtractor()
     )
