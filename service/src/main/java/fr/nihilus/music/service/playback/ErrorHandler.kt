@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,27 +22,26 @@ import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
 
 @ServiceScoped
-internal class ErrorHandler
-@Inject constructor(
+internal class ErrorHandler @Inject constructor(
     private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 
-    override fun getErrorMessage(playbackException: ExoPlaybackException?): Pair<Int, String>? =
-        when (playbackException?.type) {
+    override fun getErrorMessage(playbackException: ExoPlaybackException): Pair<Int, String> =
+        when (playbackException.type) {
             ExoPlaybackException.TYPE_SOURCE -> handleSourceError(playbackException.sourceException)
             ExoPlaybackException.TYPE_RENDERER -> handleUnexpectedError(playbackException.rendererException)
             ExoPlaybackException.TYPE_UNEXPECTED -> handleUnexpectedError(playbackException.unexpectedException)
             else -> handleUnexpectedError(null)
         }
 
-    private fun handleSourceError(cause: IOException): Pair<Int, String>? = when (cause) {
+    private fun handleSourceError(cause: IOException): Pair<Int, String> = when (cause) {
         is UnrecognizedInputFormatException -> handleUnrecognizedFormat()
         else -> Pair(
             PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
@@ -55,7 +54,7 @@ internal class ErrorHandler
         context.getString(R.string.svc_player_error_unsupported_file)
     )
 
-    private fun handleUnexpectedError(cause: Exception?): Pair<Int, String>? {
+    private fun handleUnexpectedError(cause: Exception?): Pair<Int, String> {
         Timber.e(cause, "Unexpected player error.")
         return Pair(
             PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR,

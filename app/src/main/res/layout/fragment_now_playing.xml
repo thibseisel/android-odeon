@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -35,14 +35,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="@dimen/horizontal_edge_margin"/>
+        app:layout_constraintGuide_begin="@dimen/grid_2"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="@dimen/horizontal_edge_margin"/>
+        app:layout_constraintGuide_end="@dimen/grid_2"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottom_guideline"
@@ -82,7 +82,7 @@
     <!-- Progress bar -->
     <SeekBar
         android:id="@+id/seek_bar"
-        style="@style/Widget.AppTheme.SeekBar.FullWidth"
+        style="@style/Widget.Odeon.SeekBar.FullWidth"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/bottom_guideline"
@@ -95,8 +95,8 @@
         android:id="@+id/seek_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:textAppearance="@style/TextAppearance.Odeon.Overline"
+        android:layout_margin="@dimen/grid_1"
+        android:textAppearance="?textAppearanceOverline"
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
@@ -106,8 +106,8 @@
         android:id="@+id/seek_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:textAppearance="@style/TextAppearance.Odeon.Overline"
+        android:layout_margin="@dimen/grid_1"
+        android:textAppearance="?textAppearanceOverline"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
@@ -118,7 +118,7 @@
         android:id="@+id/repeat_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="@dimen/horizontal_edge_margin"
+        android:layout_marginStart="@dimen/grid_2"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_repeat_mode"
         android:padding="12dp"
@@ -174,7 +174,7 @@
         android:id="@+id/shuffle_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="@dimen/horizontal_edge_margin"
+        android:layout_marginEnd="@dimen/grid_2"
         android:background="?selectableItemBackgroundBorderless"
         android:contentDescription="@string/action_shuffle_mode"
         android:padding="12dp"

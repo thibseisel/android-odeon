@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,20 @@ package fr.nihilus.music.library.songs
 
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
-import android.text.format.DateUtils
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.SectionIndexer
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
+import fr.nihilus.music.databinding.SongListItemBinding
 import fr.nihilus.music.ui.AlphaSectionIndexer
+import fr.nihilus.music.ui.formatDuration
 
 /**
  * Bridge each media track to its list UI representation.
@@ -45,21 +45,15 @@ class SongAdapter(
 ) : ListAdapter<MediaBrowserCompat.MediaItem, SongAdapter.ViewHolder>(), SectionIndexer {
 
     private val indexer = AlphaSectionIndexer()
-    private val glideRequest: GlideRequest<Bitmap>
+    private val imageLoader = Glide.with(fragment).asBitmap()
+        .error(R.drawable.placeholder_track_icon)
+        .autoClone()
 
-    init {
-        val context = fragment.requireContext()
-        val cornerRadius = context.resources.getDimensionPixelSize(R.dimen.track_icon_corner_radius)
-
-        glideRequest = GlideApp.with(fragment).asBitmap()
-            .roundedCorners(cornerRadius)
-            .error(R.drawable.ic_audiotrack_24dp)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(parent, imageLoader)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position], glideRequest)
+        holder.bind(items[position])
     }
 
     override fun getSections(): Array<out Any> = indexer.sections
@@ -83,20 +77,20 @@ class SongAdapter(
      *
      * @param parent The parent list view.
      */
-    inner class ViewHolder(parent: ViewGroup) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
-        private val titleView: TextView = itemView.findViewById(R.id.title)
-        private val subtitleView: TextView = itemView.findViewById(R.id.subtitle_view)
-        private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
+    inner class ViewHolder(
+        parent: ViewGroup,
+        private val glide: RequestBuilder<Bitmap>
+    ) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
+        private val binding = SongListItemBinding.bind(itemView)
 
         init {
             // Open the popup menu when the overflow icon is clicked.
-            val overflowIcon = itemView.findViewById<ImageView>(R.id.overflow_icon)
             val popup = PopupMenu(
                 itemView.context,
-                overflowIcon,
+                binding.overflowIcon,
                 Gravity.BOTTOM or Gravity.END,
                 0,
-                R.style.Widget_AppTheme_PopupMenu_Overflow
+                R.style.Widget_Odeon_PopupMenu_Overflow
             )
             popup.inflate(R.menu.track_popup_menu)
 
@@ -118,7 +112,7 @@ class SongAdapter(
                 }
             }
 
-            overflowIcon.setOnClickListener {
+            binding.overflowIcon.setOnClickListener {
                 popup.show()
             }
 
@@ -128,16 +122,16 @@ class SongAdapter(
             }
         }
 
-        fun bind(item: MediaBrowserCompat.MediaItem, glide: GlideRequest<*>) {
+        fun bind(item: MediaBrowserCompat.MediaItem) {
             with(item.description) {
-                glide.load(iconUri).into(cover)
-                titleView.text = title
-                bindSubtitle(subtitleView, subtitle, extras!!.getLong(MediaItems.EXTRA_DURATION))
+                glide.load(iconUri).into(binding.albumArtwork)
+                binding.trackTitle.text = title
+                bindSubtitle(binding.trackMetadata, subtitle, extras!!.getLong(MediaItems.EXTRA_DURATION))
             }
         }
 
         private fun bindSubtitle(textView: TextView, text: CharSequence?, durationMillis: Long) {
-            val duration = DateUtils.formatElapsedTime(durationMillis / 1000L)
+            val duration = formatDuration(durationMillis)
             textView.text = textView.context.getString(R.string.song_item_subtitle, text, duration)
         }
     }

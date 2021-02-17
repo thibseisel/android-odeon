@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,13 +40,13 @@ private const val TABLE_ARTIST = "artist"
  *
  * @param context The application context, needed for creating the database.
  */
-internal class SQLiteMediaStore
-@Inject constructor(
-    context: Context
-) : MediaStoreDatabase {
+internal class SQLiteMediaStore @Inject constructor(context: Context) : MediaStoreDatabase {
 
     private val inMemoryDatabaseHelper = InMemoryMediaStoreDatabase(context)
-    val observers = mutableSetOf<ObserverSpec>()
+
+    private val _observers = mutableSetOf<ObserverSpec>()
+    val observers: Set<ObserverSpec>
+        get() = _observers
 
     override fun query(
         uri: Uri,
@@ -78,27 +78,21 @@ internal class SQLiteMediaStore
         observer: ContentObserver
     ) {
         val spec = ObserverSpec(uri, notifyForDescendants, observer)
-        observers += spec
+        _observers += spec
     }
 
     override fun unregisterContentObserver(observer: ContentObserver) {
-        observers.removeAll { it.observer == observer }
+        _observers.removeAll { it.observer == observer }
     }
 
     /**
-     * Check that a row exists for the given [media type][type] and having the specified [id].
+     * Check that a row exists in the media table having the specified [id].
      * @return `true` if one row exists, `false` otherwise.
      */
-    fun exists(type: MediaProvider.MediaType, id: Long): Boolean {
-        val tableName = when (type) {
-            MediaProvider.MediaType.TRACKS -> TABLE_MEDIA
-            MediaProvider.MediaType.ALBUMS -> TABLE_ALBUM
-            MediaProvider.MediaType.ARTISTS -> TABLE_ARTIST
-        }
-
+    fun mediaExists(id: Long): Boolean {
         val db = inMemoryDatabaseHelper.readableDatabase
         return db.query(
-            tableName,
+            TABLE_MEDIA,
             arrayOf(BaseColumns._ID),
             "${BaseColumns._ID} = ?",
             arrayOf(id.toString()),

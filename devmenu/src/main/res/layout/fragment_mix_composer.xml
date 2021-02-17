@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2019 Thibault Seisel
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,69 +18,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/tone_section_title"
-        style="@style/Widget.AppTheme.TextView.Section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/dev_category_title_tone"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Spinner
-        android:id="@+id/key_selector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/dev_key_entries"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/mode_selector"
-        app:layout_constraintTop_toBottomOf="@id/tone_section_title" />
-
-    <Spinner
-        android:id="@+id/mode_selector"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:entries="@array/dev_mode_entries"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tone_section_title" />
-
-    <TextView
-        android:id="@+id/feature_section_title"
-        style="@style/Widget.AppTheme.TextView.Section"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/dev_category_title_feature"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/key_selector" />
+    android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/feature_criteria"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingVertical="@dimen/grid_1"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/search_button"
+        app:layout_constraintBottom_toTopOf="@id/bottom_section_guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/feature_section_title"
-        tools:listitem="@layout/dev_feature_row" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/dev_range_featurespec" />
 
-    <Button
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/bottom_section_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="64dp" />
+
+    <TextView
+        android:id="@+id/label_track_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/grid_2"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?textAppearanceSubtitle1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/search_button"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bottom_section_guideline"
+        tools:text="@string/dev_matching_tracks_count" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/search_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Search"
+        android:text="@string/dev_action_show_results"
+        android:layout_marginEnd="@dimen/grid_2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/bottom_section_guideline" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

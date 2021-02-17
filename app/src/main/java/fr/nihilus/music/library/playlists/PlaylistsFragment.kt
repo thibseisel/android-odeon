@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,67 +20,73 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.observe
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.transition.Hold
 import fr.nihilus.music.R
-import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.ui.BaseAdapter
-import kotlinx.android.synthetic.main.fragment_playlist.*
 
-class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist), BaseAdapter.OnItemSelectedListener {
+class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
     private val viewModel: HomeViewModel by activityViewModels()
 
-    private lateinit var adapter: PlaylistsAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = PlaylistsAdapter(this, this)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentPlaylistBinding.bind(view)
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
-        playlist_recycler.adapter = adapter
-        playlist_recycler.setHasFixedSize(true)
+        lateinit var adapter: PlaylistsAdapter
+        val onPlaylistSelected = { position: Int ->
+            val selectedPlaylist = adapter.getItem(position)
+            val playlistId = selectedPlaylist.mediaId!!
+            val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(playlistId)
 
-        viewModel.playlists.observe(this) { playlistsRequest ->
+            val playlistHolder = binding.playlistList.findViewHolderForAdapterPosition(position)!!
+            val transitionExtras = FragmentNavigatorExtras(
+                playlistHolder.itemView to playlistId
+            )
+
+            requireParentFragment().apply {
+                exitTransition = Hold().apply {
+                    duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+                    addTarget(R.id.fragment_home)
+                }
+                reenterTransition = null
+            }
+
+            findNavController().navigate(toPlaylistTracks, transitionExtras)
+        }
+
+        adapter = PlaylistsAdapter(this, onPlaylistSelected)
+        binding.playlistList.adapter = adapter
+        binding.playlistList.setHasFixedSize(true)
+
+        viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
             when (playlistsRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(playlistsRequest.data)
-                    group_empty_view.isVisible = playlistsRequest.data.isEmpty()
+                    binding.emptyViewGroup.isVisible = playlistsRequest.data.isEmpty()
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
                     adapter.submitList(emptyList())
-                    group_empty_view.isVisible = true
+                    binding.emptyViewGroup.isVisible = true
+                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }
     }
 
-    override fun onItemSelected(position: Int) {
-        val selectedPlaylist = adapter.getItem(position)
-        val selectedPlaylistType = selectedPlaylist.mediaId.toMediaId().type
-        val isDeletablePlaylist = selectedPlaylistType == MediaId.TYPE_PLAYLISTS
-        val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(
-            playlistId = selectedPlaylist.mediaId!!,
-            isDeletable = isDeletablePlaylist
-        )
-
-        findNavController().navigate(toPlaylistTracks)
-    }
 }

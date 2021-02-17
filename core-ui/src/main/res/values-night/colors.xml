@@ -15,18 +15,6 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <color name="color_primary">#b39ddb</color>
-    <color name="color_primary_variant">#320b86</color>
-    <color name="color_primary_light" tools:keep="@color/color_primary_light">#e6ceff</color>
-    <color name="color_secondary">#ffd180</color>
-    <color name="color_secondary_variant">#ffd180</color>
-    <color name="color_on_primary">#000000</color>
-    <color name="color_on_secondary">#000000</color>
-    <color name="color_error">#CF6679</color>
-    <color name="color_on_error">#000000</color>
-    <color name="color_on_background">#FFFFFF</color>
-    <color name="color_on_surface" tools:keep="@color/color_on_surface">#FFFFFF</color>
-
+<resources>
     <color name="elevation_8_overlay">#1DFFFFFF</color>
 </resources>

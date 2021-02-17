@@ -33,10 +33,11 @@
         android:visibility="gone"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/playlist_recycler"
-        style="@style/MainScrollingView.FastScrollRecyclerView"
+        android:id="@+id/playlist_list"
+        style="@style/Widget.Odeon.List.Offset"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:fastScrollEnabled="true"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/playlist_item"/>
 
@@ -60,14 +61,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty_playlist"
-        android:textAppearance="@style/TextAppearance.Odeon.Headline5"
+        android:textAppearance="?textAppearanceHeadline5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/empty_icon"/>
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/group_empty_view"
+        android:id="@+id/empty_view_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"

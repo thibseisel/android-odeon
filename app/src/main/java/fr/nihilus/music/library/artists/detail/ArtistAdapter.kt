@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,31 @@
 
 package fr.nihilus.music.library.artists.detail
 
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ListAdapter
+import com.bumptech.glide.Glide
 import fr.nihilus.music.R
-import fr.nihilus.music.glide.GlideApp
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
 import fr.nihilus.music.library.artists.ArtistHolder
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistAdapter(
     fragment: Fragment,
-    private val listener: OnItemSelectedListener
-) : BaseAdapter<ArtistHolder>() {
+    private val onArtistSelected: (position: Int) -> Unit
+) : ListAdapter<MediaItem, ArtistHolder>(MediaItemDiffer) {
 
-    private val glide = GlideApp.with(fragment).asBitmap()
-        .error(R.drawable.ic_person_24dp)
+    private val glide = Glide.with(fragment).asBitmap()
+        .error(R.drawable.placeholder_artist_icon)
         .centerCrop()
+        .autoClone()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistHolder {
-        return ArtistHolder(parent, glide).also { holder ->
-            holder.onAttachListeners(listener)
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ArtistHolder(parent, glide, onArtistSelected)
+
+    override fun onBindViewHolder(holder: ArtistHolder, position: Int) {
+        holder.bind(getItem(position))
     }
+
+    public override fun getItem(position: Int): MediaItem = super.getItem(position)
 }

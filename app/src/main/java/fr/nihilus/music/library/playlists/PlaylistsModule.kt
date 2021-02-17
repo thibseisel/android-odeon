@@ -30,7 +30,7 @@ abstract class PlaylistsModule {
     abstract fun playlistsFragment(): PlaylistsFragment
 
     @ContributesAndroidInjector
-    abstract fun playlistDetailFragment(): MembersFragment
+    abstract fun playlistDetailFragment(): PlaylistDetailFragment
 
     @Binds @IntoMap
     @ViewModelKey(MembersViewModel::class)

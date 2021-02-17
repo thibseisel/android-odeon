@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.core.ui.client
 
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.core.media.CustomActions
+import fr.nihilus.music.core.media.MediaId
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Manage interactions with a remote Media Session.
@@ -31,22 +31,22 @@ interface BrowserClient {
     /**
      * A flow whose latest value is the current playback state.
      */
-    val playbackState: Flow<PlaybackStateCompat>
+    val playbackState: StateFlow<PlaybackStateCompat>
 
     /**
      * A flow whose latest value is the currently playing track, or `null` if none.
      */
-    val nowPlaying: Flow<MediaMetadataCompat?>
+    val nowPlaying: StateFlow<MediaMetadataCompat?>
 
     /**
      * A flow whose latest value is the current shuffle mode.
      */
-    val shuffleMode: Flow<Int>
+    val shuffleMode: StateFlow<Int>
 
     /**
      * A flow whose latest value is the current repeat mode.
      */
-    val repeatMode: Flow<Int>
+    val repeatMode: StateFlow<Int>
 
     /**
      * Initiate connection to the media browser.
@@ -74,7 +74,7 @@ interface BrowserClient {
      * @param parentId The media id of a browsable item.
      * @return a flow of children of the specified browsable item.
      */
-    fun getChildren(parentId: String): Flow<List<MediaBrowserCompat.MediaItem>>
+    fun getChildren(parentId: MediaId): Flow<List<MediaBrowserCompat.MediaItem>>
 
     /**
      * Retrieve information of a single item from the media browser.
@@ -83,7 +83,7 @@ interface BrowserClient {
      * @return A media item with the same media id as the one requested,
      * or `null` if no such item exists or an error occurred.
      */
-    suspend fun getItem(itemId: String): MediaBrowserCompat.MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaBrowserCompat.MediaItem?
 
     /**
      * Search the given [terms][query] in the whole music library.
@@ -107,7 +107,7 @@ interface BrowserClient {
      * Requests the media service to play the item with the specified [mediaId].
      * @param mediaId The media id of a playable item.
      */
-    suspend fun playFromMediaId(mediaId: String)
+    suspend fun playFromMediaId(mediaId: MediaId)
 
     /**
      * Requests the media service to move its playback position
@@ -138,31 +138,6 @@ interface BrowserClient {
      * @param repeatMode The new repeat mode.
      */
     suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int)
-
-    /**
-     * Requests the media service to execute a custom action.
-     *
-     * @param name The name of the action to execute.
-     * This should be one of the `CustomActions.ACTION_*` constants.
-     * @param params The parameters required for the execution of the custom action,
-     * as specified in the documentation or the action name.
-     *
-     * @return The result of the execution of the action, if any.
-     * @throws CustomActionException if the execution of the requested action failed.
-     *
-     * @see CustomActions
-     */
-    suspend fun executeAction(name: String, params: Bundle?): Bundle?
-
-    /**
-     * Thrown when a custom action execution failed.
-     * @param actionName The name of the executed custom action that failed.
-     * @param errorMessage An optional error message describing the error.
-     */
-    class CustomActionException(
-        actionName: String,
-        errorMessage: String?
-    ) : Exception("Custom action $actionName failed: $errorMessage")
 }
 
 /**
@@ -171,5 +146,5 @@ interface BrowserClient {
  * @param parentId The parent media of the subscribed children.
  */
 class MediaSubscriptionException(parentId: String) : Exception() {
-    override val message: String? = "Unable to load children of parent $parentId."
+    override val message: String = "Unable to load children of parent $parentId."
 }

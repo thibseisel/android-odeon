@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    style="@style/Widget.MaterialComponents.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="@dimen/core_shape_corner_radius"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/grid_2">
+
+        <TextView
+            android:id="@+id/track_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/grid_3"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?textAppearanceHeadline6"
+            app:layout_constraintEnd_toStartOf="@id/tone_indicator"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1741 (The Battle of Cartagena)" />
+
+        <TextView
+            android:id="@+id/remote_track_id"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/grid_0_5"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?textAppearanceCaption"
+            android:textIsSelectable="true"
+            app:layout_constraintStart_toStartOf="@id/track_title"
+            app:layout_constraintEnd_toEndOf="@id/track_title"
+            app:layout_constraintTop_toBottomOf="@id/track_title"
+            tools:text="z7NQyLFsUK7OL2zwuSQ1lz" />
+
+        <TextView
+            android:id="@+id/tone_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/grid_2"
+            android:textAppearance="?textAppearanceHeadline6"
+            android:textColor="?colorPrimary"
+            app:layout_constraintBottom_toBottomOf="@id/remote_track_id"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="D#M" />
+
+        <TextView
+            android:id="@+id/signature_cartridge"
+            style="@style/Widget.Odeon.Cartridge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:backgroundTint="?colorPrimaryVariant"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/remote_track_id"
+            tools:text="4 beats" />
+
+        <TextView
+            android:id="@+id/tempo_cartridge"
+            style="@style/Widget.Odeon.Cartridge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBaseline_toBaselineOf="@id/signature_cartridge"
+            app:layout_constraintStart_toEndOf="@id/signature_cartridge"
+            app:layout_constraintTop_toBottomOf="@id/remote_track_id"
+            tools:text="160 BPM" />
+
+        <TextView
+            android:id="@+id/loudness_cartridge"
+            style="@style/Widget.Odeon.Cartridge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="?colorSecondary"
+            android:textColor="?colorOnSecondary"
+            app:layout_constraintBaseline_toBaselineOf="@id/tempo_cartridge"
+            app:layout_constraintBottom_toBottomOf="@id/remote_track_id"
+            app:layout_constraintStart_toEndOf="@id/tempo_cartridge"
+            tools:text="-12.38 dB" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/bottom_section_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="signature_cartridge,tempo_cartridge,loudness_cartridge" />
+
+        <View
+            android:id="@+id/bottom_section_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/grid_1"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toBottomOf="@id/bottom_section_barrier" />
+
+        <TextView
+            android:id="@+id/label_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/dev_label_energy"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bottom_section_divider" />
+
+        <TextView
+            android:id="@+id/label_valence"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dev_label_valence"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_energy" />
+
+        <TextView
+            android:id="@+id/label_danceability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dev_label_danceability"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/label_valence" />
+
+        <TextView
+            android:id="@+id/value_energy"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/grid_2"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_energy"
+            app:layout_constraintEnd_toStartOf="@id/column_guideline"
+            tools:text="77.1 %" />
+
+        <TextView
+            android:id="@+id/value_valence"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/grid_2"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_valence"
+            app:layout_constraintEnd_toStartOf="@id/column_guideline"
+            tools:text="46.1 %" />
+
+        <TextView
+            android:id="@+id/value_danceability"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/grid_2"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_danceability"
+            app:layout_constraintEnd_toStartOf="@id/column_guideline"
+            tools:text="33 %" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/column_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/label_acousticness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/grid_2"
+            android:layout_marginTop="@dimen/grid_2"
+            android:text="@string/dev_label_acousticness"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_energy"
+            app:layout_constraintStart_toEndOf="@id/column_guideline"
+            app:layout_constraintTop_toBottomOf="@id/bottom_section_divider" />
+
+        <TextView
+            android:id="@+id/value_acousticness"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/grid_2"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_acousticness"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="12 %" />
+
+        <TextView
+            android:id="@+id/label_instrumentalness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/grid_2"
+            android:text="@string/dev_label_instrumentalness"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toEndOf="@id/column_guideline"
+            app:layout_constraintTop_toBottomOf="@id/label_acousticness" />
+
+        <TextView
+            android:id="@+id/value_instrumentalness"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_instrumentalness"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="3.0 %" />
+
+        <TextView
+            android:id="@+id/label_liveness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/grid_2"
+            android:text="@string/dev_label_liveness"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toEndOf="@id/column_guideline"
+            app:layout_constraintTop_toBottomOf="@id/label_instrumentalness" />
+
+        <TextView
+            android:id="@+id/value_liveness"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_liveness"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="17 %" />
+
+        <TextView
+            android:id="@+id/label_speechiness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/grid_2"
+            android:text="@string/dev_label_speechiness"
+            android:textAppearance="?textAppearanceBody2"
+            app:layout_constraintStart_toEndOf="@id/column_guideline"
+            app:layout_constraintTop_toBottomOf="@id/label_liveness" />
+
+        <TextView
+            android:id="@+id/value_speechiness"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/label_speechiness"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="0.5 %" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,26 @@ package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Moshi
 import fr.nihilus.music.spotify.model.*
-import io.kotlintest.*
-import io.kotlintest.matchers.collections.shouldBeEmpty
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotlintest.matchers.collections.shouldHaveSize
-import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
-import io.kotlintest.matchers.string.shouldContain
-import io.kotlintest.matchers.types.shouldBeNull
-import io.kotlintest.matchers.types.shouldBeTypeOf
-import io.kotlintest.matchers.types.shouldNotBeNull
-import io.kotlintest.matchers.withClue
+import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.fail
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
+import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
@@ -39,7 +46,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import kotlin.test.Test
@@ -50,7 +56,6 @@ private const val TEST_CLIENT_SECRET = "client_secret"
 
 private val VALID_TOKEN = OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
 
-@ExperimentalCoroutinesApi
 class SpotifyServiceTest {
 
     private val moshi = Moshi.Builder().build()
@@ -59,7 +64,7 @@ class SpotifyServiceTest {
 
     private fun spotifyService(
         token: OAuthToken? = VALID_TOKEN,
-        handler: suspend (HttpRequestData) -> HttpResponseData
+        handler: suspend MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
     ): SpotifyService = SpotifyServiceImpl(
         MockEngine(handler),
         moshi,
@@ -181,7 +186,9 @@ class SpotifyServiceTest {
         }
 
         val artistResource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artistResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>> { (artist) ->
+        artistResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>>()
+
+        assertSoftly(artistResource.data) { artist ->
             artist.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             artist.name shouldBe "Muse"
             artist.popularity shouldBe 82
@@ -216,30 +223,30 @@ class SpotifyServiceTest {
         }
 
         val artistsResource = apiClient.getSeveralArtists(requestedArtistIds)
-        artistsResource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>> { (artists) ->
-            artists shouldHaveSize 2
+        artistsResource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>>()
+        val artists = artistsResource.data
+        artists shouldHaveSize 2
 
-            artists[0].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "12Chz98pHFMPJEknJQMWvI"
-                it.name shouldBe "Muse"
-                it.popularity shouldBe 82
-                it.genres.shouldContainExactly("modern rock", "permanent wave", "piano rock", "post-grunge", "rock")
-                it.images.shouldContainExactly(
-                    Image("https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde", 320, 320)
-                )
-            }
+        artists[0].should {
+            it.shouldNotBeNull()
+            it.id shouldBe "12Chz98pHFMPJEknJQMWvI"
+            it.name shouldBe "Muse"
+            it.popularity shouldBe 82
+            it.genres.shouldContainExactly("modern rock", "permanent wave", "piano rock", "post-grunge", "rock")
+            it.images.shouldContainExactly(
+                Image("https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde", 320, 320)
+            )
+        }
 
-            artists[1].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "7jy3rLJdDQY21OgRLCZ9sD"
-                it.name shouldBe "Foo Fighters"
-                it.popularity shouldBe 82
-                it.genres.shouldContainExactly("alternative metal", "alternative rock", "modern rock", "permanent wave", "post-grunge", "rock")
-                it.images.shouldContainExactly(
-                    Image("https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d", 320, 320)
-                )
-            }
+        artists[1].should {
+            it.shouldNotBeNull()
+            it.id shouldBe "7jy3rLJdDQY21OgRLCZ9sD"
+            it.name shouldBe "Foo Fighters"
+            it.popularity shouldBe 82
+            it.genres.shouldContainExactly("alternative metal", "alternative rock", "modern rock", "permanent wave", "post-grunge", "rock")
+            it.images.shouldContainExactly(
+                Image("https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d", 320, 320)
+            )
         }
     }
 
@@ -251,11 +258,13 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralArtists(requestedArtistIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>> { (artists) ->
-            artists shouldHaveSize 3
-            artists[0].shouldBeNull()
-            artists[1].shouldNotBeNull()
-            artists[2].shouldBeNull()
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyArtist?>>>()
+
+        assertSoftly(resource.data) {
+            it shouldHaveSize 3
+            it[0].shouldBeNull()
+            it[1].shouldNotBeNull()
+            it[2].shouldBeNull()
         }
     }
 
@@ -281,12 +290,12 @@ class SpotifyServiceTest {
         val artistAlbums = apiClient.getArtistAlbums("12Chz98pHFMPJEknJQMWvI").toList()
         artistAlbums shouldHaveSize 4
 
-        with(artistAlbums[0]) {
-            id shouldBe "5OZgDtx180ZZPMpm36J2zC"
-            name shouldBe "Simulation Theory (Super Deluxe)"
-            releaseDate shouldBe "2018-11-09"
-            releaseDatePrecision shouldBe "day"
-            images.shouldContainExactly(
+        assertSoftly(artistAlbums[0]) {
+            it.id shouldBe "5OZgDtx180ZZPMpm36J2zC"
+            it.name shouldBe "Simulation Theory (Super Deluxe)"
+            it.releaseDate shouldBe "2018-11-09"
+            it.releaseDatePrecision shouldBe "day"
+            it.images.shouldContainExactly(
                 Image("https://i.scdn.co/image/0b2a261f7bec0ed109a149316d116c15ca72e5ef", 300, 300)
             )
         }
@@ -314,7 +323,9 @@ class SpotifyServiceTest {
         }
 
         val albumResource = apiClient.getAlbum("6KMkuqIwKkwUhUYRPL6dUc")
-        albumResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyAlbum>> { (album) ->
+        albumResource.shouldBeTypeOf<HttpResource.Loaded<SpotifyAlbum>>()
+
+        assertSoftly(albumResource.data) { album ->
             album.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
             album.name shouldBe "Concrete and Gold"
             album.releaseDate shouldBe "2017-09-15"
@@ -349,26 +360,26 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>> { (albums) ->
-            albums shouldHaveSize 2
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>>()
+        val albums = resource.data
+        albums shouldHaveSize 2
 
-            albums[0].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "5OZgDtx180ZZPMpm36J2zC"
-                it.name shouldBe "Simulation Theory (Super Deluxe)"
-                it.releaseDate shouldBe "2018-11-09"
-                it.releaseDatePrecision shouldBe "day"
-                it.images shouldHaveSize 1
-            }
+        albums[0].should {
+            it.shouldNotBeNull()
+            it.id shouldBe "5OZgDtx180ZZPMpm36J2zC"
+            it.name shouldBe "Simulation Theory (Super Deluxe)"
+            it.releaseDate shouldBe "2018-11-09"
+            it.releaseDatePrecision shouldBe "day"
+            it.images shouldHaveSize 1
+        }
 
-            albums[1].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
-                it.name shouldBe "Concrete and Gold"
-                it.releaseDate shouldBe "2017-09-15"
-                it.releaseDatePrecision shouldBe "day"
-                it.images shouldHaveSize 1
-            }
+        albums[1].should {
+            it.shouldNotBeNull()
+            it.id shouldBe "6KMkuqIwKkwUhUYRPL6dUc"
+            it.name shouldBe "Concrete and Gold"
+            it.releaseDate shouldBe "2017-09-15"
+            it.releaseDatePrecision shouldBe "day"
+            it.images shouldHaveSize 1
         }
     }
 
@@ -380,11 +391,13 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralAlbums(requestedAlbumIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>> { (albums) ->
-            albums shouldHaveSize 3
-            albums[0].shouldBeNull()
-            albums[1].shouldNotBeNull()
-            albums[2].shouldBeNull()
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyAlbum?>>>()
+
+        assertSoftly(resource.data) {
+            it shouldHaveSize 3
+            it[0].shouldBeNull()
+            it[1].shouldNotBeNull()
+            it[2].shouldBeNull()
         }
     }
 
@@ -410,13 +423,13 @@ class SpotifyServiceTest {
 
         albumTracks shouldHaveSize 4
 
-        with(albumTracks[0]) {
-            id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
-            name shouldBe "Algorithm"
-            duration shouldBe 245960
-            discNumber shouldBe 1
-            trackNumber shouldBe 1
-            explicit shouldBe false
+        assertSoftly(albumTracks[0]) {
+            it.id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
+            it.name shouldBe "Algorithm"
+            it.duration shouldBe 245960
+            it.discNumber shouldBe 1
+            it.trackNumber shouldBe 1
+            it.explicit shouldBe false
         }
 
         albumTracks[1].id shouldBe "0dMYPDqcI4ca4cjqlmp9mE"
@@ -444,7 +457,9 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getTrack(requestedTrackId)
-        resource.shouldBeTypeOf<HttpResource.Loaded<SpotifyTrack>> { (track) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<SpotifyTrack>>()
+
+        assertSoftly(resource.data) { track ->
             track.id shouldBe requestedTrackId
             track.name shouldBe "Algorithm"
             track.discNumber shouldBe 1
@@ -476,8 +491,10 @@ class SpotifyServiceTest {
             respondFile("tracks/several.json")
         }
 
-        val tracks = apiClient.getSeveralTracks(requestedTrackIds)
-        tracks.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>> { (tracks) ->
+        val resource = apiClient.getSeveralTracks(requestedTrackIds)
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>>()
+
+        assertSoftly(resource.data) { tracks ->
             tracks shouldHaveSize 2
             tracks[0].should {
                 it.shouldNotBeNull()
@@ -509,7 +526,8 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralTracks(requestedAlbumIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>> { (tracks) ->
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<SpotifyTrack?>>>()
+        assertSoftly(resource.data) { tracks ->
             tracks shouldHaveSize 3
             tracks[0].shouldBeNull()
             tracks[1].shouldNotBeNull()
@@ -526,21 +544,22 @@ class SpotifyServiceTest {
             respondFile("features/7f0vVL3xi4i78Rv5Ptn2s1.json")
         }
 
-        val audioFeatures = apiClient.getTrackFeatures(requestedTrackId)
-        audioFeatures.shouldBeTypeOf<HttpResource.Loaded<AudioFeature>> { (feature) ->
-            feature.id shouldBe requestedTrackId
-            feature.mode shouldBe 1
-            feature.key shouldBe 2
-            feature.tempo shouldBe 170.057f
-            feature.signature shouldBe 4
-            feature.loudness shouldBe -4.56f
-            feature.energy shouldBe 0.923f
-            feature.danceability shouldBe 0.522f
-            feature.instrumentalness shouldBe 0.017f
-            feature.speechiness shouldBe 0.0539f
-            feature.acousticness shouldBe 0.0125f
-            feature.liveness shouldBe 0.0854f
-            feature.valence shouldBe 0.595f
+        val audioFeature = apiClient.getTrackFeatures(requestedTrackId)
+        audioFeature.shouldBeTypeOf<HttpResource.Loaded<AudioFeature>>()
+        assertSoftly(audioFeature.data) {
+            it.id shouldBe requestedTrackId
+            it.mode shouldBe 1
+            it.key shouldBe 2
+            it.tempo shouldBe 170.057f
+            it.signature shouldBe 4
+            it.loudness shouldBe -4.56f
+            it.energy shouldBe 0.923f
+            it.danceability shouldBe 0.522f
+            it.instrumentalness shouldBe 0.017f
+            it.speechiness shouldBe 0.0539f
+            it.acousticness shouldBe 0.0125f
+            it.liveness shouldBe 0.0854f
+            it.valence shouldBe 0.595f
         }
     }
 
@@ -569,10 +588,11 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getSeveralTrackFeatures(requestedIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<AudioFeature?>>> { (feature) ->
-            feature shouldHaveSize 2
+        resource.shouldBeTypeOf<HttpResource.Loaded<List<AudioFeature?>>>()
+        assertSoftly(resource.data) { features ->
+            features shouldHaveSize 2
 
-            feature[0].should {
+            features[0].should {
                 it.shouldNotBeNull()
                 it.id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
                 it.mode shouldBe 1
@@ -589,7 +609,7 @@ class SpotifyServiceTest {
                 it.valence shouldBe 0.595f
             }
 
-            feature[1].should {
+            features[1].should {
                 it.shouldNotBeNull()
                 it.id shouldBe "5lnsL7pCg0fQKcWnlkD1F0"
                 it.mode shouldBe 1
@@ -609,22 +629,28 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When requesting too much resources at one time, then fail with IllegalArgumentException`() = runBlockingTest {
-        val apiClient = spotifyService {
-            fail("Expected no network call, but called endpoint ${it.url.encodedPath}.")
-        }
+    fun `When requesting more resources at once than backend limits, then chunk into multiple requests`() = runBlockingTest {
+        val apiClient = spotifyService(handler = dummySpotifyBackend())
 
-        val artistIds = List(51) { "12Chz98pHFMPJEknJQMWvI" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralArtists(artistIds) }
+        val artistIds = List(51) { "$it" }
+        val artists = apiClient.getSeveralArtists(artistIds)
+        artists.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyArtist>>>()
+        artists.data shouldHaveSize 51
 
-        val albumIds = List(21) { "5OZgDtx180ZZPMpm36J2zC" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralAlbums(albumIds) }
+        val albumIds = List(21) { "$it" }
+        val albums = apiClient.getSeveralAlbums(albumIds)
+        albums.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyAlbum>>>()
+        albums.data.shouldHaveSize(21)
 
-        val trackIds = List(51) { "7f0vVL3xi4i78Rv5Ptn2s1" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralTracks(trackIds) }
+        val trackIds = List(51) { "$it" }
+        val tracks = apiClient.getSeveralTracks(trackIds)
+        tracks.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyTrack>>>()
+        tracks.data.shouldHaveSize(51)
 
-        val trackFeatureIds = List(101) { "7f0vVL3xi4i78Rv5Ptn2s1" }
-        shouldThrow<IllegalArgumentException> { apiClient.getSeveralTrackFeatures(trackFeatureIds) }
+        val trackFeatureIds = List(101) { "$it" }
+        val trackFeatures = apiClient.getSeveralTrackFeatures(trackFeatureIds)
+        trackFeatures.shouldBeInstanceOf<HttpResource.Loaded<List<AudioFeature>>>()
+        trackFeatures.data.shouldHaveSize(101)
     }
 
     @Test
@@ -647,7 +673,8 @@ class SpotifyServiceTest {
         }
 
         val resource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        resource.shouldBeTypeOf<HttpResource.Failed> {
+        resource.shouldBeTypeOf<HttpResource.Failed>()
+        assertSoftly(resource) {
             it.status shouldBe 500
             it.message shouldBe "Whoops!"
         }
@@ -666,7 +693,8 @@ class SpotifyServiceTest {
             listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
         )
 
-        resource.shouldBeTypeOf<HttpResource.Failed> {
+        resource.shouldBeTypeOf<HttpResource.Failed>()
+        assertSoftly(resource) {
             it.status shouldBe 500
             it.message shouldBe "Whoops!"
         }
@@ -785,7 +813,7 @@ class SpotifyServiceTest {
     fun `When searching tracks, then return a flow of track results`() = runBlockingTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
-            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
+            it.url.parameters[SpotifyService.QUERY_Q] shouldBe "track:\"rammstein\""
             it.url.parameters[SpotifyService.QUERY_TYPE] shouldBe "track"
 
             when (val offset = it.url.parameters[SpotifyService.QUERY_OFFSET]?.toIntOrNull()) {
@@ -850,10 +878,10 @@ class SpotifyServiceTest {
  * @param status The status code associated with the response. It should be a valid error code (>= 400).
  * @param message The message provided as the `error` property of the JSON response body.
  */
-private fun respondJsonError(status: HttpStatusCode, message: String = status.description) =
-    respondJson(
-        jsonApiError(status, message), status
-    )
+private fun MockRequestHandleScope.respondJsonError(
+    status: HttpStatusCode,
+    message: String = status.description
+) = respondJson(jsonApiError(status, message), status)
 
 /**
  * Asserts that this request is an HTTP GET Request on the Spotify Web API (api.spotify.com)

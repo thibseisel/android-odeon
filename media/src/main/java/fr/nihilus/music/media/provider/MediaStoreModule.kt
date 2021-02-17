@@ -27,17 +27,21 @@ import fr.nihilus.music.media.os.PlatformMediaStore
 /**
  * Provides a [MediaStoreDatabase] that delegates calls to the system's [ContentResolver],
  * retrieving media definitions from Android's [MediaStore][android.provider.MediaStore].
+ *
+ * Note: this module is exceptionally visible by other modules in order to inject [MediaDao],
+ * as a workaround until a suitable replacement for MediaRepository is found.
  */
 @Module
-internal abstract class MediaStoreModule {
+abstract class MediaStoreModule {
 
     @Binds
-    abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
+    internal abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
 
-    @Module
-    companion object {
+    @Binds
+    internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
 
-        @JvmStatic
+    internal companion object {
+
         @Provides
         fun providesContentResolver(context: Context): ContentResolver = context.contentResolver
     }

@@ -17,17 +17,29 @@
       "trackNo": "11"
     },
     {
+      "title": "All These Thinks I Hate (Revolve Around Me)",
+      "subtitle": "Bullet for my Valentine \u2022 03:46",
+      "album": "The Poison",
+      "artist": "Bullet for my Valentine",
+      "duration": "03:46"
+    },
+    {
       "title": "Dirty Water",
       "subtitle": "Foo Fighters \u2022 05:20",
       "album": "Concrete And Gold",
       "artist": "Foo Fighters",
-      "duration": "05:20",
-      "trackNo": ""
+      "duration": "05:20"
     },
     {
       "title": "Give It Up",
-      "subtitle": "ACD/DC \u2022 03:53",
+      "subtitle": "AC/DC \u2022 03:53",
       "album": "Greatests Hits 30 Anniversary Edition",
+      "artist": "AC/DC"
+    },
+    {
+      "title": "It's a Long Way To The Top (If You Wanna Rock'N'Roll)",
+      "subtitle": "AC/DC \u2022 04:46",
+      "album": "Greatest Hits 30 Anniversary Edition",
       "artist": "AC/DC"
     },
     {

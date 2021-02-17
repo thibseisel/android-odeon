@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package fr.nihilus.music.core.media
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import io.kotlintest.matchers.types.beNull
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
+import io.kotest.assertions.assertSoftly
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 
 class MediaIdTest {
@@ -31,18 +31,22 @@ class MediaIdTest {
     fun whenParsingTypeOnly_thenMediaIdOnlyHasType() {
         val mediaId = MediaId.parse(TYPE_ROOT)
 
-        mediaId.type shouldBe TYPE_ROOT
-        mediaId.category should beNull()
-        mediaId.track should beNull()
+        assertSoftly(mediaId) {
+            type shouldBe TYPE_ROOT
+            category.shouldBeNull()
+            track.shouldBeNull()
+        }
     }
 
     @Test
     fun whenParsingTypeAndCategory_thenMediaIdHasTypeAndCategory() {
         val mediaId = MediaId.parse("$TYPE_TRACKS/$CATEGORY_ALL")
 
-        mediaId.type shouldBe TYPE_TRACKS
-        mediaId.category shouldBe CATEGORY_ALL
-        mediaId.track should beNull()
+        assertSoftly(mediaId) {
+            type shouldBe TYPE_TRACKS
+            category shouldBe CATEGORY_ALL
+            track.shouldBeNull()
+        }
     }
 
     @Test
@@ -67,7 +71,7 @@ class MediaIdTest {
     }
 
     @Test
-    fun whenParsingInvalidStrings_thenFailWithInvalidMediaException() {
+    fun whenParsingInvalidStrings_thenFailWithMalformedMediaIdException() {
         assertParsingFails(null)
         assertParsingFails("")
         assertParsingFails("12e86f5")
@@ -109,14 +113,14 @@ class MediaIdTest {
     }
 
     @Test
-    fun whenEncodingWithTrackIdButNoCategory_thenFailWithInvalidMediaException() {
-        shouldThrow<InvalidMediaException> {
+    fun whenEncodingWithTrackIdButNoCategory_thenFailWithMalformedMediaIdException() {
+        shouldThrow<MalformedMediaIdException> {
             MediaId.encode("type", null, 42)
         }
     }
 
     private fun assertParsingFails(encoded: String?) {
-        shouldThrow<InvalidMediaException> {
+        shouldThrow<MalformedMediaIdException> {
             MediaId.parse(encoded)
         }
     }

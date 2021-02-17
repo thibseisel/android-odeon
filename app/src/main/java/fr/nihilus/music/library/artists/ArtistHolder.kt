@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,38 +19,36 @@ package fr.nihilus.music.library.artists
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.ArtistGridItemBinding
 
 /**
  * Display an artist as a floating 16:9 card.
  */
 internal class ArtistHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.artist_grid_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onArtistSelected: (position: Int) -> Unit
+) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.artist_grid_item) {
 
-    private val artistName: TextView = itemView.findViewById(R.id.subtitle)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
-    private val cover: ImageView = itemView.findViewById(R.id.album_art_view)
+    private val binding = ArtistGridItemBinding.bind(itemView)
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onArtistSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        artistName.text = item.description.title
-        glide.load(item.description.iconUri).into(cover)
+    override fun bind(data: MediaBrowserCompat.MediaItem) {
+        binding.artistName.text = data.description.title
+        glide.load(data.description.iconUri).into(binding.artistArtwork)
 
-        item.description.extras?.let {
+        data.description.extras?.let {
             val trackCount = it.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-            subtitle.text = subtitle.resources.getQuantityString(
+            binding.subtitle.text = itemView.resources.getQuantityString(
                 R.plurals.number_of_tracks,
                 trackCount, trackCount
             )

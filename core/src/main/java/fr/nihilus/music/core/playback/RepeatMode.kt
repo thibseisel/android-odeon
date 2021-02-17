@@ -18,21 +18,23 @@ package fr.nihilus.music.core.playback
 
 /**
  * Defines how tracks in a playing queue should be repeated.
+ *
+ * @property code Integer code used to represent this mode as a numeric value.
  */
-enum class RepeatMode {
+enum class RepeatMode(val code: Int) {
     /**
      * All tracks in the queue are played once in order.
      * When all tracks have been played, the player stops.
      */
-    DISABLED,
+    DISABLED(0),
     /**
      * When the playback of the current track completes the same track is replayed indefinitely.
      * To play a different track it is necessary to skip to another track in the queue.
      */
-    ALL,
+    ALL(2),
     /**
      * All tracks in the queue are played once in order.
      * When all tracks have been played the player replays the whole queue until manually stopped.
      */
-    ONE
+    ONE(1)
 }

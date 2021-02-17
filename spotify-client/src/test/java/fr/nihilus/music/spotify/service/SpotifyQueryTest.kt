@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.spotify.service
 
-import io.kotlintest.shouldBe
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 class SpotifyQueryTest {
@@ -24,28 +26,28 @@ class SpotifyQueryTest {
     @Test
     fun `Given a simple track query, then encode as quoted lowercase`() {
         val singleWordQuery = SpotifyQuery.Track(title = "Algorithm")
-        singleWordQuery.toString() shouldBe "\"algorithm\""
+        singleWordQuery.toString() shouldBe "track:\"algorithm\""
 
         val multiWordQuery = SpotifyQuery.Track(title = "Knights of Cydonia")
-        multiWordQuery.toString() shouldBe """"knights of cydonia""""
+        multiWordQuery.toString() shouldBe "track:\"knights of cydonia\""
     }
 
     @Test
     fun `Given a track query with artist, then encode with artist fragment`() {
         val query = SpotifyQuery.Track(title = "Algorithm", artist = "Muse")
-        query.toString() shouldBe """"algorithm" artist:"muse""""
+        query.toString() shouldBe "track:\"algorithm\" artist:\"muse\""
     }
 
     @Test
     fun `Given a track query with album, then encode with album fragment`() {
         val query = SpotifyQuery.Track(title = "Algorithm", album = "Simulation Theory")
-        query.toString() shouldBe """"algorithm" album:"simulation theory""""
+        query.toString() shouldBe "track:\"algorithm\" album:\"simulation theory\""
     }
 
     @Test
     fun `Given a complete track query, then encode both artist and album`() {
         val query = SpotifyQuery.Track("Algorithm", "Muse", "Simulation Theory")
-        query.toString() shouldBe """"algorithm" artist:"muse" album:"simulation theory""""
+        query.toString() shouldBe "track:\"algorithm\" artist:\"muse\" album:\"simulation theory\""
     }
 
     @Test
@@ -53,8 +55,8 @@ class SpotifyQueryTest {
         val singleWordQuery = SpotifyQuery.Artist(name = "Muse")
         singleWordQuery.toString() shouldBe "\"muse\""
 
-        val multiWordQuery = SpotifyQuery.Artist(name = "Guns N' Roses")
-        multiWordQuery.toString() shouldBe """"guns n' roses""""
+        val multiWordQuery = SpotifyQuery.Artist(name = "The Pretty Reckless")
+        multiWordQuery.toString() shouldBe "\"the pretty reckless\""
     }
 
     @Test
@@ -69,6 +71,19 @@ class SpotifyQueryTest {
     @Test
     fun `Given an album query with artist, then encode as quoted with artist fragment`() {
         val query = SpotifyQuery.Album(title = "Simulation Theory", artist = "Muse")
-        query.toString() shouldBe """"simulation theory" artist:"muse""""
+        query.toString() shouldBe "\"simulation theory\" artist:\"muse\""
+    }
+
+    @Test
+    fun `Given a track title with quotes, then omit quote marks`() {
+        forAll(
+            row("Don't Stop Me Now", "track:\"dont stop me now\""),
+            row("I'm a Lady", "track:\"im a lady\""),
+            row("You've Got Another Thing Comin'", "track:\"youve got another thing comin\""),
+            row("It's A Long Way To The Top (If You Wanna Rock'N'Roll)", "track:\"its a long way to the top (if you wanna rocknroll)\"")
+        ) { title, expectedQuery ->
+            val query = SpotifyQuery.Track(title)
+            query.toString() shouldBe expectedQuery
+        }
     }
 }

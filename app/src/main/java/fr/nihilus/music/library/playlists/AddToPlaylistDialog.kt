@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,20 @@ package fr.nihilus.music.library.playlists
 import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
+import fr.nihilus.music.databinding.PlaylistListItemBinding
 
 /**
  * A fragment displaying an Alert Dialog prompting the user to choose to which playlists
@@ -51,22 +50,19 @@ class AddToPlaylistDialog : BaseDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)
-        return MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.add_to_playlist)
-            .setAdapter(playlistAdapter, dialogEventHandler)
-            .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)
-            .setNegativeButton(R.string.cancel, null)
-            .create()
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         playlistViewModel.userPlaylists.observe(this) {
             if (it is LoadRequest.Success) {
                 playlistAdapter.submitList(it.data)
             }
         }
+
+        return MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.add_to_playlist)
+            .setAdapter(playlistAdapter, dialogEventHandler)
+            .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)
+            .setNegativeButton(R.string.core_cancel, null)
+            .create()
     }
 
     private val dialogEventHandler = DialogInterface.OnClickListener { _, position ->
@@ -89,7 +85,7 @@ class AddToPlaylistDialog : BaseDialogFragment() {
         NewPlaylistDialog.newInstance(
             requireCallerFragment(),
             getPlaylistMembersArgument()
-        ).show(requireFragmentManager(), NewPlaylistDialog.TAG)
+        ).show(parentFragmentManager, NewPlaylistDialog.TAG)
     }
 
     private fun getPlaylistMembersArgument(): Array<MediaItem> {
@@ -107,7 +103,9 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     private class TargetPlaylistsAdapter(
         fragment: Fragment
     ) : ListAdapter<MediaItem, PlaylistHolder>() {
-        private val glideRequest = GlideApp.with(fragment).asBitmap().circleCrop()
+        private val glideRequest = Glide.with(fragment).asBitmap()
+            .circleCrop()
+            .autoClone()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistHolder(parent)
 
@@ -122,12 +120,11 @@ class AddToPlaylistDialog : BaseDialogFragment() {
     private class PlaylistHolder(
         parent: ViewGroup
     ) : ListAdapter.ViewHolder(parent, R.layout.playlist_list_item) {
-        private val iconView = itemView.findViewById<ImageView>(R.id.icon_view)
-        private val titleView = itemView.findViewById<TextView>(R.id.title_view)
+        private val binding = PlaylistListItemBinding.bind(itemView)
 
-        fun bind(playlist: MediaItem, glide: GlideRequest<*>) {
-            titleView.text = playlist.description.title
-            glide.load(playlist.description.iconUri).into(iconView)
+        fun bind(playlist: MediaItem, glide: RequestBuilder<Bitmap>) {
+            binding.playlistTitle.text = playlist.description.title
+            glide.load(playlist.description.iconUri).into(binding.playlistIcon)
         }
     }
 

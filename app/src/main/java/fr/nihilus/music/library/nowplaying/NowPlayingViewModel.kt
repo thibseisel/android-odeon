@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,45 +19,46 @@ package fr.nihilus.music.library.nowplaying
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-class NowPlayingViewModel
-@Inject constructor(
+class NowPlayingViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
 
     val state: LiveData<PlayerState> = liveData {
         // The Flow combine operator use a cached value of this Flow when the playback state changes.
         // Mapping here ensures that the transformation is only applied when metadata has changed.
-        val currentTrackState = client.nowPlaying.map { nowPlaying ->
-            nowPlaying?.let {
-                PlayerState.Track(
-                    id = it.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID).toMediaId(),
-                    title = it.displayTitle!!,
-                    artist = it.displaySubtitle!!,
-                    duration = when (it.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
-                        true -> it.duration
-                        else -> PLAYBACK_POSITION_UNKNOWN
-                    },
-                    artworkUri = it.displayIconUri?.toUri()
-                )
+        val currentTrackState = client.nowPlaying
+            .filter { it == null || it.id != null }
+            .map { nowPlaying ->
+                nowPlaying?.let {
+                    PlayerState.Track(
+                        id = it.id.parse(),
+                        title = it.displayTitle!!,
+                        artist = it.displaySubtitle!!,
+                        duration = when (it.containsKey(MediaMetadataCompat.METADATA_KEY_DURATION)) {
+                            true -> it.duration
+                            else -> PLAYBACK_POSITION_UNKNOWN
+                        },
+                        artworkUri = it.displayIconUri
+                    )
+                }
             }
-        }
 
         combine(
             client.playbackState,

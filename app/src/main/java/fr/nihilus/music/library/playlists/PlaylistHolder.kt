@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,35 +19,33 @@ package fr.nihilus.music.library.playlists
 import android.graphics.Bitmap
 import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.PlaylistItemBinding
 
 /**
  * Display a playlist as a floating list item.
  */
 internal class PlaylistHolder(
     parent: ViewGroup,
-    private val glide: RequestBuilder<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.playlist_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onPlaylistSelected: (position: Int) -> Unit
+) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.playlist_item) {
 
-    private val image: ImageView = itemView.findViewById(R.id.album_art)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle)
+    private val binding = PlaylistItemBinding.bind(itemView)
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
-
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onPlaylistSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        val description = item.description
-        title.text = description.title
-        subtitle.text = description.subtitle
-        glide.load(description.iconUri).into(image)
+    override fun bind(data: MediaBrowserCompat.MediaItem) {
+        val description = data.description
+        itemView.transitionName = description.mediaId
+        binding.playlistTitle.text = description.title
+        binding.playlistDescription.text = description.subtitle
+        glide.load(description.iconUri).into(binding.playlistIcon)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,36 +17,45 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.graphics.Bitmap
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ListAdapter
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.GlideRequest
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.glide.palette.AlbumArt
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.ui.BaseAdapter
 
 internal class ArtistDetailAdapter(
     fragment: Fragment,
-    private val listener: OnItemSelectedListener
-) : BaseAdapter<BaseAdapter.ViewHolder>() {
+    private val selectionListener: SelectionListener
+) : ListAdapter<MediaItem, BaseHolder<MediaItem>>(MediaItemDiffer) {
 
     private val paletteLoader: GlideRequest<AlbumArt>
-    private val bitmapLoader: GlideRequest<Bitmap>
+    private val bitmapLoader: RequestBuilder<Bitmap>
     private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     init {
         val context = fragment.requireContext()
-        val defaultAlbumIcon = context.getDrawable(R.drawable.ic_album_24dp)
-        val defaultTrackIcon = context.getDrawable(R.drawable.ic_audiotrack_24dp)
+        val defaultAlbumIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
+        val defaultTrackIcon = ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
         paletteLoader = GlideApp.with(fragment).asAlbumArt()
+            .disallowHardwareConfig()
             .fallbackColors(defaultPalette)
             .error(defaultAlbumIcon)
             .centerCrop()
-        bitmapLoader = GlideApp.with(fragment).asBitmap()
+            .autoClone()
+        bitmapLoader = Glide.with(fragment).asBitmap()
             .error(defaultTrackIcon)
             .centerCrop()
+            .autoClone()
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -54,13 +63,33 @@ internal class ArtistDetailAdapter(
         return if (item.isBrowsable) R.id.view_type_album else R.id.view_type_track
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseHolder<MediaItem> {
         return when (viewType) {
-            R.id.view_type_album -> AlbumHolder(parent, paletteLoader, defaultPalette, true)
-            R.id.view_type_track -> TrackHolder(parent, bitmapLoader)
+            R.id.view_type_album -> AlbumHolder(
+                parent,
+                paletteLoader,
+                defaultPalette,
+                isArtistAlbum = true
+            ) { albumPosition ->
+                selectionListener.onAlbumSelected(albumPosition)
+            }
+
+            R.id.view_type_track -> ArtistTrackHolder(parent, bitmapLoader) { trackPosition ->
+                selectionListener.onTrackSelected(trackPosition)
+            }
+
             else -> error("Unexpected view type: $viewType")
-        }.apply {
-            onAttachListeners(listener)
         }
+    }
+
+    override fun onBindViewHolder(holder: BaseHolder<MediaItem>, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    public override fun getItem(position: Int): MediaItem = super.getItem(position)
+
+    interface SelectionListener {
+        fun onAlbumSelected(position: Int)
+        fun onTrackSelected(position: Int)
     }
 }

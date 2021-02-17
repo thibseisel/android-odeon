@@ -23,7 +23,6 @@
     <string name="svc_all_music">All tracks</string>
     <string name="svc_most_rated">Favorites</string>
     <string name="svc_last_added">Recently added</string>
-    <string name="svc_category_disposable">Disposable</string>
     <string name="svc_artist_subtitle">%1$d albums, %2$d tracks</string>
     <string name="svc_recently_added_description">Always good to hear the news.</string>
     <string name="svc_most_rated_description">You music library\'s Hall of Fame.</string>
@@ -39,4 +38,7 @@
     <string name="svc_player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
     <string name="svc_category_popular">Popular this month</string>
     <string name="svc_category_popular_description">A review of your last musical trends</string>
+    <string name="svc_smart_type_title">Smart mix</string>
+    <string name="svc_happy_category_title">Happy feelings</string>
+    <string name="svc_party_category_title">Let\'s party!</string>
 </resources>

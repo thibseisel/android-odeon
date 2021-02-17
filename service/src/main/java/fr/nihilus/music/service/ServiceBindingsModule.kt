@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader
@@ -35,15 +34,16 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
+    abstract fun bindsSubscriptionManager(impl: CachingSubscriptionManager): SubscriptionManager
+
+    @Binds
     abstract fun bindsPlayer(player: ExoPlayer): Player
 
     @Binds
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
 
-    @Module
     companion object {
 
-        @JvmStatic
         @Provides @ServiceScoped
         fun providesServiceScope(service: MusicService): CoroutineScope = service
     }

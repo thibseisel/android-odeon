@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,28 +22,27 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.TransitionManager
+import com.google.android.material.transition.Hold
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.afterMeasure
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
-import fr.nihilus.music.ui.BaseAdapter
-import fr.nihilus.music.ui.Stagger
-import kotlinx.android.synthetic.main.fragment_artist_detail.*
+import java.util.concurrent.TimeUnit
 
-class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), BaseAdapter.OnItemSelectedListener {
+class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
+
     private lateinit var childrenAdapter: ArtistDetailAdapter
-
     private val args: ArtistDetailFragmentArgs by navArgs()
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
@@ -53,15 +52,32 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
         super.onCreate(savedInstanceState)
 
         viewModel.setArtist(args.artistId)
-        childrenAdapter = ArtistDetailAdapter(this, this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentArtistDetailBinding.bind(view)
 
-        postponeEnterTransition()
+        setupGridToDetailTransition()
 
-        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        // Wait for albums to be displayed before returning from album detail screen.
+        postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+
+        childrenAdapter = ArtistDetailAdapter(this, object : ArtistDetailAdapter.SelectionListener {
+
+            override fun onAlbumSelected(position: Int) {
+                val holder = binding.artistChildren.findViewHolderForAdapterPosition(position) as? AlbumHolder ?: return
+                val album = childrenAdapter.getItem(position)
+                onAlbumSelected(holder, album)
+            }
+
+            override fun onTrackSelected(position: Int) {
+                val track = childrenAdapter.getItem(position)
+                onTrackSelected(track)
+            }
+        })
 
         val spanCount = resources.getInteger(R.integer.artist_grid_span_count)
         val manager = GridLayoutManager(context, spanCount)
@@ -72,11 +88,10 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
             }
         }
 
-        with(artist_detail_recycler) {
+        binding.artistChildren.apply {
             adapter = childrenAdapter
             layoutManager = manager
             setHasFixedSize(true)
-            afterMeasure { startPostponedEnterTransition() }
             itemAnimator = object : DefaultItemAnimator() {
                 override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
                     dispatchAddFinished(holder)
@@ -86,50 +101,53 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail), Base
             }
         }
 
-        val progressIndicator = view.findViewById<View>(R.id.progress_indicator)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
-            progressIndicator.isVisible = shouldShow
+            binding.progressIndicator.isVisible = shouldShow
         }
 
-        val staggerAnimation = Stagger()
+        viewModel.artist.observe(viewLifecycleOwner) {
+            binding.toolbar.title = it.description.title
+        }
 
-        viewModel.artist.observe(this, ::onArtistDetailLoaded)
-
-        viewModel.children.observe(this) { childrenRequest ->
+        viewModel.children.observe(viewLifecycleOwner) { childrenRequest ->
             when (childrenRequest) {
                 is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
                 is LoadRequest.Success -> {
                     progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(artist_detail_recycler, staggerAnimation)
-                    childrenAdapter.submitList(childrenRequest.data)
+                    this.childrenAdapter.submitList(childrenRequest.data)
+                    startPostponedEnterTransitionWhenDrawn()
                 }
                 is LoadRequest.Error -> {
                     progressBarLatch.isRefreshing = false
-                    childrenAdapter.submitList(emptyList())
+                    this.childrenAdapter.submitList(emptyList())
+                    startPostponedEnterTransitionWhenDrawn()
                 }
             }
         }
     }
 
-    override fun onItemSelected(position: Int) {
-        val selectedItem = childrenAdapter.getItem(position)
-        val holder = artist_detail_recycler.findViewHolderForAdapterPosition(position) ?: return
-        when (holder.itemViewType) {
-            R.id.view_type_track -> onTrackSelected(selectedItem)
-            R.id.view_type_album -> onAlbumSelected(holder as AlbumHolder, selectedItem)
+    private fun setupGridToDetailTransition() {
+        val sharedAxisDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = sharedAxisDuration
         }
-    }
-
-    private fun onArtistDetailLoaded(artist: MediaItem) {
-        toolbar.title = artist.description.title
+        returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = sharedAxisDuration
+        }
     }
 
     private fun onAlbumSelected(holder: AlbumHolder, album: MediaItem) {
         val albumId = album.mediaId!!
         val toAlbumDetail = ArtistDetailFragmentDirections.browseArtistAlbum(albumId)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.transitionView to albumId
+            holder.itemView to albumId
         )
+
+        // Keep this fragment displayed while animating to the next destination.
+        exitTransition = Hold().apply {
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            addTarget(R.id.fragment_artist_detail)
+        }
 
         findNavController().navigate(toAlbumDetail, transitionExtras)
     }

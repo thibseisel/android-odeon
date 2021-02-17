@@ -17,16 +17,16 @@
 package fr.nihilus.music.ui
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.collect.BoundType
-import com.google.common.collect.Range
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import com.google.common.truth.TruthJUnit.assume
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.ints.shouldBeInRange
+import io.kotest.matchers.shouldBe
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(Suite::class)
 @Suite.SuiteClasses(
@@ -54,14 +54,14 @@ class WithNoItem {
 
     @Test
     fun itShouldHaveNoSections() {
-        assertThat(indexer.sections).isEmpty()
+        indexer.sections.shouldBeEmpty()
     }
 
     @Test
     fun itShouldAlwaysReturnSectionZero() {
-        assertThat(indexer.getSectionForPosition(0)).isEqualTo(0)
-        assertThat(indexer.getSectionForPosition(2)).isEqualTo(0)
-        assertThat(indexer.getSectionForPosition(5)).isEqualTo(0)
+        indexer.getSectionForPosition(0) shouldBe 0
+        indexer.getSectionForPosition(2) shouldBe 0
+        indexer.getSectionForPosition(5) shouldBe 0
     }
 
     @Test(expected = IndexOutOfBoundsException::class)
@@ -70,7 +70,7 @@ class WithNoItem {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithOneItemPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -83,13 +83,11 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldHaveOneSectionPerItem() {
-        assertThat(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
+        indexer.sections.shouldContainExactly("A", "B", "C", "G", "H", "S")
     }
 
     @Test
     fun itShouldMapPositionToCorrespondingSection() {
-        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
-
         // [0] "Another One Bites the Dust" -> Section [0] "A"
         assertItemInSection(0, 0)
         // [1] "Black Betty" -> Section [1] "B"
@@ -106,8 +104,6 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnSectionForPosition() {
-        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "G", "H", "S").inOrder()
-
         assertSectionStartsAtPosition(0, 0)
         assertSectionStartsAtPosition(1, 1)
         assertSectionStartsAtPosition(2, 2)
@@ -117,7 +113,7 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithSameFirstLetter : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -133,13 +129,11 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldNotHaveDuplicateSections() {
-        assertThat(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
+        indexer.sections.shouldContainExactly("A", "B", "C", "H", "S")
     }
 
     @Test
     fun itShouldGroupItemsStartingWithSameLetterUnderSameSection() {
-        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
-
         // [0] "Another One Bites the Dust" -> Section [0] "A"
         assertItemInSection(0, 0)
         // [1] "Back in Black" -> Section [1] "B"
@@ -162,8 +156,6 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnPositionOfFirstItemOfSection() {
-        assume().that(indexer.sections).asList().containsExactly("A", "B", "C", "H", "S").inOrder()
-
         // Section [0] "A" starts at [0] "Another One Bites the Dust"
         assertSectionStartsAtPosition(0, 0)
         // Section [1] "B" starts at [1] "Back in Black"
@@ -177,7 +169,7 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class WithNonLetterItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "[F]",
@@ -188,13 +180,13 @@ class WithNonLetterItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldHaveLeadingSharpSection() {
-        assertThat(indexer.sections).isNotEmpty()
-        assertThat(indexer.sections.first()).isEqualTo("#")
+        indexer.sections.shouldNotBeEmpty()
+        indexer.sections.first() shouldBe "#"
     }
 
     @Test
     fun itShouldAlsoHaveLetterSectionsForOtherItems() {
-        assertThat(indexer.sections).asList().containsExactly("#", "A", "G").inOrder()
+        indexer.sections.shouldContainExactly("#", "A", "G")
     }
 
     @Test
@@ -222,12 +214,11 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldIgnoreDiacriticsInSectionNames() {
-        assertThat(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
+        indexer.sections.shouldContainExactly("A", "C", "E")
     }
 
     @Test
     fun itShouldPutDiacriticItemsInNonDiacriticSections() {
-        assume().that(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
         assertItemInSection(0, 0)
         assertItemInSection(1, 1)
         assertItemInSection(2, 1)
@@ -236,7 +227,6 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itsSectionsMayStartByDiacriticItem() {
-        assume().that(indexer.sections).asList().containsExactly("A", "C", "E").inOrder()
         assertSectionStartsAtPosition(0, 0)
         assertSectionStartsAtPosition(1, 1)
         assertSectionStartsAtPosition(2, 3)
@@ -255,12 +245,11 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldCreateSectionFomUnprefixedItems() {
-        assertThat(indexer.sections).asList().containsExactly("#", "L", "S", "U")
+        indexer.sections.shouldContainExactly("#", "L", "S", "U")
     }
 
     @Test
     fun itShouldPutPrefixedItemsInUnprefixedSections() {
-        assume().that(indexer.sections).asList().containsExactly("#", "L", "S", "U")
         assertItemInSection(0, 0)
         assertItemInSection(1, 1)
         assertItemInSection(2, 2)
@@ -270,7 +259,6 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
 
     @Test
     fun itsSectionsMayStartByPrefixedItem() {
-        assume().that(indexer.sections).asList().containsExactly("#", "L", "S", "U")
         assertSectionStartsAtPosition(0, 0)
         assertSectionStartsAtPosition(1, 1)
         assertSectionStartsAtPosition(2, 2)
@@ -290,29 +278,23 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldHaveCorrectAndSortedSections() {
-        assertThat(indexer.sections).asList().containsExactly("#", "H", "I", "T", "U").inOrder()
+        indexer.sections.shouldContainExactly("#", "H", "I", "T", "U")
     }
 
     @Test
     fun itShouldIgnoreLeadingWhitespaceCharacters() {
-        assume().that(indexer.sections).asList().containsExactly("#", "H", "I", "T", "U").inOrder()
-
         // [0] "Hello World" with spaces -> Section [1] "H"
         assertItemInSection(0, 1)
     }
 
     @Test
     fun itShouldPutEmptyStringsInSharpSection() {
-        assume().that(indexer.sections).asList().containsExactly("#", "H", "I", "T", "U").inOrder()
-
         // [4] "" -> Section [0] "#"
         assertItemInSection(4, 0)
     }
 
     @Test
     fun itShouldPutItemsInCorrectSections() {
-        assume().that(indexer.sections).asList().containsExactly("#", "H", "I", "T", "U").inOrder()
-
         // [0] "Hello World" -> Section [1] "H"
         assertItemInSection(0, 1)
         // [1] "This" -> Section [3] "T"
@@ -327,9 +309,8 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
 
     @Test
     fun itsSectionsShouldStartAtExistingPositions() {
-        val itemIndices = Range.range(0, BoundType.CLOSED, items.size, BoundType.OPEN)
         for (sectionPosition in indexer.sections.indices) {
-            assertThat(indexer.getPositionForSection(sectionPosition)).isIn(itemIndices)
+            indexer.getPositionForSection(sectionPosition).shouldBeInRange(items.indices)
         }
     }
 }
@@ -361,13 +342,11 @@ class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldCreateSubsectionsWhenTenOrMoreItemsPerSection() {
-        assertThat(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
+        indexer.sections.shouldContainExactly("SA", "SC", "SE", "SU", "SY", "T")
     }
 
     @Test
     fun itMapsItemsToCorrectSubsection() {
-        assume().that(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
-
         assertItemInSection(0, 0)
         assertItemInSection(1, 0)
         assertItemInSection(2, 1)
@@ -383,8 +362,6 @@ class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnPositionOfFirstItemOfSubsection() {
-        assume().that(indexer.sections).asList().containsExactly("SA", "SC", "SE", "SU", "SY", "T").inOrder()
-
         assertSectionStartsAtPosition(0, 0)
         assertSectionStartsAtPosition(1, 2)
         assertSectionStartsAtPosition(2, 4)
@@ -412,13 +389,11 @@ class WithLotsOfItemsPerSectionAndSpecialChars : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldIgnoreSpecialCharsWhenCreatingSubsections() {
-        assertThat(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
+        indexer.sections.shouldContainExactly("I", "IC", "IF", "IM", "IN")
     }
 
     @Test
     fun itMapsToCorrectSubsection() {
-        assume().that(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
-
         assertItemInSection(0, 0)
         assertItemInSection(1, 1)
         assertItemInSection(2, 1)
@@ -434,8 +409,6 @@ class WithLotsOfItemsPerSectionAndSpecialChars : ItemBasedIndexerScenario() {
 
     @Test
     fun itShouldReturnPositionOfFirstItemOfSubsection() {
-        assume().that(indexer.sections).asList().containsExactly("I", "IC", "IF", "IM", "IN")
-
         assertSectionStartsAtPosition(0, 0)
         assertSectionStartsAtPosition(1, 1)
         assertSectionStartsAtPosition(2, 3)
@@ -469,12 +442,13 @@ abstract class ItemBasedIndexerScenario {
      */
     protected fun assertSectionStartsAtPosition(sectionIndex: Int, expectedItemPosition: Int) {
         val actualItemPosition = indexer.getPositionForSection(sectionIndex)
-        assertWithMessage(
-            "Section '%s' should start at item [%s] '%s', but started at item [%s] '%s'",
-            indexer.sections[sectionIndex],
-            expectedItemPosition, items[expectedItemPosition],
-            actualItemPosition, items.getOrNull(actualItemPosition) ?: "<out of bound item>"
-        ).that(actualItemPosition).isEqualTo(expectedItemPosition)
+        val actualSection = indexer.sections[sectionIndex]
+        val expectedItem = items[expectedItemPosition]
+        val actualItem = items.getOrNull(actualItemPosition) ?: "<out of bound item>"
+
+        withClue("Section '$actualSection' should start at item [$expectedItemPosition] '$expectedItem', but started at item [$actualItemPosition] '$actualItem'") {
+            actualItemPosition shouldBe expectedItemPosition
+        }
     }
 
     /**
@@ -485,12 +459,13 @@ abstract class ItemBasedIndexerScenario {
     protected fun assertItemInSection(itemPosition: Int, expectedSectionIndex: Int) {
         val sections = indexer.sections
         val actualSectionIndex = indexer.getSectionForPosition(itemPosition)
-        assertWithMessage(
-            "Item [%s] '%s' should be in section '%s', but was in '%s'",
-            itemPosition,
-            items[itemPosition],
-            sections[expectedSectionIndex],
-            sections.getOrNull(actualSectionIndex) ?: "<out of bound section>"
-        ).that(actualSectionIndex).isEqualTo(expectedSectionIndex)
+
+        val itemTitle = items[itemPosition]
+        val expectedSection = sections[expectedSectionIndex]
+        val actualSection = sections.getOrNull(actualSectionIndex) ?: "<out of bound section>"
+
+        withClue("Item [$itemPosition] '$itemTitle' should be in section '$expectedSection', but was in '$actualSection'") {
+            actualSectionIndex shouldBe expectedSectionIndex
+        }
     }
 }

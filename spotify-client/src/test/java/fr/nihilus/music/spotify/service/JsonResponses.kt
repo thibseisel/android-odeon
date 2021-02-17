@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.spotify.service
 
+import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -42,7 +43,7 @@ private object TestResources {
  * @param json The content of the response, formatted as a valid JSON string.
  * @param status The status code of the HTTP response. Defaults to 200 (OK).
  */
-internal fun respondJson(
+internal fun MockRequestHandleScope.respondJson(
     @Language("JSON") json: String,
     status: HttpStatusCode = HttpStatusCode.OK
 ) = respond(json, status, headersOf(
@@ -56,7 +57,7 @@ internal fun respondJson(
  * @param filepath Path of the file relative to the root resource folder.
  * @param status The status code of the HTTP response. Defaults to 200 (OK).
  */
-internal fun respondFile(
+internal fun MockRequestHandleScope.respondFile(
     filepath: String,
     status: HttpStatusCode = HttpStatusCode.OK
 ) = respond(TestResources.getTextFromFile(filepath), status)

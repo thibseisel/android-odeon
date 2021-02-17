@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.spotify.service
 
-import android.util.Base64
 import com.squareup.moshi.Moshi
 import fr.nihilus.music.spotify.model.OAuthError
 import io.ktor.client.HttpClient
@@ -27,12 +26,14 @@ import io.ktor.client.request.accept
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.header
 import io.ktor.client.request.post
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.Parameters
 import io.ktor.http.URLProtocol
+import io.ktor.util.InternalAPI
+import io.ktor.util.encodeBase64
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -54,8 +55,7 @@ internal interface SpotifyAccountsService {
     suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken
 }
 
-internal class SpotifyAccountsServiceImpl
-@Inject constructor(
+internal class SpotifyAccountsServiceImpl @Inject constructor(
     engine: HttpClientEngine,
     moshi: Moshi,
     @Named("APP_USER_AGENT") userAgent: String
@@ -81,8 +81,10 @@ internal class SpotifyAccountsServiceImpl
     }
 
     override suspend fun authenticate(clientId: String, clientSecret: String): OAuthToken {
-        val compositeKey = "$clientId:$clientSecret".toByteArray()
-        val base64Key = Base64.encodeToString(compositeKey, Base64.NO_WRAP)
+        val compositeKey = "$clientId:$clientSecret"
+
+        @OptIn(InternalAPI::class)
+        val base64Key = compositeKey.encodeBase64()
 
         val response = http.post<HttpResponse> {
             header(HttpHeaders.Authorization, "Basic $base64Key")
@@ -91,14 +93,12 @@ internal class SpotifyAccountsServiceImpl
             })
         }
 
+        val jsonResponse = response.readText()
         return if (response.isSuccessful) {
-            tokenAdapter.fromJson(response.readText())!!
+            tokenAdapter.fromJson(jsonResponse)!!
         } else {
-            val errorPayload = errorAdapter.fromJson(response.readText())!!
-            throw AuthenticationException(
-                errorPayload.error,
-                errorPayload.description
-            )
+            val errorPayload = errorAdapter.fromJson(jsonResponse)!!
+            throw AuthenticationException(errorPayload.error, errorPayload.description)
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import timber.log.Timber
 import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 private const val ANDROID_PLATFORM = "android"
 private val WHITESPACE_REGEX = "\\s|\\n".toRegex()
@@ -54,7 +56,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
     private val context: Context
     private val packageManager: PackageManager
 
-    private val certificateWhitelist: Map<String, KnownCallerInfo>
+    private val certificateAllowList: Map<String, KnownCallerInfo>
     private val platformSignature: String
 
     private val callerChecked = mutableMapOf<String, CheckedCaller>()
@@ -64,7 +66,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         this.context = context.applicationContext
         this.packageManager = this.context.packageManager
 
-        certificateWhitelist = buildCertificateWhitelist(parser)
+        certificateAllowList = buildCertificateAllowList(parser)
         platformSignature = getSystemSignature()
     }
 
@@ -106,15 +108,15 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         }
 
         val callerSignature = callerPackageInfo.signature
-        val isPackageInWhitelist = certificateWhitelist[callingPackage]?.signatures?.firstOrNull {
+        val isPackageInAllowList = certificateAllowList[callingPackage]?.signatures?.firstOrNull {
             it.signature == callerSignature
         } != null
 
         val isCallerKnown = when {
             // If it's our own app making the call, allow it.
             callingUid == Process.myUid() -> true
-            // If it's one of the apps on the whitelist, allow it.
-            isPackageInWhitelist -> true
+            // If it's one of the apps on the allow list, allow it.
+            isPackageInAllowList -> true
             // If the system is making the call, allow it.
             callingUid == Process.SYSTEM_UID -> true
             // If the app was signed by the same certificate as the platform itself, also allow it.
@@ -189,8 +191,8 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
 
     /**
      * Looks up the [PackageInfo] for a package name.
-     * This requests both the signatures (for checking if an app is on the whitelist) and
-     * the app's permissions, which allow for more flexibility in the whitelist.
+     * This requests both the signatures (for checking if an app is on the allow list) and
+     * the app's permissions, which allow for more flexibility in the allow list.
      *
      * @return [PackageInfo] for the package name or null if it's not found.
      */
@@ -220,9 +222,9 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             getSignatureSha256(certificate)
         }
 
-    private fun buildCertificateWhitelist(parser: XmlResourceParser): Map<String, KnownCallerInfo> {
+    private fun buildCertificateAllowList(parser: XmlResourceParser): Map<String, KnownCallerInfo> {
 
-        val certificateWhitelist = LinkedHashMap<String, KnownCallerInfo>()
+        val certificateAllowList = LinkedHashMap<String, KnownCallerInfo>()
         try {
             var eventType = parser.next()
             while (eventType != XmlResourceParser.END_DOCUMENT) {
@@ -235,11 +237,11 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
 
                     callerInfo?.let { info ->
                         val packageName = info.packageName
-                        val existingCallerInfo = certificateWhitelist[packageName]
+                        val existingCallerInfo = certificateAllowList[packageName]
                         if (existingCallerInfo != null) {
                             existingCallerInfo.signatures += callerInfo.signatures
                         } else {
-                            certificateWhitelist[packageName] = callerInfo
+                            certificateAllowList[packageName] = callerInfo
                         }
                     }
                 }
@@ -252,7 +254,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             Timber.e(ioException, "Could not read allowed callers from XML.")
         }
 
-        return certificateWhitelist
+        return certificateAllowList
     }
 
     /**
@@ -280,7 +282,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         var eventType = parser.next()
         while (eventType != XmlResourceParser.END_TAG) {
             val isRelease = parser.getAttributeBooleanValue(null, "release", false)
-            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase()
+            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase(Locale.ROOT)
             callerSignatures += KnownSignature(signature, isRelease)
 
             eventType = parser.next()
@@ -323,14 +325,14 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
     }
 
     private data class KnownCallerInfo(
-        internal val name: String,
-        internal val packageName: String,
-        internal val signatures: MutableSet<KnownSignature>
+        val name: String,
+        val packageName: String,
+        val signatures: MutableSet<KnownSignature>
     )
 
     private data class KnownSignature(
-        internal val signature: String,
-        internal val release: Boolean
+        val signature: String,
+        val release: Boolean
     )
 
     /**
@@ -338,11 +340,11 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
      * to see if it's a known caller.
      */
     private data class CallerPackageInfo(
-        internal val name: String,
-        internal val packageName: String,
-        internal val uid: Int,
-        internal val signature: String?,
-        internal val permissions: Set<String>
+        val name: String,
+        val packageName: String,
+        val uid: Int,
+        val signature: String?,
+        val permissions: Set<String>
     )
 
     private data class CheckedCaller(

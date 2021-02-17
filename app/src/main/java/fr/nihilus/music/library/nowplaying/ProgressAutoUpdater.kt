@@ -18,9 +18,9 @@ package fr.nihilus.music.library.nowplaying
 
 import android.os.Handler
 import android.os.SystemClock
-import android.text.format.DateUtils
 import android.widget.SeekBar
 import android.widget.TextView
+import fr.nihilus.music.ui.formatDuration
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -54,7 +54,6 @@ class ProgressAutoUpdater(
     private val seekDuration: TextView,
     private val updateListener: (Long) -> Unit
 ) {
-    private val builder = StringBuilder()
     private val executorService = Executors.newSingleThreadScheduledExecutor()
     private val handler = Handler()
 
@@ -82,12 +81,12 @@ class ProgressAutoUpdater(
 
         // Update the max progression.
         seekBar.max = duration.toInt()
-        seekDuration.text = DateUtils.formatElapsedTime(builder, duration / 1000L)
+        seekDuration.text = formatDuration(duration)
 
         // Update the visual playback position.
         if (position != -1L) {
             seekBar.progress = position.toInt()
-            seekPosition.text = DateUtils.formatElapsedTime(builder, position / 1000L)
+            seekPosition.text = formatDuration(position)
         } else {
             seekBar.progress = 0
             seekPosition.text = null
@@ -125,7 +124,7 @@ class ProgressAutoUpdater(
     private inner class UserSeekListener : SeekBar.OnSeekBarChangeListener {
 
         override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-            seekPosition.text = DateUtils.formatElapsedTime(builder, progress / 1000L)
+            seekPosition.text = formatDuration(progress.toLong())
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar) {

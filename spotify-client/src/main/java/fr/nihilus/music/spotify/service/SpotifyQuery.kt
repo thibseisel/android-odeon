@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,28 @@ internal sealed class SpotifyQuery<T : Any> {
     abstract override fun toString(): String
 
     /**
+     * Transforms user input to make it easier for Spotify to find matching results.
+     *
+     * It seems that Spotify cannot find results if the query contains single quotes
+     * in a quoted field filter:
+     * ```
+     * track:"don't stop me now"
+     * ```
+     * does not work, so we remove single quotes from the query.
+     *
+     * @param text The input to sanitize.
+     * @return The same text in lowercase and without single quotes.
+     */
+    protected fun sanitize(text: String): String {
+        var result: String = text
+        if (text.contains('\'')) {
+            result = text.replace("'", "")
+        }
+
+        return result.toLowerCase(Locale.ENGLISH)
+    }
+
+    /**
      * Query parameters to find a track.
      *
      * @param title Keywords contained in the title of the searched track.
@@ -52,21 +74,26 @@ internal sealed class SpotifyQuery<T : Any> {
      * @param album Optional keywords contained in the title of the album the track features in.
      */
     class Track(
-        val title: String,
-        val artist: String? = null,
-        val album: String? = null
+        title: String,
+        artist: String? = null,
+        album: String? = null
     ) : SpotifyQuery<SpotifyTrack>() {
 
+        val title = sanitize(title)
+        val artist = artist?.let { sanitize(it) }
+        val album = album?.let { sanitize(it) }
+
         override fun toString(): String = buildString {
+            append("track:")
             append('"')
-            append(title.toLowerCase(Locale.ENGLISH))
+            append(title)
             append('"')
 
             if (artist != null) {
                 append(' ')
                 append("artist:")
                 append('"')
-                append(artist.toLowerCase(Locale.ENGLISH))
+                append(artist)
                 append('"')
             }
 
@@ -74,7 +101,7 @@ internal sealed class SpotifyQuery<T : Any> {
                 append(' ')
                 append("album:")
                 append('"')
-                append(album.toLowerCase(Locale.ENGLISH))
+                append(album)
                 append('"')
             }
         }
@@ -87,20 +114,23 @@ internal sealed class SpotifyQuery<T : Any> {
      * @param artist Optional keywords contained in the name of the artist that produced the album.
      */
     class Album(
-        val title: String,
-        val artist: String? = null
+        title: String,
+        artist: String? = null
     ) : SpotifyQuery<SpotifyAlbum>() {
+
+        val title = sanitize(title)
+        val artist = artist?.let { sanitize(it) }
 
         override fun toString(): String = buildString {
             append('"')
-            append(title.toLowerCase(Locale.ENGLISH))
+            append(title)
             append('"')
 
             if (artist != null) {
                 append(' ')
                 append("artist:")
                 append('"')
-                append(artist.toLowerCase(Locale.ENGLISH))
+                append(artist)
                 append('"')
             }
         }
@@ -111,11 +141,12 @@ internal sealed class SpotifyQuery<T : Any> {
      *
      * @param name Keywords contained in the name of the searched artist.
      */
-    class Artist(val name: String) : SpotifyQuery<SpotifyArtist>() {
+    class Artist(name: String) : SpotifyQuery<SpotifyArtist>() {
+        val name = sanitize(name)
 
         override fun toString(): String = buildString {
             append('"')
-            append(name.toLowerCase(Locale.ENGLISH))
+            append(name)
             append('"')
         }
     }

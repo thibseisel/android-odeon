@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,50 +21,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp"
-    android:paddingStart="@dimen/horizontal_edge_margin"
-    android:paddingEnd="@dimen/horizontal_edge_margin"
+    android:paddingHorizontal="@dimen/grid_4"
     android:background="?attr/selectableItemBackground"
     android:textDirection="locale">
 
-    <ImageView
-        android:id="@+id/album_art"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/album_artwork"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="@dimen/horizontal_edge_margin"
-        android:layout_marginTop="8dp"
+        android:layout_marginVertical="@dimen/grid_1"
         android:contentDescription="@string/album_art"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@tools:sample/avatars"/>
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Odeon.SmallComponent"
+        tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/track_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginHorizontal="@dimen/grid_2"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.Odeon.Subtitle1"
+        android:textAppearance="?textAppearanceSubtitle1"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/duration"
+        app:layout_constraintEnd_toStartOf="@+id/track_duration"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@id/album_art"
+        app:layout_constraintStart_toEndOf="@id/album_artwork"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@sample/songs.json/data/title"/>
 
     <TextView
-        android:id="@+id/duration"
+        android:id="@+id/track_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/horizontal_edge_margin"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.Odeon.Caption"
-        app:layout_constraintBaseline_toBaselineOf="@id/title"
+        android:textAppearance="?textAppearanceCaption"
+        app:layout_constraintBaseline_toBaselineOf="@id/track_title"
         app:layout_constraintEnd_toEndOf="parent"
         tools:text="@sample/songs.json/data/duration"/>
 

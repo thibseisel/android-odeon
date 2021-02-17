@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2020 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="dev_sync_summary_waiting">Oczekiwanie na dostępność sieci…</string>
+    <string name="dev_sync_summary_running">Synchronizacja jest uruchomiona…</string>
+    <string name="dev_sync_summary_success">Zsynchronizowano pomyślnie</string>
+    <string name="dev_sync_summary_failure">Synchronizacja nie powiodła się</string>
+    <string name="prefs_category_appearance">Wygląd</string>
+    <string name="pref_theme_title">Motyw</string>
+    <string name="pref_theme_light">Jasny</string>
+    <string name="pref_theme_dark">Ciemny</string>
+    <string name="pref_theme_battery">Ustawiany przez oszczędzanie baterii</string>
+    <string name="pref_theme_system">Używaj motywu systemowego</string>
+    <string name="action_dev_options">Opcje programisty</string>
+    <string name="pref_title_spotify_sync">Synchronizuj z Spotify</string>
+    <string name="pref_title_audio_analysis">Analiza audio</string>
+    <string name="pref_summary_audio_analysis">Wybierz ścieżki na podstawie ich specyfikacji audio</string>
+    <string name="prefs_category_playback_options">Playback options</string>
+    <string name="pref_title_reload_queue">Reload last played queue</string>
+    <string name="pref_reload_queue_start">From the beginning</string>
+    <string name="pref_reload_queue_track">From last played track</string>
+    <string name="pref_reload_queue_position">Exactly where it last stopped</string>
+    <string name="pref_title_prepare_on_startup">Prepare queue on app startup</string>
+</resources>

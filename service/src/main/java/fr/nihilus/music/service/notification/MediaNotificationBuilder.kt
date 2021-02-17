@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.media.dagger.ServiceScoped
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.R
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.extensions.*
 import javax.inject.Inject
 
@@ -42,8 +42,7 @@ internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
  * Encapsulate code for building media notifications displaying the currently playing media.
  */
 @ServiceScoped
-internal class MediaNotificationBuilder
-@Inject constructor(
+internal class MediaNotificationBuilder @Inject constructor(
     private val context: MusicService,
     session: MediaSessionCompat
 ) {
@@ -57,7 +56,7 @@ internal class MediaNotificationBuilder
      * An action that does nothing.
      * Used to display a blank space in lieu of a disabled action.
      */
-    private val noOpAction = NotificationCompat.Action(0, null, null)
+    private val noOpAction = NotificationCompat.Action(R.drawable.svc_ic_blank_24, null, null)
 
     private val previousAction = NotificationCompat.Action(
         R.drawable.svc_ic_skip_previous_36dp,
@@ -97,9 +96,7 @@ internal class MediaNotificationBuilder
         val isPlaying = playbackState.isPlaying
 
         // Display notification actions depending on playback state and actions availability
-        val builder = NotificationCompat.Builder(context,
-            NOW_PLAYING_CHANNEL
-        )
+        val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
         builder.addAction(if (playbackState.isSkipToPreviousEnabled) previousAction else noOpAction)
         if (isPlaying) {
             builder.addAction(pauseAction)
@@ -108,15 +105,18 @@ internal class MediaNotificationBuilder
         }
         builder.addAction(if (playbackState.isSkipToNextEnabled) nextAction else noOpAction)
 
-        // Display current playback position as a chronometer
-        if (isPlaying && playbackState.position >= 0) {
-            builder.setWhen(System.currentTimeMillis() - playbackState.position)
-                .setUsesChronometer(true)
-                .setShowWhen(true)
-        } else {
-            builder.setWhen(0)
-                .setUsesChronometer(false)
-                .setShowWhen(false)
+        // Display current playback position as a chronometer on Android 9 and older.
+        // On Android 10 and onwards a progress bar is already displayed in the notification.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (isPlaying && playbackState.position >= 0) {
+                builder.setWhen(System.currentTimeMillis() - playbackState.position)
+                    .setUsesChronometer(true)
+                    .setShowWhen(true)
+            } else {
+                builder.setWhen(0)
+                    .setUsesChronometer(false)
+                    .setShowWhen(false)
+            }
         }
 
         // Specific style for media playback notifications
@@ -131,6 +131,7 @@ internal class MediaNotificationBuilder
             .setContentText(metadata.displaySubtitle)
             .setDeleteIntent(stopPendingIntent)
             .setLargeIcon(metadata.albumArt)
+            .setShowWhen(false)
             .setOnlyAlertOnce(true)
             .setSmallIcon(if (isPlaying) R.drawable.svc_notif_play_arrow else R.drawable.svc_notif_pause)
             .setStyle(mediaStyle)

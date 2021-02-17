@@ -21,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ListView
 import androidx.annotation.LayoutRes
+import fr.nihilus.music.core.ui.base.ListAdapter.ViewHolder
 import fr.nihilus.music.core.ui.extensions.inflate
 
 /**
@@ -30,7 +31,7 @@ import fr.nihilus.music.core.ui.extensions.inflate
  * Its API mimics that of [RecyclerView.Adapter][androidx.recyclerview.widget.RecyclerView.Adapter]
  * to make it easier to migrate implementations to support recycler view at a later time.
  */
-abstract class ListAdapter<T, VH : ListAdapter.ViewHolder> : BaseAdapter() {
+abstract class ListAdapter<T, VH : ViewHolder> : BaseAdapter() {
     private val _items = mutableListOf<T>()
 
     /**

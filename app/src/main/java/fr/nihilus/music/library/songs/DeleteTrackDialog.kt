@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_dialog_title)
             .setMessage(R.string.delete_dialog_message)
-            .setPositiveButton(R.string.action_delete) { _, _ -> onDelete() }
-            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.core_action_delete) { _, _ -> onDelete() }
+            .setNegativeButton(R.string.core_cancel, null)
             .create()
     }
 

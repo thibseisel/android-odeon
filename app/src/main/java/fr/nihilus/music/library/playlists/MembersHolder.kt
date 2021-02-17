@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,47 +17,43 @@
 package fr.nihilus.music.library.playlists
 
 import android.graphics.Bitmap
-import android.support.v4.media.MediaBrowserCompat
-import android.text.format.DateUtils
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.glide.GlideRequest
-import fr.nihilus.music.ui.BaseAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.PlaylistTrackItemBinding
+import fr.nihilus.music.ui.formatDuration
 
 /**
  * Display a playlist's track.
  */
 internal class MembersHolder(
     parent: ViewGroup,
-    private val glide: GlideRequest<Bitmap>
-) : BaseAdapter.ViewHolder(parent, R.layout.playlist_track_item) {
+    private val glide: RequestBuilder<Bitmap>,
+    onTrackSelected: (position: Int) -> Unit
+) : BaseHolder<MediaItem>(parent, R.layout.playlist_track_item) {
 
-    private val albumArt: ImageView = itemView.findViewById(R.id.album_art_view)
-    private val title: TextView = itemView.findViewById(R.id.title)
-    private val subtitle: TextView = itemView.findViewById(R.id.subtitle_view)
-
+    private val binding = PlaylistTrackItemBinding.bind(itemView)
     private val subtitleTemplate = itemView.context.getString(R.string.song_item_subtitle)
-    private val durationBuilder = StringBuilder()
 
-    override fun onAttachListeners(client: BaseAdapter.OnItemSelectedListener) {
+    init {
         itemView.setOnClickListener {
-            client.onItemSelected(adapterPosition)
+            onTrackSelected(adapterPosition)
         }
     }
 
-    override fun onBind(item: MediaBrowserCompat.MediaItem) {
-        val description = item.description
-        glide.load(description.iconUri).into(albumArt)
-        title.text = description.title
+    override fun bind(data: MediaItem) {
+        val description = data.description
+        glide.load(description.iconUri).into(binding.albumArtwork)
+        binding.trackTitle.text = description.title
 
         val millis = description.extras?.getLong(MediaItems.EXTRA_DURATION)
                 ?: error("Track should have extras")
-        subtitle.text = String.format(
+        binding.trackMetadata.text = String.format(
             subtitleTemplate, description.subtitle,
-            DateUtils.formatElapsedTime(durationBuilder, millis / 1000L)
+            formatDuration(millis)
         )
     }
 }

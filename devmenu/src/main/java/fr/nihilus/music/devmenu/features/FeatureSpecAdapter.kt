@@ -16,76 +16,93 @@
 
 package fr.nihilus.music.devmenu.features
 
+import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.core.ui.extensions.inflate
 import fr.nihilus.music.devmenu.R
-import fr.nihilus.music.devmenu.RangeSlider
 
-internal class AudioFeatureSpec(
-    val featureNameId: Int,
-    val minValue: Float,
-    val maxValue: Float
-) {
-    var lowerBound: Float = minValue
-    var upperBound: Float = maxValue
-}
+internal class FeatureSpecAdapter(
+    private val viewModel: ComposerViewModel
+) : ListAdapter<FeatureFilterState, FeatureSpecAdapter.RangeInputHolder>(Differ()) {
 
-internal class FeatureSpecAdapter : RecyclerView.Adapter<FeatureSpecAdapter.ViewHolder>() {
-    private val featureSpecs = listOf(
-        AudioFeatureSpec(R.string.dev_label_tempo, 0f, 240f),
-        AudioFeatureSpec(R.string.dev_label_loudness, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_acousticness, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_label_energy, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_label_danceability, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_label_instrumentalness, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_label_valence, 0f, 1f),
-        AudioFeatureSpec(R.string.dev_label_liveness, 0f, 1f)
-    )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = RangeInputHolder(parent)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
-
-    override fun getItemCount(): Int = featureSpecs.size
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(featureSpecs[position])
+    override fun onBindViewHolder(holder: RangeInputHolder, position: Int) {
+        val featureFilter = getItem(position)
+        holder.bind(featureFilter)
     }
 
-    inner class ViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(parent.inflate(R.layout.dev_feature_row)) {
+    private fun updateFilter(feature: Feature, lowerText: String?, upperText: String?) {
+        val minValue = lowerText?.toFloatOrNull()
+        val maxValue = upperText?.toFloatOrNull()
+
+        if (minValue != null && maxValue != null) {
+            val filterSpec = FeatureFilterState(feature, minValue, maxValue)
+            viewModel.setFilter(filterSpec)
+        }
+    }
+
+    inner class RangeInputHolder(parent: ViewGroup) : RecyclerView.ViewHolder(parent.inflate(R.layout.dev_range_featurespec)) {
         private val featureLabel: TextView = itemView.findViewById(R.id.label)
-        private val slider: RangeSlider = itemView.findViewById(R.id.slider)
-        private val lowerLabel: TextView = itemView.findViewById(R.id.lower_label)
-        private val upperLabel: TextView = itemView.findViewById(R.id.upper_label)
+        private val lowerInput: EditText = itemView.findViewById(R.id.input_lower)
+        private val upperInput: EditText = itemView.findViewById(R.id.input_upper)
+        private val removeButton: ImageView = itemView.findViewById(R.id.action_remove)
 
         init {
-            slider.setOnRangeChangedListener(object : RangeSlider.OnRangeChangedListener {
+            val onFieldFocusLostListener = View.OnFocusChangeListener { _, isFocused ->
+                val position = adapterPosition
+                if (!isFocused && position >= 0) {
+                    updateFilter(
+                        getItem(adapterPosition).feature,
+                        lowerInput.text?.toString(),
+                        upperInput.text?.toString()
+                    )
+                }
+            }
 
-                override fun onRangeChanged(slider: RangeSlider, lower: Float, upper: Float) {
-                    lowerLabel.text = lower.toString()
-                    upperLabel.text = upper.toString()
+            lowerInput.onFocusChangeListener = onFieldFocusLostListener
+            upperInput.onFocusChangeListener = onFieldFocusLostListener
+
+            upperInput.setOnEditorActionListener { v, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    v.clearFocus()
+                    return@setOnEditorActionListener true
                 }
 
-                override fun onStartTrackingTouch(slider: RangeSlider) {}
+                return@setOnEditorActionListener false
+            }
 
-                override fun onStopTrackingTouch(slider: RangeSlider) {
-                    val feature = featureSpecs[adapterPosition]
-                    feature.lowerBound = slider.lowerBound
-                    feature.upperBound = slider.upperBound
-                }
-            })
+            removeButton.setOnClickListener {
+                val featureFilter = getItem(adapterPosition)
+                viewModel.removeFilter(featureFilter)
+            }
         }
 
-        fun bind(feature: AudioFeatureSpec) {
-            featureLabel.text = featureLabel.context.getString(feature.featureNameId)
+        fun bind(filter: FeatureFilterState) {
+            featureLabel.text = featureLabel.context.getString(filter.feature.labelResId)
 
-            slider.minValue = feature.minValue
-            slider.maxValue = feature.maxValue
-            slider.lowerBound = feature.lowerBound
-            slider.upperBound = feature.upperBound
-
-            lowerLabel.text = feature.lowerBound.toString()
-            upperLabel.text = feature.upperBound.toString()
+            lowerInput.setText(filter.minValue.toString())
+            upperInput.setText(filter.maxValue.toString())
         }
+    }
+
+    private class Differ : DiffUtil.ItemCallback<FeatureFilterState>() {
+
+        override fun areItemsTheSame(
+            oldItem: FeatureFilterState,
+            newItem: FeatureFilterState
+        ): Boolean = oldItem.feature == newItem.feature
+
+        override fun areContentsTheSame(
+            oldItem: FeatureFilterState,
+            newItem: FeatureFilterState
+        ): Boolean = oldItem.minValue == newItem.minValue && oldItem.maxValue == newItem.maxValue
     }
 }

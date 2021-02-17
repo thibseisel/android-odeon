@@ -33,5 +33,5 @@ internal object SpotifyApiModule {
     fun providesOkHttpEngine(): HttpClientEngine = OkHttp.create()
 
     @Provides @Named("SPOTIFY_CLIENT_SECRET")
-    fun providesClientSecret() = ""
+    fun providesClientSecret() = BuildConfig.SPOTIFY_CLIENT_SECRET
 }

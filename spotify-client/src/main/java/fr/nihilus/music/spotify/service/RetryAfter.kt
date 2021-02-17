@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,14 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
 import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.delay
+import timber.log.Timber
 
 /**
  * [HttpClient] feature that automatically re-sends requests if the server responded with
  * [the HTTP 429 status code][HttpStatusCode.TooManyRequests]. Requests are retried after
  * a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
  */
-@KtorExperimentalAPI
+@OptIn(KtorExperimentalAPI::class)
 internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
     override val key: AttributeKey<RetryAfter> = AttributeKey("RetryAfter")
 
@@ -41,14 +42,21 @@ internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
 
     override fun install(feature: RetryAfter, scope: HttpClient) {
         // Add an interceptor to the send pipeline to transform the original call.
-        scope.feature(HttpSend)?.intercept { original ->
+        scope.feature(HttpSend)?.intercept { original, _ ->
             val status = original.response.status
             val retryAfterSeconds = original.response.headers[HttpHeaders.RetryAfter]?.toIntOrNull()
 
             if (status != HttpStatusCode.TooManyRequests || retryAfterSeconds == null) original else {
-                // We received the 429 status code: close the original response, wait and re-issue the request.
-                original.close()
-                delay(retryAfterSeconds * 1000L)
+                // We received the 429 status code: wait and re-issue the request.
+                Timber.tag("TooManyRequests").d(
+                    "Need to wait %s seconds before retrying request: %s",
+                    retryAfterSeconds,
+                    original.request.url
+                )
+
+                // Since the number of seconds to wait is rounded down,
+                // we need to wait one more second to make sure the delay is elapsed.
+                delay((retryAfterSeconds + 1) * 1000L)
 
                 val reattemptedRequest = HttpRequestBuilder()
                 reattemptedRequest.takeFrom(original.request)

@@ -21,14 +21,16 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides an entry point for performing read and write operations on media stored on the device's external storage.
- * This acts as a reactive layer over the Android MediaStore as an alternative to [MediaProvider].
  * Each set of media, namely [tracks], [albums] and [artists], are available as infinite data streams
  * whose latest emitted element is the most up-to-date media list.
  *
  * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
  * all operations may fail if permission to read/write external storage is denied.
+ *
+ * Note: this class is exceptionally public in order to be injected in other modules,
+ * as a workaround until a suitable replacement for MediaRepository is found.
  */
-internal interface MediaDao {
+interface MediaDao {
 
     /**
      * The list of all tracks that are stored on the device's external storage, sorted by title.

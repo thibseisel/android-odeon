@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.launchIn
@@ -29,8 +30,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MusicLibraryViewModel
-@Inject constructor(
+class MusicLibraryViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {
 
@@ -66,7 +66,7 @@ class MusicLibraryViewModel
         require(playableMedia.isPlayable) { "The specified media is not playable." }
 
         viewModelScope.launch {
-            client.playFromMediaId(playableMedia.mediaId!!)
+            client.playFromMediaId(playableMedia.mediaId.parse())
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package fr.nihilus.music.core.ui.extensions
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.annotation.LayoutRes
 
 /**
@@ -34,12 +33,3 @@ import androidx.annotation.LayoutRes
  */
 fun ViewGroup.inflate(@LayoutRes resource: Int, attach: Boolean = false): View =
     LayoutInflater.from(context).inflate(resource, this, attach)
-
-inline fun <T : View> T.afterMeasure(crossinline block: T.() -> Unit) {
-    viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-        override fun onGlobalLayout() {
-            viewTreeObserver.removeOnGlobalLayoutListener(this)
-            block()
-        }
-    })
-}

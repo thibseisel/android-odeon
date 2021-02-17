@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.spotify.service
 
-import kotlinx.io.errors.IOException
+import io.ktor.utils.io.errors.IOException
 
 /**
  * Thrown when the Spotify API responds with an unexpected HTTP status code and the client is unable to recover.

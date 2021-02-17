@@ -1,0 +1,99 @@
+<!--
+  ~ Copyright 2019 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <!--
+        Pointer to the Android API-specific base theme.
+        Override this theme to apply API-level specific customizations.
+        -->
+    <style name="Platform.Odeon" parent="Platform.Odeon.V21"/>
+    <style name="Platform.Odeon.V21" parent="Theme.MaterialComponents.DayNight.DarkActionBar"/>
+
+    <!-- Definition of the app theme, minus color palette. -->
+    <style name="Base.Odeon" parent="Platform.Odeon">
+        <!-- Typography attributes -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Odeon.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Odeon.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Odeon.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Odeon.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Odeon.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Odeon.Headline6</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Odeon.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Odeon.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Odeon.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Odeon.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Odeon.Overline</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Odeon.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Odeon.Subtitle2</item>
+
+        <!-- Shape attributes -->
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Odeon.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Odeon.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.Odeon.LargeComponent</item>
+
+        <!-- Styling ActionMode to look like Material Design Specs -->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Widget.Odeon.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ui_ic_clear_24dp</item>
+
+        <!-- Custom style for FastScroller -->
+        <item name="android:fastScrollStyle">@style/Widget.Odeon.FastScroll</item>
+
+        <!-- Custom styles for existing Views -->
+        <item name="android:listViewStyle">@style/Widget.Odeon.ListView</item>
+        <item name="recyclerViewStyle">@style/Widget.Odeon.RecyclerView</item>
+
+        <!-- Color palette to use for an album that has no album art. -->
+        <item name="albumPalettePrimaryColor">?colorSurface</item>
+        <item name="albumPaletteAccentColor">?colorSecondary</item>
+        <item name="albumPaletteTitleTextColor">?android:attr/textColorPrimary</item>
+        <item name="albumPaletteBodyTextColor">?android:attr/textColorSecondary</item>
+        <item name="albumPaletteTextOnAccentColor">?colorOnSecondary</item>
+    </style>
+
+    <!-- App Light Theme, overridden in values-night -->
+    <style name="Odeon" parent="Base.Odeon">
+        <!-- Color attributes -->
+        <item name="colorPrimary">@color/mtrl_deep_purple_500</item>
+        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_700</item>
+        <item name="colorSecondary">@color/mtrl_orange_a200</item>
+        <item name="colorSecondaryVariant">@color/mtrl_orange_a200</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorOnSecondary">@android:color/black</item>
+
+        <!-- This color is still used as the default status bar color -->
+        <item name="colorPrimaryDark">?colorPrimarySurface</item>
+    </style>
+
+    <!--
+      - Extension of the default theme that removes the decor ActionBar.
+      - This allows using Toolbar in XML layouts.
+      -->
+    <style name="Odeon.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <!--
+        Extension of the default theme that draws edge to edge,
+        i.e. behind status and navigation bars.
+        -->
+    <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
+        <item name="android:statusBarColor">@color/immersive_sys_ui</item>
+        <item name="android:navigationBarColor">@color/nav_bar_background</item>
+    </style>
+
+</resources>

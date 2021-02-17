@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ package fr.nihilus.music.dagger
 import android.content.Context
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.BuildConfig
 import fr.nihilus.music.OdeonApplication
+import javax.inject.Named
 
 /**
  * The main module for this application.
@@ -33,4 +35,7 @@ internal object AppModule {
 
     @Provides
     fun provideContext(application: OdeonApplication): Context = application.applicationContext
+
+    @Provides @Named("APP_VERSION_NAME")
+    fun providesVersionName() = BuildConfig.VERSION_NAME
 }

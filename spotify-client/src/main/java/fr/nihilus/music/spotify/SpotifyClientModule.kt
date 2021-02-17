@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,18 +45,16 @@ internal abstract class SpotifyClientModule {
     @Binds
     abstract fun bindsSpotifyApiService(impl: SpotifyServiceImpl): SpotifyService
 
-    @Module
     companion object {
 
-        @JvmStatic
         @Provides @Named("SPOTIFY_CLIENT_KEY")
-        fun providesClientKey() = "845647bc2d3147c1a2d48584fc6b978c"
+        fun providesClientKey() = BuildConfig.SPOTIFY_CLIENT_ID
 
-        @JvmStatic
         @Provides @Named("APP_USER_AGENT")
-        fun providesUserAgent() = "Odeon/${BuildConfig.VERSION_NAME} OkHttp"
+        fun providesUserAgent(
+            @Named("APP_VERSION_NAME") versionName: String
+        ): String = "Odeon/$versionName OkHttp"
 
-        @JvmStatic
         @Provides @Reusable
         fun providesMoshi(): Moshi = Moshi.Builder()
             // Additional custom converters should be placed before the Kotlin JSON Adapter.

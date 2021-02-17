@@ -44,24 +44,19 @@ abstract class CommonTestModule {
     @Binds
     abstract fun bindsTestClock(clock: TestClock): Clock
 
-    @Module
     internal companion object {
 
-        @JvmStatic
         @Provides @Singleton
         fun providesTestClock(
             @Named("TestClock.startTime") startTime: Long?
         ) = TestClock(startTime ?: 0L)
 
-        @JvmStatic
         @Provides @Singleton
         fun providesTestPermissions() = RevocablePermission()
 
-        @JvmStatic
         @Provides
         fun providesFileSystem(): FileSystem = NoopFileSystem
 
-        @JvmStatic
         @Provides @Singleton
         fun providesSharedPreferences(context: Context): SharedPreferences =
             context.getSharedPreferences("test", Context.MODE_PRIVATE)

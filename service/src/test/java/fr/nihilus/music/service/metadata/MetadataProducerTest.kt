@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,102 +19,75 @@ package fr.nihilus.music.service.metadata
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
-import android.os.Bundle
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
+import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth.assertThat
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.test.fail
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.extensions.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.channels.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.Test
 
-@ObsoleteCoroutinesApi
 @RunWith(AndroidJUnit4::class)
-class MetadataProducerTest {
-
-    //@JvmField @Rule val coroutineTimeout = CoroutinesTimeout.seconds(5)
-
-    private val sampleMediaDescription by lazy {
-        MediaDescription(
-            mediaId = encode(TYPE_TRACKS, CATEGORY_ALL, 75L),
-            title = "Nightmare",
-            subtitle = "Avenged Sevenfold",
-            description = "Well, that intro is creepy",
-            duration = 374648L,
-            iconUri = Uri.parse("file:///Music/Nightmare.mp3")
-        )
-    }
+internal class MetadataProducerTest {
 
     @Test
-    fun whenSendingQueueItem_thenExtractItsMetadata() = runBlockingTest {
+    fun `Properly extract metadata from track`() = runBlockingTest {
+        val sampleMedia = AudioTrack(
+            id = MediaId(TYPE_TRACKS, CATEGORY_ALL, 75L),
+            title = "Nightmare",
+            artist = "Avenged Sevenfold",
+            album = "Nightmare",
+            mediaUri = Uri.EMPTY,
+            iconUri = Uri.parse("file:///Music/Nightmare.mp3"),
+            duration = 374648L,
+            disc = 1,
+            number = 1
+        )
+
         val output = Channel<MediaMetadataCompat>()
         val producer = metadataProducer(DummyBitmapFactory, output)
 
         try {
-            producer.send(sampleMediaDescription)
+            producer.send(sampleMedia)
 
             val metadata = output.receive()
-            assertThat(metadata.id).isEqualTo(sampleMediaDescription.mediaId)
+            metadata.id shouldBe encode(TYPE_TRACKS, CATEGORY_ALL, 75L)
 
             // Generic display properties.
-            assertThat(metadata.displayTitle).isEqualTo("Nightmare")
-            assertThat(metadata.displaySubtitle).isEqualTo("Avenged Sevenfold")
-            assertThat(metadata.displayDescription).isEqualTo("Well, that intro is creepy")
-            assertThat(metadata.duration).isEqualTo(374648L)
-            assertThat(metadata.displayIconUri).isEqualTo("file:///Music/Nightmare.mp3")
+            assertSoftly(metadata) {
+                displayTitle shouldBe "Nightmare"
+                displaySubtitle shouldBe "Avenged Sevenfold"
+                displayDescription shouldBe "Nightmare"
+                duration shouldBe 374648L
+                displayIconUri shouldBe "file:///Music/Nightmare.mp3".toUri()
+            }
 
             // Specific properties that may be used by some Bluetooth devices.
-            assertThat(metadata.title).isEqualTo("Nightmare")
-            assertThat(metadata.artist).isEqualTo("Avenged Sevenfold")
-            assertThat(metadata.album).isEqualTo("Nightmare")
+            assertSoftly(metadata) {
+                title shouldBe "Nightmare"
+                artist shouldBe "Avenged Sevenfold"
+                album shouldBe "Nightmare"
+            }
 
             // Check that the loaded icon is 320x320 and has a red pixel on top, as defined by DummyBitmapFactory.
-            metadata.albumArt?.let { iconBitmap ->
-                assertThat(iconBitmap.width).isEqualTo(320)
-                assertThat(iconBitmap.height).isEqualTo(320)
-                assertThat(iconBitmap.getPixel(0, 0)).isEqualTo(Color.RED)
-            } ?: fail("Metadata should have a bitmap at ${MediaMetadataCompat.METADATA_KEY_ALBUM_ART}, but was null.")
-
-        } finally {
-            producer.close()
-        }
-    }
-
-    /**
-     * Checks that the metadata builder is correctly reused between creation of different metadata.
-     * If some properties of the description are missing,
-     * then the resulting metadata should not carry over the properties of the previously produced metadata.
-     */
-    @Test
-    fun givenPreviousDescription_whenSendingAnother_thenResultingMetadataShouldNotRetainPropertiesOfThePrevious() = runBlockingTest {
-        val emptyDescription = MediaDescriptionCompat.Builder()
-            .setMediaId(encode(TYPE_TRACKS, CATEGORY_ALL, 42L))
-            .build()
-
-        val output = Channel<MediaMetadataCompat>(Channel.CONFLATED)
-        val producer = metadataProducer(DummyBitmapFactory, output)
-
-        try {
-            producer.send(sampleMediaDescription)
-            producer.send(emptyDescription)
-            val metadata = output.receive()
-
-            assertThat(metadata.id).isEqualTo(emptyDescription.mediaId)
-            assertThat(metadata.displayTitle).isNull()
-            assertThat(metadata.displaySubtitle).isNull()
-            assertThat(metadata.displayDescription).isNull()
-            assertThat(metadata.duration).isEqualTo(-1L)
-            assertThat(metadata.displayIconUri).isNull()
-            assertThat(metadata.albumArt).isNull()
+            val iconBitmap = metadata.albumArt
+            iconBitmap.shouldNotBeNull()
+            assertSoftly(iconBitmap) {
+                width shouldBe 320
+                height shouldBe 320
+                getPixel(0, 0) shouldBe Color.RED
+            }
 
         } finally {
             producer.close()
@@ -122,25 +95,23 @@ class MetadataProducerTest {
     }
 
     @Test
-    fun whenSendingTwoItemsAtTheSameTime_thenOnlyProduceMetadataOfTheLatest() = runBlockingTest {
-        val firstItemId = encode(TYPE_TRACKS, CATEGORY_ALL, 16L)
-        val secondItemId = encode(TYPE_TRACKS, CATEGORY_ALL, 42L)
+    fun `When sending two tracks at the same time, then only produce latest`() = runBlockingTest {
+        val firstTrackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L)
+        val secondTrackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 42L)
 
-        val items = listOf(firstItemId, secondItemId).map { mediaId ->
-            MediaDescription(mediaId, null, null, null, -1L, Uri.EMPTY)
-        }
+        val tracks = listOf(firstTrackId, secondTrackId).map { id -> audioTrack(id) }
 
         val output = Channel<MediaMetadataCompat>()
         val producer = metadataProducer(FixedDelayDownloader, output)
 
         try {
-            producer.send(items[0])
-            producer.send(items[1])
+            producer.send(tracks[0])
+            producer.send(tracks[1])
 
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME)
 
             val lastTrackMetadata = output.receive()
-            assertThat(lastTrackMetadata.id).isEqualTo(secondItemId)
+            lastTrackMetadata.id shouldBe secondTrackId.encoded
 
         } finally {
             producer.close()
@@ -148,26 +119,28 @@ class MetadataProducerTest {
     }
 
     @Test
-    fun whenSendingSameItemTwoTimes_thenIgnoreTheSecond() = runBlockingTest {
-        val itemId = encode(TYPE_TRACKS, CATEGORY_ALL, 16L)
-        val firstItem = MediaDescription(itemId, "First item", null, null, 0L, Uri.EMPTY)
-        val secondItem = MediaDescription(itemId, "Second item", null, null, 0L, Uri.EMPTY)
+    fun `When sending same item two times, then ignore the second one`() = runBlockingTest {
+        val trackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L)
+        val firstTrack = audioTrack(trackId, "First track")
+        val secondTrack = audioTrack(trackId, "Second track")
         val output = Channel<MediaMetadataCompat>()
 
         val producer = metadataProducer(FixedDelayDownloader, output)
 
         try {
-            producer.send(firstItem)
+            producer.send(firstTrack)
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
-            producer.send(secondItem)
+            producer.send(secondTrack)
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
 
             val firstMetadata = output.receive()
-            assertThat(firstMetadata.id).isEqualTo(itemId)
-            assertThat(firstMetadata.displayTitle).isEqualTo("First item")
+            assertSoftly(firstMetadata) {
+                id shouldBe trackId.encoded
+                displayTitle shouldBe "First track"
+            }
 
             advanceTimeBy(FixedDelayDownloader.DOWNLOAD_TIME / 2)
-            assertThat(output.isEmpty).isTrue()
+            output.shouldBeEmpty()
 
         } finally {
             producer.close()
@@ -201,24 +174,8 @@ class MetadataProducerTest {
         }
     }
 
-    /**
-     * Helper function for creating sample queue items.
-     */
-    private fun MediaDescription(
-        mediaId: String,
-        title: CharSequence?,
-        subtitle: CharSequence?,
-        description: CharSequence?,
-        duration: Long,
-        iconUri: Uri?
-    ): MediaDescriptionCompat = MediaDescriptionCompat.Builder()
-        .setMediaId(mediaId)
-        .setTitle(title)
-        .setSubtitle(subtitle)
-        .setDescription(description)
-        .setIconUri(iconUri)
-        .setExtras(Bundle(1).apply {
-            putLong(MediaItems.EXTRA_DURATION, duration)
-        })
-        .build()
+    private fun audioTrack(
+        id: MediaId,
+        title: String = ""
+    ) = AudioTrack(id, title, "", "", Uri.EMPTY, null, 0, 0, 0)
 }

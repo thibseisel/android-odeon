@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2020 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="prefs_category_appearance">Appearance</string>
+    <string name="dev_sync_summary_waiting">Waiting for network to be available…</string>
+    <string name="dev_sync_summary_running">Sync is running…</string>
+    <string name="dev_sync_summary_success">Synced successfully</string>
+    <string name="dev_sync_summary_failure">Sync failed</string>
+    <string name="pref_theme_title">Theme</string>
+    <string name="pref_theme_light">Light</string>
+    <string name="pref_theme_dark">Dark</string>
+    <string name="pref_theme_battery">Set by Battery Saver</string>
+    <string name="pref_theme_system">Use system default</string>
+    <string name="prefs_category_playback_options">Playback options</string>
+    <string name="pref_title_reload_queue">Reload last played queue</string>
+    <string name="pref_reload_queue_start">From the beginning</string>
+    <string name="pref_reload_queue_track">From last played track</string>
+    <string name="pref_reload_queue_position">Exactly where it last stopped</string>
+    <string name="action_dev_options">Developer Options</string>
+    <string name="pref_title_spotify_sync">Sync with Spotify</string>
+    <string name="pref_title_audio_analysis">Audio analysis</string>
+    <string name="pref_summary_audio_analysis">Select tracks based on their audio features</string>
+    <string name="pref_title_prepare_on_startup">Prepare queue on app startup</string>
+</resources>

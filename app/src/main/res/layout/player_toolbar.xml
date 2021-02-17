@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2020 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="8dp"
+    app:cardMaxElevation="8dp"
+    app:cardUseCompatPadding="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/content_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:id="@+id/now_playing_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_section_guideline"
+            tools:progress="100" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/top_section_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="56dp" />
+
+        <ImageView
+            android:id="@+id/now_playing_artwork"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@string/album_art"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/now_playing_title"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/grid_2"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?textAppearanceSubtitle1"
+            app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
+            app:layout_constraintEnd_toStartOf="@id/now_playing_toggle"
+            app:layout_constraintStart_toEndOf="@id/now_playing_artwork"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="The 2nd Law: Isolated System" />
+
+        <ImageView
+            android:id="@+id/now_playing_toggle"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="@dimen/grid_2"
+            app:layout_constraintTop_toBottomOf="@id/now_playing_progress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/level_play_pause" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

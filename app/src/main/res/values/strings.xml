@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,55 +17,24 @@
 <resources>
     <string name="album_art">Album art</string>
     <string name="action_albums">Albums</string>
-    <string name="action_settings">Settings</string>
     <string name="action_artists">Artists</string>
     <string name="play_all_shuffled">Play all shuffled</string>
     <string name="action_search">Search</string>
     <string name="empty_songs">No songs</string>
     <string name="all_music">Tracks</string>
     <string name="empty_albums">No albums</string>
-    <string name="prefs_category_appearance">Appearance</string>
-    <string name="pref_theme_title">Theme</string>
     <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Toggle shuffle mode</string>
     <string name="play_or_pause">Play or pause</string>
     <string name="skip_previous">Skip to previous</string>
     <string name="skip_next">Skip to next</string>
     <string name="empty_artist">No artists</string>
-    <string name="action_delete">Delete</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="delete_dialog_title">Delete from library?</string>
-    <string name="cancel">Cancel</string>
     <string name="empty_playlist">No playlist</string>
     <string name="delete_dialog_message">This song will be deleted from your device.</string>
-    <plurals name="deleted_songs_confirmation">
-        <item quantity="one">The track has been deleted.</item>
-        <item quantity="other">Those tracks have been deleted.</item>
-    </plurals>
-
-    <plurals name="number_of_tracks">
-        <item quantity="one">%d track</item>
-        <item quantity="other">%d tracks</item>
-    </plurals>
-
-    <plurals name="number_of_selected_tracks">
-        <item quantity="one">%d track selected</item>
-        <item quantity="other">%d tracks selected</item>
-    </plurals>
-
-    <plurals name="cleanup_confirmation_title">
-        <item quantity="one">Delete %d track?</item>
-        <item quantity="other">Delete %d tracks?</item>
-    </plurals>
-
-    <plurals name="tracks_added_to_playlist">
-        <item quantity="one">%1$d track added to playlist \"%2$s\"</item>
-        <item quantity="other">%1$d tracks added to playlist "\%2$s\"</item>
-    </plurals>
-
     <string name="playlist_created">Created new playlist \"%1$s\".</string>
     <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="ok">OK</string>
     <string name="action_edit_playlist">Edit playlist</string>
     <string name="action_delete_playlist">Delete playlist</string>
     <string name="delete_playlist_dialog_title">Delete the playlist \"%s\"?</string>
@@ -74,25 +43,9 @@
     <string name="action_repeat_mode">Toggle repeat mode</string>
     <string name="action_create_playlist">New playlist</string>
     <string name="hint_playlist_title">Playlist title</string>
-    <string name="pref_title_skip_silence">Skip silence in tracks</string>
-    <string name="pref_summary_skip_silence">Skip start or end of a track if it produces no noise</string>
-    <string name="pref_category_experimental">Experimental</string>
-    <string name="last_played_description">Last played %1$s</string>
-    <string name="never_played">Never played</string>
-    <string name="pref_theme_light">Light</string>
-    <string name="pref_theme_dark">Dark</string>
-    <string name="pref_theme_battery">Set by Battery Saver</string>
-    <string name="pref_theme_system">Use system default</string>
-    <string-array name="prefs_theme_titles">
-        <item>@string/pref_theme_light</item>
-        <item>@string/pref_theme_dark</item>
-        <item>@string/pref_theme_battery</item>
-        <item>@string/pref_theme_system</item>
-    </string-array>
-    <string name="action_cleanup_title">Free storage space</string>
-    <string name="cleanup_confirmation_message">This operation cannot be undone.</string>
-    <string name="search_hint">Find a track, an artist…</string>
+    <string name="search_hint">Find a track, an artist</string>
     <string name="action_clear">Clear</string>
+    <string name="desc_clear_search">Clear search query</string>
     <string name="description_more_actions">More actions</string>
-    <string name="action_dev_options">Developer Options</string>
+    <string name="desc_play_album">Play album</string>
 </resources>

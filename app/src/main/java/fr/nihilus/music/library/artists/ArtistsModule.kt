@@ -29,7 +29,7 @@ import fr.nihilus.music.library.artists.detail.ArtistDetailViewModel
 internal abstract class ArtistsModule {
 
     @ContributesAndroidInjector
-    abstract fun artistListFragment(): ArtistListFragment
+    abstract fun artistListFragment(): ArtistsFragment
 
     @ContributesAndroidInjector
     abstract fun artistDetailFragment(): ArtistDetailFragment

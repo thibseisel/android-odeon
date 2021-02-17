@@ -20,12 +20,16 @@ import android.content.Context
 import android.os.Build
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import androidx.annotation.Dimension
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import kotlin.math.roundToInt
 
@@ -44,6 +48,52 @@ var Window.darkSystemIcons: Boolean
             systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
         }
     }
+
+/**
+ * Whether the window this View belongs to has requested to be drawn behind the status bar
+ * and the navigation bar.
+ */
+var View.isDrawnEdgeToEdge: Boolean
+    get() = (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != 0) &&
+            (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != 0)
+    set(value) {
+        systemUiVisibility = when (value) {
+            true -> systemUiVisibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+            else -> systemUiVisibility and (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION).inv()
+        }
+    }
+
+/**
+ * Packed offset dimensions applied to a View, such as padding or margin.
+ *
+ * @property left Spacing applied at left, in pixels.
+ * @property top Spacing applied on top, in pixels.
+ * @property right Spacing applied at right, in pixels.
+ * @property bottom Spacing applied below, in pixels.
+ */
+class ViewSpacing(@Px val left: Int, @Px val top: Int, @Px val right: Int, @Px val bottom: Int)
+
+/**
+ * Allow applying window insets to a view, preventing this view to be obscured
+ * by system UI portions such as the status bar and the navigation bar.
+ *
+ * @param block A function to be called when the window should apply its insets.
+ * That function is passed the target view, the window insets and the view's initial padding
+ * and margin.
+ */
+fun View.doOnApplyWindowInsets(
+    block: (View, insets: WindowInsetsCompat, padding: ViewSpacing, margin: ViewSpacing) -> Unit
+) {
+    val initialPadding = ViewSpacing(paddingStart, paddingTop, paddingEnd, paddingBottom)
+    val initialMargin = with(layoutParams as ViewGroup.MarginLayoutParams) {
+        ViewSpacing(leftMargin, topMargin, rightMargin, bottomMargin)
+    }
+
+    ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+        block(view, insets, initialPadding, initialMargin)
+        insets
+    }
+}
 
 /**
  * Convert Density-Independent Pixels to raw pixels using device information
@@ -73,4 +123,17 @@ fun Fragment.startActionMode(callback: ActionMode.Callback): ActionMode? {
                     "to be attached to a subclass of AppCompatActivity"
         )
     return hostActivity.startSupportActionMode(callback)
+}
+
+/**
+ * Start enter transitions that were postponed for this fragment when its content has been redrawn.
+ * This is meant to be used when the data backing a RecyclerView
+ * has been updated for the first time.
+ *
+ * See [https://developer.android.com/training/basics/fragments/animate#recyclerview]
+ */
+fun Fragment.startPostponedEnterTransitionWhenDrawn() {
+    (requireView().parent as? ViewGroup)?.doOnPreDraw {
+        startPostponedEnterTransition()
+    }
 }

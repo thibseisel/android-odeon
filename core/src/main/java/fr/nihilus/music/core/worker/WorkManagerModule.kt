@@ -16,12 +16,9 @@
 
 package fr.nihilus.music.core.worker
 
-import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
-import javax.inject.Provider
 
 /**
  * Provides dependencies required for the configuration of [androidx.work.WorkManager].
@@ -31,15 +28,4 @@ abstract class WorkManagerModule {
 
     @Binds
     internal abstract fun bindsWorkerFactory(factory: DaggerWorkerFactory): WorkerFactory
-
-    @Module
-    internal companion object {
-
-        /**
-         * Provides an empty map of factories.
-         * This is temporary and is only required for compilation until the Spotify Worker is ready.
-         */
-        @JvmStatic @Provides
-        fun providesPlaceholderFactories(): Map<Class<out ListenableWorker>, @JvmSuppressWildcards Provider<SingleWorkerFactory>> = emptyMap()
-    }
 }

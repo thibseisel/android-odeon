@@ -17,7 +17,9 @@
 package fr.nihilus.music.service.extensions
 
 import android.graphics.Bitmap
+import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
+import androidx.core.net.toUri
 
 /**
  * Provides utilities for creating and reading MediaMetadataCompat objects
@@ -51,8 +53,8 @@ inline val MediaMetadataCompat.displaySubtitle: String?
 inline val MediaMetadataCompat.displayDescription: String?
     get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_DESCRIPTION)
 
-inline val MediaMetadataCompat.displayIconUri: String?
-    get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI)
+inline val MediaMetadataCompat.displayIconUri: Uri?
+    get() = getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI)?.toUri()
 
 
 // These do not have getters, so create a message for the error.
@@ -128,9 +130,9 @@ inline var MediaMetadataCompat.Builder.displayIcon: Bitmap?
         putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, value)
     }
 
-inline var MediaMetadataCompat.Builder.displayIconUri: String?
+inline var MediaMetadataCompat.Builder.displayIconUri: Uri?
     @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
     get() = throw IllegalAccessException()
     set(value) {
-        putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value)
+        putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, value?.toString())
     }

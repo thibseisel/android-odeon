@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,20 +22,20 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.transition.MaterialSharedAxis
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.library.albums.AlbumGridFragment
-import fr.nihilus.music.library.artists.ArtistListFragment
+import fr.nihilus.music.databinding.FragmentHomeBinding
+import fr.nihilus.music.library.albums.AlbumsFragment
+import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
-import fr.nihilus.music.library.songs.SongListFragment
-import kotlinx.android.synthetic.main.fragment_home.*
+import fr.nihilus.music.library.songs.AllTracksFragment
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,28 +47,27 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentHomeBinding.bind(view)
 
         // Postpone transition when returning from album detail.
-        postponeEnterTransition(300L, TimeUnit.MILLISECONDS)
-        allowReturnTransitionOverlap = true
+        postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
 
         // Configure toolbar with title and menu.
-        toolbar.run {
+        binding.toolbar.run {
             setTitle(R.string.core_app_name)
             prepareMenu()
         }
 
         // Configure tabs and ViewPager.
         val pagerAdapter = MusicLibraryTabAdapter(this)
-        fragment_pager.adapter = pagerAdapter
-        fragment_pager.offscreenPageLimit = 1
-        TabLayoutMediator(tab_host, fragment_pager, false) { tab, position ->
+        binding.fragmentPager.adapter = pagerAdapter
+        binding.fragmentPager.offscreenPageLimit = 1
+        TabLayoutMediator(binding.tabHost, binding.fragmentPager, false) { tab, position ->
             tab.icon = pagerAdapter.getIcon(position)
             tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()
 
-
-        viewModel.deleteTracksConfirmation.observe(this) { toastMessageEvent ->
+        viewModel.deleteTracksConfirmation.observe(viewLifecycleOwner) { toastMessageEvent ->
             toastMessageEvent.handle { deletedTracksCount ->
                 val message = resources.getQuantityString(
                     R.plurals.deleted_songs_confirmation,
@@ -86,19 +85,40 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         setOnMenuItemClickListener(::onOptionsItemSelected)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.onNavDestinationSelected(findNavController())) {
-            return true
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_search -> {
+            navigateToSearch()
+            true
         }
 
-        return when (item.itemId) {
-            R.id.action_shuffle -> {
-                viewModel.playAllShuffled()
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
+        R.id.action_shuffle -> {
+            viewModel.playAllShuffled()
+            true
         }
+
+        R.id.start_cleanup -> {
+            findNavController().navigate(R.id.start_cleanup)
+            true
+        }
+
+        R.id.activity_settings -> {
+            findNavController().navigate(R.id.activity_settings)
+            true
+        }
+
+        else -> super.onOptionsItemSelected(item)
+    }
+
+    private fun navigateToSearch() {
+        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
+            duration = transitionDuration
+        }
+        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false).apply {
+            duration = transitionDuration
+        }
+
+        findNavController().navigate(HomeFragmentDirections.actionHomeToSearch())
     }
 
     /**
@@ -110,9 +130,9 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         override fun getItemCount(): Int = 4
 
         override fun createFragment(position: Int): Fragment = when(position) {
-            0 -> SongListFragment()
-            1 -> AlbumGridFragment()
-            2 -> ArtistListFragment()
+            0 -> AllTracksFragment()
+            1 -> AlbumsFragment()
+            2 -> ArtistsFragment()
             3 -> PlaylistsFragment()
             else -> error("Requested a Fragment for a tab at unexpected position: $position")
         }
@@ -126,10 +146,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
 
         fun getIcon(position: Int): Drawable? = when (position) {
-            0 -> context.getDrawable(R.drawable.ic_audiotrack_24dp)
-            1 -> context.getDrawable(R.drawable.ic_album_24dp)
-            2 -> context.getDrawable(R.drawable.ic_person_24dp)
-            3 -> context.getDrawable(R.drawable.ic_playlist_24dp)
+            0 -> ContextCompat.getDrawable(context, R.drawable.ic_audiotrack_24dp)
+            1 -> ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
+            2 -> ContextCompat.getDrawable(context, R.drawable.ic_person_24dp)
+            3 -> ContextCompat.getDrawable(context, R.drawable.ic_playlist_24dp)
             else -> null
         }
     }

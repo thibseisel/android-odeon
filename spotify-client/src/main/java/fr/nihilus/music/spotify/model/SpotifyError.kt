@@ -40,7 +40,7 @@ internal data class OAuthError(
      * in [RFC 6749 Section 4.1.2.1][https://tools.ietf.org/html/rfc6749#section-4.1.2.1].
      */
     @Json(name = "error_description")
-    val description: String
+    val description: String?
 )
 
 /**

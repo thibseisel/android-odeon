@@ -1,25 +1,39 @@
 <component name="ProjectDictionaryState">
   <dictionary name="Thib">
     <words>
+      <w>acousticness</w>
+      <w>audiotrack</w>
       <w>browsable</w>
       <w>coroutine</w>
       <w>coroutines</w>
+      <w>danceability</w>
+      <w>flac</w>
       <w>hideable</w>
+      <w>instrumentalness</w>
+      <w>ktor</w>
       <w>listview</w>
+      <w>liveness</w>
       <w>moshi</w>
       <w>mtrl</w>
+      <w>mvvm</w>
       <w>nihilus</w>
+      <w>nowplaying</w>
       <w>odeon</w>
+      <w>overline</w>
+      <w>playerview</w>
       <w>playlists</w>
       <w>recyclerview</w>
       <w>seisel</w>
       <w>snackbar</w>
+      <w>speechiness</w>
       <w>spotify</w>
       <w>subcomponent</w>
       <w>supermassive</w>
       <w>thibault</w>
+      <w>thibseisel</w>
       <w>transcode</w>
       <w>unsubscribe</w>
+      <w>workmanager</w>
     </words>
   </dictionary>
 </component>

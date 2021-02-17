@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,27 @@
 package fr.nihilus.music.library.albums
 
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Transition
-import androidx.transition.TransitionInflater
 import androidx.transition.TransitionListenerAdapter
 import com.bumptech.glide.request.target.ImageViewTarget
+import com.google.android.material.transition.MaterialContainerTransform
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.extensions.darkSystemIcons
 import fr.nihilus.music.core.ui.extensions.luminance
-import fr.nihilus.music.extensions.doOnEnd
-import fr.nihilus.music.glide.GlideApp
-import fr.nihilus.music.glide.palette.AlbumArt
-import kotlinx.android.synthetic.main.fragment_album_detail.*
+import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.core.ui.extensions.themeColor
+import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.palette.AlbumArt
+import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.databinding.FragmentAlbumDetailBinding
 import java.util.concurrent.TimeUnit
 
 /**
@@ -50,6 +48,8 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
     private val args: AlbumDetailFragmentArgs by navArgs()
 
+    private var binding: FragmentAlbumDetailBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -58,46 +58,50 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // We are expecting an enter transition.
+        super.onViewCreated(view, savedInstanceState)
+        val binding = FragmentAlbumDetailBinding.bind(view)
+        this.binding = binding
+
+        // Start shared element enter transition only after track list have been loaded.
         postponeEnterTransition(500, TimeUnit.MILLISECONDS)
 
         // Set transition names.
         // Note that they don't need to match with the names of the selected grid item.
         // They only have to be unique in this fragment.
-        album_art_view.transitionName = args.albumId
+        view.transitionName = args.albumId
 
-        toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
-        play_fab.setOnClickListener {
+        binding.playFab.setOnClickListener {
             viewModel.playAlbum()
         }
 
         val adapter = TrackAdapter(viewModel::playTrack)
-        recycler.adapter = adapter
-
-        setDarkHomeUpIndicator(true)
-        setDarkStatusBarIcons(true)
+        binding.albumTrackList.adapter = adapter
 
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
-            onAlbumDetailLoaded(albumDetail)
+            onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
+            startPostponedEnterTransitionWhenDrawn()
         }
     }
 
-    private fun onAlbumDetailLoaded(album: AlbumDetailState) {
-        title_view.text = album.title
-        subtitle_view.text = album.subtitle
+    private fun onAlbumDetailLoaded(album: AlbumDetailState, binding: FragmentAlbumDetailBinding) {
+        binding.albumTitle.text = album.title
+        binding.albumArtistName.text = album.subtitle
 
-        GlideApp.with(this).asAlbumArt()
+        // Note: Glide is attached to the context of the activity to workaround a bug in
+        // MaterialContainerTransform not capturing images in return transition.
+        GlideApp.with(requireActivity()).asAlbumArt()
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)
             .dontTransform()
-            .doOnEnd(this::startPostponedEnterTransition)
-            .into(object : ImageViewTarget<AlbumArt>(album_art_view) {
+            .disallowHardwareConfig()
+            .into(object : ImageViewTarget<AlbumArt>(binding.albumArtwork) {
 
                 override fun setResource(resource: AlbumArt?) {
                     if (resource != null) {
-                        applyPaletteTheme(resource.palette)
+                        applyPaletteTheme(resource.palette, binding)
                         super.view.setImageBitmap(resource.bitmap)
                     }
                 }
@@ -105,49 +109,46 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     }
 
     private fun setupSharedElementTransitions() {
-        val inflater = TransitionInflater.from(requireContext())
-        val albumArtTransition = inflater.inflateTransition(R.transition.album_art_transition)
-        sharedElementEnterTransition = albumArtTransition
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            // Animate behind player sheet and status bar.
+            drawingViewId = R.id.nav_host_fragment
+            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            // Draw a background color behind the track list to prevent from drawing
+            // the seeing the previous fragment beneath.
+            val themeColorSurface = requireContext().themeColor(R.attr.colorSurface)
+            setAllContainerColors(themeColorSurface)
 
-        albumArtTransition.addListener(object : TransitionListenerAdapter() {
+            addListener(object : TransitionListenerAdapter() {
 
-            override fun onTransitionStart(transition: Transition) {
-                // Hide the Floating Action Button at the beginning of the animation.
-                play_fab?.isVisible = false
-            }
+                override fun onTransitionStart(transition: Transition) {
+                    // Hide the Floating Action Button at the beginning of the animation.
+                    binding?.playFab?.isVisible = false
+                }
 
-            override fun onTransitionEnd(transition: Transition) {
-                activity?.window?.statusBarColor = Color.TRANSPARENT
-
-                // Show the Floating Action Button after transition is completed.
-                play_fab?.show()
-            }
-        })
-    }
-
-    private fun applyPaletteTheme(palette: AlbumPalette) {
-        album_info_layout.setBackgroundColor(palette.primary)
-        title_view.setTextColor(palette.titleText)
-        subtitle_view.setTextColor(palette.bodyText)
-
-        val darkStatusText = palette.bodyText.luminance < 0.5f
-        setDarkHomeUpIndicator(darkStatusText)
-        setDarkStatusBarIcons(darkStatusText)
-
-        collapsing_toolbar.setStatusBarScrimColor(palette.primaryDark)
-        collapsing_toolbar.setContentScrimColor(palette.primary)
-
-        play_fab.backgroundTintList = ColorStateList.valueOf(palette.accent)
-        play_fab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
-    }
-
-    private fun setDarkStatusBarIcons(isDark: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity?.window?.darkSystemIcons = isDark
+                override fun onTransitionEnd(transition: Transition) {
+                    // Show the Floating Action Button after transition is completed.
+                    binding?.playFab?.show()
+                }
+            })
         }
     }
 
-    private fun setDarkHomeUpIndicator(dark: Boolean) {
+    private fun applyPaletteTheme(palette: AlbumPalette, binding: FragmentAlbumDetailBinding) {
+        binding.albumInfoLayout.setBackgroundColor(palette.primary)
+        binding.albumTitle.setTextColor(palette.titleText)
+        binding.albumArtistName.setTextColor(palette.bodyText)
+
+        val darkStatusText = palette.primary.luminance > 0.5f
+        setDarkHomeUpIndicator(darkStatusText, binding)
+
+        binding.collapsingToolbar.setStatusBarScrimColor(palette.primaryDark)
+        binding.collapsingToolbar.setContentScrimColor(palette.primary)
+
+        binding.playFab.backgroundTintList = ColorStateList.valueOf(palette.accent)
+        binding.playFab.imageTintList = ColorStateList.valueOf(palette.textOnAccent)
+    }
+
+    private fun setDarkHomeUpIndicator(dark: Boolean, binding: FragmentAlbumDetailBinding) {
         val themedContext = ContextThemeWrapper(
             requireContext(),
             if (dark) R.style.ThemeOverlay_AppCompat_Light
@@ -155,6 +156,11 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         )
 
         val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
-        toolbar.navigationIcon = upArrow
+        binding.toolbar.navigationIcon = upArrow
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }

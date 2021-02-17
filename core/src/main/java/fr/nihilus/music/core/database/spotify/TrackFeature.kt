@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package fr.nihilus.music.core.database.spotify
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -24,7 +25,7 @@ import androidx.room.PrimaryKey
  * Audio features of a specific track.
  */
 @Entity(tableName = "track_feature")
-class TrackFeature(
+data class TrackFeature(
 
     /**
      * The unique identifier of the analyzed track.
@@ -137,6 +138,27 @@ class TrackFeature(
 )
 
 /**
+ * Audio features associated with a track stored locally on the device.
+ */
+class LocalizedTrackFeature(
+
+    /**
+     * The unique identifier of a track stored on the device's storage.
+     */
+    @ColumnInfo(name = "local_id")
+    val trackId: Long,
+
+    /**
+     * The audio features that have been linked to that local track.
+     */
+    @Embedded
+    val features: TrackFeature
+) {
+    operator fun component1() = trackId
+    operator fun component2() = features
+}
+
+/**
  * Enumeration of musical modes.
  */
 enum class MusicalMode {
@@ -146,29 +168,39 @@ enum class MusicalMode {
 /**
  * Values map to pitches using standard Pitch Class notation.
  * E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on.
+ *
+ * For enharmonic tones such as C♯/D♭ or G♯/A♭, the name of the associated constant
+ * is chosen from the tone with the simplest key signature.
+ * For example, C♯ has 7♯ while D♭ has 5♭, therefore we pick D♭ (D FLAT) as the constant name.
  */
 enum class Pitch {
-    C, C_SHARP, D, D_SHARP, E, F, F_SHARP, G, G_SHARP, A, A_SHARP, B;
+    C, D_FLAT, D, E_FLAT, E, F, F_SHARP, G, A_FLAT, A, B_FLAT, B;
 }
 
+/**
+ * Parse the raw code for the `mode` property from the Spotify AudioFeature object.
+ */
 fun decodeMusicalMode(mode: Int): MusicalMode = when (mode) {
     0 -> MusicalMode.MINOR
     1 -> MusicalMode.MAJOR
     else -> error("Invalid encoded value for MusicalMode: $mode")
 }
 
+/**
+ * Parse the raw code for the `key` property from the Spotify AudioFeature object.
+ */
 fun decodePitch(key: Int?): Pitch? = when (key) {
     0 -> Pitch.C
-    1 -> Pitch.C_SHARP
+    1 -> Pitch.D_FLAT
     2 -> Pitch.D
-    3 -> Pitch.D_SHARP
+    3 -> Pitch.E_FLAT
     4 -> Pitch.E
     5 -> Pitch.F
     6 -> Pitch.F_SHARP
     7 -> Pitch.G
-    8 -> Pitch.G_SHARP
+    8 -> Pitch.A_FLAT
     9 -> Pitch.A
-    10 -> Pitch.A_SHARP
+    10 -> Pitch.B_FLAT
     11 -> Pitch.B
     else -> null
 }

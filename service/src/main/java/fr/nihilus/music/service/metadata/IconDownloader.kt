@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.Target
-import fr.nihilus.music.media.dagger.ServiceScoped
+import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.extensions.intoBitmap
 import javax.inject.Inject
 
@@ -69,12 +69,12 @@ internal interface IconDownloader {
  * @param context The context used to initialize Glide.
  */
 @ServiceScoped
-internal class GlideDownloader
-@Inject constructor(context: Context) : IconDownloader {
+internal class GlideDownloader @Inject constructor(context: Context) : IconDownloader {
     private val glide: RequestBuilder<Bitmap> = Glide.with(context)
         .asBitmap()
+        .disallowHardwareConfig()
         .downsample(DownsampleStrategy.CENTER_INSIDE)
-        .lock()
+        .autoClone()
 
     override suspend fun loadBitmap(iconUri: Uri, width: Int, height: Int): Bitmap? {
         require(width >= 0 || width == IconDownloader.ORIGINAL_SIZE) {

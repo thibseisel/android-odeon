@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright 2019 Thibault Seisel
+  ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="Widget.AppTheme.EditText.Number" parent="Widget.AppCompat.EditText">
+    <style name="Widget.Odeon.EditText.Number" parent="Widget.AppCompat.EditText">
         <item name="android:gravity">center</item>
         <item name="android:inputType">number</item>
         <item name="android:maxLength">3</item>
@@ -24,30 +24,26 @@
         <item name="android:imeOptions">actionNext</item>
     </style>
 
-    <style name="Widget.AppTheme.EditText.Number.Decimal">
+    <style name="Widget.Odeon.EditText.Number.Decimal">
         <item name="android:inputType">numberDecimal</item>
     </style>
 
-    <style name="Widget.AppTheme.TextView.Section" parent="">
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingBottom">8dp</item>
+    <style name="Widget.Odeon.TextView.Section" parent="">
+        <item name="android:paddingTop">@dimen/grid_2</item>
+        <item name="android:paddingBottom">@dimen/grid_1</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Headline5
         </item>
     </style>
 
-    <!-- Default style for RangeSlider. -->
-    <style name="Widget.RangeSlider" parent="">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="trackDrawable">@drawable/range_slider_track</item>
-        <item name="progressDrawable">@drawable/range_slider_progress</item>
-        <item name="thumbDrawable">@drawable/range_slider_thumb</item>
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-    </style>
-
-    <!-- Custom style for RangeSlider that displays tick marks along the slider. -->
-    <style name="Widget.RangeSlider.Discrete">
-        <item name="tickMarkDrawable">@drawable/range_slider_tick_mark</item>
+    <style name="Widget.Odeon.Cartridge" parent="">
+        <item name="android:layout_marginStart">@dimen/grid_1</item>
+        <item name="android:layout_marginTop">@dimen/grid_2</item>
+        <item name="android:layout_marginBottom">@dimen/grid_2</item>
+        <item name="android:layout_marginEnd">@dimen/grid_1</item>
+        <item name="android:background">@drawable/dev_cartridge_shape</item>
+        <item name="android:backgroundTint">?colorPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance.Odeon.Subtitle2</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="android:elevation">2dp</item>
     </style>
 </resources>

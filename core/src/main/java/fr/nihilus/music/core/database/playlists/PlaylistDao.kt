@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.core.database.playlists
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
@@ -33,18 +34,13 @@ abstract class PlaylistDao {
     abstract val playlists: Flow<List<Playlist>>
 
     /**
-     * Find all tracks that are part of a specified playlist.
+     * Observe tracks that are part of the specified playlist.
+     * A new list is emitted whenever tracks are added, moved or removed from that playlist.
+     *
      * @param playlistId The [unique identifier][Playlist.id] of the requested playlist.
      */
     @Query("SELECT * FROM playlist_track WHERE playlist_id = :playlistId ORDER BY position ASC")
-    abstract suspend fun getPlaylistTracks(playlistId: Long): List<PlaylistTrack>
-
-    /**
-     * Find all playlists that contain tracks with the specified [ids][trackIds].
-     * @param trackIds The unique identifiers of tracks that might be part of playlists.
-     */
-    @Query("SELECT * FROM playlist_track WHERE music_id IN (:trackIds)")
-    abstract suspend fun getPlaylistsHavingTracks(trackIds: LongArray): LongArray
+    abstract fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>>
 
     /**
      * Insert a new playlist record into the database.
@@ -63,6 +59,7 @@ abstract class PlaylistDao {
      * If the given list of tracks is empty, then nothing happens.
      *
      * @param tracks List of tracks to be added to one or multiple playlists.
+     * @throws SQLiteConstraintException When attempting to add tracks to an unknown playlist.
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun addTracks(tracks: List<PlaylistTrack>)

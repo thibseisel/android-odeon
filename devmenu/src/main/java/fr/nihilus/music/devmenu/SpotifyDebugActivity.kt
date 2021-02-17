@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,35 @@
 package fr.nihilus.music.devmenu
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import fr.nihilus.music.devmenu.features.MixComposerFragment
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import fr.nihilus.music.core.ui.base.BaseActivity
+import fr.nihilus.music.devmenu.features.ComposerViewModel
 
-class SpotifyDebugActivity : AppCompatActivity() {
+class SpotifyDebugActivity : BaseActivity() {
+    private val viewModel by viewModels<ComposerViewModel> { viewModelFactory }
+
+    private val navController: NavController by lazy {
+        findNavController(R.id.nav_host)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_spotify_debug)
 
-        if (savedInstanceState != null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.container, MixComposerFragment())
-                .commitNow()
+        setupActionBarWithNavController(navController, AppBarConfiguration(navController.graph))
+
+        viewModel.events.observe(this) { event ->
+            event.handle { message ->
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
+    override fun onSupportNavigateUp(): Boolean =
+        navController.navigateUp() || super.onSupportNavigateUp()
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2020 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,29 @@
 package fr.nihilus.music.service.playback
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.os.ResultReceiver
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ShuffleOrder
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.toMediaId
+import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
+import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.media.R
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
-import fr.nihilus.music.service.extensions.doOnPrepared
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -54,21 +50,13 @@ import kotlin.random.Random
  * Handle requests to prepare media that can be played from the Odeon Media Player.
  * This fetches media information from the music library.
  */
-internal class OdeonPlaybackPreparer
-@Inject constructor(
-    context: Context,
+internal class OdeonPlaybackPreparer @Inject constructor(
     private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
     private val settings: Settings
 ) : MediaSessionConnector.PlaybackPreparer {
-
-    private val audioOnlyExtractors = AudioOnlyExtractorsFactory()
-    private val appDataSourceFactory = DefaultDataSourceFactory(
-        context,
-        Util.getUserAgent(context, context.getString(R.string.core_app_name))
-    )
 
     override fun getSupportedPrepareActions(): Long =
         PlaybackStateCompat.ACTION_PREPARE or
@@ -85,11 +73,22 @@ internal class OdeonPlaybackPreparer
      *
      * @see MediaSessionCompat.Callback.onPrepare
      */
-    override fun onPrepare() {
+    override fun onPrepare(playWhenReady: Boolean) {
         // Should prepare playing the "current" media, which is the last played media id.
         // If not available, play all songs.
-        val lastPlayedMediaId = settings.lastQueueMediaId ?: MediaId.ALL_TRACKS
-        prepareFromMediaId(lastPlayedMediaId, settings.lastQueueIndex)
+        val reloadStrategy = settings.queueReload
+        prepareFromMediaId(
+            mediaId = settings.lastQueueMediaId ?: MediaId(TYPE_TRACKS, CATEGORY_ALL),
+            startPlaybackPosition = when {
+                reloadStrategy.reloadTrack -> settings.lastQueueIndex
+                else -> 0
+            },
+            playbackPosition = when {
+                reloadStrategy.reloadPosition -> settings.lastPlayedPosition
+                else -> C.TIME_UNSET
+            },
+            playWhenReady = playWhenReady
+        )
     }
 
     /**
@@ -104,15 +103,16 @@ internal class OdeonPlaybackPreparer
      *
      * @see MediaSessionCompat.Callback.onPrepareFromMediaId
      */
-    override fun onPrepareFromMediaId(mediaId: String?, extras: Bundle?) {
+    override fun onPrepareFromMediaId(mediaId: String?, playWhenReady: Boolean, extras: Bundle?) {
         // A new queue has been requested. Update the last played queue media id (the queue identifier will change).
-        val queueMediaId = mediaId ?: MediaId.ALL_TRACKS
+        val queueMediaId = mediaId?.parse()
+            ?: MediaId(TYPE_TRACKS, CATEGORY_ALL)
         settings.lastQueueMediaId = queueMediaId
 
-        prepareFromMediaId(queueMediaId, C.POSITION_UNSET)
+        prepareFromMediaId(queueMediaId, C.POSITION_UNSET, C.TIME_UNSET, playWhenReady)
     }
 
-    override fun onPrepareFromUri(uri: Uri?, extras: Bundle?) {
+    override fun onPrepareFromUri(uri: Uri?, playWhenReady: Boolean, extras: Bundle?) {
         // Not supported at the time.
         throw UnsupportedOperationException()
     }
@@ -121,101 +121,98 @@ internal class OdeonPlaybackPreparer
      * Handle requests to prepare for playing tracks picked from the results of a search.
      */
     @SuppressLint("LogNotTimber")
-    override fun onPrepareFromSearch(query: String?, extras: Bundle?) {
+    override fun onPrepareFromSearch(query: String?, playWhenReady: Boolean, extras: Bundle?) {
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
-        if (Log.isLoggable("AssistantSearch", Log.INFO)) {
-            val extString = extras?.keySet()
-                ?.joinToString(", ", "{", "}") { "$it=${extras[it]}" }
-                ?: "null"
+        if (Log.isLoggable("AssistantSearch", Log.INFO) && extras != null) {
+            val extString = extras.keySet()
+                .joinToString(", ", "{", "}") { "$it=${extras[it]}" }
             Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
         }
 
         val parsedQuery = SearchQuery.from(query, extras)
         if (parsedQuery is SearchQuery.Empty) {
             // Generic query, such as "play music"
-            onPrepare()
+            onPrepare(playWhenReady)
 
         } else scope.launch(dispatchers.Default) {
             val results = browserTree.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
-            if (firstResult?.isBrowsable == true) {
-                prepareFromMediaId(firstResult.mediaId, C.POSITION_UNSET)
+            if (firstResult is MediaCategory) {
+                prepareFromMediaId(firstResult.id, C.POSITION_UNSET, C.TIME_UNSET, playWhenReady)
             } else {
                 preparePlayer(
-                    results.filter { it.isPlayable && !it.isBrowsable },
+                    results.filterIsInstance<AudioTrack>(),
                     firstShuffledIndex = 0,
-                    startPosition = 0
+                    startIndex = 0,
+                    playbackPosition = C.TIME_UNSET,
+                    playWhenReady = playWhenReady
                 )
             }
         }
     }
 
-    override fun getCommands(): Array<String>? = null
-
-    override fun onCommand(
-        player: Player?,
-        command: String?,
-        extras: Bundle?,
-        cb: ResultReceiver?
-    ) = Unit
-
-    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<MediaItem> = try {
-        val children = browserTree.getChildren(parentId, null)
-
-        if (children != null) {
-            children.filter { it.isPlayable && !it.isBrowsable }
-        } else {
-            Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
-            emptyList()
-        }
+    private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<AudioTrack> = try {
+        val children = browserTree.getChildren(parentId).first()
+        children.filterIsInstance<AudioTrack>()
 
     } catch (pde: PermissionDeniedException) {
         Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
         emptyList()
+
+    } catch (invalidParent: NoSuchElementException) {
+        Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
+        emptyList()
     }
 
     private fun prepareFromMediaId(
-        mediaId: String?,
-        startPlaybackPosition: Int
+        mediaId: MediaId,
+        startPlaybackPosition: Int,
+        playbackPosition: Long,
+        playWhenReady: Boolean
     ) = scope.launch(dispatchers.Default) {
-        val (type, category, track) = mediaId.toMediaId()
-        val parentId = MediaId.fromParts(type, category, track = null)
+        val parentId = mediaId.copy(track = null)
 
         val playQueue = loadPlayableChildrenOf(parentId)
-        val firstIndex = if (track != null) {
-            playQueue.indexOfFirst { it.mediaId == mediaId }
-        } else C.POSITION_UNSET
-        preparePlayer(playQueue, firstIndex, startPlaybackPosition)
+        val firstIndex = when {
+            mediaId.track != null -> playQueue.indexOfFirst { it.id == mediaId }
+            else -> C.POSITION_UNSET
+        }
+
+        preparePlayer(
+            playQueue,
+            firstShuffledIndex = firstIndex,
+            startIndex = startPlaybackPosition,
+            playbackPosition = playbackPosition,
+            playWhenReady
+        )
     }
 
     /**
      * Prepare playback of a given [playQueue]
-     * and start playing the index at [startPosition] when ready.
+     * and start playing the index at [startIndex] when ready.
      *
      * @param playQueue The items to be played. All media should be playable and have a media uri.
      * @param firstShuffledIndex The index of the item that should be the first when playing shuffled.
      * This should be a valid index in [playQueue], otherwise an index is chosen randomly.
-     * @param startPosition The index of the item that should be played when the player is ready.
+     * @param startIndex The index of the item that should be played when the player is ready.
      * This should be a valid index in [playQueue],
      * otherwise playback will be set to start at the first index in the queue (shuffled or not).
      */
     private suspend fun preparePlayer(
-        playQueue: List<MediaItem>,
+        playQueue: List<AudioTrack>,
         firstShuffledIndex: Int,
-        startPosition: Int
+        startIndex: Int,
+        playbackPosition: Long,
+        playWhenReady: Boolean
     ) {
         if (playQueue.isNotEmpty()) withContext(dispatchers.Main) {
-            val mediaSources = Array(playQueue.size) {
-                val playableItem = playQueue[it].description
-                val sourceUri = checkNotNull(playableItem.mediaUri) {
-                    "Track ${playableItem.mediaId} (${playableItem.title} should have a media Uri."
-                }
-
-                ExtractorMediaSource.Factory(appDataSourceFactory)
-                    .setExtractorsFactory(audioOnlyExtractors)
-                    .setTag(playableItem)
-                    .createMediaSource(sourceUri)
+            val queueItems = playQueue.map { track ->
+                MediaItem.Builder()
+                    .setMediaId(track.id.encoded)
+                    .setUri(track.mediaUri)
+                    .setTag(track)
+                    .build()
             }
 
             // Defines a shuffle order for the loaded media sources that is predictable.
@@ -233,28 +230,17 @@ internal class OdeonPlaybackPreparer
                 ShuffleOrder.DefaultShuffleOrder(playQueue.size, randomSeed)
             }
 
-            // Concatenate all media source to play them all in the same Timeline.
-            val concatenatedSource = ConcatenatingMediaSource(
-                false,
-                predictableShuffleOrder,
-                *mediaSources
-            )
-
-            // Prepare the new playing queue.
-            // Because of an issue with ExoPlayer, shuffle order is reset when player is prepared.
-            // As a workaround, wait for the player to be prepared before setting the shuffle order.
-            player.prepare(concatenatedSource)
-            player.doOnPrepared {
-                concatenatedSource.setShuffleOrder(predictableShuffleOrder)
-            }
-
             // Start playback at a given position if specified, otherwise at first shuffled index.
-            val targetPlaybackPosition = when (startPosition) {
-                in playQueue.indices -> startPosition
+            val targetPlaybackPosition = when (startIndex) {
+                in playQueue.indices -> startIndex
                 else -> predictableShuffleOrder.firstIndex
             }
 
-            player.seekToDefaultPosition(targetPlaybackPosition)
+            player.setMediaItems(queueItems, targetPlaybackPosition, playbackPosition)
+            player.setShuffleOrder(predictableShuffleOrder)
+            player.prepare()
+
+            player.playWhenReady = playWhenReady
         }
     }
 

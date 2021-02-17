@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 Thibault Seisel
+  ~ Copyright 2021 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="fr.nihilus.music">
+    package="fr.nihilus.music"
+    android:installLocation="auto">
 
     <application
         android:name=".OdeonApplication"
@@ -24,15 +25,22 @@
         android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/core_app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/Odeon">
+
+        <!-- Declare support for Android Auto. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
 
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/Odeon.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
 
             <!-- Make this Activity visible in launcher -->
             <intent-filter>
@@ -56,7 +64,7 @@
                 <data
                     android:host="github.com"
                     android:path="/thibseisel/android-odeon"
-                    android:scheme="http"/>
+                    android:scheme="http" />
             </intent-filter>
 
             <intent-filter>
@@ -68,21 +76,9 @@
                 <data
                     android:host="github.com"
                     android:path="/thibseisel/android-odeon"
-                    android:scheme="https"/>
+                    android:scheme="https" />
             </intent-filter>
         </activity>
-
-        <!-- Activity for selecting tracks to be deleted to free-up space. -->
-        <activity
-            android:name=".library.cleanup.CleanupActivity"
-            android:label="@string/action_cleanup_title"
-            android:parentActivityName=".HomeActivity" />
-
-        <!-- Activity for toggling user preferences. -->
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:label="@string/action_settings"
-            android:parentActivityName=".HomeActivity" />
 
         <!--
             Remove the default WorkManager initializer.

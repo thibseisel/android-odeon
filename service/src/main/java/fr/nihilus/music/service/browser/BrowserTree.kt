@@ -16,37 +16,34 @@
 
 package fr.nihilus.music.service.browser
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.service.MediaContent
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.AudioTrack
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Define the hierarchy of media that can be browsed by remote clients connected to the service.
  * Media are organized in a tree-like structure, with 2 type of nodes:
- * - [Browsable items][MediaItem.isBrowsable] that have children themselves that can be retrieved using [getChildren],
- * - [Playable leafs][MediaItem.isPlayable] that do not have children but can be played.
+ * - [Browsable items][MediaCategory] that have children themselves that can be retrieved using [getChildren],
+ * - [Playable leafs][AudioTrack] that do not have children but can be played.
  */
 internal interface BrowserTree {
 
-    val updatedParentIds: Flow<MediaId>
-
     /**
-     * Retrieve children media of an item with the given [parentId] in the browser tree.
+     * Retrieve children media of a media with the given [parentId] in the browser tree.
      * The nature of those children depends on the media id of its parent and the internal structure of the media tree.
      * See [MediaId] for more information.
      *
-     * If the specified parent is browsable, this returns a list of items that may have children themselves ;
-     * otherwise, if the parent is not browsable, `null` is returned to indicate the absence of children.
-     * Likewise, if the specified media id does not match an existing media in the tree, this also returns `null`.
+     * @param parentId The media id of a media whose children should be loaded.
      *
-     * @param parentId The media id of an item whose children should be loaded.
-     * @param options Optional parameters specifying how results should be paginated,
-     * or `null` to return all results at once (no pagination).
-     *
-     * @return The list of children of the media with the id [parentId],
-     * or `null` if that media is not browsable or doesn't exist.
+     * @return An asynchronous stream whose latest emitted value is the current list of children
+     * of the specified parent node (whose media id is [parentId]) in the media tree.
+     * A new list of children is emitted whenever it has changed.
+     * The returned flow will throw [NoSuchElementException] if the requested parent node
+     * is not browsable or not part of the media tree.
      */
-    suspend fun getChildren(parentId: MediaId, options: PaginationOptions?): List<MediaItem>?
+    fun getChildren(parentId: MediaId): Flow<List<MediaContent>>
 
     /**
      * Retrieve an item identified by the specified [itemId] from the media tree.
@@ -55,25 +52,27 @@ internal interface BrowserTree {
      * @param itemId The media id of the item to retrieve.
      * @return An item with the same media id as the requested one, or `null` if no item matches.
      */
-    suspend fun getItem(itemId: MediaId): MediaItem?
+    suspend fun getItem(itemId: MediaId): MediaContent?
 
     /**
-     * Search the browser tree for media items whose title matches the supplied [query].
+     * Search the browser tree for media whose title matches the supplied [query].
      * What exactly should be searched is determined by the type of the [SearchQuery].
      *
      * @param query The client-provided search query.
-     * @return A list of media items matching the search criteria.
+     * @return A list of media matching the search criteria.
      */
-    suspend fun search(query: SearchQuery): List<MediaItem>
+    suspend fun search(query: SearchQuery): List<MediaContent>
 }
 
 /**
  * Define the parameters for paginating media items returned by [BrowserTree.getChildren].
  *
- * @param page The index of the page of results to return, `being` the first page.
+ * @param page The index of the page of results to return, `0` being the first page.
  * @param size The number of items returned per page.
  */
-class PaginationOptions(val page: Int, val size: Int) {
+class PaginationOptions(page: Int, size: Int) {
+    val page = page.coerceAtLeast(MINIMUM_PAGE_NUMBER)
+    val size = size.coerceAtLeast(MINIMUM_PAGE_SIZE)
 
     companion object {
 
@@ -93,12 +92,12 @@ class PaginationOptions(val page: Int, val size: Int) {
          * The minimum accepted value for [PaginationOptions.page].
          * This is the index of the first page.
          */
-        internal const val MINIMUM_PAGE_NUMBER = 0
+        private const val MINIMUM_PAGE_NUMBER = 0
 
         /**
          * The minimum accepted value for [PaginationOptions.size].
          * This is the minimum of items that can be displayed in a page.
          */
-        internal const val MINIMUM_PAGE_SIZE = 1
+        private const val MINIMUM_PAGE_SIZE = 1
     }
 }

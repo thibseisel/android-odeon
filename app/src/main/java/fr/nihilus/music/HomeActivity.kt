@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,22 +25,16 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.observe
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
-import fr.nihilus.music.core.ui.extensions.darkSystemIcons
-import fr.nihilus.music.core.ui.extensions.resolveThemeColor
+import fr.nihilus.music.databinding.ActivityHomeBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
 import fr.nihilus.music.ui.requestExternalStoragePermission
-import kotlinx.android.synthetic.main.activity_home.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -50,30 +44,16 @@ class HomeActivity : BaseActivity() {
 
     private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
 
+    private lateinit var binding: ActivityHomeBinding
     private lateinit var bottomSheet: BottomSheetBehavior<*>
     private lateinit var playerFragment: NowPlayingFragment
 
-    private val navController: NavController
-        get() = findNavController(R.id.nav_host_fragment)
-
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
-
-    private val statusBarNavListener = object : NavController.OnDestinationChangedListener {
-        private val statusBarColor by lazy(LazyThreadSafetyMode.NONE) {
-            resolveThemeColor(this@HomeActivity, R.attr.colorPrimaryDark)
-        }
-
-        override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-            if (destination.id != R.id.fragment_album_detail) {
-                window.statusBarColor = statusBarColor
-                window.darkSystemIcons = false
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupPlayerView()
 
@@ -100,18 +80,16 @@ class HomeActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        navController.addOnDestinationChangedListener(statusBarNavListener)
         bottomSheet.addBottomSheetCallback(sheetCollapsingCallback)
     }
 
     override fun onPause() {
         bottomSheet.removeBottomSheetCallback(sheetCollapsingCallback)
-        navController.removeOnDestinationChangedListener(statusBarNavListener)
         super.onPause()
     }
 
     private fun setupPlayerView() {
-        bottomSheet = BottomSheetBehavior.from(player_container)
+        bottomSheet = BottomSheetBehavior.from(binding.playerContainer)
 
         // Show / hide BottomSheet on startup without an animation
         setInitialBottomSheetVisibility(viewModel.playerSheetVisible.value == true)
@@ -152,6 +130,7 @@ class HomeActivity : BaseActivity() {
         requestCode: Int, permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == EXTERNAL_STORAGE_REQUEST) {
 
             // Whether it has permission or not, load fragment into interface
@@ -167,7 +146,7 @@ class HomeActivity : BaseActivity() {
                 ConfirmDialogFragment.newInstance(
                     null, 0,
                     message = getString(R.string.external_storage_permission_rationale),
-                    positiveButton = R.string.ok
+                    positiveButton = R.string.core_ok
                 ).show(supportFragmentManager, null)
             }
         }
@@ -215,7 +194,7 @@ class HomeActivity : BaseActivity() {
         when (intent?.action) {
 
             MusicService.ACTION_PLAYER_UI -> {
-                player_container.postDelayed({
+                binding.playerContainer.postDelayed({
                     bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED
                 }, 300L)
             }
