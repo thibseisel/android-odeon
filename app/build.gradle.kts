@@ -24,8 +24,8 @@ plugins {
 android {
     defaultConfig {
         applicationId("fr.nihilus.music")
-        versionCode(201004)
-        versionName("2.1.0-beta04")
+        versionCode(2_01_00_5)
+        versionName("2.1.0")
     }
 
     buildFeatures {

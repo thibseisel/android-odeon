@@ -1,0 +1,6 @@
+* L'application est maintenant adaptée pour Android 10.
+* Odeon peut maintenant lire les fichiers M4A et FLAC (sur Android Oreo et supérieur).
+* Possibilité de déplacer l'application sur la carte SD.
+* L'écran de recherche et maintenant bien plus agréable. Les résultats sont regroupés par catégorie.
+* De nombreuses améliorations graphiques pour un look plus décontracté.
+* Et bien sûr, des corrections de bug!
