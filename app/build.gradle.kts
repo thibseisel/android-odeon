@@ -136,8 +136,6 @@ dependencies {
     implementation(project(":ui-cleanup"))
     implementation(project(":ui-settings"))
 
-    debugImplementation(project(":devmenu"))
-
     // Support library dependencies
     implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
     implementation("androidx.viewpager2:viewpager2:${Libs.Androidx.viewpager2}")

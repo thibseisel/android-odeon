@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,4 +18,3 @@ include(":app")
 include(":core", ":core-test", ":core-ui", ":media")
 include(":service", ":spotify-client")
 include(":ui-cleanup", ":ui-settings")
-include(":devmenu")

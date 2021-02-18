@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import fr.nihilus.music.spotify.dagger.SpotifyWorkerModule
         AppModule::class,
         MusicServiceModule::class,
         ClientModule::class,
-        DebugOnlyModule::class,
         WorkManagerModule::class,
         SpotifyWorkerModule::class
     ]
