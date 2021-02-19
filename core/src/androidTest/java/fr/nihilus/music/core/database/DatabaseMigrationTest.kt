@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,5 +134,11 @@ class DatabaseMigrationTest {
             assertEquals(19, it.getLong(1))
             assertEquals(2, it.getInt(2))
         }
+    }
+
+    @Test
+    fun migration5To6() {
+        helper.createDatabase(TEST_DB, 5).close()
+        helper.runMigrationsAndValidate(TEST_DB, 6, false, DatabaseMigration.MIGRATION_5_6).close()
     }
 }

@@ -100,4 +100,13 @@ internal object DatabaseMigration {
             execSQL("DROP TABLE `playlist_track_old`")
         }
     }
+
+    /**
+     * Create a new table `track_exclusion`.
+     */
+    val MIGRATION_5_6 = object : Migration(5, 6) {
+        override fun migrate(database: SupportSQLiteDatabase) = with(database) {
+            execSQL("CREATE TABLE IF NOT EXISTS `track_exclusion` (`track_id` INTEGER NOT NULL, `exclude_date` INTEGER NOT NULL, PRIMARY KEY(`track_id`))")
+        }
+    }
 }
