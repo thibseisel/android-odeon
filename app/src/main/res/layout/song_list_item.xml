@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Thibault Seisel
+  ~ Copyright 2021 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -28,14 +28,15 @@
         android:id="@+id/album_artwork"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:layout_marginStart="@dimen/grid_2"
         android:layout_marginTop="@dimen/grid_1"
         android:layout_marginBottom="@dimen/grid_1"
-        android:layout_marginStart="@dimen/grid_2"
         android:contentDescription="@string/album_art"
         android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:shapeAppearance="?shapeAppearanceMediumComponent"
         tools:src="@tools:sample/avatars" />
 
     <TextView
