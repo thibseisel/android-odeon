@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package fr.nihilus.music.core.database
 
 import dagger.Module
 import dagger.Provides
+import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.spotify.SpotifyDao
 import fr.nihilus.music.core.database.usage.UsageDao
@@ -37,4 +38,7 @@ object DatabaseModule {
 
     @Provides
     internal fun provideSpotifyDao(db: AppDatabase): SpotifyDao = db.spotifyDao
+
+    @Provides
+    internal fun provideExclusionDao(db: AppDatabase): TrackExclusionDao = db.exclusionDao
 }

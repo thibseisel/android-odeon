@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import androidx.room.Database
 import androidx.room.Entity
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import fr.nihilus.music.core.database.exclusion.TrackExclusion
+import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistConverters
 import fr.nihilus.music.core.database.playlists.PlaylistDao
@@ -42,8 +44,9 @@ import fr.nihilus.music.core.database.usage.UsageDao
     PlaylistTrack::class,
     MediaUsageEvent::class,
     SpotifyLink::class,
-    TrackFeature::class
-], version = 5)
+    TrackFeature::class,
+    TrackExclusion::class,
+], version = 6)
 @TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
 abstract class AppDatabase : RoomDatabase() {
 
