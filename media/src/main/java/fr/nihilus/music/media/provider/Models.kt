@@ -19,7 +19,7 @@ package fr.nihilus.music.media.provider
 /**
  * The metadata of a track that is saved on the device's storage.
  */
-class Track(
+data class Track(
 
     /** The unique identifier of the track on the device media storage index. */
     val id: Long,
@@ -74,16 +74,12 @@ class Track(
 
     /** The size of the file stored on the device's storage, in bytes. */
     val fileSize: Long
-) {
-    override fun toString(): String = "Track{id=$id, title=$title}"
-    override fun equals(other: Any?): Boolean = this === other || (other is Track && other.id == id)
-    override fun hashCode(): Int = id.toInt()
-}
+)
 
 /**
  * The metadata of an album whose tracks are saved on the device's storage.
  */
-class Album(
+data class Album(
     /** The unique identifier of this album on the device's media storage index. */
     val id: Long,
     /** The title of the album as it should be displayed to the user. */
@@ -104,16 +100,12 @@ class Album(
      * @see Artist.id
      */
     val artistId: Long
-) {
-    override fun toString(): String = "Album{id=$id, title=$title, artist=$artist}"
-    override fun equals(other: Any?): Boolean = this === other || (other is Album && other.id == id)
-    override fun hashCode(): Int = id.toInt()
-}
+)
 
 /**
  * The metadata of an artist that produced tracks that are saved on the device's storage.
  */
-class Artist(
+data class Artist(
     /** The unique identifier of this artist on the device's media storage index. */
     val id: Long,
     /** The full name of this artist as it should be displayed to the user. */
@@ -124,8 +116,4 @@ class Artist(
     val trackCount: Int,
     /** An optional Uri-formatted String pointing to an artwork representing this artist. */
     val iconUri: String?
-) {
-    override fun toString(): String = "Artist{id=$id, name=$name}"
-    override fun equals(other: Any?): Boolean = this === other || (other is Album && other.id == id)
-    override fun hashCode(): Int = id.toInt()
-}
+)
