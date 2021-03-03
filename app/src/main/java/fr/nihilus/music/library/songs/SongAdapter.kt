@@ -103,6 +103,11 @@ class SongAdapter(
                         true
                     }
 
+                    R.id.action_exclude -> {
+                        actionListener(track, ItemAction.EXCLUDE)
+                        true
+                    }
+
                     R.id.action_delete -> {
                         actionListener(track, ItemAction.DELETE)
                         true
@@ -150,6 +155,12 @@ class SongAdapter(
          * Append the selected track to a user-defined playlist.
          */
         ADD_TO_PLAYLIST,
+
+        /**
+         * Exclude the selected track from the music library.
+         * The excluded track won't be deleted from the device.
+         */
+        EXCLUDE,
 
         /**
          * Delete the selected track from the device.

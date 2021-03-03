@@ -24,6 +24,7 @@ import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
+import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.flow.*
@@ -33,7 +34,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val client: BrowserClient,
-    private val actions: DeleteTracksAction
+    private val deleteAction: DeleteTracksAction,
+    private val excludeAction: ExcludeTrackAction,
 ) : ViewModel() {
 
     val tracks: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_TRACKS)
@@ -47,8 +49,15 @@ class HomeViewModel @Inject constructor(
     fun deleteSongs(songsToDelete: List<MediaItem>) {
         viewModelScope.launch {
             val trackIds = songsToDelete.map { it.mediaId.parse() }
-            val deletedTracksCount = actions.delete(trackIds)
+            val deletedTracksCount = deleteAction.delete(trackIds)
             _deleteTracksConfirmation.value = Event(deletedTracksCount)
+        }
+    }
+
+    fun excludeTrack(trackToExclude: MediaItem) {
+        viewModelScope.launch {
+            val trackId = trackToExclude.mediaId.parse()
+            excludeAction.exclude(trackId)
         }
     }
 

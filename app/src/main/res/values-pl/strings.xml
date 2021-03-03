@@ -48,4 +48,5 @@
     <string name="description_more_actions">Więcej działań</string>
     <string name="desc_clear_search">Wyczyść wyszukiwanie</string>
     <string name="desc_play_album">Play album</string>
+    <string name="action_exclude_track">Exclude from library</string>
 </resources>

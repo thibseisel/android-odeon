@@ -114,6 +114,10 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
                 dialog.show(parentFragmentManager, DeleteTrackDialog.TAG)
             }
 
+            SongAdapter.ItemAction.EXCLUDE -> {
+                viewModel.excludeTrack(track)
+            }
+
             SongAdapter.ItemAction.ADD_TO_PLAYLIST -> {
                 val dialog = AddToPlaylistDialog.newInstance(this, listOf(track))
                 dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)

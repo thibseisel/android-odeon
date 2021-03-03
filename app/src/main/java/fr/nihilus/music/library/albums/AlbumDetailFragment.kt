@@ -157,7 +157,7 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
             else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
         )
 
-        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ic_arrow_back_24dp)
+        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ui_ic_arrow_back_24dp)
         binding.toolbar.navigationIcon = upArrow
     }
 

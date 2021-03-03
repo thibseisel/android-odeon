@@ -28,6 +28,13 @@
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_category_music_library">
+
+        <Preference
+            android:key="track_exclusion"
+            android:title="@string/track_exclusion_title"
+            android:summary="@string/track_exclusion_description"/>
+    </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/prefs_category_playback_options">
         <ListPreference
@@ -51,7 +58,6 @@
         <Preference
             android:key="start_sync"
             android:title="@string/pref_title_spotify_sync"/>
-
     </PreferenceCategory>
 
 </PreferenceScreen>
