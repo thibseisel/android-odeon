@@ -25,14 +25,14 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.1.2")
+        classpath("com.android.tools.build:gradle:${Libs.Plugin.androidGradle}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Libs.kotlin}")
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Libs.Androidx.navigation}")
     }
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.36.0"
+    id("com.github.ben-manes.versions") version Libs.Plugin.refreshVersions
 }
 
 allprojects {

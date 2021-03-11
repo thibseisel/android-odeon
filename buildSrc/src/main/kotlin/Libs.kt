@@ -38,6 +38,11 @@ object Libs {
         const val espresso = "3.3.0"
     }
 
+    object Plugin {
+        const val androidGradle = "4.1.2"
+        const val refreshVersions = "0.36.0"
+    }
+
     const val dagger = "2.32"
     const val exoplayer = "2.13.1"
     const val glide = "4.12.0"
