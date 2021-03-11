@@ -21,12 +21,13 @@ import fr.nihilus.music.core.database.spotify.Pitch
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import io.kotest.property.Arb
 import io.kotest.property.RandomSource
-import io.kotest.property.arbitrary.arb
+import io.kotest.property.arbitrary.arbitrary
 import io.kotest.property.arbitrary.filter
 import io.kotest.property.arbitrary.filterNot
 import io.kotest.property.forAll
 import io.kotest.property.forNone
 import kotlinx.coroutines.runBlocking
+import kotlin.random.Random
 import kotlin.test.Test
 
 class FeatureFilterTest {
@@ -111,42 +112,40 @@ class FeatureFilterTest {
     }
 }
 
-private val randomFeatures: Arb<TrackFeature> = arb { rs: RandomSource ->
-    val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+private const val SPOTIFY_ID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-    fun randomSpotifyId() = buildString(22) {
-        repeat(22) {
-            append(chars.random(rs.random))
-        }
+private fun randomSpotifyId(rand: Random) = buildString(22) {
+    repeat(22) {
+        append(SPOTIFY_ID_CHARS.random(rand))
     }
+}
 
-    fun randomPitchKey(): Pitch? {
-        val pitches = Pitch.values()
+private fun randomPitchKey(rand: Random): Pitch? {
+    val pitches = Pitch.values()
 
-        // We want a null pitch with the same probability as the other values.
-        // We introduce an extra ordinal which will be used for `null`.
-        val ordinal = rs.random.nextInt(until = pitches.size + 1)
-        return if (ordinal < pitches.size) pitches[ordinal] else null
-    }
+    // We want a null pitch with the same probability as the other values.
+    // We introduce an extra ordinal which will be used for `null`.
+    val ordinal = rand.nextInt(until = pitches.size + 1)
+    return if (ordinal < pitches.size) pitches[ordinal] else null
+}
 
-    fun randomMusicalMode(): MusicalMode =
-        if (rs.random.nextBoolean()) MusicalMode.MAJOR else MusicalMode.MINOR
+private fun randomMusicalMode(rand: Random): MusicalMode =
+    if (rand.nextBoolean()) MusicalMode.MAJOR else MusicalMode.MINOR
 
-    generateSequence {
-        TrackFeature(
-            id = randomSpotifyId(),
-            key = randomPitchKey(),
-            mode = randomMusicalMode(),
-            tempo = rs.random.nextDouble(0.0, 240.0).toFloat(),
-            signature = 4,
-            loudness = rs.random.nextDouble(-60.0, 0.0).toFloat(),
-            acousticness = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            danceability = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            energy = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            instrumentalness = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            liveness = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            speechiness = rs.random.nextDouble(0.0, 1.0).toFloat(),
-            valence = rs.random.nextDouble(0.0, 1.0).toFloat()
-        )
-    }
+private val randomFeatures: Arb<TrackFeature> = arbitrary { rs: RandomSource ->
+    TrackFeature(
+        id = randomSpotifyId(rs.random),
+        key = randomPitchKey(rs.random),
+        mode = randomMusicalMode(rs.random),
+        tempo = rs.random.nextDouble(0.0, 240.0).toFloat(),
+        signature = 4,
+        loudness = rs.random.nextDouble(-60.0, 0.0).toFloat(),
+        acousticness = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        danceability = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        energy = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        instrumentalness = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        liveness = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        speechiness = rs.random.nextDouble(0.0, 1.0).toFloat(),
+        valence = rs.random.nextDouble(0.0, 1.0).toFloat()
+    )
 }
