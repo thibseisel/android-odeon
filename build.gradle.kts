@@ -55,7 +55,7 @@ allprojects {
 
 subprojects {
     // Common Kotlin configuration
-    tasks.withType<KotlinCompile> {
+    tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
             jvmTarget = "1.8"
             freeCompilerArgs = freeCompilerArgs + arrayOf(
@@ -125,6 +125,6 @@ tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
 
-tasks.withType<Wrapper> {
+tasks.withType<Wrapper>().configureEach {
     distributionType = Wrapper.DistributionType.BIN
 }
