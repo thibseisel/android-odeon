@@ -20,16 +20,16 @@ import android.app.Dialog
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.newInstance
+import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.open
 
 /**
  * An alert dialog that prompts the user for confirmation to delete a single track from its device.
- *
- * Instances of this class should be created with [newInstance].
+ * Instances of this class should be created with [open].
  */
 class DeleteTrackDialog : AppCompatDialogFragment() {
     private val viewModel: HomeViewModel by activityViewModels()
@@ -54,16 +54,18 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
 
     companion object Factory {
         private const val ARG_TRACK = "fr.nihilus.music.library.TRACK"
-        const val TAG = "fr.nihilus.music.library.DeleteTrackDialog"
 
         /**
-         * Create a new instance of the dialog.
+         * @param caller Caller fragment.
          * @param track The track that may be deleted when confirmation is given.
          */
-        fun newInstance(track: MediaBrowserCompat.MediaItem) = DeleteTrackDialog().apply {
-            arguments = Bundle(1).apply {
-                putParcelable(ARG_TRACK, track)
+        fun open(caller: Fragment, track: MediaBrowserCompat.MediaItem) {
+            val dialog = DeleteTrackDialog().apply {
+                arguments = Bundle(1).apply {
+                    putParcelable(ARG_TRACK, track)
+                }
             }
+            dialog.show(caller.childFragmentManager, null)
         }
     }
 }

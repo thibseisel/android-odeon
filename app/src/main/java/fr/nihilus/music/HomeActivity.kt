@@ -144,11 +144,12 @@ class HomeActivity : BaseActivity() {
                     this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )) {
-                ConfirmDialogFragment.newInstance(
-                    null, 0,
+                ConfirmDialogFragment.open(
+                    this,
+                    "storage_permission_rationale",
                     message = getString(R.string.external_storage_permission_rationale),
                     positiveButton = R.string.core_ok
-                ).show(supportFragmentManager, null)
+                )
             }
         }
     }

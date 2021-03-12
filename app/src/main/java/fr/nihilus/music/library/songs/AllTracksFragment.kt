@@ -110,8 +110,7 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             }
 
             SongAdapter.ItemAction.DELETE -> {
-                val dialog = DeleteTrackDialog.newInstance(track)
-                dialog.show(parentFragmentManager, DeleteTrackDialog.TAG)
+                DeleteTrackDialog.open(this, track)
             }
 
             SongAdapter.ItemAction.EXCLUDE -> {
@@ -119,8 +118,7 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             }
 
             SongAdapter.ItemAction.ADD_TO_PLAYLIST -> {
-                val dialog = AddToPlaylistDialog.newInstance(this, listOf(track))
-                dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)
+                AddToPlaylistDialog.open(this, listOf(track))
             }
         }
     }
