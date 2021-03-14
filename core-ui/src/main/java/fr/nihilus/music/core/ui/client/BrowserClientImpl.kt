@@ -24,6 +24,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.AppScope
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.settings.Settings
@@ -42,7 +43,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 @AppScope
 internal class BrowserClientImpl @Inject constructor(
-    applicationContext: Context,
+    @ApplicationContext applicationContext: Context,
     private val settings: Settings
 ) : BrowserClient {
 

@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.core.ui.dagger
 
+import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.migration.AliasOf
 import javax.inject.Scope
 
 /**
@@ -24,4 +26,5 @@ import javax.inject.Scope
 @Scope
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
+@AliasOf(ActivityScoped::class)
 annotation class PerActivity

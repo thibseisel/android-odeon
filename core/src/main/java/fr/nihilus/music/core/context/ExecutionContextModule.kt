@@ -37,6 +37,7 @@ internal object ExecutionContextModule {
     )
 
     @Provides @Singleton
+    @AppCoroutineScope
     fun providesAppCoroutineScope(
         dispatchers: AppDispatchers
     ): CoroutineScope = CoroutineScope(dispatchers.Main)

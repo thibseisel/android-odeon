@@ -59,6 +59,7 @@ dependencies {
     implementation("com.github.thibseisel:kdenticon-android:${Libs.kdenticon}")
 
     kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     testImplementation(project(":core-test"))
 }

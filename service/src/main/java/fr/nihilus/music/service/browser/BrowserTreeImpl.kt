@@ -18,6 +18,7 @@ package fr.nihilus.music.service.browser
 
 import android.content.Context
 import androidx.core.net.toUri
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -59,7 +60,7 @@ private const val FIRST_WORD_BONUS = 30
 
 @ServiceScoped
 internal class BrowserTreeImpl @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao,
     private val usageManager: UsageManager,

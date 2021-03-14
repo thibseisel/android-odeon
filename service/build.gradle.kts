@@ -58,6 +58,7 @@ dependencies {
     implementation("com.google.dagger:dagger-android:${Libs.dagger}")
     kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
     kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     // Glide
     implementation("com.github.bumptech.glide:glide:${Libs.glide}")

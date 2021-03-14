@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.service
+package fr.nihilus.music.core.context
 
-import dagger.hilt.android.scopes.ServiceScoped
-import dagger.hilt.migration.AliasOf
-import javax.inject.Scope
+import kotlinx.coroutines.CoroutineScope
+import javax.inject.Qualifier
 
 /**
- * Denote that the annotated class or component is alive as long as the enclosing service
- * instance is alive.
+ * Qualifier for a provided [CoroutineScope] that is active for the lifetime of the whole
+ * application.
  */
-@Scope
+@Qualifier
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
-@AliasOf(ServiceScoped::class)
-annotation class ServiceScoped
+annotation class AppCoroutineScope

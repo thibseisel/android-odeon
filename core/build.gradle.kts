@@ -66,6 +66,12 @@ dependencies {
     api("com.google.dagger:dagger:${Libs.dagger}")
     kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
 
+    // Hilt
+    api("com.google.dagger:hilt-android:${Libs.hilt}")
+    api("androidx.hilt:hilt-common:${Libs.Androidx.hilt}")
+    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+
     // Room Database
     api("androidx.room:room-ktx:${Libs.Androidx.room}")
     kapt("androidx.room:room-compiler:${Libs.Androidx.room}")

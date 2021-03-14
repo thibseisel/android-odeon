@@ -18,6 +18,8 @@ package fr.nihilus.music.service
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.media.dagger.MediaSourceModule
 import fr.nihilus.music.service.playback.PlaybackModule
 
@@ -26,6 +28,7 @@ import fr.nihilus.music.service.playback.PlaybackModule
  * This Dagger module should be installed in the root component.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class MusicServiceModule {
 
     @ServiceScoped

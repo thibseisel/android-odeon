@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.RuntimePermissions
@@ -58,8 +59,7 @@ abstract class CommonTestModule {
         fun providesFileSystem(): FileSystem = NoopFileSystem
 
         @Provides @Singleton
-        fun providesSharedPreferences(context: Context): SharedPreferences =
+        fun providesSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
             context.getSharedPreferences("test", Context.MODE_PRIVATE)
-
     }
 }

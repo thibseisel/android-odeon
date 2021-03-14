@@ -35,6 +35,7 @@ dependencies {
 
     kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
     kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     testImplementation(project(":core-test"))
 }

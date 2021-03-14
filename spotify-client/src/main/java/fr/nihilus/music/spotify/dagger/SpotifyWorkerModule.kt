@@ -19,6 +19,8 @@ package fr.nihilus.music.spotify.dagger
 import androidx.work.WorkManager
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoMap
 import fr.nihilus.music.core.worker.SingleWorkerFactory
 import fr.nihilus.music.core.worker.WorkerKey
@@ -33,6 +35,7 @@ import fr.nihilus.music.spotify.SpotifySyncWorker
  * @see fr.nihilus.music.core.worker.DaggerWorkerFactory
  */
 @Module(includes = [SpotifyManagerModule::class])
+@InstallIn(SingletonComponent::class)
 abstract class SpotifyWorkerModule {
 
     @Binds @IntoMap

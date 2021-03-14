@@ -18,6 +18,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
     id("androidx.navigation.safeargs.kotlin")
 }
 
@@ -87,6 +88,12 @@ android {
                     "-Xno-receiver-assertions"
                 )
             }
+
+            kapt {
+                arguments {
+                    arg("dagger.formatGeneratedSource", "enabled")
+                }
+            }
         }
 
         /* Staging builds are similar to releases but differ by the following:
@@ -115,14 +122,6 @@ android {
             )
         }
     }
-
-    kapt {
-        arguments {
-            // Configure Dagger code generation
-            arg("dagger.formatGeneratedSource", "disabled")
-            arg("dagger.fastInit", "enabled")
-        }
-    }
 }
 
 dependencies {
@@ -143,6 +142,8 @@ dependencies {
     // Dagger
     kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
     kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     // Test dependencies
     testImplementation(project(":core-test"))

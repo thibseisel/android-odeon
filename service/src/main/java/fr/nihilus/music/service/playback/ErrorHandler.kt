@@ -22,6 +22,7 @@ import android.util.Pair
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.ServiceScoped
 import timber.log.Timber
@@ -30,7 +31,7 @@ import javax.inject.Inject
 
 @ServiceScoped
 internal class ErrorHandler @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : ErrorMessageProvider<ExoPlaybackException> {
 
     override fun getErrorMessage(playbackException: ExoPlaybackException): Pair<Int, String> =

@@ -21,6 +21,7 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.PlatformMediaStore
 
@@ -43,6 +44,8 @@ abstract class MediaStoreModule {
     internal companion object {
 
         @Provides
-        fun providesContentResolver(context: Context): ContentResolver = context.contentResolver
+        fun providesContentResolver(
+            @ApplicationContext context: Context
+        ): ContentResolver = context.contentResolver
     }
 }

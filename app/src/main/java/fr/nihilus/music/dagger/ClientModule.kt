@@ -17,6 +17,8 @@
 package fr.nihilus.music.dagger
 
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.ui.dagger.CoreUiModule
 import fr.nihilus.music.core.ui.viewmodel.ViewModelModule
 import fr.nihilus.music.library.HomeModule
@@ -34,4 +36,5 @@ import fr.nihilus.music.ui.settings.SettingsModule
     ViewModelModule::class,
     CoreUiModule::class
 ])
+@InstallIn(SingletonComponent::class)
 internal abstract class ClientModule

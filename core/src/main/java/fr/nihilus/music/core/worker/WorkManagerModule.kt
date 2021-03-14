@@ -19,11 +19,14 @@ package fr.nihilus.music.core.worker
 import androidx.work.WorkerFactory
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 /**
  * Provides dependencies required for the configuration of [androidx.work.WorkManager].
  */
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class WorkManagerModule {
 
     @Binds

@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 
 /**
@@ -29,7 +30,7 @@ import javax.inject.Singleton
 internal object SQLiteDatabaseModule {
 
     @Provides @Singleton
-    fun providesRealDatabase(context: Context): AppDatabase =
+    fun providesRealDatabase(@ApplicationContext context: Context): AppDatabase =
         Room.databaseBuilder(context, AppDatabase::class.java, AppDatabase.NAME)
             .addMigrations(
                 AppDatabase.MIGRATION_1_2,
