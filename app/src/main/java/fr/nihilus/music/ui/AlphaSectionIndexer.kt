@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui
 
-import android.util.SparseIntArray
 import android.widget.SectionIndexer
 import java.text.Normalizer
 import java.util.*
@@ -24,7 +23,7 @@ import java.util.*
 class AlphaSectionIndexer : SectionIndexer {
     private val items = mutableListOf<String>()
     private val positionForSection: MutableMap<String, Int> = TreeMap(SECTION_COMPARATOR)
-    private val positionToSectionCache = SparseIntArray()
+    private val positionToSectionCache = mutableMapOf<Int, Int>()
     private var sections: Array<String> = emptyArray()
 
     override fun getSections(): Array<String> = sections
@@ -32,7 +31,7 @@ class AlphaSectionIndexer : SectionIndexer {
     override fun getSectionForPosition(position: Int): Int {
         if (position !in items.indices) return 0
 
-        val cachedSectionIndex = positionToSectionCache[position, -1]
+        val cachedSectionIndex = positionToSectionCache[position] ?: -1
         if (cachedSectionIndex >= 0) {
             return cachedSectionIndex
         }
