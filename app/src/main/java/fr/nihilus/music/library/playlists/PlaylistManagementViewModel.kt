@@ -18,6 +18,7 @@ package fr.nihilus.music.library.playlists
 
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
@@ -53,6 +54,7 @@ sealed class PlaylistActionResult {
 /**
  * A shared ViewModel to handle playlist creation and edition.
  */
+@HiltViewModel
 internal class PlaylistManagementViewModel @Inject constructor(
     client: BrowserClient,
     private val action: ManagePlaylistAction
@@ -78,6 +80,7 @@ internal class PlaylistManagementViewModel @Inject constructor(
             )
         }
     }
+
     fun addTracksToPlaylist(
         targetPlaylist: MediaBrowserCompat.MediaItem,
         addedTracks: Array<MediaBrowserCompat.MediaItem>

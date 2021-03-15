@@ -34,7 +34,7 @@ import fr.nihilus.music.spotify.SpotifySyncWorker
  *
  * @see fr.nihilus.music.core.worker.DaggerWorkerFactory
  */
-@Module(includes = [SpotifyManagerModule::class])
+@Module
 @InstallIn(SingletonComponent::class)
 abstract class SpotifyWorkerModule {
 

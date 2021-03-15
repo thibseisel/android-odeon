@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.albums
 
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 internal class AlbumDetailViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {

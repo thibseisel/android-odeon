@@ -18,6 +18,7 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -38,8 +39,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
     implementation("androidx.recyclerview:recyclerview-selection:${Libs.Androidx.rvSelection}")
 
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     testImplementation(project(":core-test"))

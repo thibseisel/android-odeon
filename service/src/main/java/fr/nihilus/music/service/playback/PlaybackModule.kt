@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service.playback
 
+import android.app.Service
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
@@ -23,16 +24,17 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.util.EventLogger
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.BuildConfig
-import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.service.ServiceBindingsModule
-import fr.nihilus.music.service.ServiceScoped
 
-@Module(includes = [ServiceBindingsModule::class])
+@Module
+@InstallIn(ServiceComponent::class)
 internal object PlaybackModule {
 
     @Provides @ServiceScoped
-    fun provideExoPlayer(context: MusicService): ExoPlayer {
+    fun provideExoPlayer(context: Service): ExoPlayer {
         val musicAttributes = AudioAttributes.Builder()
             .setContentType(C.CONTENT_TYPE_MUSIC)
             .setUsage(C.USAGE_MEDIA)

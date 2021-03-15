@@ -25,6 +25,7 @@ import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.LoadRequest
@@ -42,11 +43,12 @@ private const val REQUEST_CONFIRM_CLEANUP = 1337
 /**
  * Lists tracks that could be deleted from the device's storage to free-up space.
  */
+@AndroidEntryPoint
 internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private var binding: FragmentCleanupBinding? = null
 
-    private val viewModel by viewModels<CleanupViewModel> { viewModelFactory }
+    private val viewModel by viewModels<CleanupViewModel>()
     private lateinit var adapter: CleanupAdapter
     private lateinit var selectionTracker: SelectionTracker<Long>
 

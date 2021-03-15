@@ -33,6 +33,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MusicService : BaseBrowserService() {
 
     companion object {
@@ -108,7 +110,7 @@ class MusicService : BaseBrowserService() {
 
         subscriptions.updatedParentIds
             .onEach { updatedParentId -> notifyChildrenChanged(updatedParentId.toString()) }
-            .launchIn(this)
+            .launchIn(serviceScope)
 
         // Listen to track completion events
         val completionListener = TrackCompletionListener()
@@ -189,7 +191,7 @@ class MusicService : BaseBrowserService() {
     ) {
         result.detach()
 
-        launch {
+        serviceScope.launch {
             try {
                 val parentMediaId = parentId.parse()
                 val paginationOptions = getPaginationOptions(options)
@@ -246,7 +248,7 @@ class MusicService : BaseBrowserService() {
             result.sendResult(null)
         } else {
             result.detach()
-            launch {
+            serviceScope.launch {
                 try {
                     val itemMediaId = itemId.parse()
                     val requestedContent = subscriptions.getItem(itemMediaId)
@@ -270,7 +272,7 @@ class MusicService : BaseBrowserService() {
         result: Result<List<MediaItem>>
     ) {
         result.detach()
-        launch(dispatchers.Default) {
+        serviceScope.launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)
 
             try {
@@ -459,7 +461,7 @@ class MusicService : BaseBrowserService() {
                 "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
             }
 
-            launch {
+            serviceScope.launch {
                 usageManager.reportCompletion(completedTrackId)
             }
         }

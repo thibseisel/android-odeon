@@ -20,8 +20,10 @@ import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.*
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.spotify.SpotifySyncWorker
 
+@AndroidEntryPoint
 internal class MainPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

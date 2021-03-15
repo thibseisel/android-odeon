@@ -18,7 +18,6 @@ package fr.nihilus.music.dagger
 
 import dagger.Module
 import dagger.Provides
-import dagger.android.support.AndroidSupportInjectionModule
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.BuildConfig
@@ -31,7 +30,7 @@ import javax.inject.Named
  *
  * All dependencies defined here can be used in both app modules: client and service.
  */
-@Module(includes = [AndroidSupportInjectionModule::class])
+@Module
 @InstallIn(SingletonComponent::class)
 internal object AppModule {
 

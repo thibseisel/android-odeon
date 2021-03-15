@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.search
+package fr.nihilus.music.media.dagger
 
-import androidx.lifecycle.ViewModel
 import dagger.Binds
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import dagger.multibindings.IntoMap
-import fr.nihilus.music.core.ui.viewmodel.ViewModelKey
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.media.usage.UsageManagerImpl
 
 @Module
-internal abstract class SearchModule {
+@InstallIn(SingletonComponent::class)
+abstract class UsageManagerModule {
 
-    @ContributesAndroidInjector
-    abstract fun searchFragment(): SearchFragment
-
-    @Binds @IntoMap
-    @ViewModelKey(SearchViewModel::class)
-    abstract fun bindsSearchViewModel(viewModel: SearchViewModel): ViewModel
+    @Binds
+    internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
 }

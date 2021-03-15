@@ -16,17 +16,12 @@
 
 package fr.nihilus.music
 
+import android.app.Application
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.work.Configuration
 import androidx.work.WorkerFactory
-import dagger.android.AndroidInjector
-import dagger.android.support.DaggerApplication
-import dagger.hilt.EntryPoint
-import dagger.hilt.EntryPoints
-import dagger.hilt.InstallIn
 import dagger.hilt.android.HiltAndroidApp
-import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -41,7 +36,7 @@ import javax.inject.Inject
  * This class also performs general configuration tasks.
  */
 @HiltAndroidApp
-class OdeonApplication : DaggerApplication(), Configuration.Provider {
+class OdeonApplication : Application(), Configuration.Provider {
     @Inject lateinit var settings: Settings
     @Inject lateinit var workerFactory: WorkerFactory
 
@@ -63,11 +58,4 @@ class OdeonApplication : DaggerApplication(), Configuration.Provider {
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
         .setWorkerFactory(workerFactory)
         .build()
-
-    override fun applicationInjector(): AndroidInjector<OdeonApplication> =
-        EntryPoints.get(this, ApplicationInjector::class.java)
-
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface ApplicationInjector : AndroidInjector<OdeonApplication>
 }

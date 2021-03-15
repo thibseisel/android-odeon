@@ -42,13 +42,11 @@ dependencies {
     // Moshi - Kotlin JSON serialization
     api("com.squareup.moshi:moshi:${Libs.moshi}")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:${Libs.moshi}")
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     testImplementation(project(":core-test"))
     testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
     testImplementation("io.mockk:mockk:${Libs.mockk}")
-    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
 }
 
 fun getSpotifyProperty(name: String): String {

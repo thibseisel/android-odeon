@@ -21,7 +21,9 @@ import android.content.Context
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.PlatformMediaStore
 
@@ -33,6 +35,7 @@ import fr.nihilus.music.media.os.PlatformMediaStore
  * as a workaround until a suitable replacement for MediaRepository is found.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class MediaStoreModule {
 
     @Binds

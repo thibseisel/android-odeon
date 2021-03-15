@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -40,13 +41,14 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
     private lateinit var childrenAdapter: ArtistDetailAdapter
     private val args: ArtistDetailFragmentArgs by navArgs()
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
-    private val viewModel: ArtistDetailViewModel by viewModels { viewModelFactory }
+    private val viewModel: ArtistDetailViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

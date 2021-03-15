@@ -16,27 +16,15 @@
 
 package fr.nihilus.music.core.ui.base
 
-import android.content.Context
 import androidx.annotation.ContentView
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasAndroidInjector
-import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
 /**
- * Base Fragment class that supports Dagger injection of class members and into child fragments.
+ * Base Fragment class.
+ * Makes it easier to add common behavior to all fragments.
  */
-abstract class BaseFragment : Fragment, HasAndroidInjector {
-    @Inject lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    /**
-     * Generic factory for all ViewModel types.
-     */
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+abstract class BaseFragment : Fragment {
 
     /** No-arg Fragment constructor. */
     constructor() : super()
@@ -47,11 +35,4 @@ abstract class BaseFragment : Fragment, HasAndroidInjector {
      */
     @ContentView
     constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
-
-    override fun androidInjector(): AndroidInjector<Any> = androidInjector
 }

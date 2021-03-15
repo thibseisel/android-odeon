@@ -17,6 +17,7 @@
 package fr.nihilus.music.service
 
 import androidx.collection.LruCache
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
@@ -39,7 +40,7 @@ import javax.inject.Inject
 @OptIn(ObsoleteCoroutinesApi::class, FlowPreview::class)
 @ServiceScoped
 internal class CachingSubscriptionManager @Inject constructor(
-    serviceScope: CoroutineScope,
+    @ServiceCoroutineScope serviceScope: CoroutineScope,
     private val tree: BrowserTree,
     private val dispatchers: AppDispatchers
 ) : SubscriptionManager {

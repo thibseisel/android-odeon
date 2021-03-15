@@ -62,10 +62,6 @@ dependencies {
     // Timber Logging
     api("com.jakewharton.timber:timber:${Libs.timber}")
 
-    // Dagger - compiler is included to generate implementation factories.
-    api("com.google.dagger:dagger:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-
     // Hilt
     api("com.google.dagger:hilt-android:${Libs.hilt}")
     api("androidx.hilt:hilt-common:${Libs.Androidx.hilt}")

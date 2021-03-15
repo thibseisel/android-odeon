@@ -24,7 +24,6 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.bumptech.glide.request.target.Target
 import dagger.hilt.android.qualifiers.ApplicationContext
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.extensions.intoBitmap
 import javax.inject.Inject
 
@@ -69,7 +68,7 @@ internal interface IconDownloader {
  *
  * @param context The context used to initialize Glide.
  */
-@ServiceScoped
+@dagger.hilt.android.scopes.ServiceScoped
 internal class GlideDownloader @Inject constructor(
     @ApplicationContext context: Context
 ) : IconDownloader {

@@ -18,6 +18,7 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -55,9 +56,7 @@ dependencies {
     api("com.google.android.exoplayer:exoplayer-core:${Libs.exoplayer}")
 
     // Dagger
-    implementation("com.google.dagger:dagger-android:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
+    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     // Glide

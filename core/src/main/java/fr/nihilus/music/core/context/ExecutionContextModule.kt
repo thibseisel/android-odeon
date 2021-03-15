@@ -18,6 +18,8 @@ package fr.nihilus.music.core.context
 
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
@@ -27,6 +29,7 @@ import javax.inject.Singleton
  * The provided contexts schedule program execution on multiple threads.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 internal object ExecutionContextModule {
 
     @Provides @Singleton

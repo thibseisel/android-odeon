@@ -18,9 +18,11 @@ package fr.nihilus.music.ui.settings
 
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.core.ui.extensions.isDrawnEdgeToEdge
 
+@AndroidEntryPoint
 class SettingsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

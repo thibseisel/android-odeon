@@ -23,6 +23,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.Hold
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -36,6 +37,7 @@ import fr.nihilus.music.library.HomeViewModel
  * Display all albums in a grid of images.
  * Selecting an album opens its [detail view][AlbumDetailFragment].
  */
+@AndroidEntryPoint
 class AlbumsFragment : BaseFragment(R.layout.fragment_albums) {
     private val viewModel: HomeViewModel by activityViewModels()
 

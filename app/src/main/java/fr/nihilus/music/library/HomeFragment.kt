@@ -29,6 +29,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.transition.MaterialSharedAxis
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.databinding.FragmentHomeBinding
@@ -42,8 +43,9 @@ import java.util.concurrent.TimeUnit
  * Host fragment for displaying collections of media: all tracks, albums, artists and user-defined playlists.
  * Each collection is contained in a tab.
  */
+@AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val viewModel by activityViewModels<HomeViewModel> { viewModelFactory }
+    private val viewModel by activityViewModels<HomeViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

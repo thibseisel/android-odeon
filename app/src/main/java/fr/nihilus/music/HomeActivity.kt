@@ -26,6 +26,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
@@ -38,11 +39,12 @@ import fr.nihilus.music.ui.requestExternalStoragePermission
 import timber.log.Timber
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class HomeActivity : BaseActivity() {
 
     @Inject lateinit var permissions: RuntimePermissions
 
-    private val viewModel: MusicLibraryViewModel by viewModels { viewModelFactory }
+    private val viewModel: MusicLibraryViewModel by viewModels()
 
     private lateinit var binding: ActivityHomeBinding
     private lateinit var bottomSheet: BottomSheetBehavior<*>

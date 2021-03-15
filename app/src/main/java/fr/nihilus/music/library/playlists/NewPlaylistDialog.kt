@@ -27,12 +27,14 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.databinding.NewPlaylistInputBinding
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+@AndroidEntryPoint
 class NewPlaylistDialog : BaseDialogFragment() {
     private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireCallerFragment)
 

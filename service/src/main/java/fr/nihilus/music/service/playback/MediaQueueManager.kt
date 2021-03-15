@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaSessionConnector
-import fr.nihilus.music.service.ServiceScoped
 import java.util.*
 import javax.inject.Inject
 
@@ -36,7 +35,7 @@ private const val UNKNOWN_QUEUE_ID = MediaSessionCompat.QueueItem.UNKNOWN_ID.toL
 /**
  * Handle queue navigation actions and update the media session queue.
  */
-@ServiceScoped
+@dagger.hilt.android.scopes.ServiceScoped
 internal class MediaQueueManager @Inject constructor(
     private val mediaSession: MediaSessionCompat,
     private val prefs: Settings

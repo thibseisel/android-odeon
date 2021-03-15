@@ -19,7 +19,6 @@ package fr.nihilus.music.core.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dagger.MapKey
-import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
@@ -38,7 +37,7 @@ annotation class ViewModelKey(val value: KClass<out ViewModel>)
  * Creates instances of ViewModel subclasses that are bound into the ViewModel map.
  * This enables dependency injection into the created ViewModels.
  */
-internal class DaggerViewModelFactory @Inject constructor(
+internal class DaggerViewModelFactory constructor(
     private val creators: @JvmSuppressWildcards Map<Class<out ViewModel>, Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
 

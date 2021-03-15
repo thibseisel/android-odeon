@@ -140,8 +140,6 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:${Libs.Androidx.viewpager2}")
 
     // Dagger
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
     implementation("com.google.dagger:hilt-android:${Libs.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 

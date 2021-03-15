@@ -25,21 +25,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.core.context.ExecutionContextModule
-import fr.nihilus.music.core.database.SQLiteDatabaseModule
 import fr.nihilus.music.core.os.*
-import fr.nihilus.music.core.settings.SettingsModule
 import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
 
-@Module(
-    includes = [
-        SettingsModule::class,
-        ExecutionContextModule::class,
-        SQLiteDatabaseModule::class
-    ]
-)
+@Module
 @InstallIn(SingletonComponent::class)
 abstract class CommonModule {
 
