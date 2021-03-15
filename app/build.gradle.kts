@@ -141,6 +141,7 @@ dependencies {
 
     // Dagger
     implementation("com.google.dagger:hilt-android:${Libs.hilt}")
+    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     // Test dependencies

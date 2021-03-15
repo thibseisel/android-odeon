@@ -19,8 +19,8 @@ package fr.nihilus.music
 import android.app.Application
 import android.os.StrictMode
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.WorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +38,7 @@ import javax.inject.Inject
 @HiltAndroidApp
 class OdeonApplication : Application(), Configuration.Provider {
     @Inject lateinit var settings: Settings
-    @Inject lateinit var workerFactory: WorkerFactory
+    @Inject lateinit var workerFactory: HiltWorkerFactory
 
     override fun onCreate() {
         super.onCreate()

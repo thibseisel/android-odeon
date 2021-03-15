@@ -25,23 +25,27 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.work.*
-import fr.nihilus.music.core.worker.SingleWorkerFactory
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Provider
 
 /**
  * A tasks for deferring download of media metadata from the Spotify API.
  * The execution of this task requires an internet connection.
  */
-class SpotifySyncWorker(
-    context: Context,
-    params: WorkerParameters,
+@HiltWorker
+class SpotifySyncWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
     private val manager: SpotifyManager
 ) : CoroutineWorker(context, params) {
 
@@ -134,15 +138,6 @@ class SpotifySyncWorker(
             }
 
             notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    internal class Factory @Inject constructor(
-        private val manager: Provider<SpotifyManager>
-    ) : SingleWorkerFactory {
-
-        override fun createWorker(appContext: Context, params: WorkerParameters): ListenableWorker {
-            return SpotifySyncWorker(appContext, params, manager.get())
         }
     }
 }

@@ -64,7 +64,6 @@ dependencies {
 
     // Hilt
     api("com.google.dagger:hilt-android:${Libs.hilt}")
-    api("androidx.hilt:hilt-common:${Libs.Androidx.hilt}")
     implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 

@@ -42,7 +42,11 @@ dependencies {
     // Moshi - Kotlin JSON serialization
     api("com.squareup.moshi:moshi:${Libs.moshi}")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:${Libs.moshi}")
+
+    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
+    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
     kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    kapt("androidx.hilt:hilt-compiler:${Libs.Androidx.hilt}")
 
     testImplementation(project(":core-test"))
     testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
