@@ -17,40 +17,62 @@
 package fr.nihilus.music.ui.settings
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.*
 import dagger.hilt.android.AndroidEntryPoint
+import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.spotify.SpotifySyncWorker
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 @AndroidEntryPoint
 internal class MainPreferenceFragment : PreferenceFragmentCompat() {
+    @Inject internal lateinit var settings: Settings
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Apply theme whenever it is changed via preferences.
+        settings.currentTheme
+            .drop(1)
+            .onEach { theme -> AppCompatDelegate.setDefaultNightMode(theme.value) }
+            .launchIn(lifecycleScope)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.prefs_main, rootKey)
 
         if (BuildConfig.DEBUG) {
-            val startSyncPreference = findPreference<Preference>("start_sync")!!
+            setupSyncPreference()
+        }
+    }
 
-            val workManager = WorkManager.getInstance(requireContext())
-            workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { allWorkInfo ->
-                allWorkInfo.firstOrNull()?.state?.let { workState ->
-                    startSyncPreference.isEnabled = workState.isFinished
+    private fun setupSyncPreference() {
+        val startSyncPreference = findPreference<Preference>("start_sync")!!
 
-                    startSyncPreference.summary = when (workState) {
-                        WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
-                        WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
-                        WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
-                        WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
-                        else -> null
-                    }
+        val workManager = WorkManager.getInstance(requireContext())
+        workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { allWorkInfo ->
+            allWorkInfo.firstOrNull()?.state?.let { workState ->
+                startSyncPreference.isEnabled = workState.isFinished
+
+                startSyncPreference.summary = when (workState) {
+                    WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
+                    WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
+                    WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
+                    WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
+                    else -> null
                 }
             }
+        }
 
-            startSyncPreference.setOnPreferenceClickListener {
-                scheduleSpotifySync(workManager)
-                true
-            }
+        startSyncPreference.setOnPreferenceClickListener {
+            scheduleSpotifySync(workManager)
+            true
         }
     }
 

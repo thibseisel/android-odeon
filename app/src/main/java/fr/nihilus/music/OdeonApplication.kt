@@ -18,15 +18,9 @@ package fr.nihilus.music
 
 import android.app.Application
 import android.os.StrictMode
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import fr.nihilus.music.core.context.AppCoroutineScope
-import fr.nihilus.music.core.settings.Settings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -36,8 +30,6 @@ import javax.inject.Inject
  */
 @HiltAndroidApp
 class OdeonApplication : Application(), Configuration.Provider {
-    @Inject @AppCoroutineScope lateinit var appScope: CoroutineScope
-    @Inject lateinit var settings: Settings
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
     override fun onCreate() {
@@ -48,11 +40,6 @@ class OdeonApplication : Application(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
             StrictMode.enableDefaults()
         }
-
-        // Apply theme whenever it is changed via preferences.
-        settings.currentTheme
-            .onEach { theme -> AppCompatDelegate.setDefaultNightMode(theme.value) }
-            .launchIn(appScope)
     }
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
