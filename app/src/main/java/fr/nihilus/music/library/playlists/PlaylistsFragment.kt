@@ -23,6 +23,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.Hold
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -32,6 +33,7 @@ import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.HomeViewModel
 
+@AndroidEntryPoint
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
     private val viewModel: HomeViewModel by activityViewModels()

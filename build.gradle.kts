@@ -15,6 +15,7 @@
  */
 
 import com.android.build.gradle.BaseExtension
+import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -29,6 +30,7 @@ buildscript {
         classpath("com.android.tools.build:gradle:${Libs.Plugin.androidGradle}")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Libs.kotlin}")
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Libs.Androidx.navigation}")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:${Libs.hilt}")
     }
 }
 
@@ -89,6 +91,13 @@ subprojects {
             testOptions {
                 // Include Android resources in unit tests to be resolved by Robolectric.
                 unitTests.isIncludeAndroidResources = true
+            }
+        }
+
+        configure<KaptExtension> {
+            correctErrorTypes = true
+            arguments {
+                arg("dagger.hilt.disableModulesHaveInstallInCheck", true)
             }
         }
     }

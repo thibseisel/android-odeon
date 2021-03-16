@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.worker
+package fr.nihilus.music.core.context
 
-import androidx.work.WorkerFactory
-import dagger.Binds
-import dagger.Module
+import kotlinx.coroutines.CoroutineScope
+import javax.inject.Qualifier
 
 /**
- * Provides dependencies required for the configuration of [androidx.work.WorkManager].
+ * Qualifier for a provided [CoroutineScope] that is active for the lifetime of the whole
+ * application.
  */
-@Module
-abstract class WorkManagerModule {
-
-    @Binds
-    internal abstract fun bindsWorkerFactory(factory: DaggerWorkerFactory): WorkerFactory
-}
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class AppCoroutineScope

@@ -18,6 +18,7 @@ package fr.nihilus.music.core.settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
@@ -39,7 +40,7 @@ import javax.inject.Singleton
  */
 @Singleton
 internal class SharedPreferencesSettings @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val preferences: SharedPreferences
 ) : Settings {
 

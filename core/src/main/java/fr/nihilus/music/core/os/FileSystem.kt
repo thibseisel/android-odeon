@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.content.FileProvider
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.R
 import java.io.File
 import java.io.IOException
@@ -61,7 +62,7 @@ interface FileSystem {
  */
 @Reusable
 internal class AndroidFileSystem @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     @Named("internal") private val internalRootDir: File
 ) : FileSystem {
 

@@ -18,11 +18,14 @@ package fr.nihilus.music.core.settings
 
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 
 /**
  * Provides the implementation of the [Settings] store.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 abstract class SettingsModule {
 
     @Binds

@@ -22,31 +22,37 @@ import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.os.*
-import fr.nihilus.music.core.settings.SettingsModule
 import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
 
-@Module(includes = [SettingsModule::class])
-internal abstract class CommonModule {
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class CommonModule {
 
     @Binds
-    abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
+    internal abstract fun bindsSystemPermissions(
+        permissions: SystemRuntimePermissions
+    ): RuntimePermissions
 
     @Binds
-    abstract fun bindsSystemClock(clock: DeviceClock): Clock
+    internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
 
     @Binds
-    abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
+    internal abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
 
-    companion object {
+    internal companion object {
 
         @Provides @Singleton
-        fun providesSharedPreferences(context: Context): SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context)
+        fun providesSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(appContext)
 
         @Provides @Named("internal")
-        fun providesInternalStorageRoot(context: Context): File = context.filesDir
+        fun providesInternalStorageRoot(@ApplicationContext appContext: Context): File =
+            appContext.filesDir
     }
 }

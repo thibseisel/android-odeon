@@ -16,11 +16,11 @@
 
 package fr.nihilus.music.dagger
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.BuildConfig
-import fr.nihilus.music.OdeonApplication
 import javax.inject.Named
 
 /**
@@ -31,10 +31,8 @@ import javax.inject.Named
  * All dependencies defined here can be used in both app modules: client and service.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 internal object AppModule {
-
-    @Provides
-    fun provideContext(application: OdeonApplication): Context = application.applicationContext
 
     @Provides @Named("APP_VERSION_NAME")
     fun providesVersionName() = BuildConfig.VERSION_NAME

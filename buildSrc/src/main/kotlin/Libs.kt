@@ -15,7 +15,7 @@
  */
 
 object Libs {
-    const val kotlin = "1.4.30"
+    const val kotlin = "1.4.31"
     const val koroutines = "1.4.2"
 
     object Androidx {
@@ -36,6 +36,7 @@ object Libs {
         const val test = "1.3.0"
         const val ext_junit = "1.1.2"
         const val espresso = "3.3.0"
+        const val hilt = "1.0.0-beta01"
     }
 
     object Plugin {
@@ -43,7 +44,8 @@ object Libs {
         const val refreshVersions = "0.36.0"
     }
 
-    const val dagger = "2.32"
+    const val dagger = "2.33"
+    const val hilt = "$dagger-beta"
     const val exoplayer = "2.13.1"
     const val glide = "4.12.0"
     const val kdenticon = "1.0.0-alpha5"

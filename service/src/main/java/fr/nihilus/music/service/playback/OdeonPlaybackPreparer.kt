@@ -36,6 +36,7 @@ import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaSessionConnector
+import fr.nihilus.music.service.ServiceCoroutineScope
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.SearchQuery
 import kotlinx.coroutines.CoroutineScope
@@ -51,7 +52,7 @@ import kotlin.random.Random
  * This fetches media information from the music library.
  */
 internal class OdeonPlaybackPreparer @Inject constructor(
-    private val scope: CoroutineScope,
+    @ServiceCoroutineScope private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,

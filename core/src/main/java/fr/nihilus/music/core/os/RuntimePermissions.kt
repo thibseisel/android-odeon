@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import dagger.Reusable
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 /**
@@ -39,7 +40,7 @@ interface RuntimePermissions {
  */
 @Reusable
 internal class SystemRuntimePermissions @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : RuntimePermissions {
 
     override val canReadExternalStorage: Boolean

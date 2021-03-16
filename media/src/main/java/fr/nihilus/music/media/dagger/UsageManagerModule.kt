@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.service
+package fr.nihilus.music.media.dagger
 
-import javax.inject.Scope
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import fr.nihilus.music.media.usage.UsageManager
+import fr.nihilus.music.media.usage.UsageManagerImpl
 
-/**
- * Denote that the annotated class or component is alive as long as the enclosing service
- * instance is alive.
- */
-@Scope
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class ServiceScoped
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class UsageManagerModule {
+
+    @Binds
+    internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
+}

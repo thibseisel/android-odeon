@@ -16,10 +16,7 @@
 
 package fr.nihilus.music.service.notification
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
@@ -29,9 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.service.R
-import fr.nihilus.music.service.ServiceScoped
 import fr.nihilus.music.service.extensions.*
 import javax.inject.Inject
 
@@ -41,9 +36,9 @@ internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
 /**
  * Encapsulate code for building media notifications displaying the currently playing media.
  */
-@ServiceScoped
+@dagger.hilt.android.scopes.ServiceScoped
 internal class MediaNotificationBuilder @Inject constructor(
-    private val context: MusicService,
+    private val context: Service,
     session: MediaSessionCompat
 ) {
 

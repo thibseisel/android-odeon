@@ -28,6 +28,7 @@ import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
@@ -39,13 +40,13 @@ import fr.nihilus.music.databinding.PlaylistListItemBinding
  * he wants to add a set of tracks.
  * He may also trigger another dialog allowing him to create a new playlist from the given tracks.
  */
+@AndroidEntryPoint
 class AddToPlaylistDialog : BaseDialogFragment() {
 
     private lateinit var playlistAdapter: TargetPlaylistsAdapter
 
     private val playlistViewModel: PlaylistManagementViewModel by viewModels(
-        ::requireCallerFragment,
-        ::viewModelFactory
+        ::requireCallerFragment
     )
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

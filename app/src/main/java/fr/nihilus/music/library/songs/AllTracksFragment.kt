@@ -24,6 +24,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
@@ -36,11 +37,12 @@ import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.playlists.PlaylistActionResult
 import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 
+@AndroidEntryPoint
 class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
     private val viewModel: HomeViewModel by activityViewModels()
-    private val playlistViewModel: PlaylistManagementViewModel by viewModels { viewModelFactory }
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -27,6 +27,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialContainerTransform
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
@@ -39,10 +40,11 @@ import fr.nihilus.music.databinding.FragmentPlaylistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels { viewModelFactory }
-    private val viewModel: MembersViewModel by viewModels { viewModelFactory }
+    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
+    private val viewModel: MembersViewModel by viewModels()
 
     private val args by navArgs<PlaylistDetailFragmentArgs>()
     private lateinit var adapter: MembersAdapter

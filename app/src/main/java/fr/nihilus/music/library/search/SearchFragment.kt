@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
@@ -41,8 +42,9 @@ import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.songs.DeleteTrackDialog
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class SearchFragment : BaseFragment(R.layout.fragment_search) {
-    private val viewModel by viewModels<SearchViewModel> { viewModelFactory }
+    private val viewModel by viewModels<SearchViewModel>()
     private val keyboard by lazy(LazyThreadSafetyMode.NONE) {
         requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }

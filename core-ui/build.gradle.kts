@@ -53,12 +53,10 @@ dependencies {
     // Material Components
     api("com.google.android.material:material:${Libs.material}")
 
-    api("com.google.dagger:dagger-android:${Libs.dagger}")
-    api("com.google.dagger:dagger-android-support:${Libs.dagger}")
-
     implementation("com.github.thibseisel:kdenticon-android:${Libs.kdenticon}")
 
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    // Hilt
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     testImplementation(project(":core-test"))
 }

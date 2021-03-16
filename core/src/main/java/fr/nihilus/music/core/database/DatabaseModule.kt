@@ -18,6 +18,8 @@ package fr.nihilus.music.core.database
 
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.spotify.SpotifyDao
 import fr.nihilus.music.core.database.usage.UsageDao
@@ -27,6 +29,7 @@ import fr.nihilus.music.core.database.usage.UsageDao
  * This module has a dependency on [AppDatabase] and should be included in a module that provides it.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
     @Provides

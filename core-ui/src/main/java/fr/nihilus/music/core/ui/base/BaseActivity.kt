@@ -16,13 +16,10 @@
 
 package fr.nihilus.music.core.ui.base
 
-import androidx.lifecycle.ViewModelProvider
-import dagger.android.support.DaggerAppCompatActivity
-import javax.inject.Inject
+import androidx.appcompat.app.AppCompatActivity
 
 /**
- * Base Activity class that supports Dagger injection of class members and into Fragments.
+ * Base Activity class.
+ * Makes it easier to add common behavior to all activities.
  */
-abstract class BaseActivity : DaggerAppCompatActivity() {
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-}
+abstract class BaseActivity : AppCompatActivity()

@@ -42,15 +42,14 @@ android {
 dependencies {
     implementation(project(":core"))
 
-    // Dagger
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    // Hilt
+    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
 
     // Test dependencies
     testImplementation(project(":core-test"))
     testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
     testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
     testImplementation("androidx.room:room-ktx:${Libs.Androidx.room}")
-    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
 }
 
 tasks.register<Exec>("refreshMediaStore") {

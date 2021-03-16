@@ -21,13 +21,20 @@ import com.google.android.exoplayer2.Player
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader
 import fr.nihilus.music.service.metadata.IconDownloader
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 
 @Module
+@InstallIn(ServiceComponent::class)
 internal abstract class ServiceBindingsModule {
 
     @Binds
@@ -43,8 +50,13 @@ internal abstract class ServiceBindingsModule {
     abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
 
     companion object {
-
         @Provides @ServiceScoped
-        fun providesServiceScope(service: MusicService): CoroutineScope = service
+        @ServiceCoroutineScope
+        fun providesServiceScope() = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     }
 }
+
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ServiceCoroutineScope

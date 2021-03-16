@@ -35,6 +35,4 @@ dependencies {
     api ("org.robolectric:robolectric:${Libs.robolectric}") {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
-
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
 }

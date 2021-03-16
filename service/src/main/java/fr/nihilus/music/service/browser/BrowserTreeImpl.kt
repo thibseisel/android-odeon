@@ -18,6 +18,8 @@ package fr.nihilus.music.service.browser
 
 import android.content.Context
 import androidx.core.net.toUri
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -34,7 +36,10 @@ import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.*
+import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
+import fr.nihilus.music.service.R
 import fr.nihilus.music.service.browser.provider.*
 import fr.nihilus.music.service.extensions.getResourceUri
 import fr.nihilus.music.spotify.manager.SpotifyManager
@@ -59,7 +64,7 @@ private const val FIRST_WORD_BONUS = 30
 
 @ServiceScoped
 internal class BrowserTreeImpl @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao,
     private val usageManager: UsageManager,

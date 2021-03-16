@@ -29,6 +29,7 @@ import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
 import com.bumptech.glide.request.target.ImageViewTarget
 import com.google.android.material.transition.MaterialContainerTransform
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.luminance
@@ -43,9 +44,10 @@ import java.util.concurrent.TimeUnit
 /**
  * Display the tracks that are part of an album.
  */
+@AndroidEntryPoint
 class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
 
-    private val viewModel: AlbumDetailViewModel by viewModels { viewModelFactory }
+    private val viewModel: AlbumDetailViewModel by viewModels()
     private val args: AlbumDetailFragmentArgs by navArgs()
 
     private var binding: FragmentAlbumDetailBinding? = null

@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.ui
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -42,7 +41,6 @@ import org.junit.runners.Suite
 )
 class AlphaIndexerSpecification
 
-@RunWith(AndroidJUnit4::class)
 class WithNoItem {
 
     private lateinit var indexer: AlphaSectionIndexer
@@ -70,7 +68,6 @@ class WithNoItem {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithOneItemPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -113,7 +110,6 @@ class WithOneItemPerSection : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithSameFirstLetter : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Another One Bites the Dust",
@@ -169,7 +165,6 @@ class WithSameFirstLetter : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithNonLetterItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "[F]",
@@ -203,7 +198,6 @@ class WithNonLetterItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithDiacriticsItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "À la Claire Fontaine",
@@ -233,7 +227,6 @@ class WithDiacriticsItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     override val items = listOf(
         "The 2nd Law: Isolated System",
@@ -266,7 +259,6 @@ class WithLeadingCommonEnglishPrefixes : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithUnexpectedItems : ItemBasedIndexerScenario() {
     override val items = listOf(
         "  \nHello World!",
@@ -315,7 +307,6 @@ class WithUnexpectedItems : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
     override val items = listOf(
         "Saint Cecilia",
@@ -370,7 +361,6 @@ class WithLotsOfItemsPerSection : ItemBasedIndexerScenario() {
     }
 }
 
-@RunWith(AndroidJUnit4::class)
 class WithLotsOfItemsPerSectionAndSpecialChars : ItemBasedIndexerScenario() {
 
     override val items = listOf(

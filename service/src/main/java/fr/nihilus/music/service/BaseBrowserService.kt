@@ -18,26 +18,16 @@ package fr.nihilus.music.service
 
 import android.content.Intent
 import androidx.media.MediaBrowserServiceCompat
-import dagger.android.AndroidInjection
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.cancel
+import javax.inject.Inject
 
-abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope {
+abstract class BaseBrowserService : MediaBrowserServiceCompat() {
+
+    @Inject @ServiceCoroutineScope
+    protected lateinit var serviceScope: CoroutineScope
 
     private var isStarted = false
-
-    private lateinit var scopeJob: Job
-    override val coroutineContext: CoroutineContext
-        get() = scopeJob + Dispatchers.Main.immediate
-
-    override fun onCreate() {
-        super.onCreate()
-        scopeJob = SupervisorJob()
-        AndroidInjection.inject(this)
-    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         isStarted = true
@@ -58,7 +48,7 @@ abstract class BaseBrowserService : MediaBrowserServiceCompat(), CoroutineScope 
     }
 
     override fun onDestroy() {
-        scopeJob.cancel()
+        serviceScope.cancel()
         super.onDestroy()
     }
 }

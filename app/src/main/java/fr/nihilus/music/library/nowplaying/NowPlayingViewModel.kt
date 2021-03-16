@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
+@HiltViewModel
 class NowPlayingViewModel @Inject constructor(
     private val client: BrowserClient
 ) : ViewModel() {

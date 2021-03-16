@@ -17,6 +17,7 @@
 package fr.nihilus.music.service
 
 import android.app.PendingIntent
+import android.app.Service
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -24,6 +25,9 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.playback.ErrorHandler
 import fr.nihilus.music.service.playback.MediaQueueManager
 import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
@@ -32,6 +36,7 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
  * Configures and provides MediaSession-related dependencies.
  */
 @Module
+@InstallIn(ServiceComponent::class)
 internal abstract class MediaSessionModule {
 
     @Binds
@@ -49,7 +54,7 @@ internal abstract class MediaSessionModule {
          * Creates a media session associated with the given [service].
          */
         @Provides @ServiceScoped
-        fun providesMediaSession(service: MusicService): MediaSessionCompat {
+        fun providesMediaSession(service: Service): MediaSessionCompat {
             val sessionActivityPendingIntent =
                 service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
                     sessionIntent.action = MusicService.ACTION_PLAYER_UI

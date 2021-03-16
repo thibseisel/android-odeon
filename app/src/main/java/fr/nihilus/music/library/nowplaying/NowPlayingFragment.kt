@@ -25,6 +25,7 @@ import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -38,6 +39,7 @@ private const val LEVEL_CHEVRON_DOWN = 1
 
 private const val KEY_IS_COLLAPSED = "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
 
+@AndroidEntryPoint
 class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
@@ -48,7 +50,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private var binding: FragmentNowPlayingBinding? = null
     private var topBinding: FragmentNowPlayingTopBinding? = null
 
-    private val viewModel by viewModels<NowPlayingViewModel> { viewModelFactory }
+    private val viewModel by viewModels<NowPlayingViewModel>()
 
     private lateinit var glideRequest: RequestBuilder<Drawable>
 
