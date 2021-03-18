@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.playlists
 
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
@@ -63,14 +64,14 @@ internal class PlaylistManagementViewModel @Inject constructor(
     private val _playlistActionResult = MutableLiveData<Event<PlaylistActionResult>>()
     val playlistActionResult: LiveData<Event<PlaylistActionResult>> = _playlistActionResult
 
-    val userPlaylists: LiveData<LoadRequest<List<MediaBrowserCompat.MediaItem>>> =
+    val userPlaylists: LiveData<LoadRequest<List<MediaItem>>> =
         client.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaBrowserCompat.MediaItem>> }
+            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .asLiveData()
 
-    fun createPlaylist(playlistName: String, members: Array<MediaBrowserCompat.MediaItem>) {
+    fun createPlaylist(playlistName: String, members: Array<MediaItem>) {
         viewModelScope.launch {
             val membersTrackIds = members.map { it.mediaId.parse() }
 
@@ -82,8 +83,8 @@ internal class PlaylistManagementViewModel @Inject constructor(
     }
 
     fun addTracksToPlaylist(
-        targetPlaylist: MediaBrowserCompat.MediaItem,
-        addedTracks: Array<MediaBrowserCompat.MediaItem>
+        targetPlaylist: MediaItem,
+        addedTracks: Array<MediaItem>
     ) {
         viewModelScope.launch {
             val playlistId = targetPlaylist.mediaId.parse()

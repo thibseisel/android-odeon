@@ -53,7 +53,7 @@ class ArtistDetailViewModel @Inject constructor(
 
         observeChildrenJob?.cancel()
         observeChildrenJob = client.getChildren(artistMediaId)
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .onEach { _children.postValue(it) }

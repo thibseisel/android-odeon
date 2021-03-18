@@ -84,7 +84,7 @@ class HomeViewModel @Inject constructor(
         .asLiveData()
 }
 
-private fun <T> Flow<T>.loadState(): Flow<LoadRequest<T>> =
-    map { LoadRequest.Success(it) as LoadRequest<T> }
+private fun <T> Flow<T>.loadState(): Flow<LoadRequest<T>> = this
+        .map<T, LoadRequest<T>> { LoadRequest.Success(it) }
         .onStart { emit(LoadRequest.Pending) }
         .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

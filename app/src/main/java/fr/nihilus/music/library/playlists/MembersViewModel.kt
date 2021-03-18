@@ -56,7 +56,7 @@ class MembersViewModel @Inject constructor(
 
         observeTracksJob?.cancel()
         observeTracksJob = client.getChildren(playlistMediaId)
-            .map { LoadRequest.Success(it) as LoadRequest<List<MediaItem>> }
+            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
             .onStart { emit(LoadRequest.Pending) }
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .onEach { _members.postValue(it) }

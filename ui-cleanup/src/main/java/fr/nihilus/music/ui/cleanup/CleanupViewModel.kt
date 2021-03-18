@@ -41,7 +41,7 @@ internal class CleanupViewModel @Inject constructor(
 
     val tracks: LiveData<LoadRequest<List<DisposableTrack>>> =
         usageManager.getDisposableTracks()
-            .map { LoadRequest.Success(it) as LoadRequest<List<DisposableTrack>> }
+            .map<List<DisposableTrack>, LoadRequest<List<DisposableTrack>>> { LoadRequest.Success(it) }
             .onStart { emit(LoadRequest.Pending) }
             .asLiveData()
 
