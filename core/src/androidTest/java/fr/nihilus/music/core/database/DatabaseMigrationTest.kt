@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class DatabaseMigrationTest {
         db.close()
 
         // Re-open the database with version 2, execute and validate the migration from v1 to v2.
-        helper.runMigrationsAndValidate(TEST_DB, 2, true, AppDatabase.MIGRATION_1_2)
+        helper.runMigrationsAndValidate(TEST_DB, 2, true, DatabaseMigration.MIGRATION_1_2)
     }
 
     @Test
@@ -64,7 +64,7 @@ class DatabaseMigrationTest {
         """)
 
         db.close()
-        db = helper.runMigrationsAndValidate(TEST_DB, 3, false, AppDatabase.MIGRATION_2_3)
+        db = helper.runMigrationsAndValidate(TEST_DB, 3, false, DatabaseMigration.MIGRATION_2_3)
 
         // Check that the playlist has been properly migrated.
         db.query("SELECT id, title, date_created, icon_uri FROM playlist").use {
@@ -90,7 +90,7 @@ class DatabaseMigrationTest {
         db.close()
 
         // Check that "remote_link" and "track_feature" tables have been added.
-        helper.runMigrationsAndValidate(TEST_DB, 3, false, AppDatabase.MIGRATION_3_4)
+        helper.runMigrationsAndValidate(TEST_DB, 3, false, DatabaseMigration.MIGRATION_3_4)
     }
 
     @Test
@@ -108,7 +108,7 @@ class DatabaseMigrationTest {
         """)
 
         db.close()
-        db = helper.runMigrationsAndValidate(TEST_DB, 5, false, AppDatabase.MIGRATION_4_5)
+        db = helper.runMigrationsAndValidate(TEST_DB, 5, false, DatabaseMigration.MIGRATION_4_5)
 
         // Check that the playlist has been properly migrated.
         db.query("SELECT id, title, date_created, icon_uri FROM playlist").use {
@@ -134,5 +134,11 @@ class DatabaseMigrationTest {
             assertEquals(19, it.getLong(1))
             assertEquals(2, it.getInt(2))
         }
+    }
+
+    @Test
+    fun migration5To6() {
+        helper.createDatabase(TEST_DB, 5).close()
+        helper.runMigrationsAndValidate(TEST_DB, 6, false, DatabaseMigration.MIGRATION_5_6).close()
     }
 }

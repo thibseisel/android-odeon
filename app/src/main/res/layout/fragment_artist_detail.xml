@@ -42,7 +42,7 @@
                 android:layout_height="?actionBarSize"
                 android:elevation="0dp"
                 app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/ic_arrow_back_24dp"
+                app:navigationIcon="@drawable/ui_ic_arrow_back_24dp"
                 app:popupTheme="?actionBarPopupTheme"
                 tools:title="@sample/albums.json/data/artist" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>

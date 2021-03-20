@@ -25,6 +25,12 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/action_exclude"
+        android:icon="@drawable/ic_block_24"
+        android:title="@string/action_exclude_track"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_delete"
         android:icon="@drawable/ui_ic_delete_24dp"
         android:title="@string/core_action_delete"

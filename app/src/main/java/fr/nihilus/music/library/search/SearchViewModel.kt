@@ -25,6 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
+import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
-    private val client: BrowserClient
+    private val client: BrowserClient,
+    private val excludeAction: ExcludeTrackAction
 ) : ViewModel() {
 
     private val mediaTypeImportance = compareBy<String> { mediaType ->
@@ -70,6 +72,13 @@ internal class SearchViewModel @Inject constructor(
     fun play(item: MediaItem) {
         viewModelScope.launch {
             client.playFromMediaId(item.mediaId.parse())
+        }
+    }
+
+    fun exclude(track: MediaItem) {
+        viewModelScope.launch {
+            val trackMediaId = track.mediaId.parse()
+            excludeAction.exclude(trackMediaId)
         }
     }
 

@@ -29,6 +29,7 @@ import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
+import fr.nihilus.music.media.dagger.SourceDao
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
@@ -48,6 +49,7 @@ import javax.inject.Inject
  * @param dispatchers Coroutine threading contexts to execute long running IO operations.
  */
 @Reusable
+@SourceDao
 internal class MediaStoreDao @Inject constructor(
     private val database: MediaStoreDatabase,
     private val fileSystem: FileSystem,

@@ -194,6 +194,10 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
                 dialog.show(parentFragmentManager, AddToPlaylistDialog.TAG)
             }
 
+            SearchResultsAdapter.ItemAction.EXCLUDE -> {
+                viewModel.exclude(item)
+            }
+
             SearchResultsAdapter.ItemAction.DELETE -> {
                 val dialog = DeleteTrackDialog.newInstance(item)
                 dialog.show(parentFragmentManager, DeleteTrackDialog.TAG)

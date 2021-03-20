@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.dagger
+package fr.nihilus.music.ui.settings.exclusion
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.media.usage.UsageManagerImpl
-
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class UsageManagerModule {
-
-    @Binds
-    internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
-}
+internal data class ExcludedTrack(
+    val id: Long,
+    val title: String,
+    val artistName: String,
+    val excludeDate: Long
+)

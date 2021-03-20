@@ -25,10 +25,15 @@ android {
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
     }
+
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":media"))
     implementation(project(":core-ui"))
     implementation(project(":spotify-client"))
 
