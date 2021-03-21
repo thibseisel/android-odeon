@@ -24,7 +24,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.os.RuntimePermissions
@@ -52,6 +51,19 @@ class HomeActivity : BaseActivity() {
 
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
 
+    init {
+        supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
+            if (fragment is NowPlayingFragment) {
+                playerFragment = fragment
+                fragment.setOnRequestPlayerExpansionListener { shouldCollapse ->
+                    bottomSheet.state =
+                        if (shouldCollapse) BottomSheetBehavior.STATE_COLLAPSED
+                        else BottomSheetBehavior.STATE_EXPANDED
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
@@ -64,19 +76,6 @@ class HomeActivity : BaseActivity() {
                 // Load a fragment depending on the intent that launched that activity (shortcuts)
                 handleIntent(intent)
             } else this.requestExternalStoragePermission()
-        }
-    }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-
-        if (fragment is NowPlayingFragment) {
-            playerFragment = fragment
-            fragment.setOnRequestPlayerExpansionListener { shouldCollapse ->
-                bottomSheet.state =
-                        if (shouldCollapse) BottomSheetBehavior.STATE_COLLAPSED
-                        else BottomSheetBehavior.STATE_EXPANDED
-            }
         }
     }
 
@@ -145,11 +144,12 @@ class HomeActivity : BaseActivity() {
                     this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 )) {
-                ConfirmDialogFragment.newInstance(
-                    null, 0,
+                ConfirmDialogFragment.open(
+                    this,
+                    "storage_permission_rationale",
                     message = getString(R.string.external_storage_permission_rationale),
                     positiveButton = R.string.core_ok
-                ).show(supportFragmentManager, null)
+                )
             }
         }
     }

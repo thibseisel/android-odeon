@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.ui.cleanup
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.view.ActionMode
@@ -38,7 +36,7 @@ import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
 /**
  * Code associated with the request to confirm deleting tracks.
  */
-private const val REQUEST_CONFIRM_CLEANUP = 1337
+private const val REQUEST_CONFIRM_CLEANUP = "fr.nihilus.music.request.CONFIRM_CLEANUP"
 
 /**
  * Lists tracks that could be deleted from the device's storage to free-up space.
@@ -92,6 +90,18 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             }
         }
 
+        ConfirmDialogFragment.registerForResult(this, REQUEST_CONFIRM_CLEANUP) { result ->
+            if (result == ConfirmDialogFragment.ActionButton.POSITIVE) {
+                val tracksById = adapter.currentList.associateByLong { it.trackId }
+                val selectedTracks = selectionTracker.selection.mapNotNull { trackId ->
+                    tracksById[trackId]
+                }
+
+                viewModel.deleteTracks(selectedTracks)
+                selectionTracker.clearSelection()
+            }
+        }
+
         if (savedInstanceState != null) {
             // Restore selected positions.
             selectionTracker.onRestoreInstanceState(savedInstanceState)
@@ -101,18 +111,6 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         selectionTracker.onSaveInstanceState(outState)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_CONFIRM_CLEANUP && resultCode == DialogInterface.BUTTON_POSITIVE) {
-            val tracksById = adapter.currentList.associateByLong { it.trackId }
-            val selectedTracks = selectionTracker.selection.mapNotNull { trackId ->
-                tracksById[trackId]
-            }
-
-            viewModel.deleteTracks(selectedTracks)
-            selectionTracker.clearSelection()
-        }
     }
 
     override fun onDestroyView() {
@@ -133,16 +131,14 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private fun askCleanupConfirmation(deletedTracks: Selection<Long>) {
         val selected = deletedTracks.size()
-        val dialog = ConfirmDialogFragment.newInstance(
+        ConfirmDialogFragment.open(
             this,
             REQUEST_CONFIRM_CLEANUP,
-            resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
-            getString(R.string.cleanup_confirmation_message),
-            R.string.core_action_delete,
-            R.string.core_cancel
+            title = resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
+            message = getString(R.string.cleanup_confirmation_message),
+            positiveButton = R.string.core_action_delete,
+            negativeButton = R.string.core_cancel
         )
-
-        dialog.show(parentFragmentManager, null)
     }
 
     private fun setFabVisibility(visible: Boolean) {

@@ -16,8 +16,6 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -39,6 +37,8 @@ import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.databinding.FragmentPlaylistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
+
+private const val REQUEST_DELETE_PLAYLIST = "fr.nihilus.music.request.DELETE_PLAYLIST"
 
 @AndroidEntryPoint
 class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
@@ -102,23 +102,29 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
                 }
             }
         }
+
+        ConfirmDialogFragment.registerForResult(this, REQUEST_DELETE_PLAYLIST) { button ->
+            if (button == ConfirmDialogFragment.ActionButton.POSITIVE) {
+                viewModel.deletePlaylist(args.playlistId)
+                findNavController().popBackStack()
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_delete -> {
-                val dialogTitle = getString(
-                    R.string.delete_playlist_dialog_title,
-                    viewModel.playlist.value?.description?.title
-                )
-
-                ConfirmDialogFragment.newInstance(
+                val playlistTitle = viewModel.playlist.value?.description?.title
+                ConfirmDialogFragment.open(
                     this,
                     REQUEST_DELETE_PLAYLIST,
-                    title = dialogTitle,
+                    title = getString(
+                        R.string.delete_playlist_dialog_title,
+                        playlistTitle
+                    ),
                     positiveButton = R.string.core_ok,
                     negativeButton = R.string.core_cancel
-                ).show(parentFragmentManager, null)
+                )
                 return true
             }
         }
@@ -129,16 +135,5 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
     private fun onTrackSelected(position: Int) {
         val member = adapter.getItem(position)
         hostViewModel.playMedia(member)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_DELETE_PLAYLIST && resultCode == DialogInterface.BUTTON_POSITIVE) {
-            viewModel.deletePlaylist(args.playlistId)
-            findNavController().popBackStack()
-        }
-    }
-
-    private companion object {
-        private const val REQUEST_DELETE_PLAYLIST = 66
     }
 }

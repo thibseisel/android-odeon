@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -35,8 +34,8 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @AndroidEntryPoint
-class NewPlaylistDialog : BaseDialogFragment() {
-    private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireCallerFragment)
+internal class NewPlaylistDialog : BaseDialogFragment() {
+    private val playlistViewModel: PlaylistManagementViewModel by viewModels(::requireParentFragment)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val context = requireContext()
@@ -70,16 +69,6 @@ class NewPlaylistDialog : BaseDialogFragment() {
         return dialog
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        // Make the keyboard immediately visible when displaying the dialog.
-        dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-    }
-
-    private fun requireCallerFragment(): Fragment =
-        targetFragment ?: error("NewPlaylistDialog should be instantiated with newInstance.")
-
     private fun onRequestCreatePlaylist(playlistTitle: String) {
         val memberTracks = getNewPlaylistMembersArgument()
         playlistViewModel.createPlaylist(playlistTitle, memberTracks)
@@ -99,23 +88,15 @@ class NewPlaylistDialog : BaseDialogFragment() {
     }
 
     companion object Factory {
-
         private const val ARG_MEMBER_TRACKS = "member_tracks"
 
-        /**
-         * The tag associated with this dialog.
-         * This may be used to identify the dialog in the fragment manager.
-         */
-        const val TAG = "NewPlaylistDialog"
-
-        fun newInstance(
-            caller: Fragment,
-            memberTracks: Array<MediaItem>
-        ) = NewPlaylistDialog().apply {
-            setTargetFragment(caller, 0)
-            arguments = Bundle(1).apply {
-                putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
+        fun open(caller: Fragment, memberTracks: Array<MediaItem>) {
+            val dialog = NewPlaylistDialog().apply {
+                arguments = Bundle(1).apply {
+                    putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
+                }
             }
+            dialog.show(caller.childFragmentManager, null)
         }
     }
 }
