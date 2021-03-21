@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.map
 import org.jetbrains.annotations.TestOnly
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 /**
@@ -41,7 +42,7 @@ import javax.inject.Singleton
 @Singleton
 internal class SharedPreferencesSettings @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferences: SharedPreferences
+    private val preferences: Provider<SharedPreferences>
 ) : Settings {
 
     /**
@@ -70,14 +71,14 @@ internal class SharedPreferencesSettings @Inject constructor(
         }
 
     override val queueIdentifier: Long
-        get() = preferences.getLong(PREF_KEY_QUEUE_IDENTIFIER, 0L)
+        get() = preferences.get().getLong(PREF_KEY_QUEUE_IDENTIFIER, 0L)
 
     override val queueReload: QueueReloadStrategy
         get() {
             val prefValues = context.resources.getStringArray(R.array.prefs_reload_queue_values)
 
             val prefKey = context.getString(R.string.pref_key_reload_queue)
-            return when (val value = preferences.getString(prefKey, null)) {
+            return when (val value = preferences.get().getString(prefKey, null)) {
                 prefValues[0] -> QueueReloadStrategy.FROM_START
                 prefValues[1] -> QueueReloadStrategy.FROM_TRACK
                 prefValues[2] -> QueueReloadStrategy.AT_POSITION
@@ -87,40 +88,44 @@ internal class SharedPreferencesSettings @Inject constructor(
         }
 
     override val prepareQueueOnStartup: Boolean
-        get() = preferences.getBoolean(
+        get() = preferences.get().getBoolean(
             context.getString(R.string.pref_key_prepare_on_startup),
             context.resources.getBoolean(R.bool.pref_default_prepare_on_startup)
         )
 
     override var lastQueueMediaId: MediaId?
-        get() = preferences.getString(PREF_KEY_LAST_PLAYED, null)?.parse()
+        get() = preferences.get().getString(PREF_KEY_LAST_PLAYED, null)?.parse()
         set(mediaId) {
-            preferences.edit()
+            preferences.get().edit()
                 .putString(PREF_KEY_LAST_PLAYED, mediaId?.encoded)
                 .putLong(PREF_KEY_QUEUE_IDENTIFIER, queueIdentifier + 1)
                 .apply()
         }
 
     override var lastQueueIndex: Int
-        get() = preferences.getInt(PREF_KEY_QUEUE_INDEX, 0)
-        set(indexInQueue) = preferences.edit().putInt(PREF_KEY_QUEUE_INDEX, indexInQueue).apply()
+        get() = preferences.get().getInt(PREF_KEY_QUEUE_INDEX, 0)
+        set(indexInQueue) = preferences.get().edit()
+            .putInt(PREF_KEY_QUEUE_INDEX, indexInQueue)
+            .apply()
 
     override var lastPlayedPosition: Long
-        get() = preferences.getLong(PREF_KEY_QUEUE_POSITION, -1L)
-        set(position) = preferences.edit().putLong(PREF_KEY_QUEUE_POSITION, position).apply()
+        get() = preferences.get().getLong(PREF_KEY_QUEUE_POSITION, -1L)
+        set(position) = preferences.get().edit()
+            .putLong(PREF_KEY_QUEUE_POSITION, position)
+            .apply()
 
     override var shuffleModeEnabled: Boolean
-        get() = preferences.getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, false)
-        set(enabled) = preferences.edit()
+        get() = preferences.get().getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, false)
+        set(enabled) = preferences.get().edit()
             .putBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, enabled)
             .apply()
 
     override var repeatMode: RepeatMode
         get() {
-            val repeatModeCode = preferences.getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
+            val repeatModeCode = preferences.get().getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
             return RepeatMode.values().first { it.code == repeatModeCode }
         }
-        set(mode) = preferences.edit()
+        set(mode) = preferences.get().edit()
             .putInt(PREF_KEY_REPEAT_MODE, mode.code)
             .apply()
 
@@ -132,15 +137,16 @@ internal class SharedPreferencesSettings @Inject constructor(
         }
 
         // Request to emit the current value.
-        offer(preferences)
+        val prefs = preferences.get()
+        offer(prefs)
 
         // Register a listener to be called when the preference value changes.
         preferenceListeners += valueListener
-        preferences.registerOnSharedPreferenceChangeListener(valueListener)
+        prefs.registerOnSharedPreferenceChangeListener(valueListener)
 
         // Make sure to unregister the listener when flow is cancelled.
         awaitClose {
-            preferences.unregisterOnSharedPreferenceChangeListener(valueListener)
+            prefs.unregisterOnSharedPreferenceChangeListener(valueListener)
             preferenceListeners -= valueListener
         }
     }.conflate()

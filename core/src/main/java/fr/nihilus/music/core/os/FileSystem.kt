@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.io.File
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
+import javax.inject.Provider
 
 /**
  * Main interface for reading and writing to the device's file system.
@@ -63,14 +64,14 @@ interface FileSystem {
 @Reusable
 internal class AndroidFileSystem @Inject constructor(
     @ApplicationContext private val context: Context,
-    @Named("internal") private val internalRootDir: File
+    @Named("internal") private val internalRootDir: Provider<File>
 ) : FileSystem {
 
     override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? {
         val lastSeparatorPosition = filepath.lastIndexOf('/')
 
         val dirPath = filepath.substring(0, lastSeparatorPosition)
-        val fileDir = File(internalRootDir, dirPath)
+        val fileDir = File(internalRootDir.get(), dirPath)
         if (!fileDir.exists()) {
             fileDir.mkdirs()
         }

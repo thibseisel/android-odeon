@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import javax.inject.Provider
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -50,7 +51,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading queueIdentifier, then return the saved value or 0`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.queueIdentifier shouldBe 0L
 
         prefs.edit().putLong(PREF_KEY_QUEUE_IDENTIFIER, 42).commit()
@@ -62,7 +63,7 @@ class SharedPreferencesSettingsTest {
     fun `When reading lastQueueMediaId, then return the latest written value or null`() {
         val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastQueueMediaId shouldBe null
 
         prefs.edit().putString(PREF_KEY_LAST_PLAYED, allTracks.encoded).commit()
@@ -75,7 +76,7 @@ class SharedPreferencesSettingsTest {
 
         prefs.edit().putLong(PREF_KEY_QUEUE_IDENTIFIER, 12L).commit()
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastQueueMediaId = allTracks
 
         prefs.getString(PREF_KEY_LAST_PLAYED, null) shouldBe allTracks.encoded
@@ -84,7 +85,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading lastQueueIndex, then return the saved value or 0`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastQueueIndex shouldBe 0
 
         prefs.edit().putInt(PREF_KEY_QUEUE_INDEX, 42).commit()
@@ -96,7 +97,7 @@ class SharedPreferencesSettingsTest {
     fun `When setting lastQueueIndex, then update the saved value`() {
         prefs.edit().putInt(PREF_KEY_QUEUE_INDEX, 34).commit()
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastQueueIndex = 12
 
         prefs.getInt(PREF_KEY_QUEUE_INDEX, 0) shouldBe 12
@@ -104,7 +105,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading lastPlayedPosition, then return the saved value or -1`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastPlayedPosition shouldBe -1L
 
         prefs.edit().putLong(PREF_KEY_QUEUE_POSITION, 12345L).commit()
@@ -116,7 +117,7 @@ class SharedPreferencesSettingsTest {
     fun `When setting lastPlayedPosition, then update the saved value`() {
         prefs.edit().putLong(PREF_KEY_QUEUE_POSITION, Long.MAX_VALUE).commit()
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.lastPlayedPosition = 12345L
 
         prefs.getLong(PREF_KEY_QUEUE_POSITION, Long.MIN_VALUE) shouldBe 12345L
@@ -124,7 +125,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading shuffleModeEnabled, then return the saved value or false`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.shuffleModeEnabled shouldBe false
 
         prefs.edit().putBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, true).commit()
@@ -136,7 +137,7 @@ class SharedPreferencesSettingsTest {
     fun `When setting shuffleModeEnabled, then update the saved value`() {
         prefs.edit().putBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, true).commit()
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.shuffleModeEnabled = false
 
         prefs.getBoolean(PREF_KEY_SHUFFLE_MODE_ENABLED, true) shouldBe false
@@ -144,7 +145,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading queueReload, then return the saved value as an enum or FROM_TRACK`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.queueReload shouldBe QueueReloadStrategy.FROM_TRACK
 
         fun enumFor(@StringRes prefValueResId: Int): QueueReloadStrategy {
@@ -162,7 +163,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading prepareQueueOnStartup, then return saved value or true`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.prepareQueueOnStartup shouldBe true
 
         val prefKey = context.getString(R.string.pref_key_prepare_on_startup)
@@ -175,7 +176,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When reading repeatMode, then return the saved value as an enum or DISABLED`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.repeatMode shouldBe RepeatMode.DISABLED
 
         prefs.edit().putInt(PREF_KEY_REPEAT_MODE, RepeatMode.ONE.code).commit()
@@ -190,7 +191,7 @@ class SharedPreferencesSettingsTest {
 
     @Test
     fun `When setting repeatMode, then update prefs with the corresponding code`() {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
 
         settings.repeatMode = RepeatMode.ONE
         prefs.getInt(PREF_KEY_REPEAT_MODE, -1) shouldBe RepeatMode.ONE.code
@@ -205,14 +206,14 @@ class SharedPreferencesSettingsTest {
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
     fun `When running API 28 or earlier, then the default theme should be BATTERY_SAVER`() = runBlockingTest {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.currentTheme.first() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
     }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.Q)
     fun `When running API 29+, then the default theme should be SYSTEM`() = runBlockingTest {
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.currentTheme.first() shouldBe Settings.AppTheme.SYSTEM
     }
 
@@ -221,7 +222,7 @@ class SharedPreferencesSettingsTest {
         val themePrefKey = context.getString(R.string.pref_key_theme)
         prefs.edit().putString(themePrefKey, "light").commit()
 
-        val settings = SharedPreferencesSettings(context, prefs)
+        val settings = SharedPreferencesSettings(context, providerOf(prefs))
         val updates = settings.currentTheme.produceIn(this)
         updates.receive() shouldBe Settings.AppTheme.LIGHT
 
@@ -236,4 +237,6 @@ class SharedPreferencesSettingsTest {
 
         updates.cancel()
     }
+
+    private fun <T> providerOf(value: T) = Provider { value }
 }
