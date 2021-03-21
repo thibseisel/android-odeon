@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@ import kotlinx.coroutines.flow.Flow
  *
  * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
  * all operations may fail if permission to read/write external storage is denied.
- *
- * Note: this class is exceptionally public in order to be injected in other modules,
- * as a workaround until a suitable replacement for MediaRepository is found.
  */
 interface MediaDao {
 
