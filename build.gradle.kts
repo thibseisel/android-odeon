@@ -94,10 +94,12 @@ subprojects {
             }
         }
 
-        configure<KaptExtension> {
-            correctErrorTypes = true
-            arguments {
-                arg("dagger.hilt.disableModulesHaveInstallInCheck", true)
+        if (pluginManager.hasPlugin("org.jetbrains.kotlin.kapt")) {
+            configure<KaptExtension> {
+                correctErrorTypes = true
+                arguments {
+                    arg("dagger.hilt.disableModulesHaveInstallInCheck", true)
+                }
             }
         }
     }
