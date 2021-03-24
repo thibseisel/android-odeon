@@ -19,7 +19,6 @@ package fr.nihilus.music.service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -146,15 +145,6 @@ class MusicService : BaseBrowserService() {
         if (!packageValidator.isKnownCaller(clientPackageName, clientUid)) {
             return null
         }
-
-        // Grant permission to known callers to read album arts without storage permissions.
-        // Context.getPackageName() => applicationId as per https://developer.android.com/studio/build/application-id
-        val applicationId = packageName
-        grantUriPermission(
-            clientPackageName,
-            Uri.parse("content://$applicationId.provider/"),
-            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-        )
 
         val rootExtras = Bundle().apply {
             putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
