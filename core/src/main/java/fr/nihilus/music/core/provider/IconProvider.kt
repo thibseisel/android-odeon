@@ -31,6 +31,7 @@ import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.os.PlaylistIconDir
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Provider
 
 private const val PLAYLIST_ICONS_URI_PATH = "icons"
 private const val FALLBACK_MIME_TYPE = "application/octet-stream"
@@ -40,7 +41,7 @@ private const val FALLBACK_MIME_TYPE = "application/octet-stream"
  */
 internal class IconProvider : ContentProvider() {
 
-    @Inject @PlaylistIconDir lateinit var playlistIconsDir: File
+    @Inject @PlaylistIconDir lateinit var playlistIconsDir: Provider<File>
     private val defaultColumns = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
     override fun onCreate(): Boolean {
@@ -101,7 +102,7 @@ internal class IconProvider : ContentProvider() {
     private fun getFileForUri(uri: Uri): File {
         val path = requireNotNull(uri.encodedPath)
         val filename = path.substringAfter("$PLAYLIST_ICONS_URI_PATH/")
-        return File(playlistIconsDir, filename)
+        return File(playlistIconsDir.get(), filename)
     }
 
     /**
