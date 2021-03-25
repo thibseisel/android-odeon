@@ -16,7 +16,9 @@
 
 package fr.nihilus.music.core.os
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,11 +35,23 @@ import javax.inject.Qualifier
 @InstallIn(SingletonComponent::class)
 internal object FileModule {
     private const val PLAYLIST_ICONS_FOLDER = "playlist_icons"
+    private const val PROVIDER_ICONS_PATH = "icons"
 
     @Provides @PlaylistIconDir
     fun providesPlaylistIconDir(@ApplicationContext appContext: Context): File {
         val internalStorageRoot = appContext.filesDir
         return File(internalStorageRoot, PLAYLIST_ICONS_FOLDER)
+    }
+
+    @Provides @IconContentUri
+    fun providesBaseIconUri(@ApplicationContext appContext: Context): Uri {
+        val applicationId = appContext.packageName
+        val providerAuthority = "$applicationId.provider"
+        return Uri.Builder()
+            .scheme(ContentResolver.SCHEME_CONTENT)
+            .authority(providerAuthority)
+            .appendPath(PROVIDER_ICONS_PATH)
+            .build()
     }
 }
 
@@ -48,6 +62,12 @@ internal object FileModule {
  */
 @Qualifier
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
 annotation class PlaylistIconDir
+
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
+annotation class IconContentUri

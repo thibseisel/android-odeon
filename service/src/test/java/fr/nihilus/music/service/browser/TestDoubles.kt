@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ internal class TestPlaylistDao(
         suspendCancellableCoroutine<Nothing> {}
     }
 
+    override suspend fun findPlaylist(playlistId: Long): Playlist? = stub()
     override suspend fun savePlaylist(playlist: Playlist): Long = stub()
     override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()
     override suspend fun deletePlaylist(playlistId: Long): Unit = stub()
@@ -123,6 +124,7 @@ internal object StubMediaDao : MediaDao {
 
 internal object StubPlaylistDao : PlaylistDao() {
     override val playlists: Flow<List<Playlist>> get() = stub()
+    override suspend fun findPlaylist(playlistId: Long): Playlist? = stub()
     override fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>> = stub()
     override suspend fun savePlaylist(playlist: Playlist): Long = stub()
     override suspend fun addTracks(tracks: List<PlaylistTrack>): Unit = stub()

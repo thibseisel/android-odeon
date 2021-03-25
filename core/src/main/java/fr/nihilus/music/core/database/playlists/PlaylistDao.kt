@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,13 @@ abstract class PlaylistDao {
      */
     @get:Query("SELECT * FROM playlist ORDER BY date_created ASC")
     abstract val playlists: Flow<List<Playlist>>
+
+    /**
+     * Find a playlist by its id.
+     * @return Playlist matching the given id, or `null` if it does not exists.
+     */
+    @Query("SELECT * FROM playlist WHERE id = :playlistId LIMIT 1")
+    abstract suspend fun findPlaylist(playlistId: Long): Playlist?
 
     /**
      * Observe tracks that are part of the specified playlist.
