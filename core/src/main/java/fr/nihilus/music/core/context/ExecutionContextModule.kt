@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 /**
@@ -43,5 +44,5 @@ internal object ExecutionContextModule {
     @AppCoroutineScope
     fun providesAppCoroutineScope(
         dispatchers: AppDispatchers
-    ): CoroutineScope = CoroutineScope(dispatchers.Main)
+    ): CoroutineScope = CoroutineScope(dispatchers.Main + SupervisorJob())
 }
