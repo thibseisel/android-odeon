@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,9 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.id
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 internal class AlbumDetailViewModel @Inject constructor(
@@ -43,7 +41,9 @@ internal class AlbumDetailViewModel @Inject constructor(
         .distinctUntilChanged()
         .flatMapLatest { albumId ->
             val albumFlow = flow { emit(client.getItem(albumId)) }
-            val albumTracksFlow = client.getChildren(albumId)
+            val albumTracksFlow = client.getChildren(albumId).catch { cause ->
+                Timber.e(cause, "Failed to load album children")
+            }
 
             combine(albumFlow, albumTracksFlow, client.nowPlaying) { album, tracks, nowPlaying ->
                 val currentlyPlayingMediaId = nowPlaying?.id?.parse()
