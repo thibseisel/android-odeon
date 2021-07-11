@@ -39,12 +39,6 @@ plugins {
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
-
     tasks.register("configurations") {
         group = "help"
         description = "Display build configurations declared in project ':${this@allprojects.name}'"

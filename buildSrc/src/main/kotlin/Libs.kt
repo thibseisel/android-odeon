@@ -40,8 +40,8 @@ object Libs {
     }
 
     object Plugin {
-        const val androidGradle = "4.1.2"
-        const val refreshVersions = "0.36.0"
+        const val androidGradle = "4.2.0"
+        const val refreshVersions = "0.39.0"
     }
 
     const val dagger = "2.33"
