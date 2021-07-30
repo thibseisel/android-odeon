@@ -126,5 +126,5 @@ tasks.register<Delete>("clean") {
 }
 
 tasks.withType<Wrapper> {
-    distributionType = Wrapper.DistributionType.ALL
+    distributionType = Wrapper.DistributionType.BIN
 }

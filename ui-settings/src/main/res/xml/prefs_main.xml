@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Thibault Seisel
+  ~ Copyright 2021 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -47,14 +47,6 @@
     <PreferenceCategory
         android:title="@string/action_dev_options"
         app:isPreferenceVisible="@bool/core_is_debug_enabled">
-
-        <Preference
-            android:key="audio_analysis"
-            android:title="@string/pref_title_audio_analysis"
-            android:summary="@string/pref_summary_audio_analysis">
-
-            <intent android:action="fr.nihilus.music.actions.DEBUG_SPOTIFY" />
-        </Preference>
 
         <Preference
             android:key="start_sync"
