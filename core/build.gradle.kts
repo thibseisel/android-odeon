@@ -53,39 +53,39 @@ kapt {
 
 dependencies {
     // Shared Kotlin language features
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Libs.koroutines}")
+    api(KotlinX.coroutines.core)
 
     // Shared AndroidX libraries
-    api("androidx.core:core-ktx:${Libs.Androidx.core}")
-    api("androidx.work:work-runtime-ktx:${Libs.Androidx.work}")
+    api(AndroidX.core.ktx)
+    api(AndroidX.work.runtimeKtx)
 
     // Timber Logging
-    api("com.jakewharton.timber:timber:${Libs.timber}")
+    api(JakeWharton.timber)
 
     // Hilt
-    api("com.google.dagger:hilt-android:${Libs.hilt}")
-    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    api(Google.dagger.hilt.android)
+    implementation(AndroidX.hilt.work)
+    kapt(Google.dagger.hilt.compiler)
 
     // Room Database
-    api("androidx.room:room-ktx:${Libs.Androidx.room}")
-    kapt("androidx.room:room-compiler:${Libs.Androidx.room}")
+    api(AndroidX.room.ktx)
+    kapt(AndroidX.room.compiler)
 
     // Provides the instance of SharedPreferences
-    api("androidx.preference:preference-ktx:${Libs.Androidx.preference}")
+    api(AndroidX.preferenceKtx)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${Libs.kotlin}")
-    testImplementation("io.kotest:kotest-assertions-core:${Libs.kotest}")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libs.koroutines}")
-    testImplementation("io.mockk:mockk:${Libs.mockk}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    testImplementation ("org.robolectric:robolectric:${Libs.robolectric}") {
+    testImplementation(Kotlin.test.junit)
+    testImplementation(Testing.kotest.assertions.core)
+    testImplementation(KotlinX.coroutines.test)
+    testImplementation(Testing.mockK)
+    testImplementation(AndroidX.test.ext.junitKtx)
+    testImplementation (Testing.robolectric) {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
 
-    androidTestImplementation("org.jetbrains.kotlin:kotlin-test-junit:${Libs.kotlin}")
-    androidTestImplementation("androidx.test:core-ktx:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:rules:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.room:room-testing:${Libs.Androidx.room}")
+    androidTestImplementation(Kotlin.test.junit)
+    androidTestImplementation(AndroidX.test.coreKtx)
+    androidTestImplementation(AndroidX.test.runner)
+    androidTestImplementation(AndroidX.test.rules)
+    androidTestImplementation(AndroidX.room.testing)
 }

@@ -136,22 +136,22 @@ dependencies {
     implementation(project(":ui-settings"))
 
     // Support library dependencies
-    implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
-    implementation("androidx.viewpager2:viewpager2:${Libs.Androidx.viewpager2}")
+    implementation(AndroidX.recyclerView)
+    implementation(AndroidX.viewPager2)
 
     // Dagger
-    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
-    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    implementation(Google.dagger.hilt.android)
+    implementation(AndroidX.hilt.work)
+    kapt(Google.dagger.hilt.compiler)
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation("androidx.test:rules:${Libs.Androidx.test}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
+    testImplementation(AndroidX.test.rules)
+    testImplementation(AndroidX.test.ext.junitKtx)
+    testImplementation(Testing.robolectric)
 
-    androidTestImplementation("androidx.test:core:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:rules:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Libs.Androidx.espresso}")
+    androidTestImplementation(AndroidX.test.core)
+    androidTestImplementation(AndroidX.test.rules)
+    androidTestImplementation(AndroidX.test.runner)
+    androidTestImplementation(AndroidX.test.espresso.core)
 }

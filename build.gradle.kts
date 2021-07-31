@@ -27,15 +27,11 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:${Libs.Plugin.androidGradle}")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Libs.kotlin}")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Libs.Androidx.navigation}")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:${Libs.hilt}")
+        classpath("com.android.tools.build:gradle:_")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:_")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:_")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:_")
     }
-}
-
-plugins {
-    id("com.github.ben-manes.versions") version Libs.Plugin.refreshVersions
 }
 
 allprojects {
@@ -97,10 +93,6 @@ subprojects {
             }
         }
     }
-}
-
-tasks.dependencyUpdates {
-    revision = "release"
 }
 
 tasks.register<Exec>("startAutoDhu") {
