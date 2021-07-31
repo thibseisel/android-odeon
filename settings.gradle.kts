@@ -17,15 +17,6 @@ plugins {
     id("de.fayard.refreshVersions") version "0.10.1"
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
-}
-
 rootProject.name = "android-odeon"
 include(":app")
 include(":core", ":core-test", ":core-ui", ":media")
