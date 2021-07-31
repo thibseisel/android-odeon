@@ -70,11 +70,11 @@ subprojects {
     // Common Android configuration
     afterEvaluate {
         configure<BaseExtension> {
-            compileSdkVersion(AppConfig.compileSdk)
+            compileSdkVersion(29)
 
             defaultConfig {
-                minSdkVersion(AppConfig.minSdk)
-                targetSdkVersion(AppConfig.targetSdk)
+                minSdkVersion(21)
+                targetSdkVersion(29)
 
                 testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
             }
