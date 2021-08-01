@@ -20,14 +20,14 @@ import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.base.BaseActivity
-import fr.nihilus.music.core.ui.extensions.isDrawnEdgeToEdge
+import fr.nihilus.music.core.ui.extensions.drawEdgeToEdge
 
 @AndroidEntryPoint
 class SettingsActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.decorView.isDrawnEdgeToEdge = true
+        window.drawEdgeToEdge(true)
         setContentView(R.layout.activity_settings)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
