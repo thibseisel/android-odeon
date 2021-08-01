@@ -28,7 +28,7 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import kotlin.test.Test
 
@@ -63,7 +63,7 @@ internal class SpotifyAccountsServiceTest {
     }
 
     @Test
-    fun `Given bad credentials, when authenticating then fail with AuthenticationException`() = runBlockingTest {
+    fun `Given bad credentials, when authenticating then fail with AuthenticationException`() = runBlocking<Unit> {
         val failingAuthService = accountsService {
             respondJson(
                 """{
@@ -82,7 +82,7 @@ internal class SpotifyAccountsServiceTest {
     }
 
     @Test
-    fun `Given valid credentials, when authenticating then POST them to Accounts service as Base64`() = runBlockingTest {
+    fun `Given valid credentials, when authenticating then POST them to Accounts service as Base64`() = runBlocking<Unit> {
         val authService = accountsService { request ->
             request.method shouldBe HttpMethod.Post
             request.url.host shouldBe "accounts.spotify.com"
@@ -107,7 +107,7 @@ internal class SpotifyAccountsServiceTest {
     }
 
     @Test
-    fun `When authenticating then perform the request with the specified User Agent`() = runBlockingTest {
+    fun `When authenticating then perform the request with the specified User Agent`() = runBlocking<Unit> {
         val authService = accountsService { request ->
             request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
             respondJson(AUTH_TOKEN)
