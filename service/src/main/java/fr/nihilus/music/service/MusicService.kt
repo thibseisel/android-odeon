@@ -437,7 +437,7 @@ class MusicService : BaseBrowserService() {
         }
     }
 
-    private inner class TrackCompletionListener : Player.EventListener {
+    private inner class TrackCompletionListener : Player.Listener {
 
         override fun onMediaItemTransition(
             mediaItem: com.google.android.exoplayer2.MediaItem?,
