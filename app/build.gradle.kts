@@ -155,3 +155,16 @@ dependencies {
     androidTestImplementation(AndroidX.test.runner)
     androidTestImplementation(AndroidX.test.espresso.core)
 }
+
+/**
+ * Retrieve a Gradle property value, or return the provided default value if it is not defined.
+ *
+ * @param propertyName The name of the property to find.
+ * @param defaultValue The value to use when the requested property is not defined.
+ * @return The value of the Gradle property.
+ */
+fun <T> Project.propOrDefault(propertyName: String, defaultValue: T): T {
+    @Suppress("UNCHECKED_CAST")
+    val propertyValue = project.properties[propertyName] as T?
+    return propertyValue ?: defaultValue
+}
