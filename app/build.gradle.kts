@@ -85,12 +85,6 @@ android {
                     "-Xno-receiver-assertions"
                 )
             }
-
-            kapt {
-                arguments {
-                    arg("dagger.formatGeneratedSource", "enabled")
-                }
-            }
         }
 
         /* Staging builds are similar to releases but differ by the following:

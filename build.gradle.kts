@@ -103,8 +103,7 @@ subprojects {
         if (pluginManager.hasPlugin("org.jetbrains.kotlin.kapt")) {
             configure<KaptExtension> {
                 correctErrorTypes = true
-                arguments {
-                }
+                useBuildCache = true
             }
         }
     }
