@@ -93,7 +93,6 @@ subprojects {
             configure<KaptExtension> {
                 correctErrorTypes = true
                 arguments {
-                    arg("dagger.hilt.disableModulesHaveInstallInCheck", true)
                 }
             }
         }
