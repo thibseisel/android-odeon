@@ -15,6 +15,8 @@
  */
 
 import com.android.build.gradle.BaseExtension
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -62,6 +64,16 @@ subprojects {
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
             )
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
         }
     }
 
