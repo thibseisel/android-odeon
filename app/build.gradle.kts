@@ -24,9 +24,9 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId("fr.nihilus.music")
-        versionCode(2_01_01_0)
-        versionName("2.1.1")
+        applicationId = "fr.nihilus.music"
+        versionCode = 2_01_01_0
+        versionName = "2.1.1"
     }
 
     buildFeatures {
@@ -52,15 +52,12 @@ android {
 
     packagingOptions {
         // Exclude AndroidX version files
-        exclude("META-INF/*.version")
+        resources.excludes += "META-INF/*.version"
         // Exclude consumer proguard files
-        exclude("META-INF/proguard/*")
+        resources.excludes += "META-INF/proguard/*"
         // Exclude the random properties files
-        exclude("/*.properties")
-        exclude("META-INF/*.properties")
-
-        // Fix weird packaging bugs due to including Ktor
-        pickFirst("META-INF/*.kotlin_module")
+        resources.excludes += "/*.properties"
+        resources.excludes += "META-INF/*.properties"
     }
 
     buildTypes {
@@ -105,15 +102,15 @@ android {
          */
         create("staging") {
             initWith(release)
-            setMatchingFallbacks(release.name)
+            matchingFallbacks += release.name
             sourceSets["staging"].setRoot("src/staging")
 
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
 
             // Unlike release builds, keep the app debuggable.
-            debuggable(true)
-            setSigningConfig(debug.signingConfig)
+            isDebuggable = true
+            signingConfig = debug.signingConfig
 
             // Keep line number information for obfuscation debugging.
             proguardFiles(

@@ -58,7 +58,7 @@ subprojects {
     // Common Kotlin configuration
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + arrayOf(
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
@@ -83,15 +83,15 @@ subprojects {
             compileSdkVersion(30)
 
             defaultConfig {
-                minSdkVersion(21)
-                targetSdkVersion(29)
+                minSdk = 21
+                targetSdk = 29
 
                 testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
             }
 
             compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
+                sourceCompatibility = JavaVersion.VERSION_11
+                targetCompatibility = JavaVersion.VERSION_11
             }
 
             testOptions {
