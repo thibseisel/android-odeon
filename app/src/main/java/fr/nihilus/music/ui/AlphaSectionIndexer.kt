@@ -104,7 +104,7 @@ private val SECTION_COMPARATOR = Comparator { a: String, b: String ->
  * Extract the section name from an item label.
  */
 private fun String.toNormalizedSubSection(): String {
-    val trimmed = this.trimStart().toUpperCase(Locale.ENGLISH)
+    val trimmed = this.trimStart().uppercase(Locale.ENGLISH)
     val withoutCommonPrefixes = when {
         trimmed.startsWith("THE ") -> trimmed.drop(4)
         trimmed.startsWith("AN ") -> trimmed.drop(3)

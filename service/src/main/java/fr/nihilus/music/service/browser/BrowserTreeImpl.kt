@@ -223,21 +223,21 @@ internal class BrowserTreeImpl @Inject constructor(
         val results = when (query) {
 
             is SearchQuery.Artist -> {
-                query.name?.toLowerCase(searchLocale)?.let { artistName ->
+                query.name?.lowercase(searchLocale)?.let { artistName ->
                     val artists = mediaDao.artists.first()
                     singleTypeSearch(artistName, artists, Artist::name, artistItemFactory)
                 }
             }
 
             is SearchQuery.Album -> {
-                query.title?.toLowerCase(searchLocale)?.let { albumTitle ->
+                query.title?.lowercase(searchLocale)?.let { albumTitle ->
                     val albums = mediaDao.albums.first()
                     singleTypeSearch(albumTitle, albums, Album::title, albumItemFactory)
                 }
             }
 
             is SearchQuery.Song -> {
-                query.title?.toLowerCase(searchLocale)?.let { trackTitle ->
+                query.title?.lowercase(searchLocale)?.let { trackTitle ->
                     val tracks = mediaDao.tracks.first()
                     singleTypeSearch(trackTitle, tracks, Track::title) {
                         trackItemFactory(this, TYPE_TRACKS, CATEGORY_ALL)
@@ -246,7 +246,7 @@ internal class BrowserTreeImpl @Inject constructor(
             }
 
             is SearchQuery.Unspecified -> coroutineScope {
-                val userQuery = query.userQuery.toLowerCase(searchLocale)
+                val userQuery = query.userQuery.lowercase(searchLocale)
                 val artists = async { mediaDao.artists.first() }
                 val albums = async { mediaDao.albums.first() }
                 val tracks = async { mediaDao.tracks.first() }
@@ -346,7 +346,7 @@ internal class BrowserTreeImpl @Inject constructor(
     ) {
         availableMedias.fold(outResults) { results, media ->
 
-            when(val score = fuzzyMatch(pattern, textProvider(media).toLowerCase(Locale.ENGLISH))) {
+            when(val score = fuzzyMatch(pattern, textProvider(media).lowercase(Locale.ENGLISH))) {
                 Int.MIN_VALUE -> results
                 else -> {
                     val item = itemFactory(media)

@@ -63,7 +63,7 @@ internal sealed class SpotifyQuery<T : Any> {
             result = text.replace("'", "")
         }
 
-        return result.toLowerCase(Locale.ENGLISH)
+        return result.lowercase(Locale.ENGLISH)
     }
 
     /**

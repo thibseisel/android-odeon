@@ -56,7 +56,6 @@ subprojects {
     // Common Kotlin configuration
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            useIR = true
             jvmTarget = "1.8"
             freeCompilerArgs = freeCompilerArgs + arrayOf(
                 "-Xopt-in=kotlin.RequiresOptIn",
