@@ -44,6 +44,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.runner.RunWith
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 private const val TEST_TIME = 1585662510L
@@ -78,6 +79,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
+    @Ignore("Test is not implemented")
     fun `When creating a playlist then generate and save its icon`() = test.run {
         TODO("Create a fake implementation of FileSystem that supports such scenario.")
     }
@@ -200,6 +202,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
+    @Ignore("Test is not implemented")
     fun `When deleting a playlist then delete its associated icon`() = test.run {
         TODO("FileSystem does not support such scenario.")
     }
