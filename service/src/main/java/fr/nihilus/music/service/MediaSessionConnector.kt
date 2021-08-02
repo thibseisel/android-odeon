@@ -132,16 +132,20 @@ internal class MediaSessionConnector @Inject constructor(
                 SystemClock.elapsedRealtime()
             )
 
-        mediaSession.setRepeatMode(when (player.repeatMode) {
-            Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
-            Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
-            else -> PlaybackStateCompat.REPEAT_MODE_NONE
-        })
+        mediaSession.setRepeatMode(
+            when (player.repeatMode) {
+                Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
+                Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
+                else -> PlaybackStateCompat.REPEAT_MODE_NONE
+            }
+        )
 
-        mediaSession.setShuffleMode(when (player.shuffleModeEnabled) {
-            true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
-            false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
-        })
+        mediaSession.setShuffleMode(
+            when (player.shuffleModeEnabled) {
+                true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+                false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+            }
+        )
 
         mediaSession.setPlaybackState(builder.build())
     }
@@ -266,56 +270,53 @@ internal class MediaSessionConnector @Inject constructor(
         fun onSkipToQueueItem(player: Player, id: Long)
     }
 
-    private inner class ComponentListener : MediaSessionCompat.Callback(), Player.EventListener {
-        private var currentWindowIndex = 0
+    private inner class ComponentListener : MediaSessionCompat.Callback(), Player.Listener {
         private var currentWindowCount = 0
 
-        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            val windowCount = player.currentTimeline.windowCount
-            val windowIndex = player.currentWindowIndex
+        override fun onEvents(player: Player, events: Player.Events) {
+            var invalidatePlaybackState = false
+            var invalidateMetadata = false
 
-            queueNavigator.onTimelineChanged(player)
-            invalidateMediaSessionPlaybackState()
-
-            currentWindowCount = windowCount
-            currentWindowIndex = windowIndex
-            invalidateMediaSessionMetadata()
-        }
-
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            invalidateMediaSessionPlaybackState()
-            invalidateMediaSessionQueue()
-        }
-
-        override fun onPositionDiscontinuity(reason: Int) {
-            if (currentWindowIndex != player.currentWindowIndex) {
-                queueNavigator.onCurrentWindowIndexChanged(player)
-                currentWindowIndex = player.currentWindowIndex
-
-                // Update playback state after queueNavigator.onCurrentWindowIndexChanged
-                // has been called and before updating metadata.
-                invalidateMediaSessionPlaybackState()
-                invalidateMediaSessionMetadata()
-                return
+            if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
+                if (currentWindowCount != player.currentWindowIndex) {
+                    queueNavigator.onCurrentWindowIndexChanged(player)
+                    invalidateMetadata = true
+                }
+                invalidatePlaybackState = true
             }
 
-            invalidateMediaSessionPlaybackState()
-        }
+            if (events.contains(Player.EVENT_TIMELINE_CHANGED)) {
+                queueNavigator.onTimelineChanged(player)
+                currentWindowCount = player.currentTimeline.windowCount
 
-        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-            invalidateMediaSessionPlaybackState()
+                invalidatePlaybackState = true
+                invalidateMetadata = true
+            }
+
+            if (events.containsAny(
+                    Player.EVENT_PLAYBACK_STATE_CHANGED,
+                    Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                    Player.EVENT_IS_PLAYING_CHANGED,
+                    Player.EVENT_REPEAT_MODE_CHANGED,
+                    Player.EVENT_REPEAT_MODE_CHANGED
+                )
+            ) {
+                invalidatePlaybackState = true
+            }
+            // The queue needs to be updated by the queue navigator first. The queue navigator also
+            // delivers the active queue item that is used to update the playback state.
+            if (events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+                invalidateMediaSessionQueue()
+                invalidatePlaybackState = true
+            }
+            // Invalidate the playback state before invalidating metadata because the active queue item of
+            // the session playback state needs to be updated before the MediaMetadataProvider uses it.
+            if (invalidatePlaybackState) {
+                invalidateMediaSessionPlaybackState()
+            }
+            if (invalidateMetadata) {
+                invalidateMediaSessionMetadata()
+            }
         }
 
         override fun onPlay() {
@@ -363,7 +364,8 @@ internal class MediaSessionConnector @Inject constructor(
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
-                val shuffleModeEnabled = (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
+                val shuffleModeEnabled =
+                    (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
                 player.shuffleModeEnabled = shuffleModeEnabled
             }
         }

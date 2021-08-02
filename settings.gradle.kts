@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-    }
+plugins {
+    id("de.fayard.refreshVersions") version "0.10.1"
 }
 
 rootProject.name = "android-odeon"

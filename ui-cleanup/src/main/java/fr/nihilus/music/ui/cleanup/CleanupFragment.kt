@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.cleanup
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.view.ActionMode
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.selection.*
@@ -120,12 +121,14 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
     private fun configureViewOffsetForSystemBars(bindings: FragmentCleanupBinding) {
         bindings.disposableTrackList.doOnApplyWindowInsets { view, insets, padding, _ ->
-            view.updatePadding(bottom = padding.bottom + insets.systemWindowInsets.bottom)
+            val systemWindowInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.updatePadding(bottom = padding.bottom + systemWindowInsets.bottom)
         }
 
         bindings.deleteTracksButton.doOnApplyWindowInsets { view, insets, _, margin ->
             val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.bottomMargin = margin.bottom + insets.tappableElementInsets.bottom
+            val tappableWindowInsets = insets.getInsets(WindowInsetsCompat.Type.tappableElement())
+            layoutParams.bottomMargin = margin.bottom + tappableWindowInsets.bottom
         }
     }
 

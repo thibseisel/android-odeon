@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,10 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":spotify-client"))
 
-    implementation("androidx.preference:preference-ktx:${Libs.Androidx.preference}")
+    implementation(AndroidX.preferenceKtx)
 
-    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    implementation(Google.dagger.hilt.android)
+    kapt(Google.dagger.hilt.compiler)
 
     testImplementation(project(":core-test"))
 }

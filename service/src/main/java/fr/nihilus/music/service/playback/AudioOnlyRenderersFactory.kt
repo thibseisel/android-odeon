@@ -50,7 +50,8 @@ private const val FLOAT_OUTPUT_ENABLED = false
  * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
  * play in offload.
  */
-private const val AUDIO_OFFLOAD_ENABLED = false
+@DefaultAudioSink.OffloadMode
+private const val AUDIO_OFFLOAD_MODE = DefaultAudioSink.OFFLOAD_MODE_DISABLED
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
@@ -81,7 +82,7 @@ internal class AudioOnlyRenderersFactory(private val context: Context) : Rendere
                 DefaultAudioSink.DefaultAudioProcessorChain(),
                 FLOAT_OUTPUT_ENABLED,
                 false,
-                AUDIO_OFFLOAD_ENABLED
+                AUDIO_OFFLOAD_MODE
             )
         )
     )

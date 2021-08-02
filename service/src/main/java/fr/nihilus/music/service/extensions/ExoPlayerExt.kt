@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.Timeline
  * @param action The action to execute with the new timeline, right after it has changed.
  */
 inline fun ExoPlayer.doOnPrepared(crossinline action: (Timeline) -> Unit) {
-    val preparationListener = object : Player.EventListener {
+    val preparationListener = object : Player.Listener {
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
             this@doOnPrepared.removeListener(this)
             action(timeline)

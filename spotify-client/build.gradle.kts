@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,21 +36,21 @@ dependencies {
     implementation(project(":media"))
 
     // Ktor Client - MultiPlatform HTTP Client
-    api("io.ktor:ktor-client-okhttp:${Libs.ktor}")
-    implementation("io.ktor:ktor-client-json:${Libs.ktor}")
+    api(Ktor.client.okHttp)
+    implementation(Ktor.client.json)
 
     // Moshi - Kotlin JSON serialization
-    api("com.squareup.moshi:moshi:${Libs.moshi}")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${Libs.moshi}")
+    api(Square.moshi)
+    kapt(Square.moshi.kotlinCodegen)
 
-    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
-    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
-    kapt("androidx.hilt:hilt-compiler:${Libs.Androidx.hilt}")
+    implementation(Google.dagger.hilt.android)
+    implementation(AndroidX.hilt.work)
+    kapt(Google.dagger.hilt.compiler)
+    kapt(AndroidX.hilt.compiler)
 
     testImplementation(project(":core-test"))
-    testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
-    testImplementation("io.mockk:mockk:${Libs.mockk}")
+    testImplementation("io.ktor:ktor-client-mock-jvm:_")
+    testImplementation(Testing.mockK)
 }
 
 fun getSpotifyProperty(name: String): String {

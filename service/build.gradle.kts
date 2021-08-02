@@ -46,30 +46,30 @@ dependencies {
     implementation(project(":spotify-client"))
 
     // Kotlin language support
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Libs.koroutines}")
+    implementation(KotlinX.coroutines.android)
 
     // Android support libraries
-    implementation("androidx.appcompat:appcompat:${Libs.Androidx.appcompat}")
-    implementation("androidx.media:media:${Libs.Androidx.media}")
+    implementation(AndroidX.appCompat)
+    implementation(AndroidX.media)
 
     // ExoPlayer
-    api("com.google.android.exoplayer:exoplayer-core:${Libs.exoplayer}")
+    api("com.google.android.exoplayer:exoplayer-core:_")
 
     // Dagger
-    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    implementation(Google.dagger.hilt.android)
+    kapt(Google.dagger.hilt.compiler)
 
     // Glide
-    implementation("com.github.bumptech.glide:glide:${Libs.glide}")
-    kapt("com.github.bumptech.glide:compiler:${Libs.glide}")
+    implementation("com.github.bumptech.glide:glide:_")
+    kapt("com.github.bumptech.glide:compiler:_")
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
+    testImplementation(Testing.robolectric)
+    testImplementation(AndroidX.test.ext.junitKtx)
 
     // Android-specific test dependencies
-    androidTestImplementation("androidx.test:core:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
+    androidTestImplementation(AndroidX.test.core)
+    androidTestImplementation(AndroidX.test.runner)
+    androidTestImplementation(AndroidX.test.ext.junitKtx)
 }
