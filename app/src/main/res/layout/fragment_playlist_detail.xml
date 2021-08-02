@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:menu="@menu/menu_playlist_details"
-            app:navigationIcon="@drawable/ic_arrow_back_24dp"
+            app:navigationIcon="@drawable/ui_ic_arrow_back_24dp"
             tools:title="My playlist" />
 
     </com.google.android.material.appbar.AppBarLayout>

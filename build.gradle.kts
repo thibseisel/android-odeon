@@ -15,6 +15,8 @@
  */
 
 import com.android.build.gradle.BaseExtension
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -23,19 +25,14 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:${Libs.Plugin.androidGradle}")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Libs.kotlin}")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Libs.Androidx.navigation}")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:${Libs.hilt}")
+        classpath("com.android.tools.build:gradle:_")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:_")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:_")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:_")
     }
-}
-
-plugins {
-    id("com.github.ben-manes.versions") version Libs.Plugin.refreshVersions
 }
 
 allprojects {
@@ -61,8 +58,7 @@ subprojects {
     // Common Kotlin configuration
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
-            useIR = true
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + arrayOf(
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
@@ -71,21 +67,31 @@ subprojects {
         }
     }
 
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+        }
+    }
+
     // Common Android configuration
     afterEvaluate {
         configure<BaseExtension> {
-            compileSdkVersion(AppConfig.compileSdk)
+            compileSdkVersion(30)
 
             defaultConfig {
-                minSdkVersion(AppConfig.minSdk)
-                targetSdkVersion(AppConfig.targetSdk)
+                minSdk = 21
+                targetSdk = 29
 
                 testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
             }
 
             compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
+                sourceCompatibility = JavaVersion.VERSION_11
+                targetCompatibility = JavaVersion.VERSION_11
             }
 
             testOptions {
@@ -94,17 +100,13 @@ subprojects {
             }
         }
 
-        configure<KaptExtension> {
-            correctErrorTypes = true
-            arguments {
-                arg("dagger.hilt.disableModulesHaveInstallInCheck", true)
+        if (pluginManager.hasPlugin("org.jetbrains.kotlin.kapt")) {
+            configure<KaptExtension> {
+                correctErrorTypes = true
+                useBuildCache = true
             }
         }
     }
-}
-
-tasks.dependencyUpdates {
-    revision = "release"
 }
 
 tasks.register<Exec>("startAutoDhu") {

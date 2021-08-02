@@ -17,8 +17,7 @@
 package fr.nihilus.music.core.test.coroutines.flow
 
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.supervisorScope
@@ -103,20 +102,38 @@ class TestCollector<T> internal constructor(
         require(count > 0)
 
         var collectCount = 0
-        try {
-            repeat(count) {
-                yield()
-                val value = channel.poll()
+        repeat(count) {
+            yield()
+            val value = channel.tryReceive()
 
-                when {
-                    value != null -> {
-                        _values += value
-                        collectCount++
-                    }
+            when {
+                value.isSuccess -> {
+                    _values += value.getOrThrow()
+                    collectCount++
+                }
 
-                    channel.isClosedForReceive -> {
+                value.isClosed -> {
+                    val flowFailure = value.exceptionOrNull()
+                    if (flowFailure != null) {
                         throw AssertionError(buildString {
-                            append("Expected to collect exactly ").append(count).append(" element(s) but ")
+                            append("Expected to collect exactly ").append(count)
+                                .append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("source Flow unexpectedly failed with ")
+                                append(flowFailure::class.simpleName)
+                                append(".")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append(" before source Flow unexpectedly failed with ")
+                                append(flowFailure::class.simpleName)
+                                append(".")
+                            }
+                        }, flowFailure)
+                    } else {
+                        throw AssertionError(buildString {
+                            append("Expected to collect exactly ").append(count)
+                                .append(" element(s) but ")
                             if (collectCount == 0) {
                                 append("source Flow unexpectedly completed.")
                             } else {
@@ -126,37 +143,22 @@ class TestCollector<T> internal constructor(
                             }
                         })
                     }
+                }
 
-                    else -> {
-                        throw AssertionError(buildString {
-                            append("Expected to collect exactly ").append(count).append(" element(s) but ")
-                            if (collectCount == 0) {
-                                append("did not receive any.")
-                            } else {
-                                append("only received ")
-                                appendElements(values.takeLast(collectCount))
-                                append('.')
-                            }
-                        })
-                    }
+                else -> {
+                    throw AssertionError(buildString {
+                        append("Expected to collect exactly ").append(count)
+                            .append(" element(s) but ")
+                        if (collectCount == 0) {
+                            append("did not receive any.")
+                        } else {
+                            append("only received ")
+                            appendElements(values.takeLast(collectCount))
+                            append(".")
+                        }
+                    })
                 }
             }
-
-        } catch (flowFailure: Exception) {
-            throw AssertionError(buildString {
-                append("Expected to collect exactly ").append(count).append(" element(s) but ")
-                if (collectCount == 0) {
-                    append("source Flow unexpectedly failed with ")
-                    append(flowFailure::class.simpleName)
-                    append('.')
-                } else {
-                    append("only received ")
-                    appendElements(values.takeLast(collectCount))
-                    append(" before source Flow unexpectedly failed with ")
-                    append(flowFailure::class.simpleName)
-                    append('.')
-                }
-            }, flowFailure)
         }
     }
 
@@ -174,68 +176,69 @@ class TestCollector<T> internal constructor(
         require(count > 0)
 
         var collectCount = 0
-        try {
-            collector@ while (true) {
-                yield()
-                val value = channel.poll()
+        collector@ while (true) {
+            yield()
+            val value = channel.tryReceive()
 
-                when {
-                    value != null -> {
-                        _values += value
-                        collectCount++
+            when {
+                value.isSuccess -> {
+                    _values += value.getOrThrow()
+                    collectCount++
+                }
+
+                value.isClosed -> {
+                    val flowFailure = value.exceptionOrNull()
+                    if (flowFailure != null) {
+                        throw AssertionError(buildString {
+                            append("Expected to collect at least ").append(count)
+                                .append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("source Flow unexpectedly failed with ")
+                                append(flowFailure::class.simpleName)
+                                append(".")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append(" before source Flow unexpectedly failed with ")
+                                append(flowFailure::class.simpleName)
+                                append(".")
+                            }
+                        }, flowFailure)
+                    } else if (collectCount < count) {
+                        throw AssertionError(buildString {
+                            append("Expected to collect at least ").append(count)
+                                .append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("source Flow unexpectedly completed.")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append(" before source Flow unexpectedly completed.")
+                            }
+                        })
+                    } else {
+                        break@collector
                     }
+                }
 
-                    channel.isClosedForReceive -> {
-                        if (collectCount < count) {
-                            throw AssertionError(buildString {
-                                append("Expected to collect at least ").append(count).append(" element(s) but ")
-                                if (collectCount == 0) {
-                                    append("source Flow unexpectedly completed.")
-                                } else {
-                                    append("only received ")
-                                    appendElements(values.takeLast(collectCount))
-                                    append(" before source Flow unexpectedly completed.")
-                                }
-                            })
-                        } else {
-                            break@collector
-                        }
-                    }
-
-                    else -> {
-                        if (collectCount < count) {
-                            throw AssertionError(buildString {
-                                append("Expected to collect at least ").append(count).append(" element(s) but ")
-                                if (collectCount == 0) {
-                                    append("did not receive any.")
-                                } else {
-                                    append("only received ")
-                                    appendElements(values.takeLast(collectCount))
-                                    append('.')
-                                }
-                            })
-                        } else {
-                            break@collector
-                        }
+                else -> {
+                    if (collectCount < count) {
+                        throw AssertionError(buildString {
+                            append("Expected to collect at least ").append(count)
+                                .append(" element(s) but ")
+                            if (collectCount == 0) {
+                                append("did not receive any.")
+                            } else {
+                                append("only received ")
+                                appendElements(values.takeLast(collectCount))
+                                append(".")
+                            }
+                        })
+                    } else {
+                        break@collector
                     }
                 }
             }
-
-        } catch (flowFailure: Exception) {
-            throw AssertionError(buildString {
-                append("Expected to collect at least ").append(count).append(" element(s) but ")
-                if (collectCount == 0) {
-                    append("source Flow unexpectedly failed with ")
-                    append(flowFailure::class.simpleName)
-                    append('.')
-                } else {
-                    append("only received ")
-                    appendElements(values.takeLast(collectCount))
-                    append(" before source Flow unexpectedly failed with ")
-                    append(flowFailure::class.simpleName)
-                    append('.')
-                }
-            }, flowFailure)
         }
     }
 
@@ -245,12 +248,12 @@ class TestCollector<T> internal constructor(
      * or if the source flow has thrown an exception.
      */
     fun expectNone() {
-        try {
-            val element = channel.poll()
-            if (element != null) {
-                throw AssertionError("Expected the source flow to have emitted no elements.")
-            }
-        } catch (flowFailure: Exception) {
+        val element = channel.tryReceive()
+        if (element.isSuccess) {
+            throw AssertionError("Expected the source flow to have emitted no elements.")
+        }
+
+        element.exceptionOrNull()?.let { flowFailure ->
             throw AssertionError(buildString {
                 append("Expected the source flow to have emitted no elements, ")
                 append("but unexpectedly failed with ")
@@ -296,9 +299,9 @@ class TestCollector<T> internal constructor(
 
                 append(" within ")
                 append(duration)
-                append(' ')
-                append(unit.name.toLowerCase(Locale.ENGLISH))
-                append('.')
+                append(" ")
+                append(unit.name.lowercase(Locale.ENGLISH))
+                append(".")
             })
 
         } catch (flowCompletion: ClosedReceiveChannelException) {
@@ -319,13 +322,13 @@ class TestCollector<T> internal constructor(
                 if (collectCount == 0) {
                     append("but source Flow unexpectedly failed with ")
                     append(flowFailure::class.simpleName)
-                    append('.')
+                    append(".")
                 } else {
                     append("but only received ")
                     appendElements(values.takeLast(collectCount))
                     append(" before source Flow unexpectedly failed with ")
                     append(flowFailure::class.simpleName)
-                    append('.')
+                    append(".")
                 }
             }, flowFailure)
         }

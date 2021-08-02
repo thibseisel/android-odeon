@@ -19,7 +19,7 @@ package fr.nihilus.music.ui.cleanup
 import android.os.Bundle
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.base.BaseActivity
-import fr.nihilus.music.core.ui.extensions.isDrawnEdgeToEdge
+import fr.nihilus.music.core.ui.extensions.drawEdgeToEdge
 import fr.nihilus.music.ui.cleanup.databinding.ActivityCleanupBinding
 
 /**
@@ -32,7 +32,7 @@ class CleanupActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.decorView.isDrawnEdgeToEdge = true
+        window.drawEdgeToEdge(true)
 
         val binding = ActivityCleanupBinding.inflate(layoutInflater)
         setContentView(binding.root)

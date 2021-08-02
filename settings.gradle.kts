@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+plugins {
+    id("de.fayard.refreshVersions") version "0.10.1"
+}
+
 rootProject.name = "android-odeon"
 include(":app")
 include(":core", ":core-test", ":core-ui", ":media")

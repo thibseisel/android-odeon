@@ -56,12 +56,12 @@ internal val randomCamelWordsSequence: Sequence<String>
                 }
 
                 // The first letter of a word is an uppercase letter.
-                val firstLetter = Random.nextInt('A'.toInt(), 'Z'.toInt()).toChar()
+                val firstLetter = Random.nextInt('A'.code, 'Z'.code).toChar()
                 append(firstLetter)
 
                 val numberOfLowercases = Random.nextInt(1, 10)
                 repeat(numberOfLowercases) {
-                    val letter = Random.nextInt('a'.toInt(), 'z'.toInt()).toChar()
+                    val letter = Random.nextInt('a'.code, 'z'.code).toChar()
                     append(letter)
                 }
             }

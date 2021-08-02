@@ -24,9 +24,9 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId("fr.nihilus.music")
-        versionCode(2_01_00_5)
-        versionName("2.1.0")
+        applicationId = "fr.nihilus.music"
+        versionCode = 2_01_01_0
+        versionName = "2.1.1"
     }
 
     buildFeatures {
@@ -52,15 +52,12 @@ android {
 
     packagingOptions {
         // Exclude AndroidX version files
-        exclude("META-INF/*.version")
+        resources.excludes += "META-INF/*.version"
         // Exclude consumer proguard files
-        exclude("META-INF/proguard/*")
+        resources.excludes += "META-INF/proguard/*"
         // Exclude the random properties files
-        exclude("/*.properties")
-        exclude("META-INF/*.properties")
-
-        // Fix weird packaging bugs due to including Ktor
-        pickFirst("META-INF/*.kotlin_module")
+        resources.excludes += "/*.properties"
+        resources.excludes += "META-INF/*.properties"
     }
 
     buildTypes {
@@ -88,12 +85,6 @@ android {
                     "-Xno-receiver-assertions"
                 )
             }
-
-            kapt {
-                arguments {
-                    arg("dagger.formatGeneratedSource", "enabled")
-                }
-            }
         }
 
         /* Staging builds are similar to releases but differ by the following:
@@ -105,15 +96,15 @@ android {
          */
         create("staging") {
             initWith(release)
-            setMatchingFallbacks(release.name)
+            matchingFallbacks += release.name
             sourceSets["staging"].setRoot("src/staging")
 
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
 
             // Unlike release builds, keep the app debuggable.
-            debuggable(true)
-            setSigningConfig(debug.signingConfig)
+            isDebuggable = true
+            signingConfig = debug.signingConfig
 
             // Keep line number information for obfuscation debugging.
             proguardFiles(
@@ -136,22 +127,35 @@ dependencies {
     implementation(project(":ui-settings"))
 
     // Support library dependencies
-    implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
-    implementation("androidx.viewpager2:viewpager2:${Libs.Androidx.viewpager2}")
+    implementation(AndroidX.recyclerView)
+    implementation(AndroidX.viewPager2)
 
     // Dagger
-    implementation("com.google.dagger:hilt-android:${Libs.hilt}")
-    implementation("androidx.hilt:hilt-work:${Libs.Androidx.hilt}")
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    implementation(Google.dagger.hilt.android)
+    implementation(AndroidX.hilt.work)
+    kapt(Google.dagger.hilt.compiler)
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation("androidx.test:rules:${Libs.Androidx.test}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
+    testImplementation(AndroidX.test.rules)
+    testImplementation(AndroidX.test.ext.junitKtx)
+    testImplementation(Testing.robolectric)
 
-    androidTestImplementation("androidx.test:core:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:rules:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${Libs.Androidx.espresso}")
+    androidTestImplementation(AndroidX.test.core)
+    androidTestImplementation(AndroidX.test.rules)
+    androidTestImplementation(AndroidX.test.runner)
+    androidTestImplementation(AndroidX.test.espresso.core)
+}
+
+/**
+ * Retrieve a Gradle property value, or return the provided default value if it is not defined.
+ *
+ * @param propertyName The name of the property to find.
+ * @param defaultValue The value to use when the requested property is not defined.
+ * @return The value of the Gradle property.
+ */
+fun <T> Project.propOrDefault(propertyName: String, defaultValue: T): T {
+    @Suppress("UNCHECKED_CAST")
+    val propertyValue = project.properties[propertyName] as T?
+    return propertyValue ?: defaultValue
 }

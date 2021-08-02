@@ -25,5 +25,6 @@ import javax.inject.Qualifier
  */
 @Qualifier
 @MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
 annotation class AppCoroutineScope

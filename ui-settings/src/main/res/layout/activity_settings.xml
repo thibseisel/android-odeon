@@ -37,7 +37,7 @@
             tools:title="@string/core_action_settings" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/content_fragment"
         android:name="fr.nihilus.music.ui.settings.MainPreferenceFragment"
         android:layout_width="match_parent"

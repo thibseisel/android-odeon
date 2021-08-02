@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,34 +29,34 @@ dependencies {
     implementation(project(":media"))
 
     // Dispatcher to Android main thread
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Libs.koroutines}")
+    api(KotlinX.coroutines.android)
 
-    api("androidx.media:media:${Libs.Androidx.media}")
-    api("androidx.appcompat:appcompat:${Libs.Androidx.appcompat}")
-    api("androidx.fragment:fragment-ktx:${Libs.Androidx.fragment}")
-    api("androidx.constraintlayout:constraintlayout:${Libs.Androidx.constraint_layout}")
-    api("androidx.palette:palette-ktx:${Libs.Androidx.palette}")
+    api(AndroidX.media)
+    api(AndroidX.appCompat)
+    api(AndroidX.fragmentKtx)
+    api(AndroidX.constraintLayout)
+    api(AndroidX.paletteKtx)
 
     // Android Arch Components
-    api("androidx.lifecycle:lifecycle-livedata-ktx:${Libs.Androidx.lifecycle}")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:${Libs.Androidx.lifecycle}")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:${Libs.Androidx.lifecycle}")
+    api(AndroidX.lifecycle.liveDataKtx)
+    api(AndroidX.lifecycle.viewModelKtx)
+    api(AndroidX.lifecycle.runtimeKtx)
 
     // Navigation Components
-    api("androidx.navigation:navigation-fragment-ktx:${Libs.Androidx.navigation}")
-    api("androidx.navigation:navigation-ui-ktx:${Libs.Androidx.navigation}")
+    api(AndroidX.navigation.fragmentKtx)
+    api(AndroidX.navigation.uiKtx)
 
     // Image loading
-    api("com.github.bumptech.glide:glide:${Libs.glide}")
-    kapt("com.github.bumptech.glide:compiler:${Libs.glide}")
+    api("com.github.bumptech.glide:glide:_")
+    kapt("com.github.bumptech.glide:compiler:_")
 
     // Material Components
-    api("com.google.android.material:material:${Libs.material}")
+    api(Google.android.material)
 
-    implementation("com.github.thibseisel:kdenticon-android:${Libs.kdenticon}")
+    implementation("com.github.thibseisel:kdenticon-android:_")
 
     // Hilt
-    kapt("com.google.dagger:hilt-compiler:${Libs.hilt}")
+    kapt(Google.dagger.hilt.compiler)
 
     testImplementation(project(":core-test"))
 }

@@ -49,4 +49,5 @@
     <string name="desc_clear_search">Effacer la recherche</string>
     <string name="description_more_actions">Plus d\'actions</string>
     <string name="desc_play_album">Jouer l\'album</string>
+    <string name="action_exclude_track">Exclure de la bibliothèque</string>
 </resources>

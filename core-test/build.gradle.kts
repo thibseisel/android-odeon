@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,21 @@
 plugins {
     id("com.android.library")
     kotlin("android")
-    kotlin("kapt")
 }
 
 dependencies {
     api(project(":core"))
 
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libs.koroutines}")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Libs.koroutines}")
-    api("androidx.test:core:${Libs.Androidx.test}")
-    api("androidx.test:runner:${Libs.Androidx.test}")
-    api("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    api("org.jetbrains.kotlin:kotlin-test-junit:${Libs.kotlin}")
-    api("io.kotest:kotest-assertions-core:${Libs.kotest}")
-    api("io.kotest:kotest-property:${Libs.kotest}")
-    api("io.mockk:mockk:${Libs.mockk}")
-    api ("org.robolectric:robolectric:${Libs.robolectric}") {
+    api(KotlinX.coroutines.test)
+    api(KotlinX.coroutines.debug)
+    api(AndroidX.test.core)
+    api(AndroidX.test.runner)
+    api(AndroidX.test.ext.junitKtx)
+    api(Kotlin.test.junit)
+    api(Testing.kotest.assertions.core)
+    api(Testing.kotest.property)
+    api(Testing.mockK)
+    api (Testing.robolectric) {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
 }

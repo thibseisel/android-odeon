@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.settings
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.FragmentTransaction
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.*
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+import fr.nihilus.music.ui.settings.exclusion.ExcludedTracksFragment
 
 @AndroidEntryPoint
 internal class MainPreferenceFragment : PreferenceFragmentCompat() {
@@ -47,34 +49,47 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.prefs_main, rootKey)
 
+        requirePreference<Preference>(PREF_KEY_TRACK_EXCLUSION).setOnPreferenceClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.content_fragment, ExcludedTracksFragment())
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+            true
+        }
+
         if (BuildConfig.DEBUG) {
             setupSyncPreference()
         }
     }
 
     private fun setupSyncPreference() {
-        val startSyncPreference = findPreference<Preference>("start_sync")!!
+        val startSyncPreference = requirePreference<Preference>(PREF_KEY_START_SYNC)
 
         val workManager = WorkManager.getInstance(requireContext())
-        workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { allWorkInfo ->
-            allWorkInfo.firstOrNull()?.state?.let { workState ->
-                startSyncPreference.isEnabled = workState.isFinished
+        workManager.getWorkInfosForUniqueWorkLiveData(SPOTIFY_SYNC_TASK)
+            .observe(this) { allWorkInfo ->
+                allWorkInfo.firstOrNull()?.state?.let { workState ->
+                    startSyncPreference.isEnabled = workState.isFinished
 
-                startSyncPreference.summary = when (workState) {
-                    WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
-                    WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
-                    WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
-                    WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
-                    else -> null
+                    startSyncPreference.summary = when (workState) {
+                        WorkInfo.State.ENQUEUED -> getString(R.string.dev_sync_summary_waiting)
+                        WorkInfo.State.RUNNING -> getString(R.string.dev_sync_summary_running)
+                        WorkInfo.State.SUCCEEDED -> getString(R.string.dev_sync_summary_success)
+                        WorkInfo.State.FAILED -> getString(R.string.dev_sync_summary_failure)
+                        else -> null
+                    }
                 }
             }
-        }
 
         startSyncPreference.setOnPreferenceClickListener {
             scheduleSpotifySync(workManager)
             true
         }
     }
+
+    private fun <P : Preference> requirePreference(key: String): P = findPreference(key)
+        ?: error("Attempt to find a non-existing preference named \"$key\"")
 
     private fun scheduleSpotifySync(workManager: WorkManager) {
         val connectedNetworkConstraint = Constraints.Builder()
@@ -85,6 +100,10 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
             .setConstraints(connectedNetworkConstraint)
             .build()
 
-        workManager.beginUniqueWork("spotify-sync", ExistingWorkPolicy.KEEP, request).enqueue()
+        workManager.beginUniqueWork(SPOTIFY_SYNC_TASK, ExistingWorkPolicy.KEEP, request).enqueue()
     }
 }
+
+private const val PREF_KEY_TRACK_EXCLUSION = "track_exclusion"
+private const val PREF_KEY_START_SYNC = "start_sync"
+private const val SPOTIFY_SYNC_TASK = "spotify-sync"

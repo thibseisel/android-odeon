@@ -118,6 +118,12 @@ internal class SearchResultsAdapter(
         ADD_TO_PLAYLIST,
 
         /**
+         * Exclude the selected media from the music library.
+         * This is only applicable to tracks.
+         */
+        EXCLUDE,
+
+        /**
          * Delete the selected media.
          * This is only applicable to tracks.
          */
@@ -179,6 +185,11 @@ internal class SearchResultsAdapter(
                 when (it.itemId) {
                     R.id.action_playlist -> {
                         onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
+                        true
+                    }
+
+                    R.id.action_exclude -> {
+                        onItemAction(adapterPosition, ItemAction.EXCLUDE)
                         true
                     }
 

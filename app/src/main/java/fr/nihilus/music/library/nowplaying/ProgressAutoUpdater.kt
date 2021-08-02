@@ -17,6 +17,7 @@
 package fr.nihilus.music.library.nowplaying
 
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.widget.SeekBar
 import android.widget.TextView
@@ -55,7 +56,7 @@ class ProgressAutoUpdater(
     private val updateListener: (Long) -> Unit
 ) {
     private val executorService = Executors.newSingleThreadScheduledExecutor()
-    private val handler = Handler()
+    private val handler = Handler(Looper.getMainLooper())
 
     private val uiThreadUpdate = Runnable(this::updateProgress)
     private val scheduledUpdate = Runnable {

@@ -106,7 +106,7 @@
                 android:layout_height="?actionBarSize"
                 android:background="@android:color/transparent"
                 app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/ic_arrow_back_24dp"
+                app:navigationIcon="@drawable/ui_ic_arrow_back_24dp"
                 app:popupTheme="?actionBarPopupTheme" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>

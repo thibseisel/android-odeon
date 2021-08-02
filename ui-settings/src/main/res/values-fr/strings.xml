@@ -36,4 +36,8 @@
     <string name="pref_reload_queue_track">Depuis le dernier morceau joué</string>
     <string name="pref_reload_queue_position">Exactement là où la lecture s\'était arrêtée</string>
     <string name="pref_title_prepare_on_startup">Préparer la dernière lecture au démarrage</string>
+    <string name="track_exclusion_feature_description">Les morceaux listés ci-dessous sont exclus de la bibliothèque musicale : ils n\'apparaisent plus dans Odéon. Faites glisser un morceau sur le côté pour l\'inclure à nouveau.</string>
+    <string name="track_exclusion_title">Morceaux exclus</string>
+    <string name="pref_category_music_library">Bibliothèque musicale</string>
+    <string name="track_exclusion_description">Gérer les morceaux ignorés par Odeon</string>
 </resources>

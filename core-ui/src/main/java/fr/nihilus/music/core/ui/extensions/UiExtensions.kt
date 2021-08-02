@@ -27,9 +27,7 @@ import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.doOnPreDraw
+import androidx.core.view.*
 import androidx.fragment.app.Fragment
 import kotlin.math.roundToInt
 
@@ -40,28 +38,26 @@ import kotlin.math.roundToInt
 @get:RequiresApi(Build.VERSION_CODES.M)
 @set:RequiresApi(Build.VERSION_CODES.M)
 var Window.darkSystemIcons: Boolean
-    get() = decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR != 0
-    set(areDarkIcons) = with(decorView) {
-        systemUiVisibility = if (areDarkIcons) {
-            systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        } else {
-            systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-        }
+    get() {
+        val controller = requireDecorInsetsController()
+        return controller.isAppearanceLightStatusBars
+    }
+    set(areDarkIcons) {
+        val controller = requireDecorInsetsController()
+        controller.isAppearanceLightStatusBars = areDarkIcons
     }
 
+private fun Window.requireDecorInsetsController(): WindowInsetsControllerCompat =
+    WindowCompat.getInsetsController(this, decorView)
+        ?: error("decorView should always be attached to a Window")
+
 /**
- * Whether the window this View belongs to has requested to be drawn behind the status bar
- * and the navigation bar.
+ * Sets whether this window has requested to be drawn behind the status bar and the navigation bar.
+ * @param edgeToEdge `true` to draw window edge to edge.
  */
-var View.isDrawnEdgeToEdge: Boolean
-    get() = (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_STABLE != 0) &&
-            (systemUiVisibility and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != 0)
-    set(value) {
-        systemUiVisibility = when (value) {
-            true -> systemUiVisibility or (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-            else -> systemUiVisibility and (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION).inv()
-        }
-    }
+fun Window.drawEdgeToEdge(edgeToEdge: Boolean) {
+    WindowCompat.setDecorFitsSystemWindows(this, !edgeToEdge)
+}
 
 /**
  * Packed offset dimensions applied to a View, such as padding or margin.

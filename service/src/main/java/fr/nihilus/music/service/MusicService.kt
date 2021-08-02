@@ -30,6 +30,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
+import androidx.media.utils.MediaConstants
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import dagger.hilt.android.AndroidEntryPoint
@@ -147,11 +148,17 @@ class MusicService : BaseBrowserService() {
         }
 
         val rootExtras = Bundle().apply {
-            putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
-
-            putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
-            putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
-            putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
+            // See https://developer.android.com/training/cars/media#display_search
+            putBoolean(MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED, true)
+            // See https://developer.android.com/training/cars/media#apply_content_style
+            putInt(
+                MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
+                MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
+            )
+            putInt(
+                MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
+                MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+            )
 
             // All our media are playable offline.
             // Forward OFFLINE hint when specified.
@@ -165,6 +172,8 @@ class MusicService : BaseBrowserService() {
             rootExtras.putBoolean(BrowserRoot.EXTRA_RECENT, true)
             return BrowserRoot(MediaId.RECENT_ROOT.encoded, rootExtras)
         }
+
+        // TODO https://developer.android.com/training/cars/media#root-menu-structure
 
         return BrowserRoot(MediaId.ROOT.encoded, rootExtras)
     }
@@ -201,11 +210,18 @@ class MusicService : BaseBrowserService() {
                 result.sendResult(null)
 
             } catch (pde: PermissionDeniedException) {
-                Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
+                Timber.i(
+                    "Unable to load children of %s: denied permission %s",
+                    parentId,
+                    pde.permission
+                )
                 result.sendResult(null)
 
             } catch (invalidParent: NoSuchElementException) {
-                Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
+                Timber.i(
+                    "Unable to load children of %s: not a browsable item from the tree",
+                    parentId
+                )
                 result.sendResult(null)
             }
         }
@@ -245,11 +261,19 @@ class MusicService : BaseBrowserService() {
                     result.sendResult(requestedContent?.toItem())
 
                 } catch (malformedId: MalformedMediaIdException) {
-                    Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
+                    Timber.i(
+                        malformedId,
+                        "Attempt to load item from a malformed media id: %s",
+                        itemId
+                    )
                     result.sendResult(null)
 
                 } catch (pde: PermissionDeniedException) {
-                    Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
+                    Timber.i(
+                        "Loading item %s failed due to missing permission: %s",
+                        itemId,
+                        pde.permission
+                    )
                     result.sendResult(null)
                 }
             }
@@ -402,7 +426,10 @@ class MusicService : BaseBrowserService() {
 
             // Update the notification content if the session is active
             if (session.isActive) {
-                notificationManager.notify(NOW_PLAYING_NOTIFICATION, notificationBuilder.buildNotification())
+                notificationManager.notify(
+                    NOW_PLAYING_NOTIFICATION,
+                    notificationBuilder.buildNotification()
+                )
             }
         }
 
@@ -427,7 +454,7 @@ class MusicService : BaseBrowserService() {
         }
     }
 
-    private inner class TrackCompletionListener : Player.EventListener {
+    private inner class TrackCompletionListener : Player.Listener {
 
         override fun onMediaItemTransition(
             mediaItem: com.google.android.exoplayer2.MediaItem?,
