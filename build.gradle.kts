@@ -86,7 +86,9 @@ subprojects {
                 minSdk = 21
                 targetSdk = 29
 
-                testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
+                if (testInstrumentationRunner.isNullOrEmpty()) {
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                }
             }
 
             compileOptions {

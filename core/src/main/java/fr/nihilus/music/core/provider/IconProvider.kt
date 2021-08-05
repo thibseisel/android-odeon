@@ -30,8 +30,6 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.os.PlaylistIconDir
 import java.io.File
-import javax.inject.Inject
-import javax.inject.Provider
 
 private const val PLAYLIST_ICONS_URI_PATH = "icons"
 private const val FALLBACK_MIME_TYPE = "application/octet-stream"
@@ -40,18 +38,9 @@ private const val FALLBACK_MIME_TYPE = "application/octet-stream"
  * Provides generated playlist icons to external applications that connects to Odeon media browser.
  */
 internal class IconProvider : ContentProvider() {
-
-    @Inject @PlaylistIconDir lateinit var playlistIconsDir: Provider<File>
     private val defaultColumns = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
-    override fun onCreate(): Boolean {
-        val providerContext = checkNotNull(context) {
-            "Provider context should be available in ContentProvider.onCreate"
-        }
-        EntryPointAccessors.fromApplication(providerContext, ProviderEntryPoint::class.java)
-            .injectInto(this)
-        return true
-    }
+    override fun onCreate(): Boolean = true
 
     override fun query(
         uri: Uri,
@@ -99,10 +88,18 @@ internal class IconProvider : ContentProvider() {
         throw UnsupportedOperationException("No external deletes")
     }
 
+    override fun shutdown() {
+        // Nothing to do.
+        // The default implementation prints inappropriate warnings to the console.
+    }
+
     private fun getFileForUri(uri: Uri): File {
         val path = requireNotNull(uri.encodedPath)
+        val appContext = checkNotNull(context).applicationContext
+
+        val entryPoint = EntryPointAccessors.fromApplication(appContext, ProviderEntryPoint::class.java)
         val filename = path.substringAfter("$PLAYLIST_ICONS_URI_PATH/")
-        return File(playlistIconsDir.get(), filename)
+        return File(entryPoint.iconDir(), filename)
     }
 
     /**
@@ -111,6 +108,6 @@ internal class IconProvider : ContentProvider() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface ProviderEntryPoint {
-        fun injectInto(provider: IconProvider)
+        @PlaylistIconDir fun iconDir(): File
     }
 }
