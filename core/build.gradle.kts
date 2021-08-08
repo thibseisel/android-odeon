@@ -24,7 +24,7 @@ plugins {
 android {
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
-        testInstrumentationRunner = "fr.nihilus.music.core.runner.HiltJUnitRunner"
+        testInstrumentationRunner = "fr.nihilus.music.core.instrumentation.runner.HiltJUnitRunner"
     }
 
     buildTypes {
@@ -85,6 +85,7 @@ dependencies {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
 
+    androidTestImplementation(project(":core-instrumentation"))
     androidTestImplementation(Kotlin.test.junit)
     androidTestImplementation(AndroidX.test.coreKtx)
     androidTestImplementation(AndroidX.test.runner)

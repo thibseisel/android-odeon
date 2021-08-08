@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 plugins {
-    id("de.fayard.refreshVersions") version "0.10.1"
+    id("com.android.library")
+    kotlin("android")
 }
 
-rootProject.name = "android-odeon"
-include(":app")
-include(":core", ":core-test", ":core-ui", ":core-instrumentation", ":media")
-include(":service", ":spotify-client")
-include(":ui-cleanup", ":ui-settings")
+android {
+    useLibrary("android.test.mock")
+}
+
+dependencies {
+    implementation(AndroidX.test.runner)
+    implementation(AndroidX.test.rules)
+    implementation(Google.dagger.hilt.android.testing)
+}

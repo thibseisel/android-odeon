@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.runner
+package fr.nihilus.music.core.instrumentation.runner
 
 import android.app.Application
 import android.content.Context
