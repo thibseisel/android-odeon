@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@
 
 package fr.nihilus.music.core.ui.actions
 
-import android.graphics.Bitmap
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
@@ -29,7 +28,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
 import io.kotest.assertions.assertSoftly
@@ -41,22 +39,36 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.file.shouldBeAFile
+import io.kotest.matchers.file.shouldContainFile
+import io.kotest.matchers.file.shouldNotBeEmpty
+import io.kotest.matchers.file.shouldNotExist
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import kotlin.test.Ignore
+import java.io.File
 import kotlin.test.Test
 
 private const val TEST_TIME = 1585662510L
 private const val NEW_PLAYLIST_NAME = "My favorites"
+private const val BASE_ICON_URI = "content://fr.nihilus.music.test.provider/icons"
 
-private val SAMPLE_PLAYLIST = Playlist(1L, "Zen", 0L, null)
+private val SAMPLE_PLAYLIST = Playlist(
+    id = 1L,
+    title = "Zen",
+    created = 0L,
+    iconUri = "content://fr.nihilus.music.test.provider/icons/zen.png".toUri()
+)
 
 @RunWith(AndroidJUnit4::class)
 internal class ManagePlaylistActionTest {
 
     @get:Rule
     val test = CoroutineTestRule()
+
+    @get:Rule
+    val iconDir = TemporaryFolder()
 
     private val clock = TestClock(TEST_TIME)
     private val dispatchers = AppDispatchers(test.dispatcher)
@@ -73,15 +85,22 @@ internal class ManagePlaylistActionTest {
         assertSoftly(playlists[0]) {
             title shouldBe NEW_PLAYLIST_NAME
             created shouldBe TEST_TIME
+            iconUri shouldBe "content://fr.nihilus.music.test.provider/icons/My_favorites.png".toUri()
         }
 
         dao.savedTracks.shouldBeEmpty()
     }
 
     @Test
-    @Ignore("Test is not implemented")
     fun `When creating a playlist then generate and save its icon`() = test.run {
-        TODO("Create a fake implementation of FileSystem that supports such scenario.")
+        val action = ManagePlaylistAction(InMemoryPlaylistDao())
+
+        action.createPlaylist(NEW_PLAYLIST_NAME, emptyList())
+
+        iconDir.root shouldContainFile "My_favorites.png"
+        val iconFile = File(iconDir.root, "My_favorites.png")
+        iconFile.shouldBeAFile()
+        iconFile.shouldNotBeEmpty()
     }
 
     @Test
@@ -202,9 +221,14 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    @Ignore("Test is not implemented")
     fun `When deleting a playlist then delete its associated icon`() = test.run {
-        TODO("FileSystem does not support such scenario.")
+        val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
+        val existingIconFile = iconDir.newFile("zen.png")
+        val action = ManagePlaylistAction(dao)
+
+        action.deletePlaylist(MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id.toString()))
+
+        existingIconFile.shouldNotExist()
     }
 
     private fun invalidTrackIds() = listOf(
@@ -221,12 +245,11 @@ internal class ManagePlaylistActionTest {
         MediaId(TYPE_PLAYLISTS, "1", 16L)
     )
 
-    private fun ManagePlaylistAction(dao: PlaylistDao) =
-        ManagePlaylistAction(dao, NoOpFileSystem, clock, dispatchers)
-
-    private object NoOpFileSystem : FileSystem {
-        override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = null
-        override fun makeSharedContentUri(filePath: String): Uri? = null
-        override fun deleteFile(filepath: String): Boolean = false
-    }
+    private fun ManagePlaylistAction(dao: PlaylistDao) = ManagePlaylistAction(
+        playlistDao = dao,
+        iconDir = { iconDir.root },
+        baseIconUri = BASE_ICON_URI.toUri(),
+        clock = clock,
+        dispatchers = dispatchers
+    )
 }

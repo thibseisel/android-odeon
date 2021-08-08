@@ -20,19 +20,14 @@
 
     <application>
         <!--
-            Allows sharing album arts with media browser clients.
-            By sharing content uris instead of file uris,
-            clients won't need the READ_EXTERNAL_STORAGE permission to read icons.
+            Allow external applications to read generated icons for playlist
+            from MediaItem.iconUri.
         -->
         <provider
-            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/media_shared_filepaths" />
-        </provider>
+            android:name=".provider.IconProvider"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
 
         <!--
             Specify foregroundServiceType in the foreground service definition of androidx.work.

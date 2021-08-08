@@ -18,11 +18,13 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
     defaultConfig {
         consumerProguardFiles("consumer-rules.pro")
+        testInstrumentationRunner = "fr.nihilus.music.core.instrumentation.runner.HiltJUnitRunner"
     }
 
     buildTypes {
@@ -83,9 +85,13 @@ dependencies {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
 
+    androidTestImplementation(project(":core-instrumentation"))
     androidTestImplementation(Kotlin.test.junit)
     androidTestImplementation(AndroidX.test.coreKtx)
     androidTestImplementation(AndroidX.test.runner)
     androidTestImplementation(AndroidX.test.rules)
     androidTestImplementation(AndroidX.room.testing)
+    androidTestImplementation(Testing.kotest.assertions.core)
+    androidTestImplementation(Google.dagger.hilt.android.testing)
+    kaptAndroidTest(Google.dagger.hilt.compiler)
 }

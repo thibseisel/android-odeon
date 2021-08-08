@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ internal class InMemoryPlaylistDao(
 
     override val playlists: Flow<List<Playlist>>
         get() = _playlists
+
+    override suspend fun findPlaylist(playlistId: Long): Playlist? =
+        _savedPlaylists.first { it.id == playlistId }
 
     override fun getPlaylistTracks(playlistId: Long): Flow<List<PlaylistTrack>> {
         return _members.map { members ->

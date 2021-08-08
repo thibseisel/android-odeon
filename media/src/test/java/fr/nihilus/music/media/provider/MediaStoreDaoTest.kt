@@ -30,7 +30,6 @@ import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission
-import fr.nihilus.music.media.os.BasicFileSystem
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
 import io.kotest.assertions.throwables.shouldThrow
@@ -329,7 +328,7 @@ class MediaStoreDaoTest {
 
     private fun MediaDao(
         store: MediaStoreDatabase = fakeMediaStore,
-        fs: FileSystem = BasicFileSystem,
+        fs: FileSystem = SimulatedFileSystem(),
         permissions: RuntimePermissions = GrantedPermission
     ) = MediaStoreDao(store, fs, permissions, dispatchers)
 }

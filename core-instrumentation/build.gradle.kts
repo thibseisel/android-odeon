@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.test.os
+plugins {
+    id("com.android.library")
+    kotlin("android")
+}
 
-import android.graphics.Bitmap
-import android.net.Uri
-import fr.nihilus.music.core.os.FileSystem
+android {
+    useLibrary("android.test.mock")
+}
 
-/**
- * A [FileSystem] implementation that doesn't do anything useful.
- */
-internal object NoopFileSystem : FileSystem {
-
-    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = null
-
-    override fun makeSharedContentUri(filePath: String): Uri? = null
-
-    override fun deleteFile(filepath: String): Boolean = true
+dependencies {
+    implementation(AndroidX.test.runner)
+    implementation(AndroidX.test.rules)
+    implementation(Google.dagger.hilt.android.testing)
 }

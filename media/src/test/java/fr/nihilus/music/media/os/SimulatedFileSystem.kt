@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,7 @@
 
 package fr.nihilus.music.media.os
 
-import android.content.ContentResolver
-import android.graphics.Bitmap
-import android.net.Uri
 import fr.nihilus.music.core.os.FileSystem
-import fr.nihilus.music.core.test.stub
-import fr.nihilus.music.media.os.BasicFileSystem.makeSharedContentUri
 
 /**
  * A simulated file system used for testing purposes.
@@ -32,42 +27,7 @@ internal class SimulatedFileSystem(
 ) : FileSystem {
     private val storedFiles = filenames.toMutableSet()
 
-    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
-
-    override fun makeSharedContentUri(filePath: String): Uri? {
-        val albumArtSpecificPart = filePath.substringAfter("albumthumbs/")
-        return Uri.Builder()
-            .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority("fr.nihilus.music.media.test.provider")
-            .appendPath("albumthumbs")
-            .appendPath(albumArtSpecificPart)
-            .build()
-    }
-
     override fun deleteFile(filepath: String): Boolean = storedFiles.remove(filepath)
 
     fun fileExists(filepath: String): Boolean = storedFiles.contains(filepath)
-}
-
-/**
- * A fake file system whose only valid operation is [makeSharedContentUri].
- * other functions are stubbed and will fail.
- */
-object BasicFileSystem : FileSystem {
-    override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = stub()
-    override fun deleteFile(filepath: String): Boolean = stub()
-
-    /**
-     * For simplicity, this only convert the passed string to an Uri,
-     * without making it sharable.
-     */
-    override fun makeSharedContentUri(filePath: String): Uri? {
-        val albumArtSpecificPart = filePath.substringAfter("albumthumbs/")
-        return Uri.Builder()
-            .scheme(ContentResolver.SCHEME_CONTENT)
-            .authority("fr.nihilus.music.media.test.provider")
-            .appendPath("albumthumbs")
-            .appendPath(albumArtSpecificPart)
-            .build()
-    }
 }

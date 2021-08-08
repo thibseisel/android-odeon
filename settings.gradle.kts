@@ -19,6 +19,6 @@ plugins {
 
 rootProject.name = "android-odeon"
 include(":app")
-include(":core", ":core-test", ":core-ui", ":media")
+include(":core", ":core-test", ":core-ui", ":core-instrumentation", ":media")
 include(":service", ":spotify-client")
 include(":ui-cleanup", ":ui-settings")
