@@ -20,10 +20,9 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.core.content.contentValuesOf
-import androidx.core.database.getLongOrNull
-import androidx.test.rule.provider.ProviderTestRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import fr.nihilus.music.core.instrumentation.provider.ProviderTestRule
 import fr.nihilus.music.core.os.PlaylistIconDir
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -37,7 +36,9 @@ import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import java.io.*
 import javax.inject.Inject
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 private const val TEST_AUTHORITY = "fr.nihilus.music.core.test.provider"
 private val BASE_PROVIDER_URI = Uri.Builder()
@@ -50,13 +51,14 @@ private val BASE_PROVIDER_URI = Uri.Builder()
 internal class IconProviderTest {
     private val hiltRule = HiltAndroidRule(this)
     private val providerRule: ProviderTestRule =
-        ProviderTestRule.Builder(IconProvider::class.java, TEST_AUTHORITY).build()
+        ProviderTestRule.create(IconProvider::class.java, TEST_AUTHORITY)
 
     @get:Rule
     val rules: TestRule = RuleChain.outerRule(hiltRule).around(providerRule)
 
     @Inject @PlaylistIconDir
     internal lateinit var iconsDir: File
+
     private lateinit var tempIconFile: File
     private lateinit var iconFileUri: Uri
 
@@ -78,8 +80,7 @@ internal class IconProviderTest {
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
-    fun queryingExistingFile_returnsOneRow() {
+    fun query_anExistingFile_returnsOneRow() {
         val cursor = providerRule.resolver.query(iconFileUri, null, null, null, null)
         cursor.shouldNotBeNull()
         cursor.use {
@@ -93,8 +94,7 @@ internal class IconProviderTest {
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
-    fun queryingUnknownFile_returnsNullCursor() {
+    fun query_anUnknownFile_returnsNullCursor() {
         val badFileUri = Uri.withAppendedPath(BASE_PROVIDER_URI, "some-icon.png")
         val cursor = providerRule.resolver.query(badFileUri, null, null, null, null)
         cursor?.close()
@@ -103,8 +103,7 @@ internal class IconProviderTest {
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
-    fun queryingWithProjection_returnsSelectedColumns() {
+    fun query_withProjection_returnsSelectedColumns() {
         val cursor = providerRule.resolver.query(
             iconFileUri,
             arrayOf(OpenableColumns.DISPLAY_NAME),
@@ -117,14 +116,11 @@ internal class IconProviderTest {
         cursor.use {
             it.moveToFirst()
             it.columnNames.shouldContainExactly(OpenableColumns.DISPLAY_NAME)
-            it.getString(it.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
-                .shouldBe(tempIconFile.name)
-            it.getLongOrNull(it.getColumnIndexOrThrow(OpenableColumns.SIZE)).shouldBeNull()
+            it.getString(0).shouldBe(tempIconFile.name)
         }
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
     fun getType_returnsMimeTypeForFile() {
         val mimeType = providerRule.resolver.getType(iconFileUri)
         mimeType.shouldBe("image/png")
@@ -139,7 +135,6 @@ internal class IconProviderTest {
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
     fun openFile_returnsReadonlyFileDescriptor() {
         val file = providerRule.resolver.openFile(iconFileUri, "r", null)
         file.shouldNotBeNull()
@@ -165,7 +160,6 @@ internal class IconProviderTest {
     }
 
     @Test
-    @Ignore("EntryPoint doesn't work with DelegatingContext")
     fun openFile_withInvalidUri_throwsFileNotFoundException() {
         val invalidIconUri = Uri.withAppendedPath(BASE_PROVIDER_URI, "missing-file.png")
         shouldThrow<FileNotFoundException> {

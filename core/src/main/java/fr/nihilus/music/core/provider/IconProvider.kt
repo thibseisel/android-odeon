@@ -30,6 +30,7 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.os.PlaylistIconDir
 import java.io.File
+import java.io.FileNotFoundException
 
 private const val PLAYLIST_ICONS_URI_PATH = "icons"
 private const val FALLBACK_MIME_TYPE = "application/octet-stream"
@@ -48,8 +49,11 @@ internal class IconProvider : ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?,
         sortOrder: String?
-    ): Cursor {
+    ): Cursor? {
         val file = getFileForUri(uri)
+        if (!file.exists()) {
+            return null
+        }
         val columns = projection ?: defaultColumns
         val cursor = MatrixCursor(columns.copyOf())
         cursor.newRow()
@@ -58,8 +62,11 @@ internal class IconProvider : ContentProvider() {
         return cursor
     }
 
-    override fun getType(uri: Uri): String {
+    override fun getType(uri: Uri): String? {
         val file = getFileForUri(uri)
+        if (!file.exists()) {
+            return null
+        }
         return file.extension.takeUnless { it.isEmpty() }
             ?.let { MimeTypeMap.getSingleton().getMimeTypeFromExtension(it) }
             ?: FALLBACK_MIME_TYPE
@@ -68,11 +75,14 @@ internal class IconProvider : ContentProvider() {
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         if (mode != "r") throw SecurityException("File is read-only")
         val file = getFileForUri(uri)
+        if (!file.exists()) {
+            throw FileNotFoundException()
+        }
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        throw UnsupportedOperationException("No external inserts")
+        failWriteOperation()
     }
 
     override fun update(
@@ -81,16 +91,20 @@ internal class IconProvider : ContentProvider() {
         selection: String?,
         selectionArgs: Array<out String>?
     ): Int {
-        throw UnsupportedOperationException("No external updates")
+        failWriteOperation()
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        throw UnsupportedOperationException("No external deletes")
+        failWriteOperation()
     }
 
     override fun shutdown() {
         // Nothing to do.
         // The default implementation prints inappropriate warnings to the console.
+    }
+
+    private fun failWriteOperation(): Nothing {
+        throw UnsupportedOperationException("Content is read-only")
     }
 
     private fun getFileForUri(uri: Uri): File {
