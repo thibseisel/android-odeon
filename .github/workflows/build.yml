@@ -18,7 +18,8 @@ jobs:
           java-version: 11
 
       - name: Build and check app
-        run: ./gradlew --stacktrace \
-          :app:assembleDebug \
-          :app:lintDebug \
-          testDebug
+        run: |
+          ./gradlew --stacktrace \
+            app:assembleDebug \
+            app:lintDebug \
+            testDebug
