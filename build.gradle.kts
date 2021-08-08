@@ -108,6 +108,12 @@ subprojects {
                 useBuildCache = true
             }
         }
+
+        if (pluginManager.hasPlugin("dagger.hilt.android.plugin")) {
+            configure<dagger.hilt.android.plugin.HiltExtension> {
+                enableAggregatingTask = true
+            }
+        }
     }
 }
 
