@@ -55,43 +55,43 @@ kapt {
 
 dependencies {
     // Shared Kotlin language features
-    api(KotlinX.coroutines.core)
+    api(libs.kotlinx.coroutines.core)
 
     // Shared AndroidX libraries
-    api(AndroidX.core.ktx)
-    api(AndroidX.work.runtimeKtx)
+    api(libs.androidx.core)
+    api(libs.androidx.work.runtime)
 
     // Timber Logging
-    api(JakeWharton.timber)
+    api(libs.timber)
 
     // Hilt
-    api(Google.dagger.hilt.android)
-    implementation(AndroidX.hilt.work)
-    kapt(Google.dagger.hilt.compiler)
+    api(libs.hilt.android)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.hilt.compiler)
 
     // Room Database
-    api(AndroidX.room.ktx)
-    kapt(AndroidX.room.compiler)
+    api(libs.androidx.room)
+    kapt(libs.androidx.room.compiler)
 
     // Provides the instance of SharedPreferences
-    api(AndroidX.preferenceKtx)
+    api(libs.androidx.preference)
 
-    testImplementation(Kotlin.test.junit)
-    testImplementation(Testing.kotest.assertions.core)
-    testImplementation(KotlinX.coroutines.test)
-    testImplementation(Testing.mockK)
-    testImplementation(AndroidX.test.ext.junitKtx)
-    testImplementation (Testing.robolectric) {
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.androidx.test.junit)
+    testImplementation (libs.robolectric) {
         exclude(group = "com.google.auto.service", module = "auto-service")
     }
 
     androidTestImplementation(project(":core-instrumentation"))
-    androidTestImplementation(Kotlin.test.junit)
-    androidTestImplementation(AndroidX.test.coreKtx)
-    androidTestImplementation(AndroidX.test.runner)
-    androidTestImplementation(AndroidX.test.rules)
-    androidTestImplementation(AndroidX.room.testing)
-    androidTestImplementation(Testing.kotest.assertions.core)
-    androidTestImplementation(Google.dagger.hilt.android.testing)
-    kaptAndroidTest(Google.dagger.hilt.compiler)
+    androidTestImplementation(libs.kotlin.test.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.kotest.assertions.core)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.compiler)
 }

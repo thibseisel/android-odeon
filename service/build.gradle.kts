@@ -46,30 +46,30 @@ dependencies {
     implementation(project(":spotify-client"))
 
     // Kotlin language support
-    implementation(KotlinX.coroutines.android)
+    implementation(libs.kotlinx.coroutines.android)
 
     // Android support libraries
-    implementation(AndroidX.appCompat)
-    implementation(AndroidX.media)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.media)
 
     // ExoPlayer
-    api("com.google.android.exoplayer:exoplayer-core:_")
+    api(libs.exoplayer.core)
 
     // Dagger
-    implementation(Google.dagger.hilt.android)
-    kapt(Google.dagger.hilt.compiler)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     // Glide
-    implementation("com.github.bumptech.glide:glide:_")
-    kapt("com.github.bumptech.glide:compiler:_")
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation(Testing.robolectric)
-    testImplementation(AndroidX.test.ext.junitKtx)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.junit)
 
     // Android-specific test dependencies
-    androidTestImplementation(AndroidX.test.core)
-    androidTestImplementation(AndroidX.test.runner)
-    androidTestImplementation(AndroidX.test.ext.junitKtx)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.junit)
 }

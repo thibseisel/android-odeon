@@ -36,11 +36,11 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":media"))
 
-    implementation(AndroidX.recyclerView)
-    implementation(AndroidX.recyclerViewSelection)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.recyclerview.selection)
 
-    implementation(Google.dagger.hilt.android)
-    kapt(Google.dagger.hilt.compiler)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
 }
