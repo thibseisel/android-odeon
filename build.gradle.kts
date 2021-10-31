@@ -158,4 +158,7 @@ tasks.withType<Wrapper>().configureEach {
 tasks.dependencyUpdates.configure {
     revision = "release"
     gradleReleaseChannel = "current"
+
+    val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
+    rejectVersionIf { !candidate.version.matches(releaseRegex) }
 }
