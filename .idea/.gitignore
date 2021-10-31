@@ -1,0 +1,11 @@
+# Ignore all files in .idea directory
+/*
+
+#Except the following
+!/.gitignore
+!/codeStyles
+!/copyright
+!/inspectionProfiles
+!/encodings.xml
+!/icon.png
+!/vcs.xml

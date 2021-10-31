@@ -7,15 +7,7 @@ local.properties
 captures/
 mappings/
 
-# IntelliJ .idea folder
-.idea/workspace.xml
-.idea/libraries
-.idea/shelf
-.idea/caches
-.idea/navEditor.xml
-.idea/tasks.xml
-.idea/modules.xml
-gradle.xml
+# IntelliJ
 *.iml
 
 # General
