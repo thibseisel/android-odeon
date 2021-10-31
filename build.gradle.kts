@@ -35,6 +35,10 @@ buildscript {
     }
 }
 
+plugins {
+    alias(libs.plugins.dependencyupdates)
+}
+
 allprojects {
     repositories {
         google()
@@ -149,4 +153,9 @@ tasks.register<Delete>("clean") {
 
 tasks.withType<Wrapper>().configureEach {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.dependencyUpdates.configure {
+    revision = "release"
+    gradleReleaseChannel = "current"
 }

@@ -20,6 +20,9 @@ kotlin = "1.5.21"
 kotlinx-coroutines = "1.4.3"
 ktor = "1.5.4"
 
+[plugins]
+dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.39.0" }
+
 [libraries]
 plugin-android = "com.android.tools.build:gradle:7.0.0"
 plugin-hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "dagger" }
@@ -85,5 +88,3 @@ robolectric = "org.robolectric:robolectric:4.6.1"
 timber = "com.jakewharton.timber:timber:4.7.1"
 
 [bundles]
-
-[plugins]
