@@ -37,10 +37,10 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":spotify-client"))
 
-    implementation(AndroidX.preferenceKtx)
+    implementation(libs.androidx.preference)
 
-    implementation(Google.dagger.hilt.android)
-    kapt(Google.dagger.hilt.compiler)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
 }

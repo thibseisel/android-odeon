@@ -1,0 +1,6 @@
+# Normalize line endings to LF for all text files by default
+* text=auto
+# Enforce LF for shell scripts
+*.sh text eol=lf
+# Enforce CRLF for batch scripts
+*.bat text eol=crlf

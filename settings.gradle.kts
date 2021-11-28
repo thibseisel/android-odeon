@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-plugins {
-    id("de.fayard.refreshVersions") version "0.10.1"
-}
-
 rootProject.name = "android-odeon"
 include(":app")
 include(":core", ":core-test", ":core-ui", ":core-instrumentation", ":media")
 include(":service", ":spotify-client")
 include(":ui-cleanup", ":ui-settings")
+
+// Enable version catalogs, e.g. libs.versions.toml
+enableFeaturePreview("VERSION_CATALOGS")

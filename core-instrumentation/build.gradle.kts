@@ -24,7 +24,7 @@ android {
 }
 
 dependencies {
-    implementation(AndroidX.test.runner)
-    implementation(AndroidX.test.rules)
-    implementation(Google.dagger.hilt.android.testing)
+    implementation(libs.androidx.test.runner)
+    implementation(libs.androidx.test.rules)
+    implementation(libs.hilt.android.testing)
 }

@@ -28,11 +28,15 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:_")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:_")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:_")
-        classpath("com.google.dagger:hilt-android-gradle-plugin:_")
+        classpath(libs.plugin.android)
+        classpath(libs.plugin.kotlin)
+        classpath(libs.plugin.androidx.navigation.safeargs)
+        classpath(libs.plugin.hilt)
     }
+}
+
+plugins {
+    alias(libs.plugins.dependencyupdates)
 }
 
 allprojects {
@@ -149,4 +153,12 @@ tasks.register<Delete>("clean") {
 
 tasks.withType<Wrapper>().configureEach {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.dependencyUpdates.configure {
+    revision = "release"
+    gradleReleaseChannel = "current"
+
+    val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
+    rejectVersionIf { !candidate.version.matches(releaseRegex) }
 }

@@ -127,24 +127,24 @@ dependencies {
     implementation(project(":ui-settings"))
 
     // Support library dependencies
-    implementation(AndroidX.recyclerView)
-    implementation(AndroidX.viewPager2)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.viewpager)
 
     // Dagger
-    implementation(Google.dagger.hilt.android)
-    implementation(AndroidX.hilt.work)
-    kapt(Google.dagger.hilt.compiler)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.hilt.compiler)
 
     // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation(AndroidX.test.rules)
-    testImplementation(AndroidX.test.ext.junitKtx)
-    testImplementation(Testing.robolectric)
+    testImplementation(libs.androidx.test.rules)
+    testImplementation(libs.androidx.test.junit)
+    testImplementation(libs.robolectric)
 
-    androidTestImplementation(AndroidX.test.core)
-    androidTestImplementation(AndroidX.test.rules)
-    androidTestImplementation(AndroidX.test.runner)
-    androidTestImplementation(AndroidX.test.espresso.core)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.espresso)
 }
 
 /**

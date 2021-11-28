@@ -22,16 +22,14 @@ plugins {
 dependencies {
     api(project(":core"))
 
-    api(KotlinX.coroutines.test)
-    api(KotlinX.coroutines.debug)
-    api(AndroidX.test.core)
-    api(AndroidX.test.runner)
-    api(AndroidX.test.ext.junitKtx)
-    api(Kotlin.test.junit)
-    api(Testing.kotest.assertions.core)
-    api(Testing.kotest.property)
-    api(Testing.mockK)
-    api (Testing.robolectric) {
-        exclude(group = "com.google.auto.service", module = "auto-service")
-    }
+    api(libs.kotlinx.coroutines.test)
+    api(libs.kotlinx.coroutines.debug)
+    api(libs.androidx.test.core)
+    api(libs.androidx.test.runner)
+    api(libs.androidx.test.junit)
+    api(libs.kotlin.test.junit)
+    api(libs.kotest.assertions.core)
+    api(libs.kotest.property)
+    api(libs.mockk)
+    api(libs.robolectric)
 }

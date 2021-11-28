@@ -29,34 +29,34 @@ dependencies {
     implementation(project(":media"))
 
     // Dispatcher to Android main thread
-    api(KotlinX.coroutines.android)
+    api(libs.kotlinx.coroutines.android)
 
-    api(AndroidX.media)
-    api(AndroidX.appCompat)
-    api(AndroidX.fragmentKtx)
-    api(AndroidX.constraintLayout)
-    api(AndroidX.paletteKtx)
+    api(libs.androidx.media)
+    api(libs.androidx.appcompat)
+    api(libs.androidx.fragment)
+    api(libs.androidx.constraintlayout)
+    api(libs.androidx.palette)
 
     // Android Arch Components
-    api(AndroidX.lifecycle.liveDataKtx)
-    api(AndroidX.lifecycle.viewModelKtx)
-    api(AndroidX.lifecycle.runtimeKtx)
+    api(libs.androidx.lifecycle.livedata)
+    api(libs.androidx.lifecycle.viewmodel)
+    api(libs.androidx.lifecycle.runtime)
 
     // Navigation Components
-    api(AndroidX.navigation.fragmentKtx)
-    api(AndroidX.navigation.uiKtx)
+    api(libs.androidx.navigation.fragment)
+    api(libs.androidx.navigation.ui)
 
     // Image loading
-    api("com.github.bumptech.glide:glide:_")
-    kapt("com.github.bumptech.glide:compiler:_")
+    api(libs.glide)
+    kapt(libs.glide.compiler)
 
     // Material Components
-    api(Google.android.material)
+    api(libs.material)
 
-    implementation("com.github.thibseisel:kdenticon-android:_")
+    implementation(libs.kdenticon.android)
 
     // Hilt
-    kapt(Google.dagger.hilt.compiler)
+    kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
 }
