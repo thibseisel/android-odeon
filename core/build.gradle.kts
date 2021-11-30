@@ -94,4 +94,16 @@ dependencies {
     androidTestImplementation(libs.kotest.assertions.core)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.compiler)
+
+    constraints {
+        // Force androidx.room compiler to use a SQLite version compatible with Apple Silicon
+        kapt("org.xerial:sqlite-jdbc") {
+            version {
+                // Apple Silicon support has been introduced in this version
+                require("3.32.3.3")
+                // Version below failed to include M1 binary
+                reject("3.35.0")
+            }
+        }
+    }
 }
