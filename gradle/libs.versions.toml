@@ -14,7 +14,7 @@ glide = "4.12.0"
 exoplayer = "2.14.2"
 material = "1.4.0"
 moshi = "1.12.0"
-dagger = "2.38.1"
+dagger = "2.40.3"
 kotest = "4.6.1"
 kotlin = "1.5.21"
 kotlinx-coroutines = "1.4.3"
@@ -24,7 +24,7 @@ ktor = "1.5.4"
 dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.39.0" }
 
 [libraries]
-plugin-android = "com.android.tools.build:gradle:7.0.0"
+plugin-android = "com.android.tools.build:gradle:7.0.3"
 plugin-hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "dagger" }
 plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 plugin-androidx-navigation-safeargs = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "androidx-navigation" }
