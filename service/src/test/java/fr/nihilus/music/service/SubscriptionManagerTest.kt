@@ -39,7 +39,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.debug.junit4.CoroutinesTimeout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.yield
@@ -54,9 +53,6 @@ class SubscriptionManagerTest {
 
     @get:Rule
     val test = CoroutineTestRule()
-
-    @get:Rule
-    val timeout = CoroutinesTimeout.seconds(5)
 
     private lateinit var dispatchers: AppDispatchers
 

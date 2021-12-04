@@ -25,7 +25,6 @@ import io.ktor.client.request.takeFrom
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.AttributeKey
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.delay
 import timber.log.Timber
 
@@ -34,7 +33,6 @@ import timber.log.Timber
  * [the HTTP 429 status code][HttpStatusCode.TooManyRequests]. Requests are retried after
  * a given delay defined by the value of the [Retry-After header][HttpHeaders.RetryAfter].
  */
-@OptIn(KtorExperimentalAPI::class)
 internal object RetryAfter : HttpClientFeature<Unit, RetryAfter> {
     override val key: AttributeKey<RetryAfter> = AttributeKey("RetryAfter")
 

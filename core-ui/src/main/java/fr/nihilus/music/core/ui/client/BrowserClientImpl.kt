@@ -186,7 +186,7 @@ internal class BrowserClientImpl @Inject constructor(
     ) : MediaBrowserCompat.SubscriptionCallback() {
 
         override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            channel.offer(children)
+            channel.trySend(children)
         }
 
         override fun onChildrenLoaded(

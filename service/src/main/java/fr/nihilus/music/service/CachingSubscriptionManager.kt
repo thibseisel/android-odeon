@@ -49,9 +49,9 @@ internal class CachingSubscriptionManager @Inject constructor(
 
     private val mutex = Mutex()
     private val cachedSubscriptions = LruSubscriptionCache()
-    private val _updatedParentIds = BroadcastChannel<MediaId>(Channel.BUFFERED)
+    private val _updatedParentIds = MutableSharedFlow<MediaId>()
 
-    override val updatedParentIds: Flow<MediaId> = _updatedParentIds.asFlow()
+    override val updatedParentIds: Flow<MediaId> = _updatedParentIds.asSharedFlow()
 
     override suspend fun loadChildren(
         parentId: MediaId,
@@ -87,6 +87,7 @@ internal class CachingSubscriptionManager @Inject constructor(
         }
     }
 
+    @Suppress("DEPRECATION_ERROR")
     private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaContent>> {
         return tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
@@ -98,7 +99,7 @@ internal class CachingSubscriptionManager @Inject constructor(
                 subscription.asFlow()
                     .drop(1)
                     .catch { if (it !is Exception) throw it }
-                    .onEach { _updatedParentIds.send(parentId) }
+                    .onEach { _updatedParentIds.emit(parentId) }
                     .launchIn(scope)
             }
     }

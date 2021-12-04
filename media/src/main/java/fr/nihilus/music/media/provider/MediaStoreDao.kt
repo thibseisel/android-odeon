@@ -122,7 +122,7 @@ internal class MediaStoreDao @Inject constructor(
 
     private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow<Unit> {
         // Trigger initial load.
-        offer(Unit)
+        trySend(Unit)
 
         // Register an observer until flow is cancelled, and reload whenever it is notified.
         val observer = ChannelContentObserver(channel)
@@ -347,7 +347,7 @@ internal class MediaStoreDao @Inject constructor(
         override fun onChange(selfChange: Boolean, uri: Uri?) = onChange(selfChange)
 
         override fun onChange(selfChange: Boolean) {
-            channel.offer(Unit)
+            channel.trySend(Unit)
         }
     }
 

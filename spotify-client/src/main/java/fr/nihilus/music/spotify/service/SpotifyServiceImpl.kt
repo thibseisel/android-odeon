@@ -33,7 +33,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.util.InternalAPI
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -49,7 +49,6 @@ private const val MAX_SEVERAL_ARTISTS = 50
 private const val MAX_SEVERAL_TRACKS = 50
 private const val MAX_SEVERAL_FEATURES = 100
 
-@OptIn(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl @TestOnly constructor(
     engine: HttpClientEngine,
     private val moshi: Moshi,
@@ -111,6 +110,7 @@ internal class SpotifyServiceImpl @TestOnly constructor(
                     val newToken = authenticate()
                     val request = HttpRequestBuilder()
                     request.takeFrom(origin.request)
+                    @OptIn(InternalAPI::class)
                     request.headers[HttpHeaders.Authorization] = "Bearer ${newToken.token}"
 
                     execute(request)
@@ -133,6 +133,7 @@ internal class SpotifyServiceImpl @TestOnly constructor(
 
     override fun getArtistAlbums(artistId: String): Flow<SpotifyAlbum> {
         val albumPageRequest = HttpRequestBuilder(path = "/v1/artists/$artistId/albums") {
+            @OptIn(InternalAPI::class)
             parameters[SpotifyService.QUERY_INCLUDE_GROUPS] = "album,single"
         }
 
@@ -196,6 +197,7 @@ internal class SpotifyServiceImpl @TestOnly constructor(
             }
         }
 
+        @OptIn(InternalAPI::class)
         val searchPageRequest = HttpRequestBuilder(path = "/v1/search") {
             parameters[SpotifyService.QUERY_Q] = query.toString()
             parameters[SpotifyService.QUERY_TYPE] = searchParam

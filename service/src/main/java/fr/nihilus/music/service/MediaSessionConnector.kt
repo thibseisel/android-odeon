@@ -98,7 +98,7 @@ internal class MediaSessionConnector @Inject constructor(
     private fun invalidateMediaSessionMetadata() {
         val nowPlayingTrack = player.currentMediaItem?.playbackProperties?.tag as? AudioTrack
         if (nowPlayingTrack != null) {
-            metadataProducer.offer(nowPlayingTrack)
+            metadataProducer.trySend(nowPlayingTrack)
         }
     }
 

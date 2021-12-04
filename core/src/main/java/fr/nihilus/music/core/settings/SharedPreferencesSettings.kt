@@ -132,13 +132,13 @@ internal class SharedPreferencesSettings @Inject constructor(
     private fun preferenceFlow(watchedKey: String) = callbackFlow<SharedPreferences> {
         val valueListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
             if (watchedKey == key) {
-                offer(prefs)
+                trySend(prefs)
             }
         }
 
         // Request to emit the current value.
         val prefs = preferences.get()
-        offer(prefs)
+        trySend(prefs)
 
         // Register a listener to be called when the preference value changes.
         preferenceListeners += valueListener
