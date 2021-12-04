@@ -64,6 +64,7 @@ subprojects {
         kotlinOptions {
             jvmTarget = "11"
             freeCompilerArgs = freeCompilerArgs + arrayOf(
+                "-progressive",
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"

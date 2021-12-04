@@ -128,6 +128,7 @@ class NowPlayingViewModel @Inject constructor(
             when (state.value?.isPlaying) {
                 true -> client.pause()
                 false -> client.play()
+                else -> Unit
             }
         }
     }

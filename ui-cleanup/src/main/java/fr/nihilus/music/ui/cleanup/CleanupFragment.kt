@@ -88,6 +88,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                 is LoadRequest.Success -> {
                     adapter.submitList(disposableTracksRequest.data)
                 }
+                else -> {}
             }
         }
 
