@@ -1,11 +1,11 @@
 #Gradle
 .gradle
-build/
+build
 
 # Local only files
 local.properties
-captures/
-mappings/
+captures
+mappings
 
 # IntelliJ
 *.iml
