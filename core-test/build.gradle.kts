@@ -31,5 +31,6 @@ dependencies {
     api(libs.kotest.assertions.core)
     api(libs.kotest.property)
     api(libs.mockk)
+    api(libs.turbine)
     api(libs.robolectric)
 }

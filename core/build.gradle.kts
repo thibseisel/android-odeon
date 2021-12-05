@@ -80,6 +80,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
     testImplementation(libs.androidx.test.junit)
     testImplementation (libs.robolectric) {
         exclude(group = "com.google.auto.service", module = "auto-service")

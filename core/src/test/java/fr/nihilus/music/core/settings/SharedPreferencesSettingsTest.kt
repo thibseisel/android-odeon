@@ -22,6 +22,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import fr.nihilus.music.core.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -29,7 +30,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.playback.RepeatMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -223,19 +223,20 @@ class SharedPreferencesSettingsTest {
         prefs.edit().putString(themePrefKey, "light").commit()
 
         val settings = SharedPreferencesSettings(context, providerOf(prefs))
-        val updates = settings.currentTheme.produceIn(this)
-        updates.receive() shouldBe Settings.AppTheme.LIGHT
+        settings.currentTheme.test {
+            awaitItem() shouldBe Settings.AppTheme.LIGHT
 
-        prefs.edit().putString(themePrefKey, "dark").commit()
-        updates.receive() shouldBe Settings.AppTheme.DARK
+            prefs.edit().putString(themePrefKey, "dark").commit()
+            awaitItem() shouldBe Settings.AppTheme.DARK
 
-        prefs.edit().putString(themePrefKey, "battery").commit()
-        updates.receive() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
+            prefs.edit().putString(themePrefKey, "battery").commit()
+            awaitItem() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
 
-        prefs.edit().putString(themePrefKey, "system").commit()
-        updates.receive() shouldBe Settings.AppTheme.SYSTEM
+            prefs.edit().putString(themePrefKey, "system").commit()
+            awaitItem() shouldBe Settings.AppTheme.SYSTEM
 
-        updates.cancel()
+            cancel()
+        }
     }
 
     private fun <T> providerOf(value: T) = Provider { value }

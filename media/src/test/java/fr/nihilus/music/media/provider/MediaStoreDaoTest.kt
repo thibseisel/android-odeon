@@ -21,12 +21,12 @@ import android.net.Uri
 import android.provider.MediaStore.Audio.*
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission
@@ -78,7 +78,7 @@ class MediaStoreDaoTest {
     }
 
     private suspend fun Flow<List<*>>.shouldFailDueToMissingExternalStorageReadPermission() = test {
-        val exception = expectFailure()
+        val exception = awaitError()
         exception.shouldBeInstanceOf<PermissionDeniedException>()
         exception.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
     }
@@ -260,8 +260,8 @@ class MediaStoreDaoTest {
             ?: failAssumption("Assumed at least one ContentObserver to be registered.")
         registeredObservers.forEach { it.observer.onChange(false, null) }
 
-        expect(1)
-        expectNone()
+        awaitItem()
+        expectNoEvents()
     }
 
     // TODO Test doesn't pass due to being unable to cancel a running query.
@@ -281,8 +281,8 @@ class MediaStoreDaoTest {
             registeredObservers.forEach { it.observer.onChange(false, null) }
         }
 
-        expect(1)
-        expectNone()
+        awaitItem()
+        expectNoEvents()
     }
 
     @Test

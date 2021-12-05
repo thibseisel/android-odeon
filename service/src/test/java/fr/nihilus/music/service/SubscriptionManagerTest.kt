@@ -18,6 +18,7 @@ package fr.nihilus.music.service
 
 import android.Manifest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -26,7 +27,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
 import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.service.browser.PaginationOptions
@@ -44,7 +44,6 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -258,10 +257,8 @@ class SubscriptionManagerTest {
             val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
             manager.loadChildren(allTracks, null)
 
-            expect(1, 1000, TimeUnit.MILLISECONDS)
-            expectNone()
-
-            values.shouldContainExactly(allTracks)
+            awaitItem() shouldBe allTracks
+            expectNoEvents()
         }
     }
 
@@ -274,16 +271,17 @@ class SubscriptionManagerTest {
             val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
             manager.loadChildren(allTracks, null)
 
-            expect(1, 1000, TimeUnit.MILLISECONDS)
-            expectNone()
+            awaitItem() shouldBe allTracks
+            expectNoEvents()
 
             // Subscribe to another parent.
             val albumTracks = MediaId(TYPE_ALBUMS, "42")
             manager.loadChildren(albumTracks, null)
 
             yield()
-            expect(2, 1000, TimeUnit.MILLISECONDS)
-            values.shouldContainExactlyInAnyOrder(allTracks, allTracks, albumTracks)
+            val values = List(2) { awaitItem() }
+            values.shouldContainExactlyInAnyOrder(allTracks, albumTracks)
+            expectNoEvents()
         }
     }
 
@@ -296,13 +294,10 @@ class SubscriptionManagerTest {
             manager.updatedParentIds.test {
                 // trigger initial subscription
                 manager.loadChildren(albumId, null)
-
-                expect(1, 500, TimeUnit.MILLISECONDS)
-                values.shouldContainExactly(albumId)
+                awaitItem() shouldBe albumId
             }
 
-            expect(1)
-            values.shouldContainExactly(albumId)
+            awaitItem() shouldBe albumId
         }
     }
 
@@ -318,7 +313,7 @@ class SubscriptionManagerTest {
             }
 
             // No exceptions should be thrown.
-            expectNone()
+            expectNoEvents()
         }
     }
 
@@ -335,7 +330,7 @@ class SubscriptionManagerTest {
             }
 
             // No exceptions should be thrown.
-            expectNone()
+            expectNoEvents()
         }
     }
 
@@ -350,7 +345,7 @@ class SubscriptionManagerTest {
             }
 
             delay(1000)
-            expectAtLeast(5)
+            val values = List(5) { awaitItem() }
             val albumZeroId = MediaId(TYPE_ALBUMS, "0")
             values shouldNotContain albumZeroId
         }
@@ -376,7 +371,7 @@ class SubscriptionManagerTest {
             // The oldest subscription now being that of album 1, it has been disposed instead,
             // therefore we should no longer receive updates for it.
             delay(1000)
-            expectAtLeast(5)
+            val values = List(5) { awaitItem() }
             values shouldContain MediaId(TYPE_ALBUMS, "0")
             values shouldNotContain MediaId(TYPE_ALBUMS, "1")
         }

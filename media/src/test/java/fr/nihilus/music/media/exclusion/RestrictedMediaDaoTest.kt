@@ -16,10 +16,10 @@
 
 package fr.nihilus.music.media.exclusion
 
+import app.cash.turbine.test
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.coroutines.flow.test
 import fr.nihilus.music.core.test.coroutines.withinScope
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -120,15 +120,13 @@ internal class RestrictedMediaDaoTest {
             val sut = RestrictedMediaDao(this, StubMediaDao, exclusions)
 
             sut.tracks.test {
-                expect(1)
+                awaitItem()
 
                 exclusions.exclude(TrackExclusion(ALGORITHM.id, 0))
-                expect(1)
-                values[1].shouldContainExactly(DIRTY_WATER, RUN)
+                awaitItem().shouldContainExactly(DIRTY_WATER, RUN)
 
                 exclusions.allow(MATTER_OF_TIME.id)
-                expect(1)
-                values[2].shouldContainExactly(DIRTY_WATER, MATTER_OF_TIME, RUN)
+                awaitItem().shouldContainExactly(DIRTY_WATER, MATTER_OF_TIME, RUN)
             }
         }
     }
