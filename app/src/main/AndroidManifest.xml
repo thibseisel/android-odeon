@@ -33,6 +33,7 @@
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
+            android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Odeon.NoActionBar"
             android:windowSoftInputMode="adjustPan">

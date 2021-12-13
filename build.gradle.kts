@@ -85,7 +85,7 @@ subprojects {
     // Common Android configuration
     afterEvaluate {
         configure<BaseExtension> {
-            compileSdkVersion(30)
+            compileSdkVersion(31)
 
             defaultConfig {
                 minSdk = 21
