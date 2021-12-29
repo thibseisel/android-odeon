@@ -168,6 +168,10 @@ internal class SpotifyManagerImpl @Inject constructor(
                     resource.message
                 )
             }
+
+            is HttpResource.NotFound -> {
+                Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP 404")
+            }
         }
     }
 

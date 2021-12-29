@@ -120,7 +120,7 @@ internal class MediaStoreDao @Inject constructor(
         }
     }
 
-    private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow<Unit> {
+    private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow {
         // Trigger initial load.
         trySend(Unit)
 
@@ -172,7 +172,9 @@ internal class MediaStoreDao @Inject constructor(
                         val trackId = cursor.getLong(colId)
                         val albumId = cursor.getLong(colAlbumId)
                         val trackNo = cursor.getInt(colTrackNo)
-                        val trackUri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId).toString()
+                        val trackUri =
+                            ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId)
+                                .toString()
 
                         trackList += Track(
                             id = trackId,
@@ -183,7 +185,8 @@ internal class MediaStoreDao @Inject constructor(
                             discNumber = trackNo / 1000,
                             trackNumber = trackNo % 1000,
                             mediaUri = trackUri,
-                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId)
+                                .toString(),
                             availabilityDate = cursor.getLong(colDateAdded),
                             artistId = cursor.getLong(colArtistId),
                             albumId = albumId,
@@ -232,7 +235,8 @@ internal class MediaStoreDao @Inject constructor(
                             title = cursor.getString(colTitle),
                             trackCount = cursor.getInt(colSongCount),
                             releaseYear = cursor.getInt(colYear),
-                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
+                            albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId)
+                                .toString(),
                             artistId = cursor.getLong(colArtistId),
                             artist = cursor.getString(colArtist)
                         )

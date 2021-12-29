@@ -50,7 +50,8 @@ internal class SharedPreferencesSettings @Inject constructor(
      * strong references to registered listeners, some may not be called due to being garbage collected.
      * Keeping registered listeners to this Set ensures that no references are lost.
      */
-    private val preferenceListeners = mutableSetOf<SharedPreferences.OnSharedPreferenceChangeListener>()
+    private val preferenceListeners =
+        mutableSetOf<SharedPreferences.OnSharedPreferenceChangeListener>()
 
     override val currentTheme: Flow<Settings.AppTheme>
         get() {
@@ -122,7 +123,8 @@ internal class SharedPreferencesSettings @Inject constructor(
 
     override var repeatMode: RepeatMode
         get() {
-            val repeatModeCode = preferences.get().getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
+            val repeatModeCode =
+                preferences.get().getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
             return RepeatMode.values().first { it.code == repeatModeCode }
         }
         set(mode) = preferences.get().edit()
