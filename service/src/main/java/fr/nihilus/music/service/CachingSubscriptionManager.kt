@@ -19,13 +19,13 @@ package fr.nihilus.music.service
 import androidx.collection.LruCache
 import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.flow.dematerialize
+import fr.nihilus.music.core.flow.materialize
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
 import fr.nihilus.music.service.browser.PaginationOptions
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -37,7 +37,6 @@ import javax.inject.Inject
  * @param serviceScope The lifecycle of the service that owns this manager.
  * @param tree The source of media metadata.
  */
-@OptIn(ObsoleteCoroutinesApi::class, FlowPreview::class)
 @ServiceScoped
 internal class CachingSubscriptionManager @Inject constructor(
     @ServiceCoroutineScope serviceScope: CoroutineScope,
@@ -45,7 +44,7 @@ internal class CachingSubscriptionManager @Inject constructor(
     private val dispatchers: AppDispatchers
 ) : SubscriptionManager {
 
-    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext[Job])
+    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext.job)
 
     private val mutex = Mutex()
     private val cachedSubscriptions = LruSubscriptionCache()
@@ -58,11 +57,12 @@ internal class CachingSubscriptionManager @Inject constructor(
         options: PaginationOptions?
     ): List<MediaContent> {
         val subscription = mutex.withLock {
-            cachedSubscriptions.get(parentId) ?: createSubscription(parentId)
+            cachedSubscriptions.get(parentId)
+                ?: createSubscription(parentId).also { cachedSubscriptions.put(parentId, it) }
         }
 
         try {
-            val children = subscription.consume { receive() }
+            val children = subscription.children.first()
             return applyPagination(children, options)
         } catch (failure: Exception) {
             cachedSubscriptions.remove(parentId)
@@ -87,21 +87,20 @@ internal class CachingSubscriptionManager @Inject constructor(
         }
     }
 
-    @Suppress("DEPRECATION_ERROR")
-    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaContent>> {
-        return tree.getChildren(parentId)
+    private fun createSubscription(parentId: MediaId): Subscription {
+        val subscriptionJob = Job(parent = scope.coroutineContext.job)
+        val liveChildren = tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
             .flowOn(dispatchers.Default)
-            .broadcastIn(scope)
-            .also { subscription ->
-                cachedSubscriptions.put(parentId, subscription)
-
-                subscription.asFlow()
-                    .drop(1)
-                    .catch { if (it !is Exception) throw it }
-                    .onEach { _updatedParentIds.emit(parentId) }
-                    .launchIn(scope)
-            }
+            .materialize()
+            .shareIn(scope + subscriptionJob, SharingStarted.Lazily, 1)
+            .dematerialize()
+        liveChildren
+            .drop(1)
+            .catch { if (it !is Exception) throw it }
+            .onEach { _updatedParentIds.emit(parentId) }
+            .launchIn(scope)
+        return Subscription(liveChildren, subscriptionJob)
     }
 
     override suspend fun getItem(itemId: MediaId): MediaContent? {
@@ -114,21 +113,24 @@ internal class CachingSubscriptionManager @Inject constructor(
         val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
 
         return if (parentSubscription != null) {
-            val children = parentSubscription.consume { receive() }
+            val children = parentSubscription.children.first()
             children.find { it.id == itemId }
         } else withContext(dispatchers.Default) {
             tree.getItem(itemId)
         }
     }
 
-    private class LruSubscriptionCache :
-        LruCache<MediaId, BroadcastChannel<List<MediaContent>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
-
+    private class LruSubscriptionCache : LruCache<MediaId, Subscription>(MAX_ACTIVE_SUBSCRIPTIONS) {
         override fun entryRemoved(
             evicted: Boolean,
             key: MediaId,
-            oldValue: BroadcastChannel<List<MediaContent>>,
-            newValue: BroadcastChannel<List<MediaContent>>?
-        ) = oldValue.cancel()
+            oldValue: Subscription,
+            newValue: Subscription?
+        ) = oldValue.consumeJob.cancel("Evicted from cache")
     }
 }
+
+private data class Subscription(
+    val children: Flow<List<MediaContent>>,
+    val consumeJob: Job
+)
