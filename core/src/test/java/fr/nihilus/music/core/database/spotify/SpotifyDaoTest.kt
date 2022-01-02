@@ -22,9 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.database.AppDatabase
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -40,22 +38,14 @@ internal class SpotifyDaoTest {
     private lateinit var database: AppDatabase
     private lateinit var dao: SpotifyDao
 
-    private val dispatcher = TestCoroutineDispatcher()
-
     @BeforeTest
     fun createDatabase() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         database = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
-            .setQueryExecutor(dispatcher.asExecutor())
             .allowMainThreadQueries()
             .build()
 
         dao = database.spotifyDao
-    }
-
-    @AfterTest
-    fun cleanupCoroutines() {
-        dispatcher.cleanupTestCoroutines()
     }
 
     @AfterTest
@@ -65,7 +55,7 @@ internal class SpotifyDaoTest {
 
     @Test
     @Ignore("Implementation has been fixed in another branch.")
-    fun `When deleting links, then also delete associated track features`() = dispatcher.runBlockingTest {
+    fun `When deleting links, then also delete associated track features`() = runTest {
         givenInitialLinksAndCorrespondingFeatures()
 
         dao.deleteLinks(longArrayOf(15L, 10L))

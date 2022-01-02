@@ -44,7 +44,8 @@ internal class CachingSubscriptionManager @Inject constructor(
     private val dispatchers: AppDispatchers
 ) : SubscriptionManager {
 
-    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext.job)
+    private val scope =
+        serviceScope + SupervisorJob(serviceScope.coroutineContext.job) + CoroutineName("SubscriptionSupervisor")
 
     private val mutex = Mutex()
     private val cachedSubscriptions = LruSubscriptionCache()
@@ -89,11 +90,13 @@ internal class CachingSubscriptionManager @Inject constructor(
 
     private fun createSubscription(parentId: MediaId): Subscription {
         val subscriptionJob = Job(parent = scope.coroutineContext.job)
+        val subscriptionScope = scope + subscriptionJob + CoroutineName("Subscription_$parentId")
+
         val liveChildren = tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
             .flowOn(dispatchers.Default)
             .materialize()
-            .shareIn(scope + subscriptionJob, SharingStarted.Lazily, 1)
+            .shareIn(subscriptionScope, SharingStarted.Lazily, 1)
             .dematerialize()
         liveChildren
             .drop(1)

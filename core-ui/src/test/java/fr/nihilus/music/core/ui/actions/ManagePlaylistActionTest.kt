@@ -44,7 +44,9 @@ import io.kotest.matchers.file.shouldContainFile
 import io.kotest.matchers.file.shouldNotBeEmpty
 import io.kotest.matchers.file.shouldNotExist
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
+import org.junit.rules.RuleChain
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import java.io.File
@@ -63,18 +65,19 @@ private val SAMPLE_PLAYLIST = Playlist(
 
 @RunWith(AndroidJUnit4::class)
 internal class ManagePlaylistActionTest {
+    private val test = CoroutineTestRule()
+    private val iconDir = TemporaryFolder()
 
     @get:Rule
-    val test = CoroutineTestRule()
-
-    @get:Rule
-    val iconDir = TemporaryFolder()
+    val rules: RuleChain = RuleChain
+        .outerRule(test)
+        .around(iconDir)
 
     private val clock = TestClock(TEST_TIME)
     private val dispatchers = AppDispatchers(test.dispatcher)
 
     @Test
-    fun `When creating a playlist without tracks then record it to PlaylistDao`() = test.run {
+    fun `When creating a playlist without tracks then record it to PlaylistDao`() = test {
         val dao = InMemoryPlaylistDao()
         val action = ManagePlaylistAction(dao)
 
@@ -92,7 +95,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When creating a playlist then generate and save its icon`() = test.run {
+    fun `When creating a playlist then generate and save its icon`() = test {
         val action = ManagePlaylistAction(InMemoryPlaylistDao())
 
         action.createPlaylist(NEW_PLAYLIST_NAME, emptyList())
@@ -104,7 +107,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `Given blank name, when creating a playlist then fail with IAE`() = test.run {
+    fun `Given blank name, when creating a playlist then fail with IAE`() = test {
         val action = ManagePlaylistAction(InMemoryPlaylistDao())
 
         shouldThrow<IllegalArgumentException> {
@@ -117,7 +120,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When creating a playlist with tracks then record them to PlaylistDao`() = test.run {
+    fun `When creating a playlist with tracks then record them to PlaylistDao`() = test {
         val dao = InMemoryPlaylistDao()
         val action = ManagePlaylistAction(dao)
 
@@ -142,7 +145,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When creating a playlist with non-track members them fail with IAE`() = test.run {
+    fun `When creating a playlist with non-track members them fail with IAE`() = test {
         val action = ManagePlaylistAction(InMemoryPlaylistDao())
 
         for (mediaId in invalidTrackIds()) {
@@ -156,7 +159,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When appending members then add tracks to that playlist`() = test.run {
+    fun `When appending members then add tracks to that playlist`() = test {
         val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
         val action = ManagePlaylistAction(dao)
 
@@ -175,7 +178,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `Given invalid target media id, when appending members then fail with IAE`() = test.run {
+    fun `Given invalid target media id, when appending members then fail with IAE`() = test {
         val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
         val action = ManagePlaylistAction(dao)
 
@@ -195,7 +198,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When deleting a playlist then remove corresponding record from PlaylistDao`() = test.run {
+    fun `When deleting a playlist then remove corresponding record from PlaylistDao`() = test {
         val dao = InMemoryPlaylistDao(
             initialPlaylists = listOf(SAMPLE_PLAYLIST),
             initialMembers = listOf(PlaylistTrack(SAMPLE_PLAYLIST.id, 16L))
@@ -209,7 +212,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `Given invalid playlist id, when deleting a playlist then fail with IAE`() = test.run {
+    fun `Given invalid playlist id, when deleting a playlist then fail with IAE`() = test {
         val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
         val action = ManagePlaylistAction(dao)
 
@@ -221,7 +224,7 @@ internal class ManagePlaylistActionTest {
     }
 
     @Test
-    fun `When deleting a playlist then delete its associated icon`() = test.run {
+    fun `When deleting a playlist then delete its associated icon`() = runTest {
         val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
         val existingIconFile = iconDir.newFile("zen.png")
         val action = ManagePlaylistAction(dao)

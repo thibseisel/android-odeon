@@ -19,7 +19,7 @@ moshi = "1.13.0"
 dagger = "2.40.3"
 kotest = "5.0.3"
 kotlin = "1.6.10"
-kotlinx-coroutines = "1.5.2"
+kotlinx-coroutines = "1.6.0"
 ktor = "1.6.7"
 turbine = "0.7.0"
 
