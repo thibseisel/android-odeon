@@ -20,51 +20,76 @@ import fr.nihilus.music.core.database.spotify.MusicalMode
 import fr.nihilus.music.core.database.spotify.Pitch
 import fr.nihilus.music.core.database.spotify.SpotifyLink
 import fr.nihilus.music.core.database.spotify.TrackFeature
-import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.provider.Track
 import io.kotest.assertions.extracting
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import org.junit.Rule
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 internal class SpotifyManagerTest {
-
-    @get:Rule
-    val test = CoroutineTestRule()
-
     private val clock = TestClock(123456789L)
 
     @Test
-    fun `Given no filter, when finding tracks by feature then only return linked tracks`() = test.run {
-        val repository = FakeMediaDao(
-            sampleTrack(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6),
-            sampleTrack(125, "Give It Up", "AC/DC", "Stiff Upper Lip", 12),
-            sampleTrack(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 1)
-        )
-
-        val localDao = FakeSpotifyDao(
-            links = listOf(
-                SpotifyLink(481, "EAzDgVCnoZnJZjIq1Bx4FW", 0),
-                SpotifyLink(75, "vJy3wp8BworPoz6o30oDxy", 0)
-            ),
-            features = listOf(
-                TrackFeature("EAzDgVCnoZnJZjIq1Bx4FW", Pitch.D, MusicalMode.MAJOR, 100f, 4, -13f, 0.04f, 0.2f, 0.7f, 0.1f, 0.2f, 0.08f, 0.75f),
-                TrackFeature("vJy3wp8BworPoz6o30oDxy", Pitch.A, MusicalMode.MINOR, 82f, 4, -8f, 0f, 0.4f, 0.9f, 0.1f, 0.1f, 0f, 0.3f)
+    fun `Given no filter, when finding tracks by feature then only return linked tracks`() =
+        runTest {
+            val repository = FakeMediaDao(
+                sampleTrack(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 6),
+                sampleTrack(125, "Give It Up", "AC/DC", "Stiff Upper Lip", 12),
+                sampleTrack(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 1)
             )
-        )
 
-        val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
+            val localDao = FakeSpotifyDao(
+                links = listOf(
+                    SpotifyLink(481, "EAzDgVCnoZnJZjIq1Bx4FW", 0),
+                    SpotifyLink(75, "vJy3wp8BworPoz6o30oDxy", 0)
+                ),
+                features = listOf(
+                    TrackFeature(
+                        id = "EAzDgVCnoZnJZjIq1Bx4FW",
+                        key = Pitch.D,
+                        mode = MusicalMode.MAJOR,
+                        tempo = 100f,
+                        signature = 4,
+                        loudness = -13f,
+                        acousticness = 0.04f,
+                        danceability = 0.2f,
+                        energy = 0.7f,
+                        instrumentalness = 0.1f,
+                        liveness = 0.2f,
+                        speechiness = 0.08f,
+                        valence = 0.75f
+                    ),
+                    TrackFeature(
+                        id = "vJy3wp8BworPoz6o30oDxy",
+                        key = Pitch.A,
+                        mode = MusicalMode.MINOR,
+                        tempo = 82f,
+                        signature = 4,
+                        loudness = -8f,
+                        acousticness = 0f,
+                        danceability = 0.4f,
+                        energy = 0.9f,
+                        instrumentalness = 0.1f,
+                        liveness = 0.1f,
+                        speechiness = 0f,
+                        valence = 0.3f
+                    )
+                )
+            )
 
-        val tracksIds = manager.findTracksHavingFeatures(emptyList()).map { (track, _) -> track.id }
-        tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
-    }
+            val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
+
+            val tracksIds =
+                manager.findTracksHavingFeatures(emptyList()).map { (track, _) -> track.id }
+            tracksIds.shouldContainExactlyInAnyOrder(481L, 75L)
+        }
 
     @Test
-    fun `When finding tracks by feature then only return tracks matching all filters`() = test.run {
+    fun `When finding tracks by feature then only return tracks matching all filters`() = runTest {
         val dMajorFilter = FeatureFilter.OnTone(Pitch.D, MusicalMode.MAJOR)
-        val moderatoFilter = FeatureFilter.OnRange(TrackFeature::tempo,88f, 112f)
+        val moderatoFilter = FeatureFilter.OnRange(TrackFeature::tempo, 88f, 112f)
         val happyFilter = FeatureFilter.OnRange(TrackFeature::valence, 0.6f, 1.0f)
 
         val repository = FakeMediaDao(
@@ -84,26 +109,98 @@ internal class SpotifyManagerTest {
                 SpotifyLink(5, "sF8v98pUor1SnL3s9Gaxev", 0)
             ),
             features = listOf(
-                TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
-                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f),
-                TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
-                TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f)
+                TrackFeature(
+                    id = "wRYMoiM19LRkOJt9PmbTaG",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 133f,
+                    signature = 4,
+                    loudness = -4f,
+                    acousticness = 0.1f,
+                    danceability = 0.8f,
+                    energy = 0.9f,
+                    instrumentalness = 0.1f,
+                    liveness = 0.2f,
+                    speechiness = 0f,
+                    valence = 0.8f
+                ),
+                TrackFeature(
+                    id = "ZEIul98mdUL4rFtTj6u0m5",
+                    key = Pitch.G,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 90f,
+                    signature = 4,
+                    loudness = -23f,
+                    acousticness = 0.8f,
+                    danceability = 0.4f,
+                    energy = 0.5f,
+                    instrumentalness = 0.2f,
+                    liveness = 0.3f,
+                    speechiness = 0f,
+                    valence = 0.6f
+                ),
+                TrackFeature(
+                    id = "oC6CfwQNurKxuDMAPFi4GC",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 101f,
+                    signature = 4,
+                    loudness = -12f,
+                    acousticness = 0f,
+                    danceability = 0.5f,
+                    energy = 0.7f,
+                    instrumentalness = 0f,
+                    liveness = 0f,
+                    speechiness = 0f,
+                    valence = 0.9f
+                ),
+                TrackFeature(
+                    id = "GMQwHtRCwNz1iljZIr8tIV",
+                    key = Pitch.B_FLAT,
+                    mode = MusicalMode.MINOR,
+                    tempo = 145f,
+                    signature = 4,
+                    loudness = -7f,
+                    acousticness = 0f,
+                    danceability = 0.4f,
+                    energy = 0.9f,
+                    instrumentalness = 0.3f,
+                    liveness = 0.1f,
+                    speechiness = 0.1f,
+                    valence = 0.2f
+                ),
+                TrackFeature(
+                    id = "sF8v98pUor1SnL3s9Gaxev",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 60f,
+                    signature = 4,
+                    loudness = -15f,
+                    acousticness = 0f,
+                    danceability = 0.2f,
+                    energy = 0.76f,
+                    instrumentalness = 0f,
+                    liveness = 0f,
+                    speechiness = 0f,
+                    valence = 0.4f
+                )
             )
         )
 
         val manager = SpotifyManagerImpl(repository, OfflineSpotifyService, localDao, clock)
 
-        val happyTrackIds = manager.findTracksHavingFeatures(listOf(happyFilter)).map { (track, _) -> track.id }
+        val happyTrackIds =
+            manager.findTracksHavingFeatures(listOf(happyFilter)).map { (track, _) -> track.id }
         happyTrackIds.shouldContainExactlyInAnyOrder(1L, 2L, 3L)
 
         val filters = listOf(dMajorFilter, moderatoFilter, happyFilter)
-        val happyModeratoDMajorTrackIds = manager.findTracksHavingFeatures(filters).map { (track, _) -> track.id }
+        val happyModeratoDMajorTrackIds =
+            manager.findTracksHavingFeatures(filters).map { (track, _) -> track.id }
         happyModeratoDMajorTrackIds.shouldContainExactlyInAnyOrder(3)
     }
 
     @Test
-    fun `When finding tracks by feature, then return tracks in the repository order`() = test.run {
+    fun `When finding tracks by feature, then return tracks in the repository order`() = runTest {
         val repository = FakeMediaDao(
             sampleTrack(3, "A", "B", "B", 2),
             sampleTrack(4, "B", "C", "C", 7),
@@ -121,11 +218,81 @@ internal class SpotifyManagerTest {
                 SpotifyLink(1, "wRYMoiM19LRkOJt9PmbTaG", 0)
             ),
             features = listOf(
-                TrackFeature("oC6CfwQNurKxuDMAPFi4GC", Pitch.D, MusicalMode.MAJOR, 101f, 4, -12f, 0f, 0.5f, 0.7f, 0f, 0f, 0f, 0.9f),
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
-                TrackFeature("wRYMoiM19LRkOJt9PmbTaG", Pitch.D, MusicalMode.MAJOR, 133f, 4, -4f, 0.1f, 0.8f, 0.9f, 0.1f, 0.2f, 0f, 0.8f),
-                TrackFeature("sF8v98pUor1SnL3s9Gaxev", Pitch.D, MusicalMode.MAJOR, 60f, 4, -15f, 0f, 0.2f, 0.76f, 0f, 0f, 0f, 0.4f),
-                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
+                TrackFeature(
+                    id = "oC6CfwQNurKxuDMAPFi4GC",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 101f,
+                    signature = 4,
+                    loudness = -12f,
+                    acousticness = 0f,
+                    danceability = 0.5f,
+                    energy = 0.7f,
+                    instrumentalness = 0f,
+                    liveness = 0f,
+                    speechiness = 0f,
+                    valence = 0.9f
+                ),
+                TrackFeature(
+                    id = "GMQwHtRCwNz1iljZIr8tIV",
+                    key = Pitch.B_FLAT,
+                    mode = MusicalMode.MINOR,
+                    tempo = 145f,
+                    signature = 4,
+                    loudness = -7f,
+                    acousticness = 0f,
+                    danceability = 0.4f,
+                    energy = 0.9f,
+                    instrumentalness = 0.3f,
+                    liveness = 0.1f,
+                    speechiness = 0.1f,
+                    valence = 0.2f
+                ),
+                TrackFeature(
+                    id = "wRYMoiM19LRkOJt9PmbTaG",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 133f,
+                    signature = 4,
+                    loudness = -4f,
+                    acousticness = 0.1f,
+                    danceability = 0.8f,
+                    energy = 0.9f,
+                    instrumentalness = 0.1f,
+                    liveness = 0.2f,
+                    speechiness = 0f,
+                    valence = 0.8f
+                ),
+                TrackFeature(
+                    id = "sF8v98pUor1SnL3s9Gaxev",
+                    key = Pitch.D,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 60f,
+                    signature = 4,
+                    loudness = -15f,
+                    acousticness = 0f,
+                    danceability = 0.2f,
+                    energy = 0.76f,
+                    instrumentalness = 0f,
+                    liveness = 0f,
+                    speechiness = 0f,
+                    valence = 0.4f
+                ),
+                TrackFeature(
+                    id = "ZEIul98mdUL4rFtTj6u0m5",
+                    key = Pitch.G,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 90f,
+                    signature = 4,
+                    loudness = -23f,
+                    acousticness = 0.8f,
+                    danceability = 0.4f,
+                    energy = 0.5f,
+                    instrumentalness = 0.2f,
+                    liveness = 0.3f,
+                    speechiness = 0f,
+                    valence = 0.6f
+                )
             )
         )
 
@@ -136,7 +303,7 @@ internal class SpotifyManagerTest {
     }
 
     @Test
-    fun `When listing unlinked tracks, then return tracks not mapped to Spotify`() = test.run {
+    fun `When listing unlinked tracks, then return tracks not mapped to Spotify`() = runTest {
         val dao = FakeMediaDao(
             sampleTrack(3, "A", "B", "B", 2),
             sampleTrack(4, "B", "C", "C", 7),
@@ -151,8 +318,36 @@ internal class SpotifyManagerTest {
                 SpotifyLink(4, "GMQwHtRCwNz1iljZIr8tIV", 0)
             ),
             features = listOf(
-                TrackFeature("GMQwHtRCwNz1iljZIr8tIV", Pitch.B_FLAT, MusicalMode.MINOR, 145f, 4, -7f, 0f, 0.4f, 0.9f, 0.3f, 0.1f, 0.1f, 0.2f),
-                TrackFeature("ZEIul98mdUL4rFtTj6u0m5", Pitch.G, MusicalMode.MAJOR, 90f, 4, -23f, 0.8f, 0.4f, 0.5f, 0.2f, 0.3f, 0f, 0.6f)
+                TrackFeature(
+                    id = "GMQwHtRCwNz1iljZIr8tIV",
+                    key = Pitch.B_FLAT,
+                    mode = MusicalMode.MINOR,
+                    tempo = 145f,
+                    signature = 4,
+                    loudness = -7f,
+                    acousticness = 0f,
+                    danceability = 0.4f,
+                    energy = 0.9f,
+                    instrumentalness = 0.3f,
+                    liveness = 0.1f,
+                    speechiness = 0.1f,
+                    valence = 0.2f
+                ),
+                TrackFeature(
+                    id = "ZEIul98mdUL4rFtTj6u0m5",
+                    key = Pitch.G,
+                    mode = MusicalMode.MAJOR,
+                    tempo = 90f,
+                    signature = 4,
+                    loudness = -23f,
+                    acousticness = 0.8f,
+                    danceability = 0.4f,
+                    energy = 0.5f,
+                    instrumentalness = 0.2f,
+                    liveness = 0.3f,
+                    speechiness = 0f,
+                    valence = 0.6f
+                )
             )
         )
 
@@ -169,5 +364,6 @@ internal class SpotifyManagerTest {
         album: String,
         trackNumber: Int,
         discNumber: Int = 1
-    ): Track = Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)
+    ): Track =
+        Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)
 }

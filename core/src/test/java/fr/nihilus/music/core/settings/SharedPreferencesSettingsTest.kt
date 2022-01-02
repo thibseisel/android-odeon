@@ -30,7 +30,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.playback.RepeatMode
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import javax.inject.Provider
@@ -205,20 +205,21 @@ class SharedPreferencesSettingsTest {
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.P])
-    fun `When running API 28 or earlier, then the default theme should be BATTERY_SAVER`() = runBlockingTest {
-        val settings = SharedPreferencesSettings(context, providerOf(prefs))
-        settings.currentTheme.first() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
-    }
+    fun `When running API 28 or earlier, then the default theme should be BATTERY_SAVER`() =
+        runTest {
+            val settings = SharedPreferencesSettings(context, providerOf(prefs))
+            settings.currentTheme.first() shouldBe Settings.AppTheme.BATTERY_SAVER_ONLY
+        }
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.Q)
-    fun `When running API 29+, then the default theme should be SYSTEM`() = runBlockingTest {
+    fun `When running API 29+, then the default theme should be SYSTEM`() = runTest {
         val settings = SharedPreferencesSettings(context, providerOf(prefs))
         settings.currentTheme.first() shouldBe Settings.AppTheme.SYSTEM
     }
 
     @Test
-    fun `When observing currentTheme then emit the latest saved value`() = runBlockingTest {
+    fun `When observing currentTheme then emit the latest saved value`() = runTest {
         val themePrefKey = context.getString(R.string.pref_key_theme)
         prefs.edit().putString(themePrefKey, "light").commit()
 

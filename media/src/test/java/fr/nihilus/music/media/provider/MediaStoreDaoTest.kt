@@ -43,6 +43,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.TestScope
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.AfterTest
@@ -69,22 +70,24 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `Given denied read permission, when collecting any flow then fail with PermissionDeniedException`() = test.run {
-        val dao = MediaDao(permissions = DeniedPermission)
+    fun `Given denied read permission, when collecting any flow then fail with PermissionDeniedException`() =
+        test {
+            val dao = MediaDao(permissions = DeniedPermission)
 
-        dao.tracks.shouldFailDueToMissingExternalStorageReadPermission()
-        dao.albums.shouldFailDueToMissingExternalStorageReadPermission()
-        dao.artists.shouldFailDueToMissingExternalStorageReadPermission()
-    }
+            shouldFailDueToMissingExternalStorageReadPermission(dao.tracks)
+            shouldFailDueToMissingExternalStorageReadPermission(dao.albums)
+            shouldFailDueToMissingExternalStorageReadPermission(dao.artists)
+        }
 
-    private suspend fun Flow<List<*>>.shouldFailDueToMissingExternalStorageReadPermission() = test {
-        val exception = awaitError()
-        exception.shouldBeInstanceOf<PermissionDeniedException>()
-        exception.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
-    }
+    private suspend fun shouldFailDueToMissingExternalStorageReadPermission(flow: Flow<List<*>>) =
+        flow.test {
+            val exception = this.awaitError()
+            exception.shouldBeInstanceOf<PermissionDeniedException>()
+            exception.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
+        }
 
     @Test
-    fun `Given failing MediaStore, when collecting any flow then emit an empty list`() = test.run {
+    fun `Given failing MediaStore, when collecting any flow then emit an empty list`() = test {
         val failingDao = MediaDao(store = FailingMediaStore)
 
         failingDao.tracks.first().shouldBeEmpty()
@@ -93,16 +96,28 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying tracks, then list them all in alphabetic order`() = test.run {
+    fun `When querying tracks, then list them all in alphabetic order`() = test {
         val dao = MediaDao()
         val tracks = dao.tracks.first()
 
         val trackIds = tracks.map { it.id }
-        trackIds.shouldContainExactly(161L, 309L, 865L, 481L, 48L, 125L, 294L, 219L, 75L, 464L, 477L)
+        trackIds.shouldContainExactly(
+            161L,
+            309L,
+            865L,
+            481L,
+            48L,
+            125L,
+            294L,
+            219L,
+            75L,
+            464L,
+            477L
+        )
     }
 
     @Test
-    fun `When collecting tracks, then map cursor columns to a list of Track`() = test.run {
+    fun `When collecting tracks, then map cursor columns to a list of Track`() = test {
         val dao = MediaDao()
         val tracks = dao.tracks.first()
 
@@ -146,7 +161,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying tracks, then its album art uri is that of its album`() = test.run {
+    fun `When querying tracks, then its album art uri is that of its album`() = test {
         val dao = MediaDao()
         val tracks = dao.tracks.first().takeIf { it.isNotEmpty() }
             ?: failAssumption("Expected to have tracks but was empty.")
@@ -156,7 +171,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying albums, then list them all in alphabetic order`() = test.run {
+    fun `When querying albums, then list them all in alphabetic order`() = test {
         val dao = MediaDao()
 
         val albums = dao.albums.first()
@@ -166,7 +181,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying albums, then map cursor columns to a list of Album`() = test.run {
+    fun `When querying albums, then map cursor columns to a list of Album`() = test {
         val dao = MediaDao()
         val albums = dao.albums.first()
 
@@ -182,7 +197,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying artists, then list them all in alphabetic order`() = test.run {
+    fun `When querying artists, then list them all in alphabetic order`() = test {
         val dao = MediaDao()
 
         val artists = dao.artists.first()
@@ -192,7 +207,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying artists, then map cursor columns to a list of Artist`() = test.run {
+    fun `When querying artists, then map cursor columns to a list of Artist`() = test {
         val dao = MediaDao()
         val artists = dao.artists.first()
 
@@ -205,21 +220,23 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When querying artists, then its icon should be that of its most recent album`() = test.run {
+    fun `When querying artists, then its icon should be that of its most recent album`() = test {
         val dao = MediaDao()
         val artists = dao.artists.first()
 
         // Alestorm only have one album here ; its icon should be that of that album
-        val alestorm = artists.find { it.id == 26L } ?: failAssumption("Alestorm is missing (id = 26)")
+        val alestorm =
+            artists.find { it.id == 26L } ?: failAssumption("Alestorm is missing (id = 26)")
         alestorm.iconUri shouldBe "content://media/external/audio/albumart/65"
 
         // Foo Fighters have 3 albums, use the icon of "Concrete and Gold"
-        val fooFighters = artists.find { it.id == 13L } ?: failAssumption("Foo Fighters is missing (id = 13)")
+        val fooFighters =
+            artists.find { it.id == 13L } ?: failAssumption("Foo Fighters is missing (id = 13)")
         fooFighters.iconUri shouldBe "content://media/external/audio/albumart/102"
     }
 
     @Test
-    fun `While collecting from any flow, then register ContentObserver for each`() = test.run {
+    fun `While collecting from any flow, then register ContentObserver for each`() = test {
         val dao = MediaDao()
 
         dao.tracks.shouldRegisterAnObserverFor(Media.EXTERNAL_CONTENT_URI)
@@ -247,56 +264,64 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `Given any flow, when content changed then reload media list`() = test.run {
+    fun `Given any flow, when content changed then reload media list`() = test {
         val dao = MediaDao()
 
-        dao.tracks.shouldEmitWheneverContentChanged()
-        dao.albums.shouldEmitWheneverContentChanged()
-        dao.artists.shouldEmitWheneverContentChanged()
+        flowShouldEmitWheneverContentChanges(dao.tracks)
+        flowShouldEmitWheneverContentChanges(dao.albums)
+        flowShouldEmitWheneverContentChanges(dao.artists)
     }
 
-    private suspend fun Flow<List<*>>.shouldEmitWheneverContentChanged() = drop(1).test {
-        val registeredObservers = fakeMediaStore.observers.takeUnless { it.isEmpty() }
-            ?: failAssumption("Assumed at least one ContentObserver to be registered.")
-        registeredObservers.forEach { it.observer.onChange(false, null) }
+    private suspend fun TestScope.flowShouldEmitWheneverContentChanges(flow: Flow<List<*>>) =
+        flow.drop(1).test {
+            // Simulate a slight delay before triggering change
+            testScheduler.runCurrent()
 
-        awaitItem()
-        expectNoEvents()
-    }
-
-    // TODO Test doesn't pass due to being unable to cancel a running query.
-    fun `Given any flow, when content changed multiple time quickly then only emit once`() = test.run {
-        val dao = MediaDao()
-
-        dao.tracks.shouldConflateConsecutiveChanges()
-        dao.albums.shouldConflateConsecutiveChanges()
-        dao.artists.shouldConflateConsecutiveChanges()
-    }
-
-    private suspend fun Flow<List<*>>.shouldConflateConsecutiveChanges() = drop(1).test {
-        val registeredObservers = fakeMediaStore.observers.takeUnless { it.isEmpty() }
-            ?: failAssumption("Assumed at least one ContentObserver to be registered.")
-
-        repeat(2) {
+            val registeredObservers = fakeMediaStore.observers.takeUnless { it.isEmpty() }
+                ?: failAssumption("Assumed at least one ContentObserver to be registered.")
             registeredObservers.forEach { it.observer.onChange(false, null) }
+
+            awaitItem()
+            expectNoEvents()
         }
 
-        awaitItem()
-        expectNoEvents()
+    @Test
+    //@Ignore("Test doesn't pass due to being unable to cancel a running query")
+    fun `Given any flow, when content changed multiple time quickly then only emit once`() = test {
+        val dao = MediaDao()
+
+        shouldConflateFlowConsecutiveChanges(dao.tracks)
+        shouldConflateFlowConsecutiveChanges(dao.albums)
+        shouldConflateFlowConsecutiveChanges(dao.artists)
     }
 
-    @Test
-    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() = test.run {
-        val dao = MediaDao(permissions = DeniedPermission)
-        val exception = shouldThrow<PermissionDeniedException> {
-            dao.deleteTracks(longArrayOf(161, 309))
+    private suspend fun TestScope.shouldConflateFlowConsecutiveChanges(flow: Flow<List<*>>) =
+        flow.drop(1).test {
+            testScheduler.runCurrent()
+
+            val registeredObservers = fakeMediaStore.observers.takeUnless { it.isEmpty() }
+                ?: failAssumption("Assumed at least one ContentObserver to be registered.")
+            repeat(2) {
+                registeredObservers.forEach { it.observer.onChange(false, null) }
+            }
+
+            awaitItem()
+            expectNoEvents()
         }
 
-        exception.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
-    }
+    @Test
+    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() =
+        test {
+            val dao = MediaDao(permissions = DeniedPermission)
+            val exception = shouldThrow<PermissionDeniedException> {
+                dao.deleteTracks(longArrayOf(161, 309))
+            }
+
+            exception.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
+        }
 
     @Test
-    fun `When deleting a track, then also delete the corresponding file`() = test.run {
+    fun `When deleting a track, then also delete the corresponding file`() = test {
         val simulatedFileSystem = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
         val dao = MediaDao(fs = simulatedFileSystem)
 
@@ -306,7 +331,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When a track file is deleted, then delete its metadata from MediaStore`() = test.run {
+    fun `When a track file is deleted, then delete its metadata from MediaStore`() = test {
         val dao = MediaDao(
             fs = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
         )
@@ -317,14 +342,15 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `When a track file cannot be deleted, then do not delete its metadata from MediaStore`() = test.run {
-        // Files doesn't exists, so deleting them will fail.
-        val dao = MediaDao(fs = SimulatedFileSystem())
+    fun `When a track file cannot be deleted, then do not delete its metadata from MediaStore`() =
+        test {
+            // Files doesn't exists, so deleting them will fail.
+            val dao = MediaDao(fs = SimulatedFileSystem())
 
-        dao.deleteTracks(longArrayOf(161L))
+            dao.deleteTracks(longArrayOf(161L))
 
-        fakeMediaStore.mediaExists(161L) shouldBe true
-    }
+            fakeMediaStore.mediaExists(161L) shouldBe true
+        }
 
     private fun MediaDao(
         store: MediaStoreDatabase = fakeMediaStore,

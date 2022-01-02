@@ -27,11 +27,13 @@ import fr.nihilus.music.media.provider.Album
 import fr.nihilus.music.media.provider.Artist
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.Track
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.plus
 import javax.inject.Inject
 
 /**
@@ -52,7 +54,7 @@ internal class RestrictedMediaDao @Inject constructor(
             tracks.filterNot { it.id in excludedTrackIds }
         }
             .materialize()
-            .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
+            .shareIn(scope + CoroutineName("TracksShare"), SharingStarted.WhileSubscribed(), 1)
             .dematerialize()
 
     override val albums: Flow<List<Album>>

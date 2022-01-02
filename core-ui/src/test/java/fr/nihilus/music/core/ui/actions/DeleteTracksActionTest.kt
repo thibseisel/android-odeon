@@ -24,27 +24,166 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.provider.Track
 import io.kotest.assertions.extracting
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.first
-import org.junit.Rule
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 private val SAMPLE_TRACKS = listOf(
-    Track(161, "1741 (The Battle of Cartagena)", "Alestorm", "Sunset on the Golden Age", 437603, 1, 4, "", null, 1466283480, 26, 65, 17_506_481),
-    Track(309, "The 2nd Law: Isolated System", "Muse", "The 2nd Law", 300042, 1, 13, "", null, 1439653800, 18, 40, 12_075_967),
-    Track(481, "Dirty Water", "Foo Fighters", "Concrete and Gold", 320914, 1, 6, "", null, 1506374520, 13, 102, 12_912_282),
-    Track(48, "Give It Up", "AC/DC", "Greatest Hits 30 Anniversary Edition", 233592, 1, 19, "", null, 1455310080, 5, 7, 5_716_578),
-    Track(125, "Jailbreak", "AC/DC", "Greatest Hits 30 Anniversary Edition", 276668, 2, 14, "", null, 1455310140, 5, 7, 6_750_404),
-    Track(294, "Knights of Cydonia", "Muse", "Black Holes and Revelations", 366946, 1, 11, "", null, 1414880700, 18, 38, 11_746_572),
-    Track(219, "A Matter of Time", "Foo Fighters", "Wasting Light", 276140, 1, 8, "", null, 1360677660, 13, 26, 11_149_678),
-    Track(75, "Nightmare", "Avenged Sevenfold", "Nightmare", 374648, 1, 1, "", null, 1439590380, 4, 6, 10_828_662),
-    Track(464, "The Pretenders", "Foo Fighters", "Echoes, Silence, Patience & Grace", 266509, 1, 1, "", null, 1439653740, 13, 95, 4_296_041),
-    Track(477, "Run", "Foo Fighters", "Concrete and Gold", 323424, 1, 2, "", null, 1506374520, 13, 102, 13_012_576)
+    Track(
+        161,
+        "1741 (The Battle of Cartagena)",
+        "Alestorm",
+        "Sunset on the Golden Age",
+        437603,
+        1,
+        4,
+        "",
+        null,
+        1466283480,
+        26,
+        65,
+        17_506_481
+    ),
+    Track(
+        309,
+        "The 2nd Law: Isolated System",
+        "Muse",
+        "The 2nd Law",
+        300042,
+        1,
+        13,
+        "",
+        null,
+        1439653800,
+        18,
+        40,
+        12_075_967
+    ),
+    Track(
+        481,
+        "Dirty Water",
+        "Foo Fighters",
+        "Concrete and Gold",
+        320914,
+        1,
+        6,
+        "",
+        null,
+        1506374520,
+        13,
+        102,
+        12_912_282
+    ),
+    Track(
+        48,
+        "Give It Up",
+        "AC/DC",
+        "Greatest Hits 30 Anniversary Edition",
+        233592,
+        1,
+        19,
+        "",
+        null,
+        1455310080,
+        5,
+        7,
+        5_716_578
+    ),
+    Track(
+        125,
+        "Jailbreak",
+        "AC/DC",
+        "Greatest Hits 30 Anniversary Edition",
+        276668,
+        2,
+        14,
+        "",
+        null,
+        1455310140,
+        5,
+        7,
+        6_750_404
+    ),
+    Track(
+        294,
+        "Knights of Cydonia",
+        "Muse",
+        "Black Holes and Revelations",
+        366946,
+        1,
+        11,
+        "",
+        null,
+        1414880700,
+        18,
+        38,
+        11_746_572
+    ),
+    Track(
+        219,
+        "A Matter of Time",
+        "Foo Fighters",
+        "Wasting Light",
+        276140,
+        1,
+        8,
+        "",
+        null,
+        1360677660,
+        13,
+        26,
+        11_149_678
+    ),
+    Track(
+        75,
+        "Nightmare",
+        "Avenged Sevenfold",
+        "Nightmare",
+        374648,
+        1,
+        1,
+        "",
+        null,
+        1439590380,
+        4,
+        6,
+        10_828_662
+    ),
+    Track(
+        464,
+        "The Pretenders",
+        "Foo Fighters",
+        "Echoes, Silence, Patience & Grace",
+        266509,
+        1,
+        1,
+        "",
+        null,
+        1439653740,
+        13,
+        95,
+        4_296_041
+    ),
+    Track(
+        477,
+        "Run",
+        "Foo Fighters",
+        "Concrete and Gold",
+        323424,
+        1,
+        2,
+        "",
+        null,
+        1506374520,
+        13,
+        102,
+        13_012_576
+    )
 )
 
 /**
@@ -52,11 +191,8 @@ private val SAMPLE_TRACKS = listOf(
  */
 internal class DeleteTracksActionTest {
 
-    @get:Rule
-    val test = CoroutineTestRule()
-
     @Test
-    fun `Given invalid track media ids, when deleting then fail with IAE`() = test.run {
+    fun `Given invalid track media ids, when deleting then fail with IAE`() = runTest {
         val dao = InMemoryTrackDao()
         val action = DeleteTracksAction(dao)
 
@@ -75,7 +211,7 @@ internal class DeleteTracksActionTest {
     }
 
     @Test
-    fun `When deleting tracks then remove records from dao`() = test.run {
+    fun `When deleting tracks then remove records from dao`() = runTest {
         val dao = InMemoryTrackDao(initial = SAMPLE_TRACKS)
         val action = DeleteTracksAction(dao)
 
@@ -100,19 +236,20 @@ internal class DeleteTracksActionTest {
     }
 
     @Test
-    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() = test.run {
-        val deniedDao = InMemoryTrackDao(permissionGranted = false)
-        val action = DeleteTracksAction(deniedDao)
+    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() =
+        runTest {
+            val deniedDao = InMemoryTrackDao(permissionGranted = false)
+            val action = DeleteTracksAction(deniedDao)
 
-        val targetTrackIds = listOf(
-            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
-            MediaId(TYPE_TRACKS, CATEGORY_ALL, 464)
-        )
+            val targetTrackIds = listOf(
+                MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+                MediaId(TYPE_TRACKS, CATEGORY_ALL, 464)
+            )
 
-        val permissionFailure = shouldThrow<PermissionDeniedException> {
-            action.delete(targetTrackIds)
+            val permissionFailure = shouldThrow<PermissionDeniedException> {
+                action.delete(targetTrackIds)
+            }
+
+            permissionFailure.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
         }
-
-        permissionFailure.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
-    }
 }

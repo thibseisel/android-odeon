@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.rules.TestRule
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.*
+import org.junit.rules.TestWatcher
 import org.junit.runner.Description
-import org.junit.runners.model.Statement
+
+private const val TEST_TIMEOUT = 5_000L
 
 /**
  * A JUnit Rule for running tests that use Kotlin Coroutines.
@@ -34,39 +34,56 @@ import org.junit.runners.model.Statement
  *    val test = CoroutineTestRule()
  *
  *    @Test
- *    fun `Check happy path`() = test.run {
+ *    fun `Check happy path`() = test {
  *        // This test body can now run suspend functions.
  *    }
  * }
  * ```
  */
-class CoroutineTestRule : TestRule {
+class CoroutineTestRule : TestWatcher() {
+    private val scope = TestScope()
+
+    val dispatcher: TestDispatcher = StandardTestDispatcher(scope.testScheduler)
+
+    operator fun invoke(testBody: suspend TestScope.() -> Unit) = run(testBody)
+
+    fun run(block: suspend TestScope.() -> Unit) = scope.runTest(TEST_TIMEOUT, testBody = block)
 
     /**
-     * The dispatcher used for immediate execution of coroutines in test.
-     * Use this dispatcher to virtually advance time or pause the immediate execution of coroutines.
-     */
-    val dispatcher = TestCoroutineDispatcher()
-
-    /**
-     * Executes a [testBody] inside an immediate execution dispatcher.
-     * This a convenience function over `dispatcher.runBlockingTest`.
+     * Runs a test within a child [CoroutineScope]. That scope is cancelled after [testBody] is run.
      *
-     * @param testBody The code of the unit test.
+     * This may be necessary when the test subject has a dependency on [CoroutineScope].
+     * Since the test subject may launch coroutines tied to that scope, we want those coroutines
+     * to be cancelled after executing the test ; otherwise the test would hang forever,
+     * waiting for those coroutines to terminate.
      *
-     * @see runBlockingTest
+     * ```kotlin
+     * @Test myTest() = test.runWithin { scope ->
+     *   val subject = ClassUnderTest(scope)
+     *   val result = subject.doSomething()
+     *   assertEquals(expected, result)
+     * }
+     * ```
+     *
+     * @param testBody Test block. Unlike [run], the test lambda receives a parameter that's
+     * the [CoroutineScope] to be injected into the test subject.
      */
-    fun run(
-        testBody: suspend TestCoroutineScope.() -> Unit
-    ) = dispatcher.runBlockingTest(testBody)
-
-    override fun apply(base: Statement, description: Description?): Statement = object : Statement() {
-        override fun evaluate() {
-            try {
-                base.evaluate()
-            } finally {
-                dispatcher.cleanupTestCoroutines()
-            }
+    fun runWithin(testBody: suspend TestScope.(childScope: CoroutineScope) -> Unit) = run {
+        launch(CoroutineName("runWithinScope")) {
+            testBody(this)
+            coroutineContext.cancelChildren(
+                CancellationException("Reached end of test body of runWithinScope")
+            )
         }
+    }
+
+    override fun starting(description: Description?) {
+        super.starting(description)
+        Dispatchers.setMain(dispatcher)
+    }
+
+    override fun finished(description: Description?) {
+        super.finished(description)
+        Dispatchers.resetMain()
     }
 }
