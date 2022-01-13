@@ -17,11 +17,7 @@
 package fr.nihilus.music.core.ui.actions
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.net.Uri
-import com.github.thibseisel.kdenticon.Identicon
-import com.github.thibseisel.kdenticon.IdenticonStyle
-import com.github.thibseisel.kdenticon.android.drawToBitmap
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistDao
@@ -31,6 +27,10 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.core.os.IconContentUri
 import fr.nihilus.music.core.os.PlaylistIconDir
+import io.github.thibseisel.identikon.Identicon
+import io.github.thibseisel.identikon.IdenticonStyle
+import io.github.thibseisel.identikon.drawToBitmap
+import io.github.thibseisel.identikon.rendering.Color
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
@@ -125,33 +125,37 @@ class ManagePlaylistAction @Inject constructor(
         }
     }
 
-    private suspend fun generatePlaylistIcon(playlistName: String): Uri? = withContext(dispatchers.Default) {
-        val iconSpec = Identicon.fromValue(playlistName, ICON_SIZE_PX).apply {
-            style = IdenticonStyle(
-                backgroundColor = Color.TRANSPARENT,
-                padding = 0f
+    private suspend fun generatePlaylistIcon(playlistName: String): Uri? =
+        withContext(dispatchers.Default) {
+            val iconSpec = Identicon.fromValue(
+                playlistName,
+                ICON_SIZE_PX,
+                IdenticonStyle(
+                    backgroundColor = Color.hex(0x00000000u),
+                    padding = 0f
+                )
             )
-        }
 
-        val iconBitmap = Bitmap.createBitmap(ICON_SIZE_PX, ICON_SIZE_PX, Bitmap.Config.ARGB_8888)
-        iconSpec.drawToBitmap(iconBitmap)
+            val iconBitmap =
+                Bitmap.createBitmap(ICON_SIZE_PX, ICON_SIZE_PX, Bitmap.Config.ARGB_8888)
+            iconSpec.drawToBitmap(iconBitmap)
 
-        // Sanitize playlist name to make a filename without spaces
-        val iconFilename = playlistName.replace(reWhitespaces, "_") + ".png"
+            // Sanitize playlist name to make a filename without spaces
+            val iconFilename = playlistName.replace(reWhitespaces, "_") + ".png"
 
-        withContext(dispatchers.IO) {
-            val iconDir = iconDir.get()
-            check(iconDir.exists() || iconDir.mkdirs()) {
-                "Unable to create playlist icon directory"
+            withContext(dispatchers.IO) {
+                val iconDir = iconDir.get()
+                check(iconDir.exists() || iconDir.mkdirs()) {
+                    "Unable to create playlist icon directory"
+                }
+                val iconFile = File(iconDir, iconFilename)
+                iconFile.outputStream().use {
+                    iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
             }
-            val iconFile = File(iconDir, iconFilename)
-            iconFile.outputStream().use {
-                iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-            }
-        }
 
-        Uri.withAppendedPath(baseIconUri, iconFilename)
-    }
+            Uri.withAppendedPath(baseIconUri, iconFilename)
+        }
 
     private fun requirePlaylistId(playlist: MediaId): Long {
         val playlistId = playlist.category?.toLongOrNull()

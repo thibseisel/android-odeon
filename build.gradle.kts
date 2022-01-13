@@ -44,7 +44,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     tasks.register("configurations") {

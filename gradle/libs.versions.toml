@@ -68,7 +68,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagge
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger" }
 
-kdenticon-android = "com.github.thibseisel:kdenticon-android:1.0.0-alpha5"
+identikon = "io.github.thibseisel.identikon:identikon-android:1.0.0"
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 

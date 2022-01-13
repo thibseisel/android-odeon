@@ -53,7 +53,7 @@ dependencies {
     // Material Components
     api(libs.material)
 
-    implementation(libs.kdenticon.android)
+    implementation(libs.identikon)
 
     // Hilt
     kapt(libs.hilt.compiler)
