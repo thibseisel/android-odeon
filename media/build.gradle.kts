@@ -52,15 +52,8 @@ dependencies {
     testImplementation(libs.androidx.room)
 }
 
-tasks.register<Exec>("refreshMediaStore") {
+tasks.register<odeon.tasks.RefreshMediaStore>("refreshMediaStore") {
     group = "emulator"
-    description = "Scan device's Music folder for files to refresh MediaStore"
-
-    val mediaScannerCommand = """
-        "find /storage/emulated/0/Music/ -type f | while read f; do \
-        am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
-        -d \"file://${'$'}{f}\"; done"
-    """.trimIndent()
-    executable = "adb"
-    args("shell", mediaScannerCommand)
+    description = "Scan the connected device's Music folder for files to refresh MediaStore."
+    adbPath.set(androidComponents.sdkComponents.adb)
 }
