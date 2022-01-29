@@ -22,11 +22,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
     dependencies {
         classpath(libs.plugin.android)
         classpath(libs.plugin.kotlin)
@@ -35,17 +30,12 @@ buildscript {
     }
 }
 
-@Suppress("DSL_SCOPE_VIOLATION")
+@Suppress("DSL_SCOPE_VIOLATION", "UnstableApiUsage")
 plugins {
     alias(libs.plugins.dependencyupdates)
 }
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-
     tasks.register("configurations") {
         group = "help"
         description = "Display build configurations declared in project ':${this@allprojects.name}'"

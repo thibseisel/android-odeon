@@ -1,5 +1,5 @@
 [versions]
-android-gradle = "7.0.4"
+android-gradle = "7.1.0"
 androidx-fragment = "1.3.6"
 androidx-hilt = "1.0.0"
 androidx-lifecycle = "2.3.1"
@@ -24,6 +24,10 @@ ktor = "1.6.7"
 turbine = "0.7.0"
 
 [plugins]
+android-application = { id = "com.android.application", version.ref = "android.gradle" }
+android-library = { id = "com.android.library", version.ref = "android.gradle" }
+androidx-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "androidx.navigation" }
+dagger-hilt = { id = "dagger.hilt.android.plugin", version.ref = "dagger" }
 dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.39.0" }
 
 [libraries]
