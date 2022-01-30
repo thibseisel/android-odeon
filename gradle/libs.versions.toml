@@ -16,7 +16,7 @@ exoplayer = "2.14.2"
 material = "1.4.0"
 mockk = "1.12.1"
 moshi = "1.13.0"
-dagger = "2.40.3"
+dagger = "2.40.5"
 kotest = "5.0.3"
 kotlin = "1.6.10"
 kotlinx-coroutines = "1.6.0"
@@ -24,10 +24,6 @@ ktor = "1.6.7"
 turbine = "0.7.0"
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "android.gradle" }
-android-library = { id = "com.android.library", version.ref = "android.gradle" }
-androidx-navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "androidx.navigation" }
-dagger-hilt = { id = "dagger.hilt.android.plugin", version.ref = "dagger" }
 dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.39.0" }
 
 [libraries]

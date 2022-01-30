@@ -26,4 +26,6 @@ repositories {
 dependencies {
     implementation(libs.plugin.android)
     implementation(libs.plugin.kotlin)
+    implementation(libs.plugin.hilt)
+    implementation(libs.plugin.androidx.navigation.safeargs)
 }
