@@ -18,15 +18,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <plurals name="deleted_songs_confirmation">
         <item quantity="one" tools:ignore="ImpliedQuantity">Ce morceau a été supprimé.</item>
-        <item quantity="other">Ces morceaux ont été supprimés.</item>
+        <item quantity="many">Ces morceaux ont été supprimés.</item>
     </plurals>
     <plurals name="number_of_tracks">
         <item quantity="one">%d morceau</item>
-        <item quantity="other">%d morceaux</item>
+        <item quantity="many">%d morceaux</item>
     </plurals>
 
     <plurals name="tracks_added_to_playlist">
         <item quantity="one">%1$d titre ajouté à la playlist \"%2$s\"</item>
-        <item quantity="other">%1$d titres ajoutés à la playlist \"%2$s\"</item>
+        <item quantity="many">%1$d titres ajoutés à la playlist \"%2$s\"</item>
     </plurals>
 </resources>
