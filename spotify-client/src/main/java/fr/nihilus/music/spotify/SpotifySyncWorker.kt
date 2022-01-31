@@ -34,7 +34,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import timber.log.Timber
 
