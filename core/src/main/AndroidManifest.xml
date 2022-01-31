@@ -38,5 +38,15 @@
             android:foregroundServiceType="dataSync"
             tools:node="merge"
             tools:ignore="Instantiatable" />
+
+        <!--
+            Remove the default WorkManager initializer.
+            WorkManager will be initialized at application startup instead.
+            This is required to inject dependencies into Workers with Dagger.
+            -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            tools:node="remove" />
     </application>
 </manifest>

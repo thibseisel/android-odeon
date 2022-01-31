@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="fr.nihilus.music"
     android:installLocation="auto">
 
@@ -75,17 +74,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
-        <!--
-            Remove the default WorkManager initializer.
-            WorkManager will be initialized at application startup instead.
-            This is required to inject dependencies into Workers with Dagger.
-            -->
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:exported="false"
-            tools:node="remove" />
     </application>
 
 </manifest>
