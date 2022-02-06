@@ -13,3 +13,6 @@ mappings
 # General
 .DS_Store
 .externalNativeBuild
+
+# JVM failure logs
+*.log
