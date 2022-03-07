@@ -18,31 +18,24 @@ package fr.nihilus.music
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.core.os.RuntimePermissions
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.databinding.ActivityHomeBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.ui.EXTERNAL_STORAGE_REQUEST
-import fr.nihilus.music.ui.requestExternalStoragePermission
 import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeActivity : BaseActivity() {
-
-    @Inject lateinit var permissions: RuntimePermissions
-
     private val viewModel: MusicLibraryViewModel by viewModels()
 
     private lateinit var binding: ActivityHomeBinding
@@ -50,6 +43,28 @@ class HomeActivity : BaseActivity() {
     private lateinit var playerFragment: NowPlayingFragment
 
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
+
+    private val requestReadPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { permissionGranted ->
+        // Whether it has permission or not, load fragment into interface
+        handleIntent(intent)
+
+        // Show an informative dialog message if permission is not granted
+        // and user has not checked "Don't ask again".
+        if (!permissionGranted &&
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )) {
+            ConfirmDialogFragment.open(
+                this,
+                "storage_permission_rationale",
+                message = getString(R.string.external_storage_permission_rationale),
+                positiveButton = R.string.core_ok
+            )
+        }
+    }
 
     init {
         supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
@@ -70,13 +85,7 @@ class HomeActivity : BaseActivity() {
         setContentView(binding.root)
 
         setupPlayerView()
-
-        if (savedInstanceState == null) {
-            if (permissions.canWriteToExternalStorage) {
-                // Load a fragment depending on the intent that launched that activity (shortcuts)
-                handleIntent(intent)
-            } else this.requestExternalStoragePermission()
-        }
+        requestReadPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
     override fun onResume() {
@@ -127,33 +136,6 @@ class HomeActivity : BaseActivity() {
         handleIntent(intent)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == EXTERNAL_STORAGE_REQUEST) {
-
-            // Whether it has permission or not, load fragment into interface
-            handleIntent(intent)
-
-            // Show an informative dialog message if permission is not granted
-            // and user has not checked "Don't ask again".
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED &&
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )) {
-                ConfirmDialogFragment.open(
-                    this,
-                    "storage_permission_rationale",
-                    message = getString(R.string.external_storage_permission_rationale),
-                    positiveButton = R.string.core_ok
-                )
-            }
-        }
-    }
-
     /**
      * Show or hide the player view depending on the passed playback state.
      * This method is meant to be called only once to show or hide player view without animation.
@@ -194,7 +176,6 @@ class HomeActivity : BaseActivity() {
     private fun handleIntent(intent: Intent?) {
         Timber.d("Received intent: %s", intent)
         when (intent?.action) {
-
             MusicService.ACTION_PLAYER_UI -> {
                 binding.playerContainer.postDelayed({
                     bottomSheet.state = BottomSheetBehavior.STATE_EXPANDED

@@ -79,12 +79,14 @@ internal class MediaStoreDao @Inject constructor(
             queryArtists()
         }
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int {
-        requireWritePermission()
+    override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult {
+        if (!permissions.canWriteToExternalStorage) {
+            return DeleteTracksResult.RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
 
-        return withContext(dispatchers.IO) {
-            var whereClause = buildInTrackIdClause(trackIds.size)
-            var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
+        val deleteCount = withContext(dispatchers.IO) {
+            var whereClause = buildInTrackIdClause(ids.size)
+            var whereArgs = Array(ids.size) { ids[it].toString() }
 
             database.query(
                 Media.EXTERNAL_CONTENT_URI,
@@ -108,7 +110,7 @@ internal class MediaStoreDao @Inject constructor(
                 }
 
                 // if some tracks have not been deleted, rewrite delete clause.
-                if (deletedTrackIds.size < trackIds.size) {
+                if (deletedTrackIds.size < ids.size) {
                     whereClause = buildInTrackIdClause(deletedTrackIds.size)
                     whereArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
                 }
@@ -118,6 +120,8 @@ internal class MediaStoreDao @Inject constructor(
                 database.delete(Media.EXTERNAL_CONTENT_URI, whereClause, whereArgs)
             } ?: 0
         }
+
+        return DeleteTracksResult.Deleted(deleteCount)
     }
 
     private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow {
@@ -328,12 +332,6 @@ internal class MediaStoreDao @Inject constructor(
     private fun requireReadPermission() {
         if (!permissions.canReadExternalStorage) {
             throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }
-
-    private fun requireWritePermission() {
-        if (!permissions.canWriteToExternalStorage) {
-            throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 

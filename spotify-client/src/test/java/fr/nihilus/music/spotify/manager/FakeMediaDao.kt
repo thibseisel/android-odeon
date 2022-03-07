@@ -39,5 +39,5 @@ internal class FakeMediaDao(
     override val artists: Flow<List<Artist>>
         get() = NeverFlow
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
+    override suspend fun deleteTracks(ids: LongArray) = stub()
 }

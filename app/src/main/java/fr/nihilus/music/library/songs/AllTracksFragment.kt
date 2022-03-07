@@ -26,6 +26,7 @@ import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -114,7 +115,7 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             }
 
             SongAdapter.ItemAction.EXCLUDE -> {
-                viewModel.excludeTrack(track)
+                viewModel.excludeTrack(track.mediaId.parse())
             }
 
             SongAdapter.ItemAction.ADD_TO_PLAYLIST -> {

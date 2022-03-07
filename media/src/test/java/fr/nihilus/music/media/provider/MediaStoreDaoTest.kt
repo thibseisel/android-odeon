@@ -32,7 +32,6 @@ import fr.nihilus.music.core.test.os.DeniedPermission
 import fr.nihilus.music.core.test.os.GrantedPermission
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -310,15 +309,13 @@ class MediaStoreDaoTest {
         }
 
     @Test
-    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() =
-        test {
-            val dao = MediaDao(permissions = DeniedPermission)
-            val exception = shouldThrow<PermissionDeniedException> {
-                dao.deleteTracks(longArrayOf(161, 309))
-            }
+    fun `Given denied permission, when deleting tracks then returns RequiresPermission`() = test {
+        val dao = MediaDao(permissions = DeniedPermission)
+        val result = dao.deleteTracks(longArrayOf(161, 309))
 
-            exception.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
-        }
+        result.shouldBeInstanceOf<DeleteTracksResult.RequiresPermission>()
+        result.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
+    }
 
     @Test
     fun `When deleting a track, then also delete the corresponding file`() = test {

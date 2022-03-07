@@ -79,8 +79,8 @@ interface MediaDao {
      * If permission to write to external storage is not granted,
      * this operation will fail with [PermissionDeniedException].
      *
-     * @param trackIds The unique identifiers of tracks to be deleted.
+     * @param ids The unique identifiers of tracks to be deleted.
      * @return the number of tracks that have been successfully deleted.
      */
-    suspend fun deleteTracks(trackIds: LongArray): Int
+    suspend fun deleteTracks(ids: LongArray): DeleteTracksResult
 }

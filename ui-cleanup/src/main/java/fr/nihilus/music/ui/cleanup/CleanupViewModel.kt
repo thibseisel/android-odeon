@@ -24,12 +24,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
+import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,18 +38,28 @@ internal class CleanupViewModel @Inject constructor(
     usageManager: UsageManager
 ) : ViewModel() {
 
-    val tracks: LiveData<LoadRequest<List<DisposableTrack>>> =
-        usageManager.getDisposableTracks()
-            .map<List<DisposableTrack>, LoadRequest<List<DisposableTrack>>> { LoadRequest.Success(it) }
-            .onStart { emit(LoadRequest.Pending) }
-            .asLiveData()
+    private val pendingEvent = MutableStateFlow<DeleteTracksResult?>(null)
+    val state: LiveData<ViewState> = combine(
+        usageManager.getDisposableTracks().onStart { emit(emptyList()) },
+        pendingEvent
+    ) { tracks, event -> ViewState(tracks, event) }
+        .asLiveData()
 
-    fun deleteTracks(selectedTracks: List<DisposableTrack>) {
+    fun deleteTracks(selectedTrackIds: List<Long>) {
         viewModelScope.launch {
-            val targetTrackIds = selectedTracks.map {
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, it.trackId)
+            val targetTrackIds = selectedTrackIds.map { trackId ->
+                MediaId(TYPE_TRACKS, CATEGORY_ALL, trackId)
             }
-            deleteAction.delete(targetTrackIds)
+            pendingEvent.value = deleteAction.delete(targetTrackIds)
         }
     }
+
+    fun acknowledgeResult() {
+        pendingEvent.value = null
+    }
+
+    data class ViewState(
+        val tracks: List<DisposableTrack>,
+        val result: DeleteTracksResult?,
+    )
 }

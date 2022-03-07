@@ -22,10 +22,7 @@ import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.stub
-import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.provider.*
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.spotify.manager.FeatureFilter
@@ -46,7 +43,7 @@ internal class TestMediaDao(
     override val albums: Flow<List<Album>> = initialEventFlow(albums)
     override val tracks: Flow<List<Track>> = initialEventFlow(tracks)
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
+    override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult = stub()
 
     private fun <T> initialEventFlow(initialValue: T) = flow {
         emit(initialValue)
@@ -113,13 +110,6 @@ internal object StubSpotifyManager : SpotifyManager {
     override suspend fun listUnlinkedTracks(): List<Track> = stub()
 
     override fun sync(): Flow<SyncProgress> = stub()
-}
-
-internal object StubMediaDao : MediaDao {
-    override val artists: Flow<List<Artist>> get() = stub()
-    override val albums: Flow<List<Album>> get() = stub()
-    override val tracks: Flow<List<Track>> get() = stub()
-    override suspend fun deleteTracks(trackIds: LongArray): Int = stub()
 }
 
 internal object StubPlaylistDao : PlaylistDao() {

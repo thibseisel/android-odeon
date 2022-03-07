@@ -16,8 +16,10 @@
 
 package fr.nihilus.music.ui.cleanup
 
+import android.Manifest
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -25,13 +27,12 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
+import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
 
 /**
@@ -50,6 +51,14 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     private val viewModel by viewModels<CleanupViewModel>()
     private lateinit var adapter: CleanupAdapter
     private lateinit var selectionTracker: SelectionTracker<Long>
+
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { permissionGranted ->
+        if (permissionGranted && !selectionTracker.selection.isEmpty) {
+            viewModel.deleteTracks(selectionTracker.selection.toList())
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -83,24 +92,25 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             askCleanupConfirmation(selectionTracker.selection)
         }
 
-        viewModel.tracks.observe(viewLifecycleOwner) { disposableTracksRequest ->
-            when (disposableTracksRequest) {
-                is LoadRequest.Success -> {
-                    adapter.submitList(disposableTracksRequest.data)
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.tracks)
+
+            if (state.result != null) {
+                when (state.result) {
+                    is DeleteTracksResult.Deleted -> {
+                        selectionTracker.clearSelection()
+                    }
+                    is DeleteTracksResult.RequiresPermission -> {
+                        requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
                 }
-                else -> {}
+                viewModel.acknowledgeResult()
             }
         }
 
         ConfirmDialogFragment.registerForResult(this, REQUEST_CONFIRM_CLEANUP) { result ->
             if (result == ConfirmDialogFragment.ActionButton.POSITIVE) {
-                val tracksById = adapter.currentList.associateByLong { it.trackId }
-                val selectedTracks = selectionTracker.selection.mapNotNull { trackId ->
-                    tracksById[trackId]
-                }
-
-                viewModel.deleteTracks(selectedTracks)
-                selectionTracker.clearSelection()
+                viewModel.deleteTracks(selectionTracker.selection.toList())
             }
         }
 
