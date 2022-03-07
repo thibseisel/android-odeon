@@ -46,7 +46,7 @@ class SongAdapter(
 
     private val indexer = AlphaSectionIndexer()
     private val imageLoader = Glide.with(fragment).asBitmap()
-        .error(R.drawable.placeholder_track_icon)
+        .error(R.drawable.ic_audiotrack_24dp)
         .autoClone()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

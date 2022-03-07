@@ -154,7 +154,7 @@ internal class SearchResultsAdapter(
     ) : BaseHolder<MediaItem>(parent, R.layout.item_search_suggestion) {
 
         private val binding = ItemSearchSuggestionBinding.bind(itemView)
-        private val imageLoader = glide.fallback(R.drawable.placeholder_track_icon)
+        private val imageLoader = glide.fallback(R.drawable.ic_audiotrack_24dp)
 
         init {
             setupTrackActionMenu()
