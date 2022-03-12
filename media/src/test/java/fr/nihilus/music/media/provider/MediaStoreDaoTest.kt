@@ -18,6 +18,7 @@ package fr.nihilus.music.media.provider
 
 import android.Manifest
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore.Audio.*
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import org.junit.Rule
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -309,6 +311,7 @@ class MediaStoreDaoTest {
         }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     fun `Given denied permission, when deleting tracks then returns RequiresPermission`() = test {
         val dao = MediaDao(permissions = DeniedPermission)
         val result = dao.deleteTracks(longArrayOf(161, 309))
@@ -318,6 +321,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     fun `When deleting a track, then also delete the corresponding file`() = test {
         val simulatedFileSystem = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
         val dao = MediaDao(fs = simulatedFileSystem)
@@ -328,6 +332,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     fun `When a track file is deleted, then delete its metadata from MediaStore`() = test {
         val dao = MediaDao(
             fs = SimulatedFileSystem("$MUSIC_FOLDER_NAME/$TEST_FILENAME")
@@ -339,6 +344,7 @@ class MediaStoreDaoTest {
     }
 
     @Test
+    @Config(maxSdk = Build.VERSION_CODES.Q)
     fun `When a track file cannot be deleted, then do not delete its metadata from MediaStore`() =
         test {
             // Files doesn't exists, so deleting them will fail.

@@ -17,8 +17,10 @@
 package fr.nihilus.music.ui.cleanup
 
 import android.Manifest
+import android.app.Activity
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
@@ -57,6 +59,14 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     ) { permissionGranted ->
         if (permissionGranted && !selectionTracker.selection.isEmpty) {
             viewModel.deleteTracks(selectionTracker.selection.toList())
+        }
+    }
+
+    private val deleteMediaPopup = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            selectionTracker.clearSelection()
         }
     }
 
@@ -102,6 +112,11 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                     }
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
+                    is DeleteTracksResult.RequiresUserConsent -> {
+                        deleteMediaPopup.launch(
+                            IntentSenderRequest.Builder(state.result.intent).build()
+                        )
                     }
                 }
                 viewModel.acknowledgeResult()

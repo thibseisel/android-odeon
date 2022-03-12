@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.provider
 
+import android.app.PendingIntent
+
 /**
  * Describes the possible outcomes of a "delete tracks" operation.
  */
@@ -34,4 +36,12 @@ sealed class DeleteTracksResult {
      * @param permission Name of the required Android runtime permission.
      */
     class RequiresPermission(val permission: String) : DeleteTracksResult()
+
+    /**
+     * User should explicitly consent to delete the selected tracks.
+     * @param intent Intent to display a system popup granting this app the permission
+     * to delete tracks.
+     * If the permission has been granted, there is no need to re-attempt the operation.
+     */
+    class RequiresUserConsent(val intent: PendingIntent) : DeleteTracksResult()
 }

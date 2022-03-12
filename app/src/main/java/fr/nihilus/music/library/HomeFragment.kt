@@ -17,11 +17,14 @@
 package fr.nihilus.music.library
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -40,6 +43,7 @@ import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.AllTracksFragment
 import fr.nihilus.music.media.provider.DeleteTracksResult
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 /**
@@ -56,6 +60,14 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         val confirmation = viewModel.deleteConfirmation.value?.data
         if (granted && confirmation != null) {
             viewModel.deleteSongs(confirmation.trackIds)
+        }
+    }
+
+    private val deleteMediaPopup = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            notifyTrackDeleted(1)
         }
     }
 
@@ -85,19 +97,28 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             toastMessageEvent.handle { confirmation ->
                 when (confirmation.result) {
                     is DeleteTracksResult.Deleted -> {
-                        val message = resources.getQuantityString(
-                            R.plurals.deleted_songs_confirmation,
-                            confirmation.result.count,
-                            confirmation.result.count,
-                        )
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        notifyTrackDeleted(confirmation.result.count)
                     }
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
+                    is DeleteTracksResult.RequiresUserConsent -> {
+                        deleteMediaPopup.launch(
+                            IntentSenderRequest.Builder(confirmation.result.intent).build()
+                        )
+                    }
                 }
             }
         }
+    }
+
+    private fun notifyTrackDeleted(deletedCount: Int) {
+        val message = resources.getQuantityString(
+            R.plurals.deleted_songs_confirmation,
+            deletedCount,
+            deletedCount,
+        )
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun Toolbar.prepareMenu() {

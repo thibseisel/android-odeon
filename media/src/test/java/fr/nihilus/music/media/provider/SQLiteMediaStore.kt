@@ -16,8 +16,10 @@
 
 package fr.nihilus.music.media.provider
 
+import android.app.PendingIntent
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.ContentObserver
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -40,7 +42,9 @@ private const val TABLE_ARTIST = "artist"
  *
  * @param context The application context, needed for creating the database.
  */
-internal class SQLiteMediaStore @Inject constructor(context: Context) : MediaStoreDatabase {
+internal class SQLiteMediaStore @Inject constructor(
+    private val context: Context
+) : MediaStoreDatabase {
 
     private val inMemoryDatabaseHelper = InMemoryMediaStoreDatabase(context)
 
@@ -84,6 +88,9 @@ internal class SQLiteMediaStore @Inject constructor(context: Context) : MediaSto
     override fun unregisterContentObserver(observer: ContentObserver) {
         _observers.removeAll { it.observer == observer }
     }
+
+    override fun createDeleteRequest(uris: List<Uri>): PendingIntent =
+        PendingIntent.getActivity(context, 0, Intent(Intent.ACTION_VIEW), 0)
 
     /**
      * Check that a row exists in the media table having the specified [id].

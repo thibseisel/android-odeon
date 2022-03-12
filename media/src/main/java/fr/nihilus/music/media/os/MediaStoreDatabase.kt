@@ -16,11 +16,14 @@
 
 package fr.nihilus.music.media.os
 
+import android.app.PendingIntent
 import android.content.ContentResolver
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import dagger.Reusable
 import javax.inject.Inject
 
@@ -99,6 +102,13 @@ internal interface MediaStoreDatabase {
      * @see registerContentObserver
      */
     fun unregisterContentObserver(observer: ContentObserver)
+
+    /**
+     * Create a [PendingIntent] that will prompt the user to permanently delete the requested media items.
+     * When the user approves this request, [ContentResolver.delete] will be called on these items.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun createDeleteRequest(uris: List<Uri>): PendingIntent
 }
 
 /**
@@ -144,5 +154,11 @@ internal class PlatformMediaStore @Inject constructor(
         require(uri.scheme == ContentResolver.SCHEME_CONTENT && uri.authority == MediaStore.AUTHORITY) {
             "Attempt to operate on a non-MediaStore uri: $uri"
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    override fun createDeleteRequest(uris: List<Uri>): PendingIntent {
+        uris.forEach { requireMediaStoreUri(it) }
+        return MediaStore.createDeleteRequest(resolver, uris)
     }
 }

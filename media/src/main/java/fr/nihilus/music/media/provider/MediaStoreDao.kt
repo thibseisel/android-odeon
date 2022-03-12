@@ -20,10 +20,12 @@ import android.Manifest
 import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
+import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import androidx.annotation.RequiresApi
 import dagger.Reusable
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
@@ -80,6 +82,14 @@ internal class MediaStoreDao @Inject constructor(
         }
 
     override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            deleteTracksWithScopedStorage(ids)
+        } else {
+            deleteTracksWithoutScopedStorage(ids)
+        }
+    }
+
+    private suspend fun deleteTracksWithoutScopedStorage(ids: LongArray): DeleteTracksResult {
         if (!permissions.canWriteToExternalStorage) {
             return DeleteTracksResult.RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -122,6 +132,14 @@ internal class MediaStoreDao @Inject constructor(
         }
 
         return DeleteTracksResult.Deleted(deleteCount)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun deleteTracksWithScopedStorage(ids: LongArray): DeleteTracksResult {
+        val intent = database.createDeleteRequest(
+            ids.map { trackId -> ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId) }
+        )
+        return DeleteTracksResult.RequiresUserConsent(intent)
     }
 
     private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow {
