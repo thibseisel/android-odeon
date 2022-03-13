@@ -150,13 +150,19 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
     private fun configureViewOffsetForSystemBars(bindings: FragmentCleanupBinding) {
         bindings.disposableTrackList.doOnApplyWindowInsets { view, insets, padding, _ ->
             val systemWindowInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(bottom = padding.bottom + systemWindowInsets.bottom)
+            view.updatePadding(
+                left = padding.left + systemWindowInsets.left,
+                right = padding.right + systemWindowInsets.right,
+                bottom = padding.bottom + systemWindowInsets.bottom
+            )
         }
 
         bindings.deleteTracksButton.doOnApplyWindowInsets { view, insets, _, margin ->
             val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            val tappableWindowInsets = insets.getInsets(WindowInsetsCompat.Type.tappableElement())
-            layoutParams.bottomMargin = margin.bottom + tappableWindowInsets.bottom
+            val tappableInsets = insets.getInsets(WindowInsetsCompat.Type.tappableElement())
+            layoutParams.leftMargin = margin.left + tappableInsets.left
+            layoutParams.rightMargin = margin.right + tappableInsets.right
+            layoutParams.bottomMargin = margin.bottom + tappableInsets.bottom
         }
     }
 
