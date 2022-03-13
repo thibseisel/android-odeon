@@ -26,7 +26,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.media.provider.DeleteTracksResult
-import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,10 +38,39 @@ internal class CleanupViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val pendingEvent = MutableStateFlow<DeleteTracksResult?>(null)
-    val state: LiveData<ViewState> = combine(
-        usageManager.getDisposableTracks().onStart { emit(emptyList()) },
-        pendingEvent
-    ) { tracks, event -> ViewState(tracks, event) }
+    private val selection = MutableStateFlow<Set<MediaId>>(emptySet())
+
+    val state: LiveData<CleanupState> = combine(
+        usageManager.getDisposableTracks()
+            .map { tracks ->
+                tracks.map {
+                    CleanupState.Track(
+                        id = MediaId(TYPE_TRACKS, CATEGORY_ALL, it.trackId),
+                        title = it.title,
+                        fileSizeBytes = it.fileSizeBytes,
+                        lastPlayedTime = it.lastPlayedTime,
+                        selected = false
+                    )
+                }
+            }
+            .onStart { emit(emptyList()) },
+        selection,
+        pendingEvent,
+    ) { tracks, selection, event ->
+        val candidates = tracks.map {
+            when (it.id) {
+                in selection -> it.copy(selected = true)
+                else -> it
+            }
+        }
+        val selectedTracks = candidates.filter { it.selected }
+        CleanupState(
+            tracks = candidates,
+            selectedCount = selectedTracks.size,
+            selectedFreedBytes = selectedTracks.sumOf { it.fileSizeBytes },
+            result = event
+        )
+    }
         .asLiveData()
 
     fun deleteTracks(selectedTrackIds: List<Long>) {
@@ -54,12 +82,34 @@ internal class CleanupViewModel @Inject constructor(
         }
     }
 
+    fun deleteSelected() {
+        viewModelScope.launch {
+            val selectedIds = selection.value
+            if (selectedIds.isNotEmpty()) {
+                val result = deleteAction.delete(selectedIds.toList())
+                if (result is DeleteTracksResult.Deleted) {
+                    clearSelection()
+                }
+                pendingEvent.value = result
+            }
+        }
+    }
+
+    fun toggleSelection(trackId: MediaId) {
+        selection.update { selection ->
+            if (trackId in selection) {
+                selection - trackId
+            } else {
+                selection + trackId
+            }
+        }
+    }
+
+    fun clearSelection() {
+        selection.value = emptySet()
+    }
+
     fun acknowledgeResult() {
         pendingEvent.value = null
     }
-
-    data class ViewState(
-        val tracks: List<DisposableTrack>,
-        val result: DeleteTracksResult?,
-    )
 }

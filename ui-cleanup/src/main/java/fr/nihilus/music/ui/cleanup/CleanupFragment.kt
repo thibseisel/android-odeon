@@ -19,15 +19,16 @@ package fr.nihilus.music.ui.cleanup
 import android.Manifest
 import android.app.Activity
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.selection.*
-import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseFragment
@@ -47,18 +48,13 @@ private const val REQUEST_CONFIRM_CLEANUP = "fr.nihilus.music.request.CONFIRM_CL
  */
 @AndroidEntryPoint
 internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
-
-    private var binding: FragmentCleanupBinding? = null
-
     private val viewModel by viewModels<CleanupViewModel>()
-    private lateinit var adapter: CleanupAdapter
-    private lateinit var selectionTracker: SelectionTracker<Long>
 
     private val requestPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { permissionGranted ->
-        if (permissionGranted && !selectionTracker.selection.isEmpty) {
-            viewModel.deleteTracks(selectionTracker.selection.toList())
+        if (permissionGranted) {
+            viewModel.deleteSelected()
         }
     }
 
@@ -66,7 +62,25 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            selectionTracker.clearSelection()
+            viewModel.clearSelection()
+        }
+    }
+
+    private var actionMode: ActionMode? = null
+
+    private val actionModeCallback = object : ActionMode.Callback {
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            actionMode = mode
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
+
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false
+
+        override fun onDestroyActionMode(mode: ActionMode?) {
+            actionMode = null
+            viewModel.clearSelection()
         }
     }
 
@@ -74,42 +88,45 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentCleanupBinding.bind(view)
-        this.binding = binding
-
-        val recyclerView = binding.disposableTrackList
-
-        recyclerView.setHasFixedSize(true)
-        val dividers = DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-        recyclerView.addItemDecoration(dividers)
-
-        adapter = CleanupAdapter()
-        recyclerView.adapter = adapter
-
-        selectionTracker = SelectionTracker.Builder(
-            "track_ids_selection",
-            recyclerView,
-            StableIdKeyProvider(recyclerView),
-            TrackDetailLookup(recyclerView),
-            StorageStrategy.createLongStorage()
-        ).build().also {
-            adapter.selection = it
-            it.addObserver(HasSelectionObserver(it.selection))
-        }
-
         configureViewOffsetForSystemBars(binding)
 
+        val trackAdapter = CleanupAdapter { viewModel.toggleSelection(it.id) }
+        binding.disposableTrackList.apply {
+            adapter = trackAdapter
+            setHasFixedSize(true)
+            addItemDecoration(
+                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+            )
+        }
+
+
         binding.deleteTracksButton.setOnClickListener {
-            askCleanupConfirmation(selectionTracker.selection)
+            val selectedCount = viewModel.state.value?.selectedCount ?: 0
+            askCleanupConfirmation(selectedCount)
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.tracks)
+            trackAdapter.submitList(state.tracks)
+
+            if (state.selectedCount > 0) {
+                binding.deleteTracksButton.show()
+                val actionMode = actionMode ?: startActionMode(actionModeCallback)
+                actionMode?.apply {
+                    title = resources.getQuantityString(
+                        R.plurals.number_of_selected_tracks,
+                        state.selectedCount,
+                        state.selectedCount,
+                    )
+                    subtitle = formatToHumanReadableByteCount(state.selectedFreedBytes)
+                }
+            } else {
+                binding.deleteTracksButton.hide()
+                actionMode?.finish()
+            }
 
             if (state.result != null) {
                 when (state.result) {
-                    is DeleteTracksResult.Deleted -> {
-                        selectionTracker.clearSelection()
-                    }
+                    is DeleteTracksResult.Deleted -> {}
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
@@ -125,24 +142,9 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
         ConfirmDialogFragment.registerForResult(this, REQUEST_CONFIRM_CLEANUP) { result ->
             if (result == ConfirmDialogFragment.ActionButton.POSITIVE) {
-                viewModel.deleteTracks(selectionTracker.selection.toList())
+                viewModel.deleteSelected()
             }
         }
-
-        if (savedInstanceState != null) {
-            // Restore selected positions.
-            selectionTracker.onRestoreInstanceState(savedInstanceState)
-        }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        selectionTracker.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
     }
 
     private fun configureViewOffsetForSystemBars(bindings: FragmentCleanupBinding) {
@@ -158,101 +160,18 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
     }
 
-    private fun askCleanupConfirmation(deletedTracks: Selection<Long>) {
-        val selected = deletedTracks.size()
+    private fun askCleanupConfirmation(selectedCount: Int) {
         ConfirmDialogFragment.open(
             this,
             REQUEST_CONFIRM_CLEANUP,
-            title = resources.getQuantityString(R.plurals.cleanup_confirmation_title, selected, selected),
+            title = resources.getQuantityString(
+                R.plurals.cleanup_confirmation_title,
+                selectedCount,
+                selectedCount
+            ),
             message = getString(R.string.cleanup_confirmation_message),
             positiveButton = R.string.core_action_delete,
             negativeButton = R.string.core_cancel
         )
-    }
-
-    private fun setFabVisibility(visible: Boolean) {
-        val fab = binding!!.deleteTracksButton
-        if (visible) {
-            fab.show()
-        } else {
-            fab.hide()
-        }
-    }
-
-    /**
-     * Provides the detail of items in the selectable list from their ViewHolder.
-     */
-    private class TrackDetailLookup(
-        private val view: RecyclerView
-    ) : ItemDetailsLookup<Long>() {
-
-        override fun getItemDetails(e: MotionEvent): ItemDetails<Long>? {
-            return view.findChildViewUnder(e.x, e.y)
-                ?.let { view.getChildViewHolder(it) as? CleanupAdapter.ViewHolder }
-                ?.itemDetails
-        }
-    }
-
-    private inner class HasSelectionObserver(
-        private val liveSelection: Selection<Long>
-    ) : SelectionTracker.SelectionObserver<Long>(),
-        ActionMode.Callback {
-
-        private var hadSelection = false
-        private var actionMode: ActionMode? = null
-
-        override fun onSelectionChanged() {
-            val hasSelection = !liveSelection.isEmpty
-            if (hadSelection != hasSelection) {
-                setFabVisibility(hasSelection)
-                toggleActionMode(hasSelection)
-                hadSelection = hasSelection
-            }
-        }
-
-        override fun onItemStateChanged(key: Long, selected: Boolean) {
-            if (!liveSelection.isEmpty) {
-                updateActionModeText()
-            }
-        }
-
-        override fun onSelectionRestored() {
-            val hasSelection = !liveSelection.isEmpty
-            setFabVisibility(hasSelection)
-            toggleActionMode(hasSelection)
-            hadSelection = hasSelection
-        }
-
-        private fun toggleActionMode(hasSelection: Boolean) {
-            if (hasSelection && actionMode == null) {
-                actionMode = startActionMode(this)
-                updateActionModeText()
-            } else if (!hasSelection) {
-                actionMode?.finish()
-            }
-        }
-
-        private fun updateActionModeText() {
-            actionMode?.let { mode ->
-                val selectedCount = liveSelection.size()
-                mode.title = resources.getQuantityString(
-                    R.plurals.number_of_selected_tracks,
-                    selectedCount,
-                    selectedCount
-                )
-                //mode.subtitle = formatToHumanReadableByteCount(freedBytes)
-            }
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false
-
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean = true
-
-        override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean = false
-
-        override fun onDestroyActionMode(mode: ActionMode?) {
-            actionMode = null
-            selectionTracker.clearSelection()
-        }
     }
 }

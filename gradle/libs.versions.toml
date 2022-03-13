@@ -7,7 +7,6 @@ androidx-media = "1.4.0"
 androidx-navigation = "2.3.5"
 androidx-preference = "1.1.1"
 androidx-recyclerview = "1.1.0"
-androidx-recyclerview-selection = "1.1.0"
 androidx-room = "2.3.0"
 androidx-test = "1.4.0"
 androidx-work = "2.5.0"
@@ -46,7 +45,6 @@ androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragme
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidx-navigation" }
 androidx-palette = "androidx.palette:palette-ktx:1.0.0"
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
-androidx-recyclerview-selection = { module = "androidx.recyclerview:recyclerview-selection", version.ref = "androidx-recyclerview-selection" }
 androidx-room = { module = "androidx.room:room-ktx", version.ref = "androidx-room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidx-room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "androidx-room" }
