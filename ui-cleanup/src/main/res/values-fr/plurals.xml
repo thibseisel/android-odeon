@@ -18,11 +18,13 @@
 <resources>
     <plurals name="cleanup_confirmation_title">
         <item quantity="one">Supprimer %d morceau ?</item>
-        <item quantity="many">Supprimer %d morceaux ?</item>
+        <item quantity="many">Supprimer %d de morceaux ?</item>
+        <item quantity="other">Supprimer %d morceaux ?</item>
     </plurals>
 
     <plurals name="number_of_selected_tracks">
         <item quantity="one">%d morceau sélectionné</item>
-        <item quantity="many">%d morceaux sélectionnés</item>
+        <item quantity="many">%d de morceaux sélectionnés</item>
+        <item quantity="other">%d morceaux sélectionnés</item>
     </plurals>
 </resources>
