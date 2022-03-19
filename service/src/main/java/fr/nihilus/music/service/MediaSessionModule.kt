@@ -55,15 +55,21 @@ internal abstract class MediaSessionModule {
          */
         @Provides @ServiceScoped
         fun providesMediaSession(service: Service): MediaSessionCompat {
-            val sessionActivityPendingIntent =
-                service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
-                    sessionIntent.action = MusicService.ACTION_PLAYER_UI
-                    PendingIntent.getActivity(service, 0, sessionIntent, 0)
-                }
+            val launcherActivityIntent =
+                service.packageManager.getLaunchIntentForPackage(service.packageName)
+                    ?.apply { action = MusicService.ACTION_PLAYER_UI }
+                    ?: error("Unable to resolve app's launcher activity")
+
+            val sessionActivity = PendingIntent.getActivity(
+                service.applicationContext,
+                0,
+                launcherActivityIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
 
             return MediaSessionCompat(service, "MusicService").also {
-                it.setSessionActivity(sessionActivityPendingIntent)
                 it.setRatingType(RatingCompat.RATING_NONE)
+                it.setSessionActivity(sessionActivity)
             }
         }
     }

@@ -1,9 +1,8 @@
 [versions]
 android-gradle = "7.1.0"
-androidx-fragment = "1.3.6"
 androidx-hilt = "1.0.0"
 androidx-lifecycle = "2.3.1"
-androidx-media = "1.4.0"
+androidx-media = "1.5.0"
 androidx-navigation = "2.3.5"
 androidx-preference = "1.1.1"
 androidx-recyclerview = "1.1.0"
@@ -33,14 +32,14 @@ plugin-androidx-navigation-safeargs = { module = "androidx.navigation:navigation
 
 androidx-appcompat = "androidx.appcompat:appcompat:1.3.1"
 androidx-constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.0"
-androidx-core = "androidx.core:core-ktx:1.6.0"
+androidx-core = "androidx.core:core-ktx:1.7.0"
 androidx-fragment = "androidx.fragment:fragment-ktx:1.3.6"
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidx-hilt" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidx-hilt" }
 androidx-lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
-androidx-media = "androidx.media:media:1.4.0"
+androidx-media = { module = "androidx.media:media", version.ref = "androidx-media" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidx-navigation" }
 androidx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidx-navigation" }
 androidx-palette = "androidx.palette:palette-ktx:1.0.0"
@@ -79,7 +78,6 @@ kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-json = { module = "io.ktor:ktor-client-json", version.ref = "ktor" }
 ktor-client-mock = { module = "io.ktor:ktor-client-mock-jvm", version.ref = "ktor" }
-
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

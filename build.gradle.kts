@@ -68,8 +68,8 @@ subprojects {
             compileSdkVersion(31)
 
             defaultConfig {
-                minSdk = 21
-                targetSdk = 30
+                minSdk = 23
+                targetSdk = 31
 
                 if (testInstrumentationRunner.isNullOrEmpty()) {
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
