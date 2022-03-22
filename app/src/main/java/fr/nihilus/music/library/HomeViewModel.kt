@@ -20,16 +20,21 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
+import fr.nihilus.music.media.provider.DeleteTracksResult
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+class DeleteTracksConfirmation(
+    val trackIds: List<MediaId>,
+    val result: DeleteTracksResult,
+)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -43,20 +48,18 @@ class HomeViewModel @Inject constructor(
     val artists: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ARTISTS)
     val playlists: LiveData<LoadRequest<List<MediaItem>>> = allPlaylists()
 
-    private val _deleteTracksConfirmation = MutableLiveData<Event<Int>>()
-    val deleteTracksConfirmation: MutableLiveData<Event<Int>> = _deleteTracksConfirmation
+    private val _deleteConfirmation = MutableLiveData<Event<DeleteTracksConfirmation>>()
+    val deleteConfirmation: LiveData<Event<DeleteTracksConfirmation>> = _deleteConfirmation
 
-    fun deleteSongs(songsToDelete: List<MediaItem>) {
+    fun deleteSongs(trackMediaIds: List<MediaId>) {
         viewModelScope.launch {
-            val trackIds = songsToDelete.map { it.mediaId.parse() }
-            val deletedTracksCount = deleteAction.delete(trackIds)
-            _deleteTracksConfirmation.value = Event(deletedTracksCount)
+            val result = deleteAction.delete(trackMediaIds)
+            _deleteConfirmation.value = Event(DeleteTracksConfirmation(trackMediaIds, result))
         }
     }
 
-    fun excludeTrack(trackToExclude: MediaItem) {
+    fun excludeTrack(trackId: MediaId) {
         viewModelScope.launch {
-            val trackId = trackToExclude.mediaId.parse()
             excludeAction.exclude(trackId)
         }
     }

@@ -37,7 +37,6 @@ dependencies {
     implementation(project(":media"))
 
     implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.recyclerview.selection)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)

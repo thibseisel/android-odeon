@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.provider
 
+import android.app.PendingIntent
 import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
@@ -45,4 +46,8 @@ internal object FailingMediaStore : MediaStoreDatabase {
     ) = Unit
 
     override fun unregisterContentObserver(observer: ContentObserver) = Unit
+
+    override fun createDeleteRequest(uris: List<Uri>): PendingIntent {
+        error("Unexpected call to createDeleteRequest")
+    }
 }

@@ -20,10 +20,12 @@ import android.Manifest
 import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
+import android.os.Build
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
+import androidx.annotation.RequiresApi
 import dagger.Reusable
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
@@ -79,12 +81,22 @@ internal class MediaStoreDao @Inject constructor(
             queryArtists()
         }
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int {
-        requireWritePermission()
+    override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            deleteTracksWithScopedStorage(ids)
+        } else {
+            deleteTracksWithoutScopedStorage(ids)
+        }
+    }
 
-        return withContext(dispatchers.IO) {
-            var whereClause = buildInTrackIdClause(trackIds.size)
-            var whereArgs = Array(trackIds.size) { trackIds[it].toString() }
+    private suspend fun deleteTracksWithoutScopedStorage(ids: LongArray): DeleteTracksResult {
+        if (!permissions.canWriteToExternalStorage) {
+            return DeleteTracksResult.RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        val deleteCount = withContext(dispatchers.IO) {
+            var whereClause = buildInTrackIdClause(ids.size)
+            var whereArgs = Array(ids.size) { ids[it].toString() }
 
             database.query(
                 Media.EXTERNAL_CONTENT_URI,
@@ -108,7 +120,7 @@ internal class MediaStoreDao @Inject constructor(
                 }
 
                 // if some tracks have not been deleted, rewrite delete clause.
-                if (deletedTrackIds.size < trackIds.size) {
+                if (deletedTrackIds.size < ids.size) {
                     whereClause = buildInTrackIdClause(deletedTrackIds.size)
                     whereArgs = Array(deletedTrackIds.size) { deletedTrackIds[it].toString() }
                 }
@@ -118,6 +130,16 @@ internal class MediaStoreDao @Inject constructor(
                 database.delete(Media.EXTERNAL_CONTENT_URI, whereClause, whereArgs)
             } ?: 0
         }
+
+        return DeleteTracksResult.Deleted(deleteCount)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun deleteTracksWithScopedStorage(ids: LongArray): DeleteTracksResult {
+        val intent = database.createDeleteRequest(
+            ids.map { trackId -> ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId) }
+        )
+        return DeleteTracksResult.RequiresUserConsent(intent)
     }
 
     private fun mediaUpdateFlow(mediaUri: Uri) = callbackFlow {
@@ -328,12 +350,6 @@ internal class MediaStoreDao @Inject constructor(
     private fun requireReadPermission() {
         if (!permissions.canReadExternalStorage) {
             throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }
-
-    private fun requireWritePermission() {
-        if (!permissions.canWriteToExternalStorage) {
-            throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 

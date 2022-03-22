@@ -19,10 +19,7 @@ package fr.nihilus.music.core.ui.actions
 import android.Manifest
 import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.stub
-import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.provider.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.onEach
@@ -57,18 +54,18 @@ internal class InMemoryTrackDao(
     override val artists: Flow<List<Artist>>
         get() = stub()
 
-    override suspend fun deleteTracks(trackIds: LongArray): Int {
+    override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult {
         if (!permissionGranted) {
-            throw PermissionDeniedException(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return DeleteTracksResult.RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
 
         val sizeBeforeDelete = savedTracks.size
-        val tracksHaveBeenDeleted = savedTracks.removeAll { it.id in trackIds }
+        val tracksHaveBeenDeleted = savedTracks.removeAll { it.id in ids }
 
         if (tracksHaveBeenDeleted) {
             _tracks.value = savedTracks.toList()
         }
 
-        return sizeBeforeDelete - savedTracks.size
+        return DeleteTracksResult.Deleted(sizeBeforeDelete - savedTracks.size)
     }
 }

@@ -23,12 +23,13 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.os.PermissionDeniedException
+import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.media.provider.Track
 import io.kotest.assertions.extracting
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -215,7 +216,7 @@ internal class DeleteTracksActionTest {
         val dao = InMemoryTrackDao(initial = SAMPLE_TRACKS)
         val action = DeleteTracksAction(dao)
 
-        val deleteCount = action.delete(
+        val deleteResult = action.delete(
             mediaIds = listOf(
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 48),
@@ -223,7 +224,8 @@ internal class DeleteTracksActionTest {
             )
         )
 
-        deleteCount shouldBe 3
+        deleteResult.shouldBeInstanceOf<DeleteTracksResult.Deleted>()
+        deleteResult.count shouldBe 3
 
         val savedTracks = dao.tracks.first()
         savedTracks.size shouldBe 7
@@ -236,20 +238,17 @@ internal class DeleteTracksActionTest {
     }
 
     @Test
-    fun `Given denied permission, when deleting tracks then fail with PermissionDeniedException`() =
-        runTest {
-            val deniedDao = InMemoryTrackDao(permissionGranted = false)
-            val action = DeleteTracksAction(deniedDao)
+    fun `Given denied permission, when deleting tracks then return RequiresPermission`() = runTest {
+        val deniedDao = InMemoryTrackDao(permissionGranted = false)
+        val action = DeleteTracksAction(deniedDao)
 
-            val targetTrackIds = listOf(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 464)
-            )
+        val targetTrackIds = listOf(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 464)
+        )
 
-            val permissionFailure = shouldThrow<PermissionDeniedException> {
-                action.delete(targetTrackIds)
-            }
-
-            permissionFailure.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
-        }
+        val result = action.delete(targetTrackIds)
+        result.shouldBeInstanceOf<DeleteTracksResult.RequiresPermission>()
+        result.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
+    }
 }

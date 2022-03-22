@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.library.HomeViewModel
 import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.open
 
@@ -49,7 +50,7 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
     private fun onDelete() {
         val track = arguments?.getParcelable<MediaBrowserCompat.MediaItem>(ARG_TRACK)
             ?: error("This dialog should have been passed the track to delete as argument.")
-        viewModel.deleteSongs(listOf(track))
+        viewModel.deleteSongs(listOf(track.mediaId.parse()))
     }
 
     companion object Factory {

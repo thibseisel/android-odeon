@@ -16,11 +16,16 @@
 
 package fr.nihilus.music.library
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -37,6 +42,8 @@ import fr.nihilus.music.library.albums.AlbumsFragment
 import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.AllTracksFragment
+import fr.nihilus.music.media.provider.DeleteTracksResult
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 /**
@@ -46,6 +53,23 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
     private val viewModel by activityViewModels<HomeViewModel>()
+
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val confirmation = viewModel.deleteConfirmation.value?.data
+        if (granted && confirmation != null) {
+            viewModel.deleteSongs(confirmation.trackIds)
+        }
+    }
+
+    private val deleteMediaPopup = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            notifyTrackDeleted(1)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -69,17 +93,32 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()
 
-        viewModel.deleteTracksConfirmation.observe(viewLifecycleOwner) { toastMessageEvent ->
-            toastMessageEvent.handle { deletedTracksCount ->
-                val message = resources.getQuantityString(
-                    R.plurals.deleted_songs_confirmation,
-                    deletedTracksCount,
-                    deletedTracksCount
-                )
-
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        viewModel.deleteConfirmation.observe(viewLifecycleOwner) { toastMessageEvent ->
+            toastMessageEvent.handle { confirmation ->
+                when (confirmation.result) {
+                    is DeleteTracksResult.Deleted -> {
+                        notifyTrackDeleted(confirmation.result.count)
+                    }
+                    is DeleteTracksResult.RequiresPermission -> {
+                        requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
+                    is DeleteTracksResult.RequiresUserConsent -> {
+                        deleteMediaPopup.launch(
+                            IntentSenderRequest.Builder(confirmation.result.intent).build()
+                        )
+                    }
+                }
             }
         }
+    }
+
+    private fun notifyTrackDeleted(deletedCount: Int) {
+        val message = resources.getQuantityString(
+            R.plurals.deleted_songs_confirmation,
+            deletedCount,
+            deletedCount,
+        )
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
     private fun Toolbar.prepareMenu() {
