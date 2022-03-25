@@ -35,9 +35,7 @@ dependencies {
     api(libs.androidx.palette)
 
     // Android Arch Components
-    api(libs.androidx.lifecycle.livedata)
-    api(libs.androidx.lifecycle.viewmodel)
-    api(libs.androidx.lifecycle.runtime)
+    api(libs.bundles.androidx.lifecycle)
 
     // Navigation Components
     api(libs.androidx.navigation.fragment)

@@ -43,7 +43,6 @@ class MusicLibraryViewModel @Inject constructor(
     val playerError: LiveData<Event<CharSequence>> = _playerError
 
     init {
-        client.connect()
         client.playbackState.onEach {
             when (it.state) {
                 PlaybackStateCompat.STATE_NONE,
@@ -70,10 +69,5 @@ class MusicLibraryViewModel @Inject constructor(
         viewModelScope.launch {
             client.playFromMediaId(playableMedia.mediaId.parse())
         }
-    }
-
-    override fun onCleared() {
-        client.disconnect()
-        super.onCleared()
     }
 }

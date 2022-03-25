@@ -49,20 +49,6 @@ interface BrowserClient {
     val repeatMode: StateFlow<Int>
 
     /**
-     * Initiate connection to the media browser.
-     * Operations on the Media Session are only available once the media browser is connected.
-     *
-     * Make sure to [disconnect] from the media browser when it is no longer needed
-     * to avoid wasting resources.
-     */
-    fun connect()
-
-    /**
-     * Disconnects from the media browser.
-     */
-    fun disconnect()
-
-    /**
      * Retrieve children of a specified browsable item from the media browser tree,
      * observing changes to those children.
      * The latest value emitted by the returned flow is always the latest up-to-date children.
