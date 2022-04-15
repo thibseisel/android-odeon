@@ -17,10 +17,7 @@
 package fr.nihilus.music.library.search
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
@@ -28,17 +25,20 @@ import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val KEY_SEARCH_QUERY = "odeon.SearchViewModel.searchQuery"
+
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
+    private val savedState: SavedStateHandle,
     private val client: BrowserClient,
     private val excludeAction: ExcludeTrackAction
 ) : ViewModel() {
+    private val searchQuery = savedState.getLiveData(KEY_SEARCH_QUERY, "")
 
     private val mediaTypeImportance = compareBy<String> { mediaType ->
         when (mediaType) {
@@ -50,10 +50,11 @@ internal class SearchViewModel @Inject constructor(
         }
     }
 
-    private val searchQuery = MutableStateFlow("")
-
+    /**
+     * List of results matching the search query.
+     */
     @OptIn(FlowPreview::class)
-    val searchResults: LiveData<List<SearchResult>> = searchQuery
+    val searchResults: LiveData<List<SearchResult>> = searchQuery.asFlow()
         .debounce(300)
         .mapLatest { query ->
             if (query.isNotBlank()) {
@@ -65,16 +66,27 @@ internal class SearchViewModel @Inject constructor(
         }
         .asLiveData()
 
-    fun search(query: CharSequence) {
-        searchQuery.value = query.toString()
+    /**
+     * Change search terms used to filter search results.
+     */
+    fun search(query: String) {
+        savedState[KEY_SEARCH_QUERY] = query
     }
 
+    /**
+     * Start playback of the given playable media.
+     * This builds a play queue based on the search results.
+     */
     fun play(item: MediaItem) {
         viewModelScope.launch {
             client.playFromMediaId(item.mediaId.parse())
         }
     }
 
+    /**
+     * Exclude a playable media from the whole music library.
+     * That media file won't be deleted.
+     */
     fun exclude(track: MediaItem) {
         viewModelScope.launch {
             val trackMediaId = track.mediaId.parse()

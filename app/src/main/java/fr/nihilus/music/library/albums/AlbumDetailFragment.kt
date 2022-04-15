@@ -56,7 +56,6 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         super.onCreate(savedInstanceState)
 
         setupSharedElementTransitions()
-        viewModel.setAlbumId(args.albumId)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

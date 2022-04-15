@@ -24,7 +24,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,18 +42,10 @@ import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
-
     private lateinit var childrenAdapter: ArtistDetailAdapter
-    private val args: ArtistDetailFragmentArgs by navArgs()
 
     private val hostViewModel: MusicLibraryViewModel by activityViewModels()
     private val viewModel: ArtistDetailViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        viewModel.setArtist(args.artistId)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

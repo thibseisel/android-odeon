@@ -17,46 +17,33 @@
 package fr.nihilus.music.library.artists.detail
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
 @HiltViewModel
 class ArtistDetailViewModel @Inject constructor(
+    savedState: SavedStateHandle,
     private val client: BrowserClient
 ) : ViewModel() {
-    private var observeChildrenJob: Job? = null
+    private val artistId =
+        ArtistDetailFragmentArgs.fromSavedStateHandle(savedState).artistId.parse()
 
-    private val _artist = MutableLiveData<MediaItem>()
-    val artist: LiveData<MediaItem> = _artist
-
-    private val _children = MutableLiveData<LoadRequest<List<MediaItem>>>()
-    val children: LiveData<LoadRequest<List<MediaItem>>> = _children
-
-    fun setArtist(artistId: String) {
-        val artistMediaId = artistId.parse()
-        viewModelScope.launch {
-            _artist.value = checkNotNull(client.getItem(artistMediaId)) {
+    val artist: LiveData<MediaItem> = liveData {
+        emit(
+            checkNotNull(client.getItem(artistId)) {
                 "Unable to load the detail of artist $artistId"
             }
-        }
-
-        observeChildrenJob?.cancel()
-        observeChildrenJob = client.getChildren(artistMediaId)
-            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
-            .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .onEach { _children.postValue(it) }
-            .launchIn(viewModelScope)
+        )
     }
+
+    val children: LiveData<LoadRequest<List<MediaItem>>> = client.getChildren(artistId)
+        .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
+        .onStart { emit(LoadRequest.Pending) }
+        .asLiveData()
 }
