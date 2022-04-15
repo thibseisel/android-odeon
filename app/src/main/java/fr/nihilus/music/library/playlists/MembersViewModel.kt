@@ -17,10 +17,7 @@
 package fr.nihilus.music.library.playlists
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
@@ -34,38 +31,29 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MembersViewModel @Inject constructor(
+    savedState: SavedStateHandle,
     private val client: BrowserClient,
     private val actions: ManagePlaylistAction
 ): ViewModel() {
+    private val playlistId =
+        PlaylistDetailFragmentArgs.fromSavedStateHandle(savedState).playlistId.parse()
 
-    private var observeTracksJob: Job? = null
-
-    private val _playlist = MutableLiveData<MediaItem>()
-    val playlist: LiveData<MediaItem> = _playlist
-
-    private val _members = MutableLiveData<LoadRequest<List<MediaItem>>>()
-    val members: LiveData<LoadRequest<List<MediaItem>>> = _members
-
-    fun setPlaylist(playlistId: String) {
-        val playlistMediaId = playlistId.parse()
-        viewModelScope.launch {
-            _playlist.value = checkNotNull(client.getItem(playlistMediaId)) {
-                "Unable to load detail of playlist $playlistMediaId"
+    val playlist: LiveData<MediaItem> = liveData {
+        emit(
+            checkNotNull(client.getItem(playlistId)) {
+                "Unable to load detail of playlist $playlistId"
             }
-        }
-
-        observeTracksJob?.cancel()
-        observeTracksJob = client.getChildren(playlistMediaId)
-            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
-            .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
-            .onEach { _members.postValue(it) }
-            .launchIn(viewModelScope)
+        )
     }
 
-    fun deletePlaylist(playlistId: String) {
+    val members: LiveData<LoadRequest<List<MediaItem>>> = client.getChildren(playlistId)
+        .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
+        .onStart { emit(LoadRequest.Pending) }
+        .asLiveData()
+
+    fun deletePlaylist() {
         viewModelScope.launch {
-            actions.deletePlaylist(playlistId.parse())
+            actions.deletePlaylist(playlistId)
         }
     }
 }

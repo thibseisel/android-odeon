@@ -51,7 +51,6 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.setPlaylist(args.playlistId)
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host_fragment
@@ -105,7 +104,7 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
         ConfirmDialogFragment.registerForResult(this, REQUEST_DELETE_PLAYLIST) { button ->
             if (button == ConfirmDialogFragment.ActionButton.POSITIVE) {
-                viewModel.deletePlaylist(args.playlistId)
+                viewModel.deletePlaylist()
                 findNavController().popBackStack()
             }
         }

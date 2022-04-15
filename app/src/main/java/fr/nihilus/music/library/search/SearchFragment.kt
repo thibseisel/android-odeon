@@ -85,13 +85,13 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         }
 
         binding.searchInput.doAfterTextChanged { text ->
-            viewModel.search(text ?: "")
+            viewModel.search(text?.toString() ?: "")
         }
 
         binding.searchInput.setOnEditorActionListener { v, actionId, _ ->
             when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
-                    viewModel.search(v.text ?: "")
+                    viewModel.search(v.text?.toString() ?: "")
                     true
                 }
 

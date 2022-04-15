@@ -23,73 +23,63 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.service.extensions.id
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 internal class AlbumDetailViewModel @Inject constructor(
+    savedState: SavedStateHandle,
     private val client: BrowserClient
 ) : ViewModel() {
+    private val albumId: MediaId
 
-    private val albumId = MutableLiveData<MediaId>()
+    init {
+        val navArgs = AlbumDetailFragmentArgs.fromSavedStateHandle(savedState)
+        this.albumId = navArgs.albumId.parse()
+    }
 
     /**
      * Live UI state describing detail of the viewed album with its tracks.
-     * The value of this [LiveData] will only be available after [setAlbumId] has been called.
      */
-    val state: LiveData<AlbumDetailState> = albumId.asFlow()
-        .distinctUntilChanged()
-        .flatMapLatest { albumId ->
-            val albumFlow = flow { emit(client.getItem(albumId)) }
-            val albumTracksFlow = client.getChildren(albumId).catch { cause ->
-                Timber.e(cause, "Failed to load album children")
-            }
+    val state: LiveData<AlbumDetailState> = combine(
+        flow { this.emit(client.getItem(albumId)) },
+        client.getChildren(albumId).catch { cause ->
+            Timber.e(cause, "Failed to load album children")
+        },
+        client.nowPlaying
+    ) { album, tracks, nowPlaying ->
+        val currentlyPlayingMediaId = nowPlaying?.id?.parse()
+        checkNotNull(album)
 
-            combine(albumFlow, albumTracksFlow, client.nowPlaying) { album, tracks, nowPlaying ->
-                val currentlyPlayingMediaId = nowPlaying?.id?.parse()
-                checkNotNull(album)
+        AlbumDetailState(
+            id = album.mediaId.parse(),
+            title = album.description.title?.toString() ?: "",
+            subtitle = album.description.subtitle?.toString() ?: "",
+            artworkUri = album.description.iconUri,
+            tracks = tracks.map {
+                val trackId = it.mediaId.parse()
+                val extras = checkNotNull(it.description.extras)
 
-                AlbumDetailState(
-                    id = album.mediaId.parse(),
-                    title = album.description.title?.toString() ?: "",
-                    subtitle = album.description.subtitle?.toString() ?: "",
-                    artworkUri = album.description.iconUri,
-                    tracks = tracks.map {
-                        val trackId = it.mediaId.parse()
-                        val extras = checkNotNull(it.description.extras)
-
-                        AlbumDetailState.Track(
-                            id = trackId,
-                            title = it.description.title?.toString() ?: "",
-                            number = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER),
-                            duration = extras.getLong(MediaItems.EXTRA_DURATION),
-                            isPlaying = trackId == currentlyPlayingMediaId
-                        )
-                    }
+                AlbumDetailState.Track(
+                    id = trackId,
+                    title = it.description.title?.toString() ?: "",
+                    number = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER),
+                    duration = extras.getLong(MediaItems.EXTRA_DURATION),
+                    isPlaying = trackId == currentlyPlayingMediaId
                 )
             }
-        }.asLiveData()
-
-    /**
-     * Loads the detail of the album with the specified [media id][albumId].
-     * If an album is already loading or loaded it will be replaced.
-     *
-     * @param albumId The media id of the album.
-     */
-    fun setAlbumId(albumId: String) {
-        this.albumId.value = albumId.parse()
-    }
+        )
+    }.asLiveData()
 
     /**
      * Start playback of all tracks from the currently displayed album.
      */
     fun playAlbum() {
-        val albumId = this.albumId.value
-        if (albumId != null) {
-            playMedia(albumId)
-        }
+        playMedia(albumId)
     }
 
     /**
