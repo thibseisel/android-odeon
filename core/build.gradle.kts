@@ -73,9 +73,6 @@ dependencies {
     api(libs.androidx.room)
     kapt(libs.androidx.room.compiler)
 
-    // Provides the instance of SharedPreferences
-    api(libs.androidx.preference)
-
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotlinx.coroutines.test)
