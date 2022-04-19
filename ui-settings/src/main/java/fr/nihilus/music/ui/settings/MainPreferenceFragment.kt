@@ -18,19 +18,19 @@ package fr.nihilus.music.ui.settings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.lifecycleScope
 import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.*
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.spotify.SpotifySyncWorker
+import fr.nihilus.music.ui.settings.exclusion.ExcludedTracksFragment
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
-import fr.nihilus.music.ui.settings.exclusion.ExcludedTracksFragment
 
 @AndroidEntryPoint
 internal class MainPreferenceFragment : PreferenceFragmentCompat() {
@@ -42,7 +42,7 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
         // Apply theme whenever it is changed via preferences.
         settings.currentTheme
             .drop(1)
-            .onEach { theme -> AppCompatDelegate.setDefaultNightMode(theme.value) }
+            .onEach(::applyTheme)
             .launchIn(lifecycleScope)
     }
 
@@ -61,6 +61,17 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
         if (BuildConfig.DEBUG) {
             setupSyncPreference()
         }
+    }
+
+    private fun applyTheme(theme: Settings.AppTheme) {
+        AppCompatDelegate.setDefaultNightMode(
+            when (theme) {
+                Settings.AppTheme.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                Settings.AppTheme.BATTERY_SAVER_ONLY -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                Settings.AppTheme.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+        )
     }
 
     private fun setupSyncPreference() {

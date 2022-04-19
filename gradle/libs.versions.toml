@@ -1,28 +1,28 @@
 [versions]
-android-gradle = "7.1.0"
+android-gradle = "7.1.3"
 androidx-hilt = "1.0.0"
-androidx-lifecycle = "2.3.1"
+androidx-lifecycle = "2.4.1"
 androidx-media = "1.5.0"
 androidx-navigation = "2.4.2"
-androidx-preference = "1.1.1"
-androidx-recyclerview = "1.1.0"
-androidx-room = "2.3.0"
+androidx-preference = "1.2.0"
+androidx-recyclerview = "1.2.1"
+androidx-room = "2.4.2"
 androidx-test = "1.4.0"
-androidx-work = "2.5.0"
-glide = "4.12.0"
+androidx-work = "2.7.1"
+glide = "4.13.1"
 exoplayer = "2.14.2"
-material = "1.4.0"
-mockk = "1.12.1"
+material = "1.5.0"
+mockk = "1.12.3"
 moshi = "1.13.0"
-dagger = "2.40.5"
-kotest = "5.0.3"
-kotlin = "1.6.10"
-kotlinx-coroutines = "1.6.0"
+dagger = "2.41"
+kotest = "5.2.3"
+kotlin = "1.6.21"
+kotlinx-coroutines = "1.6.1"
 ktor = "1.6.7"
 turbine = "0.7.0"
 
 [plugins]
-dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.39.0" }
+dependencyupdates = { id = "com.github.ben-manes.versions", version = "0.42.0" }
 
 [libraries]
 plugin-android = { module = "com.android.tools.build:gradle", version.ref = "android.gradle" }
@@ -30,10 +30,10 @@ plugin-hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version
 plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 plugin-androidx-navigation-safeargs = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "androidx-navigation" }
 
-androidx-appcompat = "androidx.appcompat:appcompat:1.3.1"
-androidx-constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.0"
+androidx-appcompat = "androidx.appcompat:appcompat:1.4.1"
+androidx-constraintlayout = "androidx.constraintlayout:constraintlayout:2.1.3"
 androidx-core = "androidx.core:core-ktx:1.7.0"
-androidx-fragment = "androidx.fragment:fragment-ktx:1.3.6"
+androidx-fragment = "androidx.fragment:fragment-ktx:1.4.1"
 androidx-hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidx-hilt" }
 androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidx-hilt" }
 androidx-lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }

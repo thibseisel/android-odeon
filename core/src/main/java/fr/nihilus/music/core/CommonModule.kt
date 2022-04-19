@@ -18,7 +18,6 @@ package fr.nihilus.music.core
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -26,8 +25,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.os.*
-import java.io.File
-import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -49,6 +46,9 @@ abstract class CommonModule {
 
         @Provides @Singleton
         fun providesSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(appContext)
+            appContext.getSharedPreferences(
+                "${appContext.packageName}_preferences",
+                Context.MODE_PRIVATE
+            )
     }
 }

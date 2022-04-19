@@ -48,6 +48,8 @@ dependencies {
     kapt(libs.hilt.compiler)
     kapt(libs.androidx.hilt.compiler)
 
+    implementation(libs.androidx.appcompat)
+
     testImplementation(project(":core-test"))
     testImplementation(libs.ktor.client.mock)
     testImplementation(libs.mockk)
