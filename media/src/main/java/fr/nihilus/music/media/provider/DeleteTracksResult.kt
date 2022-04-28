@@ -28,14 +28,14 @@ sealed class DeleteTracksResult {
      * This might be less than the actual number of tracks you requested to delete,
      * if some of them did not exist.
      */
-    class Deleted(val count: Int) : DeleteTracksResult()
+    data class Deleted(val count: Int) : DeleteTracksResult()
 
     /**
      * No tracks have been deleted because the app lacks required runtime permissions.
      * The operation may be re-attempted after granting them.
      * @param permission Name of the required Android runtime permission.
      */
-    class RequiresPermission(val permission: String) : DeleteTracksResult()
+    data class RequiresPermission(val permission: String) : DeleteTracksResult()
 
     /**
      * User should explicitly consent to delete the selected tracks.
@@ -43,5 +43,5 @@ sealed class DeleteTracksResult {
      * to delete tracks.
      * If the permission has been granted, there is no need to re-attempt the operation.
      */
-    class RequiresUserConsent(val intent: PendingIntent) : DeleteTracksResult()
+    data class RequiresUserConsent(val intent: PendingIntent) : DeleteTracksResult()
 }

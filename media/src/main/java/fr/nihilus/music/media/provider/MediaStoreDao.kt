@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.provider
 
 import android.Manifest
-import android.content.ContentUris
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
@@ -143,7 +142,7 @@ internal class MediaStoreDao @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.R)
     private fun deleteTracksWithScopedStorage(ids: LongArray): DeleteTracksResult {
         val intent = database.createDeleteRequest(
-            ids.map { trackId -> ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId) }
+            ids.map { trackId -> Media.EXTERNAL_CONTENT_URI.withAppendedId(trackId) }
         )
         return DeleteTracksResult.RequiresUserConsent(intent)
     }
@@ -197,9 +196,7 @@ internal class MediaStoreDao @Inject constructor(
                     val trackId = cursor.getLong(colId)
                     val albumId = cursor.getLong(colAlbumId)
                     val trackNo = cursor.getInt(colTrackNo)
-                    val trackUri =
-                        ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, trackId)
-                            .toString()
+                    val trackUri = Media.EXTERNAL_CONTENT_URI.withAppendedId(trackId).toString()
 
                     trackList += Track(
                         id = trackId,
@@ -210,8 +207,7 @@ internal class MediaStoreDao @Inject constructor(
                         discNumber = trackNo / 1000,
                         trackNumber = trackNo % 1000,
                         mediaUri = trackUri,
-                        albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId)
-                            .toString(),
+                        albumArtUri = albumArtworkUri.withAppendedId(albumId).toString(),
                         availabilityDate = cursor.getLong(colDateAdded),
                         artistId = cursor.getLong(colArtistId),
                         albumId = albumId,
@@ -255,14 +251,12 @@ internal class MediaStoreDao @Inject constructor(
                         title = cursor.getString(colTitle),
                         trackCount = cursor.getInt(colSongCount),
                         releaseYear = cursor.getInt(colYear),
-                        albumArtUri = ContentUris.withAppendedId(albumArtworkUri, albumId)
-                            .toString(),
+                        albumArtUri = albumArtworkUri.withAppendedId(albumId).toString(),
                         artistId = cursor.getLong(colArtistId),
                         artist = cursor.getString(colArtist)
                     )
                 }
             }
-
         } ?: emptyList()
     }
 
@@ -321,7 +315,7 @@ internal class MediaStoreDao @Inject constructor(
 
                 albumInfo += AlbumArtInfo(
                     artistId = cursor.getLong(colArtistId),
-                    albumArtPath = ContentUris.withAppendedId(albumArtworkUri, albumId).toString(),
+                    albumArtPath = albumArtworkUri.withAppendedId(albumId).toString(),
                     releaseYear = cursor.getInt(colYear)
                 )
             }
