@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class CleanupViewModel @Inject constructor(
-    private val deleteAction: DeleteTracksAction,
+    private val deleteTracks: DeleteTracksAction,
     usageManager: UsageManager
 ) : ViewModel() {
 
@@ -78,7 +78,7 @@ internal class CleanupViewModel @Inject constructor(
             val targetTrackIds = selectedTrackIds.map { trackId ->
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, trackId)
             }
-            pendingEvent.value = deleteAction.delete(targetTrackIds)
+            pendingEvent.value = deleteTracks(targetTrackIds)
         }
     }
 
@@ -86,7 +86,7 @@ internal class CleanupViewModel @Inject constructor(
         viewModelScope.launch {
             val selectedIds = selection.value
             if (selectedIds.isNotEmpty()) {
-                val result = deleteAction.delete(selectedIds.toList())
+                val result = deleteTracks(selectedIds.toList())
                 if (result is DeleteTracksResult.Deleted) {
                     clearSelection()
                 }

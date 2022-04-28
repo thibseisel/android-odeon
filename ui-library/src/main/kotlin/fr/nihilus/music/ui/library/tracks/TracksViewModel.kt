@@ -39,8 +39,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 internal class TracksViewModel @Inject constructor(
     private val client: BrowserClient,
-    private val deleteAction: DeleteTracksAction,
-    private val excludeAction: ExcludeTrackAction,
+    private val deleteTracks: DeleteTracksAction,
+    private val excludeTracks: ExcludeTrackAction,
 ) : ViewModel() {
 
     /**
@@ -100,7 +100,7 @@ internal class TracksViewModel @Inject constructor(
      */
     fun deleteTrack(trackId: MediaId) {
         viewModelScope.launch {
-            val result = deleteAction.delete(listOf(trackId))
+            val result = deleteTracks(listOf(trackId))
             events.update { pendingEvents ->
                 pendingEvents + when (result) {
                     is Deleted -> TrackEvent.TrackSuccessfullyDeleted
@@ -119,7 +119,7 @@ internal class TracksViewModel @Inject constructor(
      */
     fun excludeTrack(trackId: MediaId) {
         viewModelScope.launch {
-            excludeAction.exclude(trackId)
+            excludeTracks(trackId)
         }
     }
 

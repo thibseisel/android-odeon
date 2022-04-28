@@ -37,7 +37,7 @@ class DeleteTracksAction @Inject constructor(
      * Those should be valid track media ids, i.e. given any [type][MediaId.type]
      * or [category][MediaId.category], the [track identifier][MediaId.track] should not be `null`.
      */
-    suspend fun delete(mediaIds: List<MediaId>): DeleteTracksResult {
+    suspend operator fun invoke(mediaIds: List<MediaId>): DeleteTracksResult {
         val trackIds = LongArray(mediaIds.size) {
             val mediaId = mediaIds[it]
             requireNotNull(mediaId.track) { "Invalid track media id: $mediaId" }

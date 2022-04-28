@@ -39,8 +39,8 @@ private const val KEY_SEARCH_QUERY = "odeon.SearchViewModel.searchQuery"
 internal class SearchViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
     private val client: BrowserClient,
-    private val excludeAction: ExcludeTrackAction,
-    private val deleteAction: DeleteTracksAction,
+    private val excludeTracks: ExcludeTrackAction,
+    private val deleteTracks: DeleteTracksAction,
 ) : ViewModel() {
     private val searchQuery = savedState.getLiveData(KEY_SEARCH_QUERY, "")
 
@@ -98,7 +98,7 @@ internal class SearchViewModel @Inject constructor(
     fun exclude(track: MediaItem) {
         viewModelScope.launch {
             val trackMediaId = track.mediaId.parse()
-            excludeAction.exclude(trackMediaId)
+            excludeTracks(trackMediaId)
         }
     }
 
@@ -107,7 +107,7 @@ internal class SearchViewModel @Inject constructor(
      */
     fun delete(track: MediaId) {
         viewModelScope.launch {
-            val result = deleteAction.delete(listOf(track))
+            val result = deleteTracks(listOf(track))
             _deleteEvent.value = Event(
                 DeleteTracksConfirmation(track, result)
             )

@@ -30,8 +30,10 @@ class ExcludeTrackAction @Inject constructor(
     private val excludeList: TrackExclusionDao,
     private val clock: Clock
 ) {
-    suspend fun exclude(trackMediaId: MediaId) {
-        val trackId = requireNotNull(trackMediaId.track)
+    suspend operator fun invoke(trackMediaId: MediaId) {
+        val trackId = requireNotNull(trackMediaId.track) {
+            "Attempt to exclude a media that's not a track: $trackMediaId"
+        }
         excludeList.exclude(TrackExclusion(trackId, clock.currentEpochTime))
     }
 }

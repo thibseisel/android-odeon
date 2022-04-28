@@ -195,7 +195,7 @@ internal class DeleteTracksActionTest {
     @Test
     fun `Given invalid track media ids, when deleting then fail with IAE`() = runTest {
         val dao = InMemoryTrackDao()
-        val action = DeleteTracksAction(dao)
+        val deleteAction = DeleteTracksAction(dao)
 
         val invalidTrackIds = listOf(
             MediaId(TYPE_TRACKS, CATEGORY_ALL),
@@ -206,7 +206,7 @@ internal class DeleteTracksActionTest {
 
         for (mediaId in invalidTrackIds) {
             shouldThrow<IllegalArgumentException> {
-                action.delete(listOf(mediaId))
+                deleteAction(listOf(mediaId))
             }
         }
     }
@@ -214,9 +214,9 @@ internal class DeleteTracksActionTest {
     @Test
     fun `When deleting tracks then remove records from dao`() = runTest {
         val dao = InMemoryTrackDao(initial = SAMPLE_TRACKS)
-        val action = DeleteTracksAction(dao)
+        val deleteAction = DeleteTracksAction(dao)
 
-        val deleteResult = action.delete(
+        val deleteResult = deleteAction(
             mediaIds = listOf(
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 48),
@@ -240,14 +240,14 @@ internal class DeleteTracksActionTest {
     @Test
     fun `Given denied permission, when deleting tracks then return RequiresPermission`() = runTest {
         val deniedDao = InMemoryTrackDao(permissionGranted = false)
-        val action = DeleteTracksAction(deniedDao)
+        val deleteAction = DeleteTracksAction(deniedDao)
 
         val targetTrackIds = listOf(
             MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
             MediaId(TYPE_TRACKS, CATEGORY_ALL, 464)
         )
 
-        val result = action.delete(targetTrackIds)
+        val result = deleteAction(targetTrackIds)
         result.shouldBeInstanceOf<DeleteTracksResult.RequiresPermission>()
         result.permission shouldBe Manifest.permission.WRITE_EXTERNAL_STORAGE
     }
