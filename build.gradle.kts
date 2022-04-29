@@ -20,10 +20,21 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath(libs.plugin.hilt)
+    }
+}
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-@Suppress("DSL_SCOPE_VIOLATION", "UnstableApiUsage")
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.dependencyupdates)
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.androidx.navigation.safeargs.kotlin) apply false
 }
 
 allprojects {
@@ -62,42 +73,19 @@ subprojects {
         }
     }
 
-    // Common Android configuration
-    afterEvaluate {
-        configure<BaseExtension> {
-            compileSdkVersion(31)
+    pluginManager.withPlugin("com.android.application") { configureAndroid() }
+    pluginManager.withPlugin("com.android.library") { configureAndroid() }
 
-            defaultConfig {
-                minSdk = 23
-                targetSdk = 31
-
-                if (testInstrumentationRunner.isNullOrEmpty()) {
-                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-                }
-            }
-
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
-            }
-
-            testOptions {
-                // Include Android resources in unit tests to be resolved by Robolectric.
-                unitTests.isIncludeAndroidResources = true
-            }
+    pluginManager.withPlugin("org.jetbrains.kotlin.kapt") {
+        configure<KaptExtension> {
+            correctErrorTypes = true
+            useBuildCache = true
         }
+    }
 
-        if (pluginManager.hasPlugin("org.jetbrains.kotlin.kapt")) {
-            configure<KaptExtension> {
-                correctErrorTypes = true
-                useBuildCache = true
-            }
-        }
-
-        if (pluginManager.hasPlugin("dagger.hilt.android.plugin")) {
-            configure<dagger.hilt.android.plugin.HiltExtension> {
-                enableAggregatingTask = true
-            }
+    pluginManager.withPlugin("dagger.hilt.android.plugin") {
+        configure<dagger.hilt.android.plugin.HiltExtension> {
+            enableAggregatingTask = true
         }
     }
 }
@@ -142,4 +130,29 @@ tasks.dependencyUpdates.configure {
 
     val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
     rejectVersionIf { !candidate.version.matches(releaseRegex) }
+}
+
+fun Project.configureAndroid() {
+    configure<BaseExtension> {
+        compileSdkVersion(31)
+
+        defaultConfig {
+            minSdk = 23
+            targetSdk = 31
+
+            if (testInstrumentationRunner.isNullOrEmpty()) {
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+        }
+
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
+
+        testOptions {
+            // Include Android resources in unit tests to be resolved by Robolectric.
+            unitTests.isIncludeAndroidResources = true
+        }
+    }
 }

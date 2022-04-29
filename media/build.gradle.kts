@@ -51,9 +51,3 @@ dependencies {
     testImplementation(libs.androidx.test.junit)
     testImplementation(libs.androidx.room)
 }
-
-tasks.register<odeon.tasks.RefreshMediaStore>("refreshMediaStore") {
-    group = "emulator"
-    description = "Scan the connected device's Music folder for files to refresh MediaStore."
-    adbPath.set(androidComponents.sdkComponents.adb)
-}
