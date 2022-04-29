@@ -37,6 +37,3 @@ include(":app")
 include(":core", ":core-test", ":core-ui", ":core-instrumentation", ":media")
 include(":service", ":spotify-client")
 include(":ui-cleanup", ":ui-settings")
-
-// Enable version catalogs, e.g. libs.versions.toml
-enableFeaturePreview("VERSION_CATALOGS")
