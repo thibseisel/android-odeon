@@ -34,6 +34,7 @@ kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 plugin-android = { module = "com.android.tools.build:gradle", version.ref = "android.gradle" }
 plugin-hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "dagger" }
 plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+plugin-android-cache-fix = { module = "org.gradle.android.cache-fix:org.gradle.android.cache-fix.gradle.plugin", version = "2.5.2" }
 plugin-androidx-navigation-safeargs = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "androidx-navigation" }
 
 androidx-appcompat = "androidx.appcompat:appcompat:1.4.1"

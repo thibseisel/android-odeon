@@ -60,28 +60,32 @@ pluginManager.withPlugin("dagger.hilt.android.plugin") {
     }
 }
 
-fun configureAndroid(isLibrary: Boolean) = configure<BaseExtension> {
-    compileSdkVersion(31)
+fun configureAndroid(isLibrary: Boolean) {
+    apply(plugin = "org.gradle.android.cache-fix")
 
-    defaultConfig {
-        minSdk = 23
-        targetSdk = 31
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables.useSupportLibrary = true
+    configure<BaseExtension> {
+        compileSdkVersion(31)
 
-        if (isLibrary && file("consumer-rules.pro").exists()) {
-            consumerProguardFile("consumer-rules.pro")
+        defaultConfig {
+            minSdk = 23
+            targetSdk = 31
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            vectorDrawables.useSupportLibrary = true
+
+            if (isLibrary && file("consumer-rules.pro").exists()) {
+                consumerProguardFile("consumer-rules.pro")
+            }
         }
-    }
 
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
 
-    testOptions {
-        // Include Android resources in unit tests to be resolved by Robolectric.
-        unitTests.isIncludeAndroidResources = true
+        testOptions {
+            // Include Android resources in unit tests to be resolved by Robolectric.
+            unitTests.isIncludeAndroidResources = true
+        }
     }
 }
 
