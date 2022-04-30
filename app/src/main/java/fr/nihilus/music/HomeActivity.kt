@@ -61,7 +61,7 @@ class HomeActivity : BaseActivity() {
                 this,
                 "storage_permission_rationale",
                 message = getString(R.string.external_storage_permission_rationale),
-                positiveButton = R.string.core_ok
+                positiveButton = fr.nihilus.music.core.ui.R.string.core_ok
             )
         }
     }

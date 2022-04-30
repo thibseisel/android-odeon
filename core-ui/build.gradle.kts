@@ -15,13 +15,10 @@
  */
 
 plugins {
+    id("odeon-convention")
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
-}
-
-android.defaultConfig {
-    consumerProguardFiles("consumer-rules.pro")
 }
 
 dependencies {

@@ -177,7 +177,7 @@ internal class SearchResultsAdapter(
                 binding.overflowIcon,
                 Gravity.END or Gravity.BOTTOM,
                 0,
-                R.style.Widget_Odeon_PopupMenu_Overflow
+                fr.nihilus.music.core.ui.R.style.Widget_Odeon_PopupMenu_Overflow
             )
 
             popup.inflate(R.menu.track_popup_menu)

@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-plugins {
-    `kotlin-dsl`
+@file:Suppress("UnstableApiUsage")
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
 }
 
-repositories {
-    google()
-    gradlePluginPortal()
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
 }
 
-dependencies {
-    implementation(libs.plugin.android)
-    implementation(libs.plugin.kotlin)
-    implementation(libs.plugin.hilt)
-    implementation(libs.plugin.androidx.navigation.safeargs)
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }

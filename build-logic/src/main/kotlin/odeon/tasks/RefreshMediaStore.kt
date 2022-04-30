@@ -20,6 +20,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
+import kotlin.io.bufferedReader
+import kotlin.io.readText
+import kotlin.io.use
+import kotlin.io.useLines
+import kotlin.sequences.forEach
+import kotlin.text.trimIndent
 
 /**
  * Scan for music files stored on the connected Android device or emulator, updating which files
@@ -27,7 +33,7 @@ import org.gradle.api.tasks.TaskAction
  * You may need to run this task after uploading audio files to an Android emulator,
  * as their media scanner is not run automatically for some reasons.
  */
-abstract class RefreshMediaStore : DefaultTask() {
+internal abstract class RefreshMediaStore : DefaultTask() {
 
     /**
      * The path to the Android Debug Bridge (ADB) executable from the Android SDK.

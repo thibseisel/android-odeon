@@ -20,86 +20,21 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath(libs.plugin.hilt)
+    }
+}
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-@Suppress("DSL_SCOPE_VIOLATION", "UnstableApiUsage")
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     alias(libs.plugins.dependencyupdates)
-}
-
-allprojects {
-    tasks.register("configurations") {
-        group = "help"
-        description = "Display build configurations declared in project ':${this@allprojects.name}'"
-
-        doLast {
-            configurations.filter { it.isCanBeResolved }.forEach {
-                println("${it.name} - ${it.description}")
-            }
-        }
-    }
-}
-
-subprojects {
-    // Common Kotlin configuration
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "11"
-            freeCompilerArgs = freeCompilerArgs + arrayOf(
-                "-progressive",
-                "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-            )
-        }
-    }
-
-    tasks.withType<Test>().configureEach {
-        testLogging {
-            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
-            showStackTraces = true
-            exceptionFormat = TestExceptionFormat.FULL
-            showExceptions = true
-            showCauses = true
-        }
-    }
-
-    // Common Android configuration
-    afterEvaluate {
-        configure<BaseExtension> {
-            compileSdkVersion(31)
-
-            defaultConfig {
-                minSdk = 23
-                targetSdk = 31
-
-                if (testInstrumentationRunner.isNullOrEmpty()) {
-                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-                }
-            }
-
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
-            }
-
-            testOptions {
-                // Include Android resources in unit tests to be resolved by Robolectric.
-                unitTests.isIncludeAndroidResources = true
-            }
-        }
-
-        if (pluginManager.hasPlugin("org.jetbrains.kotlin.kapt")) {
-            configure<KaptExtension> {
-                correctErrorTypes = true
-                useBuildCache = true
-            }
-        }
-
-        if (pluginManager.hasPlugin("dagger.hilt.android.plugin")) {
-            configure<dagger.hilt.android.plugin.HiltExtension> {
-                enableAggregatingTask = true
-            }
-        }
-    }
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.androidx.navigation.safeargs.kotlin) apply false
 }
 
 tasks.register<Exec>("startAutoDhu") {
@@ -142,4 +77,29 @@ tasks.dependencyUpdates.configure {
 
     val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
     rejectVersionIf { !candidate.version.matches(releaseRegex) }
+}
+
+fun Project.configureAndroid() {
+    configure<BaseExtension> {
+        compileSdkVersion(31)
+
+        defaultConfig {
+            minSdk = 23
+            targetSdk = 31
+
+            if (testInstrumentationRunner.isNullOrEmpty()) {
+                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            }
+        }
+
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
+        }
+
+        testOptions {
+            // Include Android resources in unit tests to be resolved by Robolectric.
+            unitTests.isIncludeAndroidResources = true
+        }
+    }
 }

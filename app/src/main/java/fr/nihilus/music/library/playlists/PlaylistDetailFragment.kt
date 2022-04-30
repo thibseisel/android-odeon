@@ -54,8 +54,8 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host_fragment
-            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
-            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
+            duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+            setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
     }
 
@@ -121,8 +121,8 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
                         R.string.delete_playlist_dialog_title,
                         playlistTitle
                     ),
-                    positiveButton = R.string.core_ok,
-                    negativeButton = R.string.core_cancel
+                    positiveButton = fr.nihilus.music.core.ui.R.string.core_ok,
+                    negativeButton = fr.nihilus.music.core.ui.R.string.core_cancel
                 )
                 return true
             }

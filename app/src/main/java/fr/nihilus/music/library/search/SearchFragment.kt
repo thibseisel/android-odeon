@@ -110,7 +110,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun setupHomeToSearchTransition() {
-        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = transitionDuration
         }
@@ -120,7 +120,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun setupHoldTransition() {
-        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
         exitTransition = Hold().apply {
             duration = transitionDuration
             addTarget(requireView())
@@ -129,7 +129,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun setupSharedAxisTransition() {
-        val sharedAxisDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        val sharedAxisDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
         exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = sharedAxisDuration
         }

@@ -90,7 +90,7 @@ class SongAdapter(
                 binding.overflowIcon,
                 Gravity.BOTTOM or Gravity.END,
                 0,
-                R.style.Widget_Odeon_PopupMenu_Overflow
+                fr.nihilus.music.core.ui.R.style.Widget_Odeon_PopupMenu_Overflow
             )
             popup.inflate(R.menu.track_popup_menu)
 

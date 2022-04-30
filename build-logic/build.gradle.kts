@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,12 @@
  */
 
 plugins {
-    id("odeon-convention")
-    id("com.android.library")
-    kotlin("android")
-}
-
-android {
-    useLibrary("android.test.mock")
+    `kotlin-dsl`
 }
 
 dependencies {
-    implementation(libs.androidx.test.runner)
-    implementation(libs.androidx.test.rules)
-    implementation(libs.hilt.android.testing)
+    implementation(libs.plugin.android)
+    implementation(libs.plugin.kotlin)
+    implementation(libs.plugin.hilt)
+    implementation(libs.plugin.android.cache.fix)
 }

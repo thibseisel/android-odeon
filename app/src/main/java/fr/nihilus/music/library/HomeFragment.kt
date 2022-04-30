@@ -80,7 +80,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         // Configure toolbar with title and menu.
         binding.toolbar.run {
-            setTitle(R.string.core_app_name)
+            setTitle(fr.nihilus.music.core.R.string.core_app_name)
             prepareMenu()
         }
 
@@ -151,7 +151,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     private fun navigateToSearch() {
-        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
         exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = transitionDuration
         }

@@ -15,28 +15,10 @@
  */
 
 plugins {
+    id("odeon-convention")
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
-}
-
-android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        getByName("release") {
-            // Configure Kotlin compiler optimisations for releases
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-Xno-param-assertions",
-                    "-Xno-call-assertions",
-                    "-Xno-receiver-assertions"
-                )
-            }
-        }
-    }
 }
 
 dependencies {
@@ -50,10 +32,4 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.junit)
     testImplementation(libs.androidx.room)
-}
-
-tasks.register<odeon.tasks.RefreshMediaStore>("refreshMediaStore") {
-    group = "emulator"
-    description = "Scan the connected device's Music folder for files to refresh MediaStore."
-    adbPath.set(androidComponents.sdkComponents.adb)
 }

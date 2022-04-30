@@ -113,10 +113,10 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             // Animate behind player sheet and status bar.
             drawingViewId = R.id.nav_host_fragment
-            duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+            duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
             // Draw a background color behind the track list to prevent from drawing
             // the seeing the previous fragment beneath.
-            val themeColorSurface = requireContext().themeColor(R.attr.colorSurface)
+            val themeColorSurface = requireContext().themeColor(com.google.android.material.R.attr.colorSurface)
             setAllContainerColors(themeColorSurface)
 
             addListener(object : TransitionListenerAdapter() {
@@ -152,11 +152,11 @@ class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail) {
     private fun setDarkHomeUpIndicator(dark: Boolean, binding: FragmentAlbumDetailBinding) {
         val themedContext = ContextThemeWrapper(
             requireContext(),
-            if (dark) R.style.ThemeOverlay_AppCompat_Light
-            else R.style.ThemeOverlay_AppCompat_Dark_ActionBar
+            if (dark) androidx.appcompat.R.style.ThemeOverlay_AppCompat_Light
+            else androidx.appcompat.R.style.ThemeOverlay_AppCompat_Dark_ActionBar
         )
 
-        val upArrow = ContextCompat.getDrawable(themedContext, R.drawable.ui_ic_arrow_back_24dp)
+        val upArrow = ContextCompat.getDrawable(themedContext, fr.nihilus.music.core.ui.R.drawable.ui_ic_arrow_back_24dp)
         binding.toolbar.navigationIcon = upArrow
     }
 
