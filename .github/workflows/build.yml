@@ -18,9 +18,6 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
-      - name: Grant execution permission for gradlew
-        run: chmod +x gradlew
-
       - name: Build and check app
         run: |
           ./gradlew --stacktrace \
