@@ -56,8 +56,8 @@ class DividerItemDecoration(
         const val VERTICAL = LinearLayout.VERTICAL
         private val DIVIDER_THEME_ATTRS = intArrayOf(
             android.R.attr.listDivider,
-            R.attr.dividerHorizontal,
-            R.attr.dividerVertical
+            androidx.appcompat.R.attr.dividerHorizontal,
+            androidx.appcompat.R.attr.dividerVertical
         )
     }
 

@@ -59,7 +59,7 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
 
             requireParentFragment().apply {
                 exitTransition = Hold().apply {
-                    duration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+                    duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
                     addTarget(R.id.fragment_home)
                 }
                 reenterTransition = null

@@ -176,8 +176,8 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                 selectedCount
             ),
             message = getString(R.string.cleanup_confirmation_message),
-            positiveButton = R.string.core_action_delete,
-            negativeButton = R.string.core_cancel
+            positiveButton = fr.nihilus.music.core.ui.R.string.core_action_delete,
+            negativeButton = fr.nihilus.music.core.ui.R.string.core_cancel
         )
     }
 }

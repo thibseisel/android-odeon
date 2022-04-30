@@ -39,8 +39,8 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_dialog_title)
             .setMessage(R.string.delete_dialog_message)
-            .setPositiveButton(R.string.core_action_delete) { _, _ -> onDelete() }
-            .setNegativeButton(R.string.core_cancel, null)
+            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_action_delete) { _, _ -> onDelete() }
+            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
             .create()
     }
 

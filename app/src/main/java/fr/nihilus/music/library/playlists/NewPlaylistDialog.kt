@@ -49,8 +49,8 @@ internal class NewPlaylistDialog : BaseDialogFragment() {
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
             .setView(binding.root)
-            .setNegativeButton(R.string.core_cancel, null)
-            .setPositiveButton(R.string.core_ok) { _, _ ->
+            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
+            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_ok) { _, _ ->
                 val currentPlaylistTitle = binding.titleInput.text?.toString()
                 check(isValidTitle(currentPlaylistTitle))
                 onRequestCreatePlaylist(currentPlaylistTitle)

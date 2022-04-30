@@ -78,7 +78,7 @@ class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
         val artist = adapter.getItem(position)
 
         // Reset transitions set by another navigation events.
-        val transitionDuration = resources.getInteger(R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
         requireParentFragment().apply {
             exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
                 duration = transitionDuration

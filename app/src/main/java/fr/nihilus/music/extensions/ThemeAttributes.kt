@@ -22,14 +22,14 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 
 fun Context.resolveDefaultAlbumPalette(): AlbumPalette {
-    val attrs = obtainStyledAttributes(R.styleable.DefaultAlbumPalette)
+    val attrs = obtainStyledAttributes(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette)
     return try {
         AlbumPalette(
-            attrs.getColorOrThrow(R.styleable.DefaultAlbumPalette_albumPalettePrimaryColor),
-            attrs.getColorOrThrow(R.styleable.DefaultAlbumPalette_albumPaletteAccentColor),
-            attrs.getColorOrThrow(R.styleable.DefaultAlbumPalette_albumPaletteTitleTextColor),
-            attrs.getColorOrThrow(R.styleable.DefaultAlbumPalette_albumPaletteBodyTextColor),
-            attrs.getColorOrThrow(R.styleable.DefaultAlbumPalette_albumPaletteTextOnAccentColor)
+            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPalettePrimaryColor),
+            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteAccentColor),
+            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteTitleTextColor),
+            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteBodyTextColor),
+            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteTextOnAccentColor)
         )
     } finally {
         attrs.recycle()
