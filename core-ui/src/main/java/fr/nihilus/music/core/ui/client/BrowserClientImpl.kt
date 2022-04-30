@@ -24,6 +24,9 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.settings.Settings
@@ -44,13 +47,18 @@ import kotlin.coroutines.suspendCoroutine
 @Singleton
 internal class BrowserClientImpl @Inject constructor(
     @ApplicationContext applicationContext: Context,
-    private val settings: Settings
-) : BrowserClient {
+    @ApplicationLifecycle private val lifecycle: Lifecycle,
+    private val settings: Settings,
+) : BrowserClient, DefaultLifecycleObserver {
 
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
 
     @Volatile private var deferredController = CompletableDeferred<MediaControllerCompat>()
+
+    init {
+        lifecycle.addObserver(this)
+    }
 
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
@@ -69,14 +77,14 @@ internal class BrowserClientImpl @Inject constructor(
     override val shuffleMode: StateFlow<Int> = _shuffleMode
     override val repeatMode: StateFlow<Int> = _repeatMode
 
-    override fun connect() {
+    override fun onStart(owner: LifecycleOwner) {
         if (!mediaBrowser.isConnected) {
             Timber.tag("BrowserClientImpl").i("Connecting to service...")
             mediaBrowser.connect()
         }
     }
 
-    override fun disconnect() {
+    override fun onStop(owner: LifecycleOwner) {
         if (mediaBrowser.isConnected) {
             Timber.tag("BrowserClientImpl").i("Disconnecting from service...")
             mediaBrowser.disconnect()
@@ -84,7 +92,7 @@ internal class BrowserClientImpl @Inject constructor(
         }
     }
 
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
+    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = callbackFlow {
         // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
         // Wait for the media browser to be connected before registering subscription.
         deferredController.await()
@@ -116,7 +124,11 @@ internal class BrowserClientImpl @Inject constructor(
         return suspendCoroutine { continuation ->
             mediaBrowser.search(query, null, object : MediaBrowserCompat.SearchCallback() {
 
-                override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaItem>) {
+                override fun onSearchResult(
+                    query: String,
+                    extras: Bundle?,
+                    items: List<MediaItem>
+                ) {
                     continuation.resume(items)
                 }
 
