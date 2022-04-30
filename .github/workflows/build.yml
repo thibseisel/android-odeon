@@ -18,6 +18,7 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
+      - uses: gradle/gradle-build-action@v2
       - name: Build and check app
         run: |
           ./gradlew --stacktrace \
