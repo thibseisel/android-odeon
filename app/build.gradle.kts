@@ -15,7 +15,7 @@
  */
 
 plugins {
-    id("odeon-application")
+    id("odeon-convention")
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")

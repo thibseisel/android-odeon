@@ -15,6 +15,7 @@
  */
 
 plugins {
+    id("odeon-convention")
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
@@ -22,7 +23,7 @@ plugins {
 
 android {
     defaultConfig {
-        consumerProguardFiles("consumer-rules.pro", "moshi.pro", "okhttp3.pro", "okio.pro")
+        consumerProguardFiles("moshi.pro", "okhttp3.pro", "okio.pro")
 
         val clientId = getSpotifyProperty("clientId")
         val clientSecret = getSpotifyProperty("clientSecret")

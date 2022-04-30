@@ -15,28 +15,10 @@
  */
 
 plugins {
+    id("odeon-convention")
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
-}
-
-android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        getByName("release") {
-            // Configure Kotlin compiler optimisations for releases
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-Xno-param-assertions",
-                    "-Xno-call-assertions",
-                    "-Xno-receiver-assertions"
-                )
-            }
-        }
-    }
 }
 
 dependencies {

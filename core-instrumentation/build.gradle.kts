@@ -15,6 +15,7 @@
  */
 
 plugins {
+    id("odeon-convention")
     id("com.android.library")
     kotlin("android")
 }

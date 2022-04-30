@@ -20,4 +20,6 @@ plugins {
 
 dependencies {
     implementation(libs.plugin.android)
+    implementation(libs.plugin.kotlin)
+    implementation(libs.plugin.hilt)
 }

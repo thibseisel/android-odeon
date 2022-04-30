@@ -37,59 +37,6 @@ plugins {
     alias(libs.plugins.androidx.navigation.safeargs.kotlin) apply false
 }
 
-allprojects {
-    tasks.register("configurations") {
-        group = "help"
-        description = "Display build configurations declared in project ':${this@allprojects.name}'"
-
-        doLast {
-            configurations.filter { it.isCanBeResolved }.forEach {
-                println("${it.name} - ${it.description}")
-            }
-        }
-    }
-}
-
-subprojects {
-    // Common Kotlin configuration
-    tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "11"
-            freeCompilerArgs = freeCompilerArgs + arrayOf(
-                "-progressive",
-                "-opt-in=kotlin.RequiresOptIn",
-                "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-            )
-        }
-    }
-
-    tasks.withType<Test>().configureEach {
-        testLogging {
-            events(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
-            showStackTraces = true
-            exceptionFormat = TestExceptionFormat.FULL
-            showExceptions = true
-            showCauses = true
-        }
-    }
-
-    pluginManager.withPlugin("com.android.application") { configureAndroid() }
-    pluginManager.withPlugin("com.android.library") { configureAndroid() }
-
-    pluginManager.withPlugin("org.jetbrains.kotlin.kapt") {
-        configure<KaptExtension> {
-            correctErrorTypes = true
-            useBuildCache = true
-        }
-    }
-
-    pluginManager.withPlugin("dagger.hilt.android.plugin") {
-        configure<dagger.hilt.android.plugin.HiltExtension> {
-            enableAggregatingTask = true
-        }
-    }
-}
-
 tasks.register<Exec>("startAutoDhu") {
     group = "android-auto"
     description = "Start Android Auto's Desktop Head Unit (DHU)"
