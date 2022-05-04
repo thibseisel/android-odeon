@@ -21,10 +21,10 @@ import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
+import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.provider.ALGORITHM
 import fr.nihilus.music.media.provider.CARTAGENA
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.media.provider.ISOLATED_SYSTEM
-import fr.nihilus.music.media.provider.TrackLocalSource
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -186,6 +186,52 @@ internal class TrackRepositoryTest {
         coVerifySequence {
             mockTracks.deleteTracks(longArrayOf(CARTAGENA.id, ISOLATED_SYSTEM.id))
         }
+    }
+
+    @Test
+    fun `getAlbumTracks - returns all tracks part of an album sorted by number`() = runTest {
+        every { mockTracks.tracks } returns infiniteFlowOf(
+            listOf(ISOLATED_SYSTEM, ALGORITHM, DIRTY_WATER, THE_PRETENDERS, RUN)
+        )
+        every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
+
+        val albumTracks = repository.getAlbumTracks(CONCRETE_AND_GOLD.id).first()
+
+        albumTracks.shouldContainExactly(RUN, DIRTY_WATER)
+    }
+
+    @Test
+    fun `getAlbumTracks - returns empty list for unknown album`() = runTest {
+        every { mockTracks.tracks } returns infiniteFlowOf(
+            listOf(ISOLATED_SYSTEM, ALGORITHM, DIRTY_WATER, THE_PRETENDERS, RUN)
+        )
+        every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
+
+        val tracks = repository.getAlbumTracks(SUNSET_ON_GOLDEN_AGE.id).first()
+        tracks.shouldBeEmpty()
+    }
+
+    @Test
+    fun `getArtistTracks - returns all tracks produced by an artist sorted alphabetically`() = runTest {
+        every { mockTracks.tracks } returns infiniteFlowOf(
+            listOf(ISOLATED_SYSTEM, ALGORITHM, DIRTY_WATER, THE_PRETENDERS, RUN)
+        )
+        every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
+
+        val artistTracks = repository.getArtistTracks(FOO_FIGHTERS.id).first()
+
+        artistTracks.shouldContainExactly(DIRTY_WATER, THE_PRETENDERS, RUN)
+    }
+
+    @Test
+    fun `getArtistTracks - returns empty list for unknown artist`() = runTest {
+        every { mockTracks.tracks } returns infiniteFlowOf(
+            listOf(ISOLATED_SYSTEM, ALGORITHM, DIRTY_WATER, THE_PRETENDERS, RUN)
+        )
+        every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
+
+        val tracks = repository.getArtistTracks(ALESTORM.id).first()
+        tracks.shouldBeEmpty()
     }
 }
 

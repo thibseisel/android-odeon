@@ -84,3 +84,15 @@ class TrackRepository @Inject internal constructor(
             tracks.filterNot { it.id in exclusionTrackIds }
         }
 }
+
+fun TrackRepository.getAlbumTracks(albumId: Long): Flow<List<Track>> =
+    tracks.map { allTracks ->
+        allTracks
+            .filter { it.albumId == albumId }
+            .sortedWith(compareBy(Track::discNumber, Track::trackNumber))
+    }
+
+fun TrackRepository.getArtistTracks(artistId: Long): Flow<List<Track>> =
+    tracks.map { allTracks ->
+        allTracks.filter { it.artistId == artistId }
+    }
