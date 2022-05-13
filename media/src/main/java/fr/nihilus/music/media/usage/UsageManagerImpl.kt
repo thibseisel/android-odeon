@@ -20,8 +20,8 @@ import dagger.Reusable
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
 import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
@@ -34,12 +34,12 @@ import kotlin.math.sqrt
  * Depending on the requesting collection of tracks, each track is given a compliance score.
  * Tracks with the highest score are listed first, while tracks that score too loo are ignored.
  *
- * @param mediaDao The source for media files metadata.
+ * @param tracks The source for media files metadata.
  * @param usageDao The DAO that controls storage of playback statistics.
  */
 @Reusable
 internal class UsageManagerImpl @Inject constructor(
-    private val mediaDao: MediaDao,
+    private val tracks: TrackRepository,
     private val usageDao: UsageDao,
     private val clock: Clock
 ) : UsageManager {
@@ -51,7 +51,7 @@ internal class UsageManagerImpl @Inject constructor(
         }
     }
 
-    override fun getMostRatedTracks(): Flow<List<Track>> = mediaDao.tracks.map { tracks ->
+    override fun getMostRatedTracks(): Flow<List<Track>> = tracks.tracks.map { tracks ->
         val tracksById = tracks.associateBy { it.id }
         val trackScores = usageDao.getTracksUsage(0L)
 
@@ -64,9 +64,10 @@ internal class UsageManagerImpl @Inject constructor(
     override fun getPopularTracksSince(period: Long, unit: TimeUnit): Flow<List<Track>> {
         require(period >= 0)
 
-        return mediaDao.tracks.map { tracks ->
+        return tracks.tracks.map { tracks ->
             val tracksById = tracks.associateBy { it.id }
-            val tracksUsage = usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
+            val tracksUsage =
+                usageDao.getTracksUsage(clock.currentEpochTime - unit.toSeconds(period))
 
             if (tracksUsage.isEmpty()) emptyList() else {
                 val bestScore = tracksUsage.first().score
@@ -82,18 +83,19 @@ internal class UsageManagerImpl @Inject constructor(
         }
     }
 
-    override fun getDisposableTracks(): Flow<List<DisposableTrack>> = mediaDao.tracks.map { tracks ->
+    override fun getDisposableTracks(): Flow<List<DisposableTrack>> = tracks.tracks.map { tracks ->
         val usageByTrack = usageDao.getTracksUsage(0L).associateBy { it.trackId }
 
         val currentEpochTime = clock.currentEpochTime
         tracks.mapTo(ArrayList(tracks.size)) { track ->
-                val usage = usageByTrack[track.id]
-                val playCount = usage?.score ?: 0
-                val lastPlayedTime = usage?.lastEventTime ?: 0L
+            val usage = usageByTrack[track.id]
+            val playCount = usage?.score ?: 0
+            val lastPlayedTime = usage?.lastEventTime ?: 0L
 
-                val score = computeCleanupScore(track.fileSize, playCount, lastPlayedTime, currentEpochTime)
-                DisposableTrackScore(track, usage?.lastEventTime, score)
-            }
+            val score =
+                computeCleanupScore(track.fileSize, playCount, lastPlayedTime, currentEpochTime)
+            DisposableTrackScore(track, usage?.lastEventTime, score)
+        }
             .also { it.sortWith(biggerScoreAndSizeFirst) }
             .take(25)
             .map { (track, playTime, _) ->
