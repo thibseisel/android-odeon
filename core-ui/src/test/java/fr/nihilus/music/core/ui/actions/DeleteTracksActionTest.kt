@@ -24,7 +24,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.tracks.TrackRepository
-import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf

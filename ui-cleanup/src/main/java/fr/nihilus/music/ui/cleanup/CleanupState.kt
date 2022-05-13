@@ -17,7 +17,7 @@
 package fr.nihilus.music.ui.cleanup
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 
 internal data class CleanupState(
     val tracks: List<Track>,

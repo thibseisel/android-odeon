@@ -35,7 +35,7 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
-import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
 import fr.nihilus.music.core.ui.R as CoreUiR
 

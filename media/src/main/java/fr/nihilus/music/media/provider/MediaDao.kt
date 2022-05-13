@@ -18,6 +18,7 @@ package fr.nihilus.music.media.provider
 
 import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.artists.Artist
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.Flow
 

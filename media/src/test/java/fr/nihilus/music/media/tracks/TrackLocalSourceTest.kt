@@ -31,7 +31,6 @@ import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.core.permissions.RuntimePermission
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.provider.ContentResolverTestRule
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.media.provider.FakeAudioMediaProvider
 import fr.nihilus.music.media.provider.withAppendedId
 import io.kotest.assertions.extracting

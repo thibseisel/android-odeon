@@ -33,6 +33,7 @@ import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.dagger.SourceDao
 import fr.nihilus.music.media.os.MediaStoreDatabase
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose

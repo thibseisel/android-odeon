@@ -20,7 +20,6 @@ import fr.nihilus.music.core.context.AppCoroutineScope
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*

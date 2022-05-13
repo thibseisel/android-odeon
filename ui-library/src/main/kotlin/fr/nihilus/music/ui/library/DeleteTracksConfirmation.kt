@@ -17,7 +17,7 @@
 package fr.nihilus.music.ui.library
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 
 /**
  * Wraps the result of deleting a single track.

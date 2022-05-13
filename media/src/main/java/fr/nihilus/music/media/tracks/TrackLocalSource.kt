@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.permissions.PermissionRepository
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.media.provider.MediaStoreInternals
 import fr.nihilus.music.media.provider.observeContentChanges
 import fr.nihilus.music.media.provider.withAppendedId

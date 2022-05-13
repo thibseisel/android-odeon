@@ -25,7 +25,6 @@ import fr.nihilus.music.media.albums.CONCRETE_AND_GOLD
 import fr.nihilus.music.media.albums.SUNSET_ON_GOLDEN_AGE
 import fr.nihilus.music.media.artists.ALESTORM
 import fr.nihilus.music.media.artists.FOO_FIGHTERS
-import fr.nihilus.music.media.provider.*
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

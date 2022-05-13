@@ -25,6 +25,7 @@ import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
