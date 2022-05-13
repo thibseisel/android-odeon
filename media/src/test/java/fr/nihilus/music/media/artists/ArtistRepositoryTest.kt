@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.artists
 
 import app.cash.turbine.test
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.CARTAGENA
+import fr.nihilus.music.media.tracks.DIRTY_WATER
+import fr.nihilus.music.media.tracks.MATTER_OF_TIME
+import fr.nihilus.music.media.tracks.RUN
+import fr.nihilus.music.media.tracks.THE_PRETENDERS
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.MockKAnnotations
 import io.mockk.every

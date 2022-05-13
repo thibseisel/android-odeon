@@ -21,7 +21,7 @@ import fr.nihilus.music.core.database.spotify.Pitch
 import fr.nihilus.music.core.database.spotify.SpotifyLink
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.os.TestClock
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import io.kotest.assertions.extracting
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

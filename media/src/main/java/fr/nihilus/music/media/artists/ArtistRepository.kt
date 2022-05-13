@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.artists
 
-import fr.nihilus.music.media.provider.Artist
-import fr.nihilus.music.media.provider.ArtistLocalSource
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject

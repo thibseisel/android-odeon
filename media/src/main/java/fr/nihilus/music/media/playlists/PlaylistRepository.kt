@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlist
+package fr.nihilus.music.media.playlists
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -25,8 +25,8 @@ import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.core.os.IconContentUri
 import fr.nihilus.music.core.os.PlaylistIconDir
-import fr.nihilus.music.media.TrackRepository
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import io.github.thibseisel.identikon.Identicon
 import io.github.thibseisel.identikon.IdenticonStyle
 import io.github.thibseisel.identikon.drawToBitmap

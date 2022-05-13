@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.albums
 
 internal val THE_2ND_LAW = Album(
     id = 40,

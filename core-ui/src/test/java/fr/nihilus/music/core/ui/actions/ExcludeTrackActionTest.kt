@@ -21,7 +21,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.TrackRepository
+import fr.nihilus.music.media.tracks.TrackRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.mockk.MockKAnnotations
 import io.mockk.coVerifySequence

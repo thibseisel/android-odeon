@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.tracks
 
 internal val CARTAGENA = Track(
     id = 161,

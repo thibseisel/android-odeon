@@ -23,10 +23,10 @@ import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.flow.dematerialize
 import fr.nihilus.music.core.flow.materialize
 import fr.nihilus.music.media.dagger.SourceDao
-import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.albums.Album
+import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow

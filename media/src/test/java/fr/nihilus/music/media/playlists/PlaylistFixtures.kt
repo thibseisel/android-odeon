@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlist
+package fr.nihilus.music.media.playlists
 
 import androidx.core.net.toUri
 import fr.nihilus.music.core.database.playlists.Playlist

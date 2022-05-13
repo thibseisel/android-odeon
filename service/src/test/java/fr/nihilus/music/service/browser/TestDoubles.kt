@@ -22,7 +22,10 @@ import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.stub
+import fr.nihilus.music.media.albums.Album
+import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.spotify.manager.FeatureFilter

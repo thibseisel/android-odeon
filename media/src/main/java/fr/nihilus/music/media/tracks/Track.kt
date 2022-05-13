@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.tracks
 
 /**
  * The metadata of a track that is saved on the device's storage.

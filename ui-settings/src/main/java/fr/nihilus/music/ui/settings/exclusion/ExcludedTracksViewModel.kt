@@ -21,7 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.media.dagger.SourceDao
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject

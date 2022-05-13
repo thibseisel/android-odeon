@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.albums
 
 import android.content.ContentResolver
 import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Albums
+import android.provider.MediaStore.Audio.Media
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.permissions.PermissionRepository
+import fr.nihilus.music.media.provider.MediaStoreInternals
+import fr.nihilus.music.media.provider.observeContentChanges
+import fr.nihilus.music.media.provider.withAppendedId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
@@ -53,7 +57,7 @@ internal class AlbumLocalSource @Inject constructor(
             Albums.ARTIST,
             Albums.LAST_YEAR,
             Albums.NUMBER_OF_SONGS,
-            MediaStore.Audio.Media.ARTIST_ID
+            Media.ARTIST_ID
         )
 
         resolver.query(

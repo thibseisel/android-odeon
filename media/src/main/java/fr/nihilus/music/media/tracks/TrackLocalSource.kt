@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.tracks
 
 import android.Manifest
 import android.content.ContentResolver
@@ -26,10 +26,13 @@ import androidx.annotation.RequiresApi
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.permissions.PermissionRepository
+import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.provider.MediaStoreInternals
+import fr.nihilus.music.media.provider.observeContentChanges
+import fr.nihilus.music.media.provider.withAppendedId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

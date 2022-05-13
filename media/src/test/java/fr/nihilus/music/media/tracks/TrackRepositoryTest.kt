@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.tracks
 
 import app.cash.turbine.test
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
+import fr.nihilus.music.media.albums.CONCRETE_AND_GOLD
+import fr.nihilus.music.media.albums.SUNSET_ON_GOLDEN_AGE
+import fr.nihilus.music.media.artists.ALESTORM
+import fr.nihilus.music.media.artists.FOO_FIGHTERS
 import fr.nihilus.music.media.provider.*
-import fr.nihilus.music.media.provider.ALGORITHM
-import fr.nihilus.music.media.provider.CARTAGENA
-import fr.nihilus.music.media.provider.ISOLATED_SYSTEM
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe

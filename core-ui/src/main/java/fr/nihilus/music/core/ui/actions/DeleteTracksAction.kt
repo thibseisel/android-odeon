@@ -17,8 +17,8 @@
 package fr.nihilus.music.core.ui.actions
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.media.TrackRepository
 import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.TrackRepository
 import javax.inject.Inject
 
 /**

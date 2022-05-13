@@ -24,9 +24,9 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.MediaContent
 import io.kotest.assertions.extracting

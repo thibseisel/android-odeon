@@ -25,9 +25,8 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.playlist.PlaylistRepository
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.file.shouldNotExist
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerifySequence

@@ -29,8 +29,11 @@ import dagger.Reusable
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.permissions.PermissionRepository
+import fr.nihilus.music.media.albums.Album
+import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.dagger.SourceDao
 import fr.nihilus.music.media.os.MediaStoreDatabase
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media
+package fr.nihilus.music.media.tracks
 
 import fr.nihilus.music.core.context.AppCoroutineScope
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.DeleteTracksResult
-import fr.nihilus.music.media.provider.Track
-import fr.nihilus.music.media.provider.TrackLocalSource
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*

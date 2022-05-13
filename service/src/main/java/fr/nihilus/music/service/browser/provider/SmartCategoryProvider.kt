@@ -20,7 +20,7 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.spotify.manager.FeatureFilter

@@ -19,9 +19,9 @@ package fr.nihilus.music.service.browser.provider
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
-import fr.nihilus.music.media.provider.Album
+import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.AudioTrack

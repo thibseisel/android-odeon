@@ -18,7 +18,7 @@ package fr.nihilus.music.core.ui.actions
 
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
-import fr.nihilus.music.media.playlist.PlaylistRepository
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import javax.inject.Inject
 
 /**

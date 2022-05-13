@@ -20,7 +20,7 @@ import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery

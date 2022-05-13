@@ -18,10 +18,10 @@ package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.test.coroutines.flow.NeverFlow
 import fr.nihilus.music.core.test.stub
-import fr.nihilus.music.media.provider.Album
-import fr.nihilus.music.media.provider.Artist
+import fr.nihilus.music.media.albums.Album
+import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

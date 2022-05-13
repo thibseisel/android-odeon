@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.service
 
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlin.random.Random
 
 private const val ALPHABET_SIZE = 26

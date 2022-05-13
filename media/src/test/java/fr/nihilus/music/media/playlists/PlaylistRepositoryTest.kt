@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.playlist
+package fr.nihilus.music.media.playlists
 
 import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -26,12 +26,7 @@ import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
-import fr.nihilus.music.media.TrackRepository
-import fr.nihilus.music.media.provider.ALGORITHM
-import fr.nihilus.music.media.provider.DIRTY_WATER
-import fr.nihilus.music.media.provider.ISOLATED_SYSTEM
-import fr.nihilus.music.media.provider.KNIGHTS_OF_CYDONIA
-import fr.nihilus.music.media.provider.NIGHTMARE
+import fr.nihilus.music.media.tracks.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly

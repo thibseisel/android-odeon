@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.artists
 
 import android.content.ContentResolver
 import android.provider.MediaStore.Audio.*
 import android.util.LongSparseArray
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.permissions.PermissionRepository
+import fr.nihilus.music.media.provider.MediaStoreInternals
+import fr.nihilus.music.media.provider.observeContentChanges
+import fr.nihilus.music.media.provider.withAppendedId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.provider
+package fr.nihilus.music.media.artists
 
 import android.database.ContentObserver
 import android.provider.MediaStore
@@ -25,6 +25,9 @@ import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.core.permissions.RuntimePermission
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
+import fr.nihilus.music.media.provider.ContentResolverTestRule
+import fr.nihilus.music.media.provider.FakeAudioMediaProvider
+import fr.nihilus.music.media.provider.withAppendedId
 import io.kotest.assertions.extracting
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.forOne
