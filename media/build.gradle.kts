@@ -26,6 +26,7 @@ dependencies {
     implementation(projects.core)
     implementation(projects.coreDatabase)
     implementation(libs.bundles.core)
+    implementation(libs.identikon)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)

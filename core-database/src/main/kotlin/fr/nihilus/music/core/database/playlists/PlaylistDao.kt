@@ -56,7 +56,7 @@ abstract class PlaylistDao {
      * @return The identifier of the newly created playlist assigned by the database.
      */
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    protected abstract suspend fun savePlaylist(playlist: Playlist): Long
+    abstract suspend fun savePlaylist(playlist: Playlist): Long
 
     /**
      * Append tracks to existing playlists.
