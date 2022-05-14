@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tracks
+package fr.nihilus.music.media.tracks.local
 
 import android.Manifest
 import android.content.ContentResolver
@@ -29,6 +29,7 @@ import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.media.provider.MediaStoreInternals
 import fr.nihilus.music.media.provider.observeContentChanges
 import fr.nihilus.music.media.provider.withAppendedId
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.conflate
@@ -47,7 +48,7 @@ internal class TrackLocalSource @Inject constructor(
     /**
      * List of all tracks stored on the device's storage.
      */
-    val tracks: Flow<List<Track>>
+    val tracks: Flow<List<LocalTrack>>
         get() = combine(
             resolver.observeContentChanges(Media.EXTERNAL_CONTENT_URI).conflate(),
             permissionRepository.permissions
@@ -55,7 +56,7 @@ internal class TrackLocalSource @Inject constructor(
             if (permissions.canReadAudioFiles) fetchTracks() else emptyList()
         }
 
-    private suspend fun fetchTracks(): List<Track> = withContext(dispatchers.IO) {
+    private suspend fun fetchTracks(): List<LocalTrack> = withContext(dispatchers.IO) {
         val trackColumns = arrayOf(
             BaseColumns._ID,
             Media.TITLE,
@@ -95,7 +96,7 @@ internal class TrackLocalSource @Inject constructor(
                     val trackNo = cursor.getInt(colTrackNo)
                     val trackUri = Media.EXTERNAL_CONTENT_URI.withAppendedId(trackId).toString()
 
-                    this += Track(
+                    this += LocalTrack(
                         id = trackId,
                         title = cursor.getString(colTitle),
                         artist = cursor.getString(colArtist),
@@ -119,7 +120,7 @@ internal class TrackLocalSource @Inject constructor(
 
     /**
      * Deletes multiple tracks given their ids.
-     * @param trackIds List of [track ids][Track.id] to be deleted.
+     * @param trackIds List of [track ids][LocalTrack.id] to be deleted.
      * @return Result of the delete operation.
      */
     suspend fun deleteTracks(trackIds: LongArray): DeleteTracksResult {

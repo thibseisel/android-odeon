@@ -359,6 +359,20 @@ internal class SpotifyManagerTest {
         album: String,
         trackNumber: Int,
         discNumber: Int = 1
-    ): Track =
-        Track(id, title, artist, album, 0L, discNumber, trackNumber, "", null, 0L, 1L, 1L, 0L)
+    ): Track = Track(
+        id = id,
+        title = title,
+        artistId = 0L,
+        artist = artist,
+        albumId = 1L,
+        album = album,
+        duration = 0L,
+        discNumber = discNumber,
+        trackNumber = trackNumber,
+        mediaUri = "",
+        albumArtUri = null,
+        availabilityDate = 0L,
+        fileSize = 1L,
+        exclusionTime = null
+    )
 }

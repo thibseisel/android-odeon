@@ -160,79 +160,84 @@ internal class BrowserTreeSearchTest {
         runTest {
             val tracks = listOf(
                 Track(
-                    23,
-                    "Another Brick In The Wall",
-                    "Pink Floyd",
-                    "The Wall",
-                    0,
-                    1,
-                    5,
-                    "",
-                    null,
-                    0,
-                    2,
-                    2,
-                    0
+                    id = 23,
+                    title = "Another Brick In The Wall",
+                    artistId = 2,
+                    artist = "Pink Floyd",
+                    albumId = 2,
+                    album = "The Wall",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 5,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 ),
                 Track(
-                    34,
-                    "Another One Bites the Dust",
-                    "Queen",
-                    "The Game",
-                    0,
-                    1,
-                    3,
-                    "",
-                    null,
-                    0,
-                    3,
-                    3,
-                    0
+                    id = 34,
+                    title = "Another One Bites the Dust",
+                    artistId = 3,
+                    artist = "Queen",
+                    albumId = 3,
+                    album = "The Game",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 3,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null,
                 ),
                 Track(
-                    56,
-                    "Nothing Else Matters",
-                    "Metallica",
-                    "Metallica",
-                    0L,
-                    1,
-                    8,
-                    "",
-                    null,
-                    0,
-                    4,
-                    4,
-                    0
+                    id = 56,
+                    title = "Nothing Else Matters",
+                    artistId = 4,
+                    artist = "Metallica",
+                    albumId = 4,
+                    album = "Metallica",
+                    duration = 0L,
+                    discNumber = 1,
+                    trackNumber = 8,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 ),
                 Track(
-                    12,
-                    "Otherside",
-                    "Red Hot Chili Peppers",
-                    "Californication",
-                    0,
-                    1,
-                    6,
-                    "",
-                    null,
-                    0,
-                    1,
-                    1,
-                    0
+                    id = 12,
+                    title = "Otherside",
+                    artistId = 1,
+                    artist = "Red Hot Chili Peppers",
+                    albumId = 1,
+                    album = "Californication",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 6,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null,
                 ),
                 Track(
-                    98,
-                    "You've Got Another Thing Comin",
-                    "Judas Priest",
-                    "Screaming for Vengeance",
-                    0,
-                    1,
-                    8,
-                    "",
-                    null,
-                    0,
-                    7,
-                    7,
-                    0
+                    id = 98,
+                    title = "You've Got Another Thing Comin",
+                    artistId = 7,
+                    artist = "Judas Priest",
+                    albumId = 7,
+                    album = "Screaming for Vengeance",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 8,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 )
             )
 
@@ -250,56 +255,59 @@ internal class BrowserTreeSearchTest {
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 34),
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 98)
             )
-    }
+        }
 
     @Test
     fun `Given pattern query that matches multiple items equally, when searching then return shortest first`() =
         runTest {
             val tracks = listOf(
                 Track(
-                    10,
-                    "Are You Ready",
-                    "AC/DC",
-                    "The Razor's Edge",
-                    0,
-                    1,
-                    7,
-                    "",
-                    null,
-                    0,
-                    32,
-                    18,
-                    0
+                    id = 10,
+                    title = "Are You Ready",
+                    artistId = 32,
+                    artist = "AC/DC",
+                    albumId = 18,
+                    album = "The Razor's Edge",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 7,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 ),
                 Track(
-                    42,
-                    "Are You Gonna Be My Girl",
-                    "Jet",
-                    "Get Born",
-                    0,
-                    1,
-                    2,
-                    "",
-                    null,
-                    0,
-                    78,
-                    90,
-                    0
+                    id = 42,
+                    title = "Are You Gonna Be My Girl",
+                    artistId = 78,
+                    artist = "Jet",
+                    albumId = 90,
+                    album = "Get Born",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 2,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null,
                 ),
                 Track(
-                    63,
-                    "Are You Gonna Go My Way",
-                    "Lenny Kravitz",
-                    "Are You Gonna Go My Way",
-                    0,
-                    1,
-                    1,
-                    "",
-                    null,
-                    0,
-                    57,
-                    23,
-                    0
+                    id = 63,
+                    title = "Are You Gonna Go My Way",
+                    artistId = 57,
+                    artist = "Lenny Kravitz",
+                    albumId = 23,
+                    album = "Are You Gonna Go My Way",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 1,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 )
             )
 
@@ -314,42 +322,59 @@ internal class BrowserTreeSearchTest {
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 63),
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 42)
             )
-    }
+        }
 
     @Test
     fun `When search pattern matches multiple items, then first return results that matches the start of a word`() =
         runTest {
             val tracks = listOf(
-                Track(90, "Avalanche", "Ghost", "Prequelle", 0, 1, 12, "", null, 0, 56, 97, 0),
                 Track(
-                    91,
-                    "No Grave But The Sea",
-                    "Alestorm",
-                    "No Grave But The Sea",
-                    0,
-                    1,
-                    1,
-                    "",
-                    null,
-                    0,
-                    456,
-                    856,
-                    0
+                    id = 90,
+                    title = "Avalanche",
+                    artistId = 56,
+                    artist = "Ghost",
+                    albumId = 97,
+                    album = "Prequelle",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 12,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 ),
                 Track(
-                    356,
-                    "Gravity",
-                    "Bullet For My Valentine",
-                    "Gravity",
-                    0,
-                    1,
-                    8,
-                    "",
-                    null,
-                    0,
-                    45,
-                    99,
-                    0
+                    id = 91,
+                    title = "No Grave But The Sea",
+                    artistId = 456,
+                    artist = "Alestorm",
+                    albumId = 856,
+                    album = "No Grave But The Sea",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 1,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
+                ),
+                Track(
+                    id = 356,
+                    title = "Gravity",
+                    artistId = 45,
+                    artist = "Bullet For My Valentine",
+                    albumId = 99,
+                    album = "Gravity",
+                    duration = 0,
+                    discNumber = 1,
+                    trackNumber = 8,
+                    mediaUri = "",
+                    albumArtUri = null,
+                    availabilityDate = 0,
+                    fileSize = 0,
+                    exclusionTime = null
                 )
             )
 
@@ -368,13 +393,20 @@ internal class BrowserTreeSearchTest {
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 356), // GrAVity
                 MediaId(TYPE_TRACKS, CATEGORY_ALL, 91) // No GrAVe But the Sea
             )
-    }
+        }
 
     private fun BrowserTree(
         mediaDao: MediaDao,
         usageManager: UsageManager = StubUsageManager
-    ): BrowserTree = BrowserTreeImpl(context, mediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
+    ): BrowserTree =
+        BrowserTreeImpl(context, mediaDao, StubPlaylistDao, usageManager, StubSpotifyManager)
 
     private fun givenRealisticBrowserTree(): BrowserTreeImpl =
-        BrowserTreeImpl(context, TestMediaDao(), TestPlaylistDao(), TestUsageManager(), StubSpotifyManager)
+        BrowserTreeImpl(
+            context,
+            TestMediaDao(),
+            TestPlaylistDao(),
+            TestUsageManager(),
+            StubSpotifyManager
+        )
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.tracks
+package fr.nihilus.music.media.tracks.local
 
 import android.Manifest
 import android.content.ContentResolver
@@ -33,6 +33,9 @@ import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.provider.ContentResolverTestRule
 import fr.nihilus.music.media.provider.FakeAudioMediaProvider
 import fr.nihilus.music.media.provider.withAppendedId
+import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.Tracks.Cartagena
+import fr.nihilus.music.media.tracks.Tracks.IsolatedSystem
 import io.kotest.assertions.extracting
 import io.kotest.assertions.withClue
 import io.kotest.inspectors.forOne
@@ -84,7 +87,7 @@ internal class TrackLocalSourceTest {
 
         val tracks = localTracks.tracks.first()
 
-        extracting(tracks, Track::title).shouldContainExactly(
+        extracting(tracks, LocalTrack::title).shouldContainExactly(
             "1741 (The Battle of Cartagena)",
             "The 2nd Law: Isolated System",
             "Algorithm",
@@ -223,7 +226,7 @@ internal class TrackLocalSourceTest {
             value = RuntimePermission(canReadAudioFiles = true, canWriteAudioFiles = false)
         )
 
-        val result = localTracks.deleteTracks(longArrayOf(CARTAGENA.id, ISOLATED_SYSTEM.id))
+        val result = localTracks.deleteTracks(longArrayOf(Cartagena.id, IsolatedSystem.id))
 
         result shouldBe DeleteTracksResult.RequiresPermission(
             permission = Manifest.permission.WRITE_EXTERNAL_STORAGE

@@ -20,6 +20,7 @@ import fr.nihilus.music.core.context.AppCoroutineScope
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.media.tracks.local.TrackLocalSource
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -75,10 +76,27 @@ class TrackRepository @Inject internal constructor(
     suspend fun deleteTracks(trackIds: LongArray): DeleteTracksResult =
         sourceDao.deleteTracks(trackIds)
 
-    private fun getIncludedTracks() =
-        combine(sourceDao.tracks, exclusionDao.trackExclusions) { tracks, exclusions ->
+    private fun getIncludedTracks(): Flow<List<Track>> =
+        combine(sourceDao.tracks, exclusionDao.trackExclusions) { localTracks, exclusions ->
             val exclusionTrackIds = exclusions.mapTo(mutableSetOf(), TrackExclusion::trackId)
-            tracks.filterNot { it.id in exclusionTrackIds }
+            localTracks.filterNot { it.id in exclusionTrackIds }.map {
+                Track(
+                    id = it.id,
+                    title = it.title,
+                    artistId = it.artistId,
+                    artist = it.artist,
+                    albumId = it.albumId,
+                    album = it.album,
+                    duration = it.duration,
+                    discNumber = it.discNumber,
+                    trackNumber = it.trackNumber,
+                    mediaUri = it.mediaUri,
+                    albumArtUri = it.albumArtUri,
+                    availabilityDate = it.availabilityDate,
+                    fileSize = it.fileSize,
+                    exclusionTime = null
+                )
+            }
         }
 }
 

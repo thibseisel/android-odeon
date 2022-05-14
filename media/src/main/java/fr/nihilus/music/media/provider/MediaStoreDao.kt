@@ -205,7 +205,9 @@ internal class MediaStoreDao @Inject constructor(
                     trackList += Track(
                         id = trackId,
                         title = cursor.getString(colTitle),
+                        artistId = cursor.getLong(colArtistId),
                         artist = cursor.getString(colArtist),
+                        albumId = albumId,
                         album = cursor.getString(colAlbum),
                         duration = cursor.getLong(colDuration),
                         discNumber = trackNo / 1000,
@@ -213,9 +215,8 @@ internal class MediaStoreDao @Inject constructor(
                         mediaUri = trackUri,
                         albumArtUri = albumArtworkUri.withAppendedId(albumId).toString(),
                         availabilityDate = cursor.getLong(colDateAdded),
-                        artistId = cursor.getLong(colArtistId),
-                        albumId = albumId,
-                        fileSize = cursor.getLong(colFileSize)
+                        fileSize = cursor.getLong(colFileSize),
+                        exclusionTime = null,
                     )
                 }
             }

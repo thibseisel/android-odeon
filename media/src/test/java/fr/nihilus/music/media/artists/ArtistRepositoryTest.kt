@@ -18,12 +18,14 @@ package fr.nihilus.music.media.artists
 
 import app.cash.turbine.test
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
+import fr.nihilus.music.media.artists.Artists.Alestorm
+import fr.nihilus.music.media.artists.Artists.FooFighters
 import fr.nihilus.music.media.tracks.*
-import fr.nihilus.music.media.tracks.CARTAGENA
-import fr.nihilus.music.media.tracks.DIRTY_WATER
-import fr.nihilus.music.media.tracks.MATTER_OF_TIME
-import fr.nihilus.music.media.tracks.RUN
-import fr.nihilus.music.media.tracks.THE_PRETENDERS
+import fr.nihilus.music.media.tracks.Tracks.Cartagena
+import fr.nihilus.music.media.tracks.Tracks.DirtyWater
+import fr.nihilus.music.media.tracks.Tracks.MatterOfTime
+import fr.nihilus.music.media.tracks.Tracks.Run
+import fr.nihilus.music.media.tracks.Tracks.ThePretenders
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -35,8 +37,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-private val ARTISTS = listOf(ALESTORM, FOO_FIGHTERS)
-private val TRACKS = listOf(CARTAGENA, DIRTY_WATER, MATTER_OF_TIME, THE_PRETENDERS, RUN)
+private val ARTISTS = listOf(Alestorm, FooFighters)
+private val TRACKS = listOf(Cartagena, DirtyWater, MatterOfTime, ThePretenders, Run)
 
 internal class ArtistRepositoryTest {
     @MockK private lateinit var mockArtists: ArtistLocalSource
@@ -60,29 +62,29 @@ internal class ArtistRepositoryTest {
 
         val artists = repository.artists.first()
 
-        artists.shouldContainExactly(ALESTORM, FOO_FIGHTERS)
+        artists.shouldContainExactly(Alestorm, FooFighters)
     }
 
     @Test
     fun `artists - omits artists having no tracks`() = runTest {
         every { mockArtists.artists } returns infiniteFlowOf(ARTISTS)
-        every { mockTracks.tracks } returns infiniteFlowOf(TRACKS - CARTAGENA)
+        every { mockTracks.tracks } returns infiniteFlowOf(TRACKS - Cartagena)
 
         val artists = repository.artists.first()
 
-        artists.shouldContainExactly(FOO_FIGHTERS)
+        artists.shouldContainExactly(FooFighters)
     }
 
     @Test
     fun `artists - recomputes album and track count`() = runTest {
         every { mockArtists.artists } returns infiniteFlowOf(ARTISTS)
-        every { mockTracks.tracks } returns infiniteFlowOf(TRACKS - MATTER_OF_TIME)
+        every { mockTracks.tracks } returns infiniteFlowOf(TRACKS - MatterOfTime)
 
         val artists = repository.artists.first()
 
         artists.shouldContainExactly(
-            ALESTORM,
-            FOO_FIGHTERS.copy(trackCount = 3, albumCount = 2),
+            Alestorm,
+            FooFighters.copy(trackCount = 3, albumCount = 2),
         )
     }
 
@@ -94,10 +96,10 @@ internal class ArtistRepositoryTest {
         every { mockTracks.tracks } returns liveTracks
 
         repository.artists.drop(1).test {
-            liveArtists.value -= ALESTORM
+            liveArtists.value -= Alestorm
             awaitItem()
 
-            liveTracks.value -= CARTAGENA
+            liveTracks.value -= Cartagena
             awaitItem()
 
             expectNoEvents()

@@ -18,14 +18,17 @@ package fr.nihilus.music.media.albums
 
 import app.cash.turbine.test
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
-import fr.nihilus.music.media.artists.ALESTORM
-import fr.nihilus.music.media.artists.FOO_FIGHTERS
-import fr.nihilus.music.media.artists.MUSE
+import fr.nihilus.music.media.albums.Albums.ConcreteAndGold
+import fr.nihilus.music.media.albums.Albums.SimulationTheory
+import fr.nihilus.music.media.albums.Albums.WastingLight
+import fr.nihilus.music.media.artists.Artists.Alestorm
+import fr.nihilus.music.media.artists.Artists.FooFighters
+import fr.nihilus.music.media.artists.Artists.Muse
 import fr.nihilus.music.media.tracks.*
-import fr.nihilus.music.media.tracks.ALGORITHM
-import fr.nihilus.music.media.tracks.DIRTY_WATER
-import fr.nihilus.music.media.tracks.MATTER_OF_TIME
-import fr.nihilus.music.media.tracks.RUN
+import fr.nihilus.music.media.tracks.Tracks.Algorithm
+import fr.nihilus.music.media.tracks.Tracks.DirtyWater
+import fr.nihilus.music.media.tracks.Tracks.MatterOfTime
+import fr.nihilus.music.media.tracks.Tracks.Run
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.MockKAnnotations
@@ -38,8 +41,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-private val ALBUMS = listOf(CONCRETE_AND_GOLD, SIMULATION_THEORY, WASTING_LIGHT)
-private val TRACKS = listOf(ALGORITHM, DIRTY_WATER, MATTER_OF_TIME, RUN)
+private val ALBUMS = listOf(ConcreteAndGold, SimulationTheory, WastingLight)
+private val TRACKS = listOf(Algorithm, DirtyWater, MatterOfTime, Run)
 
 internal class AlbumRepositoryTest {
     @MockK private lateinit var mockAlbums: AlbumLocalSource
@@ -64,9 +67,9 @@ internal class AlbumRepositoryTest {
         val albums = repository.albums.first()
 
         albums.shouldContainExactly(
-            CONCRETE_AND_GOLD,
-            SIMULATION_THEORY,
-            WASTING_LIGHT,
+            ConcreteAndGold,
+            SimulationTheory,
+            WastingLight,
         )
     }
 
@@ -74,27 +77,27 @@ internal class AlbumRepositoryTest {
     fun `albums - omits albums having no tracks`() = runTest {
         every { mockAlbums.albums } returns infiniteFlowOf(ALBUMS)
         every { mockTracks.tracks } returns infiniteFlowOf(
-            TRACKS - MATTER_OF_TIME
+            TRACKS - MatterOfTime
         )
 
         val albums = repository.albums.first()
 
-        albums.shouldContainExactly(CONCRETE_AND_GOLD, SIMULATION_THEORY)
+        albums.shouldContainExactly(ConcreteAndGold, SimulationTheory)
     }
 
     @Test
     fun `albums - recomputes album track count`() = runTest {
         every { mockAlbums.albums } returns infiniteFlowOf(ALBUMS)
         every { mockTracks.tracks } returns infiniteFlowOf(
-            TRACKS - RUN
+            TRACKS - Run
         )
 
         val albums = repository.albums.first()
 
         albums.shouldContainExactly(
-            CONCRETE_AND_GOLD.copy(trackCount = 1),
-            SIMULATION_THEORY,
-            WASTING_LIGHT,
+            ConcreteAndGold.copy(trackCount = 1),
+            SimulationTheory,
+            WastingLight,
         )
     }
 
@@ -106,10 +109,10 @@ internal class AlbumRepositoryTest {
         every { mockTracks.tracks } returns liveTracks
 
         repository.albums.drop(1).test {
-            liveAlbums.value -= SIMULATION_THEORY
+            liveAlbums.value -= SimulationTheory
             awaitItem()
 
-            liveTracks.value -= ALGORITHM
+            liveTracks.value -= Algorithm
             awaitItem()
             expectNoEvents()
         }
@@ -120,11 +123,11 @@ internal class AlbumRepositoryTest {
         every { mockAlbums.albums } returns infiniteFlowOf(ALBUMS)
         every { mockTracks.tracks } returns infiniteFlowOf(TRACKS)
 
-        val fooAlbums = repository.getArtistAlbums(FOO_FIGHTERS.id).first()
-        val museAlbums = repository.getArtistAlbums(MUSE.id).first()
+        val fooAlbums = repository.getArtistAlbums(FooFighters.id).first()
+        val museAlbums = repository.getArtistAlbums(Muse.id).first()
 
-        fooAlbums.shouldContainExactly(CONCRETE_AND_GOLD, WASTING_LIGHT)
-        museAlbums.shouldContainExactly(SIMULATION_THEORY)
+        fooAlbums.shouldContainExactly(ConcreteAndGold, WastingLight)
+        museAlbums.shouldContainExactly(SimulationTheory)
     }
 
     @Test
@@ -132,7 +135,7 @@ internal class AlbumRepositoryTest {
         every { mockAlbums.albums } returns infiniteFlowOf(ALBUMS)
         every { mockTracks.tracks } returns infiniteFlowOf(TRACKS)
 
-        val albums = repository.getArtistAlbums(ALESTORM.id).first()
+        val albums = repository.getArtistAlbums(Alestorm.id).first()
 
         albums.shouldBeEmpty()
     }

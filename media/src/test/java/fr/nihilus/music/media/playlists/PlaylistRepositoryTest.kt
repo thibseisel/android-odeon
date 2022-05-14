@@ -27,6 +27,11 @@ import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.Tracks.Algorithm
+import fr.nihilus.music.media.tracks.Tracks.DirtyWater
+import fr.nihilus.music.media.tracks.Tracks.IsolatedSystem
+import fr.nihilus.music.media.tracks.Tracks.KnightsOfCydonia
+import fr.nihilus.music.media.tracks.Tracks.Nightmare
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -110,47 +115,47 @@ internal class PlaylistRepositoryTest {
     @Test
     fun `getPlaylistTracks - lists tracks from that playlist sorted by position`() = test {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, DIRTY_WATER, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+            listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
         every { mockPlaylists.playlists } returns infiniteFlowOf(
             listOf(PLAYLIST_FAVORITES)
         )
         every { mockPlaylists.getPlaylistTracks(eq(PLAYLIST_FAVORITES.id)) } returns infiniteFlowOf(
             listOf(
-                PlaylistTrack(PLAYLIST_FAVORITES.id, KNIGHTS_OF_CYDONIA.id, position = 0),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, ALGORITHM.id, position = 1),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, DIRTY_WATER.id, position = 2),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, KnightsOfCydonia.id, position = 0),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, Algorithm.id, position = 1),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, DirtyWater.id, position = 2),
             )
         )
 
         val playlistTracks = repository.getPlaylistTracks(PLAYLIST_FAVORITES.id).first()
 
         playlistTracks.shouldContainExactly(
-            KNIGHTS_OF_CYDONIA,
-            ALGORITHM,
-            DIRTY_WATER,
+            KnightsOfCydonia,
+            Algorithm,
+            DirtyWater,
         )
     }
 
     @Test
     fun `getPlaylistTracks - emit whenever tracks or members change`() = test {
         val liveTracks = MutableStateFlow(
-            listOf(ALGORITHM, KNIGHTS_OF_CYDONIA)
+            listOf(Algorithm, KnightsOfCydonia)
         )
         val liveMembers = MutableStateFlow(
             listOf(
-                PlaylistTrack(PLAYLIST_FAVORITES.id, ALGORITHM.id, 0),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, KNIGHTS_OF_CYDONIA.id, 1),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, Algorithm.id, 0),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, KnightsOfCydonia.id, 1),
             )
         )
         every { mockTracks.tracks } returns liveTracks
         every { mockPlaylists.getPlaylistTracks(eq(PLAYLIST_FAVORITES.id)) } returns liveMembers
 
         repository.getPlaylistTracks(PLAYLIST_FAVORITES.id).drop(1).test {
-            liveTracks.value = listOf(ALGORITHM, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+            liveTracks.value = listOf(Algorithm, KnightsOfCydonia, Nightmare)
             awaitItem()
 
-            liveMembers.value += PlaylistTrack(PLAYLIST_FAVORITES.id, NIGHTMARE.id, 2)
+            liveMembers.value += PlaylistTrack(PLAYLIST_FAVORITES.id, Nightmare.id, 2)
             awaitItem()
 
             expectNoEvents()
@@ -160,29 +165,29 @@ internal class PlaylistRepositoryTest {
     @Test
     fun `getPlaylistTracks - omits tracks with no match in playlist members`() = test {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, KNIGHTS_OF_CYDONIA)
+            listOf(Algorithm, KnightsOfCydonia)
         )
         every { mockPlaylists.getPlaylistTracks(eq(PLAYLIST_FAVORITES.id)) } returns infiniteFlowOf(
             listOf(
-                PlaylistTrack(PLAYLIST_FAVORITES.id, KNIGHTS_OF_CYDONIA.id, 0),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, ALGORITHM.id, 1),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, NIGHTMARE.id, 2),
-                PlaylistTrack(PLAYLIST_FAVORITES.id, DIRTY_WATER.id, 3)
+                PlaylistTrack(PLAYLIST_FAVORITES.id, KnightsOfCydonia.id, 0),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, Algorithm.id, 1),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, Nightmare.id, 2),
+                PlaylistTrack(PLAYLIST_FAVORITES.id, DirtyWater.id, 3)
             )
         )
 
         val playlistTracks = repository.getPlaylistTracks(PLAYLIST_FAVORITES.id).first()
 
         playlistTracks.shouldContainExactly(
-            KNIGHTS_OF_CYDONIA,
-            ALGORITHM,
+            KnightsOfCydonia,
+            Algorithm,
         )
     }
 
     @Test
     fun `getPlaylistTracks - returns empty list for unknown playlist`() = test {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, DIRTY_WATER, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+            listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
         every { mockPlaylists.playlists } returns infiniteFlowOf(emptyList())
         every { mockPlaylists.getPlaylistTracks(any()) } returns infiniteFlowOf(emptyList())
@@ -240,12 +245,12 @@ internal class PlaylistRepositoryTest {
             listOf(PLAYLIST_FAVORITES)
         )
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, DIRTY_WATER, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+            listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
 
         repository.addTracksToPlaylist(
             playlistId = PLAYLIST_FAVORITES.id,
-            trackIds = longArrayOf(KNIGHTS_OF_CYDONIA.id, DIRTY_WATER.id, NIGHTMARE.id)
+            trackIds = longArrayOf(KnightsOfCydonia.id, DirtyWater.id, Nightmare.id)
         )
 
         coVerify {
@@ -253,17 +258,17 @@ internal class PlaylistRepositoryTest {
                 listOf(
                     PlaylistTrack(
                         playlistId = PLAYLIST_FAVORITES.id,
-                        trackId = KNIGHTS_OF_CYDONIA.id,
+                        trackId = KnightsOfCydonia.id,
                         position = 0
                     ),
                     PlaylistTrack(
                         playlistId = PLAYLIST_FAVORITES.id,
-                        trackId = DIRTY_WATER.id,
+                        trackId = DirtyWater.id,
                         position = 0
                     ),
                     PlaylistTrack(
                         playlistId = PLAYLIST_FAVORITES.id,
-                        trackId = NIGHTMARE.id,
+                        trackId = Nightmare.id,
                         position = 0
                     ),
                 )
@@ -275,13 +280,13 @@ internal class PlaylistRepositoryTest {
     fun `addTracksToPlaylist - throws IAE when no playlist matches id`() = test {
         every { mockPlaylists.playlists } returns infiniteFlowOf(emptyList())
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, DIRTY_WATER, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+        listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
 
         shouldThrow<IllegalArgumentException> {
             repository.addTracksToPlaylist(
                 playlistId = 42,
-                trackIds = longArrayOf(ALGORITHM.id)
+                trackIds = longArrayOf(Algorithm.id)
             )
         }
 
@@ -297,13 +302,13 @@ internal class PlaylistRepositoryTest {
             listOf(PLAYLIST_FAVORITES)
         )
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(ALGORITHM, DIRTY_WATER, KNIGHTS_OF_CYDONIA, NIGHTMARE)
+            listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
 
         shouldThrow<IllegalArgumentException> {
             repository.addTracksToPlaylist(
                 playlistId = PLAYLIST_FAVORITES.id,
-                trackIds = longArrayOf(ISOLATED_SYSTEM.id, DIRTY_WATER.id)
+                trackIds = longArrayOf(IsolatedSystem.id, DirtyWater.id)
             )
         }
 

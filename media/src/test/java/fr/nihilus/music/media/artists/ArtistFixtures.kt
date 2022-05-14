@@ -16,42 +16,44 @@
 
 package fr.nihilus.music.media.artists
 
-internal val ACDC = Artist(
-    id = 5,
-    name = "AC/DC",
-    trackCount = 2,
-    albumCount = 1,
-    iconUri = null,
-)
+internal object Artists {
+    internal val ACDC = Artist(
+        id = 5,
+        name = "AC/DC",
+        trackCount = 2,
+        albumCount = 1,
+        iconUri = null,
+    )
 
-internal val ALESTORM = Artist(
-    id = 26,
-    name = "Alestorm",
-    trackCount = 1,
-    albumCount = 1,
-    iconUri = null
-)
+    internal val Alestorm = Artist(
+        id = 26,
+        name = "Alestorm",
+        trackCount = 1,
+        albumCount = 1,
+        iconUri = null
+    )
 
-internal val AVENGED_SEVENFOLD = Artist(
-    id = 4,
-    name = "Avenged Sevenfold",
-    trackCount = 1,
-    albumCount = 1,
-    iconUri = null,
-)
+    internal val AvengedSevenfold = Artist(
+        id = 4,
+        name = "Avenged Sevenfold",
+        trackCount = 1,
+        albumCount = 1,
+        iconUri = null,
+    )
 
-internal val FOO_FIGHTERS = Artist(
-    id = 13,
-    name = "Foo Fighters",
-    trackCount = 4,
-    albumCount = 3,
-    iconUri = null,
-)
+    internal val FooFighters = Artist(
+        id = 13,
+        name = "Foo Fighters",
+        trackCount = 4,
+        albumCount = 3,
+        iconUri = null,
+    )
 
-internal val MUSE = Artist(
-    id = 18,
-    name = "Muse",
-    trackCount = 2,
-    albumCount = 2,
-    iconUri = null
-)
+    internal val Muse = Artist(
+        id = 18,
+        name = "Muse",
+        trackCount = 2,
+        albumCount = 2,
+        iconUri = null
+    )
+}

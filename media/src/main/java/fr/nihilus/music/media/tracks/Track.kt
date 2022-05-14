@@ -17,64 +17,77 @@
 package fr.nihilus.music.media.tracks
 
 /**
- * The metadata of a track that is saved on the device's storage.
+ * Playable media content.
+ * Tracks may be stored on the device's storage or a remote server.
+ *
+ * Note: currently, tracks listed by this application are only retrieved from the device's storage.
  */
 data class Track(
     /**
-     * The unique identifier of the track on the device media storage index.
+     * Unique identifier of the track.
      */
     val id: Long,
     /**
-     * The title of this track as it should be displayed to the user.
+     * Title of this track as it should be displayed to the user.
      */
     val title: String,
     /**
-     * The name of the artist that produced this track.
-     * @see Artist.name
-     */
-    val artist: String,
-    /**
-     * The title of the album this track is part of.
-     * @see Album.title
-     */
-    val album: String,
-    /**
-     * The playback duration of this track in milliseconds.
-     */
-    val duration: Long,
-    /**
-     * The disc number for this track's original source.
-     */
-    val discNumber: Int,
-    /**
-     * The position of this track from its original disc.
-     */
-    val trackNumber: Int,
-    /**
-     * An Uri-style String pointing to the content associated with this track's metadata.
-     */
-    val mediaUri: String,
-    /**
-     * An Uri-style String pointing to an optional artwork for this track's album.
-     */
-    val albumArtUri: String?,
-    /**
-     * The time at which this track has been added to the local storage,
-     * expressed as the number of seconds elapsed since January 1st 1970 (Unix Epoch).
-     */
-    val availabilityDate: Long,
-    /**
-     * The unique identifier of the artist that produced this track.
-     * @see Artist.id
+     * Unique identifier of the artist that produced this track.
      */
     val artistId: Long,
     /**
-     * The unique identifier of the album this track is part of.
-     * @see Album.id
+     * Name of the artist that produced this track.
+     */
+    val artist: String,
+    /**
+     * Unique identifier of the album this track is part of.
      */
     val albumId: Long,
     /**
-     * The size of the file stored on the device's storage, in bytes.
+     * Title of the album this track is part of.
      */
-    val fileSize: Long
+    val album: String,
+    /**
+     * Playback duration of this track in milliseconds.
+     */
+    val duration: Long,
+    /**
+     * Disc number for this track's original source.
+     */
+    val discNumber: Int,
+    /**
+     * Position of this track in its original disc.
+     */
+    val trackNumber: Int,
+    /**
+     * Uri-style string pointing to the content associated with this track's metadata.
+     * For media file stored on the device, this is a `content://` Android URI.
+     * For a file stored on a remote server, this is an HTTP URL.
+     */
+    val mediaUri: String,
+    /**
+     * Uri-style string pointing to an optional artwork for this track's album.
+     * May either be a `content://` URI or an HTTP URL.
+     */
+    val albumArtUri: String?,
+    /**
+     * Time at which this track has been made available to the application,
+     * expressed as the number of seconds elapsed since January 1st 1970 (Unix Epoch).
+     *
+     * For an audio file stored locally, this is the time at which the file has been copied
+     * to the device's storage.
+     */
+    val availabilityDate: Long,
+    /**
+     * Size of the audio file in bytes.
+     */
+    val fileSize: Long,
+    /**
+     * Time at which this track has been excluded from the music library.
+     * This is `null` if this track has not been excluded.
+     *
+     * Excluded tracks are still present on the device's storage, but won't be displayed
+     * in most parts of the application.
+     */
+    val exclusionTime: Long?,
 )

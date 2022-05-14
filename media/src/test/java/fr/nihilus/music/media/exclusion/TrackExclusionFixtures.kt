@@ -16,13 +16,12 @@
 
 package fr.nihilus.music.media.exclusion
 
-import android.Manifest
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.artists.Artist
-import fr.nihilus.music.media.provider.*
+import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.Flow
@@ -73,7 +72,22 @@ private fun album(id: Long, title: String, artist: Artist, trackCount: Int) =
     Album(id, title, artist.name, trackCount, 0, null, artist.id)
 
 private fun track(id: Long, title: String, artist: Artist, album: Album, number: Int) =
-    Track(id, title, artist.name, album.title, 0, 0, number, "", null, 0, artist.id, album.id, 0)
+    Track(
+        id = id,
+        title = title,
+        artistId = artist.id,
+        artist = artist.name,
+        albumId = album.id,
+        album = album.title,
+        duration = 0,
+        discNumber = 0,
+        trackNumber = number,
+        mediaUri = "",
+        albumArtUri = null,
+        availabilityDate = 0,
+        fileSize = 0,
+        exclusionTime = null
+    )
 
 internal val MUSE = artist(18, "Muse", 1, 1)
 internal val SIMULATION_THEORY = album(98, "Simulation Theory", MUSE, 1)

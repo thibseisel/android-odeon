@@ -248,6 +248,7 @@ internal class SpotifyManagerSyncTest {
         availabilityDate = 0,
         artistId = artist.hashCode().toLong(),
         albumId = album.hashCode().toLong(),
-        fileSize = 0
+        fileSize = 0,
+        exclusionTime = null,
     )
 }

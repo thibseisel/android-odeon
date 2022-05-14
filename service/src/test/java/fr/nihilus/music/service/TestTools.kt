@@ -93,7 +93,8 @@ internal fun generateRandomTrackSequence(): Sequence<Track> = sequence {
                 availabilityDate = releaseDates.next(),
                 artistId = Random.nextLong(0, 128),
                 albumId = Random.nextLong(0, 256),
-                fileSize = 0
+                fileSize = 0,
+                exclusionTime = null,
             )
         )
     }
