@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core-database"))
     implementation(project(":media"))
 
     // Dispatcher to Android main thread

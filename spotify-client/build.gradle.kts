@@ -34,6 +34,7 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core-database"))
     implementation(project(":media"))
 
     // Ktor Client - MultiPlatform HTTP Client

@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core-database"))
     api(project(":media"))
     implementation(project(":spotify-client"))
 
