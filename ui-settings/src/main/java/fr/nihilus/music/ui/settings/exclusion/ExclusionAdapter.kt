@@ -24,7 +24,7 @@ import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.ui.settings.R
 import fr.nihilus.music.ui.settings.databinding.ItemExcludedTrackBinding
 
-internal class ExclusionAdapter : ListAdapter<ExcludedTrack, ExclusionAdapter.TrackHolder>(TrackDiffer()) {
+internal class ExclusionAdapter : ListAdapter<ExcludedTrackUiState, ExclusionAdapter.TrackHolder>(TrackDiffer()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TrackHolder(parent)
 
@@ -32,14 +32,14 @@ internal class ExclusionAdapter : ListAdapter<ExcludedTrack, ExclusionAdapter.Tr
         holder.bind(getItem(position))
     }
 
-    public override fun getItem(position: Int): ExcludedTrack = super.getItem(position)
+    public override fun getItem(position: Int): ExcludedTrackUiState = super.getItem(position)
 
     class TrackHolder(
         parent: ViewGroup
-    ) : BaseHolder<ExcludedTrack>(parent, R.layout.item_excluded_track) {
+    ) : BaseHolder<ExcludedTrackUiState>(parent, R.layout.item_excluded_track) {
         private val binding = ItemExcludedTrackBinding.bind(itemView)
 
-        override fun bind(data: ExcludedTrack) = with(binding) {
+        override fun bind(data: ExcludedTrackUiState) = with(binding) {
             trackTitle.text = data.title
             trackArtist.text = data.artistName
             exclusionTime.text = DateUtils.getRelativeTimeSpanString(
@@ -50,15 +50,15 @@ internal class ExclusionAdapter : ListAdapter<ExcludedTrack, ExclusionAdapter.Tr
         }
     }
 
-    private class TrackDiffer : DiffUtil.ItemCallback<ExcludedTrack>() {
+    private class TrackDiffer : DiffUtil.ItemCallback<ExcludedTrackUiState>() {
         override fun areItemsTheSame(
-            oldItem: ExcludedTrack,
-            newItem: ExcludedTrack
+            oldItem: ExcludedTrackUiState,
+            newItem: ExcludedTrackUiState
         ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldItem: ExcludedTrack,
-            newItem: ExcludedTrack
+            oldItem: ExcludedTrackUiState,
+            newItem: ExcludedTrackUiState
         ): Boolean = oldItem == newItem
     }
 }

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.tracks
 
+import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.context.AppCoroutineScope
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
@@ -35,17 +36,29 @@ class TrackRepository @Inject internal constructor(
     private val sourceDao: TrackLocalSource,
     private val exclusionDao: TrackExclusionDao,
 ) {
+    private val allTracks: Flow<List<Track>> by lazy {
+        combineTrackSources().shareIn(
+            scope = appScope + CoroutineName("TracksCache"),
+            started = SharingStarted.WhileSubscribed(),
+            replay = 1,
+        )
+    }
+
     /**
      * Live list of all tracks from the music library.
      */
-    val tracks: Flow<List<Track>> by lazy {
-        getIncludedTracks()
-            .shareIn(
-                scope = appScope + CoroutineName("TracksShare"),
-                started = SharingStarted.WhileSubscribed(),
-                replay = 1
-            )
-    }
+    val tracks: Flow<List<Track>>
+        get() = allTracks.map { allTracks ->
+            allTracks.filter { it.exclusionTime == null }
+        }
+
+    /**
+     * Live list of tracks that have been excluded from the music library.
+     */
+    val excludedTracks: Flow<List<Track>>
+        get() = allTracks.map { allTracks ->
+            allTracks.filter { it.exclusionTime != null }
+        }
 
     /**
      * Excludes a track from the music library.
@@ -76,10 +89,10 @@ class TrackRepository @Inject internal constructor(
     suspend fun deleteTracks(trackIds: LongArray): DeleteTracksResult =
         sourceDao.deleteTracks(trackIds)
 
-    private fun getIncludedTracks(): Flow<List<Track>> =
-        combine(sourceDao.tracks, exclusionDao.trackExclusions) { localTracks, exclusions ->
-            val exclusionTrackIds = exclusions.mapTo(mutableSetOf(), TrackExclusion::trackId)
-            localTracks.filterNot { it.id in exclusionTrackIds }.map {
+    private fun combineTrackSources(): Flow<List<Track>> =
+        combine(sourceDao.tracks, exclusionDao.trackExclusions) { tracks, exclusions ->
+            val exclusionsByTrackId = exclusions.associateByLong(TrackExclusion::trackId)
+            tracks.map {
                 Track(
                     id = it.id,
                     title = it.title,
@@ -94,7 +107,7 @@ class TrackRepository @Inject internal constructor(
                     albumArtUri = it.albumArtUri,
                     availabilityDate = it.availabilityDate,
                     fileSize = it.fileSize,
-                    exclusionTime = null
+                    exclusionTime = exclusionsByTrackId[it.id]?.excludeDate
                 )
             }
         }

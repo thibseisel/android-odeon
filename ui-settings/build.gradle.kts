@@ -30,7 +30,6 @@ android {
 
 dependencies {
     implementation(projects.core)
-    implementation(projects.coreDatabase)
     implementation(projects.media)
     implementation(projects.coreUi)
     implementation(projects.spotifyClient)

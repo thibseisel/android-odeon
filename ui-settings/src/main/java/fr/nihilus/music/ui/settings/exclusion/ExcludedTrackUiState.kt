@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.ui.settings.exclusion
 
-internal data class ExcludedTrack(
+internal data class ExcludedTrackUiState(
     val id: Long,
     val title: String,
     val artistName: String,

@@ -16,46 +16,47 @@
 
 package fr.nihilus.music.ui.settings.exclusion
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
-import fr.nihilus.music.media.dagger.SourceDao
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.tracks.Track
-import kotlinx.coroutines.flow.combine
+import fr.nihilus.music.media.tracks.TrackRepository
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 internal class ExcludedTracksViewModel @Inject constructor(
-    @SourceDao private val trackSource: MediaDao,
-    private val exclusionList: TrackExclusionDao
+    private val repository: TrackRepository,
 ) : ViewModel() {
 
     /**
      * List of tracks that are excluded from the music library.
      */
-    val tracks: LiveData<List<ExcludedTrack>> =
-        combine(trackSource.tracks, exclusionList.trackExclusions) { tracks, exclusions ->
-            val tracksById = tracks.associateBy(Track::id)
-            exclusions.mapNotNull { exclusion ->
-                tracksById[exclusion.trackId]?.let { track ->
-                    ExcludedTrack(
-                        id = track.id,
-                        title = track.title,
-                        artistName = track.artist,
-                        excludeDate = exclusion.excludeDate
+    val tracks: LiveData<List<ExcludedTrackUiState>> by lazy {
+        repository.excludedTracks
+            .map { tracks ->
+                tracks.map {
+                    ExcludedTrackUiState(
+                        id = it.id,
+                        title = it.title,
+                        artistName = it.artist,
+                        excludeDate = checkNotNull(it.exclusionTime) {
+                            "Excluded track \"${it.title}\" should have a non-null exclusionTime"
+                        },
                     )
                 }
             }
-        }.asLiveData()
+            .asLiveData()
+    }
 
     /**
      * Remove a track from the exclusion list, displaying it again in the whole application.
      */
-    fun restore(track: ExcludedTrack) {
+    fun restore(track: ExcludedTrackUiState) {
         viewModelScope.launch {
-            exclusionList.allow(track.id)
+            repository.allowTrack(track.id)
         }
     }
 }

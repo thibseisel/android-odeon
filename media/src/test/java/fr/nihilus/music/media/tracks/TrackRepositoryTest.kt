@@ -171,6 +171,28 @@ internal class TrackRepositoryTest {
     }
 
     @Test
+    fun `excludedTracks - returns only excluded tracks`() = testScope.runTest {
+        every { mockTracks.tracks } returns infiniteFlowOf(
+            listOf(Local.Cartagena, Local.IsolatedSystem, Local.DirtyWater, Local.ThePretenders)
+        )
+        every { mockExclusions.trackExclusions } returns infiniteFlowOf(
+            listOf(
+                TrackExclusion(ThePretenders.id, 1652552100),
+                TrackExclusion(IsolatedSystem.id, 1647869400),
+                TrackExclusion(DirtyWater.id, 1636274520),
+            )
+        )
+
+        val excludedTracks = repository.excludedTracks.first()
+
+        excludedTracks.shouldContainExactly(
+            IsolatedSystem.copy(exclusionTime = 1647869400),
+            DirtyWater.copy(exclusionTime = 1636274520),
+            ThePretenders.copy(exclusionTime = 1652552100),
+        )
+    }
+
+    @Test
     fun `excludeTrack - adds a track exclusion`() = testScope.runTest {
         repository.excludeTrack(Cartagena.id)
 
