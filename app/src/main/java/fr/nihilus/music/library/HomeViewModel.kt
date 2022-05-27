@@ -35,7 +35,6 @@ class HomeViewModel @Inject constructor(
     private val deleteAction: DeleteTracksAction,
 ) : ViewModel() {
 
-    val albums: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ALBUMS)
     val artists: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ARTISTS)
     val playlists: LiveData<LoadRequest<List<MediaItem>>> = allPlaylists()
 

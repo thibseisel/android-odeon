@@ -19,19 +19,18 @@ package fr.nihilus.music.library.albums
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.Hold
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
-import fr.nihilus.music.library.HomeViewModel
 
 /**
  * Display all albums in a grid of images.
@@ -39,7 +38,7 @@ import fr.nihilus.music.library.HomeViewModel
  */
 @AndroidEntryPoint
 class AlbumsFragment : BaseFragment(R.layout.fragment_albums) {
-    private val viewModel: HomeViewModel by activityViewModels()
+    private val viewModel: AlbumGridViewModel by viewModels()
 
     private var binding: FragmentAlbumsBinding? = null
     private lateinit var albumAdapter: AlbumsAdapter
@@ -53,46 +52,39 @@ class AlbumsFragment : BaseFragment(R.layout.fragment_albums) {
             binding.progressIndicator.isVisible = progressVisible
         }
 
-        albumAdapter = AlbumsAdapter(this, ::onAlbumSelected)
+        albumAdapter = AlbumsAdapter(this, ::browseAlbumAt)
         binding.albumGrid.apply {
             adapter = albumAdapter
             setHasFixedSize(true)
         }
 
-        viewModel.albums.observe(viewLifecycleOwner) { albumRequest ->
-            when (albumRequest) {
-                is LoadRequest.Pending -> refreshToggle.isRefreshing = true
-                is LoadRequest.Success -> {
-                    refreshToggle.isRefreshing = false
-                    albumAdapter.submitList(albumRequest.data)
-                    binding.emptyViewGroup.isVisible = albumRequest.data.isEmpty()
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
-                is LoadRequest.Error -> {
-                    refreshToggle.isRefreshing = false
-                    albumAdapter.submitList(emptyList())
-                    binding.emptyViewGroup.isVisible = true
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
+        viewModel.state.observe(viewLifecycleOwner) {
+            refreshToggle.isRefreshing = it.isLoadingAlbums && it.albums.isEmpty()
+            albumAdapter.submitList(it.albums)
+            binding.emptyViewGroup.isVisible = !it.isLoadingAlbums && it.albums.isEmpty()
+            if (!it.isLoadingAlbums) {
+                requireParentFragment().startPostponedEnterTransitionWhenDrawn()
             }
         }
     }
 
-    private fun onAlbumSelected(position: Int) {
+    private fun browseAlbumAt(position: Int) {
         val album = albumAdapter.getItem(position)
-        val holder = binding!!.albumGrid.findViewHolderForAdapterPosition(position) as AlbumHolder
+        val holder =
+            binding!!.albumGrid.findViewHolderForAdapterPosition(position) as AlbumsAdapter.ViewHolder
 
-        val albumId = album.mediaId!!
-        val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(albumId)
+        val toAlbumDetail = HomeFragmentDirections.browseAlbumDetail(album.id.encoded)
         val transitionExtras = FragmentNavigatorExtras(
-            holder.itemView to albumId
+            holder.itemView to album.id.encoded
         )
 
         // Reset transitions previously set when moving to search fragment,
         // and keep it displayed while animating to the next destination.
         requireParentFragment().apply {
             exitTransition = Hold().apply {
-                duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+                duration = resources
+                    .getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+                    .toLong()
                 addTarget(R.id.fragment_home)
             }
             reenterTransition = null
