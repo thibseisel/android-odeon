@@ -26,15 +26,9 @@ import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-class DeleteTracksConfirmation(
-    val trackIds: List<MediaId>,
-    val result: DeleteTracksResult,
-)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -51,10 +45,10 @@ class HomeViewModel @Inject constructor(
     private val _deleteConfirmation = MutableLiveData<Event<DeleteTracksConfirmation>>()
     val deleteConfirmation: LiveData<Event<DeleteTracksConfirmation>> = _deleteConfirmation
 
-    fun deleteSongs(trackMediaIds: List<MediaId>) {
+    fun deleteTrack(trackMediaId: MediaId) {
         viewModelScope.launch {
-            val result = deleteAction.delete(trackMediaIds)
-            _deleteConfirmation.value = Event(DeleteTracksConfirmation(trackMediaIds, result))
+            val result = deleteAction.delete(listOf(trackMediaId))
+            _deleteConfirmation.value = Event(DeleteTracksConfirmation(trackMediaId, result))
         }
     }
 

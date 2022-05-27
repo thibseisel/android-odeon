@@ -18,7 +18,6 @@ package fr.nihilus.music.library
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
@@ -43,7 +42,6 @@ import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
 import fr.nihilus.music.library.songs.AllTracksFragment
 import fr.nihilus.music.media.provider.DeleteTracksResult
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 /**
@@ -59,7 +57,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     ) { granted ->
         val confirmation = viewModel.deleteConfirmation.value?.data
         if (granted && confirmation != null) {
-            viewModel.deleteSongs(confirmation.trackIds)
+            viewModel.deleteTrack(confirmation.trackId)
         }
     }
 
@@ -67,7 +65,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            notifyTrackDeleted(1)
+            notifyTrackDeleted()
         }
     }
 
@@ -97,7 +95,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             toastMessageEvent.handle { confirmation ->
                 when (confirmation.result) {
                     is DeleteTracksResult.Deleted -> {
-                        notifyTrackDeleted(confirmation.result.count)
+                        notifyTrackDeleted()
                     }
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -112,11 +110,10 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }
     }
 
-    private fun notifyTrackDeleted(deletedCount: Int) {
+    private fun notifyTrackDeleted() {
         val message = resources.getQuantityString(
             R.plurals.deleted_songs_confirmation,
-            deletedCount,
-            deletedCount,
+            1,
         )
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }

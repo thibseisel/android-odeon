@@ -49,6 +49,10 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentAllTracksBinding.bind(view)
 
+        DeleteTrackDialog.registerForResult(this) { targetTrackId ->
+            viewModel.deleteTrack(targetTrackId)
+        }
+
         val songAdapter = SongAdapter(this, ::onTrackAction)
         binding.trackList.adapter = songAdapter
 
@@ -111,7 +115,7 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             }
 
             SongAdapter.ItemAction.DELETE -> {
-                DeleteTrackDialog.open(this, track)
+                DeleteTrackDialog.open(this, track.mediaId.parse())
             }
 
             SongAdapter.ItemAction.EXCLUDE -> {

@@ -22,8 +22,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
+import fr.nihilus.music.core.ui.Event
+import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
+import fr.nihilus.music.library.DeleteTracksConfirmation
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.mapLatest
@@ -36,7 +39,8 @@ private const val KEY_SEARCH_QUERY = "odeon.SearchViewModel.searchQuery"
 internal class SearchViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
     private val client: BrowserClient,
-    private val excludeAction: ExcludeTrackAction
+    private val excludeAction: ExcludeTrackAction,
+    private val deleteAction: DeleteTracksAction,
 ) : ViewModel() {
     private val searchQuery = savedState.getLiveData(KEY_SEARCH_QUERY, "")
 
@@ -49,6 +53,10 @@ internal class SearchViewModel @Inject constructor(
             else -> 5
         }
     }
+
+    private val _deleteEvent = MutableLiveData<Event<DeleteTracksConfirmation>>()
+    val deleteEvent: LiveData<Event<DeleteTracksConfirmation>>
+        get() = _deleteEvent
 
     /**
      * List of results matching the search query.
@@ -91,6 +99,18 @@ internal class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             val trackMediaId = track.mediaId.parse()
             excludeAction.exclude(trackMediaId)
+        }
+    }
+
+    /**
+     * Permanently deletes a playable media from the device's storage.
+     */
+    fun delete(track: MediaId) {
+        viewModelScope.launch {
+            val result = deleteAction.delete(listOf(track))
+            _deleteEvent.value = Event(
+                DeleteTracksConfirmation(track, result)
+            )
         }
     }
 

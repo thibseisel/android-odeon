@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.library.search
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
@@ -23,6 +24,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -40,6 +44,7 @@ import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDraw
 import fr.nihilus.music.databinding.FragmentSearchBinding
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.library.songs.DeleteTrackDialog
+import fr.nihilus.music.media.provider.DeleteTracksResult
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -53,10 +58,31 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private var binding: FragmentSearchBinding? = null
     private lateinit var resultsAdapter: SearchResultsAdapter
 
+    private val requestPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        val confirmation = viewModel.deleteEvent.value?.data
+        if (granted && confirmation != null) {
+            viewModel.delete(confirmation.trackId)
+        }
+    }
+
+    private val deleteMediaPopup = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            showDeleteTrackConfirmation()
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentSearchBinding.bind(view)
         this.binding = binding
+
+        DeleteTrackDialog.registerForResult(this) { trackId ->
+            viewModel.delete(trackId)
+        }
 
         postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
         setupHomeToSearchTransition()
@@ -65,7 +91,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
         recyclerView.setHasFixedSize(true)
 
         resultsAdapter = SearchResultsAdapter(this) { item, adapterPosition, action ->
-            val holder = checkNotNull(recyclerView.findViewHolderForAdapterPosition(adapterPosition))
+            val holder =
+                checkNotNull(recyclerView.findViewHolderForAdapterPosition(adapterPosition))
             onSuggestionSelected(item, holder, action)
         }
         recyclerView.adapter = resultsAdapter
@@ -104,13 +131,41 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             startPostponedEnterTransitionWhenDrawn()
         }
 
+        viewModel.deleteEvent.observe(viewLifecycleOwner) { deleteEvent ->
+            deleteEvent.handle {
+                when (it.result) {
+                    is DeleteTracksResult.Deleted -> {
+                        showDeleteTrackConfirmation()
+                    }
+                    is DeleteTracksResult.RequiresPermission -> {
+                        requestPermission.launch(it.result.permission)
+                    }
+                    is DeleteTracksResult.RequiresUserConsent -> {
+                        deleteMediaPopup.launch(
+                            IntentSenderRequest.Builder(it.result.intent).build()
+                        )
+                    }
+                }
+            }
+        }
+
         if (savedInstanceState == null) {
             showKeyboard(binding.searchInput)
         }
     }
 
+    private fun showDeleteTrackConfirmation() {
+        Toast.makeText(
+            context,
+            resources.getQuantityString(R.plurals.deleted_songs_confirmation, 1),
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     private fun setupHomeToSearchTransition() {
-        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration =
+            resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+                .toLong()
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = transitionDuration
         }
@@ -120,7 +175,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun setupHoldTransition() {
-        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration =
+            resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+                .toLong()
         exitTransition = Hold().apply {
             duration = transitionDuration
             addTarget(requireView())
@@ -129,7 +186,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     }
 
     private fun setupSharedAxisTransition() {
-        val sharedAxisDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val sharedAxisDuration =
+            resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+                .toLong()
         exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = sharedAxisDuration
         }
@@ -198,7 +257,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             }
 
             SearchResultsAdapter.ItemAction.DELETE -> {
-                DeleteTrackDialog.open(this, item)
+                DeleteTrackDialog.open(this, item.mediaId.parse())
             }
         }
     }
@@ -246,9 +305,13 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
     private inner class BackToTopObserver : RecyclerView.AdapterDataObserver() {
 
         override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = onChanged()
-        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) = onChanged()
+        override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) =
+            onChanged()
+
         override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = onChanged()
-        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = onChanged()
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) =
+            onChanged()
+
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = onChanged()
 
         override fun onChanged() {
