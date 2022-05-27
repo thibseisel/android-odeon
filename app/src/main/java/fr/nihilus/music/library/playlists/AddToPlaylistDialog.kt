@@ -29,6 +29,8 @@ import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
@@ -69,8 +71,12 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
         if (position >= 0) {
             // The clicked element is a playlist
             val playlist = playlistAdapter.getItem(position)
-            val memberTracks = getPlaylistMembersArgument()
-            playlistViewModel.addTracksToPlaylist(playlist, memberTracks)
+            val memberTracks = getSelectedTrackIds()
+            playlistViewModel.addTracksToPlaylist(
+                targetPlaylistId = playlist.mediaId.parse(),
+                playlistName = playlist.description.title?.toString().orEmpty(),
+                addedTrackIds = memberTracks
+            )
 
         } else if (position == DialogInterface.BUTTON_POSITIVE) {
             // The "New playlist" action has been selected
@@ -79,13 +85,13 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
     }
 
     private fun callNewPlaylistDialog() {
-        NewPlaylistDialog.open(requireParentFragment(), getPlaylistMembersArgument())
+        NewPlaylistDialog.open(requireParentFragment(), getSelectedTrackIds())
     }
 
-    private fun getPlaylistMembersArgument(): Array<MediaItem> {
-        val argument = arguments?.getParcelableArray(ARG_SELECTED_TRACKS) ?: emptyArray()
-        return Array(argument.size) { argument[it] as MediaItem }
-    }
+    private fun getSelectedTrackIds(): List<MediaId> = arguments
+        ?.getStringArrayList(ARG_SELECTED_TRACKS)
+        ?.map { MediaId.parse(it) }
+        ?: emptyList()
 
     /**
      * The adapter used to display available playlists in the dialog's body.
@@ -119,12 +125,15 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
     }
 
     companion object Factory {
-        private const val ARG_SELECTED_TRACKS = "fr.nihilus.music.library.SELECTED_TRACKS"
+        private const val ARG_SELECTED_TRACKS = "fr.nihilus.music.library.SELECTED_TRACKS_IDS"
 
-        fun open(caller: Fragment, selectedTracksIds: List<MediaItem>) {
+        fun open(caller: Fragment, selectedTracksIds: List<MediaId>) {
             val dialog = AddToPlaylistDialog().apply {
                 arguments = Bundle(1).apply {
-                    putParcelableArray(ARG_SELECTED_TRACKS, selectedTracksIds.toTypedArray())
+                    putStringArrayList(
+                        ARG_SELECTED_TRACKS,
+                        selectedTracksIds.mapTo(ArrayList(selectedTracksIds.size), MediaId::encoded)
+                    )
                 }
             }
             dialog.show(caller.childFragmentManager, null)

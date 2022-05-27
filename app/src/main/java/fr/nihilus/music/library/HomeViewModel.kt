@@ -23,7 +23,6 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
-import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.MediaSubscriptionException
 import kotlinx.coroutines.flow.*
@@ -34,10 +33,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val client: BrowserClient,
     private val deleteAction: DeleteTracksAction,
-    private val excludeAction: ExcludeTrackAction,
 ) : ViewModel() {
 
-    val tracks: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_TRACKS)
     val albums: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ALBUMS)
     val artists: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ARTISTS)
     val playlists: LiveData<LoadRequest<List<MediaItem>>> = allPlaylists()
@@ -49,12 +46,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val result = deleteAction.delete(listOf(trackMediaId))
             _deleteConfirmation.value = Event(DeleteTracksConfirmation(trackMediaId, result))
-        }
-    }
-
-    fun excludeTrack(trackId: MediaId) {
-        viewModelScope.launch {
-            excludeAction.exclude(trackId)
         }
     }
 
@@ -91,6 +82,6 @@ class HomeViewModel @Inject constructor(
 }
 
 private fun <T> Flow<T>.loadState(): Flow<LoadRequest<T>> = this
-        .map<T, LoadRequest<T>> { LoadRequest.Success(it) }
-        .onStart { emit(LoadRequest.Pending) }
-        .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
+    .map<T, LoadRequest<T>> { LoadRequest.Success(it) }
+    .onStart { emit(LoadRequest.Pending) }
+    .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }

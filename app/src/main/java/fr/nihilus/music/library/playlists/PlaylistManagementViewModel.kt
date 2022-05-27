@@ -16,12 +16,10 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
@@ -71,11 +69,9 @@ internal class PlaylistManagementViewModel @Inject constructor(
             .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .asLiveData()
 
-    fun createPlaylist(playlistName: String, members: Array<MediaItem>) {
+    fun createPlaylist(playlistName: String, members: List<MediaId>) {
         viewModelScope.launch {
-            val membersTrackIds = members.map { it.mediaId.parse() }
-
-            action.createPlaylist(playlistName, membersTrackIds)
+            action.createPlaylist(playlistName, members)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Created(playlistName)
             )
@@ -83,18 +79,16 @@ internal class PlaylistManagementViewModel @Inject constructor(
     }
 
     fun addTracksToPlaylist(
-        targetPlaylist: MediaItem,
-        addedTracks: Array<MediaItem>
+        targetPlaylistId: MediaId,
+        playlistName: String,
+        addedTrackIds: List<MediaId>
     ) {
         viewModelScope.launch {
-            val playlistId = targetPlaylist.mediaId.parse()
-            val newTrackMediaIds = addedTracks.map { it.mediaId.parse() }
-
-            action.appendMembers(playlistId, newTrackMediaIds)
+            action.appendMembers(targetPlaylistId, addedTrackIds)
             _playlistActionResult.value = Event(
                 PlaylistActionResult.Edited(
-                    targetPlaylist.description.title?.toString().orEmpty(),
-                    addedTracks.size
+                    playlistName,
+                    addedTrackIds.size
                 )
             )
         }

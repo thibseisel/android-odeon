@@ -249,7 +249,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
             }
 
             SearchResultsAdapter.ItemAction.ADD_TO_PLAYLIST -> {
-                AddToPlaylistDialog.open(this, listOf(item))
+                AddToPlaylistDialog.open(this, listOf(item.mediaId.parse()))
             }
 
             SearchResultsAdapter.ItemAction.EXCLUDE -> {

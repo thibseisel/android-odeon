@@ -16,34 +16,51 @@
 
 package fr.nihilus.music.library.songs
 
+import android.Manifest
+import android.app.Activity
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
-import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentAllTracksBinding
-import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
-import fr.nihilus.music.library.playlists.PlaylistActionResult
-import fr.nihilus.music.library.playlists.PlaylistManagementViewModel
 
+/**
+ * Lists all audio tracks available to the application.
+ */
 @AndroidEntryPoint
 class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
+    private val viewModel: TracksViewModel by viewModels()
 
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
-    private val viewModel: HomeViewModel by activityViewModels()
-    private val playlistViewModel: PlaylistManagementViewModel by viewModels()
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.consumeEvent()
+        val permissionEvent =
+            viewModel.state.value.pendingEvent as? TrackEvent.RequiresStoragePermission
+        if (granted && permissionEvent != null) {
+            viewModel.deleteTrack(permissionEvent.trackId)
+        }
+    }
+
+    private val deleteMediaPopup = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            notifyTrackDeleted()
+            viewModel.consumeEvent()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,8 +70,15 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             viewModel.deleteTrack(targetTrackId)
         }
 
-        val songAdapter = SongAdapter(this, ::onTrackAction)
-        binding.trackList.adapter = songAdapter
+        val tracksAdapter = TrackListAdapter(
+            fragment = this,
+            addToPlaylist = { AddToPlaylistDialog.open(this, listOf(it.id)) },
+            exclude = { viewModel.excludeTrack(it.id) },
+            delete = { DeleteTrackDialog.open(this, trackId = it.id) },
+            play = { viewModel.playTrack(it.id) }
+        ).also {
+            binding.trackList.adapter = it
+        }
 
         val progressBarLatch = ProgressTimeLatch { shouldShowProgress ->
             binding.progressIndicator.isVisible = shouldShowProgress
@@ -63,68 +87,38 @@ class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
 
         val staggerTransition = Stagger()
 
-        viewModel.tracks.observe(viewLifecycleOwner) { itemRequest ->
-            when (itemRequest) {
-                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
-                is LoadRequest.Success -> {
-                    progressBarLatch.isRefreshing = false
-                    TransitionManager.beginDelayedTransition(binding.trackList, staggerTransition)
-                    songAdapter.submitList(itemRequest.data)
-                    binding.emptyViewGroup.isVisible = itemRequest.data.isEmpty()
-                }
-                is LoadRequest.Error -> {
-                    progressBarLatch.isRefreshing = false
-                    songAdapter.submitList(emptyList())
-                    binding.emptyViewGroup.isVisible = true
-                }
-            }
-        }
+        viewModel.state.observe(viewLifecycleOwner) { (tracks, loading, pendingEvent) ->
+            progressBarLatch.isRefreshing = loading && tracks.isEmpty()
+            binding.emptyViewGroup.isVisible = !loading && tracks.isEmpty()
+            TransitionManager.beginDelayedTransition(binding.trackList, staggerTransition)
+            tracksAdapter.submitList(tracks)
 
-        playlistViewModel.playlistActionResult.observe(viewLifecycleOwner) { playlistEvent ->
-            playlistEvent.handle { result ->
-                when (result) {
-                    is PlaylistActionResult.Created -> {
-                        val userMessage = getString(R.string.playlist_created, result.playlistName)
-                        Toast.makeText(context, userMessage, Toast.LENGTH_SHORT).show()
-                    }
-
-                    is PlaylistActionResult.Edited -> {
-                        val userMessage = resources.getQuantityString(
-                            R.plurals.tracks_added_to_playlist,
-                            result.addedTracksCount,
-                            result.addedTracksCount,
-                            result.playlistName
-                        )
-                        Toast.makeText(context, userMessage, Toast.LENGTH_LONG).show()
-                    }
-                }
+            if (pendingEvent != null) {
+                handleEvent(pendingEvent)
             }
         }
     }
 
-    /**
-     * Called when an action has been triggered on a given track.
-     *
-     * @param track The track to execute the action on.
-     * @param action The action that should be executed on the selected track.
-     */
-    private fun onTrackAction(track: MediaBrowserCompat.MediaItem, action: SongAdapter.ItemAction) {
-        when (action) {
-            SongAdapter.ItemAction.PLAY -> {
-                hostViewModel.playMedia(track)
-            }
-
-            SongAdapter.ItemAction.DELETE -> {
-                DeleteTrackDialog.open(this, track.mediaId.parse())
-            }
-
-            SongAdapter.ItemAction.EXCLUDE -> {
-                viewModel.excludeTrack(track.mediaId.parse())
-            }
-
-            SongAdapter.ItemAction.ADD_TO_PLAYLIST -> {
-                AddToPlaylistDialog.open(this, listOf(track))
-            }
+    private fun handleEvent(event: TrackEvent) = when (event) {
+        is TrackEvent.TrackSuccessfullyDeleted -> {
+            notifyTrackDeleted()
+            viewModel.consumeEvent()
         }
+        is TrackEvent.RequiresStoragePermission -> {
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+        is TrackEvent.RequiresUserConsent -> {
+            deleteMediaPopup.launch(
+                IntentSenderRequest.Builder(event.intent).build()
+            )
+        }
+    }
+
+    private fun notifyTrackDeleted() {
+        val message = resources.getQuantityString(
+            R.plurals.deleted_songs_confirmation,
+            1,
+        )
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 }
