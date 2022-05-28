@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.playlists
+package fr.nihilus.music.library.playlists.members
 
 import android.os.Bundle
 import android.view.MenuItem

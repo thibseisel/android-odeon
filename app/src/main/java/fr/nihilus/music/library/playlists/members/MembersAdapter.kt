@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.playlists
+package fr.nihilus.music.library.playlists.members
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
