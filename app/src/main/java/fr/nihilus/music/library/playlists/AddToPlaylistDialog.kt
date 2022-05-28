@@ -75,7 +75,6 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
             val memberTracks = getSelectedTrackIds()
             playlistViewModel.addTracksToPlaylist(
                 targetPlaylistId = playlist.mediaId.parse(),
-                playlistName = playlist.description.title?.toString().orEmpty(),
                 addedTrackIds = memberTracks
             )
 
