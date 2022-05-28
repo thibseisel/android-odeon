@@ -16,32 +16,78 @@
 
 package fr.nihilus.music.library.playlists
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.base.MediaItemDiffer
+import fr.nihilus.music.core.ui.base.BaseHolder
+import fr.nihilus.music.databinding.PlaylistItemBinding
 
 /**
- * Display playlist media items as a grid of floating cards.
+ * Display playlists in a list of floating cards.
  */
 internal class PlaylistsAdapter(
     fragment: Fragment,
-    private val onPlaylistSelected: (position: Int) -> Unit
-) : ListAdapter<MediaItem, PlaylistHolder>(MediaItemDiffer) {
+    private val selectPlaylist: (PlaylistUiState, ViewHolder) -> Unit
+) : ListAdapter<PlaylistUiState, PlaylistsAdapter.ViewHolder>(PlaylistDiffer()) {
+
+    init {
+        setHasStableIds(true)
+    }
 
     private val glideRequest = Glide.with(fragment).asBitmap()
         .fallback(R.drawable.ic_playlist_24dp)
         .autoClone()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistHolder =
-        PlaylistHolder(parent, glideRequest, onPlaylistSelected)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        ViewHolder(parent, glideRequest) { holder ->
+            selectPlaylist(
+                getItem(holder.adapterPosition),
+                holder
+            )
+        }
 
-    override fun onBindViewHolder(holder: PlaylistHolder, position: Int) {
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    public override fun getItem(position: Int): MediaItem = super.getItem(position)
+    override fun getItemId(position: Int): Long = getItem(position).id.hashCode().toLong()
+
+    class ViewHolder(
+        parent: ViewGroup,
+        private val glide: RequestBuilder<Bitmap>,
+        onClick: (ViewHolder) -> Unit,
+    ) : BaseHolder<PlaylistUiState>(parent, R.layout.playlist_item) {
+        private val binding = PlaylistItemBinding.bind(itemView)
+
+        init {
+            itemView.setOnClickListener {
+                onClick(this)
+            }
+        }
+
+        override fun bind(data: PlaylistUiState) {
+            itemView.transitionName = data.id.encoded
+            glide.load(data.iconUri).into(binding.playlistIcon)
+            binding.playlistTitle.text = data.title
+            binding.playlistDescription.text = data.subtitle
+        }
+    }
+
+    private class PlaylistDiffer : DiffUtil.ItemCallback<PlaylistUiState>() {
+        override fun areItemsTheSame(
+            oldItem: PlaylistUiState,
+            newItem: PlaylistUiState
+        ): Boolean = oldItem.id == newItem.id
+
+        override fun areContentsTheSame(
+            oldItem: PlaylistUiState,
+            newItem: PlaylistUiState
+        ): Boolean = oldItem == newItem
+    }
 }

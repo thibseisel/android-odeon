@@ -16,36 +16,18 @@
 
 package fr.nihilus.music.library
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.ui.Event
-import fr.nihilus.music.core.ui.LoadRequest
-import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val client: BrowserClient,
-    private val deleteAction: DeleteTracksAction,
 ) : ViewModel() {
-
-    val playlists: LiveData<LoadRequest<List<MediaItem>>> = allPlaylists()
-
-    private val _deleteConfirmation = MutableLiveData<Event<DeleteTracksConfirmation>>()
-    val deleteConfirmation: LiveData<Event<DeleteTracksConfirmation>> = _deleteConfirmation
-
-    fun deleteTrack(trackMediaId: MediaId) {
-        viewModelScope.launch {
-            val result = deleteAction.delete(listOf(trackMediaId))
-            _deleteConfirmation.value = Event(DeleteTracksConfirmation(trackMediaId, result))
-        }
-    }
 
     fun playAllShuffled() {
         viewModelScope.launch {
@@ -53,29 +35,4 @@ class HomeViewModel @Inject constructor(
             client.playFromMediaId(MediaId.ALL_TRACKS)
         }
     }
-
-    private fun allPlaylists(): LiveData<LoadRequest<List<MediaItem>>> = combine(
-        builtInPlaylistFlow(MediaId.CATEGORY_RECENTLY_ADDED),
-        builtInPlaylistFlow(MediaId.CATEGORY_MOST_RATED),
-        client.getChildren(MediaId.ALL_PLAYLISTS)
-    ) { mostRecent, mostRated, playlists ->
-        ArrayList<MediaItem>(playlists.size + 2).also {
-            it += mostRecent
-            it += mostRated
-            it += playlists
-        }
-    }
-        .loadState()
-        .asLiveData()
-
-
-    private fun builtInPlaylistFlow(category: String) = flow {
-        val itemId = MediaId(MediaId.TYPE_TRACKS, category)
-        emit(client.getItem(itemId) ?: error("Item with id $itemId should always exist."))
-    }
 }
-
-private fun <T> Flow<T>.loadState(): Flow<LoadRequest<T>> = this
-    .map<T, LoadRequest<T>> { LoadRequest.Success(it) }
-    .onStart { emit(LoadRequest.Pending) }
-    .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
