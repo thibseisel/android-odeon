@@ -37,6 +37,7 @@ import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.media.provider.DeleteTracksResult
 import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * Code associated with the request to confirm deleting tracks.
@@ -176,8 +177,8 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                 selectedCount
             ),
             message = getString(R.string.cleanup_confirmation_message),
-            positiveButton = fr.nihilus.music.core.ui.R.string.core_action_delete,
-            negativeButton = fr.nihilus.music.core.ui.R.string.core_cancel
+            positiveButton = CoreUiR.string.core_action_delete,
+            negativeButton = CoreUiR.string.core_cancel
         )
     }
 }

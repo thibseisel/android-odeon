@@ -19,24 +19,23 @@ package fr.nihilus.music.library.playlists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.Hold
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentPlaylistBinding
 import fr.nihilus.music.library.HomeFragmentDirections
-import fr.nihilus.music.library.HomeViewModel
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @AndroidEntryPoint
 class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
-
-    private val viewModel: HomeViewModel by activityViewModels()
+    private val viewModel: PlaylistsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -46,49 +45,33 @@ class PlaylistsFragment : BaseFragment(R.layout.fragment_playlist) {
             binding.progressIndicator.isVisible = shouldShow
         }
 
-        lateinit var adapter: PlaylistsAdapter
-        val onPlaylistSelected = { position: Int ->
-            val selectedPlaylist = adapter.getItem(position)
-            val playlistId = selectedPlaylist.mediaId!!
-            val toPlaylistTracks = HomeFragmentDirections.browsePlaylistContent(playlistId)
-
-            val playlistHolder = binding.playlistList.findViewHolderForAdapterPosition(position)!!
-            val transitionExtras = FragmentNavigatorExtras(
-                playlistHolder.itemView to playlistId
-            )
-
-            requireParentFragment().apply {
-                exitTransition = Hold().apply {
-                    duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
-                    addTarget(R.id.fragment_home)
-                }
-                reenterTransition = null
-            }
-
-            findNavController().navigate(toPlaylistTracks, transitionExtras)
-        }
-
-        adapter = PlaylistsAdapter(this, onPlaylistSelected)
+        val adapter = PlaylistsAdapter(this, ::browsePlaylist)
         binding.playlistList.adapter = adapter
         binding.playlistList.setHasFixedSize(true)
 
-        viewModel.playlists.observe(viewLifecycleOwner) { playlistsRequest ->
-            when (playlistsRequest) {
-                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
-                is LoadRequest.Success -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(playlistsRequest.data)
-                    binding.emptyViewGroup.isVisible = playlistsRequest.data.isEmpty()
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
-                is LoadRequest.Error -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(emptyList())
-                    binding.emptyViewGroup.isVisible = true
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
+        viewModel.state.observe(viewLifecycleOwner) {
+            progressBarLatch.isRefreshing = it.isLoadingPlaylists && it.playlists.isEmpty()
+            adapter.submitList(it.playlists)
+            binding.emptyViewGroup.isVisible = !it.isLoadingPlaylists && it.playlists.isEmpty()
+            if (it.isLoadingPlaylists) {
+                requireParentFragment().startPostponedEnterTransitionWhenDrawn()
             }
         }
+    }
+
+    private fun browsePlaylist(playlist: PlaylistUiState, holder: PlaylistsAdapter.ViewHolder) {
+        requireParentFragment().apply {
+            exitTransition = Hold().apply {
+                duration = resources.getInteger(CoreUiR.integer.ui_motion_duration_large).toLong()
+                addTarget(R.id.fragment_home)
+            }
+            reenterTransition = null
+        }
+
+        findNavController().navigate(
+            HomeFragmentDirections.browsePlaylistContent(playlist.id.encoded),
+            FragmentNavigatorExtras(holder.itemView to playlist.id.encoded)
+        )
     }
 
 }

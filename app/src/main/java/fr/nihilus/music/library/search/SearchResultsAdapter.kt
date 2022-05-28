@@ -37,6 +37,7 @@ import fr.nihilus.music.extensions.resolveDefaultAlbumPalette
 import fr.nihilus.music.library.albums.AlbumHolder
 import fr.nihilus.music.library.artists.ArtistHolder
 import fr.nihilus.music.library.playlists.PlaylistHolder
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 internal class SearchResultsAdapter(
     fragment: Fragment,
@@ -177,7 +178,7 @@ internal class SearchResultsAdapter(
                 binding.overflowIcon,
                 Gravity.END or Gravity.BOTTOM,
                 0,
-                fr.nihilus.music.core.ui.R.style.Widget_Odeon_PopupMenu_Overflow
+                CoreUiR.style.Widget_Odeon_PopupMenu_Overflow
             )
 
             popup.inflate(R.menu.track_popup_menu)

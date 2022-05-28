@@ -14,33 +14,31 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.songs
+package fr.nihilus.music.library.tracks
 
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.open
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * An alert dialog that prompts the user for confirmation to delete a single track from its device.
  * Instances of this class should be created with [open].
  */
 class DeleteTrackDialog : AppCompatDialogFragment() {
-    private val viewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_dialog_title)
             .setMessage(R.string.delete_dialog_message)
-            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_action_delete) { _, _ -> onDelete() }
-            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
+            .setPositiveButton(CoreUiR.string.core_action_delete) { _, _ -> onDelete() }
+            .setNegativeButton(CoreUiR.string.core_cancel, null)
             .create()
     }
 
@@ -48,25 +46,36 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
      * Called when the user confirmed its intention to delete the track.
      */
     private fun onDelete() {
-        val track = arguments?.getParcelable<MediaBrowserCompat.MediaItem>(ARG_TRACK)
-            ?: error("This dialog should have been passed the track to delete as argument.")
-        viewModel.deleteSongs(listOf(track.mediaId.parse()))
+        setFragmentResult(REQUEST_DELETE_TRACK, checkNotNull(arguments) {
+            "This dialog should have been created using the open function."
+        })
     }
 
     companion object Factory {
         private const val ARG_TRACK = "fr.nihilus.music.library.TRACK"
+        private const val REQUEST_DELETE_TRACK = "fr.nihilus.music.library.REQUEST_DELETE_TRACK"
 
         /**
          * @param caller Caller fragment.
-         * @param track The track that may be deleted when confirmation is given.
+         * @param trackId The track that may be deleted when confirmation is given.
          */
-        fun open(caller: Fragment, track: MediaBrowserCompat.MediaItem) {
+        fun open(caller: Fragment, trackId: MediaId) {
             val dialog = DeleteTrackDialog().apply {
                 arguments = Bundle(1).apply {
-                    putParcelable(ARG_TRACK, track)
+                    putString(ARG_TRACK, trackId.encoded)
                 }
             }
             dialog.show(caller.childFragmentManager, null)
+        }
+
+        fun registerForResult(caller: Fragment, listener: (MediaId) -> Unit) {
+            caller.childFragmentManager.setFragmentResultListener(
+                REQUEST_DELETE_TRACK,
+                caller
+            ) { _, bundle ->
+                val trackId = bundle.getString(ARG_TRACK).parse()
+                listener(trackId)
+            }
         }
     }
 }

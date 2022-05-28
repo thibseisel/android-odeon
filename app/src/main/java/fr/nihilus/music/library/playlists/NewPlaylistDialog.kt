@@ -19,7 +19,6 @@ package fr.nihilus.music.library.playlists
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
@@ -28,10 +27,12 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
+import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.databinding.NewPlaylistInputBinding
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @AndroidEntryPoint
 internal class NewPlaylistDialog : BaseDialogFragment() {
@@ -49,8 +50,8 @@ internal class NewPlaylistDialog : BaseDialogFragment() {
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
             .setView(binding.root)
-            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
-            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_ok) { _, _ ->
+            .setNegativeButton(CoreUiR.string.core_cancel, null)
+            .setPositiveButton(CoreUiR.string.core_ok) { _, _ ->
                 val currentPlaylistTitle = binding.titleInput.text?.toString()
                 check(isValidTitle(currentPlaylistTitle))
                 onRequestCreatePlaylist(currentPlaylistTitle)
@@ -74,10 +75,10 @@ internal class NewPlaylistDialog : BaseDialogFragment() {
         playlistViewModel.createPlaylist(playlistTitle, memberTracks)
     }
 
-    private fun getNewPlaylistMembersArgument(): Array<MediaItem> {
-        val argument = arguments?.getParcelableArray(ARG_MEMBER_TRACKS) ?: emptyArray()
-        return Array(argument.size) { argument[it] as MediaItem }
-    }
+    private fun getNewPlaylistMembersArgument(): List<MediaId> = arguments
+        ?.getStringArrayList(ARG_MEMBER_TRACKS)
+        ?.map { MediaId.parse(it) }
+        ?: emptyList()
 
     @OptIn(ExperimentalContracts::class)
     private fun isValidTitle(playlistTitle: CharSequence?): Boolean {
@@ -88,12 +89,15 @@ internal class NewPlaylistDialog : BaseDialogFragment() {
     }
 
     companion object Factory {
-        private const val ARG_MEMBER_TRACKS = "member_tracks"
+        private const val ARG_MEMBER_TRACKS = "member_tracks_ids"
 
-        fun open(caller: Fragment, memberTracks: Array<MediaItem>) {
+        fun open(caller: Fragment, memberTracks: List<MediaId>) {
             val dialog = NewPlaylistDialog().apply {
                 arguments = Bundle(1).apply {
-                    putParcelableArray(ARG_MEMBER_TRACKS, memberTracks)
+                    putStringArrayList(
+                        ARG_MEMBER_TRACKS,
+                        memberTracks.mapTo(ArrayList(memberTracks.size), MediaId::encoded)
+                    )
                 }
             }
             dialog.show(caller.childFragmentManager, null)

@@ -16,20 +16,13 @@
 
 package fr.nihilus.music.library
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -41,10 +34,9 @@ import fr.nihilus.music.databinding.FragmentHomeBinding
 import fr.nihilus.music.library.albums.AlbumsFragment
 import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
-import fr.nihilus.music.library.songs.AllTracksFragment
-import fr.nihilus.music.media.provider.DeleteTracksResult
-import timber.log.Timber
+import fr.nihilus.music.library.tracks.AllTracksFragment
 import java.util.concurrent.TimeUnit
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * Host fragment for displaying collections of media: all tracks, albums, artists and user-defined playlists.
@@ -52,24 +44,7 @@ import java.util.concurrent.TimeUnit
  */
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(R.layout.fragment_home) {
-    private val viewModel by activityViewModels<HomeViewModel>()
-
-    private val requestPermission = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        val confirmation = viewModel.deleteConfirmation.value?.data
-        if (granted && confirmation != null) {
-            viewModel.deleteSongs(confirmation.trackIds)
-        }
-    }
-
-    private val deleteMediaPopup = registerForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            notifyTrackDeleted(1)
-        }
-    }
+    private val viewModel by viewModels<HomeViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,7 +56,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
         // Configure toolbar with title and menu.
         binding.toolbar.run {
             setTitle(fr.nihilus.music.core.R.string.core_app_name)
-            prepareMenu()
+            inflateMenu(R.menu.menu_home)
+            setOnMenuItemClickListener(::onOptionsItemSelected)
         }
 
         // Configure tabs and ViewPager.
@@ -92,38 +68,6 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
             tab.icon = pagerAdapter.getIcon(position)
             tab.contentDescription = pagerAdapter.getTitle(position)
         }.attach()
-
-        viewModel.deleteConfirmation.observe(viewLifecycleOwner) { toastMessageEvent ->
-            toastMessageEvent.handle { confirmation ->
-                when (confirmation.result) {
-                    is DeleteTracksResult.Deleted -> {
-                        notifyTrackDeleted(confirmation.result.count)
-                    }
-                    is DeleteTracksResult.RequiresPermission -> {
-                        requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    }
-                    is DeleteTracksResult.RequiresUserConsent -> {
-                        deleteMediaPopup.launch(
-                            IntentSenderRequest.Builder(confirmation.result.intent).build()
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun notifyTrackDeleted(deletedCount: Int) {
-        val message = resources.getQuantityString(
-            R.plurals.deleted_songs_confirmation,
-            deletedCount,
-            deletedCount,
-        )
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-    }
-
-    private fun Toolbar.prepareMenu() {
-        inflateMenu(R.menu.menu_home)
-        setOnMenuItemClickListener(::onOptionsItemSelected)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
@@ -151,7 +95,8 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
     }
 
     private fun navigateToSearch() {
-        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration =
+            resources.getInteger(CoreUiR.integer.ui_motion_duration_large).toLong()
         exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = transitionDuration
         }
@@ -170,7 +115,7 @@ class HomeFragment : BaseFragment(R.layout.fragment_home) {
 
         override fun getItemCount(): Int = 4
 
-        override fun createFragment(position: Int): Fragment = when(position) {
+        override fun createFragment(position: Int): Fragment = when (position) {
             0 -> AllTracksFragment()
             1 -> AlbumsFragment()
             2 -> ArtistsFragment()

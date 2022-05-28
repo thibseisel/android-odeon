@@ -33,6 +33,7 @@ import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
 import timber.log.Timber
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @AndroidEntryPoint
 class HomeActivity : BaseActivity() {
@@ -61,7 +62,7 @@ class HomeActivity : BaseActivity() {
                 this,
                 "storage_permission_rationale",
                 message = getString(R.string.external_storage_permission_rationale),
-                positiveButton = fr.nihilus.music.core.ui.R.string.core_ok
+                positiveButton = CoreUiR.string.core_ok
             )
         }
     }

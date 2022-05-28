@@ -24,6 +24,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,4 +47,10 @@ class ArtistDetailViewModel @Inject constructor(
         .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
         .onStart { emit(LoadRequest.Pending) }
         .asLiveData()
+
+    fun playMedia(item: MediaItem) {
+        viewModelScope.launch {
+            client.playFromMediaId(item.mediaId.parse())
+        }
+    }
 }

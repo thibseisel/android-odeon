@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.playlists
+package fr.nihilus.music.library.playlists.members
 
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,15 +34,13 @@ import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.databinding.FragmentPlaylistDetailBinding
-import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 private const val REQUEST_DELETE_PLAYLIST = "fr.nihilus.music.request.DELETE_PLAYLIST"
 
 @AndroidEntryPoint
 class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
-
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
     private val viewModel: MembersViewModel by viewModels()
 
     private val args by navArgs<PlaylistDetailFragmentArgs>()
@@ -54,7 +51,7 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             drawingViewId = R.id.nav_host_fragment
-            duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+            duration = resources.getInteger(CoreUiR.integer.ui_motion_duration_large).toLong()
             setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
     }
@@ -121,8 +118,8 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
                         R.string.delete_playlist_dialog_title,
                         playlistTitle
                     ),
-                    positiveButton = fr.nihilus.music.core.ui.R.string.core_ok,
-                    negativeButton = fr.nihilus.music.core.ui.R.string.core_cancel
+                    positiveButton = CoreUiR.string.core_ok,
+                    negativeButton = CoreUiR.string.core_cancel
                 )
                 return true
             }
@@ -133,6 +130,6 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
     private fun onTrackSelected(position: Int) {
         val member = adapter.getItem(position)
-        hostViewModel.playMedia(member)
+        viewModel.playMedia(member)
     }
 }

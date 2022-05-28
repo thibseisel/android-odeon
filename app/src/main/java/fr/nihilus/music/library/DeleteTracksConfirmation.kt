@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,21 @@
 
 package fr.nihilus.music.library
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.ui.client.BrowserClient
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import fr.nihilus.music.media.provider.DeleteTracksResult
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val client: BrowserClient,
-) : ViewModel() {
-
-    fun playAllShuffled() {
-        viewModelScope.launch {
-            client.setShuffleModeEnabled(true)
-            client.playFromMediaId(MediaId.ALL_TRACKS)
-        }
-    }
-}
+/**
+ * Wraps the result of deleting a single track.
+ * Note that while the main outcome of a delete operation is that the track is deleted,
+ * this is not necessarily the case. You may need to let user grant permissions to proceed.
+ */
+class DeleteTracksConfirmation(
+    /**
+     * identifier of the target audio track.
+     */
+    val trackId: MediaId,
+    /**
+     * Result of deleting that track.
+     */
+    val result: DeleteTracksResult,
+)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.artists.detail
+package fr.nihilus.music.library.playlists.members
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
@@ -23,22 +23,23 @@ import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.base.MediaItemDiffer
-import fr.nihilus.music.library.artists.ArtistHolder
 
-internal class ArtistAdapter(
+internal class MembersAdapter(
     fragment: Fragment,
-    private val onArtistSelected: (position: Int) -> Unit
-) : ListAdapter<MediaItem, ArtistHolder>(MediaItemDiffer) {
+    private val onTrackSelected: (position: Int) -> Unit
+) : ListAdapter<MediaItem, MembersHolder>(MediaItemDiffer) {
 
-    private val glide = Glide.with(fragment).asBitmap()
-        .error(R.drawable.ic_person_24dp)
-        .centerCrop()
+    // Note: Glide is attached to the context of the activity to workaround a bug in
+    // MaterialContainerTransform not capturing images in return transition.
+    private val glideRequest = Glide.with(fragment.requireActivity()).asBitmap()
+        .error(R.drawable.ic_audiotrack_24dp)
         .autoClone()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ArtistHolder(parent, glide, onArtistSelected)
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): MembersHolder = MembersHolder(parent, glideRequest, onTrackSelected)
 
-    override fun onBindViewHolder(holder: ArtistHolder, position: Int) {
+    override fun onBindViewHolder(holder: MembersHolder, position: Int) {
         holder.bind(getItem(position))
     }
 

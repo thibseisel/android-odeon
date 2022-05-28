@@ -19,30 +19,27 @@ package fr.nihilus.music.library.artists
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.R
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentArtistsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
-import fr.nihilus.music.library.HomeViewModel
-import fr.nihilus.music.library.artists.detail.ArtistAdapter
+import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
+import fr.nihilus.music.core.ui.R as CoreUiR
 
+/**
+ * Displays all artists in a grid of images.
+ * Selecting an artist opens [its detail view][ArtistDetailFragment].
+ */
 @AndroidEntryPoint
 class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
-    private val viewModel: HomeViewModel by activityViewModels()
-
-    private lateinit var adapter: ArtistAdapter
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        adapter = ArtistAdapter(this, ::onArtistSelected)
-    }
+    private val viewModel: ArtistsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,33 +49,25 @@ class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
             binding.progressIndicator.isVisible = shouldShow
         }
 
+        val adapter = ArtistAdapter(this, ::browseArtist)
         binding.artistGrid.adapter = adapter
         binding.artistGrid.setHasFixedSize(true)
 
-        viewModel.artists.observe(viewLifecycleOwner) { artistRequest ->
-            when (artistRequest) {
-                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
-                is LoadRequest.Success -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(artistRequest.data)
-                    binding.emptyViewGroup.isVisible = artistRequest.data.isEmpty()
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
-                is LoadRequest.Error -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(emptyList())
-                    binding.emptyViewGroup.isVisible = true
-                    requireParentFragment().startPostponedEnterTransitionWhenDrawn()
-                }
+        viewModel.state.observe(viewLifecycleOwner) {
+            progressBarLatch.isRefreshing = it.isLoadingArtists && it.artists.isEmpty()
+            adapter.submitList(it.artists)
+            binding.emptyViewGroup.isVisible = !it.isLoadingArtists && it.artists.isEmpty()
+            if (it.isLoadingArtists) {
+                requireParentFragment().startPostponedEnterTransitionWhenDrawn()
             }
         }
     }
 
-    private fun onArtistSelected(position: Int) {
-        val artist = adapter.getItem(position)
-
+    private fun browseArtist(artist: ArtistUiState) {
         // Reset transitions set by another navigation events.
-        val transitionDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val transitionDuration = resources
+            .getInteger(CoreUiR.integer.ui_motion_duration_large)
+            .toLong()
         requireParentFragment().apply {
             exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
                 duration = transitionDuration
@@ -88,7 +77,7 @@ class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
             }
         }
 
-        val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.mediaId!!)
+        val toArtistDetail = HomeFragmentDirections.browseArtistDetail(artist.id.encoded)
         findNavController().navigate(toArtistDetail)
     }
 }
