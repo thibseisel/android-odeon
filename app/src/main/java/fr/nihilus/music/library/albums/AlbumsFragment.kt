@@ -31,6 +31,7 @@ import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDraw
 import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * Display all albums in a grid of images.
@@ -83,7 +84,7 @@ class AlbumsFragment : BaseFragment(R.layout.fragment_albums) {
         requireParentFragment().apply {
             exitTransition = Hold().apply {
                 duration = resources
-                    .getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+                    .getInteger(CoreUiR.integer.ui_motion_duration_large)
                     .toLong()
                 addTarget(R.id.fragment_home)
             }

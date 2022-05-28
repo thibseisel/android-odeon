@@ -32,6 +32,7 @@ import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.databinding.NewPlaylistInputBinding
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @AndroidEntryPoint
 internal class NewPlaylistDialog : BaseDialogFragment() {
@@ -49,8 +50,8 @@ internal class NewPlaylistDialog : BaseDialogFragment() {
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_create_playlist)
             .setView(binding.root)
-            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
-            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_ok) { _, _ ->
+            .setNegativeButton(CoreUiR.string.core_cancel, null)
+            .setPositiveButton(CoreUiR.string.core_ok) { _, _ ->
                 val currentPlaylistTitle = binding.titleInput.text?.toString()
                 check(isValidTitle(currentPlaylistTitle))
                 onRequestCreatePlaylist(currentPlaylistTitle)

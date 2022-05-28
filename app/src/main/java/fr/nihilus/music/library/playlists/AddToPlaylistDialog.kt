@@ -35,6 +35,7 @@ import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
 import fr.nihilus.music.databinding.PlaylistListItemBinding
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * A fragment displaying an Alert Dialog prompting the user to choose to which playlists
@@ -63,7 +64,7 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
             .setTitle(R.string.add_to_playlist)
             .setAdapter(playlistAdapter, dialogEventHandler)
             .setPositiveButton(R.string.action_create_playlist, dialogEventHandler)
-            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
+            .setNegativeButton(CoreUiR.string.core_cancel, null)
             .create()
     }
 

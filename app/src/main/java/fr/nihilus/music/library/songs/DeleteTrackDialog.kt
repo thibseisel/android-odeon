@@ -26,6 +26,7 @@ import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.open
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * An alert dialog that prompts the user for confirmation to delete a single track from its device.
@@ -37,8 +38,8 @@ class DeleteTrackDialog : AppCompatDialogFragment() {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_dialog_title)
             .setMessage(R.string.delete_dialog_message)
-            .setPositiveButton(fr.nihilus.music.core.ui.R.string.core_action_delete) { _, _ -> onDelete() }
-            .setNegativeButton(fr.nihilus.music.core.ui.R.string.core_cancel, null)
+            .setPositiveButton(CoreUiR.string.core_action_delete) { _, _ -> onDelete() }
+            .setNegativeButton(CoreUiR.string.core_cancel, null)
             .create()
     }
 

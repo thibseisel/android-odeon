@@ -39,6 +39,7 @@ import fr.nihilus.music.databinding.FragmentArtistDetailBinding
 import fr.nihilus.music.library.MusicLibraryViewModel
 import fr.nihilus.music.library.albums.AlbumHolder
 import java.util.concurrent.TimeUnit
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @AndroidEntryPoint
 class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
@@ -120,7 +121,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
     }
 
     private fun setupGridToDetailTransition() {
-        val sharedAxisDuration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+        val sharedAxisDuration = resources.getInteger(CoreUiR.integer.ui_motion_duration_large).toLong()
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
             duration = sharedAxisDuration
         }
@@ -138,7 +139,7 @@ class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_detail) {
 
         // Keep this fragment displayed while animating to the next destination.
         exitTransition = Hold().apply {
-            duration = resources.getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large).toLong()
+            duration = resources.getInteger(CoreUiR.integer.ui_motion_duration_large).toLong()
             addTarget(R.id.fragment_artist_detail)
         }
 

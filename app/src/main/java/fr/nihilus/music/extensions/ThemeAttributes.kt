@@ -20,16 +20,17 @@ import android.content.Context
 import androidx.core.content.res.getColorOrThrow
 import fr.nihilus.music.R
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 fun Context.resolveDefaultAlbumPalette(): AlbumPalette {
-    val attrs = obtainStyledAttributes(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette)
+    val attrs = obtainStyledAttributes(CoreUiR.styleable.DefaultAlbumPalette)
     return try {
         AlbumPalette(
-            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPalettePrimaryColor),
-            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteAccentColor),
-            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteTitleTextColor),
-            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteBodyTextColor),
-            attrs.getColorOrThrow(fr.nihilus.music.core.ui.R.styleable.DefaultAlbumPalette_albumPaletteTextOnAccentColor)
+            attrs.getColorOrThrow(CoreUiR.styleable.DefaultAlbumPalette_albumPalettePrimaryColor),
+            attrs.getColorOrThrow(CoreUiR.styleable.DefaultAlbumPalette_albumPaletteAccentColor),
+            attrs.getColorOrThrow(CoreUiR.styleable.DefaultAlbumPalette_albumPaletteTitleTextColor),
+            attrs.getColorOrThrow(CoreUiR.styleable.DefaultAlbumPalette_albumPaletteBodyTextColor),
+            attrs.getColorOrThrow(CoreUiR.styleable.DefaultAlbumPalette_albumPaletteTextOnAccentColor)
         )
     } finally {
         attrs.recycle()

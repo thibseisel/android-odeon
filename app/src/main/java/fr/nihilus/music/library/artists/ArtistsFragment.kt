@@ -31,6 +31,7 @@ import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.databinding.FragmentArtistsBinding
 import fr.nihilus.music.library.HomeFragmentDirections
 import fr.nihilus.music.library.artists.detail.ArtistDetailFragment
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**
  * Displays all artists in a grid of images.
@@ -65,7 +66,7 @@ class ArtistsFragment : BaseFragment(R.layout.fragment_artists) {
     private fun browseArtist(artist: ArtistUiState) {
         // Reset transitions set by another navigation events.
         val transitionDuration = resources
-            .getInteger(fr.nihilus.music.core.ui.R.integer.ui_motion_duration_large)
+            .getInteger(CoreUiR.integer.ui_motion_duration_large)
             .toLong()
         requireParentFragment().apply {
             exitTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).apply {
