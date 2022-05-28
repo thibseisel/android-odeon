@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,8 @@ import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,7 +33,7 @@ class MembersViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val client: BrowserClient,
     private val actions: ManagePlaylistAction
-): ViewModel() {
+) : ViewModel() {
     private val playlistId =
         PlaylistDetailFragmentArgs.fromSavedStateHandle(savedState).playlistId.parse()
 
@@ -54,6 +53,12 @@ class MembersViewModel @Inject constructor(
     fun deletePlaylist() {
         viewModelScope.launch {
             actions.deletePlaylist(playlistId)
+        }
+    }
+
+    fun playMedia(track: MediaItem) {
+        viewModelScope.launch {
+            client.playFromMediaId(track.mediaId.parse())
         }
     }
 }

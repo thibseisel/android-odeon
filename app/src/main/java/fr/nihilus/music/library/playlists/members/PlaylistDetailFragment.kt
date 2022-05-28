@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -35,7 +34,6 @@ import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.databinding.FragmentPlaylistDetailBinding
-import fr.nihilus.music.library.MusicLibraryViewModel
 import java.util.concurrent.TimeUnit
 import fr.nihilus.music.core.ui.R as CoreUiR
 
@@ -43,8 +41,6 @@ private const val REQUEST_DELETE_PLAYLIST = "fr.nihilus.music.request.DELETE_PLA
 
 @AndroidEntryPoint
 class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
-
-    private val hostViewModel: MusicLibraryViewModel by activityViewModels()
     private val viewModel: MembersViewModel by viewModels()
 
     private val args by navArgs<PlaylistDetailFragmentArgs>()
@@ -134,6 +130,6 @@ class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
 
     private fun onTrackSelected(position: Int) {
         val member = adapter.getItem(position)
-        hostViewModel.playMedia(member)
+        viewModel.playMedia(member)
     }
 }

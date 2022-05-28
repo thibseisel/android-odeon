@@ -16,24 +16,21 @@
 
 package fr.nihilus.music.library
 
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
-    private val client: BrowserClient
+    client: BrowserClient
 ) : ViewModel() {
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
@@ -61,13 +58,5 @@ class MusicLibraryViewModel @Inject constructor(
                 }
             }
         }.launchIn(viewModelScope)
-    }
-
-    fun playMedia(playableMedia: MediaBrowserCompat.MediaItem) {
-        require(playableMedia.isPlayable) { "The specified media is not playable." }
-
-        viewModelScope.launch {
-            client.playFromMediaId(playableMedia.mediaId.parse())
-        }
     }
 }
