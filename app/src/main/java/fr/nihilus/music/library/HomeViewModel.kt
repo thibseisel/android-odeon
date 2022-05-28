@@ -35,7 +35,6 @@ class HomeViewModel @Inject constructor(
     private val deleteAction: DeleteTracksAction,
 ) : ViewModel() {
 
-    val artists: LiveData<LoadRequest<List<MediaItem>>> = childrenOf(MediaId.ALL_ARTISTS)
     val playlists: LiveData<LoadRequest<List<MediaItem>>> = allPlaylists()
 
     private val _deleteConfirmation = MutableLiveData<Event<DeleteTracksConfirmation>>()
@@ -74,10 +73,6 @@ class HomeViewModel @Inject constructor(
         val itemId = MediaId(MediaId.TYPE_TRACKS, category)
         emit(client.getItem(itemId) ?: error("Item with id $itemId should always exist."))
     }
-
-    private fun childrenOf(parentId: MediaId) = client.getChildren(parentId)
-        .loadState()
-        .asLiveData()
 }
 
 private fun <T> Flow<T>.loadState(): Flow<LoadRequest<T>> = this
