@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Thibault Seisel
+  ~ Copyright 2022 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,12 +15,6 @@
   ~ limitations under the License.
   -->
 
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_graph"
-    app:startDestination="@id/library_graph">
-
-    <include app:graph="@navigation/library_graph" />
-    <include app:graph="@navigation/cleanup_graph" />
-    <include app:graph="@navigation/settings_graph" />
-</navigation>
+<resources>
+    <public name="cleanup_graph" type="navigation"/>
+</resources>

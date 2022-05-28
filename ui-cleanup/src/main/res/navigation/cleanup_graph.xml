@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2020 Thibault Seisel
+  ~ Copyright 2022 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -17,10 +17,17 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_graph"
-    app:startDestination="@id/library_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cleanup_graph"
+    app:startDestination="@id/activity_cleanup">
 
-    <include app:graph="@navigation/library_graph" />
-    <include app:graph="@navigation/cleanup_graph" />
-    <include app:graph="@navigation/settings_graph" />
+    <activity
+        android:id="@+id/activity_cleanup"
+        android:name="fr.nihilus.music.ui.cleanup.CleanupActivity"
+        android:label="@string/action_cleanup_title"
+        tools:layout="@layout/activity_cleanup">
+
+        <deepLink app:uri="odeon://fr.nihilus.music.ui.cleanup/activity_cleanup" />
+    </activity>
+
 </navigation>
