@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,26 +23,28 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        testInstrumentationRunner = "fr.nihilus.music.core.instrumentation.runner.HiltJUnitRunner"
+    sourceSets {
+        // Add Room schemas to test sources in order to test database migrations.
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+}
+
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.incremental", "true")
     }
 }
 
 dependencies {
-    // Shared Kotlin language features
-    api(libs.kotlinx.coroutines.core)
+    implementation(libs.androidx.core)
+    implementation(libs.timber)
 
-    // Shared AndroidX libraries
-    api(libs.androidx.core)
-    api(libs.androidx.work.runtime)
-
-    // Timber Logging
-    api(libs.timber)
-
-    // Hilt
-    api(libs.hilt.android)
-    implementation(libs.androidx.hilt.work)
+    implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    implementation(libs.androidx.room)
+    kapt(libs.androidx.room.compiler)
 
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotest.assertions.core)
@@ -59,9 +61,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.core)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(libs.kotest.assertions.core)
-    androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.compiler)
 
     constraints {
         kapt("org.xerial:sqlite-jdbc") {

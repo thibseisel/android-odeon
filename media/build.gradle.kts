@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core-database"))
 
     // Hilt
     kapt(libs.hilt.compiler)

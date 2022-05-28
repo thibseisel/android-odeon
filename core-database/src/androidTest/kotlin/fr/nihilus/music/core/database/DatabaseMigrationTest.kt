@@ -17,7 +17,6 @@
 package fr.nihilus.music.core.database
 
 import androidx.room.testing.MigrationTestHelper
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Rule
@@ -33,8 +32,7 @@ class DatabaseMigrationTest {
     @get:Rule
     val helper = MigrationTestHelper(
         InstrumentationRegistry.getInstrumentation(),
-        AppDatabase::class.java.canonicalName,
-        FrameworkSQLiteOpenHelperFactory()
+        AppDatabase::class.java,
     )
 
     @Test

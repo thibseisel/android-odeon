@@ -30,6 +30,7 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":core-database"))
     implementation(project(":media"))
     implementation(project(":core-ui"))
     implementation(project(":spotify-client"))

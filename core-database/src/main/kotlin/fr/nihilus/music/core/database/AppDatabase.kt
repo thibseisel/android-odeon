@@ -48,7 +48,7 @@ import fr.nihilus.music.core.database.usage.UsageDao
     TrackExclusion::class,
 ], version = 6)
 @TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
-abstract class AppDatabase : RoomDatabase() {
+internal abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val playlistDao: PlaylistDao
 
