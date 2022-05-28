@@ -34,7 +34,7 @@ import fr.nihilus.music.databinding.FragmentHomeBinding
 import fr.nihilus.music.library.albums.AlbumsFragment
 import fr.nihilus.music.library.artists.ArtistsFragment
 import fr.nihilus.music.library.playlists.PlaylistsFragment
-import fr.nihilus.music.library.songs.AllTracksFragment
+import fr.nihilus.music.library.tracks.AllTracksFragment
 import java.util.concurrent.TimeUnit
 import fr.nihilus.music.core.ui.R as CoreUiR
 

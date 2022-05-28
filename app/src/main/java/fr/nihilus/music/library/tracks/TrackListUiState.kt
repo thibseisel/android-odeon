@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.songs
+package fr.nihilus.music.library.tracks
 
 import android.net.Uri
 import fr.nihilus.music.core.media.MediaId

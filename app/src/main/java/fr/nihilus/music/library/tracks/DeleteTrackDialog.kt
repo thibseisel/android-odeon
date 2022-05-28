@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.songs
+package fr.nihilus.music.library.tracks
 
 import android.app.Dialog
 import android.os.Bundle
@@ -25,7 +25,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.library.songs.DeleteTrackDialog.Factory.open
 import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**

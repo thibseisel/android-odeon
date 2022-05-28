@@ -43,7 +43,7 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.databinding.FragmentSearchBinding
 import fr.nihilus.music.library.playlists.AddToPlaylistDialog
-import fr.nihilus.music.library.songs.DeleteTrackDialog
+import fr.nihilus.music.library.tracks.DeleteTrackDialog
 import fr.nihilus.music.media.provider.DeleteTracksResult
 import java.util.concurrent.TimeUnit
 import fr.nihilus.music.core.ui.R as CoreUiR

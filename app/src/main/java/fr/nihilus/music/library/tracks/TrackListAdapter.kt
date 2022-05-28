@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.library.songs
+package fr.nihilus.music.library.tracks
 
 import android.view.Gravity
 import android.view.ViewGroup
