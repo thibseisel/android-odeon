@@ -16,38 +16,11 @@
   -->
 
 <resources>
-    <string name="action_albums">Albums</string>
-    <string name="action_artists">Artistes</string>
     <string name="album_art">Pochette d\'album</string>
-    <string name="play_all_shuffled">Tout lire en mode aléatoire</string>
-    <string name="action_search">Rechercher</string>
-    <string name="empty_songs">Aucun morceau</string>
-    <string name="all_music">Morceaux</string>
-    <string name="empty_albums">Aucun album</string>
-    <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Activer la lecture aléatoire</string>
     <string name="play_or_pause">Play ou pause</string>
     <string name="skip_next">Suivant</string>
     <string name="skip_previous">Précédent</string>
-    <string name="empty_artist">Aucun artiste</string>
-    <string name="add_to_playlist">Ajouter à une playlist</string>
-    <string name="empty_playlist">Aucune playlist</string>
-    <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
-    <string name="delete_dialog_message">Ce morceau sera effacé de votre appareil.</string>
-    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="action_delete_playlist">Supprimer la playlist</string>
-    <string name="action_edit_playlist">Modifier la playlist</string>
-    <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
     <string name="external_storage_permission_rationale">Vous ne pourrez pas lire les morceaux stockées sur votre appareil à moins que vous n\'accordiez l\'autorisation d\'y accéder.</string>
-    <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
     <string name="action_repeat_mode">Répéter la lecture</string>
-    <string name="action_create_playlist">Nouvelle playlist</string>
-    <string name="hint_playlist_title">Titre de la playlist</string>
-    <string name="playlist_created">La playlist \"%1$s\" a été créée.</string>
-    <string name="search_hint">Rechercher un morceau, un artiste</string>
-    <string name="action_clear">Effacer</string>
-    <string name="desc_clear_search">Effacer la recherche</string>
-    <string name="description_more_actions">Plus d\'actions</string>
-    <string name="desc_play_album">Jouer l\'album</string>
-    <string name="action_exclude_track">Exclure de la bibliothèque</string>
 </resources>

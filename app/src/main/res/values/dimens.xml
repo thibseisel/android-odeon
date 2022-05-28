@@ -15,15 +15,6 @@
   -->
 
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="playerview_height">64dp</dimen>
     <dimen name="playerview_hidden_height">0dp</dimen>
-    <dimen name="track_icon_corner_radius">8dp</dimen>
-    <dimen name="playlist_title_input_spacing">16dp</dimen>
-    <dimen name="collapsing_toolbar_height">192dp</dimen>
-    <dimen name="artist_detail_overlay">96dp</dimen>
-    <array name="preset_album_title_size">
-        <item>14sp</item>
-        <item>16sp</item>
-    </array>
 </resources>

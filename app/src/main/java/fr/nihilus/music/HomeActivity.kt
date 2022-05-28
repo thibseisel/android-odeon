@@ -29,9 +29,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.databinding.ActivityHomeBinding
-import fr.nihilus.music.library.MusicLibraryViewModel
-import fr.nihilus.music.library.nowplaying.NowPlayingFragment
+import fr.nihilus.music.ui.nowplaying.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
+import fr.nihilus.music.ui.MusicLibraryViewModel
 import timber.log.Timber
 import fr.nihilus.music.core.ui.R as CoreUiR
 

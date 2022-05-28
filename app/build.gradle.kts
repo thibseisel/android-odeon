@@ -126,6 +126,7 @@ dependencies {
 
     implementation(project(":ui-cleanup"))
     implementation(project(":ui-settings"))
+    implementation(project(":ui-library"))
 
     // Support library dependencies
     implementation(libs.androidx.recyclerview)
