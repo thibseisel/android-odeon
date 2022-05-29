@@ -29,48 +29,16 @@ android {
 }
 
 dependencies {
-    // Shared Kotlin language features
-    api(libs.kotlinx.coroutines.core)
-
-    // Shared AndroidX libraries
-    api(libs.androidx.core)
-    api(libs.androidx.work.runtime)
-
-    // Timber Logging
-    api(libs.timber)
-
-    // Hilt
-    api(libs.hilt.android)
+    implementation(libs.bundles.core)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.work)
     kapt(libs.hilt.compiler)
 
-    testImplementation(libs.kotlin.test.junit)
-    testImplementation(libs.kotest.assertions.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.androidx.test.junit)
-    testImplementation (libs.robolectric) {
-        exclude(group = "com.google.auto.service", module = "auto-service")
-    }
+    testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(project(":core-instrumentation"))
-    androidTestImplementation(libs.kotlin.test.junit)
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.rules)
-    androidTestImplementation(libs.kotest.assertions.core)
+    androidTestImplementation(libs.bundles.testing.instrumented)
     androidTestImplementation(libs.hilt.android.testing)
     kaptAndroidTest(libs.hilt.compiler)
-
-    constraints {
-        kapt("org.xerial:sqlite-jdbc") {
-            because("Apple Silicon support has been introduced in 3.32.3.3")
-            version {
-                require("3.32.3.3")
-                // Version below is known to have failed to include M1 binary
-                reject("3.35.0")
-            }
-        }
-    }
 }

@@ -110,10 +110,47 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [bundles]
+android-ui = [
+    "androidx-constraintlayout",
+    "androidx-fragment",
+    "androidx-palette",
+    "androidx-navigation-fragment",
+    "androidx-navigation-ui",
+    "androidx-recyclerview",
+    "glide",
+    "material"
+]
 androidx-lifecycle = [
     "androidx-lifecycle-runtime",
     "androidx-lifecycle-livedata",
     "androidx-lifecycle-viewmodel",
     "androidx-lifecycle-java8",
     "androidx-lifecycle-process"
+]
+core = [
+    "androidx.core",
+    "androidx-appcompat",
+    "kotlinx-coroutines-android",
+    "kotlinx-coroutines-core",
+    "timber"
+]
+testing-instrumented = [
+    "androidx-test-core",
+    "androidx-test-espresso",
+    "androidx-test-rules",
+    "androidx-test-runner",
+    "kotest-assertions-core",
+    "kotlin-test-junit",
+]
+testing-unit = [
+    "androidx-test-junit",
+    "androidx-test-core",
+    "kotest-assertions-core",
+    "kotest-property",
+    "kotlin-test-junit",
+    "kotlinx-coroutines-debug",
+    "kotlinx-coroutines-test",
+    "mockk",
+    "turbine",
+    "robolectric",
 ]

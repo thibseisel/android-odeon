@@ -37,24 +37,22 @@ dependencies {
     implementation(project(":core-database"))
     implementation(project(":media"))
 
-    // Ktor Client - MultiPlatform HTTP Client
-    api(libs.ktor.client.okhttp)
+    implementation(libs.bundles.core)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.json)
-
-    // Moshi - Kotlin JSON serialization
-    api(libs.moshi)
+    implementation(libs.moshi)
     kapt(libs.moshi.codegen)
+
+    implementation(libs.androidx.work.runtime)
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.work)
     kapt(libs.hilt.compiler)
     kapt(libs.androidx.hilt.compiler)
 
-    implementation(libs.androidx.appcompat)
-
     testImplementation(project(":core-test"))
+    testImplementation(libs.bundles.testing.unit)
     testImplementation(libs.ktor.client.mock)
-    testImplementation(libs.mockk)
 }
 
 fun getSpotifyProperty(name: String): String {

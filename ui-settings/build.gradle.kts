@@ -35,10 +35,15 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":spotify-client"))
 
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
     implementation(libs.androidx.preference)
+    implementation(libs.androidx.work.runtime)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
+    testImplementation(libs.bundles.testing.unit)
 }

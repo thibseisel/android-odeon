@@ -37,32 +37,17 @@ kapt {
 }
 
 dependencies {
-    implementation(libs.androidx.core)
-    implementation(libs.timber)
-
+    implementation(libs.bundles.core)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-
     implementation(libs.androidx.room)
     kapt(libs.androidx.room.compiler)
 
-    testImplementation(libs.kotlin.test.junit)
-    testImplementation(libs.kotest.assertions.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.androidx.test.junit)
-    testImplementation (libs.robolectric) {
-        exclude(group = "com.google.auto.service", module = "auto-service")
-    }
+    testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(project(":core-instrumentation"))
-    androidTestImplementation(libs.kotlin.test.junit)
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.bundles.testing.instrumented)
     androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation(libs.kotest.assertions.core)
 
     constraints {
         kapt("org.xerial:sqlite-jdbc") {

@@ -24,13 +24,11 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(project(":core-database"))
+    implementation(libs.bundles.core)
 
-    // Hilt
+    implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
-    // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.junit)
-    testImplementation(libs.androidx.room)
+    testImplementation(libs.bundles.testing.unit)
 }
