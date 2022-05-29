@@ -40,7 +40,7 @@ internal class MembersHolder(
 
     init {
         itemView.setOnClickListener {
-            onTrackSelected(adapterPosition)
+            onTrackSelected(bindingAdapterPosition)
         }
     }
 

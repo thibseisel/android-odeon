@@ -63,7 +63,7 @@ internal class ArtistAdapter(
         private val binding = ArtistGridItemBinding.bind(itemView)
 
         init {
-            itemView.setOnClickListener { onClick(adapterPosition) }
+            itemView.setOnClickListener { onClick(bindingAdapterPosition) }
         }
 
         override fun bind(data: ArtistUiState) {

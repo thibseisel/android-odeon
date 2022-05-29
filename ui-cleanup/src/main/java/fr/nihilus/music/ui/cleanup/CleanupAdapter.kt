@@ -75,8 +75,8 @@ internal class CleanupAdapter(
         private val binding = ItemDisposableTrackBinding.bind(itemView)
 
         init {
-            itemView.setOnClickListener { onSelect(adapterPosition) }
-            binding.tickMark.setOnClickListener { onSelect(adapterPosition) }
+            itemView.setOnClickListener { onSelect(bindingAdapterPosition) }
+            binding.tickMark.setOnClickListener { onSelect(bindingAdapterPosition) }
         }
 
         /**

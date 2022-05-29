@@ -37,7 +37,7 @@ internal class PlaylistHolder(
 
     init {
         itemView.setOnClickListener {
-            onPlaylistSelected(adapterPosition)
+            onPlaylistSelected(bindingAdapterPosition)
         }
     }
 

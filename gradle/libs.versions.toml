@@ -63,7 +63,6 @@ androidx-lifecycle-java8 = { module = "androidx.lifecycle:lifecycle-common-java8
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-media = { module = "androidx.media:media", version.ref = "androidx-media" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidx-navigation" }
-androidx-navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidx-navigation" }
 androidx-palette = { module = "androidx.palette:palette-ktx", version.ref = "androidx-palette" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
 androidx-room = { module = "androidx.room:room-ktx", version.ref = "androidx-room" }
@@ -115,7 +114,6 @@ android-ui = [
     "androidx-fragment",
     "androidx-palette",
     "androidx-navigation-fragment",
-    "androidx-navigation-ui",
     "androidx-recyclerview",
     "glide",
     "material"

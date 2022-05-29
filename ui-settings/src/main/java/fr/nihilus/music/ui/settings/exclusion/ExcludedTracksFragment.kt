@@ -71,7 +71,7 @@ internal class ExcludedTracksFragment : BaseFragment(R.layout.excluded_tracks_fr
         ): Boolean = false
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            onSwiped(viewHolder.adapterPosition)
+            onSwiped(viewHolder.bindingAdapterPosition)
         }
     }
 }
