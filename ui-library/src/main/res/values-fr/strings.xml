@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2022 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="action_albums">Albums</string>
+    <string name="action_artists">Artistes</string>
+    <string name="album_art">Pochette d\'album</string>
+    <string name="play_all_shuffled">Tout lire en mode aléatoire</string>
+    <string name="action_search">Rechercher</string>
+    <string name="empty_songs">Aucun morceau</string>
+    <string name="all_music">Morceaux</string>
+    <string name="empty_albums">Aucun album</string>
+    <string name="action_playlists">Playlists</string>
+    <string name="empty_artist">Aucun artiste</string>
+    <string name="add_to_playlist">Ajouter à une playlist</string>
+    <string name="empty_playlist">Aucune playlist</string>
+    <string name="delete_dialog_title">Supprimer de l\'appareil ?</string>
+    <string name="delete_dialog_message">Ce morceau sera effacé de votre appareil.</string>
+    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
+    <string name="action_delete_playlist">Supprimer la playlist</string>
+    <string name="delete_playlist_dialog_title">Supprimer la playlist \"%s\" ?</string>
+    <string name="action_condensed_play_shuffled">Lecture aléatoire</string>
+    <string name="action_create_playlist">Nouvelle playlist</string>
+    <string name="hint_playlist_title">Titre de la playlist</string>
+    <string name="search_hint">Rechercher un morceau, un artiste</string>
+    <string name="action_clear">Effacer</string>
+    <string name="desc_clear_search">Effacer la recherche</string>
+    <string name="description_more_actions">Plus d\'actions</string>
+    <string name="desc_play_album">Jouer l\'album</string>
+    <string name="action_exclude_track">Exclure de la bibliothèque</string>
+    <string name="action_cleanup_title">Libérer de l\'espace</string>
+</resources>
