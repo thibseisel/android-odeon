@@ -23,6 +23,8 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
 tasks.register("configurations") {
     group = "help"
     description = "Display build configurations declared in project ':${project.name}'"
@@ -57,6 +59,10 @@ pluginManager.withPlugin("org.jetbrains.kotlin.kapt") {
 pluginManager.withPlugin("dagger.hilt.android.plugin") {
     configure<HiltExtension> {
         enableAggregatingTask = true
+    }
+    dependencies {
+        addProvider("implementation", libs.findLibrary("hilt-android").get())
+        addProvider("kapt", libs.findLibrary("hilt-compiler").get())
     }
 }
 

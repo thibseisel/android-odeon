@@ -39,7 +39,7 @@ internal class TrackAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(parent).also { holder ->
             holder.itemView.setOnClickListener {
-                val position = holder.adapterPosition
+                val position = holder.bindingAdapterPosition
                 trackSelectedListener(getItem(position))
             }
         }

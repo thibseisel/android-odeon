@@ -92,7 +92,7 @@ internal class AlbumsAdapter(
 
         init {
             itemView.setOnClickListener {
-                onClick(adapterPosition)
+                onClick(bindingAdapterPosition)
             }
         }
 

@@ -161,7 +161,7 @@ internal class SearchResultsAdapter(
             setupTrackActionMenu()
 
             itemView.setOnClickListener {
-                onItemAction(adapterPosition, ItemAction.PRIMARY)
+                onItemAction(bindingAdapterPosition, ItemAction.PRIMARY)
             }
         }
 
@@ -185,17 +185,17 @@ internal class SearchResultsAdapter(
             popup.setOnMenuItemClickListener {
                 when (it.itemId) {
                     R.id.action_playlist -> {
-                        onItemAction(adapterPosition, ItemAction.ADD_TO_PLAYLIST)
+                        onItemAction(bindingAdapterPosition, ItemAction.ADD_TO_PLAYLIST)
                         true
                     }
 
                     R.id.action_exclude -> {
-                        onItemAction(adapterPosition, ItemAction.EXCLUDE)
+                        onItemAction(bindingAdapterPosition, ItemAction.EXCLUDE)
                         true
                     }
 
                     R.id.action_delete -> {
-                        onItemAction(adapterPosition, ItemAction.DELETE)
+                        onItemAction(bindingAdapterPosition, ItemAction.DELETE)
                         true
                     }
 

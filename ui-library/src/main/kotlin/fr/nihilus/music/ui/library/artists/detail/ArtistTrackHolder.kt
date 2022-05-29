@@ -36,7 +36,7 @@ internal class ArtistTrackHolder(
 
     init {
         itemView.setOnClickListener {
-            onTrackSelected(adapterPosition)
+            onTrackSelected(bindingAdapterPosition)
         }
     }
 

@@ -33,10 +33,10 @@ dependencies {
     implementation(project(":core-ui"))
     implementation(project(":media"))
 
-    implementation(libs.androidx.recyclerview)
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
 
     testImplementation(project(":core-test"))
+    testImplementation(libs.bundles.testing.unit)
 }

@@ -54,7 +54,7 @@ internal class AlbumHolder(
 
     init {
         itemView.setOnClickListener {
-            onAlbumSelected(adapterPosition)
+            onAlbumSelected(bindingAdapterPosition)
         }
     }
 

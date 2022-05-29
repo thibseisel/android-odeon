@@ -39,7 +39,6 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.yield
 import org.junit.Rule
 import org.junit.runner.RunWith
 import kotlin.test.BeforeTest
@@ -288,10 +287,9 @@ class SubscriptionManagerTest {
                 val albumTracks = MediaId(TYPE_ALBUMS, "42")
                 manager.loadChildren(albumTracks, null)
 
-                yield()
                 val values = List(2) { awaitItem() }
                 values.shouldContainExactlyInAnyOrder(allTracks, albumTracks)
-                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
             }
         }
 

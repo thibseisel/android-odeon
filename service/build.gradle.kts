@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin.Companion.isIncrementalKapt
+
 /*
  * Copyright 2021 Thibault Seisel
  *
@@ -25,34 +27,16 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(project(":core-database"))
-    api(project(":media"))
+    implementation(project(":media"))
     implementation(project(":spotify-client"))
 
-    // Kotlin language support
-    implementation(libs.kotlinx.coroutines.android)
-
-    // Android support libraries
-    implementation(libs.androidx.appcompat)
+    implementation(libs.bundles.core)
     implementation(libs.androidx.media)
-
-    // ExoPlayer
-    api(libs.exoplayer.core)
-
-    // Dagger
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-
-    // Glide
     implementation(libs.glide)
-    kapt(libs.glide.compiler)
+    implementation(libs.exoplayer.core)
 
-    // Test dependencies
     testImplementation(project(":core-test"))
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.junit)
+    testImplementation(libs.bundles.testing.unit)
 
-    // Android-specific test dependencies
-    androidTestImplementation(libs.androidx.test.core)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.bundles.testing.instrumented)
 }

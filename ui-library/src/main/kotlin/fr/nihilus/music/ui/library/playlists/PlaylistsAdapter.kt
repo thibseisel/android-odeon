@@ -46,7 +46,7 @@ internal class PlaylistsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(parent, glideRequest) { holder ->
             selectPlaylist(
-                getItem(holder.adapterPosition),
+                getItem(holder.bindingAdapterPosition),
                 holder
             )
         }

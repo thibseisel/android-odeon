@@ -21,17 +21,6 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-
-    api(libs.kotlinx.coroutines.test)
-    api(libs.kotlinx.coroutines.debug)
-    api(libs.androidx.test.core)
-    api(libs.androidx.test.runner)
-    api(libs.androidx.test.junit)
-    api(libs.kotlin.test.junit)
-    api(libs.kotest.assertions.core)
-    api(libs.kotest.property)
-    api(libs.mockk)
-    api(libs.turbine)
-    api(libs.robolectric)
+    implementation(project(":core"))
+    implementation(libs.bundles.testing.unit)
 }

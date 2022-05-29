@@ -19,6 +19,7 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 dependencies {
@@ -26,33 +27,16 @@ dependencies {
     implementation(project(":core-database"))
     implementation(project(":media"))
 
-    // Dispatcher to Android main thread
-    api(libs.kotlinx.coroutines.android)
-
-    api(libs.androidx.media)
-    api(libs.androidx.appcompat)
-    api(libs.androidx.fragment)
-    api(libs.androidx.constraintlayout)
-    api(libs.androidx.palette)
-
-    // Android Arch Components
-    api(libs.bundles.androidx.lifecycle)
-
-    // Navigation Components
-    api(libs.androidx.navigation.fragment)
-    api(libs.androidx.navigation.ui)
-
-    // Image loading
-    api(libs.glide)
-    kapt(libs.glide.compiler)
-
-    // Material Components
-    api(libs.material)
-
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.media)
     implementation(libs.identikon)
 
-    // Hilt
-    kapt(libs.hilt.compiler)
+    kapt(libs.glide.compiler)
 
     testImplementation(project(":core-test"))
+    testImplementation(libs.bundles.testing.unit)
+
+    androidTestImplementation(libs.bundles.testing.instrumented)
 }
