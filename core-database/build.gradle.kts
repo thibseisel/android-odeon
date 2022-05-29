@@ -38,8 +38,6 @@ kapt {
 
 dependencies {
     implementation(libs.bundles.core)
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
     implementation(libs.androidx.room)
     kapt(libs.androidx.room.compiler)
 

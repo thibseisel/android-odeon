@@ -19,6 +19,7 @@ plugins {
     id("com.android.library")
     kotlin("android")
     kotlin("kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 dependencies {
@@ -33,9 +34,6 @@ dependencies {
     implementation(libs.identikon)
 
     kapt(libs.glide.compiler)
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
     testImplementation(libs.bundles.testing.unit)

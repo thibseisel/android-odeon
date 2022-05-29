@@ -34,10 +34,6 @@ dependencies {
     implementation(libs.androidx.media)
     implementation(libs.glide)
     implementation(libs.exoplayer.core)
-    implementation(libs.hilt.android)
-
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
 
     testImplementation(project(":core-test"))
     testImplementation(libs.bundles.testing.unit)

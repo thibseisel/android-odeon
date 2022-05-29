@@ -39,10 +39,6 @@ dependencies {
     implementation(libs.androidx.viewpager)
     implementation(libs.androidx.media)
 
-    implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.work)
-    kapt(libs.hilt.compiler)
-
     testImplementation(project(":core-test"))
     testImplementation(libs.bundles.testing.unit)
 }

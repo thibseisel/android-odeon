@@ -31,9 +31,7 @@ android {
 dependencies {
     implementation(libs.bundles.core)
     implementation(libs.androidx.work.runtime)
-    implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.work)
-    kapt(libs.hilt.compiler)
 
     testImplementation(libs.bundles.testing.unit)
 
