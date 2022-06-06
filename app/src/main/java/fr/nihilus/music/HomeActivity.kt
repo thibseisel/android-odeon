@@ -29,9 +29,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseActivity
 import fr.nihilus.music.databinding.ActivityHomeBinding
-import fr.nihilus.music.ui.nowplaying.nowplaying.NowPlayingFragment
 import fr.nihilus.music.service.MusicService
 import fr.nihilus.music.ui.MusicLibraryViewModel
+import fr.nihilus.music.ui.nowplaying.nowplaying.NowPlayingFragment
 import timber.log.Timber
 import fr.nihilus.music.core.ui.R as CoreUiR
 
@@ -48,6 +48,10 @@ class HomeActivity : BaseActivity() {
     private val requestReadPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { permissionGranted ->
+        if (permissionGranted) {
+            viewModel.onReadPermissionGranted()
+        }
+
         // Whether it has permission or not, load fragment into interface
         handleIntent(intent)
 
@@ -57,7 +61,8 @@ class HomeActivity : BaseActivity() {
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
-            )) {
+            )
+        ) {
             ConfirmDialogFragment.open(
                 this,
                 "storage_permission_rationale",
@@ -156,12 +161,14 @@ class HomeActivity : BaseActivity() {
         }
 
         bottomSheet.state == BottomSheetBehavior.STATE_COLLAPSED -> {
-            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+            val hiddenSheetHeight =
+                resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
             bottomSheet.setPeekHeight(hiddenSheetHeight, true)
         }
 
         else -> {
-            val hiddenSheetHeight = resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
+            val hiddenSheetHeight =
+                resources.getDimensionPixelSize(R.dimen.playerview_hidden_height)
             bottomSheet.setPeekHeight(hiddenSheetHeight, false)
             bottomSheet.state = BottomSheetBehavior.STATE_COLLAPSED
         }
@@ -194,7 +201,8 @@ class HomeActivity : BaseActivity() {
 
         override fun onStateChanged(bottomSheet: View, newState: Int) {
             if (newState == BottomSheetBehavior.STATE_SETTLING ||
-                newState == BottomSheetBehavior.STATE_DRAGGING) {
+                newState == BottomSheetBehavior.STATE_DRAGGING
+            ) {
                 return
             }
 

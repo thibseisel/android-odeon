@@ -106,7 +106,7 @@ internal class SQLiteMediaStore @Inject constructor(
             null,
             null,
             null
-        )?.count == 1
+        )?.use { it.count } == 1
     }
 
     /**
