@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.ui.client
+package fr.nihilus.music.core.lifecycle
 
 import javax.inject.Qualifier
 
 /**
  * Denotes that a provided value is tied to the lifecycle of the whole application.
- * This is currently only used to provide an instance of [androidx.lifecycle.Lifecycle].
+ * This is currently only used to provide an instance of [androidx.lifecycle.LifecycleOwner].
  */
 @Qualifier
 @MustBeDocumented

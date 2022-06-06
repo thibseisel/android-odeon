@@ -16,14 +16,10 @@
 
 package fr.nihilus.music.core.ui.dagger
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.core.ui.client.ApplicationLifecycle
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.BrowserClientImpl
 
@@ -37,9 +33,4 @@ abstract class CoreUiModule {
 
     @Binds
     internal abstract fun bindsBrowserClient(impl: BrowserClientImpl): BrowserClient
-
-    companion object {
-        @Provides @ApplicationLifecycle
-        fun providesApplicationLifecycle(): Lifecycle = ProcessLifecycleOwner.get().lifecycle
-    }
 }
