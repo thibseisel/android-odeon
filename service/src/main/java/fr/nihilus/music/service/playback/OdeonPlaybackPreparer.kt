@@ -31,7 +31,6 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
@@ -156,10 +155,6 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<AudioTrack> = try {
         val children = browserTree.getChildren(parentId).first()
         children.filterIsInstance<AudioTrack>()
-
-    } catch (pde: PermissionDeniedException) {
-        Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
-        emptyList()
 
     } catch (invalidParent: NoSuchElementException) {
         Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)

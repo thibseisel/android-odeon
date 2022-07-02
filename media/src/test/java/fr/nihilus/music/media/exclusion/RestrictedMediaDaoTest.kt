@@ -18,9 +18,7 @@ package fr.nihilus.music.media.exclusion
 
 import app.cash.turbine.test
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.flow.first
 import org.junit.Rule
@@ -111,20 +109,6 @@ internal class RestrictedMediaDaoTest {
 
             exclusions.allow(MATTER_OF_TIME.id)
             awaitItem().shouldContainExactly(DIRTY_WATER, MATTER_OF_TIME, RUN)
-        }
-    }
-
-    @Test
-    fun `it should preserve exceptions thrown by source dao`() = test.runWithin {
-        val sut = RestrictedMediaDao(it, PermissionDeniedDao, FakeExclusionDao())
-        shouldThrow<PermissionDeniedException> {
-            sut.tracks.first()
-        }
-        shouldThrow<PermissionDeniedException> {
-            sut.albums.first()
-        }
-        shouldThrow<PermissionDeniedException> {
-            sut.artists.first()
         }
     }
 }

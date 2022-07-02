@@ -25,9 +25,9 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
+import fr.nihilus.music.core.lifecycle.ApplicationLifecycle
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
@@ -47,7 +47,7 @@ import kotlin.coroutines.suspendCoroutine
 @Singleton
 internal class BrowserClientImpl @Inject constructor(
     @ApplicationContext applicationContext: Context,
-    @ApplicationLifecycle private val lifecycle: Lifecycle,
+    @ApplicationLifecycle private val owner: LifecycleOwner,
     private val settings: Settings,
 ) : BrowserClient, DefaultLifecycleObserver {
 
@@ -57,7 +57,7 @@ internal class BrowserClientImpl @Inject constructor(
     @Volatile private var deferredController = CompletableDeferred<MediaControllerCompat>()
 
     init {
-        lifecycle.addObserver(this)
+        owner.lifecycle.addObserver(this)
     }
 
     private val mediaBrowser = MediaBrowserCompat(

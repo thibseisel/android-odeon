@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.os
+package fr.nihilus.music.core.lifecycle
 
-import android.Manifest
+import javax.inject.Qualifier
 
 /**
- * Thrown when an operation has failed due to a Android permission not being granted.
- * This may be caught by UI components to request the missing permission.
- *
- * @property permission The name of the permission that is denied.
- * This is a constant from [Manifest.permission].
+ * Denotes that a provided value is tied to the lifecycle of the whole application.
+ * This is currently only used to provide an instance of [androidx.lifecycle.LifecycleOwner].
  */
-class PermissionDeniedException(val permission: String) : RuntimeException(
-    "An operation has failed because it requires the following permission: $permission"
-)
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
+annotation class ApplicationLifecycle

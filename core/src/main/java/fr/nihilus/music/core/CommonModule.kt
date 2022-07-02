@@ -18,23 +18,21 @@ package fr.nihilus.music.core
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import fr.nihilus.music.core.lifecycle.ApplicationLifecycle
 import fr.nihilus.music.core.os.*
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class CommonModule {
-
-    @Binds
-    internal abstract fun bindsSystemPermissions(
-        permissions: SystemRuntimePermissions
-    ): RuntimePermissions
 
     @Binds
     internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
@@ -50,5 +48,8 @@ abstract class CommonModule {
                 "${appContext.packageName}_preferences",
                 Context.MODE_PRIVATE
             )
+
+        @Provides @ApplicationLifecycle
+        fun providesApplicationLifecycle(): LifecycleOwner = ProcessLifecycleOwner.get()
     }
 }

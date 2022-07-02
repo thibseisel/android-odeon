@@ -17,12 +17,11 @@
 package fr.nihilus.music.core.ui.actions
 
 import android.Manifest
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.stub
 import fr.nihilus.music.media.provider.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.map
 
 /**
  * A [MediaDao] that only stores audio [Track]s in memory,
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.onEach
  *
  * @param initial The set of tracks that are initially stored.
  * @property permissionGranted Whether runtime read/write permission has been granted.
- * When set to `false`, all operations fails with [PermissionDeniedException].
  * This is `true` by default.
  */
 internal class InMemoryTrackDao(
@@ -42,11 +40,7 @@ internal class InMemoryTrackDao(
     private val _tracks = MutableStateFlow(initial.toList())
 
     override val tracks: Flow<List<Track>>
-        get() = _tracks.onEach {
-            if (!permissionGranted) {
-                throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
+        get() = _tracks.map { it.takeIf { permissionGranted }.orEmpty() }
 
     override val albums: Flow<List<Album>>
         get() = stub()

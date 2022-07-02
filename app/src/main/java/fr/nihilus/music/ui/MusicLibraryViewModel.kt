@@ -22,6 +22,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.client.BrowserClient
 import kotlinx.coroutines.flow.launchIn
@@ -30,7 +31,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MusicLibraryViewModel @Inject constructor(
-    client: BrowserClient
+    client: BrowserClient,
+    private val permissions: PermissionRepository,
 ) : ViewModel() {
 
     private val _playerSheetVisible = MutableLiveData<Boolean>()
@@ -58,5 +60,13 @@ class MusicLibraryViewModel @Inject constructor(
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    /**
+     * Notify that user has granted permission to read media files
+     * from the device's external storage.
+     */
+    fun onReadPermissionGranted() {
+        permissions.refreshPermissions()
     }
 }

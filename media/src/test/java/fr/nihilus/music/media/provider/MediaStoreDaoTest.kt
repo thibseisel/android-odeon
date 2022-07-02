@@ -25,12 +25,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.os.FileSystem
-import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.core.os.RuntimePermissions
+import fr.nihilus.music.core.permissions.PermissionRepository
+import fr.nihilus.music.core.permissions.RuntimePermission
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.failAssumption
-import fr.nihilus.music.core.test.os.DeniedPermission
-import fr.nihilus.music.core.test.os.GrantedPermission
 import fr.nihilus.music.media.os.MediaStoreDatabase
 import fr.nihilus.music.media.os.SimulatedFileSystem
 import io.kotest.assertions.withClue
@@ -40,7 +38,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -57,12 +59,23 @@ class MediaStoreDaoTest {
     @get:Rule
     val test = CoroutineTestRule()
 
+    @MockK private lateinit var mockPermissions: PermissionRepository
+
     private val dispatchers = AppDispatchers(test.dispatcher)
     private lateinit var fakeMediaStore: SQLiteMediaStore
 
+    private val fakePermissionFlow = MutableStateFlow(
+        RuntimePermission(
+            canReadAudioFiles = true,
+            canWriteAudioFiles = true,
+        )
+    )
+
     @BeforeTest
-    fun initDatabase() {
+    fun setup() {
+        MockKAnnotations.init(this)
         fakeMediaStore = SQLiteMediaStore(ApplicationProvider.getApplicationContext())
+        every { mockPermissions.permissions } returns fakePermissionFlow
     }
 
     @AfterTest
@@ -71,21 +84,18 @@ class MediaStoreDaoTest {
     }
 
     @Test
-    fun `Given denied read permission, when collecting any flow then fail with PermissionDeniedException`() =
-        test {
-            val dao = MediaDao(permissions = DeniedPermission)
+    fun `Given denied read permission, when collecting any flow then returns empty list`() = test {
+        fakePermissionFlow.value = RuntimePermission(
+            canReadAudioFiles = false,
+            canWriteAudioFiles = false,
+        )
 
-            shouldFailDueToMissingExternalStorageReadPermission(dao.tracks)
-            shouldFailDueToMissingExternalStorageReadPermission(dao.albums)
-            shouldFailDueToMissingExternalStorageReadPermission(dao.artists)
-        }
+        val dao = MediaDao()
 
-    private suspend fun shouldFailDueToMissingExternalStorageReadPermission(flow: Flow<List<*>>) =
-        flow.test {
-            val exception = this.awaitError()
-            exception.shouldBeInstanceOf<PermissionDeniedException>()
-            exception.permission shouldBe Manifest.permission.READ_EXTERNAL_STORAGE
-        }
+        dao.tracks.first().shouldBeEmpty()
+        dao.albums.first().shouldBeEmpty()
+        dao.artists.first().shouldBeEmpty()
+    }
 
     @Test
     fun `Given failing MediaStore, when collecting any flow then emit an empty list`() = test {
@@ -247,7 +257,6 @@ class MediaStoreDaoTest {
 
     private suspend fun Flow<List<*>>.shouldRegisterAnObserverFor(observedUri: Uri) {
         drop(1).test {
-
             withClue("An observer should have been registered.") {
                 val observers = fakeMediaStore.observers
                 observers shouldHaveSize 1
@@ -313,7 +322,12 @@ class MediaStoreDaoTest {
     @Test
     @Config(maxSdk = Build.VERSION_CODES.Q)
     fun `Given denied permission, when deleting tracks then returns RequiresPermission`() = test {
-        val dao = MediaDao(permissions = DeniedPermission)
+        fakePermissionFlow.value = RuntimePermission(
+            canReadAudioFiles = true,
+            canWriteAudioFiles = false
+        )
+
+        val dao = MediaDao()
         val result = dao.deleteTracks(longArrayOf(161, 309))
 
         result.shouldBeInstanceOf<DeleteTracksResult.RequiresPermission>()
@@ -358,8 +372,7 @@ class MediaStoreDaoTest {
     private fun MediaDao(
         store: MediaStoreDatabase = fakeMediaStore,
         fs: FileSystem = SimulatedFileSystem(),
-        permissions: RuntimePermissions = GrantedPermission
-    ) = MediaStoreDao(store, fs, permissions, dispatchers)
+    ) = MediaStoreDao(store, fs, mockPermissions, dispatchers)
 }
 
 private const val MUSIC_FOLDER_NAME = "Music"

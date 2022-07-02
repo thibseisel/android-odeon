@@ -16,16 +16,12 @@
 
 package fr.nihilus.music.media.provider
 
-import fr.nihilus.music.core.os.PermissionDeniedException
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Provides an entry point for performing read and write operations on media stored on the device's external storage.
  * Each set of media, namely [tracks], [albums] and [artists], are available as infinite data streams
  * whose latest emitted element is the most up-to-date media list.
- *
- * Because accessing the external storage requires a runtime permission that can be revoked at anytime,
- * all operations may fail if permission to read/write external storage is denied.
  */
 interface MediaDao {
 
@@ -36,8 +32,6 @@ interface MediaDao {
      *
      * Subscribing to this stream will always load the currently available tracks, then emit a new track list
      * whenever it is updated.
-     *
-     * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
     val tracks: Flow<List<Track>>
 
@@ -48,8 +42,6 @@ interface MediaDao {
      *
      * Subscribing to this stream will always load the currently available albums, then emit a new album list
      * whenever it is updated.
-     *
-     * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
     val albums: Flow<List<Album>>
 
@@ -60,8 +52,6 @@ interface MediaDao {
      *
      * Subscribing to this stream will always load the currently available artists, then emit a new artist list
      * whenever it is updated.
-     *
-     * This may fail with [PermissionDeniedException] if permission is not granted or revoked while subscribed.
      */
     val artists: Flow<List<Artist>>
 
@@ -75,9 +65,6 @@ interface MediaDao {
      *
      * As metadata of artists and albums are generated from the track ones, if no track remains
      * for a given album or artist then that album or that artist is also removed.
-     *
-     * If permission to write to external storage is not granted,
-     * this operation will fail with [PermissionDeniedException].
      *
      * @param ids The unique identifiers of tracks to be deleted.
      * @return the number of tracks that have been successfully deleted.
