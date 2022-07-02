@@ -46,7 +46,6 @@ internal class PlaylistManagementViewModel @Inject constructor(
         client.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
             .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
             .onStart { emit(LoadRequest.Pending) }
-            .catch { if (it is MediaSubscriptionException) emit(LoadRequest.Error(it)) }
             .asLiveData()
 
     fun createPlaylist(playlistName: String, members: List<MediaId>) {

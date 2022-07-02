@@ -109,11 +109,6 @@ internal class ArtistDetailFragment : BaseFragment(R.layout.fragment_artist_deta
                     this.childrenAdapter.submitList(childrenRequest.data)
                     startPostponedEnterTransitionWhenDrawn()
                 }
-                is LoadRequest.Error -> {
-                    progressBarLatch.isRefreshing = false
-                    this.childrenAdapter.submitList(emptyList())
-                    startPostponedEnterTransitionWhenDrawn()
-                }
             }
         }
     }

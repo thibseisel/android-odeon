@@ -33,10 +33,4 @@ sealed class LoadRequest<out T> {
      * @param data The loaded data.
      */
     class Success<T>(val data: T) : LoadRequest<T>()
-
-    /**
-     * State of a data load that has failed for some reason.
-     * @param error An exception describing the error that occurred.
-     */
-    class Error(val error: Exception?) : LoadRequest<Nothing>()
 }

@@ -91,11 +91,6 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
                     adapter.submitList(membersRequest.data)
                     startPostponedEnterTransition()
                 }
-                is LoadRequest.Error -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(emptyList())
-                    startPostponedEnterTransition()
-                }
             }
         }
 
