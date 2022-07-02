@@ -19,13 +19,11 @@ package fr.nihilus.music.media.exclusion
 import android.Manifest
 import fr.nihilus.music.core.database.exclusion.TrackExclusion
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.media.provider.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 
 internal object StubMediaDao : MediaDao {
 
@@ -42,19 +40,6 @@ internal object StubMediaDao : MediaDao {
         DeleteTracksResult.Deleted(0)
 
     private fun <M> unchangedListOf(vararg media: M) = infiniteFlowOf(media.toList())
-}
-
-internal object PermissionDeniedDao : MediaDao {
-    private val readPermissionDeniedFlow = flow<Nothing> {
-        throw PermissionDeniedException(Manifest.permission.READ_EXTERNAL_STORAGE)
-    }
-
-    override val tracks: Flow<List<Track>> get() = readPermissionDeniedFlow
-    override val albums: Flow<List<Album>> get() = readPermissionDeniedFlow
-    override val artists: Flow<List<Artist>> get() = readPermissionDeniedFlow
-
-    override suspend fun deleteTracks(ids: LongArray): DeleteTracksResult =
-        DeleteTracksResult.RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 }
 
 internal class FakeExclusionDao(vararg initialExclusions: Long) : TrackExclusionDao {

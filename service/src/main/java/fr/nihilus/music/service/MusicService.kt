@@ -41,7 +41,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.usage.UsageManager
@@ -208,15 +207,6 @@ class MusicService : BaseBrowserService() {
             } catch (malformedId: MalformedMediaIdException) {
                 Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
                 result.sendResult(null)
-
-            } catch (pde: PermissionDeniedException) {
-                Timber.i(
-                    "Unable to load children of %s: denied permission %s",
-                    parentId,
-                    pde.permission
-                )
-                result.sendResult(null)
-
             } catch (invalidParent: NoSuchElementException) {
                 Timber.i(
                     "Unable to load children of %s: not a browsable item from the tree",
@@ -267,14 +257,6 @@ class MusicService : BaseBrowserService() {
                         itemId
                     )
                     result.sendResult(null)
-
-                } catch (pde: PermissionDeniedException) {
-                    Timber.i(
-                        "Loading item %s failed due to missing permission: %s",
-                        itemId,
-                        pde.permission
-                    )
-                    result.sendResult(null)
                 }
             }
         }
@@ -289,15 +271,9 @@ class MusicService : BaseBrowserService() {
         serviceScope.launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)
 
-            try {
-                val searchResults = browserTree.search(parsedQuery)
-                val builder = MediaDescriptionCompat.Builder()
-                result.sendResult(searchResults.map { it.toItem(builder) })
-
-            } catch (pde: PermissionDeniedException) {
-                Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
-                result.sendResult(null)
-            }
+            val searchResults = browserTree.search(parsedQuery)
+            val builder = MediaDescriptionCompat.Builder()
+            result.sendResult(searchResults.map { it.toItem(builder) })
         }
     }
 
