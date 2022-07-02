@@ -35,11 +35,6 @@ import javax.inject.Singleton
 abstract class CommonModule {
 
     @Binds
-    internal abstract fun bindsSystemPermissions(
-        permissions: SystemRuntimePermissions
-    ): RuntimePermissions
-
-    @Binds
     internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
 
     @Binds
