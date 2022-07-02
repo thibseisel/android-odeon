@@ -29,11 +29,11 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-database"))
-    implementation(project(":media"))
-    implementation(project(":core-ui"))
-    implementation(project(":spotify-client"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
+    implementation(projects.coreUi)
+    implementation(projects.spotifyClient)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
@@ -41,6 +41,6 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.work.runtime)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
 }

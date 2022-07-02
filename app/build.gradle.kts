@@ -118,15 +118,15 @@ android {
 
 dependencies {
     // Sub-project containing the Media Service.
-    implementation(project(":core"))
-    implementation(project(":core-ui"))
-    implementation(project(":media"))
-    implementation(project(":service"))
-    implementation(project(":spotify-client"))
+    implementation(projects.core)
+    implementation(projects.coreUi)
+    implementation(projects.media)
+    implementation(projects.service)
+    implementation(projects.spotifyClient)
 
-    implementation(project(":ui-cleanup"))
-    implementation(project(":ui-settings"))
-    implementation(project(":ui-library"))
+    implementation(projects.uiCleanup)
+    implementation(projects.uiSettings)
+    implementation(projects.uiLibrary)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
@@ -136,7 +136,7 @@ dependencies {
 
     implementation(libs.androidx.hilt.work)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(libs.bundles.testing.instrumented)

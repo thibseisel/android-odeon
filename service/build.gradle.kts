@@ -25,17 +25,17 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-database"))
-    implementation(project(":media"))
-    implementation(project(":spotify-client"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
+    implementation(projects.spotifyClient)
 
     implementation(libs.bundles.core)
     implementation(libs.androidx.media)
     implementation(libs.glide)
     implementation(libs.exoplayer.core)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(libs.bundles.testing.instrumented)

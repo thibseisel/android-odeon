@@ -23,9 +23,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-database"))
-    implementation(project(":media"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
@@ -35,7 +35,7 @@ dependencies {
 
     kapt(libs.glide.compiler)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(libs.bundles.testing.instrumented)
