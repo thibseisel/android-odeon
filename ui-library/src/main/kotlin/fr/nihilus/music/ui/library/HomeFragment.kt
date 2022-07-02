@@ -58,7 +58,7 @@ internal class HomeFragment : BaseFragment(R.layout.fragment_home) {
         binding.toolbar.run {
             setTitle(fr.nihilus.music.core.R.string.core_app_name)
             inflateMenu(R.menu.menu_home)
-            setOnMenuItemClickListener(::onOptionsItemSelected)
+            setOnMenuItemClickListener(::onToolbarMenuItemSelected)
         }
 
         // Configure tabs and ViewPager.
@@ -71,7 +71,7 @@ internal class HomeFragment : BaseFragment(R.layout.fragment_home) {
         }.attach()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+    private fun onToolbarMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_search -> {
             navigateToSearch()
             true
@@ -98,7 +98,7 @@ internal class HomeFragment : BaseFragment(R.layout.fragment_home) {
             true
         }
 
-        else -> super.onOptionsItemSelected(item)
+        else -> false
     }
 
     private fun navigateToSearch() {

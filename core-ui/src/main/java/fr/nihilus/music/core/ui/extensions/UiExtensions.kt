@@ -49,7 +49,6 @@ var Window.darkSystemIcons: Boolean
 
 private fun Window.requireDecorInsetsController(): WindowInsetsControllerCompat =
     WindowCompat.getInsetsController(this, decorView)
-        ?: error("decorView should always be attached to a Window")
 
 /**
  * Sets whether this window has requested to be drawn behind the status bar and the navigation bar.
