@@ -67,7 +67,7 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
         binding.toolbar.apply {
             val playlistType = args.playlistId.parse().type
             menu.findItem(R.id.action_delete)?.isVisible = playlistType == MediaId.TYPE_PLAYLISTS
-            setOnMenuItemClickListener(::onOptionsItemSelected)
+            setOnMenuItemClickListener(::onToolbarMenuItemSelected)
             setNavigationOnClickListener { findNavController().navigateUp() }
         }
 
@@ -107,25 +107,22 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.action_delete -> {
-                val playlistTitle = viewModel.playlist.value?.description?.title
-                ConfirmDialogFragment.open(
-                    this,
-                    REQUEST_DELETE_PLAYLIST,
-                    title = getString(
-                        R.string.delete_playlist_dialog_title,
-                        playlistTitle
-                    ),
-                    positiveButton = CoreUiR.string.core_ok,
-                    negativeButton = CoreUiR.string.core_cancel
-                )
-                return true
-            }
+    private fun onToolbarMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_delete -> {
+            val playlistTitle = viewModel.playlist.value?.description?.title
+            ConfirmDialogFragment.open(
+                this,
+                REQUEST_DELETE_PLAYLIST,
+                title = getString(
+                    R.string.delete_playlist_dialog_title,
+                    playlistTitle
+                ),
+                positiveButton = CoreUiR.string.core_ok,
+                negativeButton = CoreUiR.string.core_cancel
+            )
+            true
         }
-
-        return super.onOptionsItemSelected(item)
+        else -> false
     }
 
     private fun onTrackSelected(position: Int) {
