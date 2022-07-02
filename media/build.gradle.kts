@@ -23,10 +23,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-database"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
     implementation(libs.bundles.core)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
 }

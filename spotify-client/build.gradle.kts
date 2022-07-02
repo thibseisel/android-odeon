@@ -34,9 +34,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-database"))
-    implementation(project(":media"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
 
     implementation(libs.bundles.core)
     implementation(libs.ktor.client.okhttp)
@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     kapt(libs.androidx.hilt.compiler)
 
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
     testImplementation(libs.ktor.client.mock)
 }

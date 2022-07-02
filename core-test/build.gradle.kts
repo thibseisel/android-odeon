@@ -21,6 +21,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(projects.core)
     implementation(libs.bundles.testing.unit)
 }
