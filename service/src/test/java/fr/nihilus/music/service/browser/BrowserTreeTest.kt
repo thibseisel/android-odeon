@@ -54,7 +54,7 @@ import org.junit.runner.RunWith
  * - children of those nodes are correctly fetched and mapped to [MediaContent]s.
  */
 @RunWith(AndroidJUnit4::class)
-internal class BrowserTreeStructureTest {
+internal class BrowserTreeTest {
 
     private val context: Context
         get() = ApplicationProvider.getApplicationContext()

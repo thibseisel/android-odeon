@@ -37,6 +37,7 @@ import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.ServiceCoroutineScope
 import fr.nihilus.music.service.browser.BrowserTree
+import fr.nihilus.music.service.browser.MediaSearchEngine
 import fr.nihilus.music.service.browser.SearchQuery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -55,6 +56,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
+    private val searchEngine: MediaSearchEngine,
     private val settings: Settings
 ) : MediaSessionConnector.PlaybackPreparer {
 
@@ -135,7 +137,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             onPrepare(playWhenReady)
 
         } else scope.launch(dispatchers.Default) {
-            val results = browserTree.search(parsedQuery)
+            val results = searchEngine.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
             if (firstResult is MediaCategory) {

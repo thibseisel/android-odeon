@@ -23,7 +23,6 @@ import fr.nihilus.music.core.flow.dematerialize
 import fr.nihilus.music.core.flow.materialize
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.PaginationOptions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*

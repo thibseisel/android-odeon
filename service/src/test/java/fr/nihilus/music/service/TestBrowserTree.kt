@@ -99,6 +99,4 @@ internal object TestBrowserTree : BrowserTree {
     }
 
     override suspend fun getItem(itemId: MediaId): MediaContent? = stub()
-
-    override suspend fun search(query: SearchQuery): List<MediaContent> = stub()
 }

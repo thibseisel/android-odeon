@@ -17,9 +17,9 @@
 package fr.nihilus.music.service.browser
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.MediaContent
-import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -53,51 +53,4 @@ internal interface BrowserTree {
      * @return An item with the same media id as the requested one, or `null` if no item matches.
      */
     suspend fun getItem(itemId: MediaId): MediaContent?
-
-    /**
-     * Search the browser tree for media whose title matches the supplied [query].
-     * What exactly should be searched is determined by the type of the [SearchQuery].
-     *
-     * @param query The client-provided search query.
-     * @return A list of media matching the search criteria.
-     */
-    suspend fun search(query: SearchQuery): List<MediaContent>
-}
-
-/**
- * Define the parameters for paginating media items returned by [BrowserTree.getChildren].
- *
- * @param page The index of the page of results to return, `0` being the first page.
- * @param size The number of items returned per page.
- */
-class PaginationOptions(page: Int, size: Int) {
-    val page = page.coerceAtLeast(MINIMUM_PAGE_NUMBER)
-    val size = size.coerceAtLeast(MINIMUM_PAGE_SIZE)
-
-    companion object {
-
-        /**
-         * The default index of the returned page of media children when none is specified.
-         * This is the index of the first page.
-         */
-        const val DEFAULT_PAGE_NUMBER = 0
-
-        /**
-         * The default number of media items to return in a page when none is specified.
-         * All children will be returned in the same page.
-         */
-        const val DEFAULT_PAGE_SIZE = Int.MAX_VALUE
-
-        /**
-         * The minimum accepted value for [PaginationOptions.page].
-         * This is the index of the first page.
-         */
-        private const val MINIMUM_PAGE_NUMBER = 0
-
-        /**
-         * The minimum accepted value for [PaginationOptions.size].
-         * This is the minimum of items that can be displayed in a page.
-         */
-        private const val MINIMUM_PAGE_SIZE = 1
-    }
 }

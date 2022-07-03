@@ -17,7 +17,6 @@
 package fr.nihilus.music.service
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.browser.PaginationOptions
 import kotlinx.coroutines.flow.Flow
 
 /**
