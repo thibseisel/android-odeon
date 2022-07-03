@@ -82,36 +82,9 @@ internal class TestUsageManager(
     override suspend fun reportCompletion(trackId: Long) = stub()
 }
 
-internal class TestSpotifyManager(
-    private val trackFeatures: List<Pair<Track, TrackFeature>> = emptyList()
-) : SpotifyManager {
-
-    override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>> {
-        return trackFeatures.filter { (_, features) ->
-            filters.all { filter -> filter.matches(features) }
-        }
-    }
-
-    override suspend fun listUnlinkedTracks(): List<Track> = stub()
-
-    override fun sync(): Flow<SyncProgress> = stub()
-
-}
-
 internal object StubUsageManager : UsageManager {
     override fun getMostRatedTracks(): Flow<List<Track>> = stub()
     override fun getPopularTracksSince(period: Long, unit: TimeUnit) = stub()
     override fun getDisposableTracks(): Flow<List<DisposableTrack>> = stub()
     override suspend fun reportCompletion(trackId: Long) = stub()
-}
-
-internal object StubSpotifyManager : SpotifyManager {
-
-    override suspend fun findTracksHavingFeatures(
-        filters: List<FeatureFilter>
-    ): List<Pair<Track, TrackFeature>> = stub()
-
-    override suspend fun listUnlinkedTracks(): List<Track> = stub()
-
-    override fun sync(): Flow<SyncProgress> = stub()
 }

@@ -28,7 +28,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
-import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.usage.UsageManager
@@ -36,7 +35,6 @@ import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.R
 import fr.nihilus.music.service.browser.provider.*
 import fr.nihilus.music.service.extensions.getResourceUri
-import fr.nihilus.music.spotify.manager.SpotifyManager
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -46,7 +44,6 @@ internal class BrowserTreeImpl @Inject constructor(
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao,
     private val usageManager: UsageManager,
-    private val spotifyManager: SpotifyManager
 ) : BrowserTree {
 
     /**
@@ -115,27 +112,6 @@ internal class BrowserTreeImpl @Inject constructor(
             title = context.getString(R.string.svc_playlists_type_title),
             provider = PlaylistChildrenProvider(mediaDao, playlistDao)
         )
-
-        type(
-            TYPE_SMART,
-            title = context.getString(R.string.svc_smart_type_title)
-        ) {
-            val smartPlaylists = SmartCategoryProvider(spotifyManager)
-
-            category(
-                "HAPPY",
-                context.getString(R.string.svc_happy_category_title),
-                playable = true,
-                provider = smartPlaylists
-            )
-
-            category(
-                "PARTY",
-                context.getString(R.string.svc_party_category_title),
-                playable = true,
-                provider = smartPlaylists
-            )
-        }
     }
 
     override fun getChildren(parentId: MediaId): Flow<List<MediaContent>> =

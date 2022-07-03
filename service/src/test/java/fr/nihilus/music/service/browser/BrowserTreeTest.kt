@@ -28,7 +28,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ROOT
-import fr.nihilus.music.core.media.MediaId.Builder.TYPE_SMART
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.test.fail
 import fr.nihilus.music.core.test.failAssumption
@@ -68,7 +67,6 @@ internal class BrowserTreeTest {
             MediaId(TYPE_ARTISTS),
             MediaId(TYPE_ALBUMS),
             MediaId(TYPE_PLAYLISTS),
-            MediaId(TYPE_SMART)
         )
 
         assertThatAllAreBrowsableAmong(rootChildren)
@@ -183,7 +181,6 @@ internal class BrowserTreeTest {
             TestMediaDao(),
             TestPlaylistDao(),
             TestUsageManager(),
-            TestSpotifyManager()
         )
 
         browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
@@ -203,7 +200,6 @@ internal class BrowserTreeTest {
                 TestMediaDao(),
                 TestPlaylistDao(),
                 TestUsageManager(),
-                TestSpotifyManager()
             )
 
             browserTree.walk(MediaId(TYPE_ROOT)) { child, _ ->
@@ -317,8 +313,7 @@ internal class BrowserTreeTest {
     fun `When loading children of Recently Added, then return no more than 25 tracks`() = runTest {
         val testTracks = generateRandomTrackSequence().take(50).toList()
         val media = TestMediaDao(tracks = testTracks)
-        val browserTree =
-            BrowserTreeImpl(context, media, TestPlaylistDao(), StubUsageManager, StubSpotifyManager)
+        val browserTree = BrowserTreeImpl(context, media, TestPlaylistDao(), StubUsageManager)
 
         val mostRecentTracks = browserTree.getChildren(
             MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)
@@ -528,7 +523,6 @@ internal class BrowserTreeTest {
             TestMediaDao(),
             TestPlaylistDao(),
             StubUsageManager,
-            StubSpotifyManager
         )
 
         val requestedItem = browserTree.getItem(itemId)
@@ -570,7 +564,6 @@ internal class BrowserTreeTest {
             TestMediaDao(),
             TestPlaylistDao(),
             StubUsageManager,
-            StubSpotifyManager
         )
 
         val item = browserTree.getItem(itemId)
@@ -586,7 +579,6 @@ internal class BrowserTreeTest {
             TestMediaDao(),
             TestPlaylistDao(),
             StubUsageManager,
-            StubSpotifyManager
         )
 
         shouldThrow<NoSuchElementException> {
@@ -634,7 +626,6 @@ internal class BrowserTreeTest {
             TestMediaDao(),
             TestPlaylistDao(),
             TestUsageManager(),
-            StubSpotifyManager
         )
         return browserTree.getChildren(parentId).first()
     }
