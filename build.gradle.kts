@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-import com.android.build.gradle.BaseExtension
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-import org.jetbrains.kotlin.gradle.plugin.KaptExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 buildscript {
     dependencies {
         classpath(libs.plugin.hilt)
@@ -77,29 +71,4 @@ tasks.dependencyUpdates.configure {
 
     val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
     rejectVersionIf { !candidate.version.matches(releaseRegex) }
-}
-
-fun Project.configureAndroid() {
-    configure<BaseExtension> {
-        compileSdkVersion(31)
-
-        defaultConfig {
-            minSdk = 23
-            targetSdk = 31
-
-            if (testInstrumentationRunner.isNullOrEmpty()) {
-                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            }
-        }
-
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
-        }
-
-        testOptions {
-            // Include Android resources in unit tests to be resolved by Robolectric.
-            unitTests.isIncludeAndroidResources = true
-        }
-    }
 }

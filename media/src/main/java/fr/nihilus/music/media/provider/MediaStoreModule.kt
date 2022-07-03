@@ -33,6 +33,7 @@ import fr.nihilus.music.media.os.PlatformMediaStore
  */
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 internal abstract class MediaStoreModule {
 
     @Binds

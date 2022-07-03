@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin.Companion.isIncrementalKapt
-
 /*
  * Copyright 2021 Thibault Seisel
  *

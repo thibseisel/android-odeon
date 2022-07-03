@@ -25,7 +25,6 @@ import fr.nihilus.music.media.provider.Track
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltViewModel
 internal class ExcludedTracksViewModel @Inject constructor(

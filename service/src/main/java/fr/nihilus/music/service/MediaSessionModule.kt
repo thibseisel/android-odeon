@@ -37,6 +37,7 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
  */
 @Module
 @InstallIn(ServiceComponent::class)
+@Suppress("unused")
 internal abstract class MediaSessionModule {
 
     @Binds

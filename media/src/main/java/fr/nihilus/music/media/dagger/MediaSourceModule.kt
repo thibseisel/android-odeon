@@ -23,14 +23,13 @@ import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.media.exclusion.RestrictedMediaDao
 import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.provider.MediaStoreDao
-import fr.nihilus.music.media.provider.MediaStoreModule
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
-import javax.inject.Named
 import javax.inject.Qualifier
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 abstract class MediaSourceModule {
 
     @Binds @SourceDao

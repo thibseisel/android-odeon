@@ -26,8 +26,6 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.core.ui.client.MediaSubscriptionException
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch

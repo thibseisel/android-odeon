@@ -73,15 +73,6 @@ internal class CleanupViewModel @Inject constructor(
     }
         .asLiveData()
 
-    fun deleteTracks(selectedTrackIds: List<Long>) {
-        viewModelScope.launch {
-            val targetTrackIds = selectedTrackIds.map { trackId ->
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, trackId)
-            }
-            pendingEvent.value = deleteTracks(targetTrackIds)
-        }
-    }
-
     fun deleteSelected() {
         viewModelScope.launch {
             val selectedIds = selection.value

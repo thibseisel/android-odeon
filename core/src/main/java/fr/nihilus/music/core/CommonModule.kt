@@ -32,6 +32,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 abstract class CommonModule {
 
     @Binds

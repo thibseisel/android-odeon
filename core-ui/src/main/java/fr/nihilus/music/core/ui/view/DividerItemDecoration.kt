@@ -24,15 +24,12 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import fr.nihilus.music.core.ui.R
-import fr.nihilus.music.core.ui.view.DividerItemDecoration.Companion.HORIZONTAL
-import fr.nihilus.music.core.ui.view.DividerItemDecoration.Companion.VERTICAL
 import kotlin.math.roundToInt
 
 /**
  * DividerItemDecoration is a [RecyclerView.ItemDecoration] that can be used as a divider
  * between items of a [LinearLayoutManager].
- * It supports both [HORIZONTAL] and [VERTICAL] orientations.
+ * It supports both [DividerItemDecoration.HORIZONTAL] and [DividerItemDecoration.VERTICAL] orientations.
  *
  * Unlike the built-in implementation, this decoration won't draw a divider for the list item.
  *

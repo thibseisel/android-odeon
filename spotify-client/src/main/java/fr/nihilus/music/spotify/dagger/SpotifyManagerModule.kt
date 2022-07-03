@@ -28,6 +28,7 @@ import fr.nihilus.music.spotify.manager.SpotifyManagerImpl
  */
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 abstract class SpotifyManagerModule {
 
     @Binds

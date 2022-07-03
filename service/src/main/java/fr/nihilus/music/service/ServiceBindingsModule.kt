@@ -35,6 +35,7 @@ import javax.inject.Qualifier
 
 @Module
 @InstallIn(ServiceComponent::class)
+@Suppress("unused")
 internal abstract class ServiceBindingsModule {
 
     @Binds

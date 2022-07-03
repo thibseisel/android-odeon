@@ -40,6 +40,7 @@ import javax.inject.Named
  */
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 internal abstract class SpotifyClientModule {
 
     @Binds

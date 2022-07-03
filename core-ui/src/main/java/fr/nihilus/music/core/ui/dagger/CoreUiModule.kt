@@ -29,6 +29,7 @@ import fr.nihilus.music.core.ui.client.BrowserClientImpl
  */
 @Module
 @InstallIn(SingletonComponent::class)
+@Suppress("unused")
 abstract class CoreUiModule {
 
     @Binds
