@@ -17,12 +17,10 @@
 package fr.nihilus.music.service.browser.provider
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
@@ -47,8 +45,7 @@ import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
 internal class PlaylistChildrenProviderTest {
-    @MockK private lateinit var mockDao: MediaDao
-    @MockK private lateinit var mockPlaylists: PlaylistDao
+    @MockK private lateinit var mockPlaylists: PlaylistRepository
 
     private lateinit var provider: ChildrenProvider
 
@@ -56,8 +53,7 @@ internal class PlaylistChildrenProviderTest {
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         provider = PlaylistChildrenProvider(
-            mediaDao = mockDao,
-            playlistDao = mockPlaylists,
+            playlistRepository = mockPlaylists,
         )
     }
 
@@ -85,12 +81,11 @@ internal class PlaylistChildrenProviderTest {
 
     @Test
     fun `Given id of a playlist, returns list of its tracks`() = runTest {
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
-        every { mockPlaylists.getPlaylistTracks(eq(2)) } returns infiniteFlowOf(
+        every { mockPlaylists.getPlaylistTracks(2) } returns infiniteFlowOf(
             listOf(
-                PlaylistTrack(2L, 477L),
-                PlaylistTrack(2L, 48L),
-                PlaylistTrack(2L, 125L),
+                SAMPLE_TRACKS.first { it.id == 477L },
+                SAMPLE_TRACKS.first { it.id == 48L },
+                SAMPLE_TRACKS.first { it.id == 125L },
             )
         )
 
@@ -115,7 +110,6 @@ internal class PlaylistChildrenProviderTest {
 
     @Test
     fun `Given unsupported category, returns NoSuchElementException flow`() = runTest {
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
         every { mockPlaylists.getPlaylistTracks(1234) } returns infiniteFlowOf(emptyList())
 
         val children = provider.getChildren(MediaId(TYPE_PLAYLISTS, "1234"))

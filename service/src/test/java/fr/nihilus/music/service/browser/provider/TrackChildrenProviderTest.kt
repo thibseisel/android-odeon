@@ -23,7 +23,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_MOST_RATED
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_RECENTLY_ADDED
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaContent
@@ -50,7 +50,7 @@ import kotlin.test.Test
 @RunWith(AndroidJUnit4::class)
 internal class TrackChildrenProviderTest {
 
-    @MockK private lateinit var mockDao: MediaDao
+    @MockK private lateinit var mockTracks: TrackRepository
     @MockK private lateinit var mockUsage: UsageManager
 
     private lateinit var provider: TrackChildrenProvider
@@ -59,14 +59,14 @@ internal class TrackChildrenProviderTest {
     fun setup() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         provider = TrackChildrenProvider(
-            mediaDao = mockDao,
+            trackRepository = mockTracks,
             usageManager = mockUsage
         )
     }
 
     @Test
     fun `Given 'all tracks' category, loads all tracks`() = runTest {
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
+        every { mockTracks.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
 
         val allTracks = provider.getChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL)).first()
 
@@ -129,7 +129,7 @@ internal class TrackChildrenProviderTest {
 
     @Test
     fun `Given 'most recent' category, loads last added tracks`() = runTest {
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
+        every { mockTracks.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
 
         val mostRecentTracks =
             provider.getChildren(MediaId(TYPE_TRACKS, CATEGORY_RECENTLY_ADDED)).first()

@@ -20,23 +20,21 @@ import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.media.albums.Album
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.albums.AlbumRepository
 import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
+import fr.nihilus.music.media.tracks.getAlbumTracks
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
-import fr.nihilus.music.service.AudioTrack
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 internal class AlbumChildrenProvider @Inject constructor(
-    private val mediaDao: MediaDao
+    private val albumRepository: AlbumRepository,
+    private val trackRepository: TrackRepository,
 ) : ChildrenProvider() {
-
-    private val albumTrackOrdering = Comparator<Track> { a, b ->
-        val discNumberDiff = a.discNumber - b.discNumber
-        if (discNumberDiff != 0) discNumberDiff else (a.trackNumber - b.trackNumber)
-    }
 
     override fun findChildren(
         parentId: MediaId
@@ -50,18 +48,15 @@ internal class AlbumChildrenProvider @Inject constructor(
         }
     }
 
-    private fun getAlbums(): Flow<List<MediaCategory>> = mediaDao.albums.map { albums ->
+    private fun getAlbums(): Flow<List<MediaCategory>> = albumRepository.albums.map { albums ->
         albums.map { it.toCategory() }
     }
 
     private fun getAlbumTracks(
         albumId: Long
-    ): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
-        tracks.asSequence()
-            .filter { it.albumId == albumId }
-            .sortedWith(albumTrackOrdering)
+    ): Flow<List<AudioTrack>> = trackRepository.getAlbumTracks(albumId).map { tracks ->
+        tracks
             .map { it.toPlayableMedia() }
-            .toList()
             .takeUnless { it.isEmpty() }
             ?: throw NoSuchElementException("No album with id = $albumId")
     }

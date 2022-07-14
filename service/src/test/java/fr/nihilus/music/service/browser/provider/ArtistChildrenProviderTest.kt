@@ -21,7 +21,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
+import fr.nihilus.music.media.albums.AlbumRepository
+import fr.nihilus.music.media.artists.ArtistRepository
 import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
@@ -48,7 +51,9 @@ import kotlin.test.Test
 @RunWith(AndroidJUnit4::class)
 internal class ArtistChildrenProviderTest {
 
-    @MockK private lateinit var mockDao: MediaDao
+    @MockK private lateinit var mockArtists: ArtistRepository
+    @MockK private lateinit var mockAlbums: AlbumRepository
+    @MockK private lateinit var mockTracks: TrackRepository
     private lateinit var provider: ArtistChildrenProvider
 
     @BeforeTest
@@ -56,13 +61,15 @@ internal class ArtistChildrenProviderTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         provider = ArtistChildrenProvider(
             context = ApplicationProvider.getApplicationContext(),
-            mediaDao = mockDao
+            artistRepository = mockArtists,
+            albumRepository = mockAlbums,
+            trackRepository = mockTracks,
         )
     }
 
     @Test
     fun `Given 'artists' type, returns list of all artists`() = runTest {
-        every { mockDao.artists } returns infiniteFlowOf(SAMPLE_ARTISTS)
+        every { mockArtists.artists } returns infiniteFlowOf(SAMPLE_ARTISTS)
 
         val allArtists = provider.getChildren(MediaId(TYPE_ARTISTS)).first()
 
@@ -90,8 +97,8 @@ internal class ArtistChildrenProviderTest {
 
     @Test
     fun `Given id of an artist, returns list of its albums followed by its tracks`() = runTest {
-        every { mockDao.albums } returns infiniteFlowOf(SAMPLE_ALBUMS)
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
+        every { mockAlbums.albums } returns infiniteFlowOf(SAMPLE_ALBUMS)
+        every { mockTracks.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
 
         val children = provider.getChildren(MediaId(TYPE_ARTISTS, "13")).first()
 
@@ -118,8 +125,8 @@ internal class ArtistChildrenProviderTest {
 
     @Test
     fun `Given unsupported category, returns NoSuchElementException flow`() = runTest {
-        every { mockDao.albums } returns infiniteFlowOf(SAMPLE_ALBUMS)
-        every { mockDao.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
+        every { mockAlbums.albums } returns infiniteFlowOf(SAMPLE_ALBUMS)
+        every { mockTracks.tracks } returns infiniteFlowOf(SAMPLE_TRACKS)
 
         val children = provider.getChildren(MediaId(TYPE_ARTISTS, "1234"))
 

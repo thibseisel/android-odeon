@@ -22,12 +22,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.albums.Album
+import fr.nihilus.music.media.albums.AlbumRepository
+import fr.nihilus.music.media.albums.getArtistAlbums
 import fr.nihilus.music.media.artists.Artist
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.artists.ArtistRepository
 import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
+import fr.nihilus.music.media.tracks.getArtistTracks
+import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory
 import fr.nihilus.music.service.MediaContent
-import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -36,7 +40,9 @@ import javax.inject.Inject
 
 internal class ArtistChildrenProvider @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val mediaDao: MediaDao
+    private val artistRepository: ArtistRepository,
+    private val albumRepository: AlbumRepository,
+    private val trackRepository: TrackRepository,
 ) : ChildrenProvider() {
 
     override fun findChildren(parentId: MediaId): Flow<List<MediaContent>> {
@@ -49,25 +55,20 @@ internal class ArtistChildrenProvider @Inject constructor(
         }
     }
 
-    private fun getArtists(): Flow<List<MediaCategory>> = mediaDao.artists.map { artists ->
+    private fun getArtists(): Flow<List<MediaCategory>> = artistRepository.artists.map { artists ->
         artists.map { it.toCategory() }
     }
 
     private fun getArtistChildren(
         artistId: Long
-    ): Flow<List<MediaContent>> = combine(mediaDao.albums, mediaDao.tracks) { albums, tracks ->
-        val artistAlbums = albums.asSequence()
-            .filter { it.artistId == artistId }
-            .sortedByDescending { it.releaseYear }
-            .map { album -> album.toCategory() }
+    ): Flow<List<MediaContent>> = combine(
+        albumRepository.getArtistAlbums(artistId),
+        trackRepository.getArtistTracks(artistId)
+    ) { albums, tracks ->
+        val artistAlbums = albums.map { album -> album.toCategory() }
+        val artistTracks = tracks.map { track -> track.toPlayableMedia() }
 
-        val artistTracks = tracks.asSequence()
-            .filter { it.artistId == artistId }
-            .map { track -> track.toPlayableMedia() }
-
-        (artistAlbums + artistTracks)
-            .toList()
-            .takeUnless { it.isEmpty() }
+        (artistAlbums + artistTracks).takeUnless { it.isEmpty() }
             ?: throw NoSuchElementException("No artist with id = $artistId")
     }
 

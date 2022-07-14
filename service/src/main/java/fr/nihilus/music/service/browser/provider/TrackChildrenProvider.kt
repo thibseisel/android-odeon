@@ -19,11 +19,11 @@ package fr.nihilus.music.service.browser.provider
 import androidx.core.net.toUri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 internal class TrackChildrenProvider @Inject constructor(
-    private val mediaDao: MediaDao,
+    private val trackRepository: TrackRepository,
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
 
@@ -47,21 +47,23 @@ internal class TrackChildrenProvider @Inject constructor(
         }
     }
 
-    private fun getAllTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
+    private fun getAllTracks(): Flow<List<AudioTrack>> = trackRepository.tracks.map { tracks ->
         tracks.map { it.toPlayableMedia(MediaId.CATEGORY_ALL) }
     }
 
-    private fun getMostRatedTracks(): Flow<List<AudioTrack>> = usageManager.getMostRatedTracks().map { mostRated ->
-        mostRated.map { it.toPlayableMedia(MediaId.CATEGORY_MOST_RATED) }
-    }
+    private fun getMostRatedTracks(): Flow<List<AudioTrack>> =
+        usageManager.getMostRatedTracks().map { mostRated ->
+            mostRated.map { it.toPlayableMedia(MediaId.CATEGORY_MOST_RATED) }
+        }
 
-    private fun getRecentlyAddedTracks(): Flow<List<AudioTrack>> = mediaDao.tracks.map { tracks ->
-        tracks.asSequence()
-            .sortedByDescending { it.availabilityDate }
-            .take(25)
-            .map { it.toPlayableMedia(MediaId.CATEGORY_RECENTLY_ADDED) }
-            .toList()
-    }
+    private fun getRecentlyAddedTracks(): Flow<List<AudioTrack>> =
+        trackRepository.tracks.map { tracks ->
+            tracks.asSequence()
+                .sortedByDescending { it.availabilityDate }
+                .take(25)
+                .map { it.toPlayableMedia(MediaId.CATEGORY_RECENTLY_ADDED) }
+                .toList()
+        }
 
     private fun getMonthPopularTracks(): Flow<List<AudioTrack>> =
         usageManager.getPopularTracksSince(30, TimeUnit.DAYS).map { popularTracks ->
