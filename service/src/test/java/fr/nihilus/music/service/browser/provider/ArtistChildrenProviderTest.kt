@@ -23,7 +23,6 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.media.albums.AlbumRepository
 import fr.nihilus.music.media.artists.ArtistRepository
-import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.service.AudioTrack
 import fr.nihilus.music.service.MediaCategory

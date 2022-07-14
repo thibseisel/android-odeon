@@ -20,8 +20,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.media.provider.DelegatingMediaDao
-import fr.nihilus.music.media.provider.MediaDao
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
 
@@ -29,9 +27,6 @@ import fr.nihilus.music.media.usage.UsageManagerImpl
 @InstallIn(SingletonComponent::class)
 @Suppress("unused")
 abstract class MediaSourceModule {
-
-    @Binds
-    internal abstract fun bindsMediaDao(impl: DelegatingMediaDao): MediaDao
 
     @Binds
     internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
