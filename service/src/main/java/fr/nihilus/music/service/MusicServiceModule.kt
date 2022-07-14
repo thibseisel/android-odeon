@@ -31,12 +31,11 @@ import fr.nihilus.music.service.metadata.IconDownloader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import javax.inject.Qualifier
 
 @Module
 @InstallIn(ServiceComponent::class)
 @Suppress("unused")
-internal abstract class ServiceBindingsModule {
+internal abstract class MusicServiceModule {
 
     @Binds
     abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
@@ -56,9 +55,3 @@ internal abstract class ServiceBindingsModule {
         fun providesServiceScope() = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     }
 }
-
-@Qualifier
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FIELD)
-annotation class ServiceCoroutineScope

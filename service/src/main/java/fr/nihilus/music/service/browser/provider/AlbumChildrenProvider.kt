@@ -27,8 +27,9 @@ import fr.nihilus.music.service.MediaContent
 import fr.nihilus.music.service.AudioTrack
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-internal class AlbumChildrenProvider(
+internal class AlbumChildrenProvider @Inject constructor(
     private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 

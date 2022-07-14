@@ -29,8 +29,9 @@ import fr.nihilus.music.service.MediaContent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-internal class PlaylistChildrenProvider(
+internal class PlaylistChildrenProvider @Inject constructor(
     private val mediaDao: MediaDao,
     private val playlistDao: PlaylistDao
 ) : ChildrenProvider() {

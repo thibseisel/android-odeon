@@ -18,6 +18,7 @@ package fr.nihilus.music.service.browser.provider
 
 import android.content.Context
 import androidx.core.net.toUri
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.media.albums.Album
@@ -31,9 +32,10 @@ import fr.nihilus.music.service.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-internal class ArtistChildrenProvider(
-    private val context: Context,
+internal class ArtistChildrenProvider @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val mediaDao: MediaDao
 ) : ChildrenProvider() {
 

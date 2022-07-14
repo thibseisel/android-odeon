@@ -28,8 +28,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-internal class TrackChildrenProvider(
+internal class TrackChildrenProvider @Inject constructor(
     private val mediaDao: MediaDao,
     private val usageManager: UsageManager
 ) : ChildrenProvider() {
