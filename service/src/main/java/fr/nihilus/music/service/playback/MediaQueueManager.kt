@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.MediaSessionConnector
 import java.util.*
 import javax.inject.Inject
@@ -98,7 +98,8 @@ internal class MediaQueueManager @Inject constructor(
         val previousWindowIndex = player.previousWindowIndex
         if (previousWindowIndex != C.INDEX_UNSET
             && (player.currentPosition <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS ||
-                    (window.isDynamic && !window.isSeekable))) {
+                    (window.isDynamic && !window.isSeekable))
+        ) {
             player.seekTo(previousWindowIndex, C.TIME_UNSET)
         } else {
             player.seekTo(windowIndex, 0L)
@@ -157,10 +158,15 @@ internal class MediaQueueManager @Inject constructor(
         val shuffleModeEnabled = player.shuffleModeEnabled
 
         while ((firstWindowIndex != C.INDEX_UNSET || lastWindowIndex != C.INDEX_UNSET)
-            && queue.size < queueSize) {
+            && queue.size < queueSize
+        ) {
             // Begin with next to has a longer tail than head if an even sized queue needs to be trimmed.
             if (lastWindowIndex != C.INDEX_UNSET) {
-                lastWindowIndex = timeline.getNextWindowIndex(lastWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled)
+                lastWindowIndex = timeline.getNextWindowIndex(
+                    lastWindowIndex,
+                    Player.REPEAT_MODE_OFF,
+                    shuffleModeEnabled
+                )
                 if (lastWindowIndex != C.INDEX_UNSET) {
                     queue.add(
                         MediaSessionCompat.QueueItem(
@@ -172,7 +178,11 @@ internal class MediaQueueManager @Inject constructor(
             }
 
             if (firstWindowIndex != C.INDEX_UNSET && queue.size < queueSize) {
-                firstWindowIndex = timeline.getPreviousWindowIndex(firstWindowIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled)
+                firstWindowIndex = timeline.getPreviousWindowIndex(
+                    firstWindowIndex,
+                    Player.REPEAT_MODE_OFF,
+                    shuffleModeEnabled
+                )
                 if (firstWindowIndex != C.INDEX_UNSET) {
                     queue.addFirst(
                         MediaSessionCompat.QueueItem(

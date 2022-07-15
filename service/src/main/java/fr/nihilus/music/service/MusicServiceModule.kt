@@ -24,8 +24,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.scopes.ServiceScoped
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.BrowserTreeImpl
 import fr.nihilus.music.service.metadata.GlideDownloader
 import fr.nihilus.music.service.metadata.IconDownloader
 import kotlinx.coroutines.CoroutineScope
@@ -36,9 +34,6 @@ import kotlinx.coroutines.SupervisorJob
 @InstallIn(ServiceComponent::class)
 @Suppress("unused")
 internal abstract class MusicServiceModule {
-
-    @Binds
-    abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
     abstract fun bindsSubscriptionManager(impl: CachingSubscriptionManager): SubscriptionManager

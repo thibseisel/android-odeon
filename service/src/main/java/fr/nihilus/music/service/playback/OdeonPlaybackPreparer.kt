@@ -32,13 +32,13 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.service.AudioTrack
-import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.service.MediaSessionConnector
 import fr.nihilus.music.service.ServiceCoroutineScope
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.MediaSearchEngine
-import fr.nihilus.music.service.browser.SearchQuery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -62,10 +62,10 @@ internal class OdeonPlaybackPreparer @Inject constructor(
 
     override fun getSupportedPrepareActions(): Long =
         PlaybackStateCompat.ACTION_PREPARE or
-        PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-        PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-        PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
-        PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
 
     /**
      * Handles generic requests to prepare playback.

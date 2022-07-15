@@ -26,6 +26,7 @@ import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.failAssumption
+import fr.nihilus.music.media.MediaContent
 import io.kotest.assertions.extracting
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.*

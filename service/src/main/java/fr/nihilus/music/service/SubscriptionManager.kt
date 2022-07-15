@@ -17,6 +17,7 @@
 package fr.nihilus.music.service
 
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.media.MediaContent
 import kotlinx.coroutines.flow.Flow
 
 /**

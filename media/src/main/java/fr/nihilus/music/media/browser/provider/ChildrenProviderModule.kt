@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.media.dagger
+package fr.nihilus.music.media.browser.provider
 
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.media.browser.BrowserTree
-import fr.nihilus.music.media.browser.BrowserTreeImpl
-import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.media.usage.UsageManagerImpl
+import javax.inject.Named
 
 @Module
 @InstallIn(SingletonComponent::class)
-@Suppress("unused")
-internal abstract class MediaSourceModule {
+internal abstract class ChildrenProviderModule {
 
-    @Binds
-    abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
+    @Binds @Named("tracks")
+    abstract fun bindsTrackProvider(tracks: TrackChildrenProvider): ChildrenProvider
 
-    @Binds
-    abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
+    @Binds @Named("albums")
+    abstract fun bindsAlbumProvider(albums: AlbumChildrenProvider): ChildrenProvider
+
+    @Binds @Named("artists")
+    abstract fun bindsArtistProvider(artists: ArtistChildrenProvider): ChildrenProvider
+
+    @Binds @Named("playlists")
+    abstract fun bindsPlaylistProvider(playlists: PlaylistChildrenProvider): ChildrenProvider
 }

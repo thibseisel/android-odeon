@@ -17,7 +17,7 @@
 package fr.nihilus.music.service.metadata
 
 import android.support.v4.media.MediaMetadataCompat
-import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.extensions.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

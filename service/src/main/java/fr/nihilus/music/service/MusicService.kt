@@ -43,10 +43,13 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.MediaSearchEngine
-import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
 import kotlinx.coroutines.flow.launchIn

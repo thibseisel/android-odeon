@@ -26,7 +26,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.service.AudioTrack
+import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.extensions.*
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.channels.shouldBeEmpty
