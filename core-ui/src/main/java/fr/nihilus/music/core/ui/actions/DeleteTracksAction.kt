@@ -17,17 +17,17 @@
 package fr.nihilus.music.core.ui.actions
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.media.provider.DeleteTracksResult
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.tracks.DeleteTracksResult
+import fr.nihilus.music.media.tracks.TrackRepository
 import javax.inject.Inject
 
 /**
  * Handler for actions related to deleting tracks from the device's storage.
  *
- * @param mediaDao Handle to the shared media storage.
+ * @param repository Handle to the shared media storage.
  */
 class DeleteTracksAction @Inject constructor(
-    private val mediaDao: MediaDao
+    private val repository: TrackRepository
 ) {
     /**
      * Deletes tracks from the device's shared storage, making them definitely unavailable to other
@@ -42,6 +42,6 @@ class DeleteTracksAction @Inject constructor(
             val mediaId = mediaIds[it]
             requireNotNull(mediaId.track) { "Invalid track media id: $mediaId" }
         }
-        return mediaDao.deleteTracks(trackIds)
+        return repository.deleteTracks(trackIds)
     }
 }

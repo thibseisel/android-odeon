@@ -57,12 +57,11 @@ data class PlaylistTrack(
      * Id of the music track this object represents.
      */
     @ColumnInfo(name = "music_id")
-    val trackId: Long
-) {
+    val trackId: Long,
 
     /**
      * Position of this track in the playlist.
      */
     @ColumnInfo(name = "position")
-    var position: Int = 0
-}
+    val position: Int = 0,
+)

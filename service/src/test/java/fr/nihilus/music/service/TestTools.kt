@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.service
 
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlin.random.Random
 
 private const val ALPHABET_SIZE = 26
@@ -93,7 +93,8 @@ internal fun generateRandomTrackSequence(): Sequence<Track> = sequence {
                 availabilityDate = releaseDates.next(),
                 artistId = Random.nextLong(0, 128),
                 albumId = Random.nextLong(0, 256),
-                fileSize = 0
+                fileSize = 0,
+                exclusionTime = null,
             )
         )
     }

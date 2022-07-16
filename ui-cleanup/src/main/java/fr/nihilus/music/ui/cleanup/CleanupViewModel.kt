@@ -25,7 +25,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
-import fr.nihilus.music.media.provider.DeleteTracksResult
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

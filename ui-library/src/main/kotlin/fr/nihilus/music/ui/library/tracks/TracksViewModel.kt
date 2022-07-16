@@ -27,7 +27,7 @@ import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
-import fr.nihilus.music.media.provider.DeleteTracksResult.*
+import fr.nihilus.music.media.tracks.DeleteTracksResult.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject

@@ -19,8 +19,8 @@ package fr.nihilus.music.spotify.manager
 import fr.nihilus.music.core.collections.associateByLong
 import fr.nihilus.music.core.database.spotify.*
 import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
@@ -37,18 +37,18 @@ import javax.inject.Inject
 private const val CONCURRENT_TRACK_MATCHER = 5
 
 /**
- * Implementation of the [SpotifyManager] that retrieve tracks from [MediaDao]
+ * Implementation of the [SpotifyManager] that retrieve tracks from [TrackRepository]
  * and downloads track metadata from the [Spotify API][SpotifyService].
  */
 internal class SpotifyManagerImpl @Inject constructor(
-    private val mediaDao: MediaDao,
+    private val trackRepository: TrackRepository,
     private val service: SpotifyService,
     private val localDao: SpotifyDao,
     private val clock: Clock
 ) : SpotifyManager {
 
     override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>> {
-        val tracks = mediaDao.tracks.first()
+        val tracks = trackRepository.tracks.first()
         val features = localDao.getLocalizedFeatures()
 
         val featuresById = features
@@ -61,7 +61,7 @@ internal class SpotifyManagerImpl @Inject constructor(
     }
 
     override suspend fun listUnlinkedTracks(): List<Track> = coroutineScope {
-        val allTracks = async { mediaDao.tracks.first() }
+        val allTracks = async { trackRepository.tracks.first() }
         val allLinks = async { localDao.getLinks() }
 
         val linksPerTrackId = allLinks.await().associateByLong { it.trackId }
@@ -72,7 +72,7 @@ internal class SpotifyManagerImpl @Inject constructor(
         val downstream = this
 
         // Load tracks and remote links in parallel.
-        val allTracks = async { mediaDao.tracks.first() }
+        val allTracks = async { trackRepository.tracks.first() }
         val allLinks = async { localDao.getLinks() }
 
         // Delete links pointing to a track that does not exist anymore.

@@ -17,7 +17,7 @@
 package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.database.spotify.TrackFeature
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.Flow
 
 /**

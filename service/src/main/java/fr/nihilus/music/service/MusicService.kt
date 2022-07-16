@@ -43,10 +43,13 @@ import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.PaginationOptions
-import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
 import kotlinx.coroutines.flow.launchIn
@@ -68,6 +71,7 @@ class MusicService : BaseBrowserService() {
 
     @Inject internal lateinit var dispatchers: AppDispatchers
     @Inject internal lateinit var browserTree: BrowserTree
+    @Inject internal lateinit var searchEngine: MediaSearchEngine
     @Inject internal lateinit var subscriptions: SubscriptionManager
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: UsageManager
@@ -271,7 +275,7 @@ class MusicService : BaseBrowserService() {
         serviceScope.launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)
 
-            val searchResults = browserTree.search(parsedQuery)
+            val searchResults = searchEngine.search(parsedQuery)
             val builder = MediaDescriptionCompat.Builder()
             result.sendResult(searchResults.map { it.toItem(builder) })
         }

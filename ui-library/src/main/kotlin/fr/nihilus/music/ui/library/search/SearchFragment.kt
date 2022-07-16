@@ -36,15 +36,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialSharedAxis
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
+import fr.nihilus.music.media.tracks.DeleteTracksResult
+import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.FragmentSearchBinding
 import fr.nihilus.music.ui.library.playlists.AddToPlaylistDialog
 import fr.nihilus.music.ui.library.tracks.DeleteTrackDialog
-import fr.nihilus.music.media.provider.DeleteTracksResult
 import java.util.concurrent.TimeUnit
 import fr.nihilus.music.core.ui.R as CoreUiR
 

@@ -36,7 +36,7 @@ import androidx.room.PrimaryKey
  * the number of seconds since `1970-01-01 00:00:00 UTC`.
  */
 @Entity(tableName = "usage_event")
-class MediaUsageEvent(
+data class MediaUsageEvent(
     /**
      * The unique identifier for this event record in the database.
      * When not persisted, this is `0`.

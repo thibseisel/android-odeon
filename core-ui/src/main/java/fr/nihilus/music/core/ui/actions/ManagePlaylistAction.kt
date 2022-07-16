@@ -16,30 +16,10 @@
 
 package fr.nihilus.music.core.ui.actions
 
-import android.graphics.Bitmap
-import android.net.Uri
-import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
-import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.core.os.IconContentUri
-import fr.nihilus.music.core.os.PlaylistIconDir
-import io.github.thibseisel.identikon.Identicon
-import io.github.thibseisel.identikon.IdenticonStyle
-import io.github.thibseisel.identikon.drawToBitmap
-import io.github.thibseisel.identikon.rendering.Color
-import kotlinx.coroutines.withContext
-import java.io.File
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import javax.inject.Inject
-import javax.inject.Provider
-
-/**
- * The width/height in pixels of the generated playlist icons.
- */
-private const val ICON_SIZE_PX = 320
 
 /**
  * Handler for actions related to the management of user-defined playlists.
@@ -52,23 +32,10 @@ private const val ICON_SIZE_PX = 320
  *
  * Track media ids can have any [type][MediaId.type] or [category][MediaId.category]
  * but should have a non-`null` [track identifier][MediaId.track].
- *
- * @property playlistDao Handle to the playlists storage.
- * @property iconDir Directory into which generated playlist icons are stored.
- * @property baseIconUri Base content uri from which playlist icons could be resolved.
- * @property clock Provider of the system time.
- * @property dispatchers Set of coroutine dispatchers.
  */
 class ManagePlaylistAction @Inject constructor(
-    private val playlistDao: PlaylistDao,
-    @PlaylistIconDir private val iconDir: Provider<File>,
-    @IconContentUri private val baseIconUri: Uri,
-    private val clock: Clock,
-    private val dispatchers: AppDispatchers
+    private val repository: PlaylistRepository,
 ) {
-
-    private val reWhitespaces = Regex("\\s")
-
     /**
      * Creates a new user-defined playlist with the given [name] and optional track members.
      *
@@ -80,9 +47,10 @@ class ManagePlaylistAction @Inject constructor(
         require(name.isNotBlank())
         val trackIds = requireTrackIds(members)
 
-        val iconUri = generatePlaylistIcon(name)
-        val newPlaylist = Playlist(0L, name, clock.currentEpochTime, iconUri)
-        playlistDao.createPlaylist(newPlaylist, trackIds)
+        val newPlaylist = repository.createUserPlaylist(name)
+        if (trackIds.isNotEmpty()) {
+            repository.addTracksToPlaylist(newPlaylist.id, trackIds)
+        }
     }
 
     /**
@@ -100,8 +68,7 @@ class ManagePlaylistAction @Inject constructor(
         val trackIds = requireTrackIds(members)
 
         if (trackIds.isNotEmpty()) {
-            val playlistTracks = trackIds.map { PlaylistTrack(playlistId, it) }
-            playlistDao.addTracks(playlistTracks)
+            repository.addTracksToPlaylist(playlistId, trackIds)
         }
     }
 
@@ -114,48 +81,8 @@ class ManagePlaylistAction @Inject constructor(
      */
     suspend fun deletePlaylist(targetPlaylist: MediaId) {
         val playlistId = requirePlaylistId(targetPlaylist)
-        val playlist = playlistDao.findPlaylist(playlistId)
-        if (playlist != null) {
-            val iconFilename = playlist.iconUri?.lastPathSegment
-            if (iconFilename != null) withContext(dispatchers.IO) {
-                val iconFile = File(iconDir.get(), iconFilename)
-                iconFile.delete()
-            }
-            playlistDao.deletePlaylist(playlistId)
-        }
+        repository.deletePlaylist(playlistId)
     }
-
-    private suspend fun generatePlaylistIcon(playlistName: String): Uri? =
-        withContext(dispatchers.Default) {
-            val iconSpec = Identicon.fromValue(
-                playlistName,
-                ICON_SIZE_PX,
-                IdenticonStyle(
-                    backgroundColor = Color.hex(0x00000000u),
-                    padding = 0f
-                )
-            )
-
-            val iconBitmap =
-                Bitmap.createBitmap(ICON_SIZE_PX, ICON_SIZE_PX, Bitmap.Config.ARGB_8888)
-            iconSpec.drawToBitmap(iconBitmap)
-
-            // Sanitize playlist name to make a filename without spaces
-            val iconFilename = playlistName.replace(reWhitespaces, "_") + ".png"
-
-            withContext(dispatchers.IO) {
-                val iconDir = iconDir.get()
-                check(iconDir.exists() || iconDir.mkdirs()) {
-                    "Unable to create playlist icon directory"
-                }
-                val iconFile = File(iconDir, iconFilename)
-                iconFile.outputStream().use {
-                    iconBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-                }
-            }
-
-            Uri.withAppendedPath(baseIconUri, iconFilename)
-        }
 
     private fun requirePlaylistId(playlist: MediaId): Long {
         val playlistId = playlist.category?.toLongOrNull()

@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import com.google.android.exoplayer2.util.Util
 import dagger.hilt.android.scopes.ServiceScoped
+import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer
 import kotlinx.coroutines.CoroutineScope

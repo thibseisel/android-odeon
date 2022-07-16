@@ -16,24 +16,21 @@
 
 package fr.nihilus.music.core.ui.actions
 
-import fr.nihilus.music.core.database.exclusion.TrackExclusion
-import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.media.tracks.TrackRepository
 import javax.inject.Inject
 
 /**
  * An action to exclude tracks from the music library.
- * A track mark as excluded is no longer part of media collections.
+ * A track marked as excluded is no longer part of media collections.
  */
 class ExcludeTrackAction @Inject constructor(
-    private val excludeList: TrackExclusionDao,
-    private val clock: Clock
+    private val repository: TrackRepository,
 ) {
     suspend operator fun invoke(trackMediaId: MediaId) {
         val trackId = requireNotNull(trackMediaId.track) {
             "Attempt to exclude a media that's not a track: $trackMediaId"
         }
-        excludeList.exclude(TrackExclusion(trackId, clock.currentEpochTime))
+        repository.excludeTrack(trackId)
     }
 }

@@ -20,29 +20,19 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import fr.nihilus.music.media.exclusion.RestrictedMediaDao
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.MediaStoreDao
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.BrowserTreeImpl
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
-import javax.inject.Qualifier
 
 @Module
 @InstallIn(SingletonComponent::class)
 @Suppress("unused")
-abstract class MediaSourceModule {
-
-    @Binds @SourceDao
-    internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
+internal abstract class MediaSourceModule {
 
     @Binds
-    internal abstract fun bindsRestrictedDao(impl: RestrictedMediaDao): MediaDao
+    abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
 
     @Binds
-    internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
+    abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
 }
-
-@Qualifier
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class SourceDao
