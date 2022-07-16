@@ -347,7 +347,7 @@ internal class PlaylistRepositoryTest {
     @Test
     fun `deletePlaylist - deletes playlist icon from device storage`() = test {
         @Suppress("BlockingMethodInNonBlockingContext")
-        val existingIconFile = iconDir.newFile("My_favorites.png")
+        val existingIconFile = iconDir.newFile("my_favorites.png")
         every { mockPlaylists.playlists } returns infiniteFlowOf(
             listOf(PLAYLIST_FAVORITES)
         )
