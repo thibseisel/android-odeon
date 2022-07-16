@@ -17,15 +17,18 @@
 package fr.nihilus.music.ui.library.artists.detail
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.client.BrowserClient
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import fr.nihilus.music.core.ui.uiStateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 internal class ArtistDetailViewModel @Inject constructor(
@@ -35,22 +38,59 @@ internal class ArtistDetailViewModel @Inject constructor(
     private val artistId =
         ArtistDetailFragmentArgs.fromSavedStateHandle(savedState).artistId.parse()
 
-    val artist: LiveData<MediaItem> = liveData {
-        emit(
-            checkNotNull(client.getItem(artistId)) {
-                "Unable to load the detail of artist $artistId"
-            }
+    val state: StateFlow<ArtistDetailUiState> by lazy {
+        combine(getArtistName(), getArtistAlbumsAndTracks()) { artistName, (albums, tracks) ->
+            ArtistDetailUiState(
+                name = artistName,
+                albums = albums,
+                tracks = tracks,
+                isLoading = false,
+            )
+        }.uiStateIn(
+            viewModelScope,
+            initialState = ArtistDetailUiState(
+                name = "",
+                albums = emptyList(),
+                tracks = emptyList(),
+                isLoading = true
+            )
         )
     }
 
-    val children: LiveData<LoadRequest<List<MediaItem>>> = client.getChildren(artistId)
-        .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
-        .onStart { emit(LoadRequest.Pending) }
-        .asLiveData()
-
-    fun playMedia(item: MediaItem) {
+    fun play(track: ArtistTrackUiState) {
         viewModelScope.launch {
-            client.playFromMediaId(item.mediaId.parse())
+            client.playFromMediaId(track.id)
         }
     }
+
+    private fun getArtistName(): Flow<String> = flow {
+        val artist = checkNotNull(client.getItem(artistId)) {
+            "Unable to load the detail of artist $artistId"
+        }
+        emit(artist.description.title?.toString() ?: "")
+    }
+
+    private fun getArtistAlbumsAndTracks(): Flow<Pair<List<ArtistAlbumUiState>, List<ArtistTrackUiState>>> {
+        val children = client.getChildren(artistId).map { items ->
+            val (albumItems, trackItems) = items.partition { it.isBrowsable }
+            val albums = albumItems.map { it.toUiAlbum() }
+            val tracks = trackItems.map { it.toUiTrack() }
+            albums to tracks
+        }
+        return children
+    }
+
+    private fun MediaItem.toUiAlbum(): ArtistAlbumUiState = ArtistAlbumUiState(
+        id = mediaId.parse(),
+        title = description.title?.toString() ?: "",
+        trackCount = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS),
+        artworkUri = description.iconUri,
+    )
+
+    private fun MediaItem.toUiTrack(): ArtistTrackUiState = ArtistTrackUiState(
+        id = mediaId.parse(),
+        title = description.title?.toString() ?: "",
+        duration = description.extras!!.getLong(MediaItems.EXTRA_DURATION).milliseconds,
+        iconUri = description.iconUri,
+    )
 }
