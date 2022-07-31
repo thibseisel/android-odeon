@@ -14,38 +14,40 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.library.playlists
+package fr.nihilus.music.ui.library.search
 
 import android.graphics.Bitmap
-import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
 import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.ui.library.R
-import fr.nihilus.music.ui.library.databinding.PlaylistItemBinding
+import fr.nihilus.music.ui.library.databinding.ArtistGridItemBinding
+import fr.nihilus.music.ui.library.search.SearchResult
 
 /**
- * Display a playlist as a floating list item.
+ * Display an artist as a floating 16:9 card.
  */
-internal class PlaylistHolder(
+internal class ArtistHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<Bitmap>,
-    onPlaylistSelected: (position: Int) -> Unit
-) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.playlist_item) {
+    onSelect: (position: Int) -> Unit
+) : BaseHolder<SearchResult.Browsable>(parent, R.layout.artist_grid_item) {
 
-    private val binding = PlaylistItemBinding.bind(itemView)
+    private val binding = ArtistGridItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
-            onPlaylistSelected(bindingAdapterPosition)
+            onSelect(bindingAdapterPosition)
         }
     }
 
-    override fun bind(data: MediaBrowserCompat.MediaItem) {
-        val description = data.description
-        itemView.transitionName = description.mediaId
-        binding.playlistTitle.text = description.title
-        binding.playlistDescription.text = description.subtitle
-        glide.load(description.iconUri).into(binding.playlistIcon)
+    override fun bind(data: SearchResult.Browsable) {
+        binding.artistName.text = data.title
+        glide.load(data.iconUri).into(binding.artistArtwork)
+        binding.subtitle.text = itemView.resources.getQuantityString(
+            R.plurals.number_of_tracks,
+            data.tracksCount,
+            data.tracksCount,
+        )
     }
 }

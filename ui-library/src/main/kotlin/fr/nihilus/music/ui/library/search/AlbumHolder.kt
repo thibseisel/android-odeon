@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.library.albums
+package fr.nihilus.music.ui.library.search
 
 import android.graphics.drawable.Drawable
-import android.support.v4.media.MediaBrowserCompat
 import android.view.ViewGroup
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.AlbumGridItemBinding
+import fr.nihilus.music.ui.library.search.SearchResult
 
 internal class AlbumHolder(
     parent: ViewGroup,
     private val glide: RequestBuilder<AlbumArt>,
     private val defaultPalette: AlbumPalette,
-    private val isArtistAlbum: Boolean,
-    onAlbumSelected: (position: Int) -> Unit
-) : BaseHolder<MediaBrowserCompat.MediaItem>(parent, R.layout.album_grid_item) {
+    onSelect: (position: Int) -> Unit
+) : BaseHolder<SearchResult.Browsable>(parent, R.layout.album_grid_item) {
 
     private val binding = AlbumGridItemBinding.bind(itemView)
     private val albumViewTarget = object : ImageViewTarget<AlbumArt>(binding.albumArtwork) {
@@ -54,7 +52,7 @@ internal class AlbumHolder(
 
     init {
         itemView.setOnClickListener {
-            onAlbumSelected(bindingAdapterPosition)
+            onSelect(bindingAdapterPosition)
         }
     }
 
@@ -64,18 +62,10 @@ internal class AlbumHolder(
         artistName.setTextColor(palette.bodyText)
     }
 
-    override fun bind(data: MediaBrowserCompat.MediaItem) {
-        val description = data.description
-        itemView.transitionName = description.mediaId
-        binding.albumTitle.text = description.title
-
-        binding.artistName.text = if (isArtistAlbum) {
-            val trackNb = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-            itemView.resources.getQuantityString(R.plurals.number_of_tracks, trackNb, trackNb)
-        } else {
-            description.subtitle
-        }
-
-        glide.load(description.iconUri).into(albumViewTarget)
+    override fun bind(data: SearchResult.Browsable) {
+        itemView.transitionName = data.id.toString()
+        binding.albumTitle.text = data.title
+        binding.artistName.text = data.subtitle
+        glide.load(data.iconUri).into(albumViewTarget)
     }
 }

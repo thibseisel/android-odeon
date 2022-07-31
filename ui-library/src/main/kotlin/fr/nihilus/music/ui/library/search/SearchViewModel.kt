@@ -19,21 +19,24 @@ package fr.nihilus.music.ui.library.search
 import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
+import fr.nihilus.music.core.ui.uiStateIn
 import fr.nihilus.music.ui.library.DeleteTracksConfirmation
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
+import fr.nihilus.music.ui.library.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val KEY_SEARCH_QUERY = "odeon.SearchViewModel.searchQuery"
+private const val SEARCH_DELAY = 250L
 
 @HiltViewModel
 internal class SearchViewModel @Inject constructor(
@@ -42,7 +45,6 @@ internal class SearchViewModel @Inject constructor(
     private val excludeTracks: ExcludeTrackAction,
     private val deleteTracks: DeleteTracksAction,
 ) : ViewModel() {
-    private val searchQuery = savedState.getLiveData(KEY_SEARCH_QUERY, "")
 
     private val mediaTypeImportance = compareBy<String> { mediaType ->
         when (mediaType) {
@@ -59,20 +61,29 @@ internal class SearchViewModel @Inject constructor(
         get() = _deleteEvent
 
     /**
-     * List of results matching the search query.
+     * Live UI state.
      */
-    @OptIn(FlowPreview::class)
-    val searchResults: LiveData<List<SearchResult>> = searchQuery.asFlow()
-        .debounce(300)
-        .mapLatest { query ->
-            if (query.isNotBlank()) {
-                val results = client.search(query)
-                groupByMediaType(results)
-            } else {
-                emptyList()
+    val state: StateFlow<SearchScreenUiState> by lazy {
+        savedState.getStateFlow(KEY_SEARCH_QUERY, "")
+            .mapLatest { query ->
+                delay(SEARCH_DELAY)
+                SearchScreenUiState(
+                    query = query,
+                    results = if (query.isNotBlank()) {
+                        groupByMediaType(client.search(query))
+                    } else {
+                        emptyList()
+                    }
+                )
             }
-        }
-        .asLiveData()
+            .uiStateIn(
+                viewModelScope,
+                initialState = SearchScreenUiState(
+                    query = savedState[KEY_SEARCH_QUERY] ?: "",
+                    results = emptyList()
+                )
+            )
+    }
 
     /**
      * Change search terms used to filter search results.
@@ -85,9 +96,9 @@ internal class SearchViewModel @Inject constructor(
      * Start playback of the given playable media.
      * This builds a play queue based on the search results.
      */
-    fun play(item: MediaItem) {
+    fun play(media: MediaId) {
         viewModelScope.launch {
-            client.playFromMediaId(item.mediaId.parse())
+            client.playFromMediaId(media)
         }
     }
 
@@ -95,21 +106,22 @@ internal class SearchViewModel @Inject constructor(
      * Exclude a playable media from the whole music library.
      * That media file won't be deleted.
      */
-    fun exclude(track: MediaItem) {
+    fun exclude(media: MediaId) {
+        requireNotNull(media.track) { "Attempt to exclude non-track media $media" }
         viewModelScope.launch {
-            val trackMediaId = track.mediaId.parse()
-            excludeTracks(trackMediaId)
+            excludeTracks(media)
         }
     }
 
     /**
      * Permanently deletes a playable media from the device's storage.
      */
-    fun delete(track: MediaId) {
+    fun delete(media: MediaId) {
+        requireNotNull(media.track) { "Attempt to delete non-track media $media" }
         viewModelScope.launch {
-            val result = deleteTracks(listOf(track))
+            val result = deleteTracks(listOf(media))
             _deleteEvent.value = Event(
-                DeleteTracksConfirmation(track, result)
+                DeleteTracksConfirmation(media, result)
             )
         }
     }
@@ -122,7 +134,25 @@ internal class SearchViewModel @Inject constructor(
         return buildList {
             for ((mediaType, media) in mediaByType) {
                 add(SearchResult.SectionHeader(titleFor(mediaType)))
-                media.mapTo(this) { SearchResult.Media(it) }
+                media.mapTo(this) { item ->
+                    if (item.isBrowsable) {
+                        SearchResult.Browsable(
+                            id = item.mediaId.parse(),
+                            title = item.description.title?.toString() ?: "",
+                            subtitle = item.description.subtitle?.toString() ?: "",
+                            iconUri = item.description.iconUri,
+                            tracksCount = item.description.extras
+                                ?.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
+                                ?: 0,
+                        )
+                    } else {
+                        SearchResult.Track(
+                            id = item.mediaId.parse(),
+                            title = item.description.title?.toString() ?: "",
+                            iconUri = item.description.iconUri,
+                        )
+                    }
+                }
             }
         }
     }
