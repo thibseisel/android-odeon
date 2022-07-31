@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.nowplaying.nowplaying
+package fr.nihilus.music.ui.nowplaying
 
 import android.os.Handler
 import android.os.Looper
