@@ -17,23 +17,25 @@
 package fr.nihilus.music.ui.library.albums
 
 import android.support.v4.media.MediaMetadataCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
-import kotlinx.coroutines.flow.catch
+import fr.nihilus.music.core.ui.uiStateIn
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 internal class AlbumDetailViewModel @Inject constructor(
     savedState: SavedStateHandle,
-    private val client: BrowserClient
+    private val client: BrowserClient,
 ) : ViewModel() {
     private val albumId: MediaId
 
@@ -45,37 +47,44 @@ internal class AlbumDetailViewModel @Inject constructor(
     /**
      * Live UI state describing detail of the viewed album with its tracks.
      */
-    val state: LiveData<AlbumDetailState> = combine(
+    val state: StateFlow<AlbumDetailUiState> = combine(
         flow { this.emit(client.getItem(albumId)) },
-        client.getChildren(albumId).catch { cause ->
-            Timber.e(cause, "Failed to load album children")
-        },
-        client.nowPlaying
+        client.getChildren(albumId),
+        client.nowPlaying,
     ) { album, tracks, nowPlaying ->
-        val currentlyPlayingMediaId = nowPlaying
-            ?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
-            ?.parse()
+        val currentlyPlayingMediaId =
+            nowPlaying?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)?.parse()
         checkNotNull(album)
 
-        AlbumDetailState(
+        AlbumDetailUiState(
             id = album.mediaId.parse(),
             title = album.description.title?.toString() ?: "",
             subtitle = album.description.subtitle?.toString() ?: "",
             artworkUri = album.description.iconUri,
+            isLoading = true,
             tracks = tracks.map {
                 val trackId = it.mediaId.parse()
                 val extras = checkNotNull(it.description.extras)
 
-                AlbumDetailState.Track(
+                AlbumDetailUiState.Track(
                     id = trackId,
                     title = it.description.title?.toString() ?: "",
                     number = extras.getInt(MediaItems.EXTRA_TRACK_NUMBER),
                     duration = extras.getLong(MediaItems.EXTRA_DURATION),
                     isPlaying = trackId == currentlyPlayingMediaId
                 )
-            }
+            },
         )
-    }.asLiveData()
+    }.uiStateIn(
+        viewModelScope, initialState = AlbumDetailUiState(
+            id = albumId,
+            title = "",
+            subtitle = "",
+            artworkUri = null,
+            tracks = emptyList(),
+            isLoading = true,
+        )
+    )
 
     /**
      * Start playback of all tracks from the currently displayed album.
@@ -89,7 +98,7 @@ internal class AlbumDetailViewModel @Inject constructor(
      *
      * @param track The track to be played.
      */
-    fun playTrack(track: AlbumDetailState.Track) {
+    fun playTrack(track: AlbumDetailUiState.Track) {
         playMedia(track.id)
     }
 

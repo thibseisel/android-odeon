@@ -18,14 +18,14 @@ package fr.nihilus.music.ui.library.albums
 
 import android.net.Uri
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.ui.library.albums.AlbumDetailState.Track
+import fr.nihilus.music.ui.library.albums.AlbumDetailUiState.Track
 
 /**
  * UI representation of a music album with its composing tracks.
  * Albums are a compilation of tracks that were released at the same time,
  * and (generally) recorded by the same artist.
  */
-internal class AlbumDetailState(
+internal class AlbumDetailUiState(
 
     /**
      * The media id of the album.
@@ -53,7 +53,7 @@ internal class AlbumDetailState(
      * The list of tracks that are part of the album
      * sorted by ascending [track number][Track.number].
      */
-    val tracks: List<Track>
+    val tracks: List<Track>, val isLoading: Boolean
 ) {
     /**
      * An audio track, as part of an album.

@@ -37,6 +37,7 @@ import fr.nihilus.music.core.ui.extensions.themeColor
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.FragmentAlbumDetailBinding
 import java.util.concurrent.TimeUnit
@@ -84,17 +85,23 @@ internal class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail
         viewModel.state.observe(viewLifecycleOwner) { albumDetail ->
             onAlbumDetailLoaded(albumDetail, binding)
             adapter.submitList(albumDetail.tracks)
-            startPostponedEnterTransitionWhenDrawn()
+            if (!albumDetail.isLoading) {
+                startPostponedEnterTransitionWhenDrawn()
+            }
         }
     }
 
-    private fun onAlbumDetailLoaded(album: AlbumDetailState, binding: FragmentAlbumDetailBinding) {
+    private fun onAlbumDetailLoaded(
+        album: AlbumDetailUiState,
+        binding: FragmentAlbumDetailBinding
+    ) {
         binding.albumTitle.text = album.title
         binding.albumArtistName.text = album.subtitle
 
         // Note: Glide is attached to the context of the activity to workaround a bug in
         // MaterialContainerTransform not capturing images in return transition.
-        GlideApp.with(requireActivity()).asAlbumArt()
+        GlideApp.with(requireActivity())
+            .asAlbumArt()
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)
             .dontTransform()

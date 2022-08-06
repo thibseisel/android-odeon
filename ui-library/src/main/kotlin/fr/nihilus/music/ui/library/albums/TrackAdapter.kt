@@ -33,8 +33,8 @@ import fr.nihilus.music.ui.library.databinding.AlbumTrackItemBinding
  * @param trackSelectedListener Sets a function to be called when a track is selected from the list.
  */
 internal class TrackAdapter(
-    private val trackSelectedListener: (AlbumDetailState.Track) -> Unit
-) : ListAdapter<AlbumDetailState.Track, TrackAdapter.ViewHolder>(Differ()) {
+    private val trackSelectedListener: (AlbumDetailUiState.Track) -> Unit
+) : ListAdapter<AlbumDetailUiState.Track, TrackAdapter.ViewHolder>(Differ()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
         ViewHolder(parent).also { holder ->
@@ -60,7 +60,7 @@ internal class TrackAdapter(
 
     class ViewHolder(
         parent: ViewGroup
-    ) : BaseHolder<AlbumDetailState.Track>(parent, R.layout.album_track_item) {
+    ) : BaseHolder<AlbumDetailUiState.Track>(parent, R.layout.album_track_item) {
 
         private val binding = AlbumTrackItemBinding.bind(itemView)
 
@@ -81,7 +81,7 @@ internal class TrackAdapter(
          *
          * @param data The track that should be displayed by this holder.
          */
-        override fun bind(data: AlbumDetailState.Track) {
+        override fun bind(data: AlbumDetailUiState.Track) {
             binding.trackNo.text = data.number.toString()
             binding.trackTitle.text = data.title
             binding.trackDuration.text = formatDuration(data.duration)
@@ -90,28 +90,25 @@ internal class TrackAdapter(
     }
 
     /**
-     * Calculate the display difference between instances of [AlbumDetailState.Track].
-     * A partial item bind will be requested if only its [playback state][AlbumDetailState.Track.isPlaying]
+     * Calculate the display difference between instances of [AlbumDetailUiState.Track].
+     * A partial item bind will be requested if only its [playback state][AlbumDetailUiState.Track.isPlaying]
      * has changed.
      */
-    private class Differ : DiffUtil.ItemCallback<AlbumDetailState.Track>() {
+    private class Differ : DiffUtil.ItemCallback<AlbumDetailUiState.Track>() {
 
         override fun areItemsTheSame(
-            oldItem: AlbumDetailState.Track,
-            newItem: AlbumDetailState.Track
+            oldItem: AlbumDetailUiState.Track, newItem: AlbumDetailUiState.Track
         ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldItem: AlbumDetailState.Track,
-            newItem: AlbumDetailState.Track
+            oldItem: AlbumDetailUiState.Track, newItem: AlbumDetailUiState.Track
         ): Boolean = oldItem.isPlaying == newItem.isPlaying
                 && oldItem.title == newItem.title
                 && oldItem.number == newItem.number
                 && oldItem.duration == newItem.duration
 
         override fun getChangePayload(
-            oldItem: AlbumDetailState.Track,
-            newItem: AlbumDetailState.Track
+            oldItem: AlbumDetailUiState.Track, newItem: AlbumDetailUiState.Track
         ): Any? = when {
             oldItem.isPlaying != newItem.isPlaying -> newItem.isPlaying
             else -> null
