@@ -16,19 +16,23 @@
 
 package fr.nihilus.music.ui.library.tracks
 
-import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.browser.BrowserTree
 import fr.nihilus.music.media.tracks.DeleteTracksResult.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -38,22 +42,27 @@ import kotlin.time.Duration.Companion.milliseconds
  */
 @HiltViewModel
 internal class TracksViewModel @Inject constructor(
-    private val client: BrowserClient,
+    private val browser: BrowserTree,
+    private val controller: BrowserClient,
     private val deleteTracks: DeleteTracksAction,
     private val excludeTracks: ExcludeTrackAction,
 ) : ViewModel() {
 
     /**
      * Live list of all audio tracks available to the application.
-     * Its value is `null` while tracks are currently being loaded.
      */
-    private val tracks: Flow<List<TrackUiState>?>
-        get() = client.getChildren(MediaId.ALL_TRACKS)
-            .map<List<MediaBrowserCompat.MediaItem>, List<TrackUiState>?> { tracks ->
-                tracks.map(MediaBrowserCompat.MediaItem::toTrack)
-            }
-            .catch { emit(emptyList()) }
-            .onStart { emit(null) }
+    private val tracks: Flow<List<TrackUiState>>
+        get() = browser.getChildren(MediaId.ALL_TRACKS).map { tracks ->
+            tracks.filterIsInstance<AudioTrack>().map {
+                    TrackUiState(
+                        id = it.id,
+                        title = it.title,
+                        artist = it.artist,
+                        duration = it.duration.milliseconds,
+                        artworkUri = it.iconUri,
+                    )
+                }
+        }
 
     /**
      * Live queue of events to be handled by the UI.
@@ -66,9 +75,7 @@ internal class TracksViewModel @Inject constructor(
     val state: StateFlow<TrackListUiState> by lazy {
         combine(tracks, events) { tracks, events ->
             TrackListUiState(
-                tracks = tracks.orEmpty(),
-                isLoadingTracks = tracks == null,
-                pendingEvent = events.firstOrNull()
+                tracks = tracks, isLoadingTracks = false, pendingEvent = events.firstOrNull()
             )
         }
             .uiStateIn(
@@ -87,7 +94,7 @@ internal class TracksViewModel @Inject constructor(
      */
     fun playTrack(trackId: MediaId) {
         viewModelScope.launch {
-            client.playFromMediaId(trackId)
+            controller.playFromMediaId(trackId)
         }
     }
 
@@ -131,11 +138,3 @@ internal class TracksViewModel @Inject constructor(
         events.update { it.drop(1) }
     }
 }
-
-private fun MediaBrowserCompat.MediaItem.toTrack(): TrackUiState = TrackUiState(
-    id = mediaId.parse(),
-    title = description.title?.toString() ?: "",
-    artist = description.subtitle?.toString() ?: "",
-    duration = description.extras!!.getLong(MediaItems.EXTRA_DURATION).milliseconds,
-    artworkUri = description.iconUri
-)

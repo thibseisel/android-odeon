@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.library.albums
 import android.net.Uri
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.ui.library.albums.AlbumDetailUiState.Track
+import kotlin.time.Duration
 
 /**
  * UI representation of a music album with its composing tracks.
@@ -82,7 +83,7 @@ internal class AlbumDetailUiState(
          * The duration of the track in milliseconds.
          * This should be a positive number.
          */
-        val duration: Long,
+        val duration: Duration,
 
         /**
          * Whether this track is the one currently playing.

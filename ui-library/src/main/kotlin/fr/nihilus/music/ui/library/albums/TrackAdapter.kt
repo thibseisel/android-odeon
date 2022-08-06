@@ -84,7 +84,7 @@ internal class TrackAdapter(
         override fun bind(data: AlbumDetailUiState.Track) {
             binding.trackNo.text = data.number.toString()
             binding.trackTitle.text = data.title
-            binding.trackDuration.text = formatDuration(data.duration)
+            binding.trackDuration.text = formatDuration(data.duration.inWholeMilliseconds)
             setPlaybackState(data.isPlaying)
         }
     }

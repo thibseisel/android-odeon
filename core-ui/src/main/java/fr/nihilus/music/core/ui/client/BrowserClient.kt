@@ -16,11 +16,9 @@
 
 package fr.nihilus.music.core.ui.client
 
-import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import fr.nihilus.music.core.media.MediaId
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -47,37 +45,6 @@ interface BrowserClient {
      * A flow whose latest value is the current repeat mode.
      */
     val repeatMode: StateFlow<Int>
-
-    /**
-     * Retrieve children of a specified browsable item from the media browser tree,
-     * observing changes to those children.
-     * The latest value emitted by the returned flow is always the latest up-to-date children.
-     * A new list is emitted whenever it changes.
-     *
-     * The flow will fail with a [MediaSubscriptionException] if the requested [parentId]
-     * does not exists or is not a browsable item in the hierarchy.
-     *
-     * @param parentId The media id of a browsable item.
-     * @return a flow of children of the specified browsable item.
-     */
-    fun getChildren(parentId: MediaId): Flow<List<MediaBrowserCompat.MediaItem>>
-
-    /**
-     * Retrieve information of a single item from the media browser.
-     *
-     * @param itemId The media id of the item to retrieve.
-     * @return A media item with the same media id as the one requested,
-     * or `null` if no such item exists or an error occurred.
-     */
-    suspend fun getItem(itemId: MediaId): MediaBrowserCompat.MediaItem?
-
-    /**
-     * Search the given [terms][query] in the whole music library.
-     *
-     * @param query The searched terms.
-     * @return A list of media that matches the query.
-     */
-    suspend fun search(query: String): List<MediaBrowserCompat.MediaItem>
 
     /**
      * Requests the media service to start or resume playback.
@@ -124,13 +91,4 @@ interface BrowserClient {
      * @param repeatMode The new repeat mode.
      */
     suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int)
-}
-
-/**
- * Thrown when subscribing for children of a given media failed for some reason.
- *
- * @param parentId The parent media of the subscribed children.
- */
-class MediaSubscriptionException(parentId: String) : Exception() {
-    override val message: String = "Unable to load children of parent $parentId."
 }

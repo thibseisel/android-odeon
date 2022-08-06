@@ -16,17 +16,22 @@
 
 package fr.nihilus.music.ui.library.search
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.Event
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
 import fr.nihilus.music.core.ui.actions.ExcludeTrackAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.ui.library.DeleteTracksConfirmation
 import fr.nihilus.music.ui.library.R
 import kotlinx.coroutines.delay
@@ -42,6 +47,7 @@ private const val SEARCH_DELAY = 250L
 internal class SearchViewModel @Inject constructor(
     private val savedState: SavedStateHandle,
     private val client: BrowserClient,
+    private val engine: MediaSearchEngine,
     private val excludeTracks: ExcludeTrackAction,
     private val deleteTracks: DeleteTracksAction,
 ) : ViewModel() {
@@ -70,7 +76,11 @@ internal class SearchViewModel @Inject constructor(
                 SearchScreenUiState(
                     query = query,
                     results = if (query.isNotBlank()) {
-                        groupByMediaType(client.search(query))
+                        groupByMediaType(
+                            engine.search(
+                                SearchQuery.Unspecified(query)
+                            )
+                        )
                     } else {
                         emptyList()
                     }
@@ -126,30 +136,26 @@ internal class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun groupByMediaType(items: List<MediaItem>): List<SearchResult> {
-        val mediaByType = items.groupByTo(sortedMapOf(mediaTypeImportance)) {
-            it.mediaId.parse().type
-        }
+    private fun groupByMediaType(items: List<MediaContent>): List<SearchResult> {
+        val mediaByType = items.groupByTo(sortedMapOf(mediaTypeImportance)) { it.id.type }
 
         return buildList {
             for ((mediaType, media) in mediaByType) {
                 add(SearchResult.SectionHeader(titleFor(mediaType)))
-                media.mapTo(this) { item ->
-                    if (item.isBrowsable) {
+                media.mapTo(this) { content ->
+                    if (content is MediaCategory) {
                         SearchResult.Browsable(
-                            id = item.mediaId.parse(),
-                            title = item.description.title?.toString() ?: "",
-                            subtitle = item.description.subtitle?.toString() ?: "",
-                            iconUri = item.description.iconUri,
-                            tracksCount = item.description.extras
-                                ?.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS)
-                                ?: 0,
+                            id = content.id,
+                            title = content.title,
+                            subtitle = content.subtitle,
+                            iconUri = content.iconUri,
+                            tracksCount = content.count
                         )
                     } else {
                         SearchResult.Track(
-                            id = item.mediaId.parse(),
-                            title = item.description.title?.toString() ?: "",
-                            iconUri = item.description.iconUri,
+                            id = content.id,
+                            title = content.title,
+                            iconUri = content.iconUri,
                         )
                     }
                 }

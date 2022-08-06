@@ -16,16 +16,21 @@
 
 package fr.nihilus.music.ui.library.artists.detail
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
-import kotlinx.coroutines.flow.*
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -33,7 +38,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 internal class ArtistDetailViewModel @Inject constructor(
     savedState: SavedStateHandle,
-    private val client: BrowserClient
+    private val client: BrowserClient,
+    private val browser: BrowserTree,
 ) : ViewModel() {
     private val artistId =
         ArtistDetailFragmentArgs.fromSavedStateHandle(savedState).artistId.parse()
@@ -64,33 +70,32 @@ internal class ArtistDetailViewModel @Inject constructor(
     }
 
     private fun getArtistName(): Flow<String> = flow {
-        val artist = checkNotNull(client.getItem(artistId)) {
+        val artist = checkNotNull(browser.getItem(artistId)) {
             "Unable to load the detail of artist $artistId"
         }
-        emit(artist.description.title?.toString() ?: "")
+        emit(artist.title)
     }
 
     private fun getArtistAlbumsAndTracks(): Flow<Pair<List<ArtistAlbumUiState>, List<ArtistTrackUiState>>> {
-        val children = client.getChildren(artistId).map { items ->
-            val (albumItems, trackItems) = items.partition { it.isBrowsable }
-            val albums = albumItems.map { it.toUiAlbum() }
-            val tracks = trackItems.map { it.toUiTrack() }
+        val children = browser.getChildren(artistId).map { items ->
+            val albums = items.filterIsInstance<MediaCategory>().map { it.toUiAlbum() }
+            val tracks = items.filterIsInstance<AudioTrack>().map { it.toUiTrack() }
             albums to tracks
         }
         return children
     }
 
-    private fun MediaItem.toUiAlbum(): ArtistAlbumUiState = ArtistAlbumUiState(
-        id = mediaId.parse(),
-        title = description.title?.toString() ?: "",
-        trackCount = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS),
-        artworkUri = description.iconUri,
+    private fun MediaCategory.toUiAlbum(): ArtistAlbumUiState = ArtistAlbumUiState(
+        id = id,
+        title = title,
+        trackCount = count,
+        artworkUri = iconUri,
     )
 
-    private fun MediaItem.toUiTrack(): ArtistTrackUiState = ArtistTrackUiState(
-        id = mediaId.parse(),
-        title = description.title?.toString() ?: "",
-        duration = description.extras!!.getLong(MediaItems.EXTRA_DURATION).milliseconds,
-        iconUri = description.iconUri,
+    private fun AudioTrack.toUiTrack(): ArtistTrackUiState = ArtistTrackUiState(
+        id = id,
+        title = title,
+        duration = duration.milliseconds,
+        iconUri = iconUri,
     )
 }

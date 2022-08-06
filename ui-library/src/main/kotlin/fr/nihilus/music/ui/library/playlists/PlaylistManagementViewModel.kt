@@ -20,10 +20,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
-import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -34,22 +33,22 @@ import javax.inject.Inject
  */
 @HiltViewModel
 internal class PlaylistManagementViewModel @Inject constructor(
-    client: BrowserClient,
+    private val browser: BrowserTree,
     private val action: ManagePlaylistAction
 ) : ViewModel() {
 
     /**
      * Live UI state of the "add to playlist" dialog.
      */
-    val state: StateFlow<PlaylistDialogUiState> =
-        client.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
+    val state: StateFlow<PlaylistDialogUiState> by lazy {
+        browser.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
             .map { playlists ->
                 PlaylistDialogUiState(
                     playlists = playlists.map {
                         PlaylistDialogUiState.Playlist(
-                            id = it.mediaId.parse(),
-                            title = it.description.title?.toString() ?: "",
-                            iconUri = it.description.iconUri,
+                            id = it.id,
+                            title = it.title,
+                            iconUri = it.iconUri,
                         )
                     }
                 )
@@ -60,6 +59,7 @@ internal class PlaylistManagementViewModel @Inject constructor(
                     playlists = emptyList(),
                 )
             )
+    }
 
     /**
      * Creates a new playlist.

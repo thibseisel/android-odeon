@@ -16,18 +16,22 @@
 
 package fr.nihilus.music.ui.library.playlists.details
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
-import kotlinx.coroutines.flow.*
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.browser.BrowserTree
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -36,6 +40,7 @@ import kotlin.time.Duration.Companion.milliseconds
 internal class PlaylistDetailsViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val client: BrowserClient,
+    private val browser: BrowserTree,
     private val actions: ManagePlaylistAction
 ) : ViewModel() {
     private val playlistId =
@@ -74,21 +79,21 @@ internal class PlaylistDetailsViewModel @Inject constructor(
     }
 
     private fun getPlaylistTitle() = flow<String> {
-        val playlistItem = client.getItem(playlistId)
-            ?: error("Expected playlist $playlistId to exist")
-        emit(playlistItem.description.title?.toString() ?: "")
+        val playlist =
+            browser.getItem(playlistId) ?: error("Expected playlist $playlistId to exist")
+        emit(playlist.title)
     }
 
     private fun getPlaylistTracks(): Flow<List<PlaylistTrackUiState>> =
-        client.getChildren(playlistId).map { tracks ->
-            tracks.map(::toUiTrack)
+        browser.getChildren(playlistId).map { tracks ->
+            tracks.filterIsInstance<AudioTrack>().map { it.toUiTrack() }
         }
 
-    private fun toUiTrack(it: MediaItem) = PlaylistTrackUiState(
-        id = it.mediaId.parse(),
-        title = it.description.title?.toString() ?: "",
-        artistName = it.description.subtitle?.toString() ?: "",
-        duration = it.description.extras!!.getLong(MediaItems.EXTRA_DURATION).milliseconds,
-        artworkUri = it.description.iconUri,
+    private fun AudioTrack.toUiTrack() = PlaylistTrackUiState(
+        id = id,
+        title = title,
+        artistName = artist,
+        duration = duration.milliseconds,
+        artworkUri = iconUri,
     )
 }
