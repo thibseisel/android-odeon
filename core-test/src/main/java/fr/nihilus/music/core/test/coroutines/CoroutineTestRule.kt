@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.*
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
@@ -48,34 +48,6 @@ class CoroutineTestRule : TestWatcher() {
     operator fun invoke(testBody: suspend TestScope.() -> Unit) = run(testBody)
 
     fun run(block: suspend TestScope.() -> Unit) = scope.runTest(TEST_TIMEOUT, testBody = block)
-
-    /**
-     * Runs a test within a child [CoroutineScope]. That scope is cancelled after [testBody] is run.
-     *
-     * This may be necessary when the test subject has a dependency on [CoroutineScope].
-     * Since the test subject may launch coroutines tied to that scope, we want those coroutines
-     * to be cancelled after executing the test ; otherwise the test would hang forever,
-     * waiting for those coroutines to terminate.
-     *
-     * ```kotlin
-     * @Test myTest() = test.runWithin { scope ->
-     *   val subject = ClassUnderTest(scope)
-     *   val result = subject.doSomething()
-     *   assertEquals(expected, result)
-     * }
-     * ```
-     *
-     * @param testBody Test block. Unlike [run], the test lambda receives a parameter that's
-     * the [CoroutineScope] to be injected into the test subject.
-     */
-    fun runWithin(testBody: suspend TestScope.(childScope: CoroutineScope) -> Unit) = run {
-        launch(CoroutineName("runWithinScope")) {
-            testBody(this)
-            coroutineContext.cancelChildren(
-                CancellationException("Reached end of test body of runWithinScope")
-            )
-        }
-    }
 
     override fun starting(description: Description?) {
         super.starting(description)
