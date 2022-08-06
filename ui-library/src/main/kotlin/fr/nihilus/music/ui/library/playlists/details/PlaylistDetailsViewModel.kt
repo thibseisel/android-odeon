@@ -29,6 +29,7 @@ import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -54,16 +55,14 @@ internal class PlaylistDetailsViewModel @Inject constructor(
                 isUserDefined = playlistId.type == MediaId.TYPE_PLAYLISTS,
                 isLoadingTracks = false
             )
-        }
-            .uiStateIn(
-                viewModelScope,
-                PlaylistDetailsUiState(
-                    playlistTitle = "",
-                    tracks = emptyList(),
-                    isUserDefined = false,
-                    isLoadingTracks = true
-                )
+        }.uiStateIn(
+            viewModelScope, PlaylistDetailsUiState(
+                playlistTitle = "",
+                tracks = emptyList(),
+                isUserDefined = false,
+                isLoadingTracks = true
             )
+        )
     }
 
     fun play(track: PlaylistTrackUiState) {
@@ -86,14 +85,14 @@ internal class PlaylistDetailsViewModel @Inject constructor(
 
     private fun getPlaylistTracks(): Flow<List<PlaylistTrackUiState>> =
         browser.getChildren(playlistId).map { tracks ->
-            tracks.filterIsInstance<AudioTrack>().map { it.toUiTrack() }
-        }
-
-    private fun AudioTrack.toUiTrack() = PlaylistTrackUiState(
-        id = id,
-        title = title,
-        artistName = artist,
-        duration = duration.milliseconds,
-        artworkUri = iconUri,
-    )
+            tracks.filterIsInstance<AudioTrack>().map {
+                PlaylistTrackUiState(
+                    id = it.id,
+                    title = it.title,
+                    artistName = it.artist,
+                    duration = it.duration.milliseconds,
+                    artworkUri = it.iconUri,
+                )
+            }
+        }.catch { emit(emptyList()) }
 }
