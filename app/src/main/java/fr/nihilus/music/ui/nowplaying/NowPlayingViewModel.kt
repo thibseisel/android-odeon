@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.nowplaying.nowplaying
+package fr.nihilus.music.ui.nowplaying
 
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
@@ -155,11 +155,13 @@ class NowPlayingViewModel @Inject constructor(
     fun toggleRepeatMode() {
         viewModelScope.launch {
             state.value?.let {
-                client.setRepeatMode(when (it.repeatMode) {
-                    RepeatMode.ALL -> REPEAT_MODE_ONE
-                    RepeatMode.ONE -> REPEAT_MODE_NONE
-                    else -> REPEAT_MODE_ALL
-                })
+                client.setRepeatMode(
+                    when (it.repeatMode) {
+                        RepeatMode.ALL -> REPEAT_MODE_ONE
+                        RepeatMode.ONE -> REPEAT_MODE_NONE
+                        else -> REPEAT_MODE_ALL
+                    }
+                )
             }
         }
     }

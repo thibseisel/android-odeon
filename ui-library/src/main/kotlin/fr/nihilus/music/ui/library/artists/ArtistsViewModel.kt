@@ -16,15 +16,13 @@
 
 package fr.nihilus.music.ui.library.artists
 
-import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.MediaItems
-import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -34,18 +32,25 @@ import javax.inject.Inject
  */
 @HiltViewModel
 internal class ArtistsViewModel @Inject constructor(
-    private val client: BrowserClient,
+    private val browser: BrowserTree,
 ) : ViewModel() {
 
     /**
      * Live UI state.
      */
     val state: StateFlow<ArtistsScreenUiState> by lazy {
-        client.getChildren(MediaId.ALL_ARTISTS)
+        browser.getChildren(MediaId.ALL_ARTISTS)
             .map { artists ->
                 ArtistsScreenUiState(
                     isLoadingArtists = false,
-                    artists = artists.map { it.toUiArtist() },
+                    artists = artists.filterIsInstance<MediaCategory>().map {
+                            ArtistUiState(
+                                id = it.id,
+                                name = it.title,
+                                trackCount = it.count,
+                                iconUri = it.iconUri,
+                            )
+                        },
                 )
             }
             .uiStateIn(
@@ -57,10 +62,4 @@ internal class ArtistsViewModel @Inject constructor(
             )
     }
 
-    private fun MediaBrowserCompat.MediaItem.toUiArtist() = ArtistUiState(
-        id = mediaId.parse(),
-        name = description.title?.toString() ?: "",
-        trackCount = description.extras!!.getInt(MediaItems.EXTRA_NUMBER_OF_TRACKS),
-        iconUri = description.iconUri,
-    )
 }

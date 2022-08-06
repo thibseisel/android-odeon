@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.library.playlists.members
+package fr.nihilus.music.ui.library.playlists.details
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -25,13 +25,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.themeColor
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.FragmentPlaylistDetailBinding
 import java.util.concurrent.TimeUnit
@@ -41,10 +39,9 @@ private const val REQUEST_DELETE_PLAYLIST = "fr.nihilus.music.request.DELETE_PLA
 
 @AndroidEntryPoint
 internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_detail) {
-    private val viewModel: MembersViewModel by viewModels()
+    private val viewModel: PlaylistDetailsViewModel by viewModels()
 
     private val args by navArgs<PlaylistDetailFragmentArgs>()
-    private lateinit var adapter: MembersAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,38 +62,38 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
         view.transitionName = args.playlistId
 
         binding.toolbar.apply {
-            val playlistType = args.playlistId.parse().type
-            menu.findItem(R.id.action_delete)?.isVisible = playlistType == MediaId.TYPE_PLAYLISTS
             setOnMenuItemClickListener(::onToolbarMenuItemSelected)
             setNavigationOnClickListener { findNavController().navigateUp() }
         }
 
+        val deleteMenuItem = binding.toolbar.menu.findItem(R.id.action_delete)
         val progressBarLatch = ProgressTimeLatch { shouldShow ->
             binding.progressIndicator.isVisible = shouldShow
         }
 
-        adapter = MembersAdapter(this, ::onTrackSelected)
-        binding.playlistTrackList.adapter = adapter
-        binding.playlistTrackList.setHasFixedSize(true)
-
-        viewModel.playlist.observe(viewLifecycleOwner) {
-            binding.toolbar.title = it.description.title
+        val trackAdapter = PlaylistTracksAdapter(this) {
+            viewModel.play(it)
         }
 
-        viewModel.members.observe(viewLifecycleOwner) { membersRequest ->
-            when (membersRequest) {
-                is LoadRequest.Pending -> progressBarLatch.isRefreshing = true
-                is LoadRequest.Success -> {
-                    progressBarLatch.isRefreshing = false
-                    adapter.submitList(membersRequest.data)
-                    startPostponedEnterTransition()
-                }
+        binding.playlistTrackList.apply {
+            setHasFixedSize(true)
+            adapter = trackAdapter
+        }
+
+        viewModel.state.observe(viewLifecycleOwner) {
+            binding.toolbar.title = it.playlistTitle
+            deleteMenuItem.isVisible = it.isUserDefined
+            progressBarLatch.isRefreshing = it.isLoadingTracks
+            trackAdapter.submitList(it.tracks)
+
+            if (!it.isLoadingTracks && it.tracks.isNotEmpty()) {
+                startPostponedEnterTransition()
             }
         }
 
         ConfirmDialogFragment.registerForResult(this, REQUEST_DELETE_PLAYLIST) { button ->
             if (button == ConfirmDialogFragment.ActionButton.POSITIVE) {
-                viewModel.deletePlaylist()
+                viewModel.deleteThisPlaylist()
                 findNavController().popBackStack()
             }
         }
@@ -104,7 +101,7 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
 
     private fun onToolbarMenuItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_delete -> {
-            val playlistTitle = viewModel.playlist.value?.description?.title
+            val playlistTitle = viewModel.state.value.playlistTitle
             ConfirmDialogFragment.open(
                 this,
                 REQUEST_DELETE_PLAYLIST,
@@ -118,10 +115,5 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
             true
         }
         else -> false
-    }
-
-    private fun onTrackSelected(position: Int) {
-        val member = adapter.getItem(position)
-        viewModel.playMedia(member)
     }
 }

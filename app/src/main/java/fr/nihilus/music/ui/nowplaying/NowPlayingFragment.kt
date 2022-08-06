@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.nowplaying.nowplaying
+package fr.nihilus.music.ui.nowplaying
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -41,7 +41,7 @@ private const val LEVEL_CHEVRON_DOWN = 1
 private const val KEY_IS_COLLAPSED = "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
 
 @AndroidEntryPoint
-class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
+class NowPlayingFragment : BaseFragment(R.layout.fragment_now_playing) {
     private var playerExpansionListener: ((Boolean) -> Unit)? = null
     private var isCollapsed = true
 
@@ -220,7 +220,7 @@ class NowPlayingFragment: BaseFragment(R.layout.fragment_now_playing) {
     private inner class WidgetClickListener : View.OnClickListener {
 
         override fun onClick(view: View) {
-            when(view.id) {
+            when (view.id) {
                 R.id.collapse_indicator -> playerExpansionListener?.invoke(!isCollapsed)
                 R.id.master_play_pause, R.id.play_pause_button -> viewModel.togglePlayPause()
                 R.id.skip_prev_button, R.id.mini_prev_button -> viewModel.skipToPrevious()

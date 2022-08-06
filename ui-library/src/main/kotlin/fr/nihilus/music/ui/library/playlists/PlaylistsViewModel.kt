@@ -16,17 +16,20 @@
 
 package fr.nihilus.music.ui.library.playlists
 
-import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 /**
@@ -34,7 +37,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 internal class PlaylistsViewModel @Inject constructor(
-    private val client: BrowserClient,
+    private val browser: BrowserTree,
 ) : ViewModel() {
 
     /**
@@ -70,21 +73,20 @@ internal class PlaylistsViewModel @Inject constructor(
         }
 
     private val userPlaylists: Flow<List<PlaylistUiState>>
-        get() = client.getChildren(MediaId.ALL_PLAYLISTS)
-            .map { playlists -> playlists.map { it.toUiPlaylist() } }
-            .catch { emit(emptyList()) }
+        get() = browser.getChildren(MediaId.ALL_PLAYLISTS).map { playlists ->
+                playlists.filterIsInstance<MediaCategory>().map { it.toUiPlaylist() }
+            }
 
     private suspend fun loadBuiltIn(category: String): PlaylistUiState {
         val itemId = MediaId(MediaId.TYPE_TRACKS, category)
-        return client.getItem(itemId)
-            ?.toUiPlaylist()
+        return (browser.getItem(itemId) as? MediaCategory)?.toUiPlaylist()
             ?: error("Item with $itemId should always exist")
     }
 
-    private fun MediaBrowserCompat.MediaItem.toUiPlaylist() = PlaylistUiState(
-        id = mediaId.parse(),
-        title = description.title?.toString() ?: "",
-        subtitle = description.subtitle?.toString() ?: "",
-        iconUri = description.iconUri,
+    private fun MediaCategory.toUiPlaylist() = PlaylistUiState(
+        id = id,
+        title = title,
+        subtitle = subtitle.orEmpty(),
+        iconUri = iconUri,
     )
 }

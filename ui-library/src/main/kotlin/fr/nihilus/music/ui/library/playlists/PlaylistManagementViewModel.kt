@@ -16,18 +16,15 @@
 
 package fr.nihilus.music.ui.library.playlists
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.actions.ManagePlaylistAction
-import fr.nihilus.music.core.ui.client.BrowserClient
+import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.browser.BrowserTree
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,22 +33,53 @@ import javax.inject.Inject
  */
 @HiltViewModel
 internal class PlaylistManagementViewModel @Inject constructor(
-    client: BrowserClient,
+    private val browser: BrowserTree,
     private val action: ManagePlaylistAction
 ) : ViewModel() {
 
-    val userPlaylists: LiveData<LoadRequest<List<MediaItem>>> =
-        client.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
-            .map<List<MediaItem>, LoadRequest<List<MediaItem>>> { LoadRequest.Success(it) }
-            .onStart { emit(LoadRequest.Pending) }
-            .asLiveData()
+    /**
+     * Live UI state of the "add to playlist" dialog.
+     */
+    val state: StateFlow<PlaylistDialogUiState> by lazy {
+        browser.getChildren(MediaId(MediaId.TYPE_PLAYLISTS))
+            .map { playlists ->
+                PlaylistDialogUiState(
+                    playlists = playlists.map {
+                        PlaylistDialogUiState.Playlist(
+                            id = it.id,
+                            title = it.title,
+                            iconUri = it.iconUri,
+                        )
+                    }
+                )
+            }
+            .uiStateIn(
+                viewModelScope,
+                initialState = PlaylistDialogUiState(
+                    playlists = emptyList(),
+                )
+            )
+    }
 
+    /**
+     * Creates a new playlist.
+     *
+     * @param playlistName Name given to the newly created playlist by the user.
+     * Should not be empty.
+     * @param members Tracks to be initially added to the new playlist.
+     */
     fun createPlaylist(playlistName: String, members: List<MediaId>) {
         viewModelScope.launch {
             action.createPlaylist(playlistName, members)
         }
     }
 
+    /**
+     * Add tracks to an existing playlist.
+     *
+     * @param targetPlaylistId Identifier of an existing playlist to which tracks should be appended.
+     * @param addedTrackIds Identifiers of tracks to be added to the playlist.
+     */
     fun addTracksToPlaylist(
         targetPlaylistId: MediaId,
         addedTrackIds: List<MediaId>

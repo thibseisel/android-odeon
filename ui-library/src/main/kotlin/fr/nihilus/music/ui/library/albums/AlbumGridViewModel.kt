@@ -16,14 +16,13 @@
 
 package fr.nihilus.music.ui.library.albums
 
-import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -33,18 +32,25 @@ import javax.inject.Inject
  */
 @HiltViewModel
 internal class AlbumGridViewModel @Inject constructor(
-    private val client: BrowserClient
+    private val browser: BrowserTree,
 ) : ViewModel() {
 
     /**
      * Live UI state.
      */
     val state: StateFlow<AlbumGridUiState> by lazy {
-        client.getChildren(MediaId.ALL_ALBUMS)
+        browser.getChildren(MediaId.ALL_ALBUMS)
             .map { albumItems ->
                 AlbumGridUiState(
-                    albums = albumItems.map { it.toUiAlbum() },
-                    isLoadingAlbums = false
+                    isLoadingAlbums = false,
+                    albums = albumItems.filterIsInstance<MediaCategory>().map {
+                            AlbumUiState(
+                                id = it.id,
+                                title = it.title,
+                                artist = it.subtitle.orEmpty(),
+                                artworkUri = it.iconUri
+                            )
+                        },
                 )
             }
             .uiStateIn(
@@ -56,10 +62,4 @@ internal class AlbumGridViewModel @Inject constructor(
             )
     }
 
-    private fun MediaBrowserCompat.MediaItem.toUiAlbum() = AlbumUiState(
-        id = mediaId.parse(),
-        title = description.title?.toString() ?: "",
-        artist = description.subtitle?.toString() ?: "",
-        artworkUri = description.iconUri
-    )
 }

@@ -20,7 +20,6 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -29,10 +28,9 @@ import com.bumptech.glide.RequestBuilder
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.ui.LoadRequest
 import fr.nihilus.music.core.ui.base.BaseDialogFragment
 import fr.nihilus.music.core.ui.base.ListAdapter
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.PlaylistListItemBinding
 import fr.nihilus.music.core.ui.R as CoreUiR
@@ -54,10 +52,8 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         playlistAdapter = TargetPlaylistsAdapter(this)
 
-        playlistViewModel.userPlaylists.observe(this) {
-            if (it is LoadRequest.Success) {
-                playlistAdapter.submitList(it.data)
-            }
+        playlistViewModel.state.observe(this) {
+            playlistAdapter.submitList(it.playlists)
         }
 
         return MaterialAlertDialogBuilder(requireContext())
@@ -74,7 +70,7 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
             val playlist = playlistAdapter.getItem(position)
             val memberTracks = getSelectedTrackIds()
             playlistViewModel.addTracksToPlaylist(
-                targetPlaylistId = playlist.mediaId.parse(),
+                targetPlaylistId = playlist.id,
                 addedTrackIds = memberTracks
             )
 
@@ -98,7 +94,7 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
      */
     private class TargetPlaylistsAdapter(
         fragment: Fragment
-    ) : ListAdapter<MediaItem, PlaylistHolder>() {
+    ) : ListAdapter<PlaylistDialogUiState.Playlist, PlaylistHolder>() {
         private val glideRequest = Glide.with(fragment).asBitmap()
             .circleCrop()
             .autoClone()
@@ -118,9 +114,9 @@ internal class AddToPlaylistDialog : BaseDialogFragment() {
     ) : ListAdapter.ViewHolder(parent, R.layout.playlist_list_item) {
         private val binding = PlaylistListItemBinding.bind(itemView)
 
-        fun bind(playlist: MediaItem, glide: RequestBuilder<Bitmap>) {
-            binding.playlistTitle.text = playlist.description.title
-            glide.load(playlist.description.iconUri).into(binding.playlistIcon)
+        fun bind(playlist: PlaylistDialogUiState.Playlist, glide: RequestBuilder<Bitmap>) {
+            binding.playlistTitle.text = playlist.title
+            glide.load(playlist.iconUri).into(binding.playlistIcon)
         }
     }
 

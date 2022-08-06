@@ -22,7 +22,7 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="fr.nihilus.music.ui.library.playlists.members.PlaylistDetailFragment">
+    tools:context="fr.nihilus.music.ui.library.playlists.details.PlaylistDetailFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"

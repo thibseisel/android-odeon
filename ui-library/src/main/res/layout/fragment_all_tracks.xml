@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -31,19 +30,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <fr.nihilus.music.ui.library.view.ScrollPositionListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/track_list"
         style="@style/Widget.Odeon.List.Offset"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fastScrollEnabled="true"
+        app:fastScrollEnabled="true"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/song_list_item"/>
+        tools:listitem="@layout/song_list_item" />
 
     <ImageView
         android:id="@+id/empty_icon"
@@ -52,13 +52,13 @@
         android:layout_marginStart="64dp"
         android:layout_marginEnd="64dp"
         android:layout_marginBottom="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@null"
         android:src="@drawable/sad_panda"
         app:layout_constraintBottom_toTopOf="@id/empty_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/empty_label"
@@ -66,15 +66,15 @@
         android:layout_height="wrap_content"
         android:text="@string/empty_songs"
         android:textAppearance="?textAppearanceHeadline5"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/empty_icon"/>
+        app:layout_constraintTop_toBottomOf="@id/empty_icon" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/empty_view_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="empty_icon,empty_label"/>
+        app:constraint_referenced_ids="empty_icon,empty_label" />
 </androidx.constraintlayout.widget.ConstraintLayout>

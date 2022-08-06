@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.core.ui
+package fr.nihilus.music.ui.library.search
 
 /**
- * Encapsulate state of a data load operation.
- * @param T The type of data to be loaded.
+ * State of the "search" screen.
  */
-sealed class LoadRequest<out T> {
-
+internal data class SearchScreenUiState(
     /**
-     * State of a data load that is pending.
+     * User-defined text used to filter search results.
      */
-    object Pending : LoadRequest<Nothing>()
-
+    val query: String,
     /**
-     * State of a data load where the data is available.
-     * @param T The type of data that has been loaded.
-     * @param data The loaded data.
+     * List of media that matched the query.
+     * Media are organized in sections of the same type and separated by section titles.
      */
-    class Success<T>(val data: T) : LoadRequest<T>()
-}
+    val results: List<SearchResult>
+)

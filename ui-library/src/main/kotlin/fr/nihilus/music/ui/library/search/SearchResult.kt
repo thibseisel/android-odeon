@@ -16,8 +16,9 @@
 
 package fr.nihilus.music.ui.library.search
 
-import android.support.v4.media.MediaBrowserCompat
+import android.net.Uri
 import androidx.annotation.StringRes
+import fr.nihilus.music.core.media.MediaId
 
 /**
  * An UI element in the list of search results.
@@ -40,21 +41,31 @@ internal sealed class SearchResult {
     }
 
     /**
-     * A reference to a media that matched the search query.
+     * Playable or browsable media that matched the search query.
      */
-    data class Media(
-        val item: MediaBrowserCompat.MediaItem
+    data class Track(
+        val id: MediaId,
+        val title: String,
+        val iconUri: Uri?,
     ) : SearchResult() {
 
         override fun hasSameId(other: SearchResult): Boolean =
-            other is Media && other.item.mediaId == item.mediaId
+            other is Track && other.id == id
 
-        override fun hasSameContent(other: SearchResult): Boolean {
-            val otherDescription = (other as? Media)?.item?.description ?: return false
-            val thisDescription = item.description
-            return otherDescription.title == thisDescription.title
-                    && otherDescription.subtitle == thisDescription.subtitle
-                    && otherDescription.iconUri == thisDescription.iconUri
-        }
+        override fun hasSameContent(other: SearchResult): Boolean = other == this
+    }
+
+    data class Browsable(
+        val id: MediaId,
+        val title: String,
+        val subtitle : String?,
+        val tracksCount: Int,
+        val iconUri: Uri?,
+    ) : SearchResult() {
+
+        override fun hasSameId(other: SearchResult): Boolean =
+            other is Browsable && other.id == id
+
+        override fun hasSameContent(other: SearchResult): Boolean = other == this
     }
 }
