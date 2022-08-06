@@ -42,7 +42,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 @RunWith(AndroidJUnit4::class)
-class SubscriptionManagerTest {
+internal class SubscriptionManagerTest {
 
     @get:Rule
     val test = CoroutineTestRule()
@@ -55,54 +55,51 @@ class SubscriptionManagerTest {
     }
 
     @Test
-    fun `When loading children, then subscribe to their parent in the tree`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
-            val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
+    fun `When loading children, then subscribe to their parent in the tree`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
+        val children = manager.loadChildren(MediaId(TYPE_TRACKS, CATEGORY_ALL), null)
 
-            extracting(children, MediaContent::id).shouldContainExactly(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 481),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 48),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 125),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 294),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 219),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 75),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 464),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 477)
-            )
-        }
-
-    @Test
-    fun `Given active subscription, when reloading then return cached children`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
-            val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
-
-            // Trigger initial subscription
-            val children = manager.loadChildren(parentId, null)
-
-            // Reload children, and check that those are the same
-            val reloadedChildren = manager.loadChildren(parentId, null)
-            reloadedChildren shouldBeSameInstanceAs children
-        }
+        extracting(children, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 48),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 125),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 294),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 219),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 75),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 464),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 477)
+        )
+    }
 
     @Test
-    fun `When loading children of invalid parent, then fail with NoSuchElementException`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `Given active subscription, when reloading then return cached children`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
+        val parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL)
 
-            shouldThrow<NoSuchElementException> {
-                val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
-                manager.loadChildren(invalidMediaId, null)
-            }
+        // Trigger initial subscription
+        val children = manager.loadChildren(parentId, null)
+
+        // Reload children, and check that those are the same
+        val reloadedChildren = manager.loadChildren(parentId, null)
+        reloadedChildren shouldBeSameInstanceAs children
+    }
+
+    @Test
+    fun `When loading children of invalid parent, then fail with NoSuchElementException`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
+
+        shouldThrow<NoSuchElementException> {
+            val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
+            manager.loadChildren(invalidMediaId, null)
         }
+    }
 
     @Test
     fun `Given max subscriptions, when loading children then dispose oldest subscriptions`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+        test {
+            val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
             // Trigger subscription of albums 0 to MAX included.
             val childrenPerAlbumId = (0..MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
@@ -129,8 +126,8 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given max subscriptions, when reloading children then keep its subscription longer`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+        test {
+            val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
             // Trigger subscriptions to reach the max allowed count.
             val childrenPerAlbumId = (0 until MAX_ACTIVE_SUBSCRIPTIONS).map { albumId ->
@@ -152,26 +149,25 @@ class SubscriptionManagerTest {
         }
 
     @Test
-    fun `Given pages of size N, when loading children then return the N first items`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `Given pages of size N, when loading children then return the N first items`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
-            val paginatedChildren = manager.loadChildren(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL),
-                PaginationOptions(0, 3)
-            )
+        val paginatedChildren = manager.loadChildren(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL),
+            PaginationOptions(0, 3)
+        )
 
-            extracting(paginatedChildren, MediaContent::id).shouldContainExactly(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
-                MediaId(TYPE_TRACKS, CATEGORY_ALL, 481)
-            )
-        }
+        extracting(paginatedChildren, MediaContent::id).shouldContainExactly(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 161),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 309),
+            MediaId(TYPE_TRACKS, CATEGORY_ALL, 481)
+        )
+    }
 
     @Test
     fun `Given the page X of size N, when loading children then return N items from position NX`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+        test {
+            val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
             val paginatedChildren = manager.loadChildren(
                 MediaId(TYPE_TRACKS, CATEGORY_ALL),
@@ -185,93 +181,88 @@ class SubscriptionManagerTest {
         }
 
     @Test
-    fun `Given a page after the last page, when loading children then return no children`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `Given a page after the last page, when loading children then return no children`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
-            val pagePastChildren = manager.loadChildren(
-                MediaId(TYPE_TRACKS, CATEGORY_ALL),
-                PaginationOptions(2, 5)
-            )
+        val pagePastChildren = manager.loadChildren(
+            MediaId(TYPE_TRACKS, CATEGORY_ALL),
+            PaginationOptions(2, 5)
+        )
 
-            pagePastChildren.shouldBeEmpty()
-        }
-
-    @Test
-    fun `When observing children and children changed, then notify for its parent`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
-
-            manager.updatedParentIds.test {
-                val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
-                manager.loadChildren(allTracks, null)
-
-                awaitItem() shouldBe allTracks
-                expectNoEvents()
-            }
-        }
+        pagePastChildren.shouldBeEmpty()
+    }
 
     @Test
-    fun `When observing multiple children, then notify for each parent`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `When observing children and children changed, then notify for its parent`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
-            manager.updatedParentIds.test {
-                // Subscribe to the first parent.
-                val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
-                manager.loadChildren(allTracks, null)
+        manager.updatedParentIds.test {
+            val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+            manager.loadChildren(allTracks, null)
 
-                awaitItem() shouldBe allTracks
-                expectNoEvents()
-
-                // Subscribe to another parent.
-                val albumTracks = MediaId(TYPE_ALBUMS, "42")
-                manager.loadChildren(albumTracks, null)
-
-                val values = List(2) { awaitItem() }
-                values.shouldContainExactlyInAnyOrder(allTracks, albumTracks)
-                cancelAndIgnoreRemainingEvents()
-            }
+            awaitItem() shouldBe allTracks
+            expectNoEvents()
         }
+    }
 
     @Test
-    fun `When observing parent changes, then all subscribers should be notified`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
-            val albumId = MediaId(TYPE_ALBUMS, "42")
+    fun `When observing multiple children, then notify for each parent`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
+        manager.updatedParentIds.test {
+            // Subscribe to the first parent.
+            val allTracks = MediaId(TYPE_TRACKS, CATEGORY_ALL)
+            manager.loadChildren(allTracks, null)
+
+            awaitItem() shouldBe allTracks
+            expectNoEvents()
+
+            // Subscribe to another parent.
+            val albumTracks = MediaId(TYPE_ALBUMS, "42")
+            manager.loadChildren(albumTracks, null)
+
+            val values = List(2) { awaitItem() }
+            values.shouldContainExactlyInAnyOrder(allTracks, albumTracks)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `When observing parent changes, then all subscribers should be notified`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
+        val albumId = MediaId(TYPE_ALBUMS, "42")
+
+        manager.updatedParentIds.test {
             manager.updatedParentIds.test {
-                manager.updatedParentIds.test {
-                    // trigger initial subscription
-                    manager.loadChildren(albumId, null)
-                    awaitItem() shouldBe albumId
-                }
-
+                // trigger initial subscription
+                manager.loadChildren(albumId, null)
                 awaitItem() shouldBe albumId
             }
+
+            awaitItem() shouldBe albumId
         }
+    }
 
     @Test
-    fun `Given invalid parent, when observing parent changes then dont throw`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `Given invalid parent, when observing parent changes then dont throw`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
-            manager.updatedParentIds.test {
-                // Trigger initial subscription
-                shouldThrow<NoSuchElementException> {
-                    val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
-                    manager.loadChildren(invalidMediaId, null)
-                }
-
-                // No exceptions should be thrown.
-                expectNoEvents()
+        manager.updatedParentIds.test {
+            // Trigger initial subscription
+            shouldThrow<NoSuchElementException> {
+                val invalidMediaId = MediaId(TYPE_PLAYLISTS, "unknown")
+                manager.loadChildren(invalidMediaId, null)
             }
+
+            // No exceptions should be thrown.
+            expectNoEvents()
         }
+    }
 
     @Test
     fun `Given max subscriptions, when observing parent changes then dont notify for disposed subscriptions`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+        test {
+            val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
             manager.updatedParentIds.test {
                 (0..MAX_ACTIVE_SUBSCRIPTIONS).forEach { albumId ->
@@ -287,39 +278,38 @@ class SubscriptionManagerTest {
         }
 
     @Test
-    fun `Given max subscriptions, when reloading parent then observe its changes longer`() =
-        test.runWithin { scope ->
-            val manager = CachingSubscriptionManager(scope, TestBrowserTree, dispatchers)
+    fun `Given max subscriptions, when reloading parent then observe its changes longer`() = test {
+        val manager = CachingSubscriptionManager(backgroundScope, TestBrowserTree, dispatchers)
 
-            manager.updatedParentIds.test {
+        manager.updatedParentIds.test {
 
-                // Trigger subscriptions to reach the max allowed count.
-                repeat(MAX_ACTIVE_SUBSCRIPTIONS) { albumId ->
-                    val parentId = MediaId(TYPE_ALBUMS, albumId.toString())
-                    manager.loadChildren(parentId, null)
-                }
-
-                // Reload children of album 0, then create a new subscription.
-                manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
-                manager.loadChildren(
-                    MediaId(TYPE_ALBUMS, MAX_ACTIVE_SUBSCRIPTIONS.toString()),
-                    null
-                )
-
-                // If album 0 had not been reloaded, its subscription should have been disposed.
-                // The oldest subscription now being that of album 1, it has been disposed instead,
-                // therefore we should no longer receive updates for it.
-                delay(1000)
-                val values = List(5) { awaitItem() }
-                values shouldContain MediaId(TYPE_ALBUMS, "0")
-                values shouldNotContain MediaId(TYPE_ALBUMS, "1")
+            // Trigger subscriptions to reach the max allowed count.
+            repeat(MAX_ACTIVE_SUBSCRIPTIONS) { albumId ->
+                val parentId = MediaId(TYPE_ALBUMS, albumId.toString())
+                manager.loadChildren(parentId, null)
             }
+
+            // Reload children of album 0, then create a new subscription.
+            manager.loadChildren(MediaId(TYPE_ALBUMS, "0"), null)
+            manager.loadChildren(
+                MediaId(TYPE_ALBUMS, MAX_ACTIVE_SUBSCRIPTIONS.toString()),
+                null
+            )
+
+            // If album 0 had not been reloaded, its subscription should have been disposed.
+            // The oldest subscription now being that of album 1, it has been disposed instead,
+            // therefore we should no longer receive updates for it.
+            delay(1000)
+            val values = List(5) { awaitItem() }
+            values shouldContain MediaId(TYPE_ALBUMS, "0")
+            values shouldNotContain MediaId(TYPE_ALBUMS, "1")
         }
+    }
 
     @Test
     fun `Given active subscription, when getting a playable item then use cached children`() =
-        test.runWithin { scope ->
-            scope.assertGetItemFromCache(
+        test {
+            backgroundScope.assertGetItemFromCache(
                 parentId = MediaId(TYPE_TRACKS, CATEGORY_ALL),
                 itemId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 481L)
             )
@@ -327,8 +317,8 @@ class SubscriptionManagerTest {
 
     @Test
     fun `Given active subscription, when getting a browsable item then use cached children`() =
-        test.runWithin { scope ->
-            scope.assertGetItemFromCache(
+        test {
+            backgroundScope.assertGetItemFromCache(
                 parentId = MediaId(TYPE_ALBUMS),
                 itemId = MediaId(TYPE_ALBUMS, "42")
             )
