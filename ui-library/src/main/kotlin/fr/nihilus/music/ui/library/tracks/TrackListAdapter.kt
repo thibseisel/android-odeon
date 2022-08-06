@@ -20,8 +20,10 @@ import android.view.Gravity
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
-import fr.nihilus.music.core.ui.base.ListAdapter
+import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.formatDuration
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.SongListItemBinding
@@ -36,24 +38,26 @@ internal class TrackListAdapter(
     private val delete: (TrackUiState) -> Unit,
     private val exclude: (TrackUiState) -> Unit,
     private val play: (TrackUiState) -> Unit,
-) : ListAdapter<TrackUiState, TrackListAdapter.ViewHolder>() {
+) : ListAdapter<TrackUiState, TrackListAdapter.ViewHolder>(TrackDiffer()) {
 
-    private val artworkLoader = Glide.with(fragment).asBitmap()
-        .error(CoreUiR.drawable.ic_audiotrack_24dp)
-        .autoClone()
+    init {
+        setHasStableIds(true)
+    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolder(parent)
+    private val artworkLoader =
+        Glide.with(fragment).asBitmap().error(CoreUiR.drawable.ic_audiotrack_24dp).autoClone()
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(getItem(position))
     }
 
     override fun getItemId(position: Int): Long = getItem(position).id.hashCode().toLong()
 
-    inner class ViewHolder(
-        parent: ViewGroup,
-    ) : ListAdapter.ViewHolder(parent, R.layout.song_list_item) {
+    inner class ViewHolder(parent: ViewGroup) : BaseHolder<TrackUiState>(
+        parent, R.layout.song_list_item
+    ) {
         private val binding = SongListItemBinding.bind(itemView)
 
         init {
@@ -67,7 +71,7 @@ internal class TrackListAdapter(
             ).apply {
                 inflate(R.menu.track_popup_menu)
                 setOnMenuItemClickListener { item ->
-                    val track = items[position]
+                    val track = getItem(bindingAdapterPosition)
 
                     when (item.itemId) {
                         R.id.action_playlist -> {
@@ -92,18 +96,27 @@ internal class TrackListAdapter(
             }
 
             itemView.setOnClickListener {
-                play(items[position])
+                play(getItem(bindingAdapterPosition))
             }
         }
 
-        fun bind(track: TrackUiState) {
-            artworkLoader.load(track.artworkUri).into(binding.albumArtwork)
-            binding.trackTitle.text = track.title
+        override fun bind(data: TrackUiState) {
+            artworkLoader.load(data.artworkUri).into(binding.albumArtwork)
+            binding.trackTitle.text = data.title
             binding.trackMetadata.text = itemView.context.getString(
                 R.string.song_item_subtitle,
-                track.artist,
-                formatDuration(track.duration.inWholeMilliseconds)
+                data.artist,
+                formatDuration(data.duration.inWholeMilliseconds)
             )
         }
     }
+}
+
+private class TrackDiffer : DiffUtil.ItemCallback<TrackUiState>() {
+
+    override fun areItemsTheSame(oldItem: TrackUiState, newItem: TrackUiState): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: TrackUiState, newItem: TrackUiState): Boolean =
+        oldItem == newItem
 }
