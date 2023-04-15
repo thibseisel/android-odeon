@@ -25,17 +25,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-tasks.register("configurations") {
-    group = "help"
-    description = "Display build configurations declared in project ':${project.name}'"
-
-    doLast {
-        configurations.filter { it.isCanBeResolved }.forEach {
-            println("${it.name} - ${it.description}")
-        }
-    }
-}
-
 pluginManager.withPlugin("com.android.application") {
     configureAndroid(isLibrary = false)
     configureApplicationTasks()
