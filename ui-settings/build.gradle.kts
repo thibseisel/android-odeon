@@ -15,11 +15,8 @@
  */
 
 plugins {
-    id("odeon-convention")
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
-    id("dagger.hilt.android.plugin")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {

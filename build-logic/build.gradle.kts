@@ -18,9 +18,31 @@ plugins {
     `kotlin-dsl`
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
-    implementation(libs.plugin.android)
-    implementation(libs.plugin.kotlin)
-    implementation(libs.plugin.hilt)
-    implementation(libs.plugin.android.cache.fix)
+    compileOnly(libs.plugin.android)
+    compileOnly(libs.plugin.kotlin)
+    compileOnly(libs.plugin.hilt)
+    compileOnly(libs.plugin.android.cache.fix)
+}
+
+gradlePlugin {
+    plugins {
+        register("androidApplication") {
+            id = "odeon.android.application"
+            implementationClass = "odeon.plugins.AndroidApplicationConventionPlugin"
+        }
+        register("androidLibrary") {
+            id = "odeon.android.library"
+            implementationClass = "odeon.plugins.AndroidLibraryConventionPlugin"
+        }
+        register("androidHilt") {
+            id = "odeon.android.hilt"
+            implementationClass = "odeon.plugins.AndroidHiltConventionPlugin"
+        }
+    }
 }

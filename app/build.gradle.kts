@@ -15,11 +15,8 @@
  */
 
 plugins {
-    id("odeon-convention")
-    id("com.android.application")
-    kotlin("android")
-    kotlin("kapt")
-    id("dagger.hilt.android.plugin")
+    id("odeon.android.application")
+    id("odeon.android.hilt")
     id("androidx.navigation.safeargs.kotlin")
 }
 
