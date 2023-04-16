@@ -27,7 +27,6 @@ dependencies {
     compileOnly(libs.plugin.android)
     compileOnly(libs.plugin.kotlin)
     compileOnly(libs.plugin.hilt)
-    compileOnly(libs.plugin.android.cache.fix)
 }
 
 gradlePlugin {
