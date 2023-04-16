@@ -15,9 +15,11 @@
  */
 
 plugins {
-    id("odeon-convention")
-    id("com.android.library")
-    kotlin("android")
+    id("odeon.android.library")
+}
+
+android {
+    namespace = "fr.nihilus.music.core.test"
 }
 
 dependencies {

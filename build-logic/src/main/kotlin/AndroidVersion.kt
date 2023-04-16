@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2023 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,8 @@
  * limitations under the License.
  */
 
-plugins {
-    id("odeon.android.library")
-    id("odeon.android.hilt")
-}
-
-android {
-    namespace = "fr.nihilus.music.ui.cleanup"
-    buildFeatures {
-        viewBinding = true
-    }
-}
-
-dependencies {
-    implementation(projects.core)
-    implementation(projects.coreUi)
-    implementation(projects.media)
-
-    implementation(libs.bundles.core)
-    implementation(libs.bundles.android.ui)
-    implementation(libs.bundles.androidx.lifecycle)
-
-    testImplementation(projects.coreTest)
-    testImplementation(libs.bundles.testing.unit)
+internal object AndroidVersion {
+    const val COMPILE = 31
+    const val TARGET = 31
+    const val MINIMUM = 23
 }
