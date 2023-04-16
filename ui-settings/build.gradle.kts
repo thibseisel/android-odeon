@@ -20,6 +20,7 @@ plugins {
 }
 
 android {
+    namespace = "fr.nihilus.music.ui.settings"
     buildFeatures {
         viewBinding = true
     }

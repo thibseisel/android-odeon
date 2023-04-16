@@ -20,6 +20,7 @@ plugins {
 }
 
 android {
+    namespace = "fr.nihilus.music.core.database"
     sourceSets {
         // Add Room schemas to test sources in order to test database migrations.
         getByName("androidTest").assets.srcDir("$projectDir/schemas")

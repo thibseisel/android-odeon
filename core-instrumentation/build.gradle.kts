@@ -19,6 +19,7 @@ plugins {
 }
 
 android {
+    namespace = "fr.nihilus.music.core.instrumentation"
     useLibrary("android.test.mock")
 }
 

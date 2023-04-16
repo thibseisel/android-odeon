@@ -19,6 +19,10 @@ plugins {
     id("odeon.android.hilt")
 }
 
+android {
+    namespace = "fr.nihilus.music.media"
+}
+
 dependencies {
     implementation(projects.core)
     implementation(projects.coreDatabase)

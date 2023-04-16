@@ -20,6 +20,7 @@ plugins {
 }
 
 android {
+    namespace = "fr.nihilus.music.spotify"
     defaultConfig {
         consumerProguardFiles("moshi.pro", "okhttp3.pro", "okio.pro")
 

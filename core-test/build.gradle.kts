@@ -18,6 +18,10 @@ plugins {
     id("odeon.android.library")
 }
 
+android {
+    namespace = "fr.nihilus.music.core.test"
+}
+
 dependencies {
     implementation(projects.core)
     implementation(libs.bundles.testing.unit)

@@ -21,6 +21,7 @@ plugins {
 }
 
 android {
+    namespace = "fr.nihilus.music"
     defaultConfig {
         applicationId = "fr.nihilus.music"
         versionCode = 2_01_01_0

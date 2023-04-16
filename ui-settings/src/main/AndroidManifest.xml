@@ -14,15 +14,14 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.nihilus.music.ui.settings">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application android:theme="@style/Odeon">
         <!-- Activity for toggling user preferences. -->
         <activity
             android:name="fr.nihilus.music.ui.settings.SettingsActivity"
             android:label="@string/core_action_settings"
-            android:theme="@style/Odeon.Immersive"/>
+            android:theme="@style/Odeon.Immersive" />
 
     </application>
 </manifest>
