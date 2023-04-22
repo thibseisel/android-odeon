@@ -17,14 +17,12 @@
 package fr.nihilus.music.core.ui.extensions
 
 import android.content.Context
-import android.os.Build
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.annotation.Dimension
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.ViewCompat
@@ -39,8 +37,6 @@ import kotlin.math.roundToInt
  * Whether dark icons are displayed over the status bar for the given [Window].
  * This is `true` for dark icons and `false` for white ones.
  */
-@get:RequiresApi(Build.VERSION_CODES.M)
-@set:RequiresApi(Build.VERSION_CODES.M)
 var Window.darkSystemIcons: Boolean
     get() {
         val controller = requireDecorInsetsController()

@@ -20,7 +20,6 @@
     <application
         android:name=".OdeonApplication"
         android:allowBackup="true"
-        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/core_app_name"
         android:requestLegacyExternalStorage="true"
