@@ -27,7 +27,6 @@ import fr.nihilus.music.media.usage.UsageManagerImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
-@Suppress("unused")
 internal abstract class MediaSourceModule {
 
     @Binds

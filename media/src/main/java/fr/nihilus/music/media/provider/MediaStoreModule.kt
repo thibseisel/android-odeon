@@ -29,7 +29,6 @@ import dagger.hilt.components.SingletonComponent
  */
 @Module
 @InstallIn(SingletonComponent::class)
-@Suppress("unused")
 internal object MediaStoreModule {
 
     @Provides

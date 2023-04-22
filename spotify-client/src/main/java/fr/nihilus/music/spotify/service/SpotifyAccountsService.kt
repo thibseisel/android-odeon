@@ -89,7 +89,6 @@ internal class SpotifyAccountsServiceImpl @Inject constructor(
         val response = http.post<HttpResponse> {
             header(HttpHeaders.Authorization, "Basic $base64Key")
             body = FormDataContent(Parameters.build {
-                @OptIn(InternalAPI::class)
                 append("grant_type", "client_credentials")
             })
         }

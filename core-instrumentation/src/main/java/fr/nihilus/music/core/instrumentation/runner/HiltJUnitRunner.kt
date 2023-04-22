@@ -25,7 +25,6 @@ import dagger.hilt.android.testing.HiltTestApplication
  * A custom test runner that replaces the default test [Application] with [HiltTestApplication].
  * This is necessary so that singleton-scoped dependencies could be injected.
  */
-@Suppress("unused")
 class HiltJUnitRunner : AndroidJUnitRunner() {
     override fun newApplication(cl: ClassLoader?, name: String?, context: Context?): Application =
         super.newApplication(cl, HiltTestApplication::class.java.name, context)
