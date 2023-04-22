@@ -44,13 +44,13 @@ internal class AlbumGridViewModel @Inject constructor(
                 AlbumGridUiState(
                     isLoadingAlbums = false,
                     albums = albumItems.filterIsInstance<MediaCategory>().map {
-                            AlbumUiState(
-                                id = it.id,
-                                title = it.title,
-                                artist = it.subtitle.orEmpty(),
-                                artworkUri = it.iconUri
-                            )
-                        },
+                        AlbumUiState(
+                            id = it.id,
+                            title = it.title,
+                            artist = it.subtitle.orEmpty(),
+                            artworkUri = it.iconUri
+                        )
+                    },
                 )
             }
             .uiStateIn(

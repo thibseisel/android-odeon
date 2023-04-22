@@ -111,7 +111,8 @@ internal class IconProvider : ContentProvider() {
         val path = requireNotNull(uri.encodedPath)
         val appContext = checkNotNull(context).applicationContext
 
-        val entryPoint = EntryPointAccessors.fromApplication(appContext, ProviderEntryPoint::class.java)
+        val entryPoint =
+            EntryPointAccessors.fromApplication(appContext, ProviderEntryPoint::class.java)
         val filename = path.substringAfter("$PLAYLIST_ICONS_URI_PATH/")
         return File(entryPoint.iconDir(), filename)
     }

@@ -74,8 +74,8 @@ internal class PlaylistsViewModel @Inject constructor(
 
     private val userPlaylists: Flow<List<PlaylistUiState>>
         get() = browser.getChildren(MediaId.ALL_PLAYLISTS).map { playlists ->
-                playlists.filterIsInstance<MediaCategory>().map { it.toUiPlaylist() }
-            }
+            playlists.filterIsInstance<MediaCategory>().map { it.toUiPlaylist() }
+        }
 
     private suspend fun loadBuiltIn(category: String): PlaylistUiState {
         val itemId = MediaId(MediaId.TYPE_TRACKS, category)

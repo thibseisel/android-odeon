@@ -27,7 +27,16 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
 import fr.nihilus.music.media.AudioTrack
-import fr.nihilus.music.service.extensions.*
+import fr.nihilus.music.service.extensions.album
+import fr.nihilus.music.service.extensions.albumArt
+import fr.nihilus.music.service.extensions.artist
+import fr.nihilus.music.service.extensions.displayDescription
+import fr.nihilus.music.service.extensions.displayIconUri
+import fr.nihilus.music.service.extensions.displaySubtitle
+import fr.nihilus.music.service.extensions.displayTitle
+import fr.nihilus.music.service.extensions.duration
+import fr.nihilus.music.service.extensions.id
+import fr.nihilus.music.service.extensions.title
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.channels.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull

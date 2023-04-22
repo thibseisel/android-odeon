@@ -26,7 +26,7 @@ import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
-import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.media.tracks.Tracks.Algorithm
 import fr.nihilus.music.media.tracks.Tracks.DirtyWater
 import fr.nihilus.music.media.tracks.Tracks.IsolatedSystem
@@ -40,7 +40,11 @@ import io.kotest.matchers.file.shouldContainFile
 import io.kotest.matchers.file.shouldNotBeEmpty
 import io.kotest.matchers.file.shouldNotExist
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.coVerifyAll
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -280,7 +284,7 @@ internal class PlaylistRepositoryTest {
     fun `addTracksToPlaylist - throws IAE when no playlist matches id`() = test {
         every { mockPlaylists.playlists } returns infiniteFlowOf(emptyList())
         every { mockTracks.tracks } returns infiniteFlowOf(
-        listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
+            listOf(Algorithm, DirtyWater, KnightsOfCydonia, Nightmare)
         )
 
         shouldThrow<IllegalArgumentException> {

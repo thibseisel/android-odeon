@@ -78,14 +78,17 @@ internal class TrackListAdapter(
                             addToPlaylist(track)
                             true
                         }
+
                         R.id.action_exclude -> {
                             exclude(track)
                             true
                         }
+
                         R.id.action_delete -> {
                             delete(track)
                             true
                         }
+
                         else -> false
                     }
                 }

@@ -32,7 +32,8 @@ import com.bumptech.glide.request.transition.Transition
  * @constructor
  * @param switcher The ImageSwitcher View into which images should be displayed.
  */
-class SwitcherTarget(switcher: ImageSwitcher) : CustomViewTarget<ImageSwitcher, Drawable>(switcher) {
+class SwitcherTarget(switcher: ImageSwitcher) :
+    CustomViewTarget<ImageSwitcher, Drawable>(switcher) {
     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
         view.setImageDrawable(resource)
     }

@@ -26,7 +26,9 @@ import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.uiStateIn
 import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.media.browser.BrowserTree
-import fr.nihilus.music.media.tracks.DeleteTracksResult.*
+import fr.nihilus.music.media.tracks.DeleteTracksResult.Deleted
+import fr.nihilus.music.media.tracks.DeleteTracksResult.RequiresPermission
+import fr.nihilus.music.media.tracks.DeleteTracksResult.RequiresUserConsent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,14 +56,14 @@ internal class TracksViewModel @Inject constructor(
     private val tracks: Flow<List<TrackUiState>>
         get() = browser.getChildren(MediaId.ALL_TRACKS).map { tracks ->
             tracks.filterIsInstance<AudioTrack>().map {
-                    TrackUiState(
-                        id = it.id,
-                        title = it.title,
-                        artist = it.artist,
-                        duration = it.duration.milliseconds,
-                        artworkUri = it.iconUri,
-                    )
-                }
+                TrackUiState(
+                    id = it.id,
+                    title = it.title,
+                    artist = it.artist,
+                    duration = it.duration.milliseconds,
+                    artworkUri = it.iconUri,
+                )
+            }
         }
 
     /**

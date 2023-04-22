@@ -45,7 +45,14 @@ internal object InMemorySpotifyService : SpotifyService {
             id = "7jy3rLJdDQY21OgRLCZ9sD",
             name = "Foo Fighters",
             popularity = 79,
-            genres = listOf("alternative metal", "alternative rock", "modern rock", "permanent wave", "post-grunge", "rock"),
+            genres = listOf(
+                "alternative metal",
+                "alternative rock",
+                "modern rock",
+                "permanent wave",
+                "post-grunge",
+                "rock"
+            ),
             images = emptyList()
         ),
         SpotifyArtist(
@@ -101,23 +108,154 @@ internal object InMemorySpotifyService : SpotifyService {
         SpotifyTrack("1D2ISRyHAs9QBHIWVQIbgM", "Something Human (Acoustic)", 1, 15, 226333, false),
         SpotifyTrack("5lnsL7pCg0fQKcWnlkD1F0", "Dirty Water", 1, 6, 320880, false),
         SpotifyTrack("7x8dCjCr0x6x2lXKujYD34", "The Pretender", 1, 1, 269373, false),
-        SpotifyTrack("5Ppa3ayepketqhfXf9yO39", "ChuChu Lovely MuniMuni MuraMura PrinPrin Boron Nururu ReroRero", 1, 11, 186293, false),
-        SpotifyTrack("1px2pUjdQreXBDQ5rqYj7U", "Kuso breakin' Nou breakin' Lily", 1, 3, 255973, false)
+        SpotifyTrack(
+            "5Ppa3ayepketqhfXf9yO39",
+            "ChuChu Lovely MuniMuni MuraMura PrinPrin Boron Nururu ReroRero",
+            1,
+            11,
+            186293,
+            false
+        ),
+        SpotifyTrack(
+            "1px2pUjdQreXBDQ5rqYj7U",
+            "Kuso breakin' Nou breakin' Lily",
+            1,
+            3,
+            255973,
+            false
+        )
     ).associateBy(SpotifyTrack::id)
 
     private val features: Map<String, AudioFeature> = arrayOf(
-        AudioFeature("7f0vVL3xi4i78Rv5Ptn2s1", 2, 1, 170.057f, 4, -4.56f, 0.0125f, 0.522f, 0.923f, 0.017f, 0.0854f, 0.0539f, 0.595f),
-        AudioFeature("0dMYPDqcI4ca4cjqlmp9mE", 2, 1, 99.979f, 4, -3.759f, 0.000884f, 0.484f, 0.927f, 0.00000396f, 0.223f, 0.0425f, 0.389f),
-        AudioFeature("1esX5rtwwssnsEQNQk0HGg", 9, 1, 105.018f, 4, -4.841f, 0.0536f, 0.59f, 0.903f, 0.00289f, 0.12f, 0.0542f,0.545f),
-        AudioFeature("1D2ISRyHAs9QBHIWVQIbgM", 9, 1, 105.023f, 4, -5.284f, 0.425f, 0.609f, 0.832f, 0.000044f, 0.17f, 0.039f, 0.654f),
-        AudioFeature("5lnsL7pCg0fQKcWnlkD1F0", 7, 1, 142.684f, 4, -8.245f, 0.00365f, 0.324f, 0.631f, 0.0459f, 0.221f, 0.0407f, 0.346f),
-        AudioFeature("7x8dCjCr0x6x2lXKujYD34", 9, 1, 172.984f, 4, -4.04f, 0.000917f, 0.433f, 0.959f, 0f, 0.028f, 0.0431f, 0.365f),
-        AudioFeature("5Ppa3ayepketqhfXf9yO39", 8, 1, 128.903f, 4, -1.343f, 0.000488f, 0.518f, 0.961f, 0.00000563f, 0.34f, 0.000488f, 0.928f),
-        AudioFeature("1px2pUjdQreXBDQ5rqYj7U", 1, 1, 163.654f, 4, -1.803f, 0.00656f, 0.322f, 0.936f, 0f, 0.183f, 0.184f, 0.663f)
+        AudioFeature(
+            "7f0vVL3xi4i78Rv5Ptn2s1",
+            2,
+            1,
+            170.057f,
+            4,
+            -4.56f,
+            0.0125f,
+            0.522f,
+            0.923f,
+            0.017f,
+            0.0854f,
+            0.0539f,
+            0.595f
+        ),
+        AudioFeature(
+            "0dMYPDqcI4ca4cjqlmp9mE",
+            2,
+            1,
+            99.979f,
+            4,
+            -3.759f,
+            0.000884f,
+            0.484f,
+            0.927f,
+            0.00000396f,
+            0.223f,
+            0.0425f,
+            0.389f
+        ),
+        AudioFeature(
+            "1esX5rtwwssnsEQNQk0HGg",
+            9,
+            1,
+            105.018f,
+            4,
+            -4.841f,
+            0.0536f,
+            0.59f,
+            0.903f,
+            0.00289f,
+            0.12f,
+            0.0542f,
+            0.545f
+        ),
+        AudioFeature(
+            "1D2ISRyHAs9QBHIWVQIbgM",
+            9,
+            1,
+            105.023f,
+            4,
+            -5.284f,
+            0.425f,
+            0.609f,
+            0.832f,
+            0.000044f,
+            0.17f,
+            0.039f,
+            0.654f
+        ),
+        AudioFeature(
+            "5lnsL7pCg0fQKcWnlkD1F0",
+            7,
+            1,
+            142.684f,
+            4,
+            -8.245f,
+            0.00365f,
+            0.324f,
+            0.631f,
+            0.0459f,
+            0.221f,
+            0.0407f,
+            0.346f
+        ),
+        AudioFeature(
+            "7x8dCjCr0x6x2lXKujYD34",
+            9,
+            1,
+            172.984f,
+            4,
+            -4.04f,
+            0.000917f,
+            0.433f,
+            0.959f,
+            0f,
+            0.028f,
+            0.0431f,
+            0.365f
+        ),
+        AudioFeature(
+            "5Ppa3ayepketqhfXf9yO39",
+            8,
+            1,
+            128.903f,
+            4,
+            -1.343f,
+            0.000488f,
+            0.518f,
+            0.961f,
+            0.00000563f,
+            0.34f,
+            0.000488f,
+            0.928f
+        ),
+        AudioFeature(
+            "1px2pUjdQreXBDQ5rqYj7U",
+            1,
+            1,
+            163.654f,
+            4,
+            -1.803f,
+            0.00656f,
+            0.322f,
+            0.936f,
+            0f,
+            0.183f,
+            0.184f,
+            0.663f
+        )
     ).associateBy(AudioFeature::id)
 
     private val albumTracks = mapOf(
-        "5OZgDtx180ZZPMpm36J2zC" to listOf("7f0vVL3xi4i78Rv5Ptn2s1", "0dMYPDqcI4ca4cjqlmp9mE", "1esX5rtwwssnsEQNQk0HGg", "1D2ISRyHAs9QBHIWVQIbgM"),
+        "5OZgDtx180ZZPMpm36J2zC" to listOf(
+            "7f0vVL3xi4i78Rv5Ptn2s1",
+            "0dMYPDqcI4ca4cjqlmp9mE",
+            "1esX5rtwwssnsEQNQk0HGg",
+            "1D2ISRyHAs9QBHIWVQIbgM"
+        ),
         "6KMkuqIwKkwUhUYRPL6dUc" to listOf("5lnsL7pCg0fQKcWnlkD1F0"),
         "43KD7ooLIEkXriTaZA4drI" to listOf("5Ppa3ayepketqhfXf9yO39", "1px2pUjdQreXBDQ5rqYj7U"),
         "3ilXDEG0xiajK8AbqboeJz" to listOf("7x8dCjCr0x6x2lXKujYD34")

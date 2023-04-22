@@ -21,6 +21,7 @@ import android.content.ContentResolver
 import android.content.pm.ProviderInfo
 import android.test.mock.MockContentResolver
 import androidx.test.platform.app.InstrumentationRegistry
+import fr.nihilus.music.core.instrumentation.provider.ProviderTestRule.Companion.create
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement

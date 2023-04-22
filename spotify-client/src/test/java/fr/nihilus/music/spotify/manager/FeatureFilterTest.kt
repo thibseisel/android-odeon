@@ -81,12 +81,14 @@ class FeatureFilterTest {
         val dMinorFilter = FeatureFilter.OnTone(Pitch.D, MusicalMode.MINOR)
 
         runBlocking {
-            val dMinorTrackGen = randomFeatures.filter { it.key == Pitch.D && it.mode == MusicalMode.MINOR }
+            val dMinorTrackGen =
+                randomFeatures.filter { it.key == Pitch.D && it.mode == MusicalMode.MINOR }
             forAll(dMinorTrackGen) {
                 dMinorFilter.matches(it)
             }
 
-            val otherTonesTrackGen = randomFeatures.filterNot { it.key == Pitch.D && it.mode == MusicalMode.MINOR }
+            val otherTonesTrackGen =
+                randomFeatures.filterNot { it.key == Pitch.D && it.mode == MusicalMode.MINOR }
             forNone(otherTonesTrackGen) {
                 dMinorFilter.matches(it)
             }
@@ -112,7 +114,8 @@ class FeatureFilterTest {
     }
 }
 
-private const val SPOTIFY_ID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+private const val SPOTIFY_ID_CHARS =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 private fun randomSpotifyId(rand: Random) = buildString(22) {
     repeat(22) {

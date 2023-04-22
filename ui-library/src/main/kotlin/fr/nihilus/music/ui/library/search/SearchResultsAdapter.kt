@@ -91,12 +91,14 @@ internal class SearchResultsAdapter(
                     onPlay(track)
                 }
             )
+
             R.id.view_type_album -> AlbumHolder(
                 parent,
                 albumLoader,
                 defaultPalette,
                 onSelect = onSelectBrowsable,
             )
+
             R.id.view_type_artist -> ArtistHolder(parent, glide, onSelectBrowsable)
             R.id.view_type_playlist -> PlaylistHolder(parent, glide, onSelectBrowsable)
             else -> error("Unexpected viewType: $viewType")

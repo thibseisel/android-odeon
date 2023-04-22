@@ -52,14 +52,18 @@ class DatabaseMigrationTest {
     fun migration2To3() {
         var db = helper.createDatabase(TEST_DB, 2)
 
-        db.execSQL("""
+        db.execSQL(
+            """
             INSERT INTO playlist (id, title, date_created, date_last_played, art_uri) 
             VALUES (42, 'Summertime', 1556447033, NULL, 'path/to/icon.png')
-        """)
-        db.execSQL("""
+        """
+        )
+        db.execSQL(
+            """
             INSERT INTO usage_event (event_uid, track_id, event_time) 
             VALUES (12, '123', 1556447033)
-        """)
+        """
+        )
 
         db.close()
         db = helper.runMigrationsAndValidate(TEST_DB, 3, false, DatabaseMigration.MIGRATION_2_3)
@@ -95,15 +99,19 @@ class DatabaseMigrationTest {
     fun migration4To5() {
         var db = helper.createDatabase(TEST_DB, 4)
 
-        db.execSQL("""
+        db.execSQL(
+            """
             INSERT INTO playlist (id, title, date_created, icon_uri) 
             VALUES (42, 'Zen', 1585742400, 'content://fr.nihilus.music.provider/icons/zen.png')
-        """)
+        """
+        )
 
-        db.execSQL("""
+        db.execSQL(
+            """
             INSERT INTO playlist_track (playlist_id, music_id, position)
             VALUES (42, 16, 1), (31, 16, 1), (42, 19, 2), (89, 19, 7)
-        """)
+        """
+        )
 
         db.close()
         db = helper.runMigrationsAndValidate(TEST_DB, 5, false, DatabaseMigration.MIGRATION_4_5)

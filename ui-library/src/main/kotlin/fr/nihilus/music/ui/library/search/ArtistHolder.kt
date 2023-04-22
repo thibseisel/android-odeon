@@ -22,7 +22,6 @@ import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.ArtistGridItemBinding
-import fr.nihilus.music.ui.library.search.SearchResult
 
 /**
  * Display an artist as a floating 16:9 card.

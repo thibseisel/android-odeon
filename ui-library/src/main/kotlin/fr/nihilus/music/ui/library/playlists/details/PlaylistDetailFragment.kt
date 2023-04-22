@@ -114,6 +114,7 @@ internal class PlaylistDetailFragment : BaseFragment(R.layout.fragment_playlist_
             )
             true
         }
+
         else -> false
     }
 }

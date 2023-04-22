@@ -27,7 +27,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.lifecycle.ApplicationLifecycle
-import fr.nihilus.music.core.os.*
+import fr.nihilus.music.core.os.AndroidFileSystem
+import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.core.os.DeviceClock
+import fr.nihilus.music.core.os.FileSystem
 import javax.inject.Singleton
 
 @Module

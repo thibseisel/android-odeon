@@ -30,7 +30,7 @@ import fr.nihilus.music.media.tracks.Tracks.DirtyWater
 import fr.nihilus.music.media.tracks.Tracks.IsolatedSystem
 import fr.nihilus.music.media.tracks.Tracks.Run
 import fr.nihilus.music.media.tracks.Tracks.ThePretenders
-import fr.nihilus.music.media.tracks.local.*
+import fr.nihilus.music.media.tracks.local.TrackLocalSource
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -40,7 +40,11 @@ import io.mockk.coVerifySequence
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -230,7 +234,13 @@ internal class TrackRepositoryTest {
     @Test
     fun `getAlbumTracks - returns all tracks part of an album sorted by number`() = runTest {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(Local.IsolatedSystem, Local.Algorithm, Local.DirtyWater, Local.ThePretenders, Local.Run)
+            listOf(
+                Local.IsolatedSystem,
+                Local.Algorithm,
+                Local.DirtyWater,
+                Local.ThePretenders,
+                Local.Run
+            )
         )
         every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
 
@@ -242,7 +252,13 @@ internal class TrackRepositoryTest {
     @Test
     fun `getAlbumTracks - returns empty list for unknown album`() = runTest {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(Local.IsolatedSystem, Local.Algorithm, Local.DirtyWater, Local.ThePretenders, Local.Run)
+            listOf(
+                Local.IsolatedSystem,
+                Local.Algorithm,
+                Local.DirtyWater,
+                Local.ThePretenders,
+                Local.Run
+            )
         )
         every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
 
@@ -254,7 +270,13 @@ internal class TrackRepositoryTest {
     fun `getArtistTracks - returns all tracks produced by an artist sorted alphabetically`() =
         runTest {
             every { mockTracks.tracks } returns infiniteFlowOf(
-                listOf(Local.IsolatedSystem, Local.Algorithm, Local.DirtyWater, Local.ThePretenders, Local.Run)
+                listOf(
+                    Local.IsolatedSystem,
+                    Local.Algorithm,
+                    Local.DirtyWater,
+                    Local.ThePretenders,
+                    Local.Run
+                )
             )
             every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
 
@@ -266,7 +288,13 @@ internal class TrackRepositoryTest {
     @Test
     fun `getArtistTracks - returns empty list for unknown artist`() = runTest {
         every { mockTracks.tracks } returns infiniteFlowOf(
-            listOf(Local.IsolatedSystem, Local.Algorithm, Local.DirtyWater, Local.ThePretenders, Local.Run)
+            listOf(
+                Local.IsolatedSystem,
+                Local.Algorithm,
+                Local.DirtyWater,
+                Local.ThePretenders,
+                Local.Run
+            )
         )
         every { mockExclusions.trackExclusions } returns infiniteFlowOf(emptyList())
 

@@ -34,7 +34,6 @@ import timber.log.Timber
 import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import kotlin.collections.LinkedHashMap
 
 private const val ANDROID_PLATFORM = "android"
 private val WHITESPACE_REGEX = "\\s|\\n".toRegex()

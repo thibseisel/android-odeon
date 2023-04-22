@@ -18,12 +18,26 @@ package fr.nihilus.music.service.metadata
 
 import android.support.v4.media.MediaMetadataCompat
 import fr.nihilus.music.media.AudioTrack
-import fr.nihilus.music.service.extensions.*
-import kotlinx.coroutines.*
+import fr.nihilus.music.service.extensions.album
+import fr.nihilus.music.service.extensions.albumArt
+import fr.nihilus.music.service.extensions.artist
+import fr.nihilus.music.service.extensions.displayDescription
+import fr.nihilus.music.service.extensions.displayIcon
+import fr.nihilus.music.service.extensions.displayIconUri
+import fr.nihilus.music.service.extensions.displaySubtitle
+import fr.nihilus.music.service.extensions.displayTitle
+import fr.nihilus.music.service.extensions.duration
+import fr.nihilus.music.service.extensions.id
+import fr.nihilus.music.service.extensions.title
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 
 /**
  * The maximum width/height for the icon of the currently playing metadata.

@@ -17,7 +17,9 @@
 package fr.nihilus.music.media.artists
 
 import android.content.ContentResolver
-import android.provider.MediaStore.Audio.*
+import android.provider.MediaStore.Audio.Albums
+import android.provider.MediaStore.Audio.Artists
+import android.provider.MediaStore.Audio.Media
 import android.util.LongSparseArray
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.permissions.PermissionRepository

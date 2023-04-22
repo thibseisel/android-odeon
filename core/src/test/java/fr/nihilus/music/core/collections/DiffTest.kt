@@ -46,7 +46,11 @@ class DiffTest {
     fun givenAddedElements_whenDiffingLists_thenListAddedItems() {
         assertThatElementsHaveBeenAdded(emptyList(), listOf("Foo"), listOf("Foo"))
         assertThatElementsHaveBeenAdded(listOf("Hello"), listOf("Hello", "World"), listOf("World"))
-        assertThatElementsHaveBeenAdded(listOf("Bar"), listOf("Foo", "Bar", "Baz"), listOf("Foo", "Baz"))
+        assertThatElementsHaveBeenAdded(
+            listOf("Bar"),
+            listOf("Foo", "Bar", "Baz"),
+            listOf("Foo", "Baz")
+        )
     }
 
     private fun <T : Any> assertThatElementsHaveBeenAdded(
@@ -61,8 +65,16 @@ class DiffTest {
     @Test
     fun givenRemovedElements_whenDiffingLists_thenListRemovedElements() {
         assertThatElementsHaveBeenRemoved(listOf("Hello"), emptyList(), listOf("Hello"))
-        assertThatElementsHaveBeenRemoved(listOf("Foo", "Bar", "Baz"), listOf("Bar"), listOf("Foo", "Baz"))
-        assertThatElementsHaveBeenRemoved(listOf("Hello", "World"), emptyList(), listOf("Hello", "World"))
+        assertThatElementsHaveBeenRemoved(
+            listOf("Foo", "Bar", "Baz"),
+            listOf("Bar"),
+            listOf("Foo", "Baz")
+        )
+        assertThatElementsHaveBeenRemoved(
+            listOf("Hello", "World"),
+            emptyList(),
+            listOf("Hello", "World")
+        )
     }
 
     private fun <T : Any> assertThatElementsHaveBeenRemoved(

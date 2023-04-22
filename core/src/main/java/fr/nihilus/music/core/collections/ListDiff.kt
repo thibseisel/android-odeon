@@ -29,7 +29,15 @@ fun <E : Any> diffList(
     modified: List<E>,
     equalizer: (a: E, b: E) -> Boolean = { a, b -> a == b }
 ): ListDiff<E> {
-    val additions = modified.filter { potentiallyAdded -> original.none { equalizer(it, potentiallyAdded) } }
-    val removals = original.filter { potentiallyRemoved -> modified.none { equalizer(it, potentiallyRemoved) } }
+    val additions =
+        modified.filter { potentiallyAdded -> original.none { equalizer(it, potentiallyAdded) } }
+    val removals = original.filter { potentiallyRemoved ->
+        modified.none {
+            equalizer(
+                it,
+                potentiallyRemoved
+            )
+        }
+    }
     return ListDiff(additions, removals)
 }

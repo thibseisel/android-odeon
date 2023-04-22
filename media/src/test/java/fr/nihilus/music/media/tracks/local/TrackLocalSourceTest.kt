@@ -33,7 +33,7 @@ import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
 import fr.nihilus.music.media.provider.ContentResolverTestRule
 import fr.nihilus.music.media.provider.FakeAudioMediaProvider
 import fr.nihilus.music.media.provider.withAppendedId
-import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.tracks.Tracks.Cartagena
 import fr.nihilus.music.media.tracks.Tracks.IsolatedSystem
 import io.kotest.assertions.extracting
@@ -44,9 +44,14 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
+import io.mockk.slot
+import io.mockk.verify
+import io.mockk.verifyAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first

@@ -131,6 +131,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
+
                     is DeleteTracksResult.RequiresUserConsent -> {
                         deleteMediaPopup.launch(
                             IntentSenderRequest.Builder(state.result.intent).build()

@@ -24,7 +24,8 @@ import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.ui.settings.R
 import fr.nihilus.music.ui.settings.databinding.ItemExcludedTrackBinding
 
-internal class ExclusionAdapter : ListAdapter<ExcludedTrackUiState, ExclusionAdapter.TrackHolder>(TrackDiffer()) {
+internal class ExclusionAdapter :
+    ListAdapter<ExcludedTrackUiState, ExclusionAdapter.TrackHolder>(TrackDiffer()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = TrackHolder(parent)
 

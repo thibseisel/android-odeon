@@ -24,7 +24,7 @@ import fr.nihilus.music.media.albums.Albums.WastingLight
 import fr.nihilus.music.media.artists.Artists.Alestorm
 import fr.nihilus.music.media.artists.Artists.FooFighters
 import fr.nihilus.music.media.artists.Artists.Muse
-import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.media.tracks.Tracks.Algorithm
 import fr.nihilus.music.media.tracks.Tracks.DirtyWater
 import fr.nihilus.music.media.tracks.Tracks.MatterOfTime

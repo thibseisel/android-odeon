@@ -20,7 +20,7 @@ import app.cash.turbine.test
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.media.artists.Artists.Alestorm
 import fr.nihilus.music.media.artists.Artists.FooFighters
-import fr.nihilus.music.media.tracks.*
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.media.tracks.Tracks.Cartagena
 import fr.nihilus.music.media.tracks.Tracks.DirtyWater
 import fr.nihilus.music.media.tracks.Tracks.MatterOfTime

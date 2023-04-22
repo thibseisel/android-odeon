@@ -24,6 +24,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import fr.nihilus.music.core.ui.view.DividerItemDecoration.Companion.HORIZONTAL
+import fr.nihilus.music.core.ui.view.DividerItemDecoration.Companion.VERTICAL
 import kotlin.math.roundToInt
 
 /**

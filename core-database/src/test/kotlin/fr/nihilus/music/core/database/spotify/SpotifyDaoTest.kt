@@ -82,9 +82,51 @@ internal class SpotifyDaoTest {
             SpotifyLink(15L, "VRaf40qgz9wNAhgKMJHe5e", 0L)
         )
         val initialFeatures = listOf(
-            TrackFeature("nZfFwhP7yRfm0oCXzsyGg6", Pitch.D, MusicalMode.MINOR, 174f, 4, -2.72f, 0.02f, 13.1f, 89.4f, 0.0f, 18.4f, 6.36f, 44.4f),
-            TrackFeature("xtDu6k3xNPsb9AyA7PDxb6", Pitch.C, MusicalMode.MINOR, 132f, 4, -10.90f, 67.8f, 47.1f, 50.9f, 93.6f, 17.5f, 3.67f, 5.95f),
-            TrackFeature("VRaf40qgz9wNAhgKMJHe5e", Pitch.F, MusicalMode.MAJOR, 171f, 4, -6.39f, 0.33f, 49.2f, 95.3f, 0.2f, 13.8f, 21.7f, 63.1f)
+            TrackFeature(
+                "nZfFwhP7yRfm0oCXzsyGg6",
+                Pitch.D,
+                MusicalMode.MINOR,
+                174f,
+                4,
+                -2.72f,
+                0.02f,
+                13.1f,
+                89.4f,
+                0.0f,
+                18.4f,
+                6.36f,
+                44.4f
+            ),
+            TrackFeature(
+                "xtDu6k3xNPsb9AyA7PDxb6",
+                Pitch.C,
+                MusicalMode.MINOR,
+                132f,
+                4,
+                -10.90f,
+                67.8f,
+                47.1f,
+                50.9f,
+                93.6f,
+                17.5f,
+                3.67f,
+                5.95f
+            ),
+            TrackFeature(
+                "VRaf40qgz9wNAhgKMJHe5e",
+                Pitch.F,
+                MusicalMode.MAJOR,
+                171f,
+                4,
+                -6.39f,
+                0.33f,
+                49.2f,
+                95.3f,
+                0.2f,
+                13.8f,
+                21.7f,
+                63.1f
+            )
         )
 
         initialLinks.zip(initialFeatures) { link, feature ->

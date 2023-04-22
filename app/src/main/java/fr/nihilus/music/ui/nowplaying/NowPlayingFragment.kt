@@ -38,7 +38,8 @@ import fr.nihilus.music.core.ui.R as CoreUiR
 private const val LEVEL_CHEVRON_UP = 0
 private const val LEVEL_CHEVRON_DOWN = 1
 
-private const val KEY_IS_COLLAPSED = "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
+private const val KEY_IS_COLLAPSED =
+    "fr.nihilus.music.library.nowplaying.NowPlayingFragment.IS_COLLAPSED"
 
 @AndroidEntryPoint
 class NowPlayingFragment : BaseFragment(R.layout.fragment_now_playing) {
@@ -73,8 +74,12 @@ class NowPlayingFragment : BaseFragment(R.layout.fragment_now_playing) {
 
         val context = requireContext()
         albumArtTarget = SwitcherTarget(binding.albumArtSwitcher)
-        autoUpdater = ProgressAutoUpdater(binding.seekBar, binding.seekPosition, binding.seekDuration) {
-            position -> viewModel.seekTo(position)
+        autoUpdater = ProgressAutoUpdater(
+            binding.seekBar,
+            binding.seekPosition,
+            binding.seekDuration
+        ) { position ->
+            viewModel.seekTo(position)
         }
 
         // Change color when shuffle mode and repeat mode buttons are activated
@@ -182,7 +187,12 @@ class NowPlayingFragment : BaseFragment(R.layout.fragment_now_playing) {
             topBinding.trackArtist.text = media.artist
 
             // Update progress and labels
-            autoUpdater.update(state.position, media.duration, state.lastPositionUpdateTime, state.isPlaying)
+            autoUpdater.update(
+                state.position,
+                media.duration,
+                state.lastPositionUpdateTime,
+                state.isPlaying
+            )
 
             // Update artwork.
             glideRequest.load(media.artworkUri).into(albumArtTarget)
@@ -199,7 +209,8 @@ class NowPlayingFragment : BaseFragment(R.layout.fragment_now_playing) {
         val binding = binding ?: return
         val topBinding = topBinding ?: return
 
-        topBinding.playPauseButton.isEnabled = PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
+        topBinding.playPauseButton.isEnabled =
+            PlayerState.Action.TOGGLE_PLAY_PAUSE in availableActions
 
         topBinding.miniPrevButton?.isEnabled = PlayerState.Action.SKIP_BACKWARD in availableActions
         topBinding.miniNextButton?.isEnabled = PlayerState.Action.SKIP_FORWARD in availableActions

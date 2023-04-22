@@ -25,7 +25,9 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import com.google.android.exoplayer2.util.Util
 import dagger.hilt.android.scopes.ServiceScoped
@@ -232,10 +234,12 @@ internal class MediaSessionConnector @Inject constructor(
             playWhenReady -> PlaybackStateCompat.STATE_BUFFERING
             else -> PlaybackStateCompat.STATE_PAUSED
         }
+
         Player.STATE_READY -> when {
             playWhenReady -> PlaybackStateCompat.STATE_PLAYING
             else -> PlaybackStateCompat.STATE_PAUSED
         }
+
         Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
         else -> PlaybackStateCompat.STATE_NONE
     }
@@ -376,6 +380,7 @@ internal class MediaSessionConnector @Inject constructor(
                 val newMode = when (repeatMode) {
                     PlaybackStateCompat.REPEAT_MODE_ALL,
                     PlaybackStateCompat.REPEAT_MODE_GROUP -> Player.REPEAT_MODE_ALL
+
                     PlaybackStateCompat.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
                     else -> Player.REPEAT_MODE_OFF
                 }

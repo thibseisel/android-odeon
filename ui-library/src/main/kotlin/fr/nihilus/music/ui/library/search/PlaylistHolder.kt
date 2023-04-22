@@ -22,7 +22,6 @@ import com.bumptech.glide.RequestBuilder
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.PlaylistItemBinding
-import fr.nihilus.music.ui.library.search.SearchResult
 
 /**
  * Display a playlist as a floating list item.

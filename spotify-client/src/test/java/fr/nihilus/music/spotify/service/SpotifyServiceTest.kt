@@ -17,7 +17,11 @@
 package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Moshi
-import fr.nihilus.music.spotify.model.*
+import fr.nihilus.music.spotify.model.AudioFeature
+import fr.nihilus.music.spotify.model.Image
+import fr.nihilus.music.spotify.model.SpotifyAlbum
+import fr.nihilus.music.spotify.model.SpotifyArtist
+import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -41,7 +45,12 @@ import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.fullPath
+import io.ktor.http.headersOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified

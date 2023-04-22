@@ -24,12 +24,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.ui.base.BaseHolder
 import fr.nihilus.music.core.ui.glide.GlideApp
 import fr.nihilus.music.core.ui.glide.GlideRequest
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
+import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.AlbumGridItemBinding
 import fr.nihilus.music.ui.library.extensions.resolveDefaultAlbumPalette
 
