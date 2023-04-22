@@ -151,15 +151,12 @@ internal class TrackLocalSource @Inject constructor(
 
             resolver.query(
                 Media.EXTERNAL_CONTENT_URI,
-                @Suppress("DEPRECATION")
                 arrayOf(Media._ID, Media.DATA),
                 whereClause,
                 whereArgs,
                 Media._ID
             )?.use { cursor ->
                 val colId = cursor.getColumnIndexOrThrow(Media._ID)
-
-                @Suppress("DEPRECATION")
                 val colFilepath = cursor.getColumnIndexOrThrow(Media.DATA)
 
                 val deletedTrackIds = mutableListOf<Long>()
