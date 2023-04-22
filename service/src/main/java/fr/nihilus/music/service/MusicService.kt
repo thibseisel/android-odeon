@@ -452,14 +452,14 @@ class MusicService : BaseBrowserService() {
         }
 
         private fun onTrackCompletion(player: Player) {
-            val completedTrackIndex = player.previousWindowIndex
+            val completedTrackIndex = player.currentMediaItemIndex
             if (completedTrackIndex == C.INDEX_UNSET) {
                 Timber.w("Attempt to retrieve information of a track that completed playback, but previous index is unset.")
                 return
             }
 
             val completedMediaItem = player.getMediaItemAt(completedTrackIndex)
-            val completedMedia = completedMediaItem.playbackProperties?.tag as AudioTrack
+            val completedMedia = completedMediaItem.localConfiguration?.tag as AudioTrack
             val completedTrackId = checkNotNull(completedMedia.id.track) {
                 "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
             }

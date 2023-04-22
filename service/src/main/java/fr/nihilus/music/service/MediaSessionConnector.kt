@@ -99,7 +99,7 @@ internal class MediaSessionConnector @Inject constructor(
     }
 
     private fun invalidateMediaSessionMetadata() {
-        val nowPlayingTrack = player.currentMediaItem?.playbackProperties?.tag as? AudioTrack
+        val nowPlayingTrack = player.currentMediaItem?.localConfiguration?.tag as? AudioTrack
         if (nowPlayingTrack != null) {
             metadataProducer.trySend(nowPlayingTrack)
         }
@@ -161,16 +161,9 @@ internal class MediaSessionConnector @Inject constructor(
         PREPARER_ACTIONS and playbackPreparer.getSupportedPrepareActions()
 
     private fun buildPlaybackActions(player: Player): Long {
-        var enableSeeking = false
-        var enableRewind = false
-        var enableFastForward = false
-
-        val timeline = player.currentTimeline
-        if (!timeline.isEmpty && !player.isPlayingAd) {
-            enableSeeking = player.isCurrentWindowSeekable
-            enableRewind = enableSeeking
-            enableFastForward = enableSeeking
-        }
+        val enableSeeking = player.isCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+        val enableRewind = player.isCommandAvailable(Player.COMMAND_SEEK_BACK)
+        val enableFastForward = player.isCommandAvailable(Player.COMMAND_SEEK_FORWARD)
 
         var playbackActions = BASE_PLAYBACK_ACTIONS
         if (enableSeeking) {
@@ -200,13 +193,13 @@ internal class MediaSessionConnector @Inject constructor(
         queueNavigator.getSupportedQueueNavigatorActions(player) and action != 0L
 
     private fun rewind(player: Player) {
-        if (player.isCurrentWindowSeekable) {
+        if (player.isCurrentMediaItemSeekable) {
             seekToOffset(player, -REWIND_MS)
         }
     }
 
     private fun fastForward(player: Player) {
-        if (player.isCurrentWindowSeekable) {
+        if (player.isCurrentMediaItemSeekable) {
             seekToOffset(player, FAST_FORWARD_MS)
         }
     }
@@ -219,11 +212,11 @@ internal class MediaSessionConnector @Inject constructor(
         }
 
         positionMs = positionMs.coerceAtLeast(0)
-        seekTo(player, player.currentWindowIndex, positionMs)
+        seekTo(player, player.currentMediaItemIndex, positionMs)
     }
 
-    private fun seekTo(player: Player, windowIndex: Int, positionMs: Long) {
-        player.seekTo(windowIndex, positionMs)
+    private fun seekTo(player: Player, itemIndex: Int, positionMs: Long) {
+        player.seekTo(itemIndex, positionMs)
     }
 
     private fun getMediaSessionPlaybackState(
@@ -268,7 +261,7 @@ internal class MediaSessionConnector @Inject constructor(
     interface QueueNavigator {
         fun getSupportedQueueNavigatorActions(player: Player): Long
         fun onTimelineChanged(player: Player)
-        fun onCurrentWindowIndexChanged(player: Player)
+        fun onCurrentMediaItemIndexChanged(player: Player)
         fun getActiveQueueItemId(player: Player?): Long
         fun onSkipToPrevious(player: Player)
         fun onSkipToNext(player: Player)
@@ -283,8 +276,8 @@ internal class MediaSessionConnector @Inject constructor(
             var invalidateMetadata = false
 
             if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
-                if (currentWindowCount != player.currentWindowIndex) {
-                    queueNavigator.onCurrentWindowIndexChanged(player)
+                if (currentWindowCount != player.currentMediaItemIndex) {
+                    queueNavigator.onCurrentMediaItemIndexChanged(player)
                     invalidateMetadata = true
                 }
                 invalidatePlaybackState = true
@@ -329,7 +322,7 @@ internal class MediaSessionConnector @Inject constructor(
                 if (player.playbackState == Player.STATE_IDLE) {
                     playbackPreparer.onPrepare(true)
                 } else if (player.playbackState == Player.STATE_ENDED) {
-                    seekTo(player, player.currentWindowIndex, C.TIME_UNSET)
+                    seekTo(player, player.currentMediaItemIndex, C.TIME_UNSET)
                 }
 
                 player.playWhenReady = true
@@ -344,7 +337,7 @@ internal class MediaSessionConnector @Inject constructor(
 
         override fun onSeekTo(positionMs: Long) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-                seekTo(player, player.currentWindowIndex, positionMs)
+                seekTo(player, player.currentMediaItemIndex, positionMs)
             }
         }
 

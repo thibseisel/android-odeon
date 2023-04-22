@@ -19,8 +19,8 @@ package fr.nihilus.music.service.playback
 import android.app.Service
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.util.EventLogger
 import dagger.Module
 import dagger.Provides
@@ -40,10 +40,10 @@ internal object PlaybackModule {
             .setUsage(C.USAGE_MEDIA)
             .build()
 
-        val player = SimpleExoPlayer.Builder(
+        val player = ExoPlayer.Builder(
             context,
             AudioOnlyRenderersFactory(context),
-            AudioOnlyExtractorsFactory()
+            DefaultMediaSourceFactory(context, AudioOnlyExtractorsFactory())
         )
             .setAudioAttributes(musicAttributes, true)
             .setHandleAudioBecomingNoisy(true)
