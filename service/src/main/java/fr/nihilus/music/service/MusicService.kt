@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -403,6 +404,7 @@ class MusicService : BaseBrowserService() {
             this@MusicService.startSelf()
         }
 
+        @SuppressLint("MissingPermission")
         private fun onPlaybackPaused() {
             // Put the service back to the background, keeping the notification
             stopForeground(Service.STOP_FOREGROUND_DETACH)
