@@ -53,8 +53,8 @@ internal class MediaQueueManager @Inject constructor(
         if (!timeline.isEmpty && !player.isPlayingAd) {
             timeline.getWindow(player.currentWindowIndex, window)
             enableSkipTo = timeline.windowCount > 1
-            enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious()
-            enableNext = window.isDynamic || player.hasNext()
+            enablePrevious = window.isSeekable || !window.isDynamic || player.hasPreviousWindow()
+            enableNext = window.isDynamic || player.hasNextWindow()
         }
 
         var actions = 0L

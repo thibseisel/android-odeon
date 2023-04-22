@@ -26,7 +26,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
 import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import com.google.android.exoplayer2.util.Util
@@ -82,7 +82,7 @@ internal class MediaSessionConnector @Inject constructor(
     private val player: Player,
     private val playbackPreparer: PlaybackPreparer,
     private val queueNavigator: QueueNavigator,
-    private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>,
+    private val errorMessageProvider: ErrorMessageProvider<PlaybackException>,
     private val iconDownloader: IconDownloader
 ) {
     private val looper = Util.getCurrentOrMainLooper()
