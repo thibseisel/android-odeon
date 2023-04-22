@@ -57,6 +57,10 @@
         <item name="android:paddingBottom">@dimen/grid_1</item>
     </style>
 
-    <style name="Widget.Odeon.Grid" parent="Widget.Odeon.ScrollingView"/>
+    <style name="Widget.Odeon.Grid" parent="Widget.Odeon.ScrollingView" />
 
+    <!-- Custom TextView style to disable automatic text hyphenation (this improves measurement time). -->
+    <style name="Widget.Odeon.TextView" parent="android:Widget.TextView">
+        <item name="android:hyphenationFrequency">none</item>
+    </style>
 </resources>

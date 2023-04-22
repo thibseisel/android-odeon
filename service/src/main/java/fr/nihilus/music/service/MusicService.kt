@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service
 
+import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
@@ -404,7 +405,7 @@ class MusicService : BaseBrowserService() {
 
         private fun onPlaybackPaused() {
             // Put the service back to the background, keeping the notification
-            stopForeground(false)
+            stopForeground(Service.STOP_FOREGROUND_DETACH)
             settings.lastPlayedPosition = player.currentPosition
 
             // Update the notification content if the session is active
@@ -418,7 +419,7 @@ class MusicService : BaseBrowserService() {
 
         private fun onPlaybackStopped() {
             // Clear notification and service foreground status
-            stopForeground(true)
+            stopForeground(Service.STOP_FOREGROUND_REMOVE)
 
             // De-activate the media session.
             if (session.isActive) {

@@ -32,7 +32,6 @@ import kotlinx.coroutines.SupervisorJob
 
 @Module
 @InstallIn(ServiceComponent::class)
-@Suppress("unused")
 internal abstract class MusicServiceModule {
 
     @Binds
