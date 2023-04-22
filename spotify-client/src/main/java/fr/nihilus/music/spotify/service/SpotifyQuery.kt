@@ -19,7 +19,7 @@ package fr.nihilus.music.spotify.service
 import fr.nihilus.music.spotify.model.SpotifyAlbum
 import fr.nihilus.music.spotify.model.SpotifyArtist
 import fr.nihilus.music.spotify.model.SpotifyTrack
-import java.util.*
+import java.util.Locale
 
 /**
  * Abstraction over a search query to be submitted to the Spotify search endpoint.

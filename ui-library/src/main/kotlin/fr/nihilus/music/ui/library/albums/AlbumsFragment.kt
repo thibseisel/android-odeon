@@ -24,13 +24,13 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.transition.Hold
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.core.ui.observe
-import fr.nihilus.music.ui.library.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.ui.library.HomeFragmentDirections
+import fr.nihilus.music.ui.library.R
+import fr.nihilus.music.ui.library.databinding.FragmentAlbumsBinding
 import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**

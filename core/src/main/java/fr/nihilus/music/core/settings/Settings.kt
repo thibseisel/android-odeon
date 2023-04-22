@@ -87,15 +87,18 @@ interface Settings {
          * Always use the light theme.
          */
         LIGHT,
+
         /**
          * Automatically switch to the dark theme when Battery Saver is enabled.
          * This should be the preferred value when running Android P and earlier.
          */
         BATTERY_SAVER_ONLY,
+
         /**
          * Always use the dark theme.
          */
         DARK,
+
         /**
          * Use a light or a dark theme depending on the system configuration.
          * This should be the preferred value when running Android Q or higher:

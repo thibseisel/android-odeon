@@ -17,7 +17,11 @@
 package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.collections.associateByLong
-import fr.nihilus.music.core.database.spotify.*
+import fr.nihilus.music.core.database.spotify.SpotifyDao
+import fr.nihilus.music.core.database.spotify.SpotifyLink
+import fr.nihilus.music.core.database.spotify.TrackFeature
+import fr.nihilus.music.core.database.spotify.decodeMusicalMode
+import fr.nihilus.music.core.database.spotify.decodePitch
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.tracks.TrackRepository
@@ -25,12 +29,20 @@ import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 

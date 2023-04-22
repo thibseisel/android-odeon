@@ -44,13 +44,13 @@ internal class ArtistsViewModel @Inject constructor(
                 ArtistsScreenUiState(
                     isLoadingArtists = false,
                     artists = artists.filterIsInstance<MediaCategory>().map {
-                            ArtistUiState(
-                                id = it.id,
-                                name = it.title,
-                                trackCount = it.count,
-                                iconUri = it.iconUri,
-                            )
-                        },
+                        ArtistUiState(
+                            id = it.id,
+                            name = it.title,
+                            trackCount = it.count,
+                            iconUri = it.iconUri,
+                        )
+                    },
                 )
             }
             .uiStateIn(

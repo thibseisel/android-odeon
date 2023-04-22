@@ -29,7 +29,11 @@ import fr.nihilus.music.core.test.failAssumption
 import fr.nihilus.music.media.MediaContent
 import io.kotest.assertions.extracting
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs

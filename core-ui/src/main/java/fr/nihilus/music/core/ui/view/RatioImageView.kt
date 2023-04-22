@@ -23,8 +23,8 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams
 import androidx.annotation.IntDef
 import androidx.appcompat.widget.AppCompatImageView
-import kotlin.math.roundToInt
 import fr.nihilus.music.core.ui.R
+import kotlin.math.roundToInt
 
 /**
  * An ImageView whose dimensions can be constrained by an aspect ratio.
@@ -48,6 +48,7 @@ class RatioImageView
          * This is the default.
          */
         const val RATIO_SIDE_WIDTH = 0
+
         /**
          * Use height as the base dimension to calculate the width.
          */
@@ -70,7 +71,12 @@ class RatioImageView
 
     init {
         if (attrs != null) {
-            val a = context.theme.obtainStyledAttributes(attrs, R.styleable.RatioImageView, defStyleAttr, 0)
+            val a = context.theme.obtainStyledAttributes(
+                attrs,
+                R.styleable.RatioImageView,
+                defStyleAttr,
+                0
+            )
             try {
                 val stringRatio = a.getString(R.styleable.RatioImageView_aspectRatio)
                 aspectRatio = parseRatio(stringRatio)

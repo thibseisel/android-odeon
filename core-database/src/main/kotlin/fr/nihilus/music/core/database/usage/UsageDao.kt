@@ -27,13 +27,15 @@ interface UsageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun recordEvent(usageEvent: MediaUsageEvent)
 
-    @Query("""
+    @Query(
+        """
         SELECT track_id, COUNT(*) AS event_count, MAX(event_time) AS last_event_time 
         FROM usage_event
          WHERE event_time > :since
         GROUP BY track_id 
         ORDER BY event_count DESC
-    """)
+    """
+    )
     suspend fun getTracksUsage(since: Long): List<TrackUsage>
 
     @Query("DELETE FROM usage_event WHERE track_id IN (:trackIds)")

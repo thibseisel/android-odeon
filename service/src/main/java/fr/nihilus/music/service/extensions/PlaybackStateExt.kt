@@ -37,18 +37,19 @@ val PlaybackStateCompat.isSkipToPreviousEnabled
  * The name of the state code of this playback state.
  */
 @Suppress("unused")
-val PlaybackStateCompat.stateName: String get() = when (state) {
-    PlaybackStateCompat.STATE_NONE -> "NONE"
-    PlaybackStateCompat.STATE_STOPPED -> "STOPPED"
-    PlaybackStateCompat.STATE_PAUSED -> "PAUSED"
-    PlaybackStateCompat.STATE_PLAYING -> "PLAYING"
-    PlaybackStateCompat.STATE_FAST_FORWARDING -> "FAST_FORWARDING"
-    PlaybackStateCompat.STATE_REWINDING -> "REWINDING"
-    PlaybackStateCompat.STATE_BUFFERING -> "BUFFERING"
-    PlaybackStateCompat.STATE_ERROR -> "ERROR"
-    PlaybackStateCompat.STATE_CONNECTING -> "CONNECTING"
-    PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS -> "SKIPPING_TO_PREVIOUS"
-    PlaybackStateCompat.STATE_SKIPPING_TO_NEXT -> "SKIPPING_TO_NEXT"
-    PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM -> "SKIPPING_TO_QUEUE_ITEM"
-    else -> "UNKNOWN"
-}
+val PlaybackStateCompat.stateName: String
+    get() = when (state) {
+        PlaybackStateCompat.STATE_NONE -> "NONE"
+        PlaybackStateCompat.STATE_STOPPED -> "STOPPED"
+        PlaybackStateCompat.STATE_PAUSED -> "PAUSED"
+        PlaybackStateCompat.STATE_PLAYING -> "PLAYING"
+        PlaybackStateCompat.STATE_FAST_FORWARDING -> "FAST_FORWARDING"
+        PlaybackStateCompat.STATE_REWINDING -> "REWINDING"
+        PlaybackStateCompat.STATE_BUFFERING -> "BUFFERING"
+        PlaybackStateCompat.STATE_ERROR -> "ERROR"
+        PlaybackStateCompat.STATE_CONNECTING -> "CONNECTING"
+        PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS -> "SKIPPING_TO_PREVIOUS"
+        PlaybackStateCompat.STATE_SKIPPING_TO_NEXT -> "SKIPPING_TO_NEXT"
+        PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM -> "SKIPPING_TO_QUEUE_ITEM"
+        else -> "UNKNOWN"
+    }

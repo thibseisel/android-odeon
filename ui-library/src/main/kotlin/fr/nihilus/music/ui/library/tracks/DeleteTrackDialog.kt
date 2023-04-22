@@ -22,9 +22,10 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
+import fr.nihilus.music.ui.library.R
+import fr.nihilus.music.ui.library.tracks.DeleteTrackDialog.Factory.open
 import fr.nihilus.music.core.ui.R as CoreUiR
 
 /**

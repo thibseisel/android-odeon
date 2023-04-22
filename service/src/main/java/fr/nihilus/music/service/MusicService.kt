@@ -22,7 +22,9 @@ import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.*
+import android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE
+import android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -347,6 +349,7 @@ class MusicService : BaseBrowserService() {
             settings.repeatMode = when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_ALL,
                 PlaybackStateCompat.REPEAT_MODE_GROUP -> RepeatMode.ALL
+
                 PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.ONE
                 else -> RepeatMode.DISABLED
             }

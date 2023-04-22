@@ -17,7 +17,11 @@
 package fr.nihilus.music.core.database.playlists
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 /**

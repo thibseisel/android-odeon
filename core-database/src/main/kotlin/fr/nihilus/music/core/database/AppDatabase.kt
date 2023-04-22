@@ -39,14 +39,16 @@ import fr.nihilus.music.core.database.usage.UsageDao
  * SQLite tables are generated from classes annotated with [Entity]
  * that are configured in [Database.entities].
  */
-@Database(entities = [
-    Playlist::class,
-    PlaylistTrack::class,
-    MediaUsageEvent::class,
-    SpotifyLink::class,
-    TrackFeature::class,
-    TrackExclusion::class,
-], version = 6)
+@Database(
+    entities = [
+        Playlist::class,
+        PlaylistTrack::class,
+        MediaUsageEvent::class,
+        SpotifyLink::class,
+        TrackFeature::class,
+        TrackExclusion::class,
+    ], version = 6
+)
 @TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
 internal abstract class AppDatabase : RoomDatabase() {
 

@@ -16,8 +16,16 @@
 
 package fr.nihilus.music.media.provider
 
-import android.app.PendingIntent.*
-import android.content.*
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_ONE_SHOT
+import android.app.PendingIntent.getActivity
+import android.content.ContentProvider
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.UriMatcher
 import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.net.Uri
@@ -112,6 +120,7 @@ internal class FakeAudioMediaProvider : ContentProvider() {
                 selection,
                 selectionArgs
             )
+
             AUDIO_MEDIA_ID -> {
                 val trackId = ContentUris.parseId(uri)
                 database.writableDatabase.delete(
@@ -120,6 +129,7 @@ internal class FakeAudioMediaProvider : ContentProvider() {
                     arrayOf(trackId.toString())
                 )
             }
+
             else -> throw UnsupportedOperationException("Unsupported uri: $uri")
         }
 

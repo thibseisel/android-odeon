@@ -58,7 +58,7 @@ internal sealed class SearchResult {
     data class Browsable(
         val id: MediaId,
         val title: String,
-        val subtitle : String?,
+        val subtitle: String?,
         val tracksCount: Int,
         val iconUri: Uri?,
     ) : SearchResult() {

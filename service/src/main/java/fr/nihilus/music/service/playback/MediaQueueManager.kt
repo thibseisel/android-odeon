@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.Timeline
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.MediaSessionConnector
-import java.util.*
+import java.util.ArrayDeque
 import javax.inject.Inject
 
 private const val MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000L

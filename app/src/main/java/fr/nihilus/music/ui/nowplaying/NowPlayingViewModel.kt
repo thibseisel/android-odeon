@@ -18,7 +18,20 @@ package fr.nihilus.music.ui.nowplaying
 
 import android.net.Uri
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY_PAUSE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+import android.support.v4.media.session.PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+import android.support.v4.media.session.PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_GROUP
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_GROUP
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
@@ -28,12 +41,17 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.parse
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.ui.client.BrowserClient
-import fr.nihilus.music.service.extensions.*
+import fr.nihilus.music.service.extensions.displayIconUri
+import fr.nihilus.music.service.extensions.displaySubtitle
+import fr.nihilus.music.service.extensions.displayTitle
+import fr.nihilus.music.service.extensions.duration
+import fr.nihilus.music.service.extensions.id
+import fr.nihilus.music.service.extensions.isPlaying
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.EnumSet
 import javax.inject.Inject
 
 @HiltViewModel

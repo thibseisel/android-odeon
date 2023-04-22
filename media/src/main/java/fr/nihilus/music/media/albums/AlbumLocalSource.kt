@@ -17,7 +17,6 @@
 package fr.nihilus.music.media.albums
 
 import android.content.ContentResolver
-import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Albums
 import android.provider.MediaStore.Audio.Media
 import fr.nihilus.music.core.context.AppDispatchers

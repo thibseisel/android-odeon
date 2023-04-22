@@ -20,12 +20,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
-import kotlin.io.bufferedReader
-import kotlin.io.readText
-import kotlin.io.use
-import kotlin.io.useLines
-import kotlin.sequences.forEach
-import kotlin.text.trimIndent
 
 /**
  * Scan for music files stored on the connected Android device or emulator, updating which files

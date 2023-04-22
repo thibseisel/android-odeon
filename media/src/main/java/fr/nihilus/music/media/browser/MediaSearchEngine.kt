@@ -33,7 +33,7 @@ import fr.nihilus.music.media.tracks.TrackRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import java.util.*
+import java.util.Locale
 import javax.inject.Inject
 
 /**

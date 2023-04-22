@@ -21,7 +21,12 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.*
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentResultListener
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import fr.nihilus.music.core.ui.ConfirmDialogFragment.Companion.open
 import fr.nihilus.music.core.ui.ConfirmDialogFragment.Companion.registerForResult
@@ -37,7 +42,7 @@ class ConfirmDialogFragment internal constructor() : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val arguments = requireArguments()
         val requestKey = checkNotNull(arguments.getString(ARG_REQUEST_KEY))
-        
+
         val dispatchDialogResult = DialogInterface.OnClickListener { _, which ->
             val selectedButton = when (which) {
                 DialogInterface.BUTTON_POSITIVE -> ActionButton.POSITIVE
@@ -176,7 +181,10 @@ class ConfirmDialogFragment internal constructor() : DialogFragment() {
             requestKey: String,
             listener: (button: ActionButton) -> Unit
         ) {
-            caller.childFragmentManager.setFragmentResultListener(requestKey, caller) { key, result ->
+            caller.childFragmentManager.setFragmentResultListener(
+                requestKey,
+                caller
+            ) { key, result ->
                 if (requestKey == key) {
                     val resultCode = result.getInt(KEY_RESULT_BUTTON)
                     val clickedButton = ActionButton.values()[resultCode]

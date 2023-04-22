@@ -153,9 +153,11 @@ internal class SearchFragment : BaseFragment(R.layout.fragment_search) {
                     is DeleteTracksResult.Deleted -> {
                         showDeleteTrackConfirmation()
                     }
+
                     is DeleteTracksResult.RequiresPermission -> {
                         requestPermission.launch(it.result.permission)
                     }
+
                     is DeleteTracksResult.RequiresUserConsent -> {
                         deleteMediaPopup.launch(
                             IntentSenderRequest.Builder(it.result.intent).build()
@@ -315,9 +317,11 @@ internal class SearchFragment : BaseFragment(R.layout.fragment_search) {
             return when (val viewType = adapter.getItemViewType(position)) {
                 R.id.view_type_album,
                 R.id.view_type_artist -> 1
+
                 R.id.view_type_track,
                 R.id.view_type_playlist,
                 R.id.view_type_header -> spanCount
+
                 else -> error("Unexpected view type for position $position: $viewType")
             }
         }

@@ -16,7 +16,11 @@
 
 package fr.nihilus.music.spotify.manager
 
-import fr.nihilus.music.core.database.spotify.*
+import fr.nihilus.music.core.database.spotify.MusicalMode
+import fr.nihilus.music.core.database.spotify.Pitch
+import fr.nihilus.music.core.database.spotify.SpotifyDao
+import fr.nihilus.music.core.database.spotify.SpotifyLink
+import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.tracks.Track

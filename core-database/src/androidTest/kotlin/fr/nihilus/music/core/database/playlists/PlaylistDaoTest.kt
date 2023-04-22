@@ -24,7 +24,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import fr.nihilus.music.core.database.AppDatabase
 import kotlinx.coroutines.runBlocking
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 /**
  * Validate behavior of the real implementation of [PlaylistDao].
@@ -74,7 +80,11 @@ internal class PlaylistDaoTest {
                 assertEquals(
                     expected = playlistId,
                     actual = it.getLong(0),
-                    message = "Expected track ${it.getLong(1)} to be bound to playlist $playlistId, but was ${it.getLong(0)}"
+                    message = "Expected track ${it.getLong(1)} to be bound to playlist $playlistId, but was ${
+                        it.getLong(
+                            0
+                        )
+                    }"
                 )
             }
         }
@@ -131,5 +141,11 @@ internal class PlaylistDaoTest {
     }
 }
 
-private val UNSAVED_PLAYLIST = Playlist(0L, "Zen", 1585836890L, "content://fr.nihilus.music.provider/icons/zen.png".toUri())
-private val PERSISTED_PLAYLIST = Playlist(39L, "Rock'n'Roll", 1585903650L, "content://fr.nihilus.music.provider/icons/rocknroll.png".toUri())
+private val UNSAVED_PLAYLIST =
+    Playlist(0L, "Zen", 1585836890L, "content://fr.nihilus.music.provider/icons/zen.png".toUri())
+private val PERSISTED_PLAYLIST = Playlist(
+    39L,
+    "Rock'n'Roll",
+    1585903650L,
+    "content://fr.nihilus.music.provider/icons/rocknroll.png".toUri()
+)

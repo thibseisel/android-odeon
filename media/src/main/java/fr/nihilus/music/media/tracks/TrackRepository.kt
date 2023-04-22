@@ -24,7 +24,11 @@ import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.tracks.local.TrackLocalSource
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.plus
 import javax.inject.Inject
 import javax.inject.Singleton

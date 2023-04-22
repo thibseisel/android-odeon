@@ -336,9 +336,11 @@ private constructor(
             }
         }
 
-        private fun isValidType(type: String): Boolean = type.isNotEmpty() && type.all(Char::isLetter)
+        private fun isValidType(type: String): Boolean =
+            type.isNotEmpty() && type.all(Char::isLetter)
 
-        private fun isValidCategory(category: String) = category.isNotEmpty() && category.all(Char::isLetterOrDigit)
+        private fun isValidCategory(category: String) =
+            category.isNotEmpty() && category.all(Char::isLetterOrDigit)
 
         private fun isValidTrack(track: String) = track.isNotEmpty() && track.all(Char::isDigit)
 

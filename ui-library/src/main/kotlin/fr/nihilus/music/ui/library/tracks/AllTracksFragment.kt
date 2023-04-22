@@ -27,11 +27,11 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.transition.TransitionManager
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.core.ui.ProgressTimeLatch
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.motion.Stagger
 import fr.nihilus.music.core.ui.observe
+import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.FragmentAllTracksBinding
 import fr.nihilus.music.ui.library.playlists.AddToPlaylistDialog
 
@@ -104,9 +104,11 @@ internal class AllTracksFragment : BaseFragment(R.layout.fragment_all_tracks) {
             notifyTrackDeleted()
             viewModel.consumeEvent()
         }
+
         is TrackEvent.RequiresStoragePermission -> {
             requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
+
         is TrackEvent.RequiresUserConsent -> {
             deleteMediaPopup.launch(
                 IntentSenderRequest.Builder(event.intent).build()

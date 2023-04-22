@@ -30,7 +30,10 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldStartWith
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.*
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

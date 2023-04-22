@@ -25,7 +25,6 @@ import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.AlbumGridItemBinding
-import fr.nihilus.music.ui.library.search.SearchResult
 
 internal class AlbumHolder(
     parent: ViewGroup,
