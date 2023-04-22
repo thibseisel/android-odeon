@@ -36,7 +36,7 @@ internal object PlaybackModule {
     @Provides @ServiceScoped
     fun provideExoPlayer(context: Service): ExoPlayer {
         val musicAttributes = AudioAttributes.Builder()
-            .setContentType(C.CONTENT_TYPE_MUSIC)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
             .setUsage(C.USAGE_MEDIA)
             .build()
 
@@ -47,11 +47,12 @@ internal object PlaybackModule {
         )
             .setAudioAttributes(musicAttributes, true)
             .setHandleAudioBecomingNoisy(true)
+            .setUsePlatformDiagnostics(false)
             .build()
 
         if (BuildConfig.DEBUG) {
             // Print player logs on debug builds.
-            player.addAnalyticsListener(EventLogger(null))
+            player.addAnalyticsListener(EventLogger())
         }
 
         return player
