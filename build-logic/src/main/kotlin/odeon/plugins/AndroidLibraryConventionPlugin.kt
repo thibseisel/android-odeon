@@ -17,6 +17,7 @@ package odeon.plugins
 
 import AndroidVersion
 import com.android.build.api.dsl.LibraryExtension
+import configureJavaToolchain
 import configureKotlinAndroid
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -29,6 +30,8 @@ internal class AndroidLibraryConventionPlugin : Plugin<Project> {
             apply("com.android.library")
             apply("org.jetbrains.kotlin.android")
         }
+
+        configureJavaToolchain()
 
         extensions.configure<LibraryExtension> {
             configureKotlinAndroid(this)

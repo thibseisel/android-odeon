@@ -19,35 +19,30 @@ package fr.nihilus.music.service.playback
 import android.content.Context
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Pair
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.source.UnrecognizedInputFormatException
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.R
 import timber.log.Timber
-import java.io.IOException
 import javax.inject.Inject
 
-@dagger.hilt.android.scopes.ServiceScoped
+@ServiceScoped
 internal class ErrorHandler @Inject constructor(
     @ApplicationContext private val context: Context
-) : ErrorMessageProvider<ExoPlaybackException> {
+) : ErrorMessageProvider<PlaybackException> {
 
-    override fun getErrorMessage(playbackException: ExoPlaybackException): Pair<Int, String> =
-        when (playbackException.type) {
-            ExoPlaybackException.TYPE_SOURCE -> handleSourceError(playbackException.sourceException)
-            ExoPlaybackException.TYPE_RENDERER -> handleUnexpectedError(playbackException.rendererException)
-            ExoPlaybackException.TYPE_UNEXPECTED -> handleUnexpectedError(playbackException.unexpectedException)
-            else -> handleUnexpectedError(null)
+    override fun getErrorMessage(playbackException: PlaybackException): Pair<Int, String> =
+        when (playbackException.errorCode) {
+            PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED -> handleUnrecognizedFormat()
+            PlaybackException.ERROR_CODE_DECODING_FAILED -> handleCorruptionError()
+            else -> handleUnexpectedError(playbackException)
         }
 
-    private fun handleSourceError(cause: IOException): Pair<Int, String> = when (cause) {
-        is UnrecognizedInputFormatException -> handleUnrecognizedFormat()
-        else -> Pair(
-            PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
-            context.getString(R.string.svc_player_source_error_generic)
-        )
-    }
+    private fun handleCorruptionError() = Pair(
+        PlaybackStateCompat.ERROR_CODE_ACTION_ABORTED,
+        context.getString(R.string.svc_player_source_error_generic)
+    )
 
     private fun handleUnrecognizedFormat(): Pair<Int, String> = Pair(
         PlaybackStateCompat.ERROR_CODE_NOT_SUPPORTED,

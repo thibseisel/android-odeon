@@ -20,7 +20,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.google.android.exoplayer2.ExoPlaybackException
+import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.util.ErrorMessageProvider
 import dagger.Binds
 import dagger.Module
@@ -46,7 +46,7 @@ internal abstract class MediaSessionModule {
     abstract fun bindsQueueNavigator(navigator: MediaQueueManager): MediaSessionConnector.QueueNavigator
 
     @Binds
-    abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
+    abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<PlaybackException>
 
     companion object {
 

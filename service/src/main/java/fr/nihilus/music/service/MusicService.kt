@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.service
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -403,6 +404,7 @@ class MusicService : BaseBrowserService() {
             this@MusicService.startSelf()
         }
 
+        @SuppressLint("MissingPermission")
         private fun onPlaybackPaused() {
             // Put the service back to the background, keeping the notification
             stopForeground(Service.STOP_FOREGROUND_DETACH)
@@ -450,14 +452,14 @@ class MusicService : BaseBrowserService() {
         }
 
         private fun onTrackCompletion(player: Player) {
-            val completedTrackIndex = player.previousWindowIndex
+            val completedTrackIndex = player.currentMediaItemIndex
             if (completedTrackIndex == C.INDEX_UNSET) {
                 Timber.w("Attempt to retrieve information of a track that completed playback, but previous index is unset.")
                 return
             }
 
             val completedMediaItem = player.getMediaItemAt(completedTrackIndex)
-            val completedMedia = completedMediaItem.playbackProperties?.tag as AudioTrack
+            val completedMedia = completedMediaItem.localConfiguration?.tag as AudioTrack
             val completedTrackId = checkNotNull(completedMedia.id.track) {
                 "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
             }

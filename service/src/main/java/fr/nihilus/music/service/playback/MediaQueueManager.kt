@@ -22,6 +22,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.MediaSessionConnector
@@ -35,7 +36,7 @@ private const val UNKNOWN_QUEUE_ID = MediaSessionCompat.QueueItem.UNKNOWN_ID.toL
 /**
  * Handle queue navigation actions and update the media session queue.
  */
-@dagger.hilt.android.scopes.ServiceScoped
+@ServiceScoped
 internal class MediaQueueManager @Inject constructor(
     private val mediaSession: MediaSessionCompat,
     private val prefs: Settings
@@ -51,10 +52,14 @@ internal class MediaQueueManager @Inject constructor(
 
         val timeline = player.currentTimeline
         if (!timeline.isEmpty && !player.isPlayingAd) {
-            timeline.getWindow(player.currentWindowIndex, window)
+            timeline.getWindow(player.currentMediaItemIndex, window)
             enableSkipTo = timeline.windowCount > 1
-            enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious()
-            enableNext = window.isDynamic || player.hasNext()
+            enablePrevious =
+                player.isCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+                        || !window.isLive()
+                        || player.isCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)
+            enableNext = (window.isLive() && window.isDynamic)
+                    || player.isCommandAvailable(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
         }
 
         var actions = 0L
@@ -75,14 +80,14 @@ internal class MediaQueueManager @Inject constructor(
         publishFloatingQueueWindow(player)
     }
 
-    override fun onCurrentWindowIndexChanged(player: Player) {
+    override fun onCurrentMediaItemIndexChanged(player: Player) {
         if (activeQueueItemId == UNKNOWN_QUEUE_ID || player.currentTimeline.windowCount > MAX_QUEUE_SIZE) {
             publishFloatingQueueWindow(player)
         } else if (!player.currentTimeline.isEmpty) {
-            activeQueueItemId = player.currentWindowIndex.toLong()
+            activeQueueItemId = player.currentMediaItemIndex.toLong()
         }
 
-        prefs.lastQueueIndex = player.currentWindowIndex
+        prefs.lastQueueIndex = player.currentMediaItemIndex
     }
 
     override fun getActiveQueueItemId(player: Player?): Long = activeQueueItemId
@@ -93,16 +98,13 @@ internal class MediaQueueManager @Inject constructor(
             return
         }
 
-        val windowIndex = player.currentWindowIndex
-        timeline.getWindow(windowIndex, window)
-        val previousWindowIndex = player.previousWindowIndex
-        if (previousWindowIndex != C.INDEX_UNSET
-            && (player.currentPosition <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS ||
-                    (window.isDynamic && !window.isSeekable))
-        ) {
-            player.seekTo(previousWindowIndex, C.TIME_UNSET)
+        val itemIndex = player.currentMediaItemIndex
+        timeline.getWindow(itemIndex, window)
+        val previousItemIndex = player.previousMediaItemIndex
+        if (previousItemIndex != C.INDEX_UNSET && (player.currentPosition <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS || (window.isDynamic && !window.isSeekable))) {
+            player.seekTo(previousItemIndex, C.TIME_UNSET)
         } else {
-            player.seekTo(windowIndex, 0L)
+            player.seekTo(itemIndex, 0L)
         }
     }
 
@@ -112,9 +114,9 @@ internal class MediaQueueManager @Inject constructor(
             return
         }
 
-        val windowIndex = id.toInt()
-        if (windowIndex in 0 until timeline.windowCount) {
-            player.seekTo(windowIndex, C.TIME_UNSET)
+        val itemIndex = id.toInt()
+        if (itemIndex in 0 until timeline.windowCount) {
+            player.seekTo(itemIndex, C.TIME_UNSET)
         }
     }
 
@@ -124,12 +126,12 @@ internal class MediaQueueManager @Inject constructor(
             return
         }
 
-        val windowIndex = player.currentWindowIndex
-        val nextWindowIndex = player.nextWindowIndex
-        if (nextWindowIndex != C.INDEX_UNSET) {
-            player.seekTo(nextWindowIndex, C.TIME_UNSET)
-        } else if (timeline.getWindow(windowIndex, window).isDynamic) {
-            player.seekTo(windowIndex, C.TIME_UNSET)
+        val itemIndex = player.currentMediaItemIndex
+        val nextItemIndex = player.nextMediaItemIndex
+        if (nextItemIndex != C.INDEX_UNSET) {
+            player.seekTo(nextItemIndex, C.TIME_UNSET)
+        } else if (timeline.getWindow(itemIndex, window).isDynamic) {
+            player.seekTo(itemIndex, C.TIME_UNSET)
         }
     }
 
@@ -146,71 +148,58 @@ internal class MediaQueueManager @Inject constructor(
         val queueSize = timeline.windowCount.coerceAtMost(MAX_QUEUE_SIZE)
 
         // Add the active queue item.
-        val currentWindowIndex = player.currentWindowIndex
+        val currentItemIndex = player.currentMediaItemIndex
         queue += MediaSessionCompat.QueueItem(
-            getMediaDescription(player, currentWindowIndex, builder),
-            currentWindowIndex.toLong()
+            getMediaDescription(player, currentItemIndex, builder), currentItemIndex.toLong()
         )
 
         // Fill queue alternating with next and/or previous queue items.
-        var firstWindowIndex = currentWindowIndex
-        var lastWindowIndex = currentWindowIndex
+        var firstItemIndex = currentItemIndex
+        var lastItemIndex = currentItemIndex
         val shuffleModeEnabled = player.shuffleModeEnabled
 
-        while ((firstWindowIndex != C.INDEX_UNSET || lastWindowIndex != C.INDEX_UNSET)
-            && queue.size < queueSize
-        ) {
+        while ((firstItemIndex != C.INDEX_UNSET || lastItemIndex != C.INDEX_UNSET) && queue.size < queueSize) {
             // Begin with next to has a longer tail than head if an even sized queue needs to be trimmed.
-            if (lastWindowIndex != C.INDEX_UNSET) {
-                lastWindowIndex = timeline.getNextWindowIndex(
-                    lastWindowIndex,
-                    Player.REPEAT_MODE_OFF,
-                    shuffleModeEnabled
+            if (lastItemIndex != C.INDEX_UNSET) {
+                lastItemIndex = timeline.getNextWindowIndex(
+                    lastItemIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled
                 )
-                if (lastWindowIndex != C.INDEX_UNSET) {
+                if (lastItemIndex != C.INDEX_UNSET) {
                     queue.add(
                         MediaSessionCompat.QueueItem(
-                            getMediaDescription(player, lastWindowIndex, builder),
-                            lastWindowIndex.toLong()
+                            getMediaDescription(player, lastItemIndex, builder),
+                            lastItemIndex.toLong()
                         )
                     )
                 }
             }
 
-            if (firstWindowIndex != C.INDEX_UNSET && queue.size < queueSize) {
-                firstWindowIndex = timeline.getPreviousWindowIndex(
-                    firstWindowIndex,
-                    Player.REPEAT_MODE_OFF,
-                    shuffleModeEnabled
+            if (firstItemIndex != C.INDEX_UNSET && queue.size < queueSize) {
+                firstItemIndex = timeline.getPreviousWindowIndex(
+                    firstItemIndex, Player.REPEAT_MODE_OFF, shuffleModeEnabled
                 )
-                if (firstWindowIndex != C.INDEX_UNSET) {
+                if (firstItemIndex != C.INDEX_UNSET) {
                     queue.addFirst(
                         MediaSessionCompat.QueueItem(
-                            getMediaDescription(player, firstWindowIndex, builder),
-                            firstWindowIndex.toLong()
+                            getMediaDescription(player, firstItemIndex, builder),
+                            firstItemIndex.toLong()
                         )
                     )
                 }
             }
 
             mediaSession.setQueue(queue.toList())
-            activeQueueItemId = currentWindowIndex.toLong()
+            activeQueueItemId = currentItemIndex.toLong()
         }
     }
 
     private fun getMediaDescription(
-        player: Player,
-        windowIndex: Int,
-        builder: MediaDescriptionCompat.Builder
+        player: Player, itemIndex: Int, builder: MediaDescriptionCompat.Builder
     ): MediaDescriptionCompat {
-        val currentItem = player.getMediaItemAt(windowIndex)
-        val track = currentItem.playbackProperties?.tag as AudioTrack
+        val currentItem = player.getMediaItemAt(itemIndex)
+        val track = currentItem.localConfiguration?.tag as AudioTrack
 
-        return builder
-            .setMediaId(track.id.encoded)
-            .setTitle(track.title)
-            .setSubtitle(track.artist)
-            .setIconUri(track.iconUri)
-            .build()
+        return builder.setMediaId(track.id.encoded).setTitle(track.title).setSubtitle(track.artist)
+            .setIconUri(track.iconUri).build()
     }
 }

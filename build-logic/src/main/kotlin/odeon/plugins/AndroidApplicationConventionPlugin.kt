@@ -18,6 +18,7 @@ package odeon.plugins
 import AndroidVersion
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.AndroidComponentsExtension
+import configureJavaToolchain
 import configureKotlinAndroid
 import odeon.tasks.RefreshMediaStore
 import org.gradle.api.Plugin
@@ -37,6 +38,8 @@ internal class AndroidApplicationConventionPlugin : Plugin<Project> {
             configureKotlinAndroid(this)
             defaultConfig.targetSdk = AndroidVersion.TARGET
         }
+
+        configureJavaToolchain()
 
         val androidComponents = extensions.getByType(AndroidComponentsExtension::class)
         tasks.register<RefreshMediaStore>("refreshMediaStore") {
