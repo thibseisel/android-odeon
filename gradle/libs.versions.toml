@@ -30,7 +30,7 @@ mockk = "1.12.8"
 moshi = "1.14.0"
 robolectric = "4.10"
 timber = "5.0.1"
-turbine = "0.8.0"
+turbine = "0.13.0"
 versions-plugin = "0.46.0"
 
 [plugins]
