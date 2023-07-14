@@ -16,8 +16,8 @@
 
 package fr.nihilus.music.service
 
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

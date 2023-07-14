@@ -35,8 +35,8 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.utils.MediaConstants
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Player
+import androidx.media3.common.C
+import androidx.media3.common.Player
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
@@ -443,7 +443,7 @@ class MusicService : BaseBrowserService() {
     private inner class TrackCompletionListener : Player.Listener {
 
         override fun onMediaItemTransition(
-            mediaItem: com.google.android.exoplayer2.MediaItem?,
+            mediaItem: androidx.media3.common.MediaItem?,
             @Player.MediaItemTransitionReason reason: Int
         ) {
             if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {

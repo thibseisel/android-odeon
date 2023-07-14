@@ -22,10 +22,12 @@ import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.ShuffleOrder
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ShuffleOrder
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
@@ -51,6 +53,7 @@ import kotlin.random.Random
  * Handle requests to prepare media that can be played from the Odeon Media Player.
  * This fetches media information from the music library.
  */
+@OptIn(UnstableApi::class)
 internal class OdeonPlaybackPreparer @Inject constructor(
     @ServiceCoroutineScope private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,

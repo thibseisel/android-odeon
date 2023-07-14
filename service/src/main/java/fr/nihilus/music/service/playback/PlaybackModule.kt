@@ -17,11 +17,13 @@
 package fr.nihilus.music.service.playback
 
 import android.app.Service
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
-import com.google.android.exoplayer2.util.EventLogger
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.util.EventLogger
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +33,7 @@ import fr.nihilus.music.service.BuildConfig
 
 @Module
 @InstallIn(ServiceComponent::class)
+@OptIn(UnstableApi::class)
 internal object PlaybackModule {
 
     @Provides @ServiceScoped

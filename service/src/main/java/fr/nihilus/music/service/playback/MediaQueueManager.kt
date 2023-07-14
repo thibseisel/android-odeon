@@ -19,9 +19,9 @@ package fr.nihilus.music.service.playback
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
+import androidx.media3.common.C
+import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.media.AudioTrack
