@@ -19,17 +19,17 @@ package fr.nihilus.music.service
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.util.ErrorMessageProvider
-import com.google.android.exoplayer2.util.Util
+import androidx.media3.common.C
+import androidx.media3.common.ErrorMessageProvider
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.metadata.IconDownloader
@@ -85,7 +85,7 @@ internal class MediaSessionConnector @Inject constructor(
     private val errorMessageProvider: ErrorMessageProvider<PlaybackException>,
     private val iconDownloader: IconDownloader
 ) {
-    private val looper = Util.getCurrentOrMainLooper()
+    private val looper = Looper.myLooper() ?: Looper.getMainLooper()
     private val componentListener = ComponentListener()
 
     private val metadataProducer = scope.startMetadataUpdater()

@@ -16,16 +16,18 @@
 
 package fr.nihilus.music.service.playback
 
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
-import com.google.android.exoplayer2.extractor.Extractor
-import com.google.android.exoplayer2.extractor.ExtractorsFactory
-import com.google.android.exoplayer2.extractor.flac.FlacExtractor
-import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor
-import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor
-import com.google.android.exoplayer2.extractor.ogg.OggExtractor
-import com.google.android.exoplayer2.extractor.ts.Ac3Extractor
-import com.google.android.exoplayer2.extractor.ts.AdtsExtractor
-import com.google.android.exoplayer2.extractor.wav.WavExtractor
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.extractor.DefaultExtractorsFactory
+import androidx.media3.extractor.Extractor
+import androidx.media3.extractor.ExtractorsFactory
+import androidx.media3.extractor.flac.FlacExtractor
+import androidx.media3.extractor.mp3.Mp3Extractor
+import androidx.media3.extractor.mp4.Mp4Extractor
+import androidx.media3.extractor.ogg.OggExtractor
+import androidx.media3.extractor.ts.Ac3Extractor
+import androidx.media3.extractor.ts.AdtsExtractor
+import androidx.media3.extractor.wav.WavExtractor
 
 /**
  * An ExtractorsFactory that only uses audio file extractors.
@@ -36,6 +38,7 @@ import com.google.android.exoplayer2.extractor.wav.WavExtractor
  * The full explanation is detailed
  * on the [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
  */
+@OptIn(UnstableApi::class)
 internal class AudioOnlyExtractorsFactory : ExtractorsFactory {
 
     override fun createExtractors() = arrayOf(

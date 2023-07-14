@@ -20,8 +20,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.util.ErrorMessageProvider
+import androidx.media3.common.ErrorMessageProvider
+import androidx.media3.common.PlaybackException
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

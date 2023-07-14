@@ -7,6 +7,7 @@ androidx-fragment = "1.5.7"
 androidx-hilt = "1.0.0"
 androidx-lifecycle = "2.6.1"
 androidx-media = "1.6.0"
+androidx-media3 = "1.0.1"
 androidx-navigation = "2.5.3"
 androidx-palette = "1.0.0"
 androidx-preference = "1.2.0"
@@ -18,7 +19,6 @@ androidx-test-junit = "1.1.5"
 androidx-viewpager = "1.0.0"
 androidx-work = "2.7.1"
 dagger = "2.45"
-exoplayer = "2.18.6"
 glide = "4.13.2"
 identikon = "1.0.0"
 kotest = "5.6.1"
@@ -61,6 +61,7 @@ androidx-lifecycle-java8 = { module = "androidx.lifecycle:lifecycle-common-java8
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-testing = { module = "androidx.lifecycle:lifecycle-runtime-testing", version.ref = "androidx-lifecycle" }
 androidx-media = { module = "androidx.media:media", version.ref = "androidx-media" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidx-media3" }
 androidx-navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidx-navigation" }
 androidx-palette = { module = "androidx.palette:palette-ktx", version.ref = "androidx-palette" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidx-recyclerview" }
@@ -75,8 +76,6 @@ androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test" }
 androidx-viewpager = { module = "androidx.viewpager2:viewpager2", version.ref = "androidx-viewpager" }
 androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
-
-exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", version.ref = "exoplayer" }
 
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }

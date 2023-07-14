@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.service.extensions
 
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
+import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.exoplayer.ExoPlayer
 
 /**
  * Execute the given action once when the structure of media has changed.

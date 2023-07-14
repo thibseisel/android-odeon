@@ -19,8 +19,8 @@ package fr.nihilus.music.service.playback
 import android.content.Context
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Pair
-import com.google.android.exoplayer2.PlaybackException
-import com.google.android.exoplayer2.util.ErrorMessageProvider
+import androidx.media3.common.ErrorMessageProvider
+import androidx.media3.common.PlaybackException
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.R

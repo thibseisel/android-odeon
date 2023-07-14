@@ -31,8 +31,8 @@ dependencies {
 
     implementation(libs.bundles.core)
     implementation(libs.androidx.media)
+    implementation(libs.androidx.media3.exoplayer)
     implementation(libs.glide)
-    implementation(libs.exoplayer.core)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)
