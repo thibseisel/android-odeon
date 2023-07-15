@@ -22,22 +22,25 @@ import android.os.Bundle
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.ShuffleOrder
+import androidx.annotation.OptIn
+import androidx.media3.common.C
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ShuffleOrder
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.service.AudioTrack
-import fr.nihilus.music.service.MediaCategory
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.service.MediaSessionConnector
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.SearchQuery
+import fr.nihilus.music.service.ServiceCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -50,20 +53,22 @@ import kotlin.random.Random
  * Handle requests to prepare media that can be played from the Odeon Media Player.
  * This fetches media information from the music library.
  */
+@OptIn(UnstableApi::class)
 internal class OdeonPlaybackPreparer @Inject constructor(
-    private val scope: CoroutineScope,
+    @ServiceCoroutineScope private val scope: CoroutineScope,
     private val dispatchers: AppDispatchers,
     private val player: ExoPlayer,
     private val browserTree: BrowserTree,
+    private val searchEngine: MediaSearchEngine,
     private val settings: Settings
 ) : MediaSessionConnector.PlaybackPreparer {
 
     override fun getSupportedPrepareActions(): Long =
         PlaybackStateCompat.ACTION_PREPARE or
-        PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
-        PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
-        PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
-        PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
+                PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID or
+                PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH or
+                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH
 
     /**
      * Handles generic requests to prepare playback.
@@ -124,8 +129,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     override fun onPrepareFromSearch(query: String?, playWhenReady: Boolean, extras: Bundle?) {
         // TODO Remove those lines when got enough info on how Assistant understands voice searches.
         if (Log.isLoggable("AssistantSearch", Log.INFO) && extras != null) {
-            val extString = extras.keySet()
-                .joinToString(", ", "{", "}") { "$it=${extras[it]}" }
+            val extString = extras.also { it.keySet() }.toString()
             Log.i("AssistantSearch", "onPrepareFromSearch: query=\"$query\", extras=$extString")
         }
 
@@ -135,7 +139,7 @@ internal class OdeonPlaybackPreparer @Inject constructor(
             onPrepare(playWhenReady)
 
         } else scope.launch(dispatchers.Default) {
-            val results = browserTree.search(parsedQuery)
+            val results = searchEngine.search(parsedQuery)
 
             val firstResult = results.firstOrNull()
             if (firstResult is MediaCategory) {
@@ -155,10 +159,6 @@ internal class OdeonPlaybackPreparer @Inject constructor(
     private suspend fun loadPlayableChildrenOf(parentId: MediaId): List<AudioTrack> = try {
         val children = browserTree.getChildren(parentId).first()
         children.filterIsInstance<AudioTrack>()
-
-    } catch (pde: PermissionDeniedException) {
-        Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
-        emptyList()
 
     } catch (invalidParent: NoSuchElementException) {
         Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)

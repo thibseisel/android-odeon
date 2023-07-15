@@ -18,39 +18,17 @@ package fr.nihilus.music.service.playback
 
 import android.content.Context
 import android.os.Handler
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Renderer
-import com.google.android.exoplayer2.RenderersFactory
-import com.google.android.exoplayer2.audio.AudioCapabilities
-import com.google.android.exoplayer2.audio.AudioRendererEventListener
-import com.google.android.exoplayer2.audio.DefaultAudioSink
-import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer
-import com.google.android.exoplayer2.mediacodec.MediaCodecSelector
-import com.google.android.exoplayer2.metadata.MetadataOutput
-import com.google.android.exoplayer2.text.TextOutput
-import com.google.android.exoplayer2.video.VideoRendererEventListener
-
-/**
- * Whether floating point audio should be output when possible.
- *
- * Enabling floating point output disables audio processing, but may allow for higher quality
- * audio output.
- */
-private const val FLOAT_OUTPUT_ENABLED = false
-
-/**
- * Whether audio should be played using the offload path.
- *
- * Audio offload disables ExoPlayer audio processing, but significantly reduces
- * the energy consumption of the playback when
- * [offload scheduling][ExoPlayer.experimentalSetOffloadSchedulingEnabled] is enabled.
- *
- * Most Android devices can only support one offload [android.media.AudioTrack] at a time
- * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
- * play in offload.
- */
-private const val AUDIO_OFFLOAD_ENABLED = false
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
+import androidx.media3.exoplayer.Renderer
+import androidx.media3.exoplayer.RenderersFactory
+import androidx.media3.exoplayer.audio.AudioRendererEventListener
+import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
+import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
+import androidx.media3.exoplayer.metadata.MetadataOutput
+import androidx.media3.exoplayer.text.TextOutput
+import androidx.media3.exoplayer.video.VideoRendererEventListener
 
 /**
  * A [RenderersFactory] implementation that only uses the audio renderer.
@@ -58,31 +36,19 @@ private const val AUDIO_OFFLOAD_ENABLED = false
  * this factory does not reference video renderers it doesn't need,
  * thus allowing Proguard from removing unused renderers and reducing final APK size.
  *
- * The full explanation is detailed
- * on the [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
+ * The full explanation is detailed on the
+ * [ExoPlayer official documentation](https://google.github.io/ExoPlayer/shrinking.html).
  */
+@OptIn(UnstableApi::class)
 internal class AudioOnlyRenderersFactory(private val context: Context) : RenderersFactory {
 
     override fun createRenderers(
         eventHandler: Handler,
         videoRendererEventListener: VideoRendererEventListener,
-        audioRendererEventListener: AudioRendererEventListener,
+        audioListener: AudioRendererEventListener,
         textRendererOutput: TextOutput,
         metadataRendererOutput: MetadataOutput
     ) = arrayOf<Renderer>(
-        // Audio-only renderer
-        MediaCodecAudioRenderer(
-            context,
-            MediaCodecSelector.DEFAULT,
-            eventHandler,
-            audioRendererEventListener,
-            DefaultAudioSink(
-                AudioCapabilities.getCapabilities(context),
-                DefaultAudioSink.DefaultAudioProcessorChain(),
-                FLOAT_OUTPUT_ENABLED,
-                false,
-                AUDIO_OFFLOAD_ENABLED
-            )
-        )
+        MediaCodecAudioRenderer(context, MediaCodecSelector.DEFAULT, eventHandler, audioListener)
     )
 }

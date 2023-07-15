@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,14 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+}
+
+android {
+    namespace = "fr.nihilus.music.core.test"
 }
 
 dependencies {
-    api(project(":core"))
-
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-test:${Libs.koroutines}")
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Libs.koroutines}")
-    api("androidx.test:core:${Libs.Androidx.test}")
-    api("androidx.test:runner:${Libs.Androidx.test}")
-    api("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    api("org.jetbrains.kotlin:kotlin-test-junit:${Libs.kotlin}")
-    api("io.kotest:kotest-assertions-core:${Libs.kotest}")
-    api("io.kotest:kotest-property:${Libs.kotest}")
-    api("io.mockk:mockk:${Libs.mockk}")
-    api ("org.robolectric:robolectric:${Libs.robolectric}") {
-        exclude(group = "com.google.auto.service", module = "auto-service")
-    }
-
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    implementation(projects.core)
+    implementation(libs.bundles.testing.unit)
 }

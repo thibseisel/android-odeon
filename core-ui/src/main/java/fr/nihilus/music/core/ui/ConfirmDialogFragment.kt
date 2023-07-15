@@ -16,107 +16,190 @@
 
 package fr.nihilus.music.core.ui
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentResultListener
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import fr.nihilus.music.core.ui.ConfirmDialogFragment.Companion.open
+import fr.nihilus.music.core.ui.ConfirmDialogFragment.Companion.registerForResult
 
 /**
- * A Fragment that displays an AlertDialog that can be used to confirm user decisions.
+ * A Fragment that displays an AlertDialog that can be used to confirm simple user decisions.
  *
- * UI events related to the dialog such as button clicks or dialog dismiss are forwarded to the
- * caller's fragment [Fragment.onActivityResult] method:
- *
- * The supplied result code may be one of the following :
- * - [DialogInterface.BUTTON_POSITIVE] if the user selected the positive button,
- * - [DialogInterface.BUTTON_NEGATIVE] if the user selected the negative button,
- * - [DialogInterface.BUTTON_NEUTRAL] if the user selected the neutral button,
- * - [Activity.RESULT_CANCELED] if the dialog is canceled as a result of pressing back button
- * or taping out of the dialog frame.
+ * Instances should not be created directly ; instead a caller [Fragment] should call [open]
+ * to specify the content of the dialog and listen for the clicked action button with [registerForResult].
  */
-class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
+class ConfirmDialogFragment internal constructor() : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val args = checkNotNull(arguments) {
-            "Instances of ConfirmDialogFragment should be created using the newInstance method."
+        val arguments = requireArguments()
+        val requestKey = checkNotNull(arguments.getString(ARG_REQUEST_KEY))
+
+        val dispatchDialogResult = DialogInterface.OnClickListener { _, which ->
+            val selectedButton = when (which) {
+                DialogInterface.BUTTON_POSITIVE -> ActionButton.POSITIVE
+                DialogInterface.BUTTON_NEGATIVE -> ActionButton.NEGATIVE
+                DialogInterface.BUTTON_NEUTRAL -> ActionButton.NEUTRAL
+                else -> error("Unexpected AlertDialog button: $which")
+            }
+            setFragmentResult(requestKey, Bundle().apply {
+                putInt(KEY_RESULT_BUTTON, selectedButton.ordinal)
+            })
         }
 
         val builder = MaterialAlertDialogBuilder(requireContext())
-            .setTitle(args.getString(ARG_TITLE))
-            .setMessage(args.getString(ARG_MESSAGE))
+            .setTitle(arguments.getString(ARG_TITLE))
+            .setMessage(arguments.getString(ARG_MESSAGE))
 
-        val positive = args.getInt(ARG_POSITIVE)
+        val positive = arguments.getInt(ARG_POSITIVE)
         if (positive != 0) {
-            builder.setPositiveButton(positive, this)
+            builder.setPositiveButton(positive, dispatchDialogResult)
         }
 
-        val negative = args.getInt(ARG_NEGATIVE)
+        val negative = arguments.getInt(ARG_NEGATIVE)
         if (negative != 0) {
-            builder.setNegativeButton(negative, this)
+            builder.setNegativeButton(negative, dispatchDialogResult)
         }
 
-        val neutral = args.getInt(ARG_NEUTRAL)
+        val neutral = arguments.getInt(ARG_NEUTRAL)
         if (neutral != 0) {
-            builder.setNeutralButton(neutral, this)
+            builder.setNeutralButton(neutral, dispatchDialogResult)
         }
 
         return builder.create()
     }
 
-    override fun onCancel(dialog: DialogInterface) {
-        targetFragment?.onActivityResult(targetRequestCode, Activity.RESULT_CANCELED, null)
-        super.onCancel(dialog)
-    }
-
-    override fun onClick(dialog: DialogInterface, which: Int) {
-        targetFragment?.onActivityResult(targetRequestCode, which, null)
-    }
-
-    companion object Factory {
+    companion object {
+        private const val ARG_REQUEST_KEY = "fr.nihilus.music.ui.DIALOG_REQUEST_KEY"
         private const val ARG_TITLE = "fr.nihilus.music.ui.DIALOG_TITLE"
         private const val ARG_MESSAGE = "fr.nihilus.music.ui.DIALOG_MESSAGE"
         private const val ARG_POSITIVE = "fr.nihilus.music.ui.DIALOG_POSITIVE_BUTTON"
         private const val ARG_NEGATIVE = "fr.nihilus.music.ui.DIALOG_NEGATIVE_BUTTON"
         private const val ARG_NEUTRAL = "fr.nihilus.music.ui.DIALOG_NEUTRAL_BUTTON"
 
+        private const val KEY_RESULT_BUTTON = "fr.nihilus.music.ui.DIALOG_BUTTON"
+
         /**
-         * Create a new instance of this DialogFragment.
+         * Prepare and display a confirm dialog above content.
          *
-         * @param caller the Fragment that displays this dialog
-         * to which the result should be forwarded.
-         * @param requestCode a number identifying the request that'll
-         * be forwarded to [Fragment.onActivityResult] once interaction with the dialog is finished.
-         * @param title the title of the dialog to display.
-         * @param message an optional message to display as the dialog's body.
-         * @param positiveButton an optional resource id of the text.
-         * to display in the positive button. If 0, no positive button will be shown.
-         * @param negativeButton an optional resource id of the text
-         * to display in the negative button. If 0, no negative button will be shown.
-         * @param neutralButton an optional resource id of the text
-         * to display in the neutral button. If 0, no neutral button will be shown.
+         * @param caller Caller activity.
+         * @param requestKey String identifying the caller to receive the response.
+         * @param title Title of the displayed dialog.
+         * @param message Optional message to display as the dialog's body.
+         * @param positiveButton Optional string resource id used as the positive button's label.
+         * @param negativeButton Optional string resource id used as the negative button's label.
+         * @param neutralButton Optional string resource id used as the neutral button's label.
          */
-        fun newInstance(
-            caller: Fragment?,
-            requestCode: Int,
+        fun open(
+            caller: AppCompatActivity,
+            requestKey: String,
             title: String? = null,
             message: String? = null,
             @StringRes positiveButton: Int = 0,
             @StringRes negativeButton: Int = 0,
             @StringRes neutralButton: Int = 0
+        ) = open(
+            caller.supportFragmentManager,
+            requestKey,
+            title,
+            message,
+            positiveButton,
+            negativeButton,
+            neutralButton
+        )
 
-        ) = ConfirmDialogFragment().apply {
-            setTargetFragment(caller, requestCode)
-            arguments = Bundle(5).apply {
-                putString(ARG_TITLE, title)
-                putString(ARG_MESSAGE, message)
-                putInt(ARG_POSITIVE, positiveButton)
-                putInt(ARG_NEGATIVE, negativeButton)
-                putInt(ARG_NEUTRAL, neutralButton)
+        /**
+         * Prepare and display a confirm dialog above content.
+         *
+         * @param caller Caller fragment.
+         * @param requestKey String identifying the caller fragment to receive the response.
+         * @param title Title of the displayed dialog.
+         * @param message Optional message to display as the dialog's body.
+         * @param positiveButton Optional string resource id used as the positive button's label.
+         * @param negativeButton Optional string resource id used as the negative button's label.
+         * @param neutralButton Optional string resource id used as the neutral button's label.
+         */
+        fun open(
+            caller: Fragment,
+            requestKey: String,
+            title: String? = null,
+            message: String? = null,
+            @StringRes positiveButton: Int = 0,
+            @StringRes negativeButton: Int = 0,
+            @StringRes neutralButton: Int = 0
+        ) = open(
+            caller.childFragmentManager,
+            requestKey,
+            title,
+            message,
+            positiveButton,
+            negativeButton,
+            neutralButton
+        )
+
+        private fun open(
+            callerFragmentManager: FragmentManager,
+            requestKey: String,
+            title: String? = null,
+            message: String? = null,
+            @StringRes positiveButton: Int = 0,
+            @StringRes negativeButton: Int = 0,
+            @StringRes neutralButton: Int = 0
+        ) {
+            val dialog = ConfirmDialogFragment().apply {
+                arguments = Bundle(5).apply {
+                    putString(ARG_REQUEST_KEY, requestKey)
+                    putString(ARG_TITLE, title)
+                    putString(ARG_MESSAGE, message)
+                    putInt(ARG_POSITIVE, positiveButton)
+                    putInt(ARG_NEGATIVE, negativeButton)
+                    putInt(ARG_NEUTRAL, neutralButton)
+                }
+            }
+
+            dialog.show(callerFragmentManager, null)
+        }
+
+        /**
+         * Registers a [FragmentResultListener] to receive the clicked dialog button as the result.
+         * @param caller Fragment that should receive the result.
+         * @param requestKey The same request key used to [open] the dialog.
+         * @param listener A function called with the dialog result when available.
+         *
+         * @see setFragmentResultListener
+         */
+        fun registerForResult(
+            caller: Fragment,
+            requestKey: String,
+            listener: (button: ActionButton) -> Unit
+        ) {
+            caller.childFragmentManager.setFragmentResultListener(
+                requestKey,
+                caller
+            ) { key, result ->
+                if (requestKey == key) {
+                    val resultCode = result.getInt(KEY_RESULT_BUTTON)
+                    val clickedButton = ActionButton.values()[resultCode]
+                    listener(clickedButton)
+                }
             }
         }
+    }
+
+    /**
+     * Dialog action button that was clicked.
+     */
+    enum class ActionButton {
+        POSITIVE,
+        NEGATIVE,
+        NEUTRAL
     }
 }

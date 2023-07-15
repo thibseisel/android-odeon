@@ -17,15 +17,11 @@
 package fr.nihilus.music.core.test.coroutines.flow
 
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.suspendCancellableCoroutine
-
-private suspend fun awaitCancellation() {
-    suspendCancellableCoroutine<Nothing> {}
-}
 
 /**
  * A flow that does not emit any item and never terminates.

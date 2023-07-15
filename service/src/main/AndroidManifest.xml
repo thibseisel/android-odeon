@@ -15,12 +15,18 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="fr.nihilus.music.service">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application>
+
+        <!-- Declare support for Android Auto. -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/svc_automotive_app_desc" />
+
         <!--
             Main music service.
             Provides media browsing and media playback services to consumers through MediaSession.
@@ -46,7 +52,9 @@
              Additionally, this is used to resume the service from an inactive state upon
              receiving a media button event (such as "play").
         -->
-        <receiver android:name="androidx.media.session.MediaButtonReceiver">
+        <receiver
+            android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>

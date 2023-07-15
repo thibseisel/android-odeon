@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,89 +16,75 @@
 
 package fr.nihilus.music.core.ui.actions
 
-import android.graphics.Bitmap
-import android.net.Uri
+import androidx.core.net.toUri
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ARTISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
-import fr.nihilus.music.core.os.FileSystem
-import fr.nihilus.music.core.test.coroutines.CoroutineTestRule
-import fr.nihilus.music.core.test.os.TestClock
-import io.kotest.assertions.assertSoftly
-import io.kotest.assertions.extracting
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.inspectors.forAll
-import io.kotest.inspectors.forNone
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.collections.shouldNotContain
-import io.kotest.matchers.shouldBe
-import org.junit.Rule
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerifySequence
+import io.mockk.confirmVerified
+import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-private const val TEST_TIME = 1585662510L
 private const val NEW_PLAYLIST_NAME = "My favorites"
-
-private val SAMPLE_PLAYLIST = Playlist(1L, "Zen", 0L, null)
+private val SAMPLE_PLAYLIST = Playlist(
+    id = 1L,
+    title = "Zen",
+    created = 0L,
+    iconUri = "content://fr.nihilus.music.test.provider/icons/zen.png".toUri()
+)
 
 @RunWith(AndroidJUnit4::class)
 internal class ManagePlaylistActionTest {
 
-    @get:Rule
-    val test = CoroutineTestRule()
+    @MockK private lateinit var mockRepository: PlaylistRepository
+    private lateinit var action: ManagePlaylistAction
 
-    private val clock = TestClock(TEST_TIME)
-    private val dispatchers = AppDispatchers(test.dispatcher)
+    @BeforeTest
+    fun setup() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        action = ManagePlaylistAction(mockRepository)
+    }
 
     @Test
-    fun `When creating a playlist without tracks then record it to PlaylistDao`() = test.run {
-        val dao = InMemoryPlaylistDao()
-        val action = ManagePlaylistAction(dao)
+    fun `createPlaylist - creates a playlist without tracks in repository`() = runTest {
+        coEvery { mockRepository.createUserPlaylist(any()) } answers {
+            Playlist(
+                id = 42,
+                title = firstArg(),
+                created = 0,
+                iconUri = "content://fr.nihilus.music.test.provider/icons/My_favorites.png".toUri()
+            )
+        }
 
         action.createPlaylist(NEW_PLAYLIST_NAME, emptyList())
 
-        val playlists = dao.savedPlaylists
-        playlists shouldHaveSize 1
-        assertSoftly(playlists[0]) {
-            title shouldBe NEW_PLAYLIST_NAME
-            created shouldBe TEST_TIME
-        }
-
-        dao.savedTracks.shouldBeEmpty()
-    }
-
-    @Test
-    fun `When creating a playlist then generate and save its icon`() = test.run {
-        TODO("Create a fake implementation of FileSystem that supports such scenario.")
-    }
-
-    @Test
-    fun `Given blank name, when creating a playlist then fail with IAE`() = test.run {
-        val action = ManagePlaylistAction(InMemoryPlaylistDao())
-
-        shouldThrow<IllegalArgumentException> {
-            action.createPlaylist("", emptyList())
-        }
-
-        shouldThrow<IllegalArgumentException> {
-            action.createPlaylist("  \t\n\r", emptyList())
+        coVerifySequence {
+            mockRepository.createUserPlaylist(NEW_PLAYLIST_NAME)
         }
     }
 
     @Test
-    fun `When creating a playlist with tracks then record them to PlaylistDao`() = test.run {
-        val dao = InMemoryPlaylistDao()
-        val action = ManagePlaylistAction(dao)
+    fun `createPlaylist - creates a playlist with tracks in repository`() = runTest {
+        coEvery { mockRepository.createUserPlaylist(any()) } answers {
+            Playlist(
+                id = 42,
+                title = firstArg(),
+                created = 0,
+                iconUri = "content://fr.nihilus.music.test.provider/icons/My_favorites.png".toUri()
+            )
+        }
 
         action.createPlaylist(
             name = NEW_PLAYLIST_NAME,
@@ -108,37 +94,29 @@ internal class ManagePlaylistActionTest {
             )
         )
 
-        val playlists = dao.savedPlaylists
-        playlists shouldHaveSize 1
-        val newPlaylist = playlists[0]
-        newPlaylist.title shouldBe NEW_PLAYLIST_NAME
-        newPlaylist.created shouldBe TEST_TIME
-
-        val tracks = dao.savedTracks
-        tracks shouldHaveSize 2
-        tracks.forAll { it.playlistId shouldBe newPlaylist.id }
-        extracting(tracks) { trackId }.shouldContainExactlyInAnyOrder(16L, 42L)
-    }
-
-    @Test
-    fun `When creating a playlist with non-track members them fail with IAE`() = test.run {
-        val action = ManagePlaylistAction(InMemoryPlaylistDao())
-
-        for (mediaId in invalidTrackIds()) {
-            shouldThrow<IllegalArgumentException> {
-                action.createPlaylist(
-                    name = NEW_PLAYLIST_NAME,
-                    members = listOf(mediaId)
-                )
-            }
+        coVerifySequence {
+            mockRepository.createUserPlaylist(NEW_PLAYLIST_NAME)
+            mockRepository.addTracksToPlaylist(42, longArrayOf(16, 42))
         }
     }
 
     @Test
-    fun `When appending members then add tracks to that playlist`() = test.run {
-        val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
-        val action = ManagePlaylistAction(dao)
+    fun `createPlaylist - throws IAE when creating an playlist with non-track media ids`() =
+        runTest {
+            for (mediaId in invalidTrackIds()) {
+                shouldThrow<IllegalArgumentException> {
+                    action.createPlaylist(
+                        name = NEW_PLAYLIST_NAME,
+                        members = listOf(mediaId)
+                    )
+                }
+            }
 
+            confirmVerified(mockRepository)
+        }
+
+    @Test
+    fun `appendMembers - add tracks to an existing playlist in repository`() = runTest {
         action.appendMembers(
             targetPlaylist = MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id.toString()),
             members = listOf(
@@ -147,17 +125,13 @@ internal class ManagePlaylistActionTest {
             )
         )
 
-        val tracks = dao.savedTracks
-        tracks shouldHaveSize 2
-        tracks.forAll { it.playlistId shouldBe SAMPLE_PLAYLIST.id }
-        extracting(tracks) { trackId }.shouldContainExactlyInAnyOrder(16L, 42L)
+        coVerifySequence {
+            mockRepository.addTracksToPlaylist(SAMPLE_PLAYLIST.id, longArrayOf(16, 42))
+        }
     }
 
     @Test
-    fun `Given invalid target media id, when appending members then fail with IAE`() = test.run {
-        val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
-        val action = ManagePlaylistAction(dao)
-
+    fun `appendMembers - throws IAE given an invalid playlist media id`() = runTest {
         val newMemberIds = listOf(
             MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L),
             MediaId(TYPE_TRACKS, CATEGORY_ALL, 42L)
@@ -171,37 +145,28 @@ internal class ManagePlaylistActionTest {
                 )
             }
         }
+
+        confirmVerified(mockRepository)
     }
 
     @Test
-    fun `When deleting a playlist then remove corresponding record from PlaylistDao`() = test.run {
-        val dao = InMemoryPlaylistDao(
-            initialPlaylists = listOf(SAMPLE_PLAYLIST),
-            initialMembers = listOf(PlaylistTrack(SAMPLE_PLAYLIST.id, 16L))
-        )
-        val action = ManagePlaylistAction(dao)
-
+    fun `deletePlaylist - deletes playlist from repository`() = runTest {
         action.deletePlaylist(MediaId(TYPE_PLAYLISTS, SAMPLE_PLAYLIST.id.toString()))
 
-        dao.savedPlaylists shouldNotContain SAMPLE_PLAYLIST
-        dao.savedTracks.forNone { it.playlistId shouldBe SAMPLE_PLAYLIST.id }
+        coVerifySequence {
+            mockRepository.deletePlaylist(SAMPLE_PLAYLIST.id)
+        }
     }
 
     @Test
-    fun `Given invalid playlist id, when deleting a playlist then fail with IAE`() = test.run {
-        val dao = InMemoryPlaylistDao(initialPlaylists = listOf(SAMPLE_PLAYLIST))
-        val action = ManagePlaylistAction(dao)
-
+    fun `deletePlaylist - throws IAE given an invalid playlist id`() = runTest {
         for (mediaId in invalidPlaylistIds()) {
             shouldThrow<IllegalArgumentException> {
                 action.deletePlaylist(mediaId)
             }
         }
-    }
 
-    @Test
-    fun `When deleting a playlist then delete its associated icon`() = test.run {
-        TODO("FileSystem does not support such scenario.")
+        confirmVerified(mockRepository)
     }
 
     private fun invalidTrackIds() = listOf(
@@ -217,13 +182,4 @@ internal class ManagePlaylistActionTest {
         MediaId(TYPE_ARTISTS, "89"),
         MediaId(TYPE_PLAYLISTS, "1", 16L)
     )
-
-    private fun ManagePlaylistAction(dao: PlaylistDao) =
-        ManagePlaylistAction(dao, NoOpFileSystem, clock, dispatchers)
-
-    private object NoOpFileSystem : FileSystem {
-        override fun writeBitmapToInternalStorage(filepath: String, bitmap: Bitmap): Uri? = null
-        override fun makeSharedContentUri(filePath: String): Uri? = null
-        override fun deleteFile(filepath: String): Boolean = false
-    }
 }

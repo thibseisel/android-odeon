@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
+    namespace = "fr.nihilus.music.spotify"
     defaultConfig {
-        consumerProguardFiles("consumer-rules.pro", "moshi.pro", "okhttp3.pro", "okio.pro")
+        consumerProguardFiles("moshi.pro", "okhttp3.pro", "okio.pro")
 
         val clientId = getSpotifyProperty("clientId")
         val clientSecret = getSpotifyProperty("clientSecret")
@@ -32,22 +32,24 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":media"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
 
-    // Ktor Client - MultiPlatform HTTP Client
-    api("io.ktor:ktor-client-okhttp:${Libs.ktor}")
-    implementation("io.ktor:ktor-client-json:${Libs.ktor}")
+    implementation(libs.bundles.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.json)
+    implementation(libs.moshi)
+    kapt(libs.moshi.codegen)
 
-    // Moshi - Kotlin JSON serialization
-    api("com.squareup.moshi:moshi:${Libs.moshi}")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:${Libs.moshi}")
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    implementation(libs.androidx.work.runtime)
 
-    testImplementation(project(":core-test"))
-    testImplementation("io.ktor:ktor-client-mock-jvm:${Libs.ktor}")
-    testImplementation("io.mockk:mockk:${Libs.mockk}")
-    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
+
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
+    testImplementation(libs.ktor.client.mock)
 }
 
 fun getSpotifyProperty(name: String): String {

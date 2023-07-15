@@ -17,7 +17,11 @@
 package fr.nihilus.music.spotify.service
 
 import com.squareup.moshi.Moshi
-import fr.nihilus.music.spotify.model.*
+import fr.nihilus.music.spotify.model.AudioFeature
+import fr.nihilus.music.spotify.model.Image
+import fr.nihilus.music.spotify.model.SpotifyAlbum
+import fr.nihilus.music.spotify.model.SpotifyArtist
+import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -41,13 +45,19 @@ import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.HttpResponseData
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.fullPath
+import io.ktor.http.headersOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.currentTime
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 private const val TEST_USER_AGENT = "SpotifyServiceTest/1.0.0 KtorHttpClient/1.2.4"
@@ -89,8 +99,12 @@ class SpotifyServiceTest {
     )
 
     @Test
-    fun `Given no token, when calling any endpoint then authenticate`() = runBlockingTest {
-        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+    fun `Given no token, when calling any endpoint then authenticate`() = runTest {
+        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(
+            TEST_TOKEN_STRING,
+            "Bearer",
+            3600
+        )
         val unauthenticatedService = spotifyService(token = null) {
             respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
         }
@@ -102,26 +116,27 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given failed authentication, when calling any endpoint then fail with AuthenticationException`() = runBlockingTest {
-        coEvery { accounts.authenticate(any(), any()) } throws AuthenticationException(
-            "invalid_client",
-            "Invalid client"
-        )
+    fun `Given failed authentication, when calling any endpoint then fail with AuthenticationException`() =
+        runTest {
+            coEvery { accounts.authenticate(any(), any()) } throws AuthenticationException(
+                "invalid_client",
+                "Invalid client"
+            )
 
-        val failedAuthService = spotifyService(token = null) {
-            respondJsonError(HttpStatusCode.Unauthorized, "No token provided")
+            val failedAuthService = spotifyService(token = null) {
+                respondJsonError(HttpStatusCode.Unauthorized, "No token provided")
+            }
+
+            val authFailure = shouldThrow<AuthenticationException> {
+                failedAuthService.getArtist("12Chz98pHFMPJEknJQMWvI")
+            }
+
+            authFailure.error shouldBe "invalid_client"
+            authFailure.description shouldBe "Invalid client"
         }
-
-        val authFailure = shouldThrow<AuthenticationException> {
-            failedAuthService.getArtist("12Chz98pHFMPJEknJQMWvI")
-        }
-
-        authFailure.error shouldBe "invalid_client"
-        authFailure.description shouldBe "Invalid client"
-    }
 
     @Test
-    fun `Given valid token, when calling any endpoint then send it as Authorization`() = runBlockingTest {
+    fun `Given valid token, when calling any endpoint then send it as Authorization`() = runTest {
         val validToken = OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
         val authenticatedService = spotifyService(validToken) { request ->
             // Verify that the Authorization header is present.
@@ -139,8 +154,12 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given expired token, when calling any endpoint then renew token and retry`() = runBlockingTest {
-        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(TEST_TOKEN_STRING, "Bearer", 3600)
+    fun `Given expired token, when calling any endpoint then renew token and retry`() = runTest {
+        coEvery { accounts.authenticate(any(), any()) } returns OAuthToken(
+            TEST_TOKEN_STRING,
+            "Bearer",
+            3600
+        )
 
         val oldTokenSequence = "3IjZmZGNjZTZ1EDN2MTO5QmZkJjN0QTM"
         val expiredToken = OAuthToken(oldTokenSequence, "Bearer", 0)
@@ -166,20 +185,21 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given reached rate limit, when calling any endpoint then retry after the given delay`() = runBlockingTest {
-        val rateLimitedServer = givenReachedRateLimit(retryAfter = 5)
-        val apiClient = spotifyService(rateLimitedServer)
+    fun `Given reached rate limit, when calling any endpoint then retry after the given delay`() =
+        runTest {
+            val rateLimitedServer = givenReachedRateLimit(retryAfter = 5)
+            val apiClient = spotifyService(rateLimitedServer)
 
-        val artist = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        artist.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>>()
+            val artist = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
+            artist.shouldBeTypeOf<HttpResource.Loaded<SpotifyArtist>>()
 
-        withClue("Client should wait at least the given Retry-After time before re-issuing the request") {
-            currentTime shouldBeGreaterThanOrEqual 5000L
+            withClue("Client should wait at least the given Retry-After time before re-issuing the request") {
+                currentTime shouldBeGreaterThanOrEqual 5000L
+            }
         }
-    }
 
     @Test
-    fun `When getting an artist then call artists endpoint with its id`() = runBlockingTest {
+    fun `When getting an artist then call artists endpoint with its id`() = runTest {
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "/v1/artists/12Chz98pHFMPJEknJQMWvI"
             respondFile("artists/12Chz98pHFMPJEknJQMWvI.json")
@@ -192,7 +212,13 @@ class SpotifyServiceTest {
             artist.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             artist.name shouldBe "Muse"
             artist.popularity shouldBe 82
-            artist.genres.shouldContainExactlyInAnyOrder("modern rock", "permanent wave", "piano rock", "post-grunge", "rock")
+            artist.genres.shouldContainExactlyInAnyOrder(
+                "modern rock",
+                "permanent wave",
+                "piano rock",
+                "post-grunge",
+                "rock"
+            )
             artist.images.shouldContainExactly(
                 Image("https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde", 320, 320)
             )
@@ -200,7 +226,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an unknown artist then return a NotFound resource`() = runBlockingTest {
+    fun `When getting an unknown artist then return a NotFound resource`() = runTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -210,7 +236,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting several artists then call artists endpoint with their ids`() = runBlockingTest {
+    fun `When getting several artists then call artists endpoint with their ids`() = runTest {
         val requestedArtistIds = listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
 
         val apiClient = spotifyService { request ->
@@ -232,7 +258,13 @@ class SpotifyServiceTest {
             it.id shouldBe "12Chz98pHFMPJEknJQMWvI"
             it.name shouldBe "Muse"
             it.popularity shouldBe 82
-            it.genres.shouldContainExactly("modern rock", "permanent wave", "piano rock", "post-grunge", "rock")
+            it.genres.shouldContainExactly(
+                "modern rock",
+                "permanent wave",
+                "piano rock",
+                "post-grunge",
+                "rock"
+            )
             it.images.shouldContainExactly(
                 Image("https://i.scdn.co/image/17f00ec7613d733f2dd88de8f2c1628ea5f9adde", 320, 320)
             )
@@ -243,7 +275,14 @@ class SpotifyServiceTest {
             it.id shouldBe "7jy3rLJdDQY21OgRLCZ9sD"
             it.name shouldBe "Foo Fighters"
             it.popularity shouldBe 82
-            it.genres.shouldContainExactly("alternative metal", "alternative rock", "modern rock", "permanent wave", "post-grunge", "rock")
+            it.genres.shouldContainExactly(
+                "alternative metal",
+                "alternative rock",
+                "modern rock",
+                "permanent wave",
+                "post-grunge",
+                "rock"
+            )
             it.images.shouldContainExactly(
                 Image("https://i.scdn.co/image/c508060cb93f3d2f43ad0dc38602eebcbe39d16d", 320, 320)
             )
@@ -251,7 +290,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given bad ids, when getting multiple artists then return null for those ids`() = runBlockingTest {
+    fun `Given bad ids, when getting multiple artists then return null for those ids`() = runTest {
         val requestedArtistIds = listOf("first_bad_id", "7jy3rLJdDQY21OgRLCZ9sD", "second_bad_id")
         val apiClient = spotifyService {
             respondFile("artists/several_with_nulls.json")
@@ -269,7 +308,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an artist's albums, then fetch its albums page per page`() = runBlockingTest {
+    fun `When getting an artist's albums, then fetch its albums page per page`() = runTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler {
                 it shouldGetOnSpotifyEndpoint "/v1/artists/12Chz98pHFMPJEknJQMWvI/albums"
@@ -306,7 +345,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting albums of an unknown artist, then return an empty flow`() = runBlockingTest {
+    fun `When getting albums of an unknown artist, then return an empty flow`() = runTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -316,7 +355,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an album then call albums endpoint with its id`() = runBlockingTest {
+    fun `When getting an album then call albums endpoint with its id`() = runTest {
         val apiClient = spotifyService { request ->
             request shouldGetOnSpotifyEndpoint "/v1/albums/6KMkuqIwKkwUhUYRPL6dUc"
             respondFile("albums/7jy3rLJdDQY21OgRLCZ9sD.json")
@@ -337,7 +376,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an unknown album then fail with a NotFound resource`() = runBlockingTest {
+    fun `When getting an unknown album then fail with a NotFound resource`() = runTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -347,7 +386,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting several albums then call albums endpoint with their ids`() = runBlockingTest {
+    fun `When getting several albums then call albums endpoint with their ids`() = runTest {
         val requestedAlbumIds = listOf("5OZgDtx180ZZPMpm36J2zC", "6KMkuqIwKkwUhUYRPL6dUc")
 
         val apiClient = spotifyService { request ->
@@ -384,7 +423,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given bad ids, when getting multiple albums then return null for those ids`() = runBlockingTest {
+    fun `Given bad ids, when getting multiple albums then return null for those ids`() = runTest {
         val requestedAlbumIds = listOf("first_bad_id", "6KMkuqIwKkwUhUYRPL6dUc", "second_bad_id")
         val apiClient = spotifyService {
             respondFile("albums/several_with_nulls.json")
@@ -402,7 +441,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an album's tracks then fetch its tracks page per page`() = runBlockingTest {
+    fun `When getting an album's tracks then fetch its tracks page per page`() = runTest {
         val mockServer = MockEngine(MockEngineConfig().apply {
             addHandler { firstPage ->
                 firstPage shouldGetOnSpotifyEndpoint "/v1/albums/5OZgDtx180ZZPMpm36J2zC/tracks"
@@ -438,7 +477,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting tracks of an unknown album then return an empty flow`() = runBlockingTest {
+    fun `When getting tracks of an unknown album then return an empty flow`() = runTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -448,7 +487,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting track detail then call tracks endpoint with its id`() = runBlockingTest {
+    fun `When getting track detail then call tracks endpoint with its id`() = runTest {
         val requestedTrackId = "7f0vVL3xi4i78Rv5Ptn2s1"
 
         val apiClient = spotifyService { request ->
@@ -469,7 +508,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting an unknown track then fail with a NotFound resource`() = runBlockingTest {
+    fun `When getting an unknown track then fail with a NotFound resource`() = runTest {
         val apiClient = spotifyService {
             respondJsonError(HttpStatusCode.NotFound, "non existing id")
         }
@@ -479,7 +518,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting several tracks then call tracks endpoint with their ids`() = runBlockingTest {
+    fun `When getting several tracks then call tracks endpoint with their ids`() = runTest {
         val requestedTrackIds = listOf("7f0vVL3xi4i78Rv5Ptn2s1", "0dMYPDqcI4ca4cjqlmp9mE")
 
         val apiClient = spotifyService { request ->
@@ -519,7 +558,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given bad ids, when getting multiple tracks then return null for those ids`() = runBlockingTest {
+    fun `Given bad ids, when getting multiple tracks then return null for those ids`() = runTest {
         val requestedAlbumIds = listOf("first_bad_id", "0dMYPDqcI4ca4cjqlmp9mE", "second_bad_id")
         val apiClient = spotifyService {
             respondFile("tracks/several_with_nulls.json")
@@ -536,65 +575,19 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When getting features of a track then call audio-features endpoint with that track's id`() = runBlockingTest {
-        val requestedTrackId = "7f0vVL3xi4i78Rv5Ptn2s1"
+    fun `When getting features of a track then call audio-features endpoint with that track's id`() =
+        runTest {
+            val requestedTrackId = "7f0vVL3xi4i78Rv5Ptn2s1"
 
-        val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "/v1/audio-features/$requestedTrackId"
-            respondFile("features/7f0vVL3xi4i78Rv5Ptn2s1.json")
-        }
+            val apiClient = spotifyService { request ->
+                request shouldGetOnSpotifyEndpoint "/v1/audio-features/$requestedTrackId"
+                respondFile("features/7f0vVL3xi4i78Rv5Ptn2s1.json")
+            }
 
-        val audioFeature = apiClient.getTrackFeatures(requestedTrackId)
-        audioFeature.shouldBeTypeOf<HttpResource.Loaded<AudioFeature>>()
-        assertSoftly(audioFeature.data) {
-            it.id shouldBe requestedTrackId
-            it.mode shouldBe 1
-            it.key shouldBe 2
-            it.tempo shouldBe 170.057f
-            it.signature shouldBe 4
-            it.loudness shouldBe -4.56f
-            it.energy shouldBe 0.923f
-            it.danceability shouldBe 0.522f
-            it.instrumentalness shouldBe 0.017f
-            it.speechiness shouldBe 0.0539f
-            it.acousticness shouldBe 0.0125f
-            it.liveness shouldBe 0.0854f
-            it.valence shouldBe 0.595f
-        }
-    }
-
-    @Test
-    fun `When getting features of an unknown track then fail with a NotFound resource`() = runBlockingTest {
-        val apiClient = spotifyService {
-            respondJsonError(HttpStatusCode.NotFound, "non existing id")
-        }
-
-
-        val resource = apiClient.getTrackFeatures("unknown_track_id")
-        resource.shouldBeTypeOf<HttpResource.NotFound>()
-    }
-
-    @Test
-    fun `When getting several tracks' features then call audio-features endpoint with their ids`() = runBlockingTest {
-        val requestedIds = listOf("7f0vVL3xi4i78Rv5Ptn2s1", "5lnsL7pCg0fQKcWnlkD1F0")
-
-        val apiClient = spotifyService { request ->
-            request shouldGetOnSpotifyEndpoint "/v1/audio-features"
-
-            val receivedTrackIds = request.url.parameters[SpotifyService.QUERY_IDS]
-            receivedTrackIds shouldBe "7f0vVL3xi4i78Rv5Ptn2s1,5lnsL7pCg0fQKcWnlkD1F0"
-
-            respondFile("features/several.json")
-        }
-
-        val resource = apiClient.getSeveralTrackFeatures(requestedIds)
-        resource.shouldBeTypeOf<HttpResource.Loaded<List<AudioFeature?>>>()
-        assertSoftly(resource.data) { features ->
-            features shouldHaveSize 2
-
-            features[0].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
+            val audioFeature = apiClient.getTrackFeatures(requestedTrackId)
+            audioFeature.shouldBeTypeOf<HttpResource.Loaded<AudioFeature>>()
+            assertSoftly(audioFeature.data) {
+                it.id shouldBe requestedTrackId
                 it.mode shouldBe 1
                 it.key shouldBe 2
                 it.tempo shouldBe 170.057f
@@ -608,53 +601,102 @@ class SpotifyServiceTest {
                 it.liveness shouldBe 0.0854f
                 it.valence shouldBe 0.595f
             }
+        }
 
-            features[1].should {
-                it.shouldNotBeNull()
-                it.id shouldBe "5lnsL7pCg0fQKcWnlkD1F0"
-                it.mode shouldBe 1
-                it.key shouldBe 7
-                it.tempo shouldBe 142.684f
-                it.signature shouldBe 4
-                it.loudness shouldBe -8.245f
-                it.energy shouldBe 0.631f
-                it.danceability shouldBe 0.324f
-                it.instrumentalness shouldBe 0.0459f
-                it.speechiness shouldBe 0.0407f
-                it.acousticness shouldBe 0.00365f
-                it.liveness shouldBe 0.221f
-                it.valence shouldBe 0.346f
+    @Test
+    fun `When getting features of an unknown track then fail with a NotFound resource`() = runTest {
+        val apiClient = spotifyService {
+            respondJsonError(HttpStatusCode.NotFound, "non existing id")
+        }
+
+
+        val resource = apiClient.getTrackFeatures("unknown_track_id")
+        resource.shouldBeTypeOf<HttpResource.NotFound>()
+    }
+
+    @Test
+    fun `When getting several tracks' features then call audio-features endpoint with their ids`() =
+        runTest {
+            val requestedIds = listOf("7f0vVL3xi4i78Rv5Ptn2s1", "5lnsL7pCg0fQKcWnlkD1F0")
+
+            val apiClient = spotifyService { request ->
+                request shouldGetOnSpotifyEndpoint "/v1/audio-features"
+
+                val receivedTrackIds = request.url.parameters[SpotifyService.QUERY_IDS]
+                receivedTrackIds shouldBe "7f0vVL3xi4i78Rv5Ptn2s1,5lnsL7pCg0fQKcWnlkD1F0"
+
+                respondFile("features/several.json")
+            }
+
+            val resource = apiClient.getSeveralTrackFeatures(requestedIds)
+            resource.shouldBeTypeOf<HttpResource.Loaded<List<AudioFeature?>>>()
+            assertSoftly(resource.data) { features ->
+                features shouldHaveSize 2
+
+                features[0].should {
+                    it.shouldNotBeNull()
+                    it.id shouldBe "7f0vVL3xi4i78Rv5Ptn2s1"
+                    it.mode shouldBe 1
+                    it.key shouldBe 2
+                    it.tempo shouldBe 170.057f
+                    it.signature shouldBe 4
+                    it.loudness shouldBe -4.56f
+                    it.energy shouldBe 0.923f
+                    it.danceability shouldBe 0.522f
+                    it.instrumentalness shouldBe 0.017f
+                    it.speechiness shouldBe 0.0539f
+                    it.acousticness shouldBe 0.0125f
+                    it.liveness shouldBe 0.0854f
+                    it.valence shouldBe 0.595f
+                }
+
+                features[1].should {
+                    it.shouldNotBeNull()
+                    it.id shouldBe "5lnsL7pCg0fQKcWnlkD1F0"
+                    it.mode shouldBe 1
+                    it.key shouldBe 7
+                    it.tempo shouldBe 142.684f
+                    it.signature shouldBe 4
+                    it.loudness shouldBe -8.245f
+                    it.energy shouldBe 0.631f
+                    it.danceability shouldBe 0.324f
+                    it.instrumentalness shouldBe 0.0459f
+                    it.speechiness shouldBe 0.0407f
+                    it.acousticness shouldBe 0.00365f
+                    it.liveness shouldBe 0.221f
+                    it.valence shouldBe 0.346f
+                }
             }
         }
-    }
 
     @Test
-    fun `When requesting more resources at once than backend limits, then chunk into multiple requests`() = runBlockingTest {
-        val apiClient = spotifyService(handler = dummySpotifyBackend())
+    fun `When requesting more resources at once than backend limits, then chunk into multiple requests`() =
+        runTest {
+            val apiClient = spotifyService(handler = dummySpotifyBackend())
 
-        val artistIds = List(51) { "$it" }
-        val artists = apiClient.getSeveralArtists(artistIds)
-        artists.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyArtist>>>()
-        artists.data shouldHaveSize 51
+            val artistIds = List(51) { "$it" }
+            val artists = apiClient.getSeveralArtists(artistIds)
+            artists.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyArtist>>>()
+            artists.data shouldHaveSize 51
 
-        val albumIds = List(21) { "$it" }
-        val albums = apiClient.getSeveralAlbums(albumIds)
-        albums.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyAlbum>>>()
-        albums.data.shouldHaveSize(21)
+            val albumIds = List(21) { "$it" }
+            val albums = apiClient.getSeveralAlbums(albumIds)
+            albums.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyAlbum>>>()
+            albums.data.shouldHaveSize(21)
 
-        val trackIds = List(51) { "$it" }
-        val tracks = apiClient.getSeveralTracks(trackIds)
-        tracks.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyTrack>>>()
-        tracks.data.shouldHaveSize(51)
+            val trackIds = List(51) { "$it" }
+            val tracks = apiClient.getSeveralTracks(trackIds)
+            tracks.shouldBeInstanceOf<HttpResource.Loaded<List<SpotifyTrack>>>()
+            tracks.data.shouldHaveSize(51)
 
-        val trackFeatureIds = List(101) { "$it" }
-        val trackFeatures = apiClient.getSeveralTrackFeatures(trackFeatureIds)
-        trackFeatures.shouldBeInstanceOf<HttpResource.Loaded<List<AudioFeature>>>()
-        trackFeatures.data.shouldHaveSize(101)
-    }
+            val trackFeatureIds = List(101) { "$it" }
+            val trackFeatures = apiClient.getSeveralTrackFeatures(trackFeatureIds)
+            trackFeatures.shouldBeInstanceOf<HttpResource.Loaded<List<AudioFeature>>>()
+            trackFeatures.data.shouldHaveSize(101)
+        }
 
     @Test
-    fun `When calling any endpoint, then send the provided UserAgent`() = runBlockingTest {
+    fun `When calling any endpoint, then send the provided UserAgent`() = runTest {
         val apiClient = spotifyService { request ->
             request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
             respondFile("tracks/7f0vVL3xi4i78Rv5Ptn2s1.json")
@@ -664,68 +706,72 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `Given any single resource endpoint, when receiving an error then return a Failed resource`() = runBlockingTest {
-        val apiClient = spotifyService {
-            respondJsonError(
-                HttpStatusCode.InternalServerError,
-                "Whoops!"
-            )
-        }
+    fun `Given any single resource endpoint, when receiving an error then return a Failed resource`() =
+        runTest {
+            val apiClient = spotifyService {
+                respondJsonError(
+                    HttpStatusCode.InternalServerError,
+                    "Whoops!"
+                )
+            }
 
-        val resource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
-        resource.shouldBeTypeOf<HttpResource.Failed>()
-        assertSoftly(resource) {
-            it.status shouldBe 500
-            it.message shouldBe "Whoops!"
+            val resource = apiClient.getArtist("12Chz98pHFMPJEknJQMWvI")
+            resource.shouldBeTypeOf<HttpResource.Failed>()
+            assertSoftly(resource) {
+                it.status shouldBe 500
+                it.message shouldBe "Whoops!"
+            }
         }
-    }
 
     @Test
-    fun `Given any several resource endpoint, when receiving an error then return a Failed resource`() = runBlockingTest {
-        val apiClient = spotifyService {
-            respondJsonError(
-                HttpStatusCode.InternalServerError,
-                "Whoops!"
+    fun `Given any several resource endpoint, when receiving an error then return a Failed resource`() =
+        runTest {
+            val apiClient = spotifyService {
+                respondJsonError(
+                    HttpStatusCode.InternalServerError,
+                    "Whoops!"
+                )
+            }
+
+            val resource = apiClient.getSeveralArtists(
+                listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
             )
-        }
 
-        val resource = apiClient.getSeveralArtists(
-            listOf("12Chz98pHFMPJEknJQMWvI", "7jy3rLJdDQY21OgRLCZ9sD")
-        )
-
-        resource.shouldBeTypeOf<HttpResource.Failed>()
-        assertSoftly(resource) {
-            it.status shouldBe 500
-            it.message shouldBe "Whoops!"
+            resource.shouldBeTypeOf<HttpResource.Failed>()
+            assertSoftly(resource) {
+                it.status shouldBe 500
+                it.message shouldBe "Whoops!"
+            }
         }
-    }
 
     @Test
-    fun `Given any paginated endpoint, when receiving an error then throw an ApiException`() = runBlockingTest {
-        val apiClient = spotifyService {
-            respondJsonError(
-                HttpStatusCode.InternalServerError,
-                "Whoops!"
-            )
-        }
+    fun `Given any paginated endpoint, when receiving an error then throw an ApiException`() =
+        runTest {
+            val apiClient = spotifyService {
+                respondJsonError(
+                    HttpStatusCode.InternalServerError,
+                    "Whoops!"
+                )
+            }
 
-        val apiException = shouldThrow<ApiException> {
-            apiClient.getArtistAlbums("12Chz98pHFMPJEknJQMWvI").toList()
-        }
+            val apiException = shouldThrow<ApiException> {
+                apiClient.getArtistAlbums("12Chz98pHFMPJEknJQMWvI").toList()
+            }
 
-        apiException.status shouldBe 500
-        apiException.description shouldBe "Whoops!"
-    }
+            apiException.status shouldBe 500
+            apiException.description shouldBe "Whoops!"
+        }
 
     @Test
-    fun `When searching, then properly encode query parameters as url`() = runBlockingTest {
+    fun `When searching, then properly encode query parameters as url`() = runTest {
         val apiClient = spotifyService { request ->
             request.url.fullPath.let {
                 it shouldContain "type=track"
                 it shouldContain "query=%22algorithm%22+artist%3A%22muse%22"
             }
 
-            respondJson("""{
+            respondJson(
+                """{
                 "tracks": {
                   "href": "https://api.spotify.com/v1/search?query=%22algorithm%22+artist%3A%22muse%22&type=track",
                   "items": [],
@@ -735,14 +781,15 @@ class SpotifyServiceTest {
                   "previous": null, 
                   "total": 0
                 }
-            }""".trimMargin())
+            }""".trimMargin()
+            )
         }
 
         apiClient.search(SpotifyQuery.Track("algorithm", artist = "Muse"))
     }
 
     @Test
-    fun `When searching artists, then return a flow of artist results`() = runBlockingTest {
+    fun `When searching artists, then return a flow of artist results`() = runTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
             it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
@@ -779,7 +826,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When searching albums, then return a flow of album results`() = runBlockingTest {
+    fun `When searching albums, then return a flow of album results`() = runTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
             it.url.parameters[SpotifyService.QUERY_Q] shouldBe "\"rammstein\""
@@ -810,7 +857,7 @@ class SpotifyServiceTest {
     }
 
     @Test
-    fun `When searching tracks, then return a flow of track results`() = runBlockingTest {
+    fun `When searching tracks, then return a flow of track results`() = runTest {
         val apiClient = spotifyService {
             it shouldGetOnSpotifyEndpoint "/v1/search"
             it.url.parameters[SpotifyService.QUERY_Q] shouldBe "track:\"rammstein\""
@@ -839,6 +886,7 @@ class SpotifyServiceTest {
         results[3].id shouldBe "2iFgHPoa7FNHwgLnjXzu7F"
     }
 
+    @Suppress("SameParameterValue")
     private fun givenReachedRateLimit(retryAfter: Int): MockEngine {
         val engineConfig = MockEngineConfig()
         var firstRequest: HttpRequestData? = null
@@ -859,7 +907,8 @@ class SpotifyServiceTest {
         }
 
         engineConfig.addHandler { retriedRequest ->
-            val originalRequest = firstRequest ?: fail("The request should have been issued before re-attempted.")
+            val originalRequest =
+                firstRequest ?: fail("The request should have been issued before re-attempted.")
             // Check that the retried request is the same as the failed one.
             retriedRequest.method shouldBe originalRequest.method
             retriedRequest.url shouldBe originalRequest.url

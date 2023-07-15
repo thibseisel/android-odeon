@@ -80,7 +80,10 @@ class SpotifyQueryTest {
             row("Don't Stop Me Now", "track:\"dont stop me now\""),
             row("I'm a Lady", "track:\"im a lady\""),
             row("You've Got Another Thing Comin'", "track:\"youve got another thing comin\""),
-            row("It's A Long Way To The Top (If You Wanna Rock'N'Roll)", "track:\"its a long way to the top (if you wanna rocknroll)\"")
+            row(
+                "It's A Long Way To The Top (If You Wanna Rock'N'Roll)",
+                "track:\"its a long way to the top (if you wanna rocknroll)\""
+            )
         ) { title, expectedQuery ->
             val query = SpotifyQuery.Track(title)
             query.toString() shouldBe expectedQuery

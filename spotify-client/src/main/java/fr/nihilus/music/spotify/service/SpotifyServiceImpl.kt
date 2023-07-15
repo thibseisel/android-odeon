@@ -19,21 +19,33 @@ package fr.nihilus.music.spotify.service
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
-import fr.nihilus.music.spotify.model.*
+import fr.nihilus.music.spotify.model.AudioFeature
+import fr.nihilus.music.spotify.model.Paging
+import fr.nihilus.music.spotify.model.SpotifyAlbum
+import fr.nihilus.music.spotify.model.SpotifyArtist
+import fr.nihilus.music.spotify.model.SpotifyError
+import fr.nihilus.music.spotify.model.SpotifyTrack
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.features.DefaultRequest
 import io.ktor.client.features.HttpSend
 import io.ktor.client.features.UserAgent
 import io.ktor.client.features.feature
-import io.ktor.client.request.*
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.HttpRequestPipeline
+import io.ktor.client.request.accept
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.invoke
+import io.ktor.client.request.parameter
+import io.ktor.client.request.takeFrom
+import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.readText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
-import io.ktor.util.KtorExperimentalAPI
 import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -49,7 +61,6 @@ private const val MAX_SEVERAL_ARTISTS = 50
 private const val MAX_SEVERAL_TRACKS = 50
 private const val MAX_SEVERAL_FEATURES = 100
 
-@OptIn(KtorExperimentalAPI::class)
 internal class SpotifyServiceImpl @TestOnly constructor(
     engine: HttpClientEngine,
     private val moshi: Moshi,
@@ -77,7 +88,8 @@ internal class SpotifyServiceImpl @TestOnly constructor(
     private val trackListAdapter = wrappedListAdapterOf<SpotifyTrack>("tracks")
     private val featureListAdapter = wrappedListAdapterOf<AudioFeature>("audio_features")
 
-    private val artistSearchAdapter = WrappedJsonAdapter("artists", pagingAdapterOf<SpotifyArtist>())
+    private val artistSearchAdapter =
+        WrappedJsonAdapter("artists", pagingAdapterOf<SpotifyArtist>())
     private val albumSearchAdapter = WrappedJsonAdapter("albums", pagingAdapterOf<SpotifyAlbum>())
     private val trackSearchAdapter = WrappedJsonAdapter("tracks", pagingAdapterOf<SpotifyTrack>())
 
@@ -186,10 +198,12 @@ internal class SpotifyServiceImpl @TestOnly constructor(
                 searchParam = "artist"
                 searchAdapter = artistSearchAdapter as WrappedJsonAdapter<Paging<T>>
             }
+
             is SpotifyQuery.Album -> {
                 searchParam = "album"
                 searchAdapter = albumSearchAdapter as WrappedJsonAdapter<Paging<T>>
             }
+
             is SpotifyQuery.Track -> {
                 searchParam = "track"
                 searchAdapter = trackSearchAdapter as WrappedJsonAdapter<Paging<T>>

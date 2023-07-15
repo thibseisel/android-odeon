@@ -16,36 +16,10 @@
 
 <resources>
     <string name="album_art">Okładka albumu</string>
-    <string name="action_albums">Albumy</string>
-    <string name="action_artists">Wykonawcy</string>
-    <string name="play_all_shuffled">Odtwarzaj losowo wszystkie</string>
-    <string name="action_search">Szukaj</string>
-    <string name="empty_songs">Brak utworów</string>
-    <string name="all_music">Utwory</string>
-    <string name="empty_albums">Brak albumów</string>
-    <string name="action_playlists">Playlisty</string>
     <string name="action_shuffle_mode">Włącz/wyłącz tryb losowy</string>
     <string name="play_or_pause">Odtwarzaj bądź pauzuj</string>
     <string name="skip_previous">Przejdź do poprzedniego</string>
     <string name="skip_next">Przejdź do następnego</string>
-    <string name="empty_artist">Brak wykonawców</string>
-    <string name="add_to_playlist">Dodaj do playlisty</string>
-    <string name="delete_dialog_title">Usunąć z biblioteki muzycznej?</string>
-    <string name="empty_playlist">Brak playlist</string>
-    <string name="delete_dialog_message">Ten utwór zostanie usunięty z urządzenia.</string>
-    <string name="playlist_created">Stworzono nową playlistę \"%1$s\".</string>
-    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="action_edit_playlist">Edytuj playlistę</string>
-    <string name="action_delete_playlist">Usuń playlistę</string>
-    <string name="delete_playlist_dialog_title">Usunąć playlistę \"%s\"?</string>
     <string name="external_storage_permission_rationale">Nie będziesz mógł odtwarzać utworów jeśli nie przyznasz aplikacji uprawnień do odczytu pamięci telefonu.</string>
-    <string name="action_condensed_play_shuffled">Odczytuj losowo</string>
     <string name="action_repeat_mode">Włącz/wyłącz tryb powtarzania</string>
-    <string name="action_create_playlist">Nowa playlista</string>
-    <string name="hint_playlist_title">Tytuł playlisty</string>
-    <string name="search_hint">Znajdź utwór, artystę</string>
-    <string name="action_clear">Wyczyść</string>
-    <string name="description_more_actions">Więcej działań</string>
-    <string name="desc_clear_search">Wyczyść wyszukiwanie</string>
-    <string name="desc_play_album">Play album</string>
 </resources>

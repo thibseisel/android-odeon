@@ -14,8 +14,7 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="fr.nihilus.music.ui.cleanup">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application android:theme="@style/Odeon">
         <!-- Activity for selecting tracks to be deleted to free-up space. -->

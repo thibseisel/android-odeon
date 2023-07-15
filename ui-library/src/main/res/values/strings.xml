@@ -1,0 +1,45 @@
+<!--
+  ~ Copyright 2022 Thibault Seisel
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="album_art">Album art</string>
+    <string name="action_albums">Albums</string>
+    <string name="action_artists">Artists</string>
+    <string name="play_all_shuffled">Play all shuffled</string>
+    <string name="action_search">Search</string>
+    <string name="empty_songs">No songs</string>
+    <string name="all_music">Tracks</string>
+    <string name="empty_albums">No albums</string>
+    <string name="action_playlists">Playlists</string>
+    <string name="empty_artist">No artists</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="delete_dialog_title">Delete from library?</string>
+    <string name="empty_playlist">No playlist</string>
+    <string name="delete_dialog_message">This song will be deleted from your device.</string>
+    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
+    <string name="action_delete_playlist">Delete playlist</string>
+    <string name="delete_playlist_dialog_title">Delete the playlist \"%s\"?</string>
+    <string name="action_condensed_play_shuffled">Read shuffled</string>
+    <string name="action_create_playlist">New playlist</string>
+    <string name="hint_playlist_title">Playlist title</string>
+    <string name="search_hint">Find a track, an artist</string>
+    <string name="action_clear">Clear</string>
+    <string name="desc_clear_search">Clear search query</string>
+    <string name="description_more_actions">More actions</string>
+    <string name="desc_play_album">Play album</string>
+    <string name="action_exclude_track">Exclude from library</string>
+    <string name="action_cleanup_title">Free storage space</string>
+</resources>

@@ -14,85 +14,21 @@
  * limitations under the License.
  */
 
-import com.android.build.gradle.BaseExtension
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+buildscript {
+    dependencies {
+        classpath(libs.plugin.hilt)
+    }
+}
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        google()
-        jcenter()
-    }
-
-    dependencies {
-        classpath("com.android.tools.build:gradle:4.1.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Libs.kotlin}")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Libs.Androidx.navigation}")
-    }
-}
-
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    id("com.github.ben-manes.versions") version "0.36.0"
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-
-    tasks.register("configurations") {
-        group = "help"
-        description = "Display build configurations declared in project ':${this@allprojects.name}'"
-
-        doLast {
-            configurations.filter { it.isCanBeResolved }.forEach {
-                println("${it.name} - ${it.description}")
-            }
-        }
-    }
-}
-
-subprojects {
-    // Common Kotlin configuration
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs = freeCompilerArgs + arrayOf(
-                "-Xopt-in=kotlin.RequiresOptIn",
-                "-Xopt-in=kotlin.ExperimentalStdlibApi",
-                "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-            )
-        }
-    }
-
-    // Common Android configuration
-    afterEvaluate {
-        configure<BaseExtension> {
-            compileSdkVersion(AppConfig.compileSdk)
-
-            defaultConfig {
-                minSdkVersion(AppConfig.minSdk)
-                targetSdkVersion(AppConfig.targetSdk)
-
-                testInstrumentationRunner("androidx.test.runner.AndroidJUnitRunner")
-            }
-
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
-
-            testOptions {
-                // Include Android resources in unit tests to be resolved by Robolectric.
-                unitTests.isIncludeAndroidResources = true
-            }
-        }
-    }
-}
-
-tasks.dependencyUpdates {
-    revision = "release"
+    alias(libs.plugins.versions)
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.androidx.navigation.safeargs.kotlin) apply false
 }
 
 tasks.register<Exec>("startAutoDhu") {
@@ -125,6 +61,14 @@ tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
 
-tasks.withType<Wrapper> {
+tasks.withType<Wrapper>().configureEach {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+tasks.dependencyUpdates.configure {
+    revision = "release"
+    gradleReleaseChannel = "current"
+
+    val releaseRegex = Regex("^[0-9,.v-]+(-r)?\$", RegexOption.IGNORE_CASE)
+    rejectVersionIf { !candidate.version.matches(releaseRegex) }
 }

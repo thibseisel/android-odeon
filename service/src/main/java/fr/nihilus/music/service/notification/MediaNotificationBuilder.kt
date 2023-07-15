@@ -20,19 +20,25 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.os.Build
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.media.app.NotificationCompat.MediaStyle
 import androidx.media.session.MediaButtonReceiver
-import fr.nihilus.music.service.MusicService
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.R
-import fr.nihilus.music.service.ServiceScoped
-import fr.nihilus.music.service.extensions.*
+import fr.nihilus.music.service.extensions.albumArt
+import fr.nihilus.music.service.extensions.displaySubtitle
+import fr.nihilus.music.service.extensions.displayTitle
+import fr.nihilus.music.service.extensions.isPlayEnabled
+import fr.nihilus.music.service.extensions.isPlaying
+import fr.nihilus.music.service.extensions.isSkipToNextEnabled
+import fr.nihilus.music.service.extensions.isSkipToPreviousEnabled
 import javax.inject.Inject
 
 private const val NOW_PLAYING_CHANNEL = "fr.nihilus.music.media.NOW_PLAYING"
@@ -43,7 +49,7 @@ internal const val NOW_PLAYING_NOTIFICATION = 0x1ee7
  */
 @ServiceScoped
 internal class MediaNotificationBuilder @Inject constructor(
-    private val context: MusicService,
+    private val context: Service,
     session: MediaSessionCompat
 ) {
 
@@ -61,29 +67,44 @@ internal class MediaNotificationBuilder @Inject constructor(
     private val previousAction = NotificationCompat.Action(
         R.drawable.svc_ic_skip_previous_36dp,
         context.getString(R.string.svc_action_previous),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            context,
+            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        )
     )
 
     private val playAction = NotificationCompat.Action(
         R.drawable.svc_ic_play_arrow_48dp,
         context.getString(R.string.svc_action_play),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            context,
+            PlaybackStateCompat.ACTION_PLAY
+        )
     )
 
     private val pauseAction = NotificationCompat.Action(
         R.drawable.svc_ic_pause_48dp,
         context.getString(R.string.svc_action_pause),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            context,
+            PlaybackStateCompat.ACTION_PAUSE
+        )
     )
 
     private val nextAction = NotificationCompat.Action(
         R.drawable.svc_ic_skip_next_36dp,
         context.getString(R.string.svc_action_next),
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            context,
+            PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+        )
     )
 
     private val stopPendingIntent: PendingIntent =
-        MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
+        MediaButtonReceiver.buildMediaButtonPendingIntent(
+            context,
+            PlaybackStateCompat.ACTION_STOP
+        )
 
     fun buildNotification(): Notification {
         if (shouldCreateNowPlayingChannel()) {

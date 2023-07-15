@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,31 +15,26 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
+    namespace = "fr.nihilus.music.ui.cleanup"
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-ui"))
-    implementation(project(":media"))
+    implementation(projects.core)
+    implementation(projects.coreUi)
+    implementation(projects.media)
 
-    implementation("androidx.recyclerview:recyclerview:${Libs.Androidx.recyclerview}")
-    implementation("androidx.recyclerview:recyclerview-selection:${Libs.Androidx.rvSelection}")
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
 
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
-
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
 }

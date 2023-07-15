@@ -22,8 +22,10 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_ALBUMS
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.test.stub
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.SearchQuery
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.BrowserTree
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -98,7 +100,5 @@ internal object TestBrowserTree : BrowserTree {
         throw NoSuchElementException()
     }
 
-    override suspend fun getItem(itemId: MediaId): MediaContent? = stub()
-
-    override suspend fun search(query: SearchQuery): List<MediaContent> = stub()
+    override suspend fun getItem(itemId: MediaId): MediaContent = stub()
 }

@@ -16,12 +16,17 @@
 
 package fr.nihilus.music.core.test.coroutines
 
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.rules.TestRule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.rules.TestWatcher
 import org.junit.runner.Description
-import org.junit.runners.model.Statement
+
+private const val TEST_TIMEOUT = 5_000L
 
 /**
  * A JUnit Rule for running tests that use Kotlin Coroutines.
@@ -34,39 +39,28 @@ import org.junit.runners.model.Statement
  *    val test = CoroutineTestRule()
  *
  *    @Test
- *    fun `Check happy path`() = test.run {
+ *    fun `Check happy path`() = test {
  *        // This test body can now run suspend functions.
  *    }
  * }
  * ```
  */
-class CoroutineTestRule : TestRule {
+class CoroutineTestRule : TestWatcher() {
+    private val scope = TestScope()
 
-    /**
-     * The dispatcher used for immediate execution of coroutines in test.
-     * Use this dispatcher to virtually advance time or pause the immediate execution of coroutines.
-     */
-    val dispatcher = TestCoroutineDispatcher()
+    val dispatcher: TestDispatcher = StandardTestDispatcher(scope.testScheduler)
 
-    /**
-     * Executes a [testBody] inside an immediate execution dispatcher.
-     * This a convenience function over `dispatcher.runBlockingTest`.
-     *
-     * @param testBody The code of the unit test.
-     *
-     * @see runBlockingTest
-     */
-    fun run(
-        testBody: suspend TestCoroutineScope.() -> Unit
-    ) = dispatcher.runBlockingTest(testBody)
+    operator fun invoke(testBody: suspend TestScope.() -> Unit) = run(testBody)
 
-    override fun apply(base: Statement, description: Description?): Statement = object : Statement() {
-        override fun evaluate() {
-            try {
-                base.evaluate()
-            } finally {
-                dispatcher.cleanupTestCoroutines()
-            }
-        }
+    fun run(block: suspend TestScope.() -> Unit) = scope.runTest(TEST_TIMEOUT, testBody = block)
+
+    override fun starting(description: Description?) {
+        super.starting(description)
+        Dispatchers.setMain(dispatcher)
+    }
+
+    override fun finished(description: Description?) {
+        super.finished(description)
+        Dispatchers.resetMain()
     }
 }

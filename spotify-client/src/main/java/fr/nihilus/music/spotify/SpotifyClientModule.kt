@@ -21,6 +21,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.spotify.service.SpotifyAccountsService
 import fr.nihilus.music.spotify.service.SpotifyAccountsServiceImpl
 import fr.nihilus.music.spotify.service.SpotifyService
@@ -37,6 +39,7 @@ import javax.inject.Named
  * - a [String] named `SPOTIFY_CLIENT_SECRET`: the Spotify secret key for this application.
  */
 @Module
+@InstallIn(SingletonComponent::class)
 internal abstract class SpotifyClientModule {
 
     @Binds

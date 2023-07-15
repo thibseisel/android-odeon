@@ -34,8 +34,6 @@ import timber.log.Timber
 import java.io.IOException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.*
-import kotlin.collections.LinkedHashMap
 
 private const val ANDROID_PLATFORM = "android"
 private val WHITESPACE_REGEX = "\\s|\\n".toRegex()
@@ -196,6 +194,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
      *
      * @return [PackageInfo] for the package name or null if it's not found.
      */
+    @Suppress("DEPRECATION")
     @SuppressLint("PackageManagerGetSignatures")
     private fun getPackageInfo(callingPackage: String): PackageInfo? =
         packageManager.getPackageInfo(
@@ -212,6 +211,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
      * If the app is not found, or if the app does not have exactly one signature, this method
      * returns `null` as the signature.
      */
+    @Suppress("DEPRECATION")
     private fun getSignature(packageInfo: PackageInfo): String? =
         if (packageInfo.signatures == null || packageInfo.signatures.size != 1) {
             // Security best practices dictate that an app should be signed with exactly one (1)
@@ -282,7 +282,7 @@ internal class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
         var eventType = parser.next()
         while (eventType != XmlResourceParser.END_TAG) {
             val isRelease = parser.getAttributeBooleanValue(null, "release", false)
-            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").toLowerCase(Locale.ROOT)
+            val signature = parser.nextText().replace(WHITESPACE_REGEX, "").lowercase()
             callerSignatures += KnownSignature(signature, isRelease)
 
             eventType = parser.next()

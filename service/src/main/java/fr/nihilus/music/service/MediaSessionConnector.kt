@@ -19,15 +19,19 @@ package fr.nihilus.music.service
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.util.component1
 import androidx.core.util.component2
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.util.ErrorMessageProvider
-import com.google.android.exoplayer2.util.Util
+import androidx.media3.common.C
+import androidx.media3.common.ErrorMessageProvider
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import dagger.hilt.android.scopes.ServiceScoped
+import fr.nihilus.music.media.AudioTrack
 import fr.nihilus.music.service.metadata.IconDownloader
 import fr.nihilus.music.service.metadata.metadataProducer
 import kotlinx.coroutines.CoroutineScope
@@ -73,15 +77,15 @@ internal const val PLAYBACK_ACTIONS = (
 
 @ServiceScoped
 internal class MediaSessionConnector @Inject constructor(
-    scope: CoroutineScope,
+    @ServiceCoroutineScope scope: CoroutineScope,
     private val mediaSession: MediaSessionCompat,
     private val player: Player,
     private val playbackPreparer: PlaybackPreparer,
     private val queueNavigator: QueueNavigator,
-    private val errorMessageProvider: ErrorMessageProvider<ExoPlaybackException>,
+    private val errorMessageProvider: ErrorMessageProvider<PlaybackException>,
     private val iconDownloader: IconDownloader
 ) {
-    private val looper = Util.getCurrentOrMainLooper()
+    private val looper = Looper.myLooper() ?: Looper.getMainLooper()
     private val componentListener = ComponentListener()
 
     private val metadataProducer = scope.startMetadataUpdater()
@@ -95,9 +99,9 @@ internal class MediaSessionConnector @Inject constructor(
     }
 
     private fun invalidateMediaSessionMetadata() {
-        val nowPlayingTrack = player.currentMediaItem?.playbackProperties?.tag as? AudioTrack
+        val nowPlayingTrack = player.currentMediaItem?.localConfiguration?.tag as? AudioTrack
         if (nowPlayingTrack != null) {
-            metadataProducer.offer(nowPlayingTrack)
+            metadataProducer.trySend(nowPlayingTrack)
         }
     }
 
@@ -131,16 +135,20 @@ internal class MediaSessionConnector @Inject constructor(
                 SystemClock.elapsedRealtime()
             )
 
-        mediaSession.setRepeatMode(when (player.repeatMode) {
-            Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
-            Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
-            else -> PlaybackStateCompat.REPEAT_MODE_NONE
-        })
+        mediaSession.setRepeatMode(
+            when (player.repeatMode) {
+                Player.REPEAT_MODE_ONE -> PlaybackStateCompat.REPEAT_MODE_ONE
+                Player.REPEAT_MODE_ALL -> PlaybackStateCompat.REPEAT_MODE_ALL
+                else -> PlaybackStateCompat.REPEAT_MODE_NONE
+            }
+        )
 
-        mediaSession.setShuffleMode(when (player.shuffleModeEnabled) {
-            true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
-            false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
-        })
+        mediaSession.setShuffleMode(
+            when (player.shuffleModeEnabled) {
+                true -> PlaybackStateCompat.SHUFFLE_MODE_ALL
+                false -> PlaybackStateCompat.SHUFFLE_MODE_NONE
+            }
+        )
 
         mediaSession.setPlaybackState(builder.build())
     }
@@ -153,16 +161,9 @@ internal class MediaSessionConnector @Inject constructor(
         PREPARER_ACTIONS and playbackPreparer.getSupportedPrepareActions()
 
     private fun buildPlaybackActions(player: Player): Long {
-        var enableSeeking = false
-        var enableRewind = false
-        var enableFastForward = false
-
-        val timeline = player.currentTimeline
-        if (!timeline.isEmpty && !player.isPlayingAd) {
-            enableSeeking = player.isCurrentWindowSeekable
-            enableRewind = enableSeeking
-            enableFastForward = enableSeeking
-        }
+        val enableSeeking = player.isCommandAvailable(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+        val enableRewind = player.isCommandAvailable(Player.COMMAND_SEEK_BACK)
+        val enableFastForward = player.isCommandAvailable(Player.COMMAND_SEEK_FORWARD)
 
         var playbackActions = BASE_PLAYBACK_ACTIONS
         if (enableSeeking) {
@@ -192,13 +193,13 @@ internal class MediaSessionConnector @Inject constructor(
         queueNavigator.getSupportedQueueNavigatorActions(player) and action != 0L
 
     private fun rewind(player: Player) {
-        if (player.isCurrentWindowSeekable) {
+        if (player.isCurrentMediaItemSeekable) {
             seekToOffset(player, -REWIND_MS)
         }
     }
 
     private fun fastForward(player: Player) {
-        if (player.isCurrentWindowSeekable) {
+        if (player.isCurrentMediaItemSeekable) {
             seekToOffset(player, FAST_FORWARD_MS)
         }
     }
@@ -211,11 +212,11 @@ internal class MediaSessionConnector @Inject constructor(
         }
 
         positionMs = positionMs.coerceAtLeast(0)
-        seekTo(player, player.currentWindowIndex, positionMs)
+        seekTo(player, player.currentMediaItemIndex, positionMs)
     }
 
-    private fun seekTo(player: Player, windowIndex: Int, positionMs: Long) {
-        player.seekTo(windowIndex, positionMs)
+    private fun seekTo(player: Player, itemIndex: Int, positionMs: Long) {
+        player.seekTo(itemIndex, positionMs)
     }
 
     private fun getMediaSessionPlaybackState(
@@ -226,10 +227,12 @@ internal class MediaSessionConnector @Inject constructor(
             playWhenReady -> PlaybackStateCompat.STATE_BUFFERING
             else -> PlaybackStateCompat.STATE_PAUSED
         }
+
         Player.STATE_READY -> when {
             playWhenReady -> PlaybackStateCompat.STATE_PLAYING
             else -> PlaybackStateCompat.STATE_PAUSED
         }
+
         Player.STATE_ENDED -> PlaybackStateCompat.STATE_STOPPED
         else -> PlaybackStateCompat.STATE_NONE
     }
@@ -258,63 +261,60 @@ internal class MediaSessionConnector @Inject constructor(
     interface QueueNavigator {
         fun getSupportedQueueNavigatorActions(player: Player): Long
         fun onTimelineChanged(player: Player)
-        fun onCurrentWindowIndexChanged(player: Player)
+        fun onCurrentMediaItemIndexChanged(player: Player)
         fun getActiveQueueItemId(player: Player?): Long
         fun onSkipToPrevious(player: Player)
         fun onSkipToNext(player: Player)
         fun onSkipToQueueItem(player: Player, id: Long)
     }
 
-    private inner class ComponentListener : MediaSessionCompat.Callback(), Player.EventListener {
-        private var currentWindowIndex = 0
+    private inner class ComponentListener : MediaSessionCompat.Callback(), Player.Listener {
         private var currentWindowCount = 0
 
-        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
-            val windowCount = player.currentTimeline.windowCount
-            val windowIndex = player.currentWindowIndex
+        override fun onEvents(player: Player, events: Player.Events) {
+            var invalidatePlaybackState = false
+            var invalidateMetadata = false
 
-            queueNavigator.onTimelineChanged(player)
-            invalidateMediaSessionPlaybackState()
-
-            currentWindowCount = windowCount
-            currentWindowIndex = windowIndex
-            invalidateMediaSessionMetadata()
-        }
-
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            invalidateMediaSessionPlaybackState()
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            invalidateMediaSessionPlaybackState()
-            invalidateMediaSessionQueue()
-        }
-
-        override fun onPositionDiscontinuity(reason: Int) {
-            if (currentWindowIndex != player.currentWindowIndex) {
-                queueNavigator.onCurrentWindowIndexChanged(player)
-                currentWindowIndex = player.currentWindowIndex
-
-                // Update playback state after queueNavigator.onCurrentWindowIndexChanged
-                // has been called and before updating metadata.
-                invalidateMediaSessionPlaybackState()
-                invalidateMediaSessionMetadata()
-                return
+            if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
+                if (currentWindowCount != player.currentMediaItemIndex) {
+                    queueNavigator.onCurrentMediaItemIndexChanged(player)
+                    invalidateMetadata = true
+                }
+                invalidatePlaybackState = true
             }
 
-            invalidateMediaSessionPlaybackState()
-        }
+            if (events.contains(Player.EVENT_TIMELINE_CHANGED)) {
+                queueNavigator.onTimelineChanged(player)
+                currentWindowCount = player.currentTimeline.windowCount
 
-        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-            invalidateMediaSessionPlaybackState()
+                invalidatePlaybackState = true
+                invalidateMetadata = true
+            }
+
+            if (events.containsAny(
+                    Player.EVENT_PLAYBACK_STATE_CHANGED,
+                    Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                    Player.EVENT_IS_PLAYING_CHANGED,
+                    Player.EVENT_REPEAT_MODE_CHANGED,
+                    Player.EVENT_REPEAT_MODE_CHANGED
+                )
+            ) {
+                invalidatePlaybackState = true
+            }
+            // The queue needs to be updated by the queue navigator first. The queue navigator also
+            // delivers the active queue item that is used to update the playback state.
+            if (events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+                invalidateMediaSessionQueue()
+                invalidatePlaybackState = true
+            }
+            // Invalidate the playback state before invalidating metadata because the active queue item of
+            // the session playback state needs to be updated before the MediaMetadataProvider uses it.
+            if (invalidatePlaybackState) {
+                invalidateMediaSessionPlaybackState()
+            }
+            if (invalidateMetadata) {
+                invalidateMediaSessionMetadata()
+            }
         }
 
         override fun onPlay() {
@@ -322,7 +322,7 @@ internal class MediaSessionConnector @Inject constructor(
                 if (player.playbackState == Player.STATE_IDLE) {
                     playbackPreparer.onPrepare(true)
                 } else if (player.playbackState == Player.STATE_ENDED) {
-                    seekTo(player, player.currentWindowIndex, C.TIME_UNSET)
+                    seekTo(player, player.currentMediaItemIndex, C.TIME_UNSET)
                 }
 
                 player.playWhenReady = true
@@ -337,7 +337,7 @@ internal class MediaSessionConnector @Inject constructor(
 
         override fun onSeekTo(positionMs: Long) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SEEK_TO)) {
-                seekTo(player, player.currentWindowIndex, positionMs)
+                seekTo(player, player.currentMediaItemIndex, positionMs)
             }
         }
 
@@ -362,7 +362,8 @@ internal class MediaSessionConnector @Inject constructor(
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE)) {
-                val shuffleModeEnabled = (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
+                val shuffleModeEnabled =
+                    (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_GROUP)
                 player.shuffleModeEnabled = shuffleModeEnabled
             }
         }
@@ -372,6 +373,7 @@ internal class MediaSessionConnector @Inject constructor(
                 val newMode = when (repeatMode) {
                     PlaybackStateCompat.REPEAT_MODE_ALL,
                     PlaybackStateCompat.REPEAT_MODE_GROUP -> Player.REPEAT_MODE_ALL
+
                     PlaybackStateCompat.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
                     else -> Player.REPEAT_MODE_OFF
                 }

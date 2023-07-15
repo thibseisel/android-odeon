@@ -43,11 +43,15 @@ object GlideExtensions {
      * when one or more color is not available.
      */
     @[JvmStatic GlideOption]
-    fun fallbackColors(options: BaseRequestOptions<*>, palette: AlbumPalette): BaseRequestOptions<*> =
+    fun fallbackColors(
+        options: BaseRequestOptions<*>,
+        palette: AlbumPalette
+    ): BaseRequestOptions<*> =
         options.set(OPTION_DEFAULT_PALETTE, palette)
 
     val OPTION_DEFAULT_PALETTE: Option<AlbumPalette> =
-        Option.memory("fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE",
+        Option.memory(
+            "fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE",
             AlbumPalette(
                 primary = 0xFFC4C4C,
                 accent = Color.WHITE,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,50 +15,29 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
-android.defaultConfig {
-    consumerProguardFiles("consumer-rules.pro")
+android {
+    namespace = "fr.nihilus.music.core.ui"
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":media"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
 
-    // Dispatcher to Android main thread
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Libs.koroutines}")
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.media)
+    implementation(libs.identikon)
 
-    api("androidx.media:media:${Libs.Androidx.media}")
-    api("androidx.appcompat:appcompat:${Libs.Androidx.appcompat}")
-    api("androidx.fragment:fragment-ktx:${Libs.Androidx.fragment}")
-    api("androidx.constraintlayout:constraintlayout:${Libs.Androidx.constraint_layout}")
-    api("androidx.palette:palette-ktx:${Libs.Androidx.palette}")
+    kapt(libs.glide.compiler)
 
-    // Android Arch Components
-    api("androidx.lifecycle:lifecycle-livedata-ktx:${Libs.Androidx.lifecycle}")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:${Libs.Androidx.lifecycle}")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:${Libs.Androidx.lifecycle}")
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
 
-    // Navigation Components
-    api("androidx.navigation:navigation-fragment-ktx:${Libs.Androidx.navigation}")
-    api("androidx.navigation:navigation-ui-ktx:${Libs.Androidx.navigation}")
-
-    // Image loading
-    api("com.github.bumptech.glide:glide:${Libs.glide}")
-    kapt("com.github.bumptech.glide:compiler:${Libs.glide}")
-
-    // Material Components
-    api("com.google.android.material:material:${Libs.material}")
-
-    api("com.google.dagger:dagger-android:${Libs.dagger}")
-    api("com.google.dagger:dagger-android-support:${Libs.dagger}")
-
-    implementation("com.github.thibseisel:kdenticon-android:${Libs.kdenticon}")
-
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-
-    testImplementation(project(":core-test"))
+    androidTestImplementation(libs.bundles.testing.instrumented)
 }

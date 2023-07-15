@@ -17,7 +17,7 @@
 package fr.nihilus.music.ui.cleanup
 
 import io.kotest.matchers.shouldBe
-import java.util.*
+import java.util.Locale
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 

@@ -15,14 +15,11 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="fr.nihilus.music"
     android:installLocation="auto">
 
     <application
         android:name=".OdeonApplication"
         android:allowBackup="true"
-        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/core_app_name"
         android:requestLegacyExternalStorage="true"
@@ -30,14 +27,10 @@
         android:supportsRtl="true"
         android:theme="@style/Odeon">
 
-        <!-- Declare support for Android Auto. -->
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc"/>
-
         <!-- Main activity for music browsing. -->
         <activity
             android:name=".HomeActivity"
+            android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Odeon.NoActionBar"
             android:windowSoftInputMode="adjustPan">
@@ -79,17 +72,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
-        <!--
-            Remove the default WorkManager initializer.
-            WorkManager will be initialized at application startup instead.
-            This is required to inject dependencies into Workers with Dagger.
-            -->
-        <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:exported="false"
-            tools:node="remove" />
     </application>
 
 </manifest>

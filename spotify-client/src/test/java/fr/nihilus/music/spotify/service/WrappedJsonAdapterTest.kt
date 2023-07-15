@@ -39,12 +39,14 @@ class WrappedJsonAdapterTest {
             jsonAdapterOf<SpotifyError>()
         )
 
-        val payload = envelopeAdapter.fromJson("""{
+        val payload = envelopeAdapter.fromJson(
+            """{
             "error": {
                 "status": 404,
                 "message": "Not Found"
             }
-        }""".trimIndent())
+        }""".trimIndent()
+        )
 
         payload.shouldNotBeNull()
         payload.status shouldBe 404
@@ -56,9 +58,11 @@ class WrappedJsonAdapterTest {
         val envelopeAdapter =
             WrappedJsonAdapter("data", listAdapterOf<String>())
 
-        val strings = envelopeAdapter.fromJson("""{
+        val strings = envelopeAdapter.fromJson(
+            """{
             "data": ["Foo", "Bar"]
-        }""".trimIndent())
+        }""".trimIndent()
+        )
 
         strings.shouldContainExactly("Foo", "Bar")
     }
@@ -69,9 +73,11 @@ class WrappedJsonAdapterTest {
             WrappedJsonAdapter("data", listAdapterOf<String>())
 
         shouldThrow<JsonDataException> {
-            envelopeAdapter.fromJson("""{
+            envelopeAdapter.fromJson(
+                """{
                 "payload": ["Foo", "Bar"]
-            }""".trimIndent())
+            }""".trimIndent()
+            )
         }
     }
 
@@ -80,9 +86,11 @@ class WrappedJsonAdapterTest {
         val envelopeAdapter =
             WrappedJsonAdapter("data", jsonAdapterOf<String>())
 
-        val payload = envelopeAdapter.fromJson("""{ 
+        val payload = envelopeAdapter.fromJson(
+            """{ 
             "data": null
-        }""".trimIndent())
+        }""".trimIndent()
+        )
 
         payload.shouldBeNull()
     }
@@ -121,7 +129,8 @@ class WrappedJsonAdapterTest {
         json shouldBe """{"data":["Foo","Bar"]}"""
     }
 
-    private inline fun <reified T : Any> jsonAdapterOf(): JsonAdapter<T> = moshi.adapter(T::class.java)
+    private inline fun <reified T : Any> jsonAdapterOf(): JsonAdapter<T> =
+        moshi.adapter(T::class.java)
 
     private inline fun <reified E : Any> listAdapterOf(): JsonAdapter<List<E>> {
         val listType = Types.newParameterizedType(List::class.java, E::class.java)

@@ -26,15 +26,25 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaId.Builder.encode
-import fr.nihilus.music.service.AudioTrack
-import fr.nihilus.music.service.extensions.*
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.service.extensions.album
+import fr.nihilus.music.service.extensions.albumArt
+import fr.nihilus.music.service.extensions.artist
+import fr.nihilus.music.service.extensions.displayDescription
+import fr.nihilus.music.service.extensions.displayIconUri
+import fr.nihilus.music.service.extensions.displaySubtitle
+import fr.nihilus.music.service.extensions.displayTitle
+import fr.nihilus.music.service.extensions.duration
+import fr.nihilus.music.service.extensions.id
+import fr.nihilus.music.service.extensions.title
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.channels.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import kotlin.test.Test
 
@@ -42,7 +52,7 @@ import kotlin.test.Test
 internal class MetadataProducerTest {
 
     @Test
-    fun `Properly extract metadata from track`() = runBlockingTest {
+    fun `Properly extract metadata from track`() = runTest {
         val sampleMedia = AudioTrack(
             id = MediaId(TYPE_TRACKS, CATEGORY_ALL, 75L),
             title = "Nightmare",
@@ -95,7 +105,7 @@ internal class MetadataProducerTest {
     }
 
     @Test
-    fun `When sending two tracks at the same time, then only produce latest`() = runBlockingTest {
+    fun `When sending two tracks at the same time, then only produce latest`() = runTest {
         val firstTrackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L)
         val secondTrackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 42L)
 
@@ -119,7 +129,7 @@ internal class MetadataProducerTest {
     }
 
     @Test
-    fun `When sending same item two times, then ignore the second one`() = runBlockingTest {
+    fun `When sending same item two times, then ignore the second one`() = runTest {
         val trackId = MediaId(TYPE_TRACKS, CATEGORY_ALL, 16L)
         val firstTrack = audioTrack(trackId, "First track")
         val secondTrack = audioTrack(trackId, "Second track")

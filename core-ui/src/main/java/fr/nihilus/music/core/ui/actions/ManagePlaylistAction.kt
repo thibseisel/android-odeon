@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,33 +16,10 @@
 
 package fr.nihilus.music.core.ui.actions
 
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.net.Uri
-import com.github.thibseisel.kdenticon.Identicon
-import com.github.thibseisel.kdenticon.IdenticonStyle
-import com.github.thibseisel.kdenticon.android.drawToBitmap
-import fr.nihilus.music.core.context.AppDispatchers
-import fr.nihilus.music.core.database.playlists.Playlist
-import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.playlists.PlaylistTrack
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_PLAYLISTS
-import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.core.os.FileSystem
-import kotlinx.coroutines.withContext
+import fr.nihilus.music.media.playlists.PlaylistRepository
 import javax.inject.Inject
-
-/**
- * The width/height in pixels of the generated playlist icons.
- */
-private const val ICON_SIZE_PX = 320
-
-/**
- * The name of the folder into which generated playlist icons are written.
- * This folder only contains PNG files.
- */
-private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
 
 /**
  * Handler for actions related to the management of user-defined playlists.
@@ -55,21 +32,10 @@ private const val PLAYLIST_ICON_FOLDER = "playlist_icons"
  *
  * Track media ids can have any [type][MediaId.type] or [category][MediaId.category]
  * but should have a non-`null` [track identifier][MediaId.track].
- *
- * @property playlistDao Handle to the playlists storage.
- * @property files Handle to read/write internal storage files.
- * @property clock Provider of the system time.
- * @property dispatchers Set of coroutine dispatchers.
  */
 class ManagePlaylistAction @Inject constructor(
-    private val playlistDao: PlaylistDao,
-    private val files: FileSystem,
-    private val clock: Clock,
-    private val dispatchers: AppDispatchers
+    private val repository: PlaylistRepository,
 ) {
-
-    private val reWhitespaces = Regex("\\s")
-
     /**
      * Creates a new user-defined playlist with the given [name] and optional track members.
      *
@@ -81,9 +47,10 @@ class ManagePlaylistAction @Inject constructor(
         require(name.isNotBlank())
         val trackIds = requireTrackIds(members)
 
-        val iconUri = generatePlaylistIcon(name)
-        val newPlaylist = Playlist(0L, name, clock.currentEpochTime, iconUri)
-        playlistDao.createPlaylist(newPlaylist, trackIds)
+        val newPlaylist = repository.createUserPlaylist(name)
+        if (trackIds.isNotEmpty()) {
+            repository.addTracksToPlaylist(newPlaylist.id, trackIds)
+        }
     }
 
     /**
@@ -101,8 +68,7 @@ class ManagePlaylistAction @Inject constructor(
         val trackIds = requireTrackIds(members)
 
         if (trackIds.isNotEmpty()) {
-            val playlistTracks = trackIds.map { PlaylistTrack(playlistId, it) }
-            playlistDao.addTracks(playlistTracks)
+            repository.addTracksToPlaylist(playlistId, trackIds)
         }
     }
 
@@ -115,25 +81,7 @@ class ManagePlaylistAction @Inject constructor(
      */
     suspend fun deletePlaylist(targetPlaylist: MediaId) {
         val playlistId = requirePlaylistId(targetPlaylist)
-        playlistDao.deletePlaylist(playlistId)
-    }
-
-    private suspend fun generatePlaylistIcon(playlistName: String): Uri? = withContext(dispatchers.Default) {
-        val iconSpec = Identicon.fromValue(playlistName, ICON_SIZE_PX).apply {
-            style = IdenticonStyle(
-                backgroundColor = Color.TRANSPARENT,
-                padding = 0f
-            )
-        }
-
-        val outputBitmap = Bitmap.createBitmap(ICON_SIZE_PX, ICON_SIZE_PX, Bitmap.Config.ARGB_8888)
-        iconSpec.drawToBitmap(outputBitmap)
-
-        withContext(dispatchers.IO) {
-            // Sanitize playlist name to make a filename without spaces
-            val fileName = playlistName.replace(reWhitespaces, "_")
-            files.writeBitmapToInternalStorage("$PLAYLIST_ICON_FOLDER/$fileName.png", outputBitmap)
-        }
+        repository.deletePlaylist(playlistId)
     }
 
     private fun requirePlaylistId(playlist: MediaId): Long {

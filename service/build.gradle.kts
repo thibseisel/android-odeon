@@ -15,61 +15,27 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        getByName("release") {
-            // Configure Kotlin compiler optimisations for releases
-            kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-Xno-param-assertions",
-                    "-Xno-call-assertions",
-                    "-Xno-receiver-assertions"
-                )
-            }
-        }
-    }
+    namespace = "fr.nihilus.music.service"
 }
 
 dependencies {
-    implementation(project(":core"))
-    api(project(":media"))
-    implementation(project(":spotify-client"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(projects.media)
+    implementation(projects.spotifyClient)
 
-    // Kotlin language support
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:${Libs.koroutines}")
+    implementation(libs.bundles.core)
+    implementation(libs.androidx.media)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.glide)
 
-    // Android support libraries
-    implementation("androidx.appcompat:appcompat:${Libs.Androidx.appcompat}")
-    implementation("androidx.media:media:${Libs.Androidx.media}")
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
 
-    // ExoPlayer
-    api("com.google.android.exoplayer:exoplayer-core:${Libs.exoplayer}")
-
-    // Dagger
-    implementation("com.google.dagger:dagger-android:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
-
-    // Glide
-    implementation("com.github.bumptech.glide:glide:${Libs.glide}")
-    kapt("com.github.bumptech.glide:compiler:${Libs.glide}")
-
-    // Test dependencies
-    testImplementation(project(":core-test"))
-    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-
-    // Android-specific test dependencies
-    androidTestImplementation("androidx.test:core:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test:runner:${Libs.Androidx.test}")
-    androidTestImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
+    androidTestImplementation(libs.bundles.testing.instrumented)
 }

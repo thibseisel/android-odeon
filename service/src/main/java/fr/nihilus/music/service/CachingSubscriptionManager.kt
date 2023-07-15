@@ -17,17 +17,36 @@
 package fr.nihilus.music.service
 
 import androidx.collection.LruCache
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.flow.dematerialize
+import fr.nihilus.music.core.flow.materialize
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.PaginationOptions
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.BrowserTree
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.consume
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.job
+import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -36,32 +55,33 @@ import javax.inject.Inject
  * @param serviceScope The lifecycle of the service that owns this manager.
  * @param tree The source of media metadata.
  */
-@OptIn(ObsoleteCoroutinesApi::class, FlowPreview::class)
 @ServiceScoped
 internal class CachingSubscriptionManager @Inject constructor(
-    serviceScope: CoroutineScope,
+    @ServiceCoroutineScope serviceScope: CoroutineScope,
     private val tree: BrowserTree,
     private val dispatchers: AppDispatchers
 ) : SubscriptionManager {
 
-    private val scope = serviceScope + SupervisorJob(serviceScope.coroutineContext[Job])
+    private val scope =
+        serviceScope + SupervisorJob(serviceScope.coroutineContext.job) + CoroutineName("SubscriptionSupervisor")
 
     private val mutex = Mutex()
     private val cachedSubscriptions = LruSubscriptionCache()
-    private val _updatedParentIds = BroadcastChannel<MediaId>(Channel.BUFFERED)
+    private val _updatedParentIds = MutableSharedFlow<MediaId>()
 
-    override val updatedParentIds: Flow<MediaId> = _updatedParentIds.asFlow()
+    override val updatedParentIds: Flow<MediaId> = _updatedParentIds.asSharedFlow()
 
     override suspend fun loadChildren(
         parentId: MediaId,
         options: PaginationOptions?
     ): List<MediaContent> {
         val subscription = mutex.withLock {
-            cachedSubscriptions.get(parentId) ?: createSubscription(parentId)
+            cachedSubscriptions.get(parentId)
+                ?: createSubscription(parentId).also { cachedSubscriptions.put(parentId, it) }
         }
 
         try {
-            val children = subscription.consume { receive() }
+            val children = subscription.children.first()
             return applyPagination(children, options)
         } catch (failure: Exception) {
             cachedSubscriptions.remove(parentId)
@@ -86,20 +106,22 @@ internal class CachingSubscriptionManager @Inject constructor(
         }
     }
 
-    private fun createSubscription(parentId: MediaId): BroadcastChannel<List<MediaContent>> {
-        return tree.getChildren(parentId)
+    private fun createSubscription(parentId: MediaId): Subscription {
+        val subscriptionJob = Job(parent = scope.coroutineContext.job)
+        val subscriptionScope = scope + subscriptionJob + CoroutineName("Subscription_$parentId")
+
+        val liveChildren = tree.getChildren(parentId)
             .buffer(Channel.CONFLATED)
             .flowOn(dispatchers.Default)
-            .broadcastIn(scope)
-            .also { subscription ->
-                cachedSubscriptions.put(parentId, subscription)
-
-                subscription.asFlow()
-                    .drop(1)
-                    .catch { if (it !is Exception) throw it }
-                    .onEach { _updatedParentIds.send(parentId) }
-                    .launchIn(scope)
-            }
+            .materialize()
+            .shareIn(subscriptionScope, SharingStarted.Lazily, 1)
+            .dematerialize()
+        liveChildren
+            .drop(1)
+            .catch { if (it !is Exception) throw it }
+            .onEach { _updatedParentIds.emit(parentId) }
+            .launchIn(scope)
+        return Subscription(liveChildren, subscriptionJob)
     }
 
     override suspend fun getItem(itemId: MediaId): MediaContent? {
@@ -112,21 +134,24 @@ internal class CachingSubscriptionManager @Inject constructor(
         val parentSubscription = mutex.withLock { cachedSubscriptions[parentId] }
 
         return if (parentSubscription != null) {
-            val children = parentSubscription.consume { receive() }
+            val children = parentSubscription.children.first()
             children.find { it.id == itemId }
         } else withContext(dispatchers.Default) {
             tree.getItem(itemId)
         }
     }
 
-    private class LruSubscriptionCache :
-        LruCache<MediaId, BroadcastChannel<List<MediaContent>>>(MAX_ACTIVE_SUBSCRIPTIONS) {
-
+    private class LruSubscriptionCache : LruCache<MediaId, Subscription>(MAX_ACTIVE_SUBSCRIPTIONS) {
         override fun entryRemoved(
             evicted: Boolean,
             key: MediaId,
-            oldValue: BroadcastChannel<List<MediaContent>>,
-            newValue: BroadcastChannel<List<MediaContent>>?
-        ) = oldValue.cancel()
+            oldValue: Subscription,
+            newValue: Subscription?
+        ) = oldValue.consumeJob.cancel("Evicted from cache")
     }
 }
+
+private data class Subscription(
+    val children: Flow<List<MediaContent>>,
+    val consumeJob: Job
+)

@@ -46,10 +46,12 @@ private object TestResources {
 internal fun MockRequestHandleScope.respondJson(
     @Language("JSON") json: String,
     status: HttpStatusCode = HttpStatusCode.OK
-) = respond(json, status, headersOf(
+) = respond(
+    json, status, headersOf(
         HttpHeaders.ContentType,
         ContentType.Application.Json.toString()
-    ))
+    )
+)
 
 /**
  * Create an HTTP response whose content body is read from a resource file at the given [filepath].

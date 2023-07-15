@@ -18,6 +18,7 @@
 <resources>
     <public name="ui_ic_clear_24dp" type="drawable"/>
     <public name="ui_ic_delete_24dp" type="drawable"/>
+    <public name="core_action_delete" type="string"/>
     <public name="core_ok" type="string"/>
     <public name="core_cancel" type="string"/>
     <public name="core_horizontal_edge_margin" type="dimen"/>
@@ -37,4 +38,21 @@
     <public name="TextAppearance.Odeon.Overline" type="style"/>
     <public name="TextAppearance.Odeon.Subtitle1" type="style"/>
     <public name="TextAppearance.Odeon.Subtitle2" type="style"/>
+    <public name="ui_ic_arrow_back_24dp" type="drawable"/>
+    <public name="ic_audiotrack_24dp" type="drawable"/>
+    <public name="ic_play_arrow_24dp" type="drawable"/>
+    <public name="grid_0_5" type="dimen"/>
+    <public name="grid_1" type="dimen"/>
+    <public name="grid_1_5" type="dimen"/>
+    <public name="grid_2" type="dimen"/>
+    <public name="grid_3" type="dimen"/>
+    <public name="grid_4" type="dimen"/>
+    <public name="ic_shuffle_24dp" type="drawable"/>
+    <public name="core_action_settings" type="string"/>
+    <public name="albumPalettePrimaryColor" type="attr"/>
+    <public name="albumPaletteTitleTextColor" type="attr"/>
+    <public name="albumPaletteAccentColor" type="attr"/>
+    <public name="albumPaletteBodyTextColor" type="attr"/>
+    <public name="albumPaletteTextOnAccentColor" type="attr"/>
+    <public name="nav_host_fragment" type="id"/>
 </resources>

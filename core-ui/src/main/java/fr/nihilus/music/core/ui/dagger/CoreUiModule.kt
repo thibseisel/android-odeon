@@ -18,6 +18,8 @@ package fr.nihilus.music.core.ui.dagger
 
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.ui.client.BrowserClient
 import fr.nihilus.music.core.ui.client.BrowserClientImpl
 
@@ -26,6 +28,8 @@ import fr.nihilus.music.core.ui.client.BrowserClientImpl
  * to read media hierarchy and send playback commands.
  */
 @Module
+@InstallIn(SingletonComponent::class)
+@Suppress("unused")
 abstract class CoreUiModule {
 
     @Binds

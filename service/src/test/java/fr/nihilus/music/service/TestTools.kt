@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.service
 
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlin.random.Random
 
 private const val ALPHABET_SIZE = 26
@@ -56,12 +56,12 @@ internal val randomCamelWordsSequence: Sequence<String>
                 }
 
                 // The first letter of a word is an uppercase letter.
-                val firstLetter = Random.nextInt('A'.toInt(), 'Z'.toInt()).toChar()
+                val firstLetter = Random.nextInt('A'.code, 'Z'.code).toChar()
                 append(firstLetter)
 
                 val numberOfLowercases = Random.nextInt(1, 10)
                 repeat(numberOfLowercases) {
-                    val letter = Random.nextInt('a'.toInt(), 'z'.toInt()).toChar()
+                    val letter = Random.nextInt('a'.code, 'z'.code).toChar()
                     append(letter)
                 }
             }
@@ -93,7 +93,8 @@ internal fun generateRandomTrackSequence(): Sequence<Track> = sequence {
                 availabilityDate = releaseDates.next(),
                 artistId = Random.nextLong(0, 128),
                 albumId = Random.nextLong(0, 256),
-                fileSize = 0
+                fileSize = 0,
+                exclusionTime = null,
             )
         )
     }

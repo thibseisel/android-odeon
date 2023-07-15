@@ -19,6 +19,8 @@ package fr.nihilus.music.spotify
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import javax.inject.Named
@@ -26,7 +28,8 @@ import javax.inject.Named
 /**
  * Module for the Spotify Client feature meant to be used in production.
  */
-@Module(includes = [SpotifyClientModule::class])
+@Module
+@InstallIn(SingletonComponent::class)
 internal object SpotifyApiModule {
 
     @Provides @Reusable

@@ -17,38 +17,50 @@
 package fr.nihilus.music.spotify.manager
 
 import fr.nihilus.music.core.collections.associateByLong
-import fr.nihilus.music.core.database.spotify.*
+import fr.nihilus.music.core.database.spotify.SpotifyDao
+import fr.nihilus.music.core.database.spotify.SpotifyLink
+import fr.nihilus.music.core.database.spotify.TrackFeature
+import fr.nihilus.music.core.database.spotify.decodeMusicalMode
+import fr.nihilus.music.core.database.spotify.decodePitch
 import fr.nihilus.music.core.os.Clock
-import fr.nihilus.music.media.provider.MediaDao
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
+import fr.nihilus.music.media.tracks.TrackRepository
 import fr.nihilus.music.spotify.model.AudioFeature
 import fr.nihilus.music.spotify.service.HttpResource
 import fr.nihilus.music.spotify.service.SpotifyQuery
 import fr.nihilus.music.spotify.service.SpotifyService
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
 private const val CONCURRENT_TRACK_MATCHER = 5
 
 /**
- * Implementation of the [SpotifyManager] that retrieve tracks from [MediaDao]
+ * Implementation of the [SpotifyManager] that retrieve tracks from [TrackRepository]
  * and downloads track metadata from the [Spotify API][SpotifyService].
  */
 internal class SpotifyManagerImpl @Inject constructor(
-    private val mediaDao: MediaDao,
+    private val trackRepository: TrackRepository,
     private val service: SpotifyService,
     private val localDao: SpotifyDao,
     private val clock: Clock
 ) : SpotifyManager {
 
     override suspend fun findTracksHavingFeatures(filters: List<FeatureFilter>): List<Pair<Track, TrackFeature>> {
-        val tracks = mediaDao.tracks.first()
+        val tracks = trackRepository.tracks.first()
         val features = localDao.getLocalizedFeatures()
 
         val featuresById = features
@@ -61,7 +73,7 @@ internal class SpotifyManagerImpl @Inject constructor(
     }
 
     override suspend fun listUnlinkedTracks(): List<Track> = coroutineScope {
-        val allTracks = async { mediaDao.tracks.first() }
+        val allTracks = async { trackRepository.tracks.first() }
         val allLinks = async { localDao.getLinks() }
 
         val linksPerTrackId = allLinks.await().associateByLong { it.trackId }
@@ -72,7 +84,7 @@ internal class SpotifyManagerImpl @Inject constructor(
         val downstream = this
 
         // Load tracks and remote links in parallel.
-        val allTracks = async { mediaDao.tracks.first() }
+        val allTracks = async { trackRepository.tracks.first() }
         val allLinks = async { localDao.getLinks() }
 
         // Delete links pointing to a track that does not exist anymore.
@@ -167,6 +179,10 @@ internal class SpotifyManagerImpl @Inject constructor(
                     resource.status,
                     resource.message
                 )
+            }
+
+            is HttpResource.NotFound -> {
+                Timber.tag("SpotifySync").e("Unable to fetch tracks features: HTTP 404")
             }
         }
     }

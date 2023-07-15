@@ -18,38 +18,42 @@ package fr.nihilus.music.core.ui.client
 
 import android.content.ComponentName
 import android.content.Context
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import fr.nihilus.music.core.AppScope
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import dagger.hilt.android.qualifiers.ApplicationContext
+import fr.nihilus.music.core.lifecycle.ApplicationLifecycle
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.settings.Settings
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import javax.inject.Singleton
 
 /**
  * Maintain a client-side connection to this application's media session,
  * allowing to browser available media and send commands to the session transport controls.
  */
-@AppScope
+@Singleton
 internal class BrowserClientImpl @Inject constructor(
-    applicationContext: Context,
-    private val settings: Settings
-) : BrowserClient {
+    @ApplicationContext applicationContext: Context,
+    @ApplicationLifecycle private val owner: LifecycleOwner,
+    private val settings: Settings,
+) : BrowserClient, DefaultLifecycleObserver {
 
     private val controllerCallback = ClientControllerCallback()
     private val connectionCallback = ConnectionCallback(applicationContext)
 
     @Volatile private var deferredController = CompletableDeferred<MediaControllerCompat>()
+
+    init {
+        owner.lifecycle.addObserver(this)
+    }
 
     private val mediaBrowser = MediaBrowserCompat(
         applicationContext,
@@ -68,61 +72,18 @@ internal class BrowserClientImpl @Inject constructor(
     override val shuffleMode: StateFlow<Int> = _shuffleMode
     override val repeatMode: StateFlow<Int> = _repeatMode
 
-    override fun connect() {
+    override fun onStart(owner: LifecycleOwner) {
         if (!mediaBrowser.isConnected) {
             Timber.tag("BrowserClientImpl").i("Connecting to service...")
             mediaBrowser.connect()
         }
     }
 
-    override fun disconnect() {
+    override fun onStop(owner: LifecycleOwner) {
         if (mediaBrowser.isConnected) {
             Timber.tag("BrowserClientImpl").i("Disconnecting from service...")
             mediaBrowser.disconnect()
             deferredController = CompletableDeferred()
-        }
-    }
-
-    override fun getChildren(parentId: MediaId): Flow<List<MediaItem>> = callbackFlow<List<MediaItem>> {
-        // It seems that the (un)subscription does not work properly when MediaBrowser is disconnected.
-        // Wait for the media browser to be connected before registering subscription.
-        deferredController.await()
-
-        val subscription = ChannelSubscription(channel)
-        mediaBrowser.subscribe(parentId.encoded, subscription)
-        awaitClose { mediaBrowser.unsubscribe(parentId.encoded, subscription) }
-    }.conflate()
-
-    override suspend fun getItem(itemId: MediaId): MediaItem? {
-        deferredController.await()
-
-        return suspendCoroutine { continuation ->
-            mediaBrowser.getItem(itemId.encoded, object : MediaBrowserCompat.ItemCallback() {
-                override fun onItemLoaded(item: MediaItem?) {
-                    continuation.resume(item)
-                }
-
-                override fun onError(itemId: String) {
-                    continuation.resume(null)
-                }
-            })
-        }
-    }
-
-    override suspend fun search(query: String): List<MediaItem> {
-        deferredController.await()
-
-        return suspendCoroutine { continuation ->
-            mediaBrowser.search(query, null, object : MediaBrowserCompat.SearchCallback() {
-
-                override fun onSearchResult(query: String, extras: Bundle?, items: List<MediaItem>) {
-                    continuation.resume(items)
-                }
-
-                override fun onError(query: String, extras: Bundle?) {
-                    error("Unexpected failure when searching \"$query\".")
-                }
-            })
         }
     }
 
@@ -167,38 +128,10 @@ internal class BrowserClientImpl @Inject constructor(
     }
 
     override suspend fun setRepeatMode(@PlaybackStateCompat.RepeatMode repeatMode: Int) {
-        if (
-            repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ||
-            repeatMode == PlaybackStateCompat.REPEAT_MODE_ONE ||
-            repeatMode == PlaybackStateCompat.REPEAT_MODE_ALL
-        ) {
+        if (repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE || repeatMode == PlaybackStateCompat.REPEAT_MODE_ONE || repeatMode == PlaybackStateCompat.REPEAT_MODE_ALL) {
             val controller = deferredController.await()
             controller.transportControls.setRepeatMode(repeatMode)
         }
-    }
-
-    /**
-     * A subscription that sends updates to media children to a [SendChannel].
-     */
-    private class ChannelSubscription(
-        private val channel: SendChannel<List<MediaItem>>
-    ) : MediaBrowserCompat.SubscriptionCallback() {
-
-        override fun onChildrenLoaded(parentId: String, children: List<MediaItem>) {
-            channel.offer(children)
-        }
-
-        override fun onChildrenLoaded(
-            parentId: String,
-            children: List<MediaItem>,
-            options: Bundle
-        ) = onChildrenLoaded(parentId, children)
-
-        override fun onError(parentId: String) {
-            channel.close(MediaSubscriptionException(parentId))
-        }
-
-        override fun onError(parentId: String, options: Bundle) = onError(parentId)
     }
 
     private inner class ConnectionCallback(

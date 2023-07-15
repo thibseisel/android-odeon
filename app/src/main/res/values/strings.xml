@@ -16,36 +16,10 @@
 
 <resources>
     <string name="album_art">Album art</string>
-    <string name="action_albums">Albums</string>
-    <string name="action_artists">Artists</string>
-    <string name="play_all_shuffled">Play all shuffled</string>
-    <string name="action_search">Search</string>
-    <string name="empty_songs">No songs</string>
-    <string name="all_music">Tracks</string>
-    <string name="empty_albums">No albums</string>
-    <string name="action_playlists">Playlists</string>
     <string name="action_shuffle_mode">Toggle shuffle mode</string>
     <string name="play_or_pause">Play or pause</string>
     <string name="skip_previous">Skip to previous</string>
     <string name="skip_next">Skip to next</string>
-    <string name="empty_artist">No artists</string>
-    <string name="add_to_playlist">Add to playlist</string>
-    <string name="delete_dialog_title">Delete from library?</string>
-    <string name="empty_playlist">No playlist</string>
-    <string name="delete_dialog_message">This song will be deleted from your device.</string>
-    <string name="playlist_created">Created new playlist \"%1$s\".</string>
-    <string name="song_item_subtitle">%1$s \u2022 %2$s</string>
-    <string name="action_edit_playlist">Edit playlist</string>
-    <string name="action_delete_playlist">Delete playlist</string>
-    <string name="delete_playlist_dialog_title">Delete the playlist \"%s\"?</string>
     <string name="external_storage_permission_rationale">You won\'t be able to play tracks stored on the device\'s storage unless you grant permission to access it.</string>
-    <string name="action_condensed_play_shuffled">Read shuffled</string>
     <string name="action_repeat_mode">Toggle repeat mode</string>
-    <string name="action_create_playlist">New playlist</string>
-    <string name="hint_playlist_title">Playlist title</string>
-    <string name="search_hint">Find a track, an artist</string>
-    <string name="action_clear">Clear</string>
-    <string name="desc_clear_search">Clear search query</string>
-    <string name="description_more_actions">More actions</string>
-    <string name="desc_play_album">Play album</string>
 </resources>

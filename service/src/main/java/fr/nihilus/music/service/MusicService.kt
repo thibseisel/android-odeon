@@ -16,14 +16,17 @@
 
 package fr.nihilus.music.service
 
+import android.annotation.SuppressLint
+import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.*
+import android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE
+import android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -31,8 +34,10 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.Player
+import androidx.media.utils.MediaConstants
+import androidx.media3.common.C
+import androidx.media3.common.Player
+import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.context.AppDispatchers
 import fr.nihilus.music.core.media.MalformedMediaIdException
 import fr.nihilus.music.core.media.MediaId
@@ -40,13 +45,15 @@ import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.media.MediaItems
 import fr.nihilus.music.core.media.parse
-import fr.nihilus.music.core.os.PermissionDeniedException
 import fr.nihilus.music.core.playback.RepeatMode
 import fr.nihilus.music.core.settings.Settings
+import fr.nihilus.music.media.AudioTrack
+import fr.nihilus.music.media.MediaCategory
+import fr.nihilus.music.media.MediaContent
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.MediaSearchEngine
+import fr.nihilus.music.media.browser.SearchQuery
 import fr.nihilus.music.media.usage.UsageManager
-import fr.nihilus.music.service.browser.BrowserTree
-import fr.nihilus.music.service.browser.PaginationOptions
-import fr.nihilus.music.service.browser.SearchQuery
 import fr.nihilus.music.service.notification.MediaNotificationBuilder
 import fr.nihilus.music.service.notification.NOW_PLAYING_NOTIFICATION
 import kotlinx.coroutines.flow.launchIn
@@ -55,6 +62,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MusicService : BaseBrowserService() {
 
     companion object {
@@ -67,6 +75,7 @@ class MusicService : BaseBrowserService() {
 
     @Inject internal lateinit var dispatchers: AppDispatchers
     @Inject internal lateinit var browserTree: BrowserTree
+    @Inject internal lateinit var searchEngine: MediaSearchEngine
     @Inject internal lateinit var subscriptions: SubscriptionManager
     @Inject internal lateinit var notificationBuilder: MediaNotificationBuilder
     @Inject internal lateinit var usageManager: UsageManager
@@ -108,7 +117,7 @@ class MusicService : BaseBrowserService() {
 
         subscriptions.updatedParentIds
             .onEach { updatedParentId -> notifyChildrenChanged(updatedParentId.toString()) }
-            .launchIn(this)
+            .launchIn(serviceScope)
 
         // Listen to track completion events
         val completionListener = TrackCompletionListener()
@@ -145,21 +154,18 @@ class MusicService : BaseBrowserService() {
             return null
         }
 
-        // Grant permission to known callers to read album arts without storage permissions.
-        // Context.getPackageName() => applicationId as per https://developer.android.com/studio/build/application-id
-        val applicationId = packageName
-        grantUriPermission(
-            clientPackageName,
-            Uri.parse("content://$applicationId.provider/"),
-            Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-        )
-
         val rootExtras = Bundle().apply {
-            putBoolean(AutomotiveExtras.MEDIA_SEARCH_SUPPORTED, true)
-
-            putBoolean(AutomotiveExtras.CONTENT_STYLE_SUPPORTED, true)
-            putInt(AutomotiveExtras.CONTENT_STYLE_BROWSABLE_HINT, AutomotiveExtras.CONTENT_STYLE_GRID_ITEM_HINT_VALUE)
-            putInt(AutomotiveExtras.CONTENT_STYLE_PLAYABLE_HINT, AutomotiveExtras.CONTENT_STYLE_LIST_ITEM_HINT_VALUE)
+            // See https://developer.android.com/training/cars/media#display_search
+            putBoolean(MediaConstants.BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED, true)
+            // See https://developer.android.com/training/cars/media#apply_content_style
+            putInt(
+                MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_BROWSABLE,
+                MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_GRID_ITEM
+            )
+            putInt(
+                MediaConstants.DESCRIPTION_EXTRAS_KEY_CONTENT_STYLE_PLAYABLE,
+                MediaConstants.DESCRIPTION_EXTRAS_VALUE_CONTENT_STYLE_LIST_ITEM
+            )
 
             // All our media are playable offline.
             // Forward OFFLINE hint when specified.
@@ -173,6 +179,8 @@ class MusicService : BaseBrowserService() {
             rootExtras.putBoolean(BrowserRoot.EXTRA_RECENT, true)
             return BrowserRoot(MediaId.RECENT_ROOT.encoded, rootExtras)
         }
+
+        // TODO https://developer.android.com/training/cars/media#root-menu-structure
 
         return BrowserRoot(MediaId.ROOT.encoded, rootExtras)
     }
@@ -189,7 +197,7 @@ class MusicService : BaseBrowserService() {
     ) {
         result.detach()
 
-        launch {
+        serviceScope.launch {
             try {
                 val parentMediaId = parentId.parse()
                 val paginationOptions = getPaginationOptions(options)
@@ -207,13 +215,11 @@ class MusicService : BaseBrowserService() {
             } catch (malformedId: MalformedMediaIdException) {
                 Timber.i(malformedId, "Unable to load children of %s: malformed media id", parentId)
                 result.sendResult(null)
-
-            } catch (pde: PermissionDeniedException) {
-                Timber.i("Unable to load children of %s: denied permission %s", parentId, pde.permission)
-                result.sendResult(null)
-
             } catch (invalidParent: NoSuchElementException) {
-                Timber.i("Unable to load children of %s: not a browsable item from the tree", parentId)
+                Timber.i(
+                    "Unable to load children of %s: not a browsable item from the tree",
+                    parentId
+                )
                 result.sendResult(null)
             }
         }
@@ -246,18 +252,18 @@ class MusicService : BaseBrowserService() {
             result.sendResult(null)
         } else {
             result.detach()
-            launch {
+            serviceScope.launch {
                 try {
                     val itemMediaId = itemId.parse()
                     val requestedContent = subscriptions.getItem(itemMediaId)
                     result.sendResult(requestedContent?.toItem())
 
                 } catch (malformedId: MalformedMediaIdException) {
-                    Timber.i(malformedId, "Attempt to load item from a malformed media id: %s", itemId)
-                    result.sendResult(null)
-
-                } catch (pde: PermissionDeniedException) {
-                    Timber.i("Loading item %s failed due to missing permission: %s", itemId, pde.permission)
+                    Timber.i(
+                        malformedId,
+                        "Attempt to load item from a malformed media id: %s",
+                        itemId
+                    )
                     result.sendResult(null)
                 }
             }
@@ -270,18 +276,12 @@ class MusicService : BaseBrowserService() {
         result: Result<List<MediaItem>>
     ) {
         result.detach()
-        launch(dispatchers.Default) {
+        serviceScope.launch(dispatchers.Default) {
             val parsedQuery = SearchQuery.from(query, extras)
 
-            try {
-                val searchResults = browserTree.search(parsedQuery)
-                val builder = MediaDescriptionCompat.Builder()
-                result.sendResult(searchResults.map { it.toItem(builder) })
-
-            } catch (pde: PermissionDeniedException) {
-                Timber.i("Unable to search %s due to missing permission: %s", query, pde.permission)
-                result.sendResult(null)
-            }
+            val searchResults = searchEngine.search(parsedQuery)
+            val builder = MediaDescriptionCompat.Builder()
+            result.sendResult(searchResults.map { it.toItem(builder) })
         }
     }
 
@@ -351,6 +351,7 @@ class MusicService : BaseBrowserService() {
             settings.repeatMode = when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_ALL,
                 PlaybackStateCompat.REPEAT_MODE_GROUP -> RepeatMode.ALL
+
                 PlaybackStateCompat.REPEAT_MODE_ONE -> RepeatMode.ONE
                 else -> RepeatMode.DISABLED
             }
@@ -403,20 +404,24 @@ class MusicService : BaseBrowserService() {
             this@MusicService.startSelf()
         }
 
+        @SuppressLint("MissingPermission")
         private fun onPlaybackPaused() {
             // Put the service back to the background, keeping the notification
-            stopForeground(false)
+            stopForeground(Service.STOP_FOREGROUND_DETACH)
             settings.lastPlayedPosition = player.currentPosition
 
             // Update the notification content if the session is active
             if (session.isActive) {
-                notificationManager.notify(NOW_PLAYING_NOTIFICATION, notificationBuilder.buildNotification())
+                notificationManager.notify(
+                    NOW_PLAYING_NOTIFICATION,
+                    notificationBuilder.buildNotification()
+                )
             }
         }
 
         private fun onPlaybackStopped() {
             // Clear notification and service foreground status
-            stopForeground(true)
+            stopForeground(Service.STOP_FOREGROUND_REMOVE)
 
             // De-activate the media session.
             if (session.isActive) {
@@ -435,10 +440,10 @@ class MusicService : BaseBrowserService() {
         }
     }
 
-    private inner class TrackCompletionListener : Player.EventListener {
+    private inner class TrackCompletionListener : Player.Listener {
 
         override fun onMediaItemTransition(
-            mediaItem: com.google.android.exoplayer2.MediaItem?,
+            mediaItem: androidx.media3.common.MediaItem?,
             @Player.MediaItemTransitionReason reason: Int
         ) {
             if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
@@ -447,19 +452,19 @@ class MusicService : BaseBrowserService() {
         }
 
         private fun onTrackCompletion(player: Player) {
-            val completedTrackIndex = player.previousWindowIndex
+            val completedTrackIndex = player.currentMediaItemIndex
             if (completedTrackIndex == C.INDEX_UNSET) {
                 Timber.w("Attempt to retrieve information of a track that completed playback, but previous index is unset.")
                 return
             }
 
             val completedMediaItem = player.getMediaItemAt(completedTrackIndex)
-            val completedMedia = completedMediaItem.playbackProperties?.tag as AudioTrack
+            val completedMedia = completedMediaItem.localConfiguration?.tag as AudioTrack
             val completedTrackId = checkNotNull(completedMedia.id.track) {
                 "Track ${completedMedia.title} has an invalid media id: ${completedMedia.id}"
             }
 
-            launch {
+            serviceScope.launch {
                 usageManager.reportCompletion(completedTrackId)
             }
         }

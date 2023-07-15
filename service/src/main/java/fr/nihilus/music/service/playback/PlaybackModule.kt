@@ -16,41 +16,46 @@
 
 package fr.nihilus.music.service.playback
 
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.audio.AudioAttributes
-import com.google.android.exoplayer2.util.EventLogger
+import android.app.Service
+import androidx.annotation.OptIn
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.exoplayer.util.EventLogger
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.BuildConfig
-import fr.nihilus.music.service.MusicService
-import fr.nihilus.music.service.ServiceBindingsModule
-import fr.nihilus.music.service.ServiceScoped
 
-@Module(includes = [ServiceBindingsModule::class])
+@Module
+@InstallIn(ServiceComponent::class)
+@OptIn(UnstableApi::class)
 internal object PlaybackModule {
 
     @Provides @ServiceScoped
-    fun provideExoPlayer(context: MusicService): ExoPlayer {
+    fun provideExoPlayer(context: Service): ExoPlayer {
         val musicAttributes = AudioAttributes.Builder()
-            .setContentType(C.CONTENT_TYPE_MUSIC)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
             .setUsage(C.USAGE_MEDIA)
             .build()
 
-        val player = SimpleExoPlayer.Builder(
+        val player = ExoPlayer.Builder(
             context,
             AudioOnlyRenderersFactory(context),
-            AudioOnlyExtractorsFactory()
+            DefaultMediaSourceFactory(context, AudioOnlyExtractorsFactory())
         )
             .setAudioAttributes(musicAttributes, true)
             .setHandleAudioBecomingNoisy(true)
+            .setUsePlatformDiagnostics(false)
             .build()
 
         if (BuildConfig.DEBUG) {
             // Print player logs on debug builds.
-            player.addAnalyticsListener(EventLogger(null))
-            player.setThrowsWhenUsingWrongThread(true)
+            player.addAnalyticsListener(EventLogger())
         }
 
         return player

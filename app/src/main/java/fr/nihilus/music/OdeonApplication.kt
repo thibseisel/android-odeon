@@ -16,20 +16,11 @@
 
 package fr.nihilus.music
 
+import android.app.Application
 import android.os.StrictMode
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.WorkerFactory
-import dagger.android.AndroidInjector
-import dagger.android.support.DaggerApplication
-import fr.nihilus.music.core.DaggerCoreComponent
-import fr.nihilus.music.core.settings.Settings
-import fr.nihilus.music.dagger.DaggerAppComponent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.plus
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -37,9 +28,9 @@ import javax.inject.Inject
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
-class OdeonApplication : DaggerApplication(), Configuration.Provider {
-    @Inject lateinit var settings: Settings
-    @Inject lateinit var workerFactory: WorkerFactory
+@HiltAndroidApp
+class OdeonApplication : Application(), Configuration.Provider {
+    @Inject lateinit var workerFactory: HiltWorkerFactory
 
     override fun onCreate() {
         super.onCreate()
@@ -49,16 +40,6 @@ class OdeonApplication : DaggerApplication(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
             StrictMode.enableDefaults()
         }
-
-        // Apply theme whenever it is changed via preferences.
-        settings.currentTheme.onEach { theme ->
-            AppCompatDelegate.setDefaultNightMode(theme.value)
-        }.launchIn(GlobalScope + Dispatchers.Main)
-    }
-
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        val coreDependencies = DaggerCoreComponent.factory().create(this)
-        return DaggerAppComponent.factory().create(this, coreDependencies)
     }
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()

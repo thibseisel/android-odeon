@@ -18,31 +18,21 @@ package fr.nihilus.music.media.provider
 
 import android.content.ContentResolver
 import android.content.Context
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.media.os.MediaStoreDatabase
-import fr.nihilus.music.media.os.PlatformMediaStore
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 
 /**
- * Provides a [MediaStoreDatabase] that delegates calls to the system's [ContentResolver],
- * retrieving media definitions from Android's [MediaStore][android.provider.MediaStore].
- *
- * Note: this module is exceptionally visible by other modules in order to inject [MediaDao],
- * as a workaround until a suitable replacement for MediaRepository is found.
+ * Provides an instance of [ContentResolver].
  */
 @Module
-abstract class MediaStoreModule {
+@InstallIn(SingletonComponent::class)
+internal object MediaStoreModule {
 
-    @Binds
-    internal abstract fun bindsMediaStoreDelegate(delegate: PlatformMediaStore): MediaStoreDatabase
-
-    @Binds
-    internal abstract fun bindsMediaStoreDao(impl: MediaStoreDao): MediaDao
-
-    internal companion object {
-
-        @Provides
-        fun providesContentResolver(context: Context): ContentResolver = context.contentResolver
-    }
+    @Provides
+    fun providesContentResolver(
+        @ApplicationContext context: Context
+    ): ContentResolver = context.contentResolver
 }

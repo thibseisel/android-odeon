@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,35 +18,41 @@ package fr.nihilus.music.core
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.preference.PreferenceManager
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import fr.nihilus.music.core.os.*
-import fr.nihilus.music.core.settings.SettingsModule
-import java.io.File
-import javax.inject.Named
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import fr.nihilus.music.core.lifecycle.ApplicationLifecycle
+import fr.nihilus.music.core.os.AndroidFileSystem
+import fr.nihilus.music.core.os.Clock
+import fr.nihilus.music.core.os.DeviceClock
+import fr.nihilus.music.core.os.FileSystem
 import javax.inject.Singleton
 
-@Module(includes = [SettingsModule::class])
-internal abstract class CommonModule {
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class CommonModule {
 
     @Binds
-    abstract fun bindsSystemPermissions(permissions: SystemRuntimePermissions): RuntimePermissions
+    internal abstract fun bindsSystemClock(clock: DeviceClock): Clock
 
     @Binds
-    abstract fun bindsSystemClock(clock: DeviceClock): Clock
+    internal abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
 
-    @Binds
-    abstract fun bindsAndroidFileSystem(fileSystem: AndroidFileSystem): FileSystem
-
-    companion object {
+    internal companion object {
 
         @Provides @Singleton
-        fun providesSharedPreferences(context: Context): SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(context)
+        fun providesSharedPreferences(@ApplicationContext appContext: Context): SharedPreferences =
+            appContext.getSharedPreferences(
+                "${appContext.packageName}_preferences",
+                Context.MODE_PRIVATE
+            )
 
-        @Provides @Named("internal")
-        fun providesInternalStorageRoot(context: Context): File = context.filesDir
+        @Provides @ApplicationLifecycle
+        fun providesApplicationLifecycle(): LifecycleOwner = ProcessLifecycleOwner.get()
     }
 }

@@ -27,11 +27,13 @@ enum class RepeatMode(val code: Int) {
      * When all tracks have been played, the player stops.
      */
     DISABLED(0),
+
     /**
      * When the playback of the current track completes the same track is replayed indefinitely.
      * To play a different track it is necessary to skip to another track in the queue.
      */
     ALL(2),
+
     /**
      * All tracks in the queue are played once in order.
      * When all tracks have been played the player replays the whole queue until manually stopped.

@@ -139,7 +139,10 @@ abstract class ListAdapter<T, VH : ViewHolder> : BaseAdapter() {
          * @param parent The parent view that the item view would be eventually attached to.
          * @param resId The identifier of a layout resource that represents the item view.
          */
-        protected constructor(parent: ViewGroup, @LayoutRes resId: Int) : this(parent.inflate(resId))
+        protected constructor(
+            parent: ViewGroup,
+            @LayoutRes resId: Int
+        ) : this(parent.inflate(resId))
 
         /**
          * The view type of this ViewHolder.

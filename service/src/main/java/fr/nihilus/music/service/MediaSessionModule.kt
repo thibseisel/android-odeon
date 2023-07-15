@@ -17,13 +17,17 @@
 package fr.nihilus.music.service
 
 import android.app.PendingIntent
+import android.app.Service
 import android.support.v4.media.RatingCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.google.android.exoplayer2.ExoPlaybackException
-import com.google.android.exoplayer2.util.ErrorMessageProvider
+import androidx.media3.common.ErrorMessageProvider
+import androidx.media3.common.PlaybackException
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
 import fr.nihilus.music.service.playback.ErrorHandler
 import fr.nihilus.music.service.playback.MediaQueueManager
 import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
@@ -32,6 +36,7 @@ import fr.nihilus.music.service.playback.OdeonPlaybackPreparer
  * Configures and provides MediaSession-related dependencies.
  */
 @Module
+@InstallIn(ServiceComponent::class)
 internal abstract class MediaSessionModule {
 
     @Binds
@@ -41,7 +46,7 @@ internal abstract class MediaSessionModule {
     abstract fun bindsQueueNavigator(navigator: MediaQueueManager): MediaSessionConnector.QueueNavigator
 
     @Binds
-    abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<ExoPlaybackException>
+    abstract fun bindsErrorMessageProvider(handler: ErrorHandler): ErrorMessageProvider<PlaybackException>
 
     companion object {
 
@@ -49,16 +54,22 @@ internal abstract class MediaSessionModule {
          * Creates a media session associated with the given [service].
          */
         @Provides @ServiceScoped
-        fun providesMediaSession(service: MusicService): MediaSessionCompat {
-            val sessionActivityPendingIntent =
-                service.packageManager.getLaunchIntentForPackage(service.packageName)?.let { sessionIntent ->
-                    sessionIntent.action = MusicService.ACTION_PLAYER_UI
-                    PendingIntent.getActivity(service, 0, sessionIntent, 0)
-                }
+        fun providesMediaSession(service: Service): MediaSessionCompat {
+            val launcherActivityIntent =
+                service.packageManager.getLaunchIntentForPackage(service.packageName)
+                    ?.apply { action = MusicService.ACTION_PLAYER_UI }
+                    ?: error("Unable to resolve app's launcher activity")
+
+            val sessionActivity = PendingIntent.getActivity(
+                service.applicationContext,
+                0,
+                launcherActivityIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
 
             return MediaSessionCompat(service, "MusicService").also {
-                it.setSessionActivity(sessionActivityPendingIntent)
                 it.setRatingType(RatingCompat.RATING_NONE)
+                it.setSessionActivity(sessionActivity)
             }
         }
     }

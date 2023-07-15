@@ -16,9 +16,9 @@
 
 package fr.nihilus.music.service.extensions
 
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
+import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.exoplayer.ExoPlayer
 
 /**
  * Execute the given action once when the structure of media has changed.
@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.Timeline
  * @param action The action to execute with the new timeline, right after it has changed.
  */
 inline fun ExoPlayer.doOnPrepared(crossinline action: (Timeline) -> Unit) {
-    val preparationListener = object : Player.EventListener {
+    val preparationListener = object : Player.Listener {
         override fun onTimelineChanged(timeline: Timeline, reason: Int) {
             this@doOnPrepared.removeListener(this)
             action(timeline)

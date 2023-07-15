@@ -15,53 +15,20 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        getByName("release") {
-            // Configure Kotlin compiler optimisations for releases
-            kotlinOptions {
-                freeCompilerArgs += listOf(
-                    "-Xno-param-assertions",
-                    "-Xno-call-assertions",
-                    "-Xno-receiver-assertions"
-                )
-            }
-        }
-    }
+    namespace = "fr.nihilus.music.media"
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(projects.core)
+    implementation(projects.coreDatabase)
+    implementation(libs.bundles.core)
+    implementation(libs.identikon)
 
-    // Dagger
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-
-    // Test dependencies
-    testImplementation(project(":core-test"))
-    testImplementation("org.robolectric:robolectric:${Libs.robolectric}")
-    testImplementation("androidx.test.ext:junit-ktx:${Libs.Androidx.ext_junit}")
-    testImplementation("androidx.room:room-ktx:${Libs.Androidx.room}")
-    kaptTest("com.google.dagger:dagger-compiler:${Libs.dagger}")
-}
-
-tasks.register<Exec>("refreshMediaStore") {
-    group = "emulator"
-    description = "Scan device's Music folder for files to refresh MediaStore"
-
-    val mediaScannerCommand = """
-        "find /storage/emulated/0/Music/ -type f | while read f; do \
-        am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
-        -d \"file://${'$'}{f}\"; done"
-    """.trimIndent()
-    executable = "adb"
-    args("shell", mediaScannerCommand)
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
 }

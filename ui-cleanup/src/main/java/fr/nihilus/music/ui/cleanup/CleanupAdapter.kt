@@ -17,44 +17,35 @@
 package fr.nihilus.music.ui.cleanup
 
 import android.text.format.DateUtils
-import android.view.MotionEvent
 import android.view.ViewGroup
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.media.usage.DisposableTrack
 import fr.nihilus.music.ui.cleanup.databinding.ItemDisposableTrackBinding
+
+private const val SELECTION_CHANGED_PAYLOAD = "fr.nihilus.music.ui.SELECTION_CHANGED"
 
 /**
  * Displays tracks that could be safely deleted from the device's storage in a list.
  */
-internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>() {
-    private val asyncDiffer = AsyncListDiffer(this, DisposableDiffer())
-
-    val currentList: List<DisposableTrack>
-        get() = asyncDiffer.currentList
-
-    var selection: SelectionTracker<Long>? = null
+internal class CleanupAdapter(
+    private val onItemSelect: (CleanupState.Track) -> Unit
+) : ListAdapter<CleanupState.Track, CleanupAdapter.ViewHolder>(TrackDiffer()) {
 
     init {
         setHasStableIds(true)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent) {
+        onItemSelect(getItem(it))
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
         val track = currentList[position]
-        val isSelectedPosition = selection?.isSelected(track.trackId) ?: false
-
-        // Reflect the selection state on the item.
-        holder.markAsSelected(isSelectedPosition)
-
-        // If the item has not been notified for a change to its selection state,
-        // then (re)bind its item data.
-        if (SelectionTracker.SELECTION_CHANGED_MARKER !in payloads) {
+        if (SELECTION_CHANGED_PAYLOAD in payloads) {
+            holder.markAsSelected(track.selected)
+        } else {
             holder.bind(track)
         }
     }
@@ -63,53 +54,40 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
         onBindViewHolder(holder, position, emptyList())
     }
 
-    override fun getItemCount(): Int = currentList.size
-
     override fun getItemId(position: Int): Long =
         if (hasStableIds()) {
             val track = currentList[position]
-            track.trackId
+            track.id.track ?: RecyclerView.NO_ID
         } else {
             RecyclerView.NO_ID
         }
 
     /**
-     * Submits a new list to be diffed, and displayed.
-     *
-     * If a list is already being displayed, a diff will be computed on a background thread,
-     * which will dispatch Adapter.notifyItem events on the main thread.
-     *
-     * @param list The new list to be displayed.
-     */
-    fun submitList(list: List<DisposableTrack>) {
-        asyncDiffer.submitList(list)
-    }
-
-    /**
      * Holds references to views used to display a track row in the list.
      * @param parent Parent View to which the root view of this holder should be attached.
      */
-    inner class ViewHolder(
-        parent: ViewGroup
-    ) : BaseHolder<DisposableTrack>(parent, R.layout.item_disposable_track) {
+    internal class ViewHolder(
+        parent: ViewGroup,
+        onSelect: (position: Int) -> Unit,
+    ) : BaseHolder<CleanupState.Track>(parent, R.layout.item_disposable_track) {
 
         private val context = parent.context
         private val binding = ItemDisposableTrackBinding.bind(itemView)
 
-        /**
-         * The detail of this track item.
-         * This is used by the selection library to determine the behavior of individual items.
-         */
-        val itemDetails = TrackDetails(this)
+        init {
+            itemView.setOnClickListener { onSelect(bindingAdapterPosition) }
+            binding.tickMark.setOnClickListener { onSelect(bindingAdapterPosition) }
+        }
 
         /**
          * Updates this holder's view to reflect the data in the provided [data].
          * @param data The metadata of the track to be displayed.
          */
-        override fun bind(data: DisposableTrack) {
+        override fun bind(data: CleanupState.Track) {
             binding.trackTitle.text = data.title
             binding.usageDescription.text = formatElapsedTimeSince(data.lastPlayedTime)
             binding.fileSize.text = formatToHumanReadableByteCount(data.fileSizeBytes)
+            markAsSelected(data.selected)
         }
 
         fun markAsSelected(selected: Boolean) {
@@ -125,31 +103,23 @@ internal class CleanupAdapter : RecyclerView.Adapter<CleanupAdapter.ViewHolder>(
             )
     }
 
-    /**
-     * Provides information about a specific row in the track list.
-     *
-     * @param holder The ViewHolder associated with the item at this position.
-     */
-    class TrackDetails(private val holder: ViewHolder) : ItemDetailsLookup.ItemDetails<Long>() {
-
-        override fun getPosition(): Int = holder.adapterPosition
-
-        override fun getSelectionKey(): Long = holder.itemId
-
-        override fun inSelectionHotspot(e: MotionEvent): Boolean = true
-    }
-
-    private class DisposableDiffer : DiffUtil.ItemCallback<DisposableTrack>() {
-
+    private class TrackDiffer : DiffUtil.ItemCallback<CleanupState.Track>() {
         override fun areItemsTheSame(
-            oldItem: DisposableTrack,
-            newItem: DisposableTrack
-        ): Boolean = oldItem.trackId == newItem.trackId
+            oldItem: CleanupState.Track,
+            newItem: CleanupState.Track
+        ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldItem: DisposableTrack,
-            newItem: DisposableTrack
+            oldItem: CleanupState.Track,
+            newItem: CleanupState.Track
         ): Boolean = oldItem == newItem
 
+        override fun getChangePayload(
+            oldItem: CleanupState.Track,
+            newItem: CleanupState.Track
+        ): Any? = when {
+            oldItem.selected != newItem.selected -> SELECTION_CHANGED_PAYLOAD
+            else -> null
+        }
     }
 }

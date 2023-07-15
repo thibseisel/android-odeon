@@ -16,7 +16,7 @@
 
 package fr.nihilus.music.media.usage
 
-import fr.nihilus.music.media.provider.Track
+import fr.nihilus.music.media.tracks.Track
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
 

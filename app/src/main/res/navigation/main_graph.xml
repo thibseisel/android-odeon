@@ -17,92 +17,10 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_graph"
-    app:startDestination="@id/fragment_home">
+    app:startDestination="@id/library_graph">
 
-    <activity
-        android:id="@+id/activity_settings"
-        android:name="fr.nihilus.music.ui.settings.SettingsActivity"
-        android:label="@string/core_action_settings"
-        tools:layout="@layout/activity_settings" />
-    <activity
-        android:id="@+id/activity_cleanup"
-        android:name="fr.nihilus.music.ui.cleanup.CleanupActivity"
-        android:label="@string/action_cleanup_title"
-        tools:layout="@layout/activity_cleanup" />
-
-    <fragment
-        android:id="@+id/fragment_artist_detail"
-        android:name="fr.nihilus.music.library.artists.detail.ArtistDetailFragment"
-        tools:layout="@layout/fragment_artist_detail">
-
-        <action
-            android:id="@+id/browse_artist_album"
-            app:destination="@id/fragment_album_detail" />
-        <argument
-            android:name="artistId"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_playlist_detail"
-        android:name="fr.nihilus.music.library.playlists.PlaylistDetailFragment"
-        tools:layout="@layout/fragment_playlist_detail">
-
-        <argument
-            android:name="playlistId"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_home"
-        android:name="fr.nihilus.music.library.HomeFragment"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/browse_album_detail"
-            app:destination="@id/fragment_album_detail" />
-        <action
-            android:id="@+id/browse_artist_detail"
-            app:destination="@id/fragment_artist_detail"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-        <action
-            android:id="@+id/browse_playlist_content"
-            app:destination="@id/fragment_playlist_detail" />
-        <action
-            android:id="@+id/start_cleanup"
-            app:destination="@id/activity_cleanup" />
-        <action
-            android:id="@+id/action_home_to_search"
-            app:destination="@id/fragment_search" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_album_detail"
-        android:name="fr.nihilus.music.library.albums.AlbumDetailFragment"
-        android:label="fragment_album_detail"
-        tools:layout="@layout/fragment_album_detail">
-        <argument
-            android:name="albumId"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_search"
-        android:name="fr.nihilus.music.library.search.SearchFragment"
-        android:label="@string/action_search"
-        tools:layout="@layout/fragment_search">
-        <action
-            android:id="@+id/browse_playlist_content"
-            app:destination="@id/fragment_playlist_detail" />
-        <action
-            android:id="@+id/browse_artist_detail"
-            app:destination="@id/fragment_artist_detail" />
-        <action
-            android:id="@+id/browse_album_detail"
-            app:destination="@id/fragment_album_detail" />
-    </fragment>
+    <include app:graph="@navigation/library_graph" />
+    <include app:graph="@navigation/cleanup_graph" />
+    <include app:graph="@navigation/settings_graph" />
 </navigation>

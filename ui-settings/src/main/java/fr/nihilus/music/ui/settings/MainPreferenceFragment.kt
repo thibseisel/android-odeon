@@ -17,21 +17,74 @@
 package fr.nihilus.music.ui.settings
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.work.*
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import dagger.hilt.android.AndroidEntryPoint
+import fr.nihilus.music.core.settings.Settings
 import fr.nihilus.music.spotify.SpotifySyncWorker
+import fr.nihilus.music.ui.settings.exclusion.ExcludedTracksFragment
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
+@AndroidEntryPoint
 internal class MainPreferenceFragment : PreferenceFragmentCompat() {
+    @Inject internal lateinit var settings: Settings
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Apply theme whenever it is changed via preferences.
+        settings.currentTheme
+            .drop(1)
+            .onEach(::applyTheme)
+            .launchIn(lifecycleScope)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.prefs_main, rootKey)
 
-        if (BuildConfig.DEBUG) {
-            val startSyncPreference = findPreference<Preference>("start_sync")!!
+        requirePreference<Preference>(PREF_KEY_TRACK_EXCLUSION).setOnPreferenceClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.content_fragment, ExcludedTracksFragment())
+                .addToBackStack(null)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit()
+            true
+        }
 
-            val workManager = WorkManager.getInstance(requireContext())
-            workManager.getWorkInfosForUniqueWorkLiveData("spotify-sync").observe(this) { allWorkInfo ->
+        if (BuildConfig.DEBUG) {
+            setupSyncPreference()
+        }
+    }
+
+    private fun applyTheme(theme: Settings.AppTheme) {
+        AppCompatDelegate.setDefaultNightMode(
+            when (theme) {
+                Settings.AppTheme.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                Settings.AppTheme.BATTERY_SAVER_ONLY -> AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+                Settings.AppTheme.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+        )
+    }
+
+    private fun setupSyncPreference() {
+        val startSyncPreference = requirePreference<Preference>(PREF_KEY_START_SYNC)
+
+        val workManager = WorkManager.getInstance(requireContext())
+        workManager.getWorkInfosForUniqueWorkLiveData(SPOTIFY_SYNC_TASK)
+            .observe(this) { allWorkInfo ->
                 allWorkInfo.firstOrNull()?.state?.let { workState ->
                     startSyncPreference.isEnabled = workState.isFinished
 
@@ -45,12 +98,14 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
                 }
             }
 
-            startSyncPreference.setOnPreferenceClickListener {
-                scheduleSpotifySync(workManager)
-                true
-            }
+        startSyncPreference.setOnPreferenceClickListener {
+            scheduleSpotifySync(workManager)
+            true
         }
     }
+
+    private fun <P : Preference> requirePreference(key: String): P = findPreference(key)
+        ?: error("Attempt to find a non-existing preference named \"$key\"")
 
     private fun scheduleSpotifySync(workManager: WorkManager) {
         val connectedNetworkConstraint = Constraints.Builder()
@@ -61,6 +116,10 @@ internal class MainPreferenceFragment : PreferenceFragmentCompat() {
             .setConstraints(connectedNetworkConstraint)
             .build()
 
-        workManager.beginUniqueWork("spotify-sync", ExistingWorkPolicy.KEEP, request).enqueue()
+        workManager.beginUniqueWork(SPOTIFY_SYNC_TASK, ExistingWorkPolicy.KEEP, request).enqueue()
     }
 }
+
+private const val PREF_KEY_TRACK_EXCLUSION = "track_exclusion"
+private const val PREF_KEY_START_SYNC = "start_sync"
+private const val SPOTIFY_SYNC_TASK = "spotify-sync"

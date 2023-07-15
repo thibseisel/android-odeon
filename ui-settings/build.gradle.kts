@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,26 +15,29 @@
  */
 
 plugins {
-    id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
-    defaultConfig {
-        consumerProguardFiles("consumer-rules.pro")
+    namespace = "fr.nihilus.music.ui.settings"
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation(project(":core"))
-    implementation(project(":core-ui"))
-    implementation(project(":spotify-client"))
+    implementation(projects.core)
+    implementation(projects.media)
+    implementation(projects.coreUi)
+    implementation(projects.spotifyClient)
 
-    implementation("androidx.preference:preference-ktx:${Libs.Androidx.preference}")
+    implementation(libs.bundles.core)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.preference)
+    implementation(libs.androidx.work.runtime)
 
-    kapt("com.google.dagger:dagger-compiler:${Libs.dagger}")
-    kapt("com.google.dagger:dagger-android-processor:${Libs.dagger}")
-
-    testImplementation(project(":core-test"))
+    testImplementation(projects.coreTest)
+    testImplementation(libs.bundles.testing.unit)
 }

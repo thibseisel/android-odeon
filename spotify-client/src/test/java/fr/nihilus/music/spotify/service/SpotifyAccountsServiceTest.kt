@@ -28,7 +28,7 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
 import org.intellij.lang.annotations.Language
 import kotlin.test.Test
 
@@ -63,59 +63,62 @@ internal class SpotifyAccountsServiceTest {
     }
 
     @Test
-    fun `Given bad credentials, when authenticating then fail with AuthenticationException`() = runBlockingTest {
-        val failingAuthService = accountsService {
-            respondJson(
-                """{
+    fun `Given bad credentials, when authenticating then fail with AuthenticationException`() =
+        runBlocking<Unit> {
+            val failingAuthService = accountsService {
+                respondJson(
+                    """{
                 "error": "invalid_client",
                 "error_description": "Invalid client"
             }""".trimIndent(), HttpStatusCode.BadRequest
-            )
-        }
-
-        val exception = shouldThrow<AuthenticationException> {
-            failingAuthService.authenticate(TEST_CLIENT_ID, "wrong_client_secret")
-        }
-
-        exception.error shouldBe "invalid_client"
-        exception.description shouldBe "Invalid client"
-    }
-
-    @Test
-    fun `Given valid credentials, when authenticating then POST them to Accounts service as Base64`() = runBlockingTest {
-        val authService = accountsService { request ->
-            request.method shouldBe HttpMethod.Post
-            request.url.host shouldBe "accounts.spotify.com"
-            request.url.encodedPath shouldBe "api/token"
-            request.headers[HttpHeaders.Authorization] shouldBe "Basic $CLIENT_BASE64_KEY"
-
-            request.body.let {
-                it.shouldBeInstanceOf<FormDataContent>()
-                it.formData["grant_type"] shouldBe "client_credentials"
+                )
             }
 
-            respondJson(AUTH_TOKEN)
-        }
+            val exception = shouldThrow<AuthenticationException> {
+                failingAuthService.authenticate(TEST_CLIENT_ID, "wrong_client_secret")
+            }
 
-        val token = authService.authenticate(
-            TEST_CLIENT_ID,
-            TEST_CLIENT_SECRET
-        )
-        token.token shouldBe TEST_TOKEN_STRING
-        token.type shouldBe "Bearer"
-        token.expiresIn shouldBe 3600
-    }
+            exception.error shouldBe "invalid_client"
+            exception.description shouldBe "Invalid client"
+        }
 
     @Test
-    fun `When authenticating then perform the request with the specified User Agent`() = runBlockingTest {
-        val authService = accountsService { request ->
-            request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
-            respondJson(AUTH_TOKEN)
+    fun `Given valid credentials, when authenticating then POST them to Accounts service as Base64`() =
+        runBlocking<Unit> {
+            val authService = accountsService { request ->
+                request.method shouldBe HttpMethod.Post
+                request.url.host shouldBe "accounts.spotify.com"
+                request.url.encodedPath shouldBe "api/token"
+                request.headers[HttpHeaders.Authorization] shouldBe "Basic $CLIENT_BASE64_KEY"
+
+                request.body.let {
+                    it.shouldBeInstanceOf<FormDataContent>()
+                    it.formData["grant_type"] shouldBe "client_credentials"
+                }
+
+                respondJson(AUTH_TOKEN)
+            }
+
+            val token = authService.authenticate(
+                TEST_CLIENT_ID,
+                TEST_CLIENT_SECRET
+            )
+            token.token shouldBe TEST_TOKEN_STRING
+            token.type shouldBe "Bearer"
+            token.expiresIn shouldBe 3600
         }
 
-        authService.authenticate(
-            TEST_CLIENT_ID,
-            TEST_CLIENT_SECRET
-        )
-    }
+    @Test
+    fun `When authenticating then perform the request with the specified User Agent`() =
+        runBlocking<Unit> {
+            val authService = accountsService { request ->
+                request.headers[HttpHeaders.UserAgent] shouldBe TEST_USER_AGENT
+                respondJson(AUTH_TOKEN)
+            }
+
+            authService.authenticate(
+                TEST_CLIENT_ID,
+                TEST_CLIENT_SECRET
+            )
+        }
 }

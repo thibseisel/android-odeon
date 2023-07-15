@@ -15,18 +15,6 @@
   -->
 
 <resources>
-    <string name="svc_browser_root_title">Local music library</string>
-    <string name="svc_tracks_type_title">Tracks</string>
-    <string name="svc_albums_type_title">Albums</string>
-    <string name="svc_artists_type_title">Artists</string>
-    <string name="svc_playlists_type_title">Playlists</string>
-    <string name="svc_all_music">All tracks</string>
-    <string name="svc_most_rated">Favorites</string>
-    <string name="svc_last_added">Recently added</string>
-    <string name="svc_artist_subtitle">%1$d albums, %2$d tracks</string>
-    <string name="svc_recently_added_description">Always good to hear the news.</string>
-    <string name="svc_most_rated_description">You music library\'s Hall of Fame.</string>
-
     <string name="svc_player_unknown_error">Oops, something went wrong and the player crashed. We apology for the inconvenience.</string>
     <string name="svc_action_play">Play</string>
     <string name="svc_action_pause">Pause</string>
@@ -36,9 +24,4 @@
     <string name="svc_channel_mediasession_description">Controls media playback from the lock screen and the notification panel.</string>
     <string name="svc_player_error_unsupported_file">Odeon does not support playing this file format.</string>
     <string name="svc_player_source_error_generic">An error occurred while reading this track. Is this happens repeatedly, this may be an indication that the file is corrupted.</string>
-    <string name="svc_category_popular">Popular this month</string>
-    <string name="svc_category_popular_description">A review of your last musical trends</string>
-    <string name="svc_smart_type_title">Smart mix</string>
-    <string name="svc_happy_category_title">Happy feelings</string>
-    <string name="svc_party_category_title">Let\'s party!</string>
 </resources>

@@ -16,7 +16,6 @@
 
 package fr.nihilus.music.core.settings
 
-import androidx.appcompat.app.AppCompatDelegate
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.playback.RepeatMode
 import kotlinx.coroutines.flow.Flow
@@ -82,29 +81,29 @@ interface Settings {
 
     /**
      * Enumeration of values for the [currentTheme] settings.
-     *
-     * @property value The value to be used when setting the current theme
-     * with [AppCompatDelegate.setDefaultNightMode].
      */
-    enum class AppTheme(val value: Int) {
+    enum class AppTheme {
         /**
          * Always use the light theme.
          */
-        LIGHT(AppCompatDelegate.MODE_NIGHT_NO),
+        LIGHT,
+
         /**
          * Automatically switch to the dark theme when Battery Saver is enabled.
          * This should be the preferred value when running Android P and earlier.
          */
-        BATTERY_SAVER_ONLY(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY),
+        BATTERY_SAVER_ONLY,
+
         /**
          * Always use the dark theme.
          */
-        DARK(AppCompatDelegate.MODE_NIGHT_YES),
+        DARK,
+
         /**
          * Use a light or a dark theme depending on the system configuration.
          * This should be the preferred value when running Android Q or higher:
          * this will be set from the theme system settings.
          */
-        SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        SYSTEM
     }
 }

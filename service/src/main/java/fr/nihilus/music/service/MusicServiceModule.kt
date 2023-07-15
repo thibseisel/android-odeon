@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Thibault Seisel
+ * Copyright 2021 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,36 @@
 
 package fr.nihilus.music.service
 
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import dagger.Binds
 import dagger.Module
-import dagger.android.ContributesAndroidInjector
-import fr.nihilus.music.media.dagger.MediaSourceModule
-import fr.nihilus.music.service.playback.PlaybackModule
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.android.scopes.ServiceScoped
+import fr.nihilus.music.service.metadata.GlideDownloader
+import fr.nihilus.music.service.metadata.IconDownloader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
-/**
- * Configures [MusicService]-related bindings, providing dependency injection for the whole `media` library module.
- * This Dagger module should be installed in the root component.
- */
 @Module
-abstract class MusicServiceModule {
+@InstallIn(ServiceComponent::class)
+internal abstract class MusicServiceModule {
 
-    @ServiceScoped
-    @ContributesAndroidInjector(modules = [
-        ServiceBindingsModule::class,
-        MediaSessionModule::class,
-        MediaSourceModule::class,
-        PlaybackModule::class
-    ])
-    abstract fun musicService(): MusicService
+    @Binds
+    abstract fun bindsSubscriptionManager(impl: CachingSubscriptionManager): SubscriptionManager
+
+    @Binds
+    abstract fun bindsPlayer(player: ExoPlayer): Player
+
+    @Binds
+    abstract fun bindsIconDownloader(downloader: GlideDownloader): IconDownloader
+
+    companion object {
+        @Provides @ServiceScoped
+        @ServiceCoroutineScope
+        fun providesServiceScope() = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    }
 }

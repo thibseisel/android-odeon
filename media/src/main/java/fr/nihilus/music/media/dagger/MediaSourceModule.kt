@@ -18,18 +18,20 @@ package fr.nihilus.music.media.dagger
 
 import dagger.Binds
 import dagger.Module
-import fr.nihilus.music.media.provider.MediaStoreModule
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import fr.nihilus.music.media.browser.BrowserTree
+import fr.nihilus.music.media.browser.BrowserTreeImpl
 import fr.nihilus.music.media.usage.UsageManager
 import fr.nihilus.music.media.usage.UsageManagerImpl
 
-/**
- * Define relations in the object graph for the "media" group of features.
- */
-@Module(includes = [
-    MediaStoreModule::class
-])
-abstract class MediaSourceModule {
+@Module
+@InstallIn(SingletonComponent::class)
+internal abstract class MediaSourceModule {
 
     @Binds
-    internal abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
+    abstract fun bindsBrowserTree(impl: BrowserTreeImpl): BrowserTree
+
+    @Binds
+    abstract fun bindsUsageManager(impl: UsageManagerImpl): UsageManager
 }

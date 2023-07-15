@@ -17,36 +17,31 @@
 package fr.nihilus.music.core.ui.actions
 
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.os.PermissionDeniedException
-import fr.nihilus.music.media.provider.MediaDao
+import fr.nihilus.music.media.tracks.DeleteTracksResult
+import fr.nihilus.music.media.tracks.TrackRepository
 import javax.inject.Inject
 
 /**
  * Handler for actions related to deleting tracks from the device's storage.
  *
- * @property mediaDao Handle to the shared media storage.
+ * @param repository Handle to the shared media storage.
  */
 class DeleteTracksAction @Inject constructor(
-    private val mediaDao: MediaDao
+    private val repository: TrackRepository
 ) {
-
     /**
-     * Deletes tracks from the device's shared storage, making them definitely
-     * unavailable to other applications.
+     * Deletes tracks from the device's shared storage, making them definitely unavailable to other
+     * applications.
      *
      * @param mediaIds The media ids of tracks that should be deleted.
      * Those should be valid track media ids, i.e. given any [type][MediaId.type]
      * or [category][MediaId.category], the [track identifier][MediaId.track] should not be `null`.
-     *
-     * @throws PermissionDeniedException If the user has not granted permission to write
-     * to the device's external storage.
      */
-    suspend fun delete(mediaIds: List<MediaId>): Int {
+    suspend operator fun invoke(mediaIds: List<MediaId>): DeleteTracksResult {
         val trackIds = LongArray(mediaIds.size) {
             val mediaId = mediaIds[it]
             requireNotNull(mediaId.track) { "Invalid track media id: $mediaId" }
         }
-
-        return mediaDao.deleteTracks(trackIds)
+        return repository.deleteTracks(trackIds)
     }
 }

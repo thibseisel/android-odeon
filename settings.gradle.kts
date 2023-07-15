@@ -13,8 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 rootProject.name = "android-odeon"
+includeBuild("build-logic")
 include(":app")
-include(":core", ":core-test", ":core-ui", ":media")
+include(":core", ":core-test", ":core-database", ":core-ui", ":core-instrumentation", ":media")
 include(":service", ":spotify-client")
-include(":ui-cleanup", ":ui-settings")
+include(":ui-cleanup", ":ui-settings", ":ui-library")
