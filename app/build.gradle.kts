@@ -49,7 +49,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         // Exclude AndroidX version files
         resources.excludes += "META-INF/*.version"
         // Exclude consumer proguard files

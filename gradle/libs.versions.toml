@@ -1,5 +1,5 @@
 [versions]
-android-gradle = "7.4.2"
+android-gradle = "8.0.2"
 androidx-appcompat = "1.6.1"
 androidx-constraintlayout = "2.1.4"
 androidx-core = "1.9.0"
