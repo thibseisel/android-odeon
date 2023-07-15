@@ -24,8 +24,8 @@ android {
     namespace = "fr.nihilus.music"
     defaultConfig {
         applicationId = "fr.nihilus.music"
-        versionCode = 2_01_01_0
-        versionName = "2.1.1"
+        versionCode = 3_00_00_0
+        versionName = "3.0.0"
     }
 
     buildFeatures {
