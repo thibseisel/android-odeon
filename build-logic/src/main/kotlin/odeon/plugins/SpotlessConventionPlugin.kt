@@ -42,6 +42,14 @@ internal class SpotlessConventionPlugin : Plugin<Project> {
             targetExclude("**/build/**/*.kt")
             ktlint(ktlintVersion)
         }
+
+        json {
+            target("**/*.json")
+            targetExclude("**/build/**/*.json")
+
+            endWithNewline()
+            trimTrailingWhitespace()
+        }
     }
 
     private fun Project.resolveKtlintVersion(): String {
