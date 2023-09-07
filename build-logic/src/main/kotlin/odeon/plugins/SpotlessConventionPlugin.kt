@@ -43,6 +43,10 @@ internal class SpotlessConventionPlugin : Plugin<Project> {
             ktlint(ktlintVersion)
         }
 
+        kotlinGradle {
+            ktlint(ktlintVersion)
+        }
+
         json {
             target("**/*.json")
             targetExclude("**/build/**/*.json")

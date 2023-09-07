@@ -74,7 +74,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
 
             // Configure Kotlin compiler optimisations for releases
@@ -82,7 +82,7 @@ android {
                 freeCompilerArgs = freeCompilerArgs + listOf(
                     "-Xno-param-assertions",
                     "-Xno-call-assertions",
-                    "-Xno-receiver-assertions"
+                    "-Xno-receiver-assertions",
                 )
             }
         }
@@ -109,7 +109,7 @@ android {
             // Keep line number information for obfuscation debugging.
             proguardFiles(
                 *release.proguardFiles.toTypedArray(),
-                "staging-rules.pro"
+                "staging-rules.pro",
             )
         }
     }
