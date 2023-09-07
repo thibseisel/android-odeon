@@ -17,6 +17,7 @@
 plugins {
     id("odeon.android.application")
     id("odeon.android.hilt")
+    id("odeon.spotless")
     id("androidx.navigation.safeargs.kotlin")
 }
 

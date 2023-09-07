@@ -16,6 +16,7 @@
 
 plugins {
     id("odeon.android.library")
+    id("odeon.spotless")
 }
 
 android {

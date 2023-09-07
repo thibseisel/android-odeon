@@ -33,6 +33,7 @@ dependencies {
     compileOnly(libs.plugin.android)
     compileOnly(libs.plugin.kotlin)
     compileOnly(libs.plugin.hilt)
+    compileOnly(libs.plugin.spotless)
 }
 
 gradlePlugin {
@@ -48,6 +49,10 @@ gradlePlugin {
         register("androidHilt") {
             id = "odeon.android.hilt"
             implementationClass = "odeon.plugins.AndroidHiltConventionPlugin"
+        }
+        register("spotless") {
+            id = "odeon.spotless"
+            implementationClass = "odeon.plugins.SpotlessConventionPlugin"
         }
     }
 }
