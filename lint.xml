@@ -16,8 +16,6 @@
   -->
 
 <lint>
-    <!-- False positive due to defining the remove rule in core module -->
-    <issue id="RemoveWorkManagerInitializer" severity="ignore" />
     <!-- False positive due to defining the merge rule in core module -->
     <issue id="SpecifyForegroundServiceType" severity="ignore" />
 </lint>
