@@ -27,6 +27,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.transition.Transition
 import androidx.transition.TransitionListenerAdapter
+import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.ImageViewTarget
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,7 +35,7 @@ import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.luminance
 import fr.nihilus.music.core.ui.extensions.startPostponedEnterTransitionWhenDrawn
 import fr.nihilus.music.core.ui.extensions.themeColor
-import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.asAlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.core.ui.observe
@@ -100,7 +101,7 @@ internal class AlbumDetailFragment : BaseFragment(R.layout.fragment_album_detail
 
         // Note: Glide is attached to the context of the activity to workaround a bug in
         // MaterialContainerTransform not capturing images in return transition.
-        GlideApp.with(requireActivity())
+        Glide.with(requireActivity())
             .asAlbumArt()
             .load(album.artworkUri)
             .error(R.drawable.ic_album_24dp)

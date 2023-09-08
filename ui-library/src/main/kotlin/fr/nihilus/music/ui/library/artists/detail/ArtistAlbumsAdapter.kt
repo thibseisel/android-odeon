@@ -22,10 +22,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.asAlbumArt
+import fr.nihilus.music.core.ui.glide.fallbackColors
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.ui.library.R
@@ -45,7 +47,7 @@ internal class ArtistAlbumsAdapter(
         val context = fragment.requireContext()
         defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
         val defaultAlbumIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
-        artworkLoader = GlideApp.with(fragment).asAlbumArt()
+        artworkLoader = Glide.with(fragment).asAlbumArt()
             .disallowHardwareConfig()
             .fallbackColors(defaultPalette)
             .error(defaultAlbumIcon)

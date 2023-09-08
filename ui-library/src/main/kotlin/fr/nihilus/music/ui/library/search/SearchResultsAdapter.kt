@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.bumptech.glide.Glide
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.core.ui.glide.GlideApp
+import fr.nihilus.music.core.ui.glide.asAlbumArt
 import fr.nihilus.music.ui.library.R
 import fr.nihilus.music.ui.library.databinding.SectionHeaderItemBinding
 import fr.nihilus.music.ui.library.extensions.resolveDefaultAlbumPalette
@@ -38,7 +38,7 @@ internal class SearchResultsAdapter(
 ) : ListAdapter<SearchResult, BaseHolder<*>>(SearchResultDiffer()) {
 
     private val glide = Glide.with(fragment).asBitmap().autoClone()
-    private val albumLoader = GlideApp.with(fragment).asAlbumArt().autoClone()
+    private val albumLoader = Glide.with(fragment).asAlbumArt().autoClone()
     private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
 
     override fun getItemViewType(position: Int): Int = when (val result = getItem(position)) {
