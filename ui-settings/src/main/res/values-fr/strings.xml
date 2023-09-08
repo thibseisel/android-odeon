@@ -16,20 +16,12 @@
   -->
 
 <resources>
-    <string name="dev_sync_summary_failure">Echec de la synchronisation</string>
-    <string name="dev_sync_summary_running">Synchronisation en cours…</string>
-    <string name="dev_sync_summary_success">Synchronisé avec succès</string>
-    <string name="dev_sync_summary_waiting">En attente d\'une connexion internet…</string>
     <string name="prefs_category_appearance">Apparence</string>
     <string name="pref_theme_title">Thème</string>
     <string name="pref_theme_battery">Selon l\'économiseur de batterie</string>
     <string name="pref_theme_dark">Sombre</string>
     <string name="pref_theme_light">Clair</string>
     <string name="pref_theme_system">Valeur du système</string>
-    <string name="action_dev_options">Options pour les développeurs</string>
-    <string name="pref_title_spotify_sync">Synchroniser avec Spotify</string>
-    <string name="pref_title_audio_analysis">Analyse audio</string>
-    <string name="pref_summary_audio_analysis">Selectionner des morceaux en fonction de leurs caractéristiques audio</string>
     <string name="prefs_category_playback_options">Paramètres de lecture</string>
     <string name="pref_title_reload_queue">Reprendre la dernière lecture</string>
     <string name="pref_reload_queue_start">Depuis le début</string>
