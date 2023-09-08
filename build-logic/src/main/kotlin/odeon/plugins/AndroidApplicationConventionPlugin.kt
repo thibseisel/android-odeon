@@ -27,6 +27,7 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 
+@Suppress("unused")
 internal class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         with(pluginManager) {
