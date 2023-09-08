@@ -25,7 +25,6 @@ kotlin = "1.8.10"
 kotlinx-coroutines = "1.6.4"
 material = "1.6.1"
 mockk = "1.12.8"
-moshi = "1.14.0"
 robolectric = "4.10"
 timber = "5.0.1"
 turbine = "0.8.0"
@@ -92,8 +91,6 @@ kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
-moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
-moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
