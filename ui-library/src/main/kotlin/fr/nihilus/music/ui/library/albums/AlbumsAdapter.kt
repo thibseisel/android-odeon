@@ -22,11 +22,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.request.target.ImageViewTarget
 import fr.nihilus.music.core.ui.base.BaseHolder
-import fr.nihilus.music.core.ui.glide.GlideApp
-import fr.nihilus.music.core.ui.glide.GlideRequest
+import fr.nihilus.music.core.ui.glide.asAlbumArt
+import fr.nihilus.music.core.ui.glide.fallbackColors
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 import fr.nihilus.music.ui.library.R
@@ -42,13 +43,13 @@ internal class AlbumsAdapter(
 ) : ListAdapter<AlbumUiState, AlbumsAdapter.ViewHolder>(AlbumDiffer()) {
 
     private val defaultPalette = fragment.requireContext().resolveDefaultAlbumPalette()
-    private val glideRequest: GlideRequest<AlbumArt>
+    private val glideRequest: RequestBuilder<AlbumArt>
 
     init {
         setHasStableIds(true)
         val context = fragment.requireContext()
         val fallbackIcon = ContextCompat.getDrawable(context, R.drawable.ic_album_24dp)
-        glideRequest = GlideApp.with(fragment).asAlbumArt()
+        glideRequest = Glide.with(fragment).asAlbumArt()
             .disallowHardwareConfig()
             .fallbackColors(defaultPalette)
             .error(fallbackIcon)

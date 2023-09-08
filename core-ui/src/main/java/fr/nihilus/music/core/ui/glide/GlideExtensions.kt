@@ -18,47 +18,34 @@ package fr.nihilus.music.core.ui.glide
 
 import android.graphics.Color
 import com.bumptech.glide.RequestBuilder
-import com.bumptech.glide.annotation.GlideExtension
-import com.bumptech.glide.annotation.GlideOption
-import com.bumptech.glide.annotation.GlideType
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.Option
-import com.bumptech.glide.request.BaseRequestOptions
 import fr.nihilus.music.core.ui.glide.palette.AlbumArt
 import fr.nihilus.music.core.ui.glide.palette.AlbumPalette
 
-@GlideExtension
-object GlideExtensions {
+/**
+ * Generate an [AlbumPalette] from the loaded bitmap.
+ */
+fun RequestManager.asAlbumArt() =
+    `as`(AlbumArt::class.java).disallowHardwareConfig()
 
-    /**
-     * Generate an [AlbumPalette] from the loaded bitmap.
-     */
-    @[JvmStatic GlideType(AlbumArt::class)]
-    fun asAlbumArt(builder: RequestBuilder<AlbumArt>) = builder.disallowHardwareConfig()
+/**
+ * Specify the default colors to use when one or more colors
+ * cannot be extracted from the loaded Bitmap.
+ *
+ * @param palette A set of colors that are used by default
+ * when one or more color is not available.
+ */
+fun RequestBuilder<AlbumArt>.fallbackColors(palette: AlbumPalette) =
+    set(DefaultPaletteOption, palette)
 
-    /**
-     * Specify the default colors to use when one or more colors
-     * cannot be extracted from the loaded Bitmap.
-     *
-     * @param palette A set of colors that are used by default
-     * when one or more color is not available.
-     */
-    @[JvmStatic GlideOption]
-    fun fallbackColors(
-        options: BaseRequestOptions<*>,
-        palette: AlbumPalette
-    ): BaseRequestOptions<*> =
-        options.set(OPTION_DEFAULT_PALETTE, palette)
-
-    val OPTION_DEFAULT_PALETTE: Option<AlbumPalette> =
-        Option.memory(
-            "fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE",
-            AlbumPalette(
-                primary = 0xFFC4C4C,
-                accent = Color.WHITE,
-                titleText = Color.WHITE,
-                bodyText = Color.WHITE,
-                textOnAccent = Color.WHITE
-            )
-        )
-
-}
+internal val DefaultPaletteOption = Option.memory(
+    "fr.nihilus.music.BufferAlbumArtDecoder.DEFAULT_PALETTE",
+    AlbumPalette(
+        primary = 0xFFC4C4C,
+        accent = Color.WHITE,
+        titleText = Color.WHITE,
+        bodyText = Color.WHITE,
+        textOnAccent = Color.WHITE
+    )
+)

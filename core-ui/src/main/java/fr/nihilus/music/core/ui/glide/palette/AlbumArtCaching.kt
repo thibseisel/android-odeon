@@ -29,7 +29,7 @@ import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapResource
 import fr.nihilus.music.core.ui.BuildConfig
 import fr.nihilus.music.core.ui.extensions.toHsl
-import fr.nihilus.music.core.ui.glide.GlideExtensions
+import fr.nihilus.music.core.ui.glide.DefaultPaletteOption
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -244,7 +244,7 @@ class BufferAlbumArtDecoder(
                 textOnAccent = source.getInt()
             )
         } else {
-            val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
+            val defaultPalette = checkNotNull(options[DefaultPaletteOption])
             extractColorPalette(bitmapResource.get(), defaultPalette)
         }
         return AlbumArtResource(palette, bitmapResource)
@@ -275,7 +275,7 @@ class StreamAlbumArtDecoder(
         val bitmapResource = bitmapDecoder.decode(source, width, height, options) ?: return null
 
         // Extract the color palette from the loaded bitmap
-        val defaultPalette = checkNotNull(options[GlideExtensions.OPTION_DEFAULT_PALETTE])
+        val defaultPalette = checkNotNull(options[DefaultPaletteOption])
         val palette = extractColorPalette(bitmapResource.get(), defaultPalette)
 
         return AlbumArtResource(palette, bitmapResource)
