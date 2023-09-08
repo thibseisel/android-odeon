@@ -15,7 +15,7 @@
  */
 
 internal object AndroidVersion {
-    const val COMPILE = 33
+    const val COMPILE = 34
     const val TARGET = 31
     const val MINIMUM = 24
 }
