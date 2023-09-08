@@ -28,8 +28,6 @@ android {
 
 dependencies {
     implementation(libs.bundles.core)
-    implementation(libs.androidx.work.runtime)
-    implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.lifecycle.process)
 
     testImplementation(libs.bundles.testing.unit)

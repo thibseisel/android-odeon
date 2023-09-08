@@ -16,20 +16,12 @@
   -->
 
 <resources>
-    <string name="dev_sync_summary_waiting">Oczekiwanie na dostępność sieci…</string>
-    <string name="dev_sync_summary_running">Synchronizacja jest uruchomiona…</string>
-    <string name="dev_sync_summary_success">Zsynchronizowano pomyślnie</string>
-    <string name="dev_sync_summary_failure">Synchronizacja nie powiodła się</string>
     <string name="prefs_category_appearance">Wygląd</string>
     <string name="pref_theme_title">Motyw</string>
     <string name="pref_theme_light">Jasny</string>
     <string name="pref_theme_dark">Ciemny</string>
     <string name="pref_theme_battery">Ustawiany przez oszczędzanie baterii</string>
     <string name="pref_theme_system">Używaj motywu systemowego</string>
-    <string name="action_dev_options">Opcje programisty</string>
-    <string name="pref_title_spotify_sync">Synchronizuj z Spotify</string>
-    <string name="pref_title_audio_analysis">Analiza audio</string>
-    <string name="pref_summary_audio_analysis">Wybierz ścieżki na podstawie ich specyfikacji audio</string>
     <string name="prefs_category_playback_options">Playback options</string>
     <string name="pref_title_reload_queue">Reload last played queue</string>
     <string name="pref_reload_queue_start">From the beginning</string>

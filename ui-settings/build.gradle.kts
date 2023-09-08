@@ -30,13 +30,11 @@ dependencies {
     implementation(projects.core)
     implementation(projects.media)
     implementation(projects.coreUi)
-    implementation(projects.spotifyClient)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
     implementation(libs.bundles.androidx.lifecycle)
     implementation(libs.androidx.preference)
-    implementation(libs.androidx.work.runtime)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)

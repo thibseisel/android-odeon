@@ -18,19 +18,15 @@ package fr.nihilus.music
 
 import android.app.Application
 import android.os.StrictMode
-import androidx.hilt.work.HiltWorkerFactory
-import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
-import javax.inject.Inject
 
 /**
  * An Android Application component that can inject dependencies into Activities and Services.
  * This class also performs general configuration tasks.
  */
 @HiltAndroidApp
-class OdeonApplication : Application(), Configuration.Provider {
-    @Inject lateinit var workerFactory: HiltWorkerFactory
+class OdeonApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -41,8 +37,4 @@ class OdeonApplication : Application(), Configuration.Provider {
             StrictMode.enableDefaults()
         }
     }
-
-    override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-        .setWorkerFactory(workerFactory)
-        .build()
 }

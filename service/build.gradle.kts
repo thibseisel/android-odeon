@@ -27,7 +27,6 @@ dependencies {
     implementation(projects.core)
     implementation(projects.coreDatabase)
     implementation(projects.media)
-    implementation(projects.spotifyClient)
 
     implementation(libs.bundles.core)
     implementation(libs.androidx.media)

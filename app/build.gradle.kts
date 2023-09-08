@@ -120,7 +120,6 @@ dependencies {
     implementation(projects.coreUi)
     implementation(projects.media)
     implementation(projects.service)
-    implementation(projects.spotifyClient)
 
     implementation(projects.uiCleanup)
     implementation(projects.uiSettings)
@@ -131,8 +130,6 @@ dependencies {
     implementation(libs.bundles.androidx.lifecycle)
     implementation(libs.androidx.viewpager)
     implementation(libs.androidx.media)
-
-    implementation(libs.androidx.hilt.work)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)

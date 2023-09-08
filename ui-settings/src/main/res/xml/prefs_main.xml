@@ -50,14 +50,4 @@
             android:title="@string/pref_title_prepare_on_startup"
             android:defaultValue="@bool/pref_default_prepare_on_startup" />
     </PreferenceCategory>
-
-    <PreferenceCategory
-        android:title="@string/action_dev_options"
-        app:isPreferenceVisible="@bool/core_is_debug_enabled">
-
-        <Preference
-            android:key="start_sync"
-            android:title="@string/pref_title_spotify_sync"/>
-    </PreferenceCategory>
-
 </PreferenceScreen>
