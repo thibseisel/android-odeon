@@ -62,7 +62,7 @@ internal class BrowserClientImpl @Inject constructor(
         null
     )
 
-    private val _playbackState = MutableStateFlow<PlaybackStateCompat>(EMPTY_PLAYBACK_STATE)
+    private val _playbackState = MutableStateFlow<PlaybackStateCompat>(EmptyPlaybackState)
     private val _nowPlaying = MutableStateFlow<MediaMetadataCompat?>(null)
     private val _shuffleMode = MutableStateFlow(PlaybackStateCompat.SHUFFLE_MODE_NONE)
     private val _repeatMode = MutableStateFlow(PlaybackStateCompat.REPEAT_MODE_NONE)
@@ -142,7 +142,7 @@ internal class BrowserClientImpl @Inject constructor(
             Timber.tag("BrowserClientImpl").i("MediaBrowser is connected.")
             val controller = MediaControllerCompat(context, mediaBrowser.sessionToken).also {
                 it.registerCallback(controllerCallback)
-                _playbackState.value = it.playbackState ?: EMPTY_PLAYBACK_STATE
+                _playbackState.value = it.playbackState ?: EmptyPlaybackState
                 _nowPlaying.value = it.metadata
                 _repeatMode.value = it.repeatMode
                 _shuffleMode.value = it.shuffleMode
@@ -177,7 +177,7 @@ internal class BrowserClientImpl @Inject constructor(
     private inner class ClientControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            val newState = state ?: EMPTY_PLAYBACK_STATE
+            val newState = state ?: EmptyPlaybackState
 
             when (newState.state) {
                 PlaybackStateCompat.STATE_NONE,
@@ -210,7 +210,7 @@ internal class BrowserClientImpl @Inject constructor(
 /**
  * The playback state used as an alternative to `null`.
  */
-private val EMPTY_PLAYBACK_STATE = PlaybackStateCompat.Builder()
+private val EmptyPlaybackState = PlaybackStateCompat.Builder()
     .setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 0f, 0L)
     .build()
 
