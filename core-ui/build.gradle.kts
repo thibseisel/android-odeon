@@ -21,6 +21,7 @@ plugins {
 
 android {
     namespace = "fr.nihilus.music.core.ui"
+    buildFeatures.buildConfig = true
 }
 
 dependencies {
