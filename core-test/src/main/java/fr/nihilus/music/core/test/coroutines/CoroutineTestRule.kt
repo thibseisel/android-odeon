@@ -26,8 +26,6 @@ import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-private const val TEST_TIMEOUT = 5_000L
-
 /**
  * A JUnit Rule for running tests that use Kotlin Coroutines.
  *
@@ -52,7 +50,7 @@ class CoroutineTestRule : TestWatcher() {
 
     operator fun invoke(testBody: suspend TestScope.() -> Unit) = run(testBody)
 
-    fun run(block: suspend TestScope.() -> Unit) = scope.runTest(TEST_TIMEOUT, testBody = block)
+    fun run(block: suspend TestScope.() -> Unit) = scope.runTest(testBody = block)
 
     override fun starting(description: Description?) {
         super.starting(description)
