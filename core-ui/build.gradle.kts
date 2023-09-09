@@ -17,6 +17,7 @@
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -35,7 +36,7 @@ dependencies {
     implementation(libs.androidx.media)
     implementation(libs.identikon)
 
-    kapt(libs.glide.compiler)
+    ksp(libs.glide.ksp)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)

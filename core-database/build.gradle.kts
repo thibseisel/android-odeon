@@ -17,27 +17,27 @@
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
+    alias(libs.plugins.ksp)
 }
+
+val schemaDir = File(projectDir, "schemas")
 
 android {
     namespace = "fr.nihilus.music.core.database"
     sourceSets {
         // Add Room schemas to test sources in order to test database migrations.
-        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+        getByName("androidTest").assets.srcDir(schemaDir)
     }
 }
 
-kapt {
-    arguments {
-        arg("room.schemaLocation", "$projectDir/schemas")
-        arg("room.incremental", "true")
-    }
+ksp {
+    arg(RoomSchemaArgProvider(schemaDir))
 }
 
 dependencies {
     implementation(libs.bundles.core)
     implementation(libs.androidx.room)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     testImplementation(libs.bundles.testing.unit)
 
@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
 
     constraints {
-        kapt("org.xerial:sqlite-jdbc") {
+        ksp("org.xerial:sqlite-jdbc") {
             because("Apple Silicon support has been introduced in 3.32.3.3")
             version {
                 require("3.32.3.3")
@@ -55,4 +55,22 @@ dependencies {
             }
         }
     }
+}
+
+/**
+ * Specifies the directory in which Room schema definition files are stored.
+ *
+ * This syntax workarounds a bug in AndroidX Room regarding incremental Gradle processing.
+ * Once it is fixed, this could be replaced by the simpler
+ * `arg("room.schemaLocation", "path/to/file")` syntax.
+ */
+private class RoomSchemaArgProvider(
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val schemaDir: File
+) : CommandLineArgumentProvider {
+
+    override fun asArguments(): Iterable<String> = listOf(
+        "room.schemaLocation=${schemaDir.path}"
+    )
 }
