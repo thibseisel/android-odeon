@@ -40,7 +40,8 @@ internal object SQLiteDatabaseModule {
                 DatabaseMigration.MIGRATION_2_3,
                 DatabaseMigration.MIGRATION_3_4,
                 DatabaseMigration.MIGRATION_4_5,
-                DatabaseMigration.MIGRATION_5_6
+                DatabaseMigration.MIGRATION_5_6,
+                DatabaseMigration.MIGRATION_6_7,
             )
             .build()
 }

@@ -22,7 +22,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import fr.nihilus.music.core.database.exclusion.TrackExclusionDao
 import fr.nihilus.music.core.database.playlists.PlaylistDao
-import fr.nihilus.music.core.database.spotify.SpotifyDao
 import fr.nihilus.music.core.database.usage.UsageDao
 
 /**
@@ -38,9 +37,6 @@ object DatabaseModule {
 
     @Provides
     internal fun provideMediaUsageDao(db: AppDatabase): UsageDao = db.usageDao
-
-    @Provides
-    internal fun provideSpotifyDao(db: AppDatabase): SpotifyDao = db.spotifyDao
 
     @Provides
     internal fun provideExclusionDao(db: AppDatabase): TrackExclusionDao = db.exclusionDao
