@@ -25,6 +25,7 @@ identikon = "1.0.0"
 kotest = "5.7.2"
 kotlin = "1.8.22"
 kotlinx-coroutines = "1.7.3"
+ksp = "1.8.22-1.0.11"
 material = "1.9.0"
 mockk = "1.12.8"
 robolectric = "4.10.3"
@@ -39,6 +40,7 @@ androidx-navigation-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotli
 dagger-hilt = { id = "dagger.hilt.android.plugin", version.ref = "dagger" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "versions-plugin" }
 
 [libraries]
