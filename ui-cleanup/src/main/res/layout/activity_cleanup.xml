@@ -35,7 +35,7 @@
             tools:title="@string/action_cleanup_title" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_host"
         android:name="fr.nihilus.music.ui.cleanup.CleanupFragment"
         android:layout_width="match_parent"

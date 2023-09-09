@@ -71,7 +71,7 @@ private const val HUE_DELTA = 15f
  * The primary color should be one of the most represented colors
  * and prefer moderately-saturated colors when available.
  */
-private val PRIMARY_TARGET = Target.Builder()
+private val PrimaryTarget = Target.Builder()
     .setPopulationWeight(0.7f)
     .setSaturationWeight(0.3f)
     .setTargetSaturation(0.6f)
@@ -84,7 +84,7 @@ private val PRIMARY_TARGET = Target.Builder()
  * The accent color should preferably be of average lightness and high saturation,
  * and be part of small, isolated parts of the image.
  */
-private val ACCENT_TARGET = Target.Builder()
+private val AccentTarget = Target.Builder()
     .setPopulationWeight(0.1f)
     .setSaturationWeight(0.5f)
     .setLightnessWeight(0.4f)
@@ -135,17 +135,17 @@ private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): A
         .resizeBitmapArea(MAX_BITMAP_AREA)
         .clearFilters()
         .clearTargets()
-        .addTarget(PRIMARY_TARGET)
+        .addTarget(PrimaryTarget)
         .generate()
 
     // Extracts the accent color by generating another Palette.
     // Filter out accent color too close in hue from the primary's to ensure enough contrast.
-    val primaryColor = primaryPalette.getColorForTarget(PRIMARY_TARGET, defaultPalette.primary)
+    val primaryColor = primaryPalette.getColorForTarget(PrimaryTarget, defaultPalette.primary)
     val primaryColorFilter = PrimaryHueFilter(primaryColor)
 
     val accentPalette = Palette.from(bitmap)
         .clearTargets()
-        .addTarget(ACCENT_TARGET)
+        .addTarget(AccentTarget)
         .addFilter(primaryColorFilter)
         .generate()
 
@@ -154,8 +154,8 @@ private fun extractColorPalette(bitmap: Bitmap, defaultPalette: AlbumPalette): A
     val bodyText: Int
     val textOnAccent: Int
 
-    val primarySwatch = primaryPalette.getSwatchForTarget(PRIMARY_TARGET)
-    val accentSwatch = accentPalette.getSwatchForTarget(ACCENT_TARGET)
+    val primarySwatch = primaryPalette.getSwatchForTarget(PrimaryTarget)
+    val accentSwatch = accentPalette.getSwatchForTarget(AccentTarget)
 
     if (primarySwatch != null) {
         titleText = primarySwatch.titleTextColor

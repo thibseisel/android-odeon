@@ -37,6 +37,7 @@ import kotlin.math.roundToInt
  * Whether dark icons are displayed over the status bar for the given [Window].
  * This is `true` for dark icons and `false` for white ones.
  */
+@Suppress("unused")
 var Window.darkSystemIcons: Boolean
     get() {
         val controller = requireDecorInsetsController()

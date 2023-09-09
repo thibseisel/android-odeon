@@ -77,7 +77,7 @@ internal class PlaylistDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun getPlaylistTitle() = flow<String> {
+    private fun getPlaylistTitle() = flow {
         val playlist =
             browser.getItem(playlistId) ?: error("Expected playlist $playlistId to exist")
         emit(playlist.title)

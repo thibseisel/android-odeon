@@ -109,4 +109,14 @@ internal object DatabaseMigration {
             execSQL("CREATE TABLE IF NOT EXISTS `track_exclusion` (`track_id` INTEGER NOT NULL, `exclude_date` INTEGER NOT NULL, PRIMARY KEY(`track_id`))")
         }
     }
+
+    /**
+     * Removes tables `remote_link` and `track_feature`.
+     */
+    val MIGRATION_6_7 = object : Migration(6, 7) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("DROP TABLE IF EXISTS `remote_link`")
+            database.execSQL("DROP TABLE IF EXISTS `track_feature`")
+        }
+    }
 }

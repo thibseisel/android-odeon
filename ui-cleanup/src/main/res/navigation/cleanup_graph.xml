@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2022 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,13 +20,11 @@
     android:id="@+id/cleanup_graph"
     app:startDestination="@id/activity_cleanup">
 
+    <deepLink app:uri="odeon://fr.nihilus.music.ui.cleanup/activity_cleanup" />
+
     <activity
         android:id="@+id/activity_cleanup"
         android:name="fr.nihilus.music.ui.cleanup.CleanupActivity"
         android:label="@string/action_cleanup_title"
-        tools:layout="@layout/activity_cleanup">
-
-        <deepLink app:uri="odeon://fr.nihilus.music.ui.cleanup/activity_cleanup" />
-    </activity>
-
+        tools:layout="@layout/activity_cleanup" />
 </navigation>

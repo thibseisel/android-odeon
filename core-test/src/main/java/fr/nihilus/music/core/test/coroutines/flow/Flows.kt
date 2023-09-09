@@ -16,23 +16,9 @@
 
 package fr.nihilus.music.core.test.coroutines.flow
 
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.flow.AbstractFlow
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-
-/**
- * A flow that does not emit any item and never terminates.
- * This could be used to simulate a an infinite flow sequence.
- */
-@OptIn(FlowPreview::class)
-object NeverFlow : AbstractFlow<Nothing>() {
-    override suspend fun collectSafely(collector: FlowCollector<Nothing>) {
-        awaitCancellation()
-    }
-}
 
 /**
  * Creates a flow that produces values from the specified vararg-arguments,

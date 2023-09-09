@@ -26,10 +26,6 @@ import fr.nihilus.music.core.database.playlists.Playlist
 import fr.nihilus.music.core.database.playlists.PlaylistConverters
 import fr.nihilus.music.core.database.playlists.PlaylistDao
 import fr.nihilus.music.core.database.playlists.PlaylistTrack
-import fr.nihilus.music.core.database.spotify.SpotifyConverters
-import fr.nihilus.music.core.database.spotify.SpotifyDao
-import fr.nihilus.music.core.database.spotify.SpotifyLink
-import fr.nihilus.music.core.database.spotify.TrackFeature
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
 
@@ -40,23 +36,20 @@ import fr.nihilus.music.core.database.usage.UsageDao
  * that are configured in [Database.entities].
  */
 @Database(
+    version = 7,
     entities = [
         Playlist::class,
         PlaylistTrack::class,
         MediaUsageEvent::class,
-        SpotifyLink::class,
-        TrackFeature::class,
         TrackExclusion::class,
-    ], version = 6
+    ],
 )
-@TypeConverters(PlaylistConverters::class, SpotifyConverters::class)
+@TypeConverters(PlaylistConverters::class)
 internal abstract class AppDatabase : RoomDatabase() {
 
     internal abstract val playlistDao: PlaylistDao
 
     internal abstract val usageDao: UsageDao
-
-    internal abstract val spotifyDao: SpotifyDao
 
     internal abstract val exclusionDao: TrackExclusionDao
 
