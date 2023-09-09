@@ -187,7 +187,7 @@ class ConfirmDialogFragment internal constructor() : DialogFragment() {
             ) { key, result ->
                 if (requestKey == key) {
                     val resultCode = result.getInt(KEY_RESULT_BUTTON)
-                    val clickedButton = ActionButton.values()[resultCode]
+                    val clickedButton = ActionButton.entries[resultCode]
                     listener(clickedButton)
                 }
             }

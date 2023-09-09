@@ -125,7 +125,7 @@ internal class SharedPreferencesSettings @Inject constructor(
         get() {
             val repeatModeCode =
                 preferences.get().getInt(PREF_KEY_REPEAT_MODE, RepeatMode.DISABLED.code)
-            return RepeatMode.values().first { it.code == repeatModeCode }
+            return RepeatMode.entries.first { it.code == repeatModeCode }
         }
         set(mode) = preferences.get().edit()
             .putInt(PREF_KEY_REPEAT_MODE, mode.code)
