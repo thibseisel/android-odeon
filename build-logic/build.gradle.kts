@@ -49,5 +49,9 @@ gradlePlugin {
             id = "odeon.android.hilt"
             implementationClass = "odeon.plugins.AndroidHiltConventionPlugin"
         }
+        register("androidCompose") {
+            id = "odeon.android.compose"
+            implementationClass = "odeon.plugins.ComposeConventionPlugin"
+        }
     }
 }
