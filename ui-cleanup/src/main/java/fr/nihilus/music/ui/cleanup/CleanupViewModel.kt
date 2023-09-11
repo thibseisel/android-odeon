@@ -16,18 +16,18 @@
 
 package fr.nihilus.music.ui.cleanup
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
 import fr.nihilus.music.core.ui.actions.DeleteTracksAction
+import fr.nihilus.music.core.ui.uiStateIn
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.media.usage.UsageManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -44,7 +44,7 @@ internal class CleanupViewModel @Inject constructor(
     private val pendingEvent = MutableStateFlow<DeleteTracksResult?>(null)
     private val selection = MutableStateFlow<Set<MediaId>>(emptySet())
 
-    val state: LiveData<CleanupState> = combine(
+    val state: StateFlow<CleanupState> = combine(
         usageManager.getDisposableTracks()
             .map { tracks ->
                 tracks.map {
@@ -75,7 +75,15 @@ internal class CleanupViewModel @Inject constructor(
             result = event
         )
     }
-        .asLiveData()
+        .uiStateIn(
+            viewModelScope,
+            initialState = CleanupState(
+                tracks = emptyList(),
+                selectedCount = 0,
+                selectedFreedBytes = 0,
+                result = null
+            )
+        )
 
     fun deleteSelected() {
         viewModelScope.launch {

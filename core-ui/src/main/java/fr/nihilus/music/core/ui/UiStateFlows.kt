@@ -17,7 +17,6 @@
 package fr.nihilus.music.core.ui
 
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -50,7 +49,7 @@ fun <T> Flow<T>.uiStateIn(scope: CoroutineScope, initialState: T): StateFlow<T> 
 )
 
 /**
- * Helper function that collects a [StateFlow] the same way we observe [LiveData].
+ * Helper function that collects a [StateFlow] the same way we observe `LiveData`.
  */
 fun <T> StateFlow<T>.observe(owner: LifecycleOwner, observer: (value: T) -> Unit) {
     flowWithLifecycle(owner.lifecycle)

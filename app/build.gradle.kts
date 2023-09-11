@@ -129,6 +129,7 @@ dependencies {
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
     implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.viewpager)
     implementation(libs.androidx.media)
 

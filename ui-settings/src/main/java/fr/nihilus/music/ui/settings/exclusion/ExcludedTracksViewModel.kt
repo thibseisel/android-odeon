@@ -16,12 +16,12 @@
 
 package fr.nihilus.music.ui.settings.exclusion
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.nihilus.music.core.ui.uiStateIn
 import fr.nihilus.music.media.tracks.TrackRepository
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +34,7 @@ internal class ExcludedTracksViewModel @Inject constructor(
     /**
      * List of tracks that are excluded from the music library.
      */
-    val tracks: LiveData<List<ExcludedTrackUiState>> by lazy {
+    val tracks: StateFlow<List<ExcludedTrackUiState>> by lazy {
         repository.excludedTracks
             .map { tracks ->
                 tracks.map {
@@ -48,7 +48,7 @@ internal class ExcludedTracksViewModel @Inject constructor(
                     )
                 }
             }
-            .asLiveData()
+            .uiStateIn(viewModelScope, initialState = emptyList())
     }
 
     /**

@@ -16,11 +16,10 @@
 
 package fr.nihilus.music.core.ui
 
-import androidx.lifecycle.LiveData
 import com.google.android.material.snackbar.Snackbar
 
 /**
- * Encapsulate data that is exposed via [LiveData] to represent it as an event.
+ * Encapsulate state to represent it as an event.
  * This prevents observers from using the same data more than a single time,
  * such as the text of a [Snackbar] or the result of a background operation.
  *
