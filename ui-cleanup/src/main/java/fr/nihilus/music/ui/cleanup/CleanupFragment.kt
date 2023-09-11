@@ -34,6 +34,7 @@ import fr.nihilus.music.core.ui.ConfirmDialogFragment
 import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
@@ -102,7 +103,7 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
 
 
         binding.deleteTracksButton.setOnClickListener {
-            val selectedCount = viewModel.state.value?.selectedCount ?: 0
+            val selectedCount = viewModel.state.value.selectedCount
             askCleanupConfirmation(selectedCount)
         }
 
