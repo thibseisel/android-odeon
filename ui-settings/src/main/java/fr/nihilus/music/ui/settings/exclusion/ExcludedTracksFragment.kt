@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.base.BaseFragment
+import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.ui.settings.R
 import fr.nihilus.music.ui.settings.databinding.ExcludedTracksFragmentBinding
