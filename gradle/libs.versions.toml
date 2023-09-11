@@ -110,7 +110,6 @@ android-ui = [
 ]
 androidx-lifecycle = [
     "androidx-lifecycle-runtime",
-    "androidx-lifecycle-livedata",
     "androidx-lifecycle-viewmodel",
     "androidx-lifecycle-java8",
     "androidx-lifecycle-process"
