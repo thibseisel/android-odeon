@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.settings.theme
+package fr.nihilus.music.core.compose.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Shapes
+import androidx.compose.ui.unit.dp
 
-@Composable
-internal fun OdeonTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
-    MaterialTheme(
-        colors = if (darkTheme) OdeonDarkColors else OdeonLightColors,
-        typography = OdeonTypography,
-        shapes = OdeonShapes,
-        content = content
-    )
-}
+internal val OdeonShapes = Shapes(
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(8.dp),
+    large = RoundedCornerShape(16.dp)
+)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.settings.theme
+package fr.nihilus.music.core.compose.theme
 
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
