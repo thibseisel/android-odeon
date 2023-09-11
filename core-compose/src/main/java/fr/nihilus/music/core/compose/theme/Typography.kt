@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.em
@@ -44,79 +43,79 @@ private val quicksand = FontFamily(
 private val headline1 = TextStyle(
     fontWeight = FontWeight.Light,
     fontSize = 99.sp,
-    letterSpacing = (-1.5).sp,
+    letterSpacing = (-0.0151515151).em,
 )
 
 private val headline2 = TextStyle(
     fontWeight = FontWeight.Light,
     fontSize = 62.sp,
-    letterSpacing = (-0.5).sp,
+    letterSpacing = (-0.0080645161).em,
 )
 
 private val headline3 = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 49.sp,
-    letterSpacing = 0.sp,
+    letterSpacing = 0.em,
 )
 
 private val headline4 = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 35.sp,
-    letterSpacing = 0.25.sp,
+    letterSpacing = 0.0071428571.em,
 )
 
 private val headline5 = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 25.sp,
-    letterSpacing = 0.sp,
+    letterSpacing = 0.em,
 )
 
 private val headline6 = TextStyle(
     fontWeight = FontWeight.SemiBold,
     fontSize = 21.sp,
-    letterSpacing = 0.15.sp,
+    letterSpacing = 0.0071428571.em,
 )
 
 private val subtitle1 = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 16.sp,
-    letterSpacing = 0.15.sp,
+    letterSpacing = 0.009375.em,
 )
 
 private val subtitle2 = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 14.sp,
-    letterSpacing = 0.1.sp,
+    letterSpacing = 0.007142857.em,
 )
 
 private val body1 = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 16.sp,
-    letterSpacing = 0.5.sp,
+    letterSpacing = 0.03125.em,
 )
 
 private val body2 = TextStyle(
     fontWeight = FontWeight.Normal,
     fontSize = 14.sp,
-    letterSpacing = 0.25.sp,
+    letterSpacing = 0.017857142.em,
 )
 
 private val button = TextStyle(
     fontWeight = FontWeight.Bold,
     fontSize = 14.sp,
-    letterSpacing = 1.25.sp,
+    letterSpacing = 0.089285714.em,
 )
 
 private val caption = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 12.sp,
-    letterSpacing = 0.4.sp,
+    letterSpacing = 0.0333333333.em,
 )
 
 private val overline = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 10.sp,
-    letterSpacing = 1.5.sp,
+    letterSpacing = 0.15.em,
 )
 
 internal val OdeonTypography = Typography(
