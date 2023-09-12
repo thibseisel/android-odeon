@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.cleanup
 import android.Manifest
 import android.app.Activity
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,12 +27,17 @@ import android.view.ViewGroup
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import fr.nihilus.music.core.compose.theme.OdeonTheme
 import fr.nihilus.music.core.ui.ConfirmDialogFragment
-import fr.nihilus.music.core.ui.base.BaseFragment
 import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.observe
@@ -49,7 +55,7 @@ private const val REQUEST_CONFIRM_CLEANUP = "fr.nihilus.music.request.CONFIRM_CL
  * Lists tracks that could be deleted from the device's storage to free-up space.
  */
 @AndroidEntryPoint
-internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
+internal class CleanupFragment : Fragment() {
     private val viewModel by viewModels<CleanupViewModel>()
 
     private val requestPermission = registerForActivityResult(
@@ -86,32 +92,30 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
         }
     }
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            val state by viewModel.state.collectAsState()
+            OdeonTheme {
+                CleanupScreen(
+                    tracks = state.tracks,
+                    selectedCount = state.selectedCount,
+                    toggleTrack = { track -> viewModel.toggleSelection(track.id) },
+                    deleteSelection = { askCleanupConfirmation(viewModel.state.value.selectedCount) },
+                )
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentCleanupBinding.bind(view)
-        configureViewOffsetForSystemBars(binding)
-
-        val trackAdapter = CleanupAdapter { viewModel.toggleSelection(it.id) }
-        binding.disposableTrackList.apply {
-            adapter = trackAdapter
-            setHasFixedSize(true)
-            addItemDecoration(
-                DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-            )
-        }
-
-
-        binding.deleteTracksButton.setOnClickListener {
-            val selectedCount = viewModel.state.value.selectedCount
-            askCleanupConfirmation(selectedCount)
-        }
-
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            trackAdapter.submitList(state.tracks)
-
             if (state.selectedCount > 0) {
-                binding.deleteTracksButton.show()
                 val actionMode = actionMode ?: startActionMode(actionModeCallback)
                 actionMode?.apply {
                     title = resources.getQuantityString(
@@ -122,7 +126,6 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
                     subtitle = formatToHumanReadableByteCount(state.selectedFreedBytes)
                 }
             } else {
-                binding.deleteTracksButton.hide()
                 actionMode?.finish()
             }
 
@@ -147,25 +150,6 @@ internal class CleanupFragment : BaseFragment(R.layout.fragment_cleanup) {
             if (result == ConfirmDialogFragment.ActionButton.POSITIVE) {
                 viewModel.deleteSelected()
             }
-        }
-    }
-
-    private fun configureViewOffsetForSystemBars(bindings: FragmentCleanupBinding) {
-        bindings.disposableTrackList.doOnApplyWindowInsets { view, insets, padding, _ ->
-            val systemWindowInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(
-                left = padding.left + systemWindowInsets.left,
-                right = padding.right + systemWindowInsets.right,
-                bottom = padding.bottom + systemWindowInsets.bottom
-            )
-        }
-
-        bindings.deleteTracksButton.doOnApplyWindowInsets { view, insets, _, margin ->
-            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
-            val tappableInsets = insets.getInsets(WindowInsetsCompat.Type.tappableElement())
-            layoutParams.leftMargin = margin.left + tappableInsets.left
-            layoutParams.rightMargin = margin.right + tappableInsets.right
-            layoutParams.bottomMargin = margin.bottom + tappableInsets.bottom
         }
     }
 
