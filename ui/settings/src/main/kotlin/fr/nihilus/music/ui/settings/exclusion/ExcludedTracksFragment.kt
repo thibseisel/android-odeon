@@ -17,62 +17,41 @@
 package fr.nihilus.music.ui.settings.exclusion
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import fr.nihilus.music.core.ui.base.BaseFragment
-import fr.nihilus.music.core.ui.observe
-import fr.nihilus.music.core.ui.view.DividerItemDecoration
-import fr.nihilus.music.ui.settings.R
-import fr.nihilus.music.ui.settings.databinding.ExcludedTracksFragmentBinding
+import fr.nihilus.music.core.compose.theme.OdeonTheme
 
 /**
  * Display the list of tracks that have been excluded from the music library by users.
  * Tracks listed here can be allowed again by swiping them.
  */
 @AndroidEntryPoint
-internal class ExcludedTracksFragment : BaseFragment(R.layout.excluded_tracks_fragment) {
-
+internal class ExcludedTracksFragment : Fragment() {
     private val viewModel by viewModels<ExcludedTracksViewModel>()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = ExcludedTracksFragmentBinding.bind(view)
-
-        binding.toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-
-        val adapter = ExclusionAdapter()
-        binding.trackList.adapter = adapter
-        binding.trackList.addItemDecoration(
-            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-        )
-
-        ItemTouchHelper(SlideCallback { swipedTrackPosition ->
-            val swipedTrack = adapter.getItem(swipedTrackPosition)
-            viewModel.restore(swipedTrack)
-        }).attachToRecyclerView(binding.trackList)
-
-        viewModel.tracks.observe(viewLifecycleOwner) { trackList ->
-            adapter.submitList(trackList)
-        }
-    }
-
-    private class SlideCallback(
-        private val onSwiped: (swipedPosition: Int) -> Unit
-    ) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START or ItemTouchHelper.END) {
-
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean = false
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            onSwiped(viewHolder.bindingAdapterPosition)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = ComposeView(requireContext()).apply {
+        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        setContent {
+            OdeonTheme {
+                val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+                ExcludedTracksScreen(
+                    tracks = tracks,
+                    navigateBack = { parentFragmentManager.popBackStack() },
+                    restoreTrack = { viewModel.restore(it) }
+                )
+            }
         }
     }
 }
