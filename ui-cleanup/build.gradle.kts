@@ -17,23 +17,25 @@
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
+    id("odeon.android.compose")
 }
 
 android {
     namespace = "fr.nihilus.music.ui.cleanup"
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
     implementation(projects.core)
     implementation(projects.coreUi)
+    implementation(projects.coreCompose)
     implementation(projects.media)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
     implementation(libs.bundles.androidx.lifecycle)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.compose.material)
 
     testImplementation(projects.coreTest)
     testImplementation(libs.bundles.testing.unit)

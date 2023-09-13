@@ -16,7 +16,6 @@
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cleanup_graph"
     app:startDestination="@id/activity_cleanup">
 
@@ -25,6 +24,5 @@
     <activity
         android:id="@+id/activity_cleanup"
         android:name="fr.nihilus.music.ui.cleanup.CleanupActivity"
-        android:label="@string/action_cleanup_title"
-        tools:layout="@layout/activity_cleanup" />
+        android:label="@string/action_cleanup_title" />
 </navigation>

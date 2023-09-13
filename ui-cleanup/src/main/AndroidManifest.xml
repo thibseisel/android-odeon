@@ -21,6 +21,6 @@
         <activity
             android:name="fr.nihilus.music.ui.cleanup.CleanupActivity"
             android:label="@string/action_cleanup_title"
-            android:theme="@style/Odeon.Immersive" />
+            android:theme="@style/Odeon.NoActionBar" />
     </application>
 </manifest>
