@@ -65,24 +65,6 @@ internal class CleanupFragment : Fragment() {
         }
     }
 
-    private var actionMode: ActionMode? = null
-
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            actionMode = mode
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean = false
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = false
-
-        override fun onDestroyActionMode(mode: ActionMode?) {
-            actionMode = null
-            viewModel.clearSelection()
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -94,11 +76,12 @@ internal class CleanupFragment : Fragment() {
 
             OdeonTheme {
                 var requiresDeleteConsent by remember { mutableStateOf(false) }
-
                 CleanupScreen(
                     tracks = state.tracks,
                     selectedCount = state.selectedCount,
+                    selectedFreedBytes = state.selectedFreedBytes,
                     toggleTrack = { track -> viewModel.toggleSelection(track.id) },
+                    clearSelection = { viewModel.clearSelection() },
                     deleteSelection = { requiresDeleteConsent = true },
                 )
 
@@ -117,20 +100,6 @@ internal class CleanupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            if (state.selectedCount > 0) {
-                val actionMode = actionMode ?: startActionMode(actionModeCallback)
-                actionMode?.apply {
-                    title = resources.getQuantityString(
-                        R.plurals.number_of_selected_tracks,
-                        state.selectedCount,
-                        state.selectedCount,
-                    )
-                    subtitle = formatToHumanReadableByteCount(state.selectedFreedBytes)
-                }
-            } else {
-                actionMode?.finish()
-            }
-
             if (state.result != null) {
                 when (state.result) {
                     is DeleteTracksResult.Deleted -> {}

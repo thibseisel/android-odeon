@@ -19,8 +19,6 @@ package fr.nihilus.music.ui.cleanup
 import android.os.Bundle
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.ui.base.BaseActivity
-import fr.nihilus.music.core.ui.extensions.drawEdgeToEdge
-import fr.nihilus.music.ui.cleanup.databinding.ActivityCleanupBinding
 
 /**
  * A simple activity that only displays the content of [CleanupFragment].
@@ -32,11 +30,6 @@ class CleanupActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.drawEdgeToEdge(true)
-
-        val binding = ActivityCleanupBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
+        setContentView(R.layout.activity_cleanup)
     }
 }
