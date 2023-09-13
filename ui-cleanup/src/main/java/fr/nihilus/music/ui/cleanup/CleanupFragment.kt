@@ -29,27 +29,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.view.ActionMode
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.compose.theme.OdeonTheme
-import fr.nihilus.music.core.ui.ConfirmDialogFragment
-import fr.nihilus.music.core.ui.extensions.doOnApplyWindowInsets
 import fr.nihilus.music.core.ui.extensions.startActionMode
 import fr.nihilus.music.core.ui.observe
-import fr.nihilus.music.core.ui.view.DividerItemDecoration
 import fr.nihilus.music.media.tracks.DeleteTracksResult
-import fr.nihilus.music.ui.cleanup.databinding.FragmentCleanupBinding
-import fr.nihilus.music.core.ui.R as CoreUiR
-
-/**
- * Code associated with the request to confirm deleting tracks.
- */
-private const val REQUEST_CONFIRM_CLEANUP = "fr.nihilus.music.request.CONFIRM_CLEANUP"
 
 /**
  * Lists tracks that could be deleted from the device's storage to free-up space.
@@ -100,13 +91,24 @@ internal class CleanupFragment : Fragment() {
         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
         setContent {
             val state by viewModel.state.collectAsState()
+
             OdeonTheme {
+                var requiresDeleteConsent by remember { mutableStateOf(false) }
+
                 CleanupScreen(
                     tracks = state.tracks,
                     selectedCount = state.selectedCount,
                     toggleTrack = { track -> viewModel.toggleSelection(track.id) },
-                    deleteSelection = { askCleanupConfirmation(viewModel.state.value.selectedCount) },
+                    deleteSelection = { requiresDeleteConsent = true },
                 )
+
+                if (requiresDeleteConsent) {
+                    ConfirmDeleteDialog(
+                        deletedTrackCount = state.selectedCount,
+                        accept = { viewModel.deleteSelected() },
+                        cancel = { requiresDeleteConsent = false }
+                    )
+                }
             }
         }
     }
@@ -145,26 +147,5 @@ internal class CleanupFragment : Fragment() {
                 viewModel.acknowledgeResult()
             }
         }
-
-        ConfirmDialogFragment.registerForResult(this, REQUEST_CONFIRM_CLEANUP) { result ->
-            if (result == ConfirmDialogFragment.ActionButton.POSITIVE) {
-                viewModel.deleteSelected()
-            }
-        }
-    }
-
-    private fun askCleanupConfirmation(selectedCount: Int) {
-        ConfirmDialogFragment.open(
-            this,
-            REQUEST_CONFIRM_CLEANUP,
-            title = resources.getQuantityString(
-                R.plurals.cleanup_confirmation_title,
-                selectedCount,
-                selectedCount
-            ),
-            message = getString(R.string.cleanup_confirmation_message),
-            positiveButton = CoreUiR.string.core_action_delete,
-            negativeButton = CoreUiR.string.core_cancel
-        )
     }
 }

@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.nihilus.music.core.compose.theme.OdeonTheme
 import fr.nihilus.music.core.media.MediaId
+import fr.nihilus.music.core.ui.R as CoreUiR
 
 @Composable
 internal fun CleanupScreen(
@@ -52,7 +53,7 @@ internal fun CleanupScreen(
             ) {
                 FloatingActionButton(onClick = deleteSelection) {
                     Icon(
-                        painterResource(fr.nihilus.music.core.ui.R.drawable.ui_ic_delete_24dp),
+                        painterResource(CoreUiR.drawable.ui_ic_delete_24dp),
                         contentDescription = stringResource(R.string.desc_delete_selected_tracks)
                     )
                 }
