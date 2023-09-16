@@ -18,6 +18,7 @@ package fr.nihilus.music
 
 import android.app.Application
 import android.os.StrictMode
+import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -30,6 +31,7 @@ class OdeonApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         if (BuildConfig.DEBUG) {
             // Print logs to Logcat

@@ -21,7 +21,7 @@
         -->
     <style name="Platform.Odeon" parent="Platform.Odeon.V24" />
 
-    <style name="Platform.Odeon.V24" parent="Theme.Material3.DayNight">
+    <style name="Platform.Odeon.V24" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:textViewStyle">@style/Widget.Odeon.TextView</item>
     </style>
