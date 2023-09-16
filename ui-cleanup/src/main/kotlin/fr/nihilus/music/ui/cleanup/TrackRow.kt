@@ -17,6 +17,7 @@
 package fr.nihilus.music.ui.cleanup
 
 import android.text.format.DateUtils
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -51,8 +51,14 @@ import fr.nihilus.music.core.media.MediaId
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun TrackRow(track: CleanupState.Track, toggle: () -> Unit) {
-    val itemBackgroundColor =
-        if (track.selected) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent
+    val itemBackgroundColor by animateColorAsState(
+        label = "Item background color",
+        targetValue = if (track.selected)
+            MaterialTheme.colorScheme.secondaryContainer
+        else
+            MaterialTheme.colorScheme.background
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
