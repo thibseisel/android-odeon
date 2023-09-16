@@ -17,6 +17,7 @@
 package fr.nihilus.music.ui.cleanup
 
 import android.text.format.DateUtils
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,13 +26,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.Checkbox
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -39,7 +38,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -48,16 +46,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.nihilus.music.core.compose.theme.OdeonTheme
-import fr.nihilus.music.core.compose.theme.selectableBackground
 import fr.nihilus.music.core.media.MediaId
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun TrackRow(track: CleanupState.Track, toggle: () -> Unit) {
-    val backgroundColor = when {
-        track.selected -> MaterialTheme.colors.selectableBackground
-        else -> Color.Transparent
-    }
+    val itemBackgroundColor by animateColorAsState(
+        label = "Item background color",
+        targetValue = if (track.selected)
+            MaterialTheme.colorScheme.secondaryContainer
+        else
+            MaterialTheme.colorScheme.background
+    )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,7 +68,7 @@ internal fun TrackRow(track: CleanupState.Track, toggle: () -> Unit) {
                 role = Role.Checkbox,
                 onValueChange = { toggle() },
             )
-            .background(backgroundColor)
+            .background(itemBackgroundColor)
             .padding(horizontal = 16.dp)
     ) {
         CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
@@ -85,37 +86,35 @@ internal fun TrackRow(track: CleanupState.Track, toggle: () -> Unit) {
         ) {
             Text(
                 text = track.title,
-                style = MaterialTheme.typography.subtitle1,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.paddingFromBaseline(top = 32.dp)
             )
 
-            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                val lastPlayedTime = if (track.lastPlayedTime == null) {
-                    stringResource(R.string.never_played)
-                } else {
-                    val elapsedTime = rememberElapsedTimeFrom(epochTime = track.lastPlayedTime)
-                    stringResource(R.string.last_played_description, elapsedTime)
-                }
-                Text(
-                    text = lastPlayedTime,
-                    style = MaterialTheme.typography.caption,
-                    modifier = Modifier.paddingFromBaseline(top = 16.dp)
-                )
-            }
-        }
-
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            val formattedFileSize = remember(track.fileSizeBytes) {
-                formatToHumanReadableByteCount(track.fileSizeBytes)
+            val lastPlayedTime = if (track.lastPlayedTime == null) {
+                stringResource(R.string.never_played)
+            } else {
+                val elapsedTime = rememberElapsedTimeFrom(epochTime = track.lastPlayedTime)
+                stringResource(R.string.last_played_description, elapsedTime)
             }
             Text(
-                text = formattedFileSize,
-                style = MaterialTheme.typography.caption,
-                modifier = Modifier.paddingFromBaseline(top = 28.dp)
+                text = lastPlayedTime,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.paddingFromBaseline(top = 16.dp),
             )
         }
+
+        val formattedFileSize = remember(track.fileSizeBytes) {
+            formatToHumanReadableByteCount(track.fileSizeBytes)
+        }
+        Text(
+            text = formattedFileSize,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.paddingFromBaseline(top = 28.dp)
+        )
     }
 }
 

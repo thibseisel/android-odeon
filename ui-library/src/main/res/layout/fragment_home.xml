@@ -25,23 +25,19 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
-        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:liftOnScroll="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            app:popupTheme="?actionBarPopupTheme"
-            android:theme="?actionBarTheme"
             app:title="@string/core_app_name" />
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_host"
-            style="@style/Widget.MaterialComponents.TabLayout.PrimarySurface"
-            android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabGravity="fill"/>

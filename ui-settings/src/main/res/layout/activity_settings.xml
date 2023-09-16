@@ -23,7 +23,6 @@
     tools:context=".SettingsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -32,8 +31,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:theme="?actionBarTheme"
-            app:popupTheme="?actionBarPopupTheme"
             tools:title="@string/core_action_settings" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -44,4 +41,3 @@
         android:layout_height="match_parent"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

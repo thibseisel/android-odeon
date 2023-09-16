@@ -21,7 +21,7 @@
         -->
     <style name="Platform.Odeon" parent="Platform.Odeon.V24" />
 
-    <style name="Platform.Odeon.V24" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Platform.Odeon.V24" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:textViewStyle">@style/Widget.Odeon.TextView</item>
     </style>
@@ -71,15 +71,32 @@
     <!-- App Light Theme, overridden in values-night -->
     <style name="Odeon" parent="Base.Odeon">
         <!-- Color attributes -->
-        <item name="colorPrimary">@color/mtrl_deep_purple_500</item>
-        <item name="colorPrimaryVariant">@color/mtrl_deep_purple_700</item>
-        <item name="colorSecondary">@color/mtrl_orange_a200</item>
-        <item name="colorSecondaryVariant">@color/mtrl_orange_a200</item>
-        <item name="colorOnPrimary">@android:color/white</item>
-        <item name="colorOnSecondary">@android:color/black</item>
-
-        <!-- This color is still used as the default status bar color -->
-        <item name="colorPrimaryDark">?colorPrimarySurface</item>
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/md_theme_light_error</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
     </style>
 
     <!--
@@ -96,6 +113,7 @@
         i.e. behind status and navigation bars.
         -->
     <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/immersive_sys_ui</item>
         <item name="android:navigationBarColor">@color/nav_bar_background</item>
     </style>

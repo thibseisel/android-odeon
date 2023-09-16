@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright 2020 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +15,12 @@
   ~ limitations under the License.
   -->
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?colorSurface"
     android:textDirection="locale">
 
     <!-- Top of the bottom sheet that appears when collapsed -->
@@ -28,30 +29,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="@dimen/playerview_height"/>
+        app:layout_constraintGuide_begin="@dimen/playerview_height" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/start_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="@dimen/grid_2"/>
+        app:layout_constraintGuide_begin="@dimen/grid_2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_end="@dimen/grid_2"/>
+        app:layout_constraintGuide_end="@dimen/grid_2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottom_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_end="92dp"/>
+        app:layout_constraintGuide_end="92dp" />
 
-    <include layout="@layout/fragment_now_playing_top"/>
+    <include layout="@layout/fragment_now_playing_top" />
 
     <ImageSwitcher
         android:id="@+id/album_art_switcher"
@@ -68,7 +69,7 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/album_art"
             android:scaleType="centerCrop"
-            tools:src="@drawable/ic_audiotrack_24dp"/>
+            tools:src="@drawable/ic_audiotrack_24dp" />
 
         <ImageView
             android:layout_width="match_parent"
@@ -76,7 +77,7 @@
             android:contentDescription="@string/album_art"
             android:scaleType="centerCrop"
             tools:src="@drawable/ic_audiotrack_24dp"
-            tools:visibility="gone"/>
+            tools:visibility="gone" />
     </ImageSwitcher>
 
     <!-- Progress bar -->
@@ -89,7 +90,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
-        tools:progress="100"/>
+        tools:progress="100" />
 
     <TextView
         android:id="@+id/seek_position"
@@ -100,7 +101,7 @@
         android:textSize="12sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
-        tools:text="@sample/songs.json/data/duration"/>
+        tools:text="@sample/songs.json/data/duration" />
 
     <TextView
         android:id="@+id/seek_duration"
@@ -111,7 +112,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bottom_guideline"
-        tools:text="@sample/songs.json/data/duration"/>
+        tools:text="@sample/songs.json/data/duration" />
 
     <!-- Action buttons -->
     <ImageView
@@ -127,7 +128,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skip_prev_button"
         app:layout_constraintStart_toStartOf="@id/start_guideline"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar" />
 
     <ImageView
         android:id="@+id/skip_prev_button"
@@ -140,21 +141,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/master_play_pause"
         app:layout_constraintStart_toEndOf="@+id/repeat_button"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar" />
 
     <fr.nihilus.music.view.FloatingPlayPauseButton
         android:id="@+id/master_play_pause"
+        style="@style/Widget.Material3.FloatingActionButton.Tertiary"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:contentDescription="@string/play_or_pause"
         android:src="@drawable/level_play_pause"
         app:fabSize="normal"
-        app:maxImageSize="36dp"
-        app:tint="?colorOnSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/skip_next_button"
         app:layout_constraintStart_toEndOf="@+id/skip_prev_button"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar"
+        app:maxImageSize="36dp" />
 
     <ImageView
         android:id="@+id/skip_next_button"
@@ -168,7 +169,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/shuffle_button"
         app:layout_constraintStart_toEndOf="@+id/master_play_pause"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar" />
 
     <ImageView
         android:id="@+id/shuffle_button"
@@ -183,6 +184,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/end_guideline"
         app:layout_constraintStart_toEndOf="@+id/skip_next_button"
-        app:layout_constraintTop_toBottomOf="@+id/seek_bar"/>
+        app:layout_constraintTop_toBottomOf="@+id/seek_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

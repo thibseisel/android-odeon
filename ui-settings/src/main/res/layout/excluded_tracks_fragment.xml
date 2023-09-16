@@ -30,7 +30,6 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.MaterialComponents.Toolbar.Surface"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:navigationIcon="@drawable/ui_ic_arrow_back_24dp"
@@ -54,7 +53,7 @@
         app:layout_constraintTop_toBottomOf="@id/appbar"
         app:layout_constraintStart_toEndOf="@id/feature_info_icon"
         android:textAppearance="?textAppearanceBody2"
-        android:layout_marginStart="@dimen/grid_4"
+        android:layout_marginStart="@dimen/grid_3"
         android:layout_marginTop="@dimen/grid_2"
         android:layout_marginEnd="@dimen/grid_2"
         app:layout_constraintEnd_toEndOf="parent"
