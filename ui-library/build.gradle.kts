@@ -27,8 +27,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreUi)
+    implementation(projects.core.common)
+    implementation(projects.core.ui)
     implementation(projects.media)
 
     implementation(libs.bundles.core)
@@ -37,6 +37,6 @@ dependencies {
     implementation(libs.androidx.viewpager)
     implementation(libs.androidx.media)
 
-    testImplementation(projects.coreTest)
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
 }

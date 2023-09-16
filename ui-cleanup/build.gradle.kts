@@ -25,9 +25,9 @@ android {
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreUi)
-    implementation(projects.coreCompose)
+    implementation(projects.core.common)
+    implementation(projects.core.ui)
+    implementation(projects.core.compose)
     implementation(projects.media)
 
     implementation(libs.bundles.core)
@@ -38,6 +38,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.compose.material3)
 
-    testImplementation(projects.coreTest)
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
 }

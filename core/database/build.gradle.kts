@@ -41,7 +41,7 @@ dependencies {
 
     testImplementation(libs.bundles.testing.unit)
 
-    androidTestImplementation(projects.coreInstrumentation)
+    androidTestImplementation(projects.core.instrumentation)
     androidTestImplementation(libs.bundles.testing.instrumented)
     androidTestImplementation(libs.androidx.room.testing)
 

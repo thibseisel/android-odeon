@@ -24,11 +24,11 @@ android {
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreDatabase)
+    implementation(projects.core.common)
+    implementation(projects.core.database)
     implementation(libs.bundles.core)
     implementation(libs.identikon)
 
-    testImplementation(projects.coreTest)
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
 }

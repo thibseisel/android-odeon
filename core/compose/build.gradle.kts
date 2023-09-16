@@ -24,6 +24,6 @@ android {
 }
 
 dependencies {
-    implementation(projects.coreUi)
+    implementation(projects.core.ui)
     api(libs.compose.material3)
 }

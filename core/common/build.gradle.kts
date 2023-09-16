@@ -16,13 +16,25 @@
 
 plugins {
     id("odeon.android.library")
+    id("odeon.android.hilt")
 }
 
 android {
-    namespace = "fr.nihilus.music.core.test"
+    namespace = "fr.nihilus.music.core"
+    defaultConfig {
+        testInstrumentationRunner = "fr.nihilus.music.core.instrumentation.runner.HiltJUnitRunner"
+    }
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(libs.bundles.testing.unit)
+    implementation(libs.bundles.core)
+    implementation(libs.androidx.lifecycle.process)
+
+    testImplementation(libs.bundles.testing.unit)
+    testImplementation(libs.androidx.lifecycle.runtime.testing)
+
+    androidTestImplementation(projects.core.instrumentation)
+    androidTestImplementation(libs.bundles.testing.instrumented)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.compiler)
 }

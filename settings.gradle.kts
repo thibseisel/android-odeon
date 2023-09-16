@@ -36,6 +36,6 @@ dependencyResolutionManagement {
 rootProject.name = "android-odeon"
 includeBuild("build-logic")
 include(":app")
-include(":core", ":core-test", ":core-database", ":core-ui", ":core-compose", ":core-instrumentation", ":media")
+include(":core:common", ":core:testing", ":core:database", ":core:ui", ":core:compose", ":core:instrumentation", ":media")
 include(":service")
 include(":ui-cleanup", ":ui-settings", ":ui-library")

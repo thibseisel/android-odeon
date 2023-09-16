@@ -16,30 +16,13 @@
 
 plugins {
     id("odeon.android.library")
-    id("odeon.android.hilt")
-    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "fr.nihilus.music.core.ui"
-    buildFeatures.buildConfig = true
+    namespace = "fr.nihilus.music.core.test"
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreDatabase)
-    implementation(projects.media)
-
-    implementation(libs.bundles.core)
-    implementation(libs.bundles.android.ui)
-    implementation(libs.bundles.androidx.lifecycle)
-    implementation(libs.androidx.media)
-    implementation(libs.identikon)
-
-    ksp(libs.glide.ksp)
-
-    testImplementation(projects.coreTest)
-    testImplementation(libs.bundles.testing.unit)
-
-    androidTestImplementation(libs.bundles.testing.instrumented)
+    implementation(projects.core.common)
+    implementation(libs.bundles.testing.unit)
 }
