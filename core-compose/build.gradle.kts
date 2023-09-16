@@ -25,5 +25,5 @@ android {
 
 dependencies {
     implementation(projects.coreUi)
-    api(libs.compose.material)
+    api(libs.compose.material3)
 }

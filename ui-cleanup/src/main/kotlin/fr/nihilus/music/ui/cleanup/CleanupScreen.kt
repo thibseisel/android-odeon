@@ -21,23 +21,19 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Divider
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -50,6 +46,7 @@ import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.R as CoreUiR
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 internal fun CleanupScreen(
     tracks: List<CleanupState.Track>,
     selectedCount: Int,
@@ -105,14 +102,37 @@ internal fun CleanupScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun ActionModeBar(
     selectedCount: Int,
     freedBytes: Long,
     clearSelection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    TopAppBar(modifier) {
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
+    TopAppBar(
+        modifier = modifier,
+        title = {
+            Column(Modifier.padding(start = 16.dp)) {
+                Text(
+                    style = MaterialTheme.typography.titleMedium,
+                    text = pluralStringResource(
+                        R.plurals.number_of_selected_tracks,
+                        count = selectedCount,
+                        selectedCount
+                    ),
+                )
+
+                val formattedFreedBytes = remember(freedBytes) {
+                    formatToHumanReadableByteCount(freedBytes)
+                }
+                Text(
+                    style = MaterialTheme.typography.bodySmall,
+                    text = formattedFreedBytes,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
+        navigationIcon = {
             IconButton(onClick = clearSelection) {
                 Icon(
                     painterResource(CoreUiR.drawable.ui_ic_clear_24dp),
@@ -121,31 +141,8 @@ private fun ActionModeBar(
                     )
                 )
             }
-
-            Spacer(Modifier.width(16.dp))
-
-            Column(Modifier.weight(1f)) {
-                Text(
-                    style = MaterialTheme.typography.subtitle1,
-                    text = pluralStringResource(
-                        R.plurals.number_of_selected_tracks,
-                        count = selectedCount,
-                        selectedCount
-                    ),
-                )
-
-                CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                    val formattedFreedBytes = remember(freedBytes) {
-                        formatToHumanReadableByteCount(freedBytes)
-                    }
-                    Text(
-                        style = MaterialTheme.typography.subtitle2,
-                        text = formattedFreedBytes,
-                    )
-                }
-            }
         }
-    }
+    )
 }
 
 @Composable

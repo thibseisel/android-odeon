@@ -16,19 +16,34 @@
 
 package fr.nihilus.music.core.compose.theme
 
+import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun OdeonTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+    val context = LocalContext.current
+    val colorScheme = when {
+        darkTheme && supportsDynamicColors() -> dynamicDarkColorScheme(context)
+        supportsDynamicColors() -> dynamicLightColorScheme(context)
+        darkTheme -> OdeonDarkColors
+        else -> OdeonLightColors
+    }
     MaterialTheme(
-        colors = if (darkTheme) OdeonDarkColors else OdeonLightColors,
+        colorScheme = colorScheme,
         typography = OdeonTypography,
         shapes = OdeonShapes,
         content = content
     )
 }
+
+@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
+private fun supportsDynamicColors(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
