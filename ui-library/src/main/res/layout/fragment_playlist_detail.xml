@@ -27,11 +27,11 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:liftOnScroll="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             app:menu="@menu/menu_playlist_details"
