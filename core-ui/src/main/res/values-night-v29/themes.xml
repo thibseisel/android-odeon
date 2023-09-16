@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright 2020 Thibault Seisel
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2023 Thibault Seisel
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,6 +15,9 @@
   -->
 
 <resources>
-    <color name="immersive_sys_ui">@android:color/transparent</color>
-    <color name="nav_bar_background">@android:color/transparent</color>
+    <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/immersive_sys_ui</item>
+        <item name="android:navigationBarColor">@color/nav_bar_background</item>
+    </style>
 </resources>

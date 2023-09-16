@@ -20,7 +20,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -33,9 +32,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -55,17 +57,22 @@ internal fun CleanupScreen(
     clearSelection: () -> Unit,
     deleteSelection: () -> Unit,
 ) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (selectedCount > 0) {
                 ActionModeBar(
                     selectedCount = selectedCount,
                     freedBytes = selectedFreedBytes,
+                    scrollBehavior = scrollBehavior,
                     clearSelection = clearSelection,
                 )
             } else {
                 TopAppBar(
-                    title = { Text(stringResource(R.string.action_cleanup_title)) }
+                    title = { Text(stringResource(R.string.action_cleanup_title)) },
+                    scrollBehavior = scrollBehavior
                 )
             }
         },
@@ -84,10 +91,7 @@ internal fun CleanupScreen(
             }
         }
     ) { contentPadding ->
-        LazyColumn(
-            contentPadding = PaddingValues(vertical = 8.dp),
-            modifier = Modifier.padding(contentPadding)
-        ) {
+        LazyColumn(contentPadding = contentPadding) {
             itemsIndexed(tracks, key = { _, track -> track.id.encoded }) { index, track ->
                 TrackRow(
                     track = track,
@@ -106,11 +110,13 @@ internal fun CleanupScreen(
 private fun ActionModeBar(
     selectedCount: Int,
     freedBytes: Long,
+    scrollBehavior: TopAppBarScrollBehavior,
     clearSelection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         title = {
             Column(Modifier.padding(start = 16.dp)) {
                 Text(

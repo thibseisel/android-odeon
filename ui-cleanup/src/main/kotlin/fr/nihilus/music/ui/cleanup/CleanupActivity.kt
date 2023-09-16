@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.compose.theme.OdeonTheme
+import fr.nihilus.music.core.ui.extensions.drawEdgeToEdge
 import fr.nihilus.music.core.ui.observe
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 
@@ -62,6 +63,7 @@ class CleanupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.drawEdgeToEdge(true)
 
         viewModel.state.observe(this) { state ->
             if (state.result != null) {

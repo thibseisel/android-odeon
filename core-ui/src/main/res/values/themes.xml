@@ -113,6 +113,7 @@
         i.e. behind status and navigation bars.
         -->
     <style name="Odeon.Immersive" parent="Odeon.NoActionBar">
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/immersive_sys_ui</item>
         <item name="android:navigationBarColor">@color/nav_bar_background</item>
     </style>
