@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.bundles.androidx.lifecycle)
 
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.compose.material)
 
     testImplementation(projects.coreTest)

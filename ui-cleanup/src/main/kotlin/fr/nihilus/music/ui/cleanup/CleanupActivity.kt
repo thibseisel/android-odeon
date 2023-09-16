@@ -24,11 +24,11 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import fr.nihilus.music.core.compose.theme.OdeonTheme
 import fr.nihilus.music.core.ui.observe
@@ -82,10 +82,10 @@ class CleanupActivity : AppCompatActivity() {
         }
 
         setContent {
-            val state by viewModel.state.collectAsState()
+            val state by viewModel.state.collectAsStateWithLifecycle()
 
             OdeonTheme {
-                var requiresDeleteConsent by remember { mutableStateOf(false) }
+                var requiresDeleteConsent by rememberSaveable { mutableStateOf(false) }
                 CleanupScreen(
                     tracks = state.tracks,
                     selectedCount = state.selectedCount,
@@ -98,8 +98,11 @@ class CleanupActivity : AppCompatActivity() {
                 if (requiresDeleteConsent) {
                     ConfirmDeleteDialog(
                         deletedTrackCount = state.selectedCount,
-                        accept = { viewModel.deleteSelected() },
-                        cancel = { requiresDeleteConsent = false }
+                        cancel = { requiresDeleteConsent = false },
+                        accept = {
+                            viewModel.deleteSelected()
+                            requiresDeleteConsent = false
+                        },
                     )
                 }
             }
