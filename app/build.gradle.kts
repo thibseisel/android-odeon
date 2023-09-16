@@ -122,9 +122,9 @@ dependencies {
     implementation(projects.media)
     implementation(projects.service)
 
-    implementation(projects.uiCleanup)
-    implementation(projects.uiSettings)
-    implementation(projects.uiLibrary)
+    implementation(projects.ui.cleanup)
+    implementation(projects.ui.settings)
+    implementation(projects.ui.library)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
