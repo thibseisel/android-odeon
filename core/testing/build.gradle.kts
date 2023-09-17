@@ -16,26 +16,13 @@
 
 plugins {
     id("odeon.android.library")
-    id("odeon.android.hilt")
 }
 
 android {
-    namespace = "fr.nihilus.music.ui.settings"
-    buildFeatures {
-        viewBinding = true
-    }
+    namespace = "fr.nihilus.music.core.test"
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.media)
-    implementation(projects.coreUi)
-
-    implementation(libs.bundles.core)
-    implementation(libs.bundles.android.ui)
-    implementation(libs.bundles.androidx.lifecycle)
-    implementation(libs.androidx.preference)
-
-    testImplementation(projects.coreTest)
-    testImplementation(libs.bundles.testing.unit)
+    implementation(projects.core.common)
+    implementation(libs.bundles.testing.unit)
 }

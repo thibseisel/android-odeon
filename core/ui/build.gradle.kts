@@ -17,24 +17,29 @@
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "fr.nihilus.music.core"
-    defaultConfig {
-        testInstrumentationRunner = "fr.nihilus.music.core.instrumentation.runner.HiltJUnitRunner"
-    }
+    namespace = "fr.nihilus.music.core.ui"
+    buildFeatures.buildConfig = true
 }
 
 dependencies {
+    implementation(projects.core.common)
+    implementation(projects.core.database)
+    implementation(projects.media)
+
     implementation(libs.bundles.core)
-    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.bundles.android.ui)
+    implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.media)
+    implementation(libs.identikon)
 
+    ksp(libs.glide.ksp)
+
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
-    testImplementation(libs.androidx.lifecycle.runtime.testing)
 
-    androidTestImplementation(projects.coreInstrumentation)
     androidTestImplementation(libs.bundles.testing.instrumented)
-    androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.compiler)
 }

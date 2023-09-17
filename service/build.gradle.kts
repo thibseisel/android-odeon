@@ -25,8 +25,8 @@ android {
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreDatabase)
+    implementation(projects.core.common)
+    implementation(projects.core.database)
     implementation(projects.media)
 
     implementation(libs.bundles.core)
@@ -34,7 +34,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.glide)
 
-    testImplementation(projects.coreTest)
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
 
     androidTestImplementation(libs.bundles.testing.instrumented)

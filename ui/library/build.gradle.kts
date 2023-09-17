@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Thibault Seisel
+ * Copyright 2022 Thibault Seisel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
-    id("odeon.android.compose")
+    id("androidx.navigation.safeargs.kotlin")
 }
 
 android {
-    namespace = "fr.nihilus.music.ui.cleanup"
+    namespace = "fr.nihilus.music.ui.library"
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
-    implementation(projects.core)
-    implementation(projects.coreUi)
-    implementation(projects.coreCompose)
+    implementation(projects.core.common)
+    implementation(projects.core.ui)
     implementation(projects.media)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
     implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.viewpager)
+    implementation(libs.androidx.media)
 
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.compose.material3)
-
-    testImplementation(projects.coreTest)
+    testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
 }
