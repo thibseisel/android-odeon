@@ -18,6 +18,7 @@ package fr.nihilus.music.media.browser
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.media.MediaContent
 import fr.nihilus.music.media.albums.AlbumRepository
@@ -180,7 +181,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     ),
                     Track(
@@ -196,7 +197,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null,
                     ),
                     Track(
@@ -212,7 +213,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     ),
                     Track(
@@ -228,7 +229,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null,
                     ),
                     Track(
@@ -244,7 +245,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     )
                 )
@@ -284,7 +285,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     ),
                     Track(
@@ -300,7 +301,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null,
                     ),
                     Track(
@@ -316,7 +317,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     )
                 )
@@ -358,7 +359,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     ),
                     Track(
@@ -374,7 +375,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     ),
                     Track(
@@ -390,7 +391,7 @@ internal class MediaSearchEngineTest {
                         mediaUri = "",
                         albumArtUri = null,
                         availabilityDate = 0,
-                        fileSize = 0,
+                        fileSize = 0.bytes,
                         exclusionTime = null
                     )
                 )

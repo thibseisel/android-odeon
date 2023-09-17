@@ -19,7 +19,7 @@ package fr.nihilus.music.media.usage
 import dagger.Reusable
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
-import fr.nihilus.music.core.files.bytes
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.tracks.TrackRepository
@@ -47,7 +47,7 @@ internal class UsageManagerImpl @Inject constructor(
 
     private val biggerScoreAndSizeFirst = Comparator<DisposableTrackScore> { a, b ->
         when (val scoreDiff = a.score - b.score) {
-            0 -> -1 * (a.track.fileSize - b.track.fileSize).toInt()
+            0 -> -1 * (a.track.fileSize.bytes - b.track.fileSize.bytes).toInt()
             else -> -1 * scoreDiff
         }
     }
@@ -103,7 +103,7 @@ internal class UsageManagerImpl @Inject constructor(
                 DisposableTrack(
                     trackId = track.id,
                     title = track.title,
-                    fileSize = track.fileSize.bytes,
+                    fileSize = track.fileSize,
                     lastPlayedTime = playTime
                 )
             }
@@ -126,7 +126,7 @@ internal class UsageManagerImpl @Inject constructor(
      * @param currentEpochTime The current epoch time.
      */
     private fun computeCleanupScore(
-        fileSize: Long,
+        fileSize: FileSize,
         playCount: Int,
         lastPlayTime: Long,
         currentEpochTime: Long
@@ -155,7 +155,7 @@ internal class UsageManagerImpl @Inject constructor(
      *
      * @param fileSize The size of the track file in bytes.
      */
-    private fun sizeScore(fileSize: Long): Int = (fileSize / SIZE_FACTOR).toInt()
+    private fun sizeScore(fileSize: FileSize): Int = (fileSize.bytes / SIZE_FACTOR).toInt()
 
     /**
      * Compute the portion of the score that depends on the last time the track has been played.

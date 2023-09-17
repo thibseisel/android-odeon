@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.tracks.local
 
+import fr.nihilus.music.core.files.bytes
+
 internal object LocalTracks {
     internal val Cartagena = LocalTrack(
         id = 161,
@@ -29,7 +31,7 @@ internal object LocalTracks {
         trackNumber = 4,
         mediaUri = "Music/1741_(The_Battle_of_Cartagena).mp3",
         availabilityDate = 1466283480,
-        fileSize = 17_506_481,
+        fileSize = 17_506_481.bytes,
         albumArtUri = null,
     )
 
@@ -45,7 +47,7 @@ internal object LocalTracks {
         trackNumber = 13,
         mediaUri = "Music/The_2nd_Law_(Isolated_System).mp3",
         availabilityDate = 1439653800,
-        fileSize = 12_075_967,
+        fileSize = 12_075_967.bytes,
         albumArtUri = null,
     )
 
@@ -61,7 +63,7 @@ internal object LocalTracks {
         trackNumber = 1,
         mediaUri = "Music/Simulation Theory/Algorithm.mp3",
         availabilityDate = 1576838717,
-        fileSize = 10_806_478,
+        fileSize = 10_806_478.bytes,
         albumArtUri = null,
     )
 
@@ -77,7 +79,7 @@ internal object LocalTracks {
         trackNumber = 6,
         mediaUri = "Music/Concrete And Gold/Dirty_Water.mp3",
         availabilityDate = 1506374520,
-        fileSize = 12_912_282,
+        fileSize = 12_912_282.bytes,
         albumArtUri = null,
     )
 
@@ -93,7 +95,7 @@ internal object LocalTracks {
         trackNumber = 1,
         mediaUri = "Music/The_Pretenders.mp3",
         availabilityDate = 1439653740,
-        fileSize = 4_296_041,
+        fileSize = 4_296_041.bytes,
         albumArtUri = null,
     )
 
@@ -109,7 +111,7 @@ internal object LocalTracks {
         trackNumber = 2,
         mediaUri = "Music/Concrete And Gold/Run.mp3",
         availabilityDate = 1506374520,
-        fileSize = 13_012_576,
+        fileSize = 13_012_576.bytes,
         albumArtUri = null,
     )
 }
