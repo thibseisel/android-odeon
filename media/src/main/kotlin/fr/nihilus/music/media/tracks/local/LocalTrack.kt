@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.tracks.local
 
+import fr.nihilus.music.core.files.FileSize
+
 /**
  * The metadata of a track that is saved on the device's storage.
  */
@@ -70,7 +72,7 @@ internal data class LocalTrack(
      */
     val albumId: Long,
     /**
-     * The size of the file stored on the device's storage, in bytes.
+     * The size of the file stored on the device's storage.
      */
-    val fileSize: Long,
+    val fileSize: FileSize,
 )

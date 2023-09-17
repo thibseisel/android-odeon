@@ -16,6 +16,8 @@
 
 package fr.nihilus.music.media.tracks
 
+import fr.nihilus.music.core.files.FileSize
+
 /**
  * Playable media content.
  * Tracks may be stored on the device's storage or a remote server.
@@ -79,9 +81,9 @@ data class Track(
      */
     val availabilityDate: Long,
     /**
-     * Size of the audio file in bytes.
+     * Size of the audio file.
      */
-    val fileSize: Long,
+    val fileSize: FileSize,
     /**
      * Time at which this track has been excluded from the music library.
      * This is `null` if this track has not been excluded.

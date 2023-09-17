@@ -19,6 +19,8 @@ package fr.nihilus.music.media.usage
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.TrackUsage
 import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.files.FileSize
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.test.coroutines.flow.infiniteFlowOf
 import fr.nihilus.music.core.test.os.TestClock
 import fr.nihilus.music.media.tracks.Track
@@ -53,7 +55,7 @@ private val DIRTY_WATER = Track(
     mediaUri = "",
     albumArtUri = null,
     availabilityDate = 1506374520,
-    fileSize = 12_912_282,
+    fileSize = 12_912_282.bytes,
     exclusionTime = null,
 )
 private val GIVE_IT_UP = Track(
@@ -69,7 +71,7 @@ private val GIVE_IT_UP = Track(
     mediaUri = "",
     albumArtUri = null,
     availabilityDate = 1455310080,
-    fileSize = 5_716_578,
+    fileSize = 5_716_578.bytes,
     exclusionTime = null,
 )
 private val CYDONIA = Track(
@@ -85,7 +87,7 @@ private val CYDONIA = Track(
     mediaUri = "",
     albumArtUri = null,
     availabilityDate = 1414880700,
-    fileSize = 11_746_572,
+    fileSize = 11_746_572.bytes,
     exclusionTime = null,
 )
 private val NIGHTMARE = Track(
@@ -101,7 +103,7 @@ private val NIGHTMARE = Track(
     mediaUri = "",
     albumArtUri = null,
     availabilityDate = 1439590380,
-    fileSize = 10_828_662,
+    fileSize = 10_828_662.bytes,
     exclusionTime = null,
 )
 
@@ -246,11 +248,11 @@ class UsageManagerTest {
         runTest {
             every { mockRepository.tracks } returns infiniteFlowOf(
                 listOf(
-                    sampleTrack(1, "Knights Of Cydonia", fileSize = 11_746_572),
-                    sampleTrack(2, "Murderer", fileSize = 12_211_377),
-                    sampleTrack(3, "Nothing Else Matters", fileSize = 15_629_765),
-                    sampleTrack(4, "The Stage", fileSize = 20_655_114),
-                    sampleTrack(5, "Torn Apart", fileSize = 15_654_501)
+                    sampleTrack(1, "Knights Of Cydonia", fileSize = 11_746_572.bytes),
+                    sampleTrack(2, "Murderer", fileSize = 12_211_377.bytes),
+                    sampleTrack(3, "Nothing Else Matters", fileSize = 15_629_765.bytes),
+                    sampleTrack(4, "The Stage", fileSize = 20_655_114.bytes),
+                    sampleTrack(5, "Torn Apart", fileSize = 15_654_501.bytes)
                 )
             )
             coEvery { mockUsage.getTracksUsage(0L) } returns emptyList()
@@ -297,10 +299,10 @@ class UsageManagerTest {
     fun `When loading disposable, then list largest files first`() = runTest {
         every { mockRepository.tracks } returns infiniteFlowOf(
             listOf(
-                sampleTrack(1, "American Idiot", fileSize = 5_643_502),
-                sampleTrack(2, "Crazy Train", fileSize = 6_549_949),
-                sampleTrack(3, "Master of Puppets", fileSize = 20_999_159),
-                sampleTrack(4, "Welcome to the Jungle", fileSize = 4_420_827)
+                sampleTrack(1, "American Idiot", fileSize = 5_643_502.bytes),
+                sampleTrack(2, "Crazy Train", fileSize = 6_549_949.bytes),
+                sampleTrack(3, "Master of Puppets", fileSize = 20_999_159.bytes),
+                sampleTrack(4, "Welcome to the Jungle", fileSize = 4_420_827.bytes)
             )
         )
         coEvery { mockUsage.getTracksUsage(0L) } returns emptyList()
@@ -331,6 +333,6 @@ class UsageManagerTest {
         id: Long,
         title: String = "",
         availabilityDate: Long = TIME_NOW,
-        fileSize: Long = 0L
+        fileSize: FileSize = 0.bytes
     ) = Track(id, title, 0, "", 0, "", 0, 0, 0, "", null, availabilityDate, fileSize, null)
 }

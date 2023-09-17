@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.media.browser
 
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.media.albums.Album
 import fr.nihilus.music.media.artists.Artist
 import fr.nihilus.music.media.tracks.Track
@@ -34,7 +35,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1466283480,
-        17_506_481,
+        17_506_481.bytes,
         null
     ),
     Track(
@@ -50,7 +51,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1439653800,
-        12_075_967,
+        12_075_967.bytes,
         null
     ),
     Track(
@@ -66,7 +67,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1506374520,
-        12_912_282,
+        12_912_282.bytes,
         null
     ),
     Track(
@@ -82,7 +83,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1455310080,
-        5_716_578,
+        5_716_578.bytes,
         null
     ),
     Track(
@@ -98,7 +99,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1455310140,
-        6_750_404,
+        6_750_404.bytes,
         null
     ),
     Track(
@@ -114,7 +115,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1414880700,
-        11_746_572,
+        11_746_572.bytes,
         null
     ),
     Track(
@@ -130,7 +131,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1360677660,
-        11_149_678,
+        11_149_678.bytes,
         null
     ),
     Track(
@@ -146,7 +147,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1439590380,
-        10_828_662,
+        10_828_662.bytes,
         null
     ),
     Track(
@@ -162,7 +163,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1439653740,
-        4_296_041,
+        4_296_041.bytes,
         null
     ),
     Track(
@@ -178,7 +179,7 @@ internal val SAMPLE_TRACKS = listOf(
         "",
         null,
         1506374520,
-        13_012_576,
+        13_012_576.bytes,
         null
     )
 )

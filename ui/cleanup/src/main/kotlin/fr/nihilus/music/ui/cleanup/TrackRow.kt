@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.nihilus.music.core.compose.theme.OdeonTheme
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.media.MediaId
 
 @Composable
@@ -106,8 +107,8 @@ internal fun TrackRow(track: CleanupState.Track, toggle: () -> Unit) {
             )
         }
 
-        val formattedFileSize = remember(track.fileSizeBytes) {
-            formatToHumanReadableByteCount(track.fileSizeBytes)
+        val formattedFileSize = remember(track.fileSize) {
+            track.fileSize.toString()
         }
         Text(
             text = formattedFileSize,
@@ -143,7 +144,7 @@ private fun RowPreview() {
                     42
                 ),
                 title = "All These Things I Hate (Revolve Around Me)",
-                fileSizeBytes = 9461760L,
+                fileSize = FileSize(9461760L),
                 lastPlayedTime = 1694521200L,
                 selected = selected
             ),

@@ -16,19 +16,20 @@
 
 package fr.nihilus.music.ui.cleanup
 
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 
 internal data class CleanupState(
     val tracks: List<Track>,
     val selectedCount: Int,
-    val selectedFreedBytes: Long,
+    val freedStorage: FileSize,
     val result: DeleteTracksResult?,
 ) {
     data class Track(
         val id: MediaId,
         val title: String,
-        val fileSizeBytes: Long,
+        val fileSize: FileSize,
         val lastPlayedTime: Long?,
         val selected: Boolean,
     )

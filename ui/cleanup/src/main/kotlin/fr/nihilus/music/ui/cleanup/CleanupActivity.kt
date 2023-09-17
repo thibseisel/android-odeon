@@ -91,7 +91,7 @@ class CleanupActivity : AppCompatActivity() {
                 CleanupScreen(
                     tracks = state.tracks,
                     selectedCount = state.selectedCount,
-                    selectedFreedBytes = state.selectedFreedBytes,
+                    freedStorage = state.freedStorage,
                     toggleTrack = { track -> viewModel.toggleSelection(track.id) },
                     clearSelection = { viewModel.clearSelection() },
                     deleteSelection = { requiresDeleteConsent = true },

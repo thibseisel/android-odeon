@@ -26,6 +26,7 @@ import android.provider.MediaStore.Audio.Media
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.core.permissions.RuntimePermission
@@ -124,7 +125,7 @@ internal class TrackLocalSourceTest {
             it.trackNumber shouldBe 4
             it.duration shouldBe 437603L
             it.availabilityDate shouldBe 1466283480L
-            it.fileSize shouldBe 17_506_481L
+            it.fileSize shouldBe 17_506_481.bytes
             it.mediaUri shouldBe "${Media.EXTERNAL_CONTENT_URI}/161"
             withClue("Track artwork uri should be that of its album") {
                 it.albumArtUri shouldBe "content://media/external/audio/albumart/65"
@@ -142,7 +143,7 @@ internal class TrackLocalSourceTest {
             it.trackNumber shouldBe 14
             it.duration shouldBe 276668L
             it.availabilityDate shouldBe 1455310140L
-            it.fileSize shouldBe 6_750_404L
+            it.fileSize shouldBe 6_750_404.bytes
             it.mediaUri shouldBe "${Media.EXTERNAL_CONTENT_URI}/125"
             withClue("Track artwork uri should be that of its album") {
                 it.albumArtUri shouldBe "content://media/external/audio/albumart/7"

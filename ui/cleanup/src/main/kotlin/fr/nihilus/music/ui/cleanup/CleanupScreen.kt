@@ -44,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.nihilus.music.core.compose.theme.OdeonTheme
+import fr.nihilus.music.core.files.FileSize
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.ui.R as CoreUiR
 
@@ -52,7 +54,7 @@ import fr.nihilus.music.core.ui.R as CoreUiR
 internal fun CleanupScreen(
     tracks: List<CleanupState.Track>,
     selectedCount: Int,
-    selectedFreedBytes: Long,
+    freedStorage: FileSize,
     toggleTrack: (track: CleanupState.Track) -> Unit,
     clearSelection: () -> Unit,
     deleteSelection: () -> Unit,
@@ -65,7 +67,7 @@ internal fun CleanupScreen(
             if (selectedCount > 0) {
                 ActionModeBar(
                     selectedCount = selectedCount,
-                    freedBytes = selectedFreedBytes,
+                    freedStorage = freedStorage,
                     scrollBehavior = scrollBehavior,
                     clearSelection = clearSelection,
                 )
@@ -109,7 +111,7 @@ internal fun CleanupScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ActionModeBar(
     selectedCount: Int,
-    freedBytes: Long,
+    freedStorage: FileSize,
     scrollBehavior: TopAppBarScrollBehavior,
     clearSelection: () -> Unit,
     modifier: Modifier = Modifier,
@@ -128,8 +130,8 @@ private fun ActionModeBar(
                     ),
                 )
 
-                val formattedFreedBytes = remember(freedBytes) {
-                    formatToHumanReadableByteCount(freedBytes)
+                val formattedFreedBytes = remember(freedStorage) {
+                    freedStorage.toString()
                 }
                 Text(
                     style = MaterialTheme.typography.bodySmall,
@@ -160,27 +162,27 @@ private fun ScreenPreview() {
                 CleanupState.Track(
                     id = MediaId(MediaId.TYPE_TRACKS, category = MediaId.CATEGORY_ALL, track = 12),
                     title = "1741 (The Battle of Cartagena)",
-                    fileSizeBytes = 16_340_000,
+                    fileSize = 16_340_000L.bytes,
                     lastPlayedTime = null,
                     selected = false
                 ),
                 CleanupState.Track(
                     id = MediaId(MediaId.TYPE_TRACKS, category = MediaId.CATEGORY_ALL, track = 63),
                     title = "The 2nd Law: Isolated System",
-                    fileSizeBytes = 12_763_000,
+                    fileSize = 12_763_000L.bytes,
                     lastPlayedTime = null,
                     selected = true,
                 ),
                 CleanupState.Track(
                     id = MediaId(MediaId.TYPE_TRACKS, category = MediaId.CATEGORY_ALL, track = 871),
                     title = "Knights of Cydonia",
-                    fileSizeBytes = 9_874_000,
+                    fileSize = 9_874_000L.bytes,
                     lastPlayedTime = null,
                     selected = false,
                 )
             ),
             selectedCount = 1,
-            selectedFreedBytes = 12_763_000,
+            freedStorage = 12_763_000L.bytes,
             toggleTrack = {},
             clearSelection = {},
             deleteSelection = {},

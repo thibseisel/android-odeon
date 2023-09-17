@@ -24,6 +24,7 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Audio.Media
 import androidx.annotation.RequiresApi
 import fr.nihilus.music.core.context.AppDispatchers
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.os.FileSystem
 import fr.nihilus.music.core.permissions.PermissionRepository
 import fr.nihilus.music.media.provider.MediaStoreInternals
@@ -111,7 +112,7 @@ internal class TrackLocalSource @Inject constructor(
                         availabilityDate = cursor.getLong(colDateAdded),
                         artistId = cursor.getLong(colArtistId),
                         albumId = albumId,
-                        fileSize = cursor.getLong(colFileSize)
+                        fileSize = cursor.getLong(colFileSize).bytes
                     )
                 }
             }
