@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.cleanup
+package fr.nihilus.music.core.files
 
 import io.kotest.assertions.throwables.shouldThrowWithMessage
 import io.kotest.matchers.shouldBe
@@ -22,7 +22,7 @@ import java.util.Locale
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class FileSizeTest {
+class FileSizeTest {
     @BeforeTest
     fun setupLocale() {
         Locale.setDefault(Locale.ROOT)

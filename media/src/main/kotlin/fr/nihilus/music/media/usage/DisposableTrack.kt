@@ -16,18 +16,20 @@
 
 package fr.nihilus.music.media.usage
 
+import fr.nihilus.music.core.files.FileSize
+
 /**
  * Information on a track that could be deleted from the device's storage to free-up space.
  *
  * @property trackId Unique identifier of the related track.
  * @property title The display title of the related track.
- * @property fileSizeBytes The size of the file stored on the device's storage in bytes.
+ * @property fileSize The size of the file stored on the device's storage.
  * @property lastPlayedTime The epoch time at which that track has been played for the last time,
  * or `null` if it has never been played.
  */
 data class DisposableTrack(
     val trackId: Long,
     val title: String,
-    val fileSizeBytes: Long,
+    val fileSize: FileSize,
     val lastPlayedTime: Long?
 )

@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.ui.cleanup
 
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.media.tracks.DeleteTracksResult
 

@@ -19,6 +19,7 @@ package fr.nihilus.music.ui.cleanup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.media.MediaId
 import fr.nihilus.music.core.media.MediaId.Builder.CATEGORY_ALL
 import fr.nihilus.music.core.media.MediaId.Builder.TYPE_TRACKS
@@ -51,7 +52,7 @@ internal class CleanupViewModel @Inject constructor(
                     CleanupState.Track(
                         id = MediaId(TYPE_TRACKS, CATEGORY_ALL, it.trackId),
                         title = it.title,
-                        fileSize = it.fileSizeBytes.bytes,
+                        fileSize = it.fileSize,
                         lastPlayedTime = it.lastPlayedTime,
                         selected = false
                     )

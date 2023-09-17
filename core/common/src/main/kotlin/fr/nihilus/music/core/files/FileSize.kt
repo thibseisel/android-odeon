@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.nihilus.music.ui.cleanup
+package fr.nihilus.music.core.files
 
 import java.math.RoundingMode
 import java.text.DecimalFormat

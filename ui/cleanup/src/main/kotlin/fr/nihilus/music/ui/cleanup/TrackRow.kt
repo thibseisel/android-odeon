@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import fr.nihilus.music.core.compose.theme.OdeonTheme
+import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.media.MediaId
 
 @Composable

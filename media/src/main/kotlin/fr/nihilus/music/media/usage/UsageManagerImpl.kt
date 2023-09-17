@@ -19,6 +19,7 @@ package fr.nihilus.music.media.usage
 import dagger.Reusable
 import fr.nihilus.music.core.database.usage.MediaUsageEvent
 import fr.nihilus.music.core.database.usage.UsageDao
+import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.os.Clock
 import fr.nihilus.music.media.tracks.Track
 import fr.nihilus.music.media.tracks.TrackRepository
@@ -102,7 +103,7 @@ internal class UsageManagerImpl @Inject constructor(
                 DisposableTrack(
                     trackId = track.id,
                     title = track.title,
-                    fileSizeBytes = track.fileSize,
+                    fileSize = track.fileSize.bytes,
                     lastPlayedTime = playTime
                 )
             }
