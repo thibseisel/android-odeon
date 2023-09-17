@@ -51,7 +51,7 @@ internal class CleanupViewModel @Inject constructor(
                     CleanupState.Track(
                         id = MediaId(TYPE_TRACKS, CATEGORY_ALL, it.trackId),
                         title = it.title,
-                        fileSizeBytes = it.fileSizeBytes,
+                        fileSize = it.fileSizeBytes.bytes,
                         lastPlayedTime = it.lastPlayedTime,
                         selected = false
                     )
@@ -71,7 +71,7 @@ internal class CleanupViewModel @Inject constructor(
         CleanupState(
             tracks = candidates,
             selectedCount = selectedTracks.size,
-            selectedFreedBytes = selectedTracks.sumOf { it.fileSizeBytes },
+            freedStorage = FileSize(selectedTracks.sumOf { it.fileSize.bytes }),
             result = event
         )
     }
@@ -80,7 +80,7 @@ internal class CleanupViewModel @Inject constructor(
             initialState = CleanupState(
                 tracks = emptyList(),
                 selectedCount = 0,
-                selectedFreedBytes = 0,
+                freedStorage = FileSize(0),
                 result = null
             )
         )
