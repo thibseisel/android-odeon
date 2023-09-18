@@ -23,15 +23,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,31 +36,13 @@ import fr.nihilus.music.core.compose.theme.OdeonTheme
 import fr.nihilus.music.ui.settings.R
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 internal fun ExcludedTracksScreen(
     tracks: List<ExcludedTrackUiState>,
-    navigateBack: () -> Unit,
     restoreTrack: (ExcludedTrackUiState) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.track_exclusion_title)) },
-                navigationIcon = {
-                    IconButton(onClick = navigateBack) {
-                        Icon(
-                            imageVector = Icons.Rounded.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        }
-    ) { contentPadding ->
-        Column(modifier = Modifier.padding(contentPadding)) {
-            FeatureNotice()
-            TrackList(tracks, dismissTrack = { restoreTrack(it) })
-        }
+    Column {
+        FeatureNotice()
+        TrackList(tracks, dismissTrack = { restoreTrack(it) })
     }
 }
 
@@ -80,7 +57,7 @@ private fun FeatureNotice() {
         Text(
             text = stringResource(R.string.track_exclusion_feature_description),
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(vertical = 16.dp)
         )
     }
 }
@@ -122,7 +99,6 @@ private fun Preview() {
                     excludeDate = 1669203000L
                 )
             ),
-            navigateBack = {},
             restoreTrack = {},
         )
     }

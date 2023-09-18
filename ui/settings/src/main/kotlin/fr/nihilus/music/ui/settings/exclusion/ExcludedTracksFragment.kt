@@ -48,7 +48,6 @@ internal class ExcludedTracksFragment : Fragment() {
                 val tracks by viewModel.tracks.collectAsStateWithLifecycle()
                 ExcludedTracksScreen(
                     tracks = tracks,
-                    navigateBack = { parentFragmentManager.popBackStack() },
                     restoreTrack = { viewModel.restore(it) }
                 )
             }
