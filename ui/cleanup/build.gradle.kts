@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.core)
 
     testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)

@@ -23,6 +23,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -38,7 +41,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +49,6 @@ import fr.nihilus.music.core.compose.theme.OdeonTheme
 import fr.nihilus.music.core.files.FileSize
 import fr.nihilus.music.core.files.bytes
 import fr.nihilus.music.core.media.MediaId
-import fr.nihilus.music.core.ui.R as CoreUiR
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,7 +87,7 @@ internal fun CleanupScreen(
             ) {
                 FloatingActionButton(onClick = deleteSelection) {
                     Icon(
-                        painterResource(CoreUiR.drawable.ui_ic_delete_24dp),
+                        imageVector = Icons.Rounded.Delete,
                         contentDescription = stringResource(R.string.desc_delete_selected_tracks)
                     )
                 }
@@ -143,7 +144,7 @@ private fun ActionModeBar(
         navigationIcon = {
             IconButton(onClick = clearSelection) {
                 Icon(
-                    painterResource(CoreUiR.drawable.ui_ic_clear_24dp),
+                    imageVector = Icons.Rounded.Clear,
                     contentDescription = stringResource(
                         R.string.desc_delete_selected_tracks
                     )
