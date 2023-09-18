@@ -17,6 +17,7 @@
 plugins {
     id("odeon.android.library")
     id("odeon.android.hilt")
+    id("odeon.android.compose")
 }
 
 android {
@@ -30,11 +31,18 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.media)
     implementation(projects.core.ui)
+    implementation(projects.core.compose)
 
     implementation(libs.bundles.core)
     implementation(libs.bundles.android.ui)
     implementation(libs.bundles.androidx.lifecycle)
     implementation(libs.androidx.preference)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.core)
 
     testImplementation(projects.core.testing)
     testImplementation(libs.bundles.testing.unit)
