@@ -18,6 +18,7 @@ package fr.nihilus.music
 
 import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -45,6 +46,13 @@ class HomeActivity : BaseActivity() {
 
     private val sheetCollapsingCallback = BottomSheetCollapsingCallback()
 
+    private val mediaPermissionName
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
     private val requestReadPermission = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { permissionGranted ->
@@ -60,7 +68,7 @@ class HomeActivity : BaseActivity() {
         if (!permissionGranted &&
             ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                mediaPermissionName
             )
         ) {
             ConfirmDialogFragment.open(
@@ -91,7 +99,7 @@ class HomeActivity : BaseActivity() {
         setContentView(binding.root)
 
         setupPlayerView()
-        requestReadPermission.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        requestReadPermission.launch(mediaPermissionName)
     }
 
     override fun onResume() {

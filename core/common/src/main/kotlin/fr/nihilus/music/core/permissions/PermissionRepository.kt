@@ -19,6 +19,7 @@ package fr.nihilus.music.core.permissions
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -74,9 +75,17 @@ class PermissionRepository @Inject constructor(
     }
 
     private fun readPermissions() = RuntimePermission(
-        canReadAudioFiles = isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE),
+        canReadAudioFiles = hasReadMediaPermission(),
         canWriteAudioFiles = isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE),
     )
+
+    private fun hasReadMediaPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            isPermissionGranted(Manifest.permission.READ_MEDIA_AUDIO)
+        } else {
+            isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+    }
 
     private fun isPermissionGranted(permissionName: String): Boolean =
         ContextCompat.checkSelfPermission(
