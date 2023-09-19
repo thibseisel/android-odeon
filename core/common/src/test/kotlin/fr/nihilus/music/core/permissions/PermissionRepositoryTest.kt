@@ -34,6 +34,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -53,6 +54,7 @@ internal class PermissionRepositoryTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         MockKAnnotations.init(this, relaxUnitFun = true)
+        setFakePermission(Manifest.permission.READ_MEDIA_AUDIO, granted = false)
         setFakePermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted = false)
         setFakePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, granted = false)
 
@@ -76,6 +78,7 @@ internal class PermissionRepositoryTest {
 
     @Test
     fun `permissions - automatically updates when app goes foreground`() = runTest {
+        setFakePermission(Manifest.permission.READ_MEDIA_AUDIO, granted = true)
         setFakePermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted = true)
 
         repository.permissions.drop(1).test {
@@ -90,6 +93,7 @@ internal class PermissionRepositoryTest {
     @Test
     fun `permissions - updates value when refreshed manually`() = runTest {
         repository.permissions.drop(1).test {
+            setFakePermission(Manifest.permission.READ_MEDIA_AUDIO, granted = true)
             setFakePermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted = true)
             repository.refreshPermissions()
             awaitItem() shouldBe RuntimePermission(
@@ -105,6 +109,32 @@ internal class PermissionRepositoryTest {
             )
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    @Config(sdk = [29, 31])
+    fun `permissions - can read media given READ_EXTERNAL_STORAGE`() = runTest {
+        setFakePermission(Manifest.permission.READ_EXTERNAL_STORAGE, granted = true)
+
+        repository.permissions.drop(1).test {
+            repository.refreshPermissions()
+            val permissions = awaitItem()
+
+            permissions.canReadAudioFiles shouldBe true
+        }
+    }
+
+    @Test
+    @Config(sdk = [33])
+    fun `permissions - can read media given READ_MEDIA_AUDIO on API 33+`() = runTest {
+        setFakePermission(Manifest.permission.READ_MEDIA_AUDIO, granted = true)
+
+        repository.permissions.drop(1).test {
+            repository.refreshPermissions()
+            val permissions = awaitItem()
+
+            permissions.canReadAudioFiles shouldBe true
         }
     }
 
