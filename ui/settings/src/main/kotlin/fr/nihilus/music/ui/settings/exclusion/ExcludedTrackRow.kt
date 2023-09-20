@@ -71,6 +71,7 @@ private fun TrackRow(track: ExcludedTrackUiState, modifier: Modifier = Modifier)
             Text(
                 text = track.title,
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )

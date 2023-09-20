@@ -16,6 +16,7 @@
 
 package fr.nihilus.music.ui.settings.exclusion
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -25,9 +26,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,17 +51,19 @@ internal fun ExcludedTracksScreen(
 
 @Composable
 private fun FeatureNotice() {
-    Row {
-        Icon(
-            imageVector = Icons.Outlined.Info,
-            contentDescription = null,
-            modifier = Modifier.padding(16.dp)
-        )
-        Text(
-            text = stringResource(R.string.track_exclusion_feature_description),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(vertical = 16.dp)
-        )
+    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+        Row {
+            Icon(
+                imageVector = Icons.Outlined.Info,
+                contentDescription = null,
+                modifier = Modifier.padding(16.dp),
+            )
+            Text(
+                text = stringResource(R.string.track_exclusion_feature_description),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+        }
     }
 }
 
@@ -82,6 +87,7 @@ private fun TrackList(
 
 @Composable
 @Preview
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun Preview() {
     OdeonTheme {
         ExcludedTracksScreen(
